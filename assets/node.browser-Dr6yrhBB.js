@@ -1,0 +1,1 @@
+import{i as e}from"./index-DE2VdZCb.js";function t(t){return new Proxy({},{get(n,r){if(typeof r!=`symbol`)throw new e(`\`${t}.${r}\` is not available in this environment; it needs a Node.js-compatible runtime`)}})}var n=t(`fs`),r=t(`path`);export{n as fs,r as path};
