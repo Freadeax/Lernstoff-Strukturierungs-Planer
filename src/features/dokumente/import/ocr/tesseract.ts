@@ -4,9 +4,12 @@ import Tesseract from 'tesseract.js';
 import type { Block } from '../types';
 import { ILLEGIBLE, WORD_CONFIDENCE_DROP, WORD_CONFIDENCE_MIN, type OcrEngine, type OcrPage } from './engine';
 
-export async function createTesseractEngine(opts: { langPath?: string; langs?: string; cache?: boolean } = {}): Promise<OcrEngine & { terminate(): Promise<void> }> {
+export async function createTesseractEngine(opts: { langPath?: string; workerPath?: string; corePath?: string; langs?: string; cache?: boolean } = {}): Promise<OcrEngine & { terminate(): Promise<void> }> {
   const worker = await Tesseract.createWorker(opts.langs ?? 'deu', Tesseract.OEM.LSTM_ONLY, {
     langPath: opts.langPath,
+    // Nur gesetzte Pfade übergeben: ein explizites undefined überschreibt die Standardpfade von tesseract.js.
+    ...(opts.workerPath ? { workerPath: opts.workerPath } : {}),
+    ...(opts.corePath ? { corePath: opts.corePath } : {}),
     gzip: true,
     // Im Browser landet das Sprachmodell in IndexedDB; in Node würde es ins Arbeitsverzeichnis geschrieben.
     cacheMethod: opts.cache === false ? 'none' : undefined,

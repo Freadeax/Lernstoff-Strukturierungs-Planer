@@ -30,6 +30,16 @@ Dann im Browser `http://localhost:5173` öffnen.
 
 Für dauerhafte Offline-Nutzung ohne laufenden Rechner muss die App über HTTPS erreichbar sein (z. B. GitHub Pages oder Netlify). Siehe `docs/ARCHITEKTUR.md`.
 
+## Erste Schritte in der App
+
+1. **Einstellungen:** Claude-API-Schlüssel eintragen (von [console.anthropic.com](https://console.anthropic.com) → API Keys). Er bleibt nur auf dem Gerät.
+2. **Dokumente:** Fach wählen, Dateien hochladen (PDF, Word, PowerPoint, Foto). Scans und Fotos werden auf dem Gerät per Texterkennung gelesen, Handschrift auf Wunsch über Claude.
+3. **Zusammenfassen:** Dokumente auswählen, Länge wählen. Jede Aussage wird gegen den Originaltext geprüft: rot = ohne Beleg, gelb = weicht ab. Antippen zeigt die Originalstelle mit Seite.
+
+## Neue Version veröffentlichen (ohne GitHub Actions)
+
+Die App liegt fertig gebaut auf dem Branch `gh-pages`, GitHub Pages zeigt sie unter https://freadeax.github.io/Lernstoff-Strukturierungs-Planer/. Nach Änderungen auf `main`: `npm run build`, dann den Inhalt von `dist/` (plus eine leere `.nojekyll`) auf `gh-pages` pushen.
+
 ## Befehle
 
 | Befehl | Zweck |
