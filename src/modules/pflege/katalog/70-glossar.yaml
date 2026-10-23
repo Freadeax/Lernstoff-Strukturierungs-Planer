@@ -1,0 +1,67 @@
+# Glossar (GlossaryEntry: term, abbreviation?, definition, citation?).
+# Katalogdefinitionen sind ergänzendes Wissen ohne citation. Sobald ein
+# importiertes Lehrbuch den Begriff definiert, hat dessen Definition Vorrang.
+# Erweiterung: id, topicIds, synonyms (Begriffe, die die Qualitätskontrolle
+# NICHT stillschweigend gegen den Fachbegriff austauschen darf).
+
+glossary:
+  # --- Pflegeprozess und Dokumentation ---
+  - { id: gl.pflegeprozess, term: "Pflegeprozess", topicIds: [thema.pp.prozess], definition: "Systematische, zielgerichtete Methode der Pflege in aufeinander aufbauenden Schritten von der Informationssammlung bis zur Evaluation; in Deutschland vorbehaltene Tätigkeit von Pflegefachpersonen." }
+  - { id: gl.pflegediagnose, term: "Pflegediagnose", topicIds: [thema.pp.diagnosen], definition: "Klinische Beurteilung der Reaktion eines Menschen auf Gesundheitsprobleme oder Lebensprozesse, die Grundlage für Pflegeziele und Maßnahmen ist." }
+  - { id: gl.pesr, term: "PESR-Format", abbreviation: "PESR", topicIds: [thema.pp.diagnosen], definition: "Formulierungsschema für Pflegediagnosen aus Problem, Einflussfaktoren (Ätiologie), Symptomen und Ressourcen.", synonyms: [PÄS, PÄSR] }
+  - { id: gl.smart, term: "SMART-Regel", abbreviation: "SMART", topicIds: [thema.pp.ziele], definition: "Kriterien für Pflegeziele: spezifisch, messbar, akzeptiert bzw. attraktiv, realistisch, terminiert." }
+  - { id: gl.ressource, term: "Ressource", topicIds: [thema.pp.diagnosen], definition: "Fähigkeit, Stärke oder Unterstützung (körperlich, geistig, seelisch, sozial, materiell), die ein Mensch zur Bewältigung seiner Situation einbringen kann." }
+  - { id: gl.sis, term: "Strukturierte Informationssammlung", abbreviation: "SIS", topicIds: [thema.pp.sis], definition: "Einstiegselement des Strukturmodells: Eigeneinschätzung der pflegebedürftigen Person, sechs Themenfelder und Matrix zur Risikoeinschätzung." }
+  - { id: gl.strukturmodell, term: "Strukturmodell", topicIds: [thema.pp.sis], definition: "Konzept zur Entbürokratisierung der Pflegedokumentation mit vier Elementen: SIS, Maßnahmenplanung, Berichteblatt und Evaluation." }
+  - { id: gl.evaluation, term: "Evaluation", topicIds: [thema.pp.evaluation], definition: "Überprüfung, ob und in welchem Maß Pflegeziele erreicht wurden, mit Anpassung der Pflegeplanung." }
+  - { id: gl.sbar, term: "SBAR", abbreviation: "SBAR", topicIds: [thema.pp.uebergabe], definition: "Kommunikationsschema für Übergaben: Situation, Background, Assessment, Recommendation." }
+  - { id: gl.atl, term: "Aktivitäten des täglichen Lebens", abbreviation: "ATL", topicIds: [thema.pp.modelle], definition: "Gliederung menschlicher Grundbedürfnisse nach Liliane Juchli in zwölf Lebensaktivitäten als Grundlage der Pflegeanamnese." }
+  - { id: gl.aedl, term: "Aktivitäten, Beziehungen und existenzielle Erfahrungen des Lebens", abbreviation: "ABEDL", topicIds: [thema.pp.modelle], definition: "Strukturmodell nach Monika Krohwinkel im Rahmen der fördernden Prozesspflege; frühere Fassung als 13 AEDL.", synonyms: [AEDL] }
+
+  # --- Recht ---
+  - { id: gl.pflegebeduerftigkeit, term: "Pflegebedürftigkeit", topicIds: [thema.re.sgb11], definition: "Nach § 14 SGB XI gesundheitlich bedingte Beeinträchtigung der Selbstständigkeit oder der Fähigkeiten, die voraussichtlich mindestens sechs Monate besteht und der Hilfe durch andere bedarf." }
+  - { id: gl.pflegegrad, term: "Pflegegrad", abbreviation: "PG", topicIds: [thema.re.pflegegrade], definition: "Einstufung der Pflegebedürftigkeit in fünf Grade nach dem Grad der Beeinträchtigung der Selbstständigkeit, ermittelt mit dem Begutachtungsinstrument (NBA)." }
+  - { id: gl.nba, term: "Neues Begutachtungsassessment", abbreviation: "NBA", topicIds: [thema.re.pflegegrade], definition: "Begutachtungsinstrument nach § 15 SGB XI mit sechs gewichteten Modulen zur Feststellung des Pflegegrads." }
+  - { id: gl.md, term: "Medizinischer Dienst", abbreviation: "MD", topicIds: [thema.re.pflegegrade], definition: "Begutachtungs- und Beratungsdienst der Kranken- und Pflegeversicherung, u. a. für die Pflegebegutachtung; früher MDK.", synonyms: [MDK] }
+  - { id: gl.schweigepflicht, term: "Schweigepflicht", topicIds: [thema.re.schweigepflicht], definition: "Pflicht, anvertraute oder bekannt gewordene Geheimnisse von Patientinnen und Patienten nicht unbefugt zu offenbaren; strafbewehrt nach § 203 StGB." }
+  - { id: gl.delegation, term: "Delegation", topicIds: [thema.re.haftung], definition: "Übertragung einer ärztlichen Tätigkeit an Pflegefachpersonen; Anordnungsverantwortung bleibt beim Arzt, die Durchführungsverantwortung trägt die ausführende Person." }
+  - { id: gl.uebernahmeverschulden, term: "Übernahmeverschulden", topicIds: [thema.re.haftung], definition: "Haftung, weil eine Person eine Aufgabe übernimmt, für die ihr die nötige Qualifikation fehlt." }
+  - { id: gl.patientenverfuegung, term: "Patientenverfügung", topicIds: [thema.re.betreuung], definition: "Schriftliche Festlegung einer volljährigen Person für den Fall ihrer Einwilligungsunfähigkeit, ob sie in bestimmte Untersuchungen oder Behandlungen einwilligt oder sie untersagt." }
+  - { id: gl.vorsorgevollmacht, term: "Vorsorgevollmacht", topicIds: [thema.re.betreuung], definition: "Bevollmächtigung einer Vertrauensperson, im Fall der eigenen Entscheidungsunfähigkeit stellvertretend zu handeln; kann eine rechtliche Betreuung entbehrlich machen." }
+  - { id: gl.fem, term: "Freiheitsentziehende Maßnahme", abbreviation: "FEM", topicIds: [thema.re.fem], definition: "Maßnahme, die einen Menschen gegen seinen Willen in seiner Bewegungsfreiheit einschränkt (z. B. Bettgitter, Fixierung, sedierende Medikamente); bedarf einer Einwilligung oder richterlichen Genehmigung." }
+  - { id: gl.expertenstandard, term: "Expertenstandard", topicIds: [thema.qw.expertenstandards], definition: "Evidenzbasiertes, professionell abgestimmtes Leistungsniveau zu einem pflegerischen Thema, gegliedert in Struktur-, Prozess- und Ergebniskriterien." }
+
+  # --- Prophylaxen und Beobachtung ---
+  - { id: gl.prophylaxe, term: "Prophylaxe", topicIds: [thema.pro], definition: "Vorbeugende Maßnahme, die das Entstehen einer Erkrankung oder Komplikation verhindern soll." }
+  - { id: gl.dekubitus, term: "Dekubitus", topicIds: [thema.pro.dekubitus], definition: "Lokal begrenzte Schädigung der Haut und/oder des darunterliegenden Gewebes, meist über knöchernen Vorsprüngen, infolge von Druck oder Druck in Kombination mit Scherkräften." }
+  - { id: gl.thrombose, term: "Thrombose", topicIds: [thema.pro.thrombose], definition: "Gefäßverschluss durch ein Blutgerinnsel (Thrombus), meist in den tiefen Beinvenen." }
+  - { id: gl.virchow, term: "Virchow-Trias", topicIds: [thema.pro.thrombose], definition: "Drei Faktoren der Thromboseentstehung: Gefäßwandschädigung, verlangsamte Blutströmung und erhöhte Gerinnungsneigung." }
+  - { id: gl.kontraktur, term: "Kontraktur", topicIds: [thema.pro.kontraktur], definition: "Dauerhafte Bewegungseinschränkung eines Gelenks durch Verkürzung von Muskeln, Sehnen oder Gelenkkapsel." }
+  - { id: gl.aspiration, term: "Aspiration", topicIds: [thema.pro.aspiration], definition: "Eindringen von Flüssigkeit, Nahrung oder Fremdkörpern in die Atemwege unterhalb der Stimmbänder." }
+  - { id: gl.dysphagie, term: "Dysphagie", topicIds: [thema.pro.aspiration, thema.kl.neuro.schlaganfall], definition: "Schluckstörung." }
+  - { id: gl.intertrigo, term: "Intertrigo", topicIds: [thema.pro.intertrigo], definition: "Entzündliche Hautveränderung in Hautfalten, wo Haut auf Haut liegt." }
+  - { id: gl.soor, term: "Soor", topicIds: [thema.pro.soor], definition: "Pilzinfektion der Schleimhaut, meist durch Candida albicans." }
+  - { id: gl.dehydratation, term: "Dehydratation", topicIds: [thema.pro.dehydratation], definition: "Abnahme des Körperwassers durch zu geringe Zufuhr oder zu hohe Verluste.", synonyms: [Exsikkose] }
+  - { id: gl.vitalzeichen, term: "Vitalzeichen", topicIds: [thema.beo.vitalzeichen], definition: "Messbare Zeichen der lebenswichtigen Funktionen: Puls, Blutdruck, Atmung, Körpertemperatur und Bewusstsein; häufig ergänzt um Sauerstoffsättigung." }
+  - { id: gl.tachykardie, term: "Tachykardie", topicIds: [thema.beo.vitalzeichen], definition: "Herzfrequenz über dem Normbereich, beim Erwachsenen über 100 Schläge pro Minute." }
+  - { id: gl.bradykardie, term: "Bradykardie", topicIds: [thema.beo.vitalzeichen], definition: "Herzfrequenz unter dem Normbereich, beim Erwachsenen unter 60 Schlägen pro Minute." }
+  - { id: gl.dyspnoe, term: "Dyspnoe", topicIds: [thema.beo.vitalzeichen, thema.kl.atmung], definition: "Subjektiv empfundene Atemnot bzw. erschwerte Atmung." }
+  - { id: gl.zyanose, term: "Zyanose", topicIds: [thema.beo.haut], definition: "Bläuliche Verfärbung von Haut und Schleimhäuten durch Sauerstoffmangel im Blut." }
+  - { id: gl.oedem, term: "Ödem", topicIds: [thema.kl.allgemein], definition: "Ansammlung von Flüssigkeit im Zwischenzellraum (Interstitium)." }
+  - { id: gl.hypoglykaemie, term: "Hypoglykämie", topicIds: [thema.kl.diabetes], definition: "Unterzuckerung; Blutzucker unterhalb des Normbereichs, meist unter 50-70 mg/dl je nach Quelle.", note: "Grenzwert variiert zwischen Lehrbüchern – Quelle beachten." }
+  - { id: gl.delir, term: "Delir", topicIds: [thema.kl.demenz, thema.pro.delir], definition: "Akut auftretende, meist fluktuierende Störung von Bewusstsein, Aufmerksamkeit und Denken mit körperlicher Ursache." }
+  - { id: gl.demenz, term: "Demenz", topicIds: [thema.kl.demenz], definition: "Chronisch fortschreitender Abbau kognitiver Fähigkeiten, der die Alltagsbewältigung beeinträchtigt." }
+
+  # --- Allgemeine Abkürzungen ---
+  - { id: gl.abk.rr,  term: "Blutdruck nach Riva-Rocci", abbreviation: "RR", topicIds: [thema.fs.abkuerzungen, thema.beo.vitalzeichen], definition: "Abkürzung für den nicht-invasiv gemessenen arteriellen Blutdruck." }
+  - { id: gl.abk.spo2, term: "periphere Sauerstoffsättigung", abbreviation: "SpO2", topicIds: [thema.fs.abkuerzungen, thema.beo.vitalzeichen], definition: "Pulsoxymetrisch gemessener Anteil des mit Sauerstoff beladenen Hämoglobins." }
+  - { id: gl.abk.az,  term: "Allgemeinzustand", abbreviation: "AZ", topicIds: [thema.fs.abkuerzungen], definition: "Gesamteindruck vom körperlichen Befinden einer Person." }
+  - { id: gl.abk.ez,  term: "Ernährungszustand", abbreviation: "EZ", topicIds: [thema.fs.abkuerzungen], definition: "Einschätzung des Ernährungsstatus, z. B. über BMI und Hautturgor." }
+  - { id: gl.abk.iv,  term: "intravenös", abbreviation: "i.v.", topicIds: [thema.fs.abkuerzungen, thema.ph.injektion], definition: "In eine Vene." }
+  - { id: gl.abk.sc,  term: "subkutan", abbreviation: "s.c.", topicIds: [thema.fs.abkuerzungen, thema.ph.injektion], definition: "In das Unterhautfettgewebe." }
+  - { id: gl.abk.im,  term: "intramuskulär", abbreviation: "i.m.", topicIds: [thema.fs.abkuerzungen, thema.ph.injektion], definition: "In einen Muskel." }
+  - { id: gl.abk.dk,  term: "transurethraler Dauerkatheter", abbreviation: "DK", topicIds: [thema.fs.abkuerzungen, thema.ph.ausscheidung], definition: "Über die Harnröhre in die Blase eingelegter Katheter zur kontinuierlichen Harnableitung." }
+  - { id: gl.abk.peg, term: "perkutane endoskopische Gastrostomie", abbreviation: "PEG", topicIds: [thema.fs.abkuerzungen, thema.ph.ernaehrung], definition: "Endoskopisch durch die Bauchwand angelegte Ernährungssonde in den Magen." }
+  - { id: gl.abk.mrsa, term: "Methicillin-resistenter Staphylococcus aureus", abbreviation: "MRSA", topicIds: [thema.fs.abkuerzungen, thema.kl.infektion], definition: "Staphylococcus aureus mit Resistenz gegen Methicillin und weitere Beta-Lactam-Antibiotika." }
+  - { id: gl.abk.copd, term: "chronisch obstruktive Lungenerkrankung", abbreviation: "COPD", topicIds: [thema.fs.abkuerzungen, thema.kl.atmung], definition: "Chronische, meist fortschreitende Erkrankung mit dauerhafter Verengung der Atemwege." }
+  - { id: gl.abk.khk, term: "koronare Herzkrankheit", abbreviation: "KHK", topicIds: [thema.fs.abkuerzungen, thema.kl.herz.khk], definition: "Verengung der Herzkranzgefäße, meist durch Arteriosklerose, mit Durchblutungsstörung des Herzmuskels." }

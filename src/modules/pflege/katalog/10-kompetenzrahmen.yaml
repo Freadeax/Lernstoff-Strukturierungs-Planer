@@ -1,0 +1,65 @@
+# Kompetenzrahmen = fachneutrales Konzept: eine Hierarchie von Kompetenzen,
+# auf die Themen, Lernziele und Prüfungsformate verweisen.
+# Pflege: Kompetenzbereiche I-V nach Anlage 2 PflAPrV (Abschluss) und
+# curriculare Einheiten CE 01-11 der Rahmenpläne der Fachkommission nach § 53 PflBG.
+# Wortlaute sind sinngemäß wiedergegeben -> pruefstatus: ungeprueft.
+
+frameworks:
+  - id: rahmen.pflaprv-anlage2
+    name: Kompetenzbereiche nach Anlage 2 PflAPrV
+    kind: kompetenzen
+    referenceIds: [norm.pflaprv]
+    pruefstatus: ungeprueft
+    items:
+      - id: kb.I
+        code: "I"
+        name: Pflegeprozesse und Pflegediagnostik in akuten und dauerhaften Pflegesituationen verantwortlich planen, organisieren, gestalten, durchführen, steuern und bewerten
+      - { id: kb.I.1, parentId: kb.I, code: "I.1", name: "Die Pflege von Menschen aller Altersstufen verantwortlich planen, organisieren, gestalten, durchführen, steuern und bewerten" }
+      - { id: kb.I.2, parentId: kb.I, code: "I.2", name: "Pflegeprozesse und Pflegediagnostik bei Menschen mit gesundheitlichen Problemlagen unter besonderem Fokus von Gesundheitsförderung und Prävention gestalten" }
+      - { id: kb.I.3, parentId: kb.I, code: "I.3", name: "Pflegeprozesse und Pflegediagnostik in hoch belasteten und kritischen Lebenssituationen gestalten" }
+      - { id: kb.I.4, parentId: kb.I, code: "I.4", name: "In lebensbedrohlichen sowie in Krisen- oder Katastrophensituationen zielgerichtet handeln" }
+      - { id: kb.I.5, parentId: kb.I, code: "I.5", name: "Menschen aller Altersstufen bei der Lebensgestaltung unterstützen, begleiten und beraten" }
+      - { id: kb.I.6, parentId: kb.I, code: "I.6", name: "Entwicklung und Autonomie in der Lebensspanne fördern" }
+      - id: kb.II
+        code: "II"
+        name: Kommunikation und Beratung personen- und situationsorientiert gestalten
+      - { id: kb.II.1, parentId: kb.II, code: "II.1", name: "Kommunikation und Interaktion mit Menschen aller Altersstufen und ihren Bezugspersonen gestalten und angemessene Information sicherstellen" }
+      - { id: kb.II.2, parentId: kb.II, code: "II.2", name: "Information, Schulung und Beratung verantwortlich organisieren, gestalten, steuern und bewerten" }
+      - { id: kb.II.3, parentId: kb.II, code: "II.3", name: "Ethisch reflektiert handeln" }
+      - id: kb.III
+        code: "III"
+        name: Intra- und interprofessionelles Handeln in unterschiedlichen systemischen Kontexten verantwortlich gestalten und mitgestalten
+      - { id: kb.III.1, parentId: kb.III, code: "III.1", name: "Verantwortung in der Organisation des qualifikationsheterogenen Pflegeteams übernehmen" }
+      - { id: kb.III.2, parentId: kb.III, code: "III.2", name: "Ärztliche Anordnungen im Pflegekontext eigenständig durchführen" }
+      - { id: kb.III.3, parentId: kb.III, code: "III.3", name: "In interdisziplinären Teams an der Versorgung mitwirken und Kontinuität an Schnittstellen sichern" }
+      - id: kb.IV
+        code: "IV"
+        name: Das eigene Handeln auf der Grundlage von Gesetzen, Verordnungen und ethischen Leitlinien reflektieren und begründen
+      - { id: kb.IV.1, parentId: kb.IV, code: "IV.1", name: "Die Qualität der pflegerischen Leistungen und der Versorgung in den verschiedenen Institutionen sicherstellen" }
+      - { id: kb.IV.2, parentId: kb.IV, code: "IV.2", name: "Versorgungskontexte und Systemzusammenhänge im Pflegehandeln berücksichtigen und ökonomische und ökologische Prinzipien beachten" }
+      - id: kb.V
+        code: "V"
+        name: Das eigene Handeln auf der Grundlage von wissenschaftlichen Erkenntnissen und berufsethischen Werthaltungen und Einstellungen reflektieren und begründen
+      - { id: kb.V.1, parentId: kb.V, code: "V.1", name: "Pflegehandeln an aktuellen wissenschaftlichen Erkenntnissen, insbesondere pflegewissenschaftlichen Forschungsergebnissen, Theorien und Modellen ausrichten" }
+      - { id: kb.V.2, parentId: kb.V, code: "V.2", name: "Verantwortung für die Entwicklung (lebenslanges Lernen) der eigenen Persönlichkeit sowie das berufliche Selbstverständnis übernehmen" }
+
+  - id: rahmen.rahmenplaene-ce
+    name: Curriculare Einheiten der Rahmenpläne der Fachkommission (§ 53 PflBG)
+    kind: curriculum
+    referenceIds: [norm.pflbg]
+    pruefstatus: ungeprueft
+    hinweis: Die konkrete Abfolge und Stundenverteilung legt das schulinterne Curriculum fest.
+    items:
+      - { id: ce.01,  code: "CE 01",  name: "Ausbildungsstart – Pflegefachfrau/Pflegefachmann werden" }
+      - { id: ce.02,  code: "CE 02",  name: "Zu pflegende Menschen in der Bewegung und Selbstversorgung unterstützen" }
+      - { id: ce.02A, parentId: ce.02, code: "CE 02A", name: "Mobilität interaktiv gestalten" }
+      - { id: ce.02B, parentId: ce.02, code: "CE 02B", name: "Menschen in der Selbstversorgung unterstützen" }
+      - { id: ce.03,  code: "CE 03",  name: "Erste Pflegeerfahrungen reflektieren – verständigungsorientiert kommunizieren" }
+      - { id: ce.04,  code: "CE 04",  name: "Gesundheit fördern und präventiv handeln" }
+      - { id: ce.05,  code: "CE 05",  name: "Menschen in kurativen Prozessen pflegerisch unterstützen und Patientensicherheit stärken" }
+      - { id: ce.06,  code: "CE 06",  name: "In Akutsituationen sicher handeln" }
+      - { id: ce.07,  code: "CE 07",  name: "Rehabilitatives Pflegehandeln im interprofessionellen Team" }
+      - { id: ce.08,  code: "CE 08",  name: "Menschen in kritischen Lebenssituationen und in der letzten Lebensphase begleiten" }
+      - { id: ce.09,  code: "CE 09",  name: "Menschen bei der Lebensgestaltung lebensweltorientiert unterstützen" }
+      - { id: ce.10,  code: "CE 10",  name: "Entwicklung und Gesundheit in Kindheit und Jugend in pflegerischen Situationen fördern" }
+      - { id: ce.11,  code: "CE 11",  name: "Menschen mit psychischen Gesundheitsproblemen und kognitiven Beeinträchtigungen personenzentriert und lebensweltbezogen unterstützen" }

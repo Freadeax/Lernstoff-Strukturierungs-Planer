@@ -1,0 +1,66 @@
+# Operatoren = fachneutrales Konzept: Arbeitsanweisungen in Aufgaben mit
+# Anforderungsbereich (AFB I Reproduktion, II Reorganisation/Transfer, III Reflexion/Problemlösung).
+# Der Arbeitsauftragsmodus erkennt den Operator und wählt Antwortform und Umfang.
+operators:
+  - { id: op.nennen,       name: "nennen",        afb: 1, expects: "Begriffe oder Fakten ohne Erläuterung aufzählen." }
+  - { id: op.benennen,     name: "benennen",      afb: 1, expects: "Sachverhalte mit dem korrekten Fachbegriff bezeichnen." }
+  - { id: op.definieren,   name: "definieren",    afb: 1, expects: "Begriff präzise mit Oberbegriff und Merkmalen bestimmen." }
+  - { id: op.beschreiben,  name: "beschreiben",   afb: 1, expects: "Sachverhalt in eigenen Worten strukturiert wiedergeben, ohne Bewertung." }
+  - { id: op.darstellen,   name: "darstellen",    afb: 2, expects: "Zusammenhänge strukturiert, ggf. grafisch, aufzeigen." }
+  - { id: op.erklaeren,    name: "erklären",      afb: 2, expects: "Sachverhalt auf Ursachen, Gesetzmäßigkeiten oder Regeln zurückführen." }
+  - { id: op.erlaeutern,   name: "erläutern",     afb: 2, expects: "Wie erklären, zusätzlich mit Beispielen oder Belegen veranschaulichen." }
+  - { id: op.ableiten,     name: "ableiten",      afb: 2, expects: "Aus Informationen (z. B. Fallbeschreibung) sachgerechte Folgerungen ziehen." }
+  - { id: op.zuordnen,     name: "zuordnen",      afb: 2, expects: "Sachverhalte begründet in einen Zusammenhang oder eine Kategorie stellen." }
+  - { id: op.vergleichen,  name: "vergleichen",   afb: 2, expects: "Gemeinsamkeiten und Unterschiede kriteriengeleitet herausarbeiten." }
+  - { id: op.planen,       name: "planen",        afb: 2, expects: "Vorgehen (z. B. Maßnahmen) zielgerichtet und vollständig entwerfen." }
+  - { id: op.begruenden,   name: "begründen",     afb: 3, expects: "Aussage oder Maßnahme durch fachliche Argumente stützen." }
+  - { id: op.analysieren,  name: "analysieren",   afb: 3, expects: "Situation kriteriengeleitet in Bestandteile zerlegen und Zusammenhänge herausarbeiten." }
+  - { id: op.beurteilen,   name: "beurteilen",    afb: 3, expects: "Zu einem Sachverhalt ein begründetes Sachurteil fällen." }
+  - { id: op.bewerten,     name: "bewerten",      afb: 3, expects: "Wie beurteilen, zusätzlich mit offengelegten Wertmaßstäben (z. B. ethischen Prinzipien)." }
+  - { id: op.reflektieren, name: "reflektieren", afb: 3, expects: "Eigenes Handeln oder Erleben kriteriengeleitet überdenken und Konsequenzen ableiten." }
+  - { id: op.evaluieren,   name: "evaluieren",    afb: 3, expects: "Zielerreichung anhand der festgelegten Kriterien überprüfen und Anpassungen ableiten." }
+
+# Prüfungsformate = Vorlagen für Exam-Objekte. Der Nutzer legt konkrete Prüfungen
+# (Exam: name, date, subjectIds, topicIds) an und wählt dabei ein Format.
+# Angaben zur staatlichen Prüfung: pruefstatus ungeprueft, gegen PflAPrV prüfen.
+examFormats:
+  - id: pruefung.klausur
+    name: Schulische Klausur / Leistungsnachweis
+    kind: schriftlich
+    details: Umfang und Themen legt die Pflegeschule fest; Themen und Dauer beim Anlegen eintragen.
+
+  - id: pruefung.zwischen
+    name: Zwischenprüfung (Ende des 2. Ausbildungsdrittels)
+    kind: gemischt
+    referenceIds: [norm.pflaprv]
+    pruefstatus: ungeprueft
+    details: Ermittelt den Ausbildungsstand; Form legen die Länder fest. Kein Bestehen-/Nichtbestehen-Effekt auf die Fortsetzung der Ausbildung.
+
+  - id: pruefung.staatlich.schriftlich
+    name: Staatliche Prüfung – schriftlicher Teil
+    kind: schriftlich
+    referenceIds: [norm.pflaprv]
+    pruefstatus: ungeprueft
+    durationMinutes: 120
+    count: 3
+    competencyIds: [kb.I, kb.II, kb.III, kb.IV, kb.V]
+    taskFormatIds: [format.fallbearbeitung]
+    details: Drei Aufsichtsarbeiten zu je 120 Minuten, fallbezogen, an drei aufeinanderfolgenden Werktagen. Zuordnung der Kompetenzbereiche je Arbeit aus § 14 PflAPrV übernehmen.
+
+  - id: pruefung.staatlich.muendlich
+    name: Staatliche Prüfung – mündlicher Teil
+    kind: muendlich
+    referenceIds: [norm.pflaprv]
+    pruefstatus: ungeprueft
+    competencyIds: [kb.III, kb.IV, kb.V]
+    taskFormatIds: [format.fallbearbeitung]
+    details: Komplexe Aufgabenstellung zu einer Fallsituation; Prüfungsdauer und Vorbereitungszeit aus § 15 PflAPrV übernehmen.
+
+  - id: pruefung.staatlich.praktisch
+    name: Staatliche Prüfung – praktischer Teil
+    kind: praktisch
+    referenceIds: [norm.pflaprv]
+    pruefstatus: ungeprueft
+    competencyIds: [kb.I, kb.II, kb.III, kb.IV, kb.V]
+    taskFormatIds: [format.pflegeplanung, format.sis, format.sbar]
+    details: Pflege von mindestens zwei Menschen im Vertiefungseinsatz; schriftliche oder mündliche Ausarbeitung des Pflegeplans (Vorbereitungsteil), Fallvorstellung, Durchführung und Reflexion. Zeiten aus § 16 PflAPrV übernehmen.

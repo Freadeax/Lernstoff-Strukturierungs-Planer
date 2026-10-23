@@ -1,26 +1,11 @@
-import type { DomainModule } from '../../core/types';
+import type { CatalogModule } from '../catalog-types';
+import katalog from './pflege-generalistisch.json';
 
 /**
  * Fachmodul generalistische Pflegeausbildung.
- * Platzhalter: Der vollständige Themenkatalog wird im Thread "Pflege-Fachsystem" erarbeitet
- * (YAML + JSON Schema) und hier beim Build als JSON eingebunden.
+ * Quelle sind die YAML-Dateien in ./katalog; daraus erzeugt scripts/build-module.py
+ * pflege-generalistisch.json (nach jeder Katalogänderung neu bauen und mit einchecken).
+ * JSON-Importe verlieren Literaltypen (z. B. afb: 1 | 2 | 3), daher der Cast;
+ * Struktur und Verweise prüfen das JSON Schema und index.test.ts.
  */
-export const pflegeModule: DomainModule = {
-  id: 'pflege-generalistisch',
-  name: 'Generalistische Pflegeausbildung',
-  version: '0.1.0',
-  subjects: [
-    { id: 'fach.pflege.krankheitslehre', moduleId: 'pflege-generalistisch', name: 'Pflege und Krankheitslehre' },
-    { id: 'fach.pflege.pflegeprozess', moduleId: 'pflege-generalistisch', name: 'Pflegeprozess und Dokumentation' },
-    { id: 'fach.pflege.recht', moduleId: 'pflege-generalistisch', name: 'Recht und Rahmenbedingungen' },
-    { id: 'fach.pflege.praxisfaelle', moduleId: 'pflege-generalistisch', name: 'Praxisfälle und Fallbearbeitung' },
-  ],
-  topics: [],
-  glossary: [],
-  taskFormats: [
-    { id: 'pesr', name: 'PESR', description: 'Pflegediagnose: Problem, Einflussfaktor, Symptom, Ressource', requiredParts: ['Problem', 'Einflussfaktor', 'Symptom', 'Ressource'] },
-    { id: 'smart', name: 'SMART', description: 'Pflegeziel: spezifisch, messbar, akzeptiert, realistisch, terminiert', requiredParts: ['spezifisch', 'messbar', 'akzeptiert', 'realistisch', 'terminiert'] },
-    { id: 'sis', name: 'SIS', description: 'Strukturierte Informationssammlung', requiredParts: [] },
-  ],
-  checkRules: [],
-};
+export const pflegeModule = katalog as unknown as CatalogModule;

@@ -1,0 +1,68 @@
+# Referenzen = fachneutrales Konzept für "Wissensobjekte mit eigener Identität":
+# Rechtsnormen, Fachstandards, Assessmentinstrumente, Modelle, Klassifikationen.
+# Themen verweisen per referenceIds darauf; die Qualitätskontrolle kann so prüfen,
+# ob eine Zusammenfassung z. B. den richtigen Paragraphen nennt.
+# pruefstatus: ungeprueft = aus Fachwissen, vor Prüfungsnutzung gegen Original prüfen.
+
+references:
+  # ---------- Rechtsnormen ----------
+  - { id: norm.pflbg,   kind: norm, name: Pflegeberufegesetz (PflBG), pruefstatus: ungeprueft,
+      details: "Regelt Ausbildung, Berufsbezeichnung und vorbehaltene Tätigkeiten (§ 4: Erhebung und Feststellung des Pflegebedarfs, Organisation, Gestaltung und Steuerung des Pflegeprozesses, Analyse, Evaluation, Sicherung und Entwicklung der Pflegequalität)." }
+  - { id: norm.pflaprv, kind: norm, name: Pflegeberufe-Ausbildungs- und -Prüfungsverordnung (PflAPrV), pruefstatus: ungeprueft,
+      details: "Ausbildungsstruktur, Zwischenprüfung, staatliche Prüfung (schriftlich, mündlich, praktisch), Kompetenzen in Anlagen 1-4." }
+  - { id: norm.sgb5,    kind: norm, name: SGB V – Gesetzliche Krankenversicherung, pruefstatus: ungeprueft,
+      details: "Leistungen der GKV, u. a. Krankenhausbehandlung, häusliche Krankenpflege (§ 37), Hilfsmittel, Entlassmanagement (§ 39 Abs. 1a)." }
+  - { id: norm.sgb11,   kind: norm, name: SGB XI – Soziale Pflegeversicherung, pruefstatus: ungeprueft,
+      details: "Pflegebedürftigkeit (§ 14), Pflegegrade und Begutachtungsinstrument (§ 15), Pflegesachleistung (§ 36), Pflegegeld (§ 37), Beratungsbesuch (§ 37 Abs. 3), Kombinationsleistung (§ 38), Verhinderungspflege (§ 39), Tages-/Nachtpflege (§ 41), Kurzzeitpflege (§ 42), vollstationäre Pflege (§ 43), Entlastungsbetrag (§ 45b), Expertenstandards (§ 113a), Qualitätsprüfungen (§ 114 ff.)." }
+  - { id: norm.stgb203, kind: norm, name: "§ 203 StGB – Verletzung von Privatgeheimnissen (Schweigepflicht)", pruefstatus: ungeprueft }
+  - { id: norm.dsgvo,   kind: norm, name: Datenschutz-Grundverordnung (DSGVO) und BDSG, pruefstatus: ungeprueft,
+      details: "Gesundheitsdaten sind besondere Kategorien personenbezogener Daten (Art. 9 DSGVO)." }
+  - { id: norm.bgb-betreuung, kind: norm, name: Betreuungsrecht im BGB (ab 2023 §§ 1814 ff. BGB), pruefstatus: ungeprueft,
+      details: "Rechtliche Betreuung, Patientenverfügung (§ 1827 BGB), Vorsorgevollmacht, freiheitsentziehende Maßnahmen und Genehmigungspflicht (§ 1831 BGB). Ältere Lehrbücher nennen noch die alten Paragraphen (§§ 1896 ff., § 1901a, § 1906 BGB a. F.)." }
+  - { id: norm.bgb-haftung, kind: norm, name: "Haftungsrecht (Vertragshaftung, § 823 BGB Deliktshaftung)", pruefstatus: ungeprueft }
+  - { id: norm.stgb-koerperverletzung, kind: norm, name: "Strafrecht in der Pflege (§§ 223 ff. StGB Körperverletzung, § 239 Freiheitsberaubung, § 323c unterlassene Hilfeleistung)", pruefstatus: ungeprueft }
+  - { id: norm.ifsg,    kind: norm, name: "Infektionsschutzgesetz (IfSG)", pruefstatus: ungeprueft }
+  - { id: norm.arbzg,   kind: norm, name: "Arbeitsschutz (ArbSchG, ArbZG, MuSchG, JArbSchG)", pruefstatus: ungeprueft }
+  - { id: norm.heimrecht, kind: norm, name: "Heimrecht der Länder und Wohn- und Betreuungsvertragsgesetz (WBVG)", pruefstatus: ungeprueft }
+  - { id: norm.btmg,    kind: norm, name: "Betäubungsmittelgesetz (BtMG) und BtMVV", pruefstatus: ungeprueft }
+
+  # ---------- Expertenstandards (DNQP, § 113a SGB XI) ----------
+  # Jeder Standard folgt demselben Aufbau: Standardaussage, Begründung,
+  # Struktur-, Prozess- und Ergebniskriterien (S/P/E) auf 5-6 Ebenen.
+  - { id: es.dekubitus,     kind: standard, name: "Expertenstandard Dekubitusprophylaxe in der Pflege", pruefstatus: ungeprueft }
+  - { id: es.entlassung,    kind: standard, name: "Expertenstandard Entlassungsmanagement in der Pflege", pruefstatus: ungeprueft }
+  - { id: es.schmerz,       kind: standard, name: Expertenstandard Schmerzmanagement in der Pflege, pruefstatus: ungeprueft,
+      details: "Früher getrennt in akute und chronische Schmerzen; inzwischen zusammengeführt. Auflage im Lehrbuch prüfen." }
+  - { id: es.sturz,         kind: standard, name: "Expertenstandard Sturzprophylaxe in der Pflege", pruefstatus: ungeprueft }
+  - { id: es.kontinenz,     kind: standard, name: "Expertenstandard Förderung der Harnkontinenz in der Pflege", pruefstatus: ungeprueft }
+  - { id: es.wunden,        kind: standard, name: "Expertenstandard Pflege von Menschen mit chronischen Wunden", pruefstatus: ungeprueft }
+  - { id: es.ernaehrung,    kind: standard, name: "Expertenstandard Ernährungsmanagement zur Sicherung und Förderung der oralen Ernährung in der Pflege", pruefstatus: ungeprueft }
+  - { id: es.demenz,        kind: standard, name: "Expertenstandard Beziehungsgestaltung in der Pflege von Menschen mit Demenz", pruefstatus: ungeprueft }
+  - { id: es.mobilitaet,    kind: standard, name: "Expertenstandard Erhaltung und Förderung der Mobilität in der Pflege", pruefstatus: ungeprueft }
+  - { id: es.mundgesundheit, kind: standard, name: "Expertenstandard Förderung der Mundgesundheit in der Pflege", pruefstatus: ungeprueft }
+
+  # ---------- Assessmentinstrumente ----------
+  - { id: as.braden,   kind: assessment, name: "Braden-Skala", details: "Dekubitusrisiko; 6 Kategorien, niedriger Wert = höheres Risiko.", pruefstatus: ungeprueft }
+  - { id: as.norton,   kind: assessment, name: "Norton-Skala (erweitert)", details: "Dekubitusrisiko", pruefstatus: ungeprueft }
+  - { id: as.barthel,  kind: assessment, name: "Barthel-Index", details: "Selbstständigkeit bei Alltagsaktivitäten, 0-100 Punkte.", pruefstatus: ungeprueft }
+  - { id: as.nrs,      kind: assessment, name: "Numerische Rating-Skala (NRS) / VAS / VRS", details: "Selbsteinschätzung der Schmerzintensität, NRS 0-10.", pruefstatus: ungeprueft }
+  - { id: as.besd,     kind: assessment, name: "BESD (Beurteilung von Schmerzen bei Demenz)", details: "Fremdeinschätzung", pruefstatus: ungeprueft }
+  - { id: as.gcs,      kind: assessment, name: "Glasgow Coma Scale (GCS)", details: "Bewusstseinslage, 3-15 Punkte.", pruefstatus: ungeprueft }
+  - { id: as.mna,      kind: assessment, name: "Mini Nutritional Assessment (MNA)", details: "Mangelernährungsrisiko", pruefstatus: ungeprueft }
+  - { id: as.bmi,      kind: assessment, name: "Body-Mass-Index (BMI)", pruefstatus: ungeprueft }
+  - { id: as.tug,      kind: assessment, name: "Timed Up and Go / Tinetti-Test", details: "Sturzrisiko und Mobilität", pruefstatus: ungeprueft }
+  - { id: as.mmst,     kind: assessment, name: "Mini-Mental-Status-Test (MMST) / Uhrentest", details: "Kognitives Screening", pruefstatus: ungeprueft }
+  - { id: as.news,     kind: assessment, name: "NEWS2 (National Early Warning Score)", details: "Früherkennung klinischer Verschlechterung", pruefstatus: ungeprueft }
+  - { id: as.nba,      kind: assessment, name: Neues Begutachtungsassessment (NBA) nach § 15 SGB XI, pruefstatus: ungeprueft,
+      details: "6 gewichtete Module: 1 Mobilität (10 %), 2 kognitive und kommunikative Fähigkeiten und 3 Verhaltensweisen und psychische Problemlagen (zusammen 15 %, der höhere Wert zählt), 4 Selbstversorgung (40 %), 5 Bewältigung von und selbstständiger Umgang mit krankheits- oder therapiebedingten Anforderungen (20 %), 6 Gestaltung des Alltagslebens und sozialer Kontakte (15 %). Pflegegrade: PG 1 ab 12,5; PG 2 ab 27; PG 3 ab 47,5; PG 4 ab 70; PG 5 ab 90 gewichteten Punkten." }
+
+  # ---------- Modelle und Klassifikationen ----------
+  - { id: mo.atl-juchli,     kind: modell, name: "Aktivitäten des täglichen Lebens (ATL) nach Juchli", details: "12 ATL", pruefstatus: ungeprueft }
+  - { id: mo.aedl-krohwinkel, kind: modell, name: "AEDL/ABEDL nach Krohwinkel", details: "Fördernde Prozesspflege, 13 AEDL.", pruefstatus: ungeprueft }
+  - { id: mo.orem,           kind: modell, name: "Selbstpflegedefizit-Theorie nach Orem", pruefstatus: ungeprueft }
+  - { id: mo.roper,          kind: modell, name: "Lebensaktivitäten-Modell nach Roper, Logan und Tierney", pruefstatus: ungeprueft }
+  - { id: mo.fiechter-meier, kind: modell, name: "Pflegeprozess in 6 Schritten nach Fiechter und Meier", pruefstatus: ungeprueft }
+  - { id: mo.who-4-phasen,   kind: modell, name: "Pflegeprozess in 4 Phasen (WHO)", pruefstatus: ungeprueft }
+  - { id: mo.strukturmodell, kind: modell, name: "Strukturmodell zur Entbürokratisierung der Pflegedokumentation", details: "4 Elemente: SIS, individuelle Maßnahmenplanung, Berichteblatt (Fokus Abweichungen), Evaluation.", pruefstatus: ungeprueft }
+  - { id: kl.nanda,          kind: klassifikation, name: "NANDA-I Pflegediagnosen", pruefstatus: ungeprueft }
+  - { id: kl.icd10,          kind: klassifikation, name: "ICD-10-GM (medizinische Diagnosen)", pruefstatus: ungeprueft }
