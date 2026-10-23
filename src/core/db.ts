@@ -1,5 +1,9 @@
 import Dexie, { type EntityTable } from 'dexie';
 import type { Document, Exam, SourceChunk, Subject, Summary, Topic } from './types';
+import type { Fingerprint } from '../features/dokumente/import/types';
+
+/** Absatztext zu einem Absatz-Hash, für die Anzeige entfallener Absätze beim Versionsvergleich. */
+export interface ParagraphText { hash: string; text: string; }
 
 /** Lokale Datenbank (IndexedDB). Alle Daten bleiben auf dem Gerät. */
 export class LernstoffDB extends Dexie {
@@ -9,6 +13,8 @@ export class LernstoffDB extends Dexie {
   chunks!: EntityTable<SourceChunk, 'id'>;
   summaries!: EntityTable<Summary, 'id'>;
   exams!: EntityTable<Exam, 'id'>;
+  fingerprints!: EntityTable<Fingerprint, 'documentId'>;
+  paragraphs!: EntityTable<ParagraphText, 'hash'>;
 
   constructor(name = 'lernstoff-planer') {
     super(name);
@@ -19,6 +25,10 @@ export class LernstoffDB extends Dexie {
       chunks: 'id, documentId, [documentId+page]',
       summaries: 'id, mode, *topicIds, *sourceDocumentIds',
       exams: 'id, date, *subjectIds',
+    });
+    this.version(2).stores({
+      fingerprints: 'documentId, fileHash, contentHash',
+      paragraphs: 'hash',
     });
   }
 }
@@ -36,5 +46,15 @@ export async function exportAll(database: LernstoffDB = db) {
 export async function deleteAll(database: LernstoffDB = db) {
   await database.transaction('rw', database.tables, async () => {
     await Promise.all(database.tables.map((t) => t.clear()));
+  });
+}
+
+/** Ein Dokument mit Chunks, Fingerabdruck und davon abgeleiteten Zusammenfassungen löschen. */
+export async function deleteDocument(documentId: string, database: LernstoffDB = db) {
+  await database.transaction('rw', [database.documents, database.chunks, database.fingerprints, database.summaries], async () => {
+    await database.chunks.where('documentId').equals(documentId).delete();
+    await database.fingerprints.delete(documentId);
+    await database.summaries.where('sourceDocumentIds').equals(documentId).modify({ needsReview: true });
+    await database.documents.delete(documentId);
   });
 }

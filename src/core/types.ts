@@ -51,6 +51,8 @@ export interface SourceChunk {
   text: string;
   ocrConfidence?: number; // 0..1, nur bei OCR
   illegibleSpans?: Array<{ start: number; end: number }>;
+  pageEstimated?: boolean; // Seite nur geschätzt (z. B. docx ohne gespeicherte Seitenumbrüche)
+  origin?: 'text' | 'ocr' | 'notes' | 'table';
 }
 
 export interface Citation {

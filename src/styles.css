@@ -11,3 +11,37 @@ button.active { background: var(--accent); border-color: var(--accent); color: #
 button.danger { border-color: var(--danger); color: var(--danger); }
 .card { background: var(--card); border-radius: 12px; padding: 16px; margin: 12px 0; }
 .roadmap li { margin: 6px 0; color: var(--muted); }
+.muted { color: var(--muted); font-size: 0.9em; }
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: space-between; margin-top: 8px; }
+.field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+.check { display: flex; gap: 8px; align-items: flex-start; margin: 8px 0; }
+select, input.wide { font: inherit; padding: 8px; border-radius: 8px; border: 1px solid var(--muted); background: var(--bg); color: var(--fg); }
+input.wide { width: 100%; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+button.primary:disabled { opacity: 0.5; }
+button.small { padding: 4px 10px; font-size: 0.85em; }
+button.link { border: none; padding: 0; text-align: left; color: var(--fg); text-decoration: underline; text-underline-offset: 3px; }
+button.link.block { display: block; margin: 6px 0; }
+.upload { display: block; border: 2px dashed var(--muted); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; margin-top: 8px; }
+.upload input { display: none; }
+.note { margin-top: 8px; padding: 8px 12px; border-radius: 8px; border-left: 4px solid var(--accent); background: var(--bg); }
+.note.warn { border-left-color: #d97706; }
+.chunk { border-top: 1px solid var(--muted); padding: 8px 0; }
+.pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+.steps li { margin: 6px 0; }
+.steps li.done { color: var(--muted); }
+.steps li.done::marker { content: '✓  '; }
+.ampel { font-weight: 600; padding: 8px 12px; border-radius: 8px; }
+.ampel.gruen { background: #16a34a22; }
+.ampel.gelb { background: #d9770622; }
+.ampel.rot { background: #dc262622; }
+.summary { line-height: 1.6; }
+.summary h4 { margin: 16px 0 4px; }
+.claim { cursor: pointer; border-radius: 4px; }
+.claim.unbelegt { background: #dc262633; }
+.claim.abweichend, .claim.unleserlich, .claim.widerspruch { background: #d9770633; }
+.claim.fehlt { font-style: italic; color: var(--muted); }
+.claim.active { outline: 2px solid var(--accent); }
+.source { margin-top: 12px; padding: 12px; border-radius: 8px; background: var(--bg); }
+.quote { margin-top: 8px; }
+mark { background: #facc15aa; color: inherit; }

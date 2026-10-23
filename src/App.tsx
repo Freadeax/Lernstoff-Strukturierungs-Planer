@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Dashboard } from './features/Dashboard';
+import { Dokumente } from './features/Dokumente';
+import { Zusammenfassen } from './features/Zusammenfassen';
 import { Faecher } from './features/Faecher';
 import { Einstellungen } from './features/Einstellungen';
 
-const views = { dashboard: 'Übersicht', faecher: 'Fächer', einstellungen: 'Einstellungen' } as const;
+const views = { dashboard: 'Übersicht', dokumente: 'Dokumente', zusammenfassen: 'Zusammenfassen', faecher: 'Fächer', einstellungen: 'Einstellungen' } as const;
 type View = keyof typeof views;
 
 export function App() {
@@ -21,7 +23,9 @@ export function App() {
         </nav>
       </header>
       <main>
-        {view === 'dashboard' && <Dashboard />}
+        {view === 'dashboard' && <Dashboard onNavigate={setView} />}
+        {view === 'dokumente' && <Dokumente />}
+        {view === 'zusammenfassen' && <Zusammenfassen />}
         {view === 'faecher' && <Faecher />}
         {view === 'einstellungen' && <Einstellungen />}
       </main>

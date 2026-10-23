@@ -5,6 +5,8 @@
   "type": "module",
   "description": "Modularer Lernstoff-Planer mit quellengetreuen Zusammenfassungen, zuerst für die generalistische Pflegeausbildung",
   "scripts": {
+    "predev": "node scripts/copy-tesseract.mjs",
+    "prebuild": "node scripts/copy-tesseract.mjs",
     "dev": "vite --host",
     "build": "tsc -b && vite build",
     "preview": "vite preview --host",
