@@ -2,7 +2,7 @@ import { modules } from '../modules/registry';
 
 export function Faecher() {
   return (
-    <section>
+    <section className="page">
       <h2>Fächer</h2>
       {modules.map((m) => (
         <div key={m.id} className="card">

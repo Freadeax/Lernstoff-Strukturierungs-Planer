@@ -1,6 +1,8 @@
 import Dexie, { type EntityTable } from 'dexie';
 import type { Document, Exam, SourceChunk, Subject, Summary, Topic } from './types';
 import type { Fingerprint } from '../features/dokumente/import/types';
+import type { ActivityEntry } from './activity';
+import type { BoardEntry } from './board';
 
 /** Absatztext zu einem Absatz-Hash, für die Anzeige entfallener Absätze beim Versionsvergleich. */
 export interface ParagraphText { hash: string; text: string; }
@@ -15,6 +17,8 @@ export class LernstoffDB extends Dexie {
   exams!: EntityTable<Exam, 'id'>;
   fingerprints!: EntityTable<Fingerprint, 'documentId'>;
   paragraphs!: EntityTable<ParagraphText, 'hash'>;
+  activity!: EntityTable<ActivityEntry, 'id'>;
+  board!: EntityTable<BoardEntry, 'topicId'>;
 
   constructor(name = 'lernstoff-planer') {
     super(name);
@@ -29,6 +33,23 @@ export class LernstoffDB extends Dexie {
     this.version(2).stores({
       fingerprints: 'documentId, fileHash, contentHash',
       paragraphs: 'hash',
+    });
+    // v3: Oberfläche (Aktivitäts-Feed, Lernstand-Board). Bestehende Dokumente und
+    // Zusammenfassungen werden einmalig ins Aktivitätsprotokoll übernommen.
+    this.version(3).stores({
+      activity: '++id, at, kind, severity',
+      board: 'topicId, column',
+    }).upgrade(async (tx) => {
+      const docs = await tx.table<Document>('documents').toArray();
+      const sums = await tx.table<Summary>('summaries').toArray();
+      await tx.table<ActivityEntry>('activity').bulkAdd([
+        ...docs.map((d): ActivityEntry => ({ at: d.importedAt, kind: 'import', severity: 'info', title: `${d.title} importiert`, subjectIds: d.subjectIds, ref: d.id })),
+        ...sums.map((s): ActivityEntry => ({
+          at: s.createdAt, kind: 'zusammenfassung', ref: s.id,
+          severity: s.qa?.ampel === 'rot' ? 'critical' : s.qa?.ampel === 'gelb' ? 'warning' : 'info',
+          title: 'Zusammenfassung erstellt', detail: s.qa ? `${s.qa.statistik.belegt} von ${s.qa.statistik.claims} Aussagen belegt` : undefined,
+        })),
+      ]);
     });
   }
 }

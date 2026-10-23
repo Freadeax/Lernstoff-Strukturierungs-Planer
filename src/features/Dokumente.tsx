@@ -1,33 +1,18 @@
 import { useEffect, useState } from 'react';
 import { db, deleteDocument } from '../core/db';
 import type { Document, SourceChunk } from '../core/types';
-import { getApiKey } from '../core/settings';
+import { logActivity } from '../core/activity';
 import { modules } from '../modules/registry';
-import { importFile } from './dokumente/import/pipeline';
-import type { ImportReport } from './dokumente/import/types';
-import type { OcrEngine } from './dokumente/import/ocr/engine';
+import { ACCEPT, importiereDateien, type ImportErgebnis } from './dokumente/importiere';
 
 const subjects = modules.flatMap((m) => m.subjects);
-
-/** Tesseract erst laden, wenn wirklich eine Seite ohne Textebene erkannt werden muss. */
-function lazyTesseract(): OcrEngine & { terminate(): Promise<void> } {
-  let engine: Promise<OcrEngine & { terminate(): Promise<void> }> | undefined;
-  const base = new URL('tesseract/', document.baseURI).href;
-  const get = () => (engine ??= import('./dokumente/import/ocr/tesseract').then((m) =>
-    m.createTesseractEngine({ workerPath: `${base}worker.min.js`, corePath: `${base}core`, langPath: `${base}lang` })));
-  return {
-    name: 'tesseract',
-    recognize: async (image, mediaType) => (await get()).recognize(image, mediaType),
-    terminate: async () => { if (engine) await (await engine).terminate(); },
-  };
-}
 
 export function Dokumente() {
   const [docs, setDocs] = useState<Document[]>([]);
   const [subjectId, setSubjectId] = useState(subjects[0]?.id ?? '');
   const [handwritten, setHandwritten] = useState(false);
   const [busy, setBusy] = useState('');
-  const [reports, setReports] = useState<Array<{ name: string; report?: ImportReport; error?: string }>>([]);
+  const [reports, setReports] = useState<ImportErgebnis[]>([]);
   const [open, setOpen] = useState<string | null>(null);
   const [chunks, setChunks] = useState<SourceChunk[]>([]);
 
@@ -39,68 +24,29 @@ export function Dokumente() {
 
   async function onFiles(files: FileList | null) {
     if (!files?.length) return;
-    const ergebnisse: typeof reports = [];
-    let ocr: (OcrEngine & { terminate(): Promise<void> }) | undefined;
-    let handwritingOcr: OcrEngine | undefined;
     try {
-      for (const file of Array.from(files)) {
-        setBusy(`Lese ${file.name} …`);
-        try {
-          const bytes = new Uint8Array(await file.arrayBuffer());
-          const isImage = /^image\//.test(file.type) || /\.(png|jpe?g|webp)$/i.test(file.name);
-          if ((isImage || file.type === 'application/pdf') && !ocr) ocr = lazyTesseract();
-          if (handwritten && !handwritingOcr) {
-            const key = getApiKey();
-            if (!key) throw new Error('Für Handschrift bitte zuerst in den Einstellungen den API-Schlüssel eintragen.');
-            const { createClaudeVisionEngine } = await import('./dokumente/import/ocr/claude');
-            handwritingOcr = createClaudeVisionEngine({ apiKey: key });
-          }
-          const existing = await db.fingerprints.toArray();
-          const kinds = new Map((await db.documents.toArray()).map((d) => [d.id, d.kind]));
-          const paragraphTexts = new Map((await db.paragraphs.toArray()).map((p) => [p.hash, p.text]));
-          let neueAbsaetze = new Map<string, string>();
-          const result = await importFile(
-            { name: file.name, bytes, lastModified: file.lastModified, handwritten },
-            {
-              existing: existing.map((f) => ({ ...f, kind: kinds.get(f.documentId) })),
-              existingParagraphText: (h) => paragraphTexts.get(h),
-              ocr, handwritingOcr, subjectIds: subjectId ? [subjectId] : [],
-              onParagraphs: (m) => { neueAbsaetze = m; },
-            },
-          );
-          if (result.report.matches.some((m) => m.kind === 'gleiche-datei')) {
-            ergebnisse.push({ name: file.name, report: result.report, error: 'Diese Datei ist schon vorhanden und wurde nicht erneut gespeichert.' });
-            continue;
-          }
-          await db.transaction('rw', [db.documents, db.chunks, db.fingerprints, db.paragraphs], async () => {
-            await db.documents.add(result.document);
-            await db.chunks.bulkAdd(result.chunks);
-            await db.fingerprints.add(result.fingerprint);
-            await db.paragraphs.bulkPut([...neueAbsaetze].map(([hash, text]) => ({ hash, text })));
-          });
-          ergebnisse.push({ name: file.name, report: result.report });
-        } catch (e) {
-          ergebnisse.push({ name: file.name, error: e instanceof Error ? e.message : String(e) });
-        }
-      }
+      setReports(await importiereDateien(Array.from(files), { subjectId, handwritten, onProgress: (name) => setBusy(`Lese ${name} …`) }));
     } finally {
-      await ocr?.terminate();
       setBusy('');
-      setReports(ergebnisse);
       reload();
     }
   }
 
   async function remove(id: string) {
     if (!confirm('Dokument und seine Textabschnitte löschen?')) return;
+    const title = docs.find((d) => d.id === id)?.title ?? 'Dokument';
     await deleteDocument(id);
+    await logActivity({ kind: 'dokument', severity: 'warning', ref: id, title: `${title} gelöscht`, detail: 'Abgeleitete Zusammenfassungen sind zur Prüfung markiert.' });
     if (open === id) setOpen(null);
     reload();
   }
 
   return (
-    <section>
-      <h2>Dokumente</h2>
+    <section className="page">
+      <div className="page__head">
+        <h2>Dokumente</h2>
+        <a className="button-link" href="#/material/import">Import-Assistent</a>
+      </div>
       <div className="card">
         <label className="field">Fach
           <select value={subjectId} onChange={(e) => setSubjectId(e.target.value)}>
@@ -112,7 +58,7 @@ export function Dokumente() {
           Handschrift (Bild wird zur Texterkennung an Claude gesendet, keine Patientendaten!)
         </label>
         <label className="upload">
-          <input type="file" multiple accept=".pdf,.docx,.pptx,.txt,.md,image/png,image/jpeg,image/webp"
+          <input type="file" multiple accept={ACCEPT}
             disabled={!!busy} onChange={(e) => { onFiles(e.target.files); e.target.value = ''; }} />
           <span>{busy || 'Dateien auswählen (PDF, Word, PowerPoint, Foto)'}</span>
         </label>
