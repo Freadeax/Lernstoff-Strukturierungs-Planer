@@ -1,0 +1,13 @@
+:root { --bg: #ffffff; --fg: #111827; --muted: #6b7280; --card: #f3f4f6; --accent: #2563eb; --danger: #dc2626; font-family: system-ui, -apple-system, sans-serif; color-scheme: light dark; }
+@media (prefers-color-scheme: dark) { :root { --bg: #0b0f17; --fg: #e5e7eb; --muted: #9ca3af; --card: #1f2937; } }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); }
+.app { max-width: 960px; margin: 0 auto; padding: env(safe-area-inset-top) 16px 32px; }
+header { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; padding: 12px 0; }
+h1 { font-size: 1.25rem; margin: 0; }
+nav { display: flex; gap: 8px; flex-wrap: wrap; }
+button { font: inherit; padding: 8px 14px; border-radius: 8px; border: 1px solid var(--muted); background: transparent; color: var(--fg); cursor: pointer; }
+button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+button.danger { border-color: var(--danger); color: var(--danger); }
+.card { background: var(--card); border-radius: 12px; padding: 16px; margin: 12px 0; }
+.roadmap li { margin: 6px 0; color: var(--muted); }

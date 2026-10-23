@@ -1,0 +1,29 @@
+{
+  "name": "lernstoff-planer",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Modularer Lernstoff-Planer mit quellengetreuen Zusammenfassungen, zuerst für die generalistische Pflegeausbildung",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview --host",
+    "test": "vitest run",
+    "typecheck": "tsc -b --noEmit"
+  },
+  "dependencies": {
+    "dexie": "^4.4.7",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "fake-indexeddb": "^6.0.0",
+    "typescript": "^5.9.0",
+    "vite": "^8.3.5",
+    "vite-plugin-pwa": "^2.0.0",
+    "vitest": "^5.0.5"
+  }
+}
