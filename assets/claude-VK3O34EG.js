@@ -1,4 +1,4 @@
-import{a as e,t}from"./index-DE2VdZCb.js";var n=`Transkribiere den Text auf diesem Bild wortgetreu (deutsch, Pflegeausbildung).
+import{c as e,t}from"./index-CirUrREI.js";var n=`Transkribiere den Text auf diesem Bild wortgetreu (deutsch, Pflegeausbildung).
 Regeln:
 - Nichts ergänzen, nichts korrigieren, keine Abkürzungen auflösen, Rechtschreibfehler beibehalten.
 - Absätze durch eine Leerzeile trennen, Zeilenumbrüche innerhalb eines Absatzes beibehalten.
