@@ -1,0 +1,143 @@
+# Themenbaum. Felder wie Topic im Kernvertrag (subjectId, parentId, prerequisites,
+# difficulty 1-5, estimatedMinutes) plus Katalog-Erweiterungen:
+#   competencyIds      -> Einträge aus frameworks (kb.*, ce.*)
+#   referenceIds       -> Einträge aus references (norm.*, es.*, as.*, mo.*)
+#   taskFormatIds      -> typische Aufgabenformate zu diesem Thema
+#   tags               -> freie Schlagworte für Suche und automatische Zuordnung
+# Build-Regeln (scripts/build-module.py): subjectId wird vom Elternthema geerbt, wenn es fehlt;
+# prerequisites ist standardmäßig []. estimatedMinutes = Erstlernzeit, ohne Wiederholungen.
+
+topics:
+  # ================= Anatomie und Physiologie =================
+  - { id: thema.ap, subjectId: fach.anatomie, name: "Anatomie und Physiologie", difficulty: 3 }
+  - { id: thema.ap.zelle,      parentId: thema.ap, name: "Zelle, Gewebe und Organsysteme (Grundlagen)", difficulty: 2, estimatedMinutes: 90, competencyIds: [ce.01] }
+  - { id: thema.ap.herz,       parentId: thema.ap, name: "Herz und Blutkreislauf", difficulty: 3, estimatedMinutes: 120, prerequisites: [thema.ap.zelle], competencyIds: [ce.05, ce.06] }
+  - { id: thema.ap.blut,       parentId: thema.ap, name: "Blut, Immunsystem und Lymphsystem", difficulty: 3, estimatedMinutes: 90, prerequisites: [thema.ap.zelle] }
+  - { id: thema.ap.atmung,     parentId: thema.ap, name: "Atmungssystem", difficulty: 3, estimatedMinutes: 90, prerequisites: [thema.ap.zelle], competencyIds: [ce.05, ce.06] }
+  - { id: thema.ap.verdauung,  parentId: thema.ap, name: "Verdauungssystem und Stoffwechsel", difficulty: 3, estimatedMinutes: 120, prerequisites: [thema.ap.zelle], competencyIds: [ce.02B, ce.04] }
+  - { id: thema.ap.niere,      parentId: thema.ap, name: "Niere, Harnwege und Wasser-Elektrolyt-Haushalt", difficulty: 4, estimatedMinutes: 120, prerequisites: [thema.ap.zelle] }
+  - { id: thema.ap.hormone,    parentId: thema.ap, name: "Hormonsystem (endokrines System)", difficulty: 4, estimatedMinutes: 90, prerequisites: [thema.ap.zelle] }
+  - { id: thema.ap.nerven,     parentId: thema.ap, name: "Nervensystem und Sinnesorgane", difficulty: 4, estimatedMinutes: 150, prerequisites: [thema.ap.zelle] }
+  - { id: thema.ap.bewegung,   parentId: thema.ap, name: "Bewegungsapparat (Knochen, Gelenke, Muskulatur)", difficulty: 2, estimatedMinutes: 90, prerequisites: [thema.ap.zelle], competencyIds: [ce.02A] }
+  - { id: thema.ap.haut,       parentId: thema.ap, name: "Haut und Hautanhangsgebilde", difficulty: 2, estimatedMinutes: 60, prerequisites: [thema.ap.zelle], competencyIds: [ce.02B] }
+  - { id: thema.ap.fortpflanzung, parentId: thema.ap, name: "Geschlechtsorgane, Schwangerschaft und Entwicklung", difficulty: 3, estimatedMinutes: 90, competencyIds: [ce.10] }
+
+  # ================= Krankheitslehre =================
+  - { id: thema.kl, subjectId: fach.krankheitslehre, name: "Krankheitslehre", difficulty: 3 }
+  - { id: thema.kl.allgemein,  parentId: thema.kl, name: "Allgemeine Krankheitslehre (Entzündung, Tumor, Ödem, Schock)", difficulty: 3, estimatedMinutes: 120, prerequisites: [thema.ap.zelle, thema.ap.blut] }
+  - { id: thema.kl.herz,       parentId: thema.kl, name: "Herz-Kreislauf-Erkrankungen", difficulty: 4, prerequisites: [thema.ap.herz, thema.kl.allgemein], competencyIds: [kb.I.2, kb.I.3, ce.05] }
+  - { id: thema.kl.herz.hypertonie,  parentId: thema.kl.herz, name: "Arterielle Hypertonie", difficulty: 2, estimatedMinutes: 60 }
+  - { id: thema.kl.herz.khk,         parentId: thema.kl.herz, name: "KHK und Herzinfarkt", difficulty: 4, estimatedMinutes: 90, competencyIds: [kb.I.4, ce.06] }
+  - { id: thema.kl.herz.insuffizienz, parentId: thema.kl.herz, name: "Herzinsuffizienz", difficulty: 4, estimatedMinutes: 90 }
+  - { id: thema.kl.herz.pavk,        parentId: thema.kl.herz, name: "pAVK, Thrombose und Lungenembolie", difficulty: 3, estimatedMinutes: 75, competencyIds: [kb.I.4] }
+  - { id: thema.kl.atmung,     parentId: thema.kl, name: "Erkrankungen der Atemwege (COPD, Asthma, Pneumonie)", difficulty: 3, estimatedMinutes: 120, prerequisites: [thema.ap.atmung, thema.kl.allgemein], competencyIds: [ce.05] }
+  - { id: thema.kl.diabetes,   parentId: thema.kl, name: "Diabetes mellitus", difficulty: 4, estimatedMinutes: 150, prerequisites: [thema.ap.hormone, thema.ap.verdauung], competencyIds: [kb.I.2, kb.II.2, ce.04, ce.05], tags: [Hypoglykämie, Insulin, Schulung, diabetisches Fußsyndrom] }
+  - { id: thema.kl.neuro,      parentId: thema.kl, name: "Neurologische Erkrankungen", difficulty: 4, prerequisites: [thema.ap.nerven] }
+  - { id: thema.kl.neuro.schlaganfall, parentId: thema.kl.neuro, name: "Schlaganfall (Apoplex)", difficulty: 4, estimatedMinutes: 120, competencyIds: [kb.I.4, ce.06, ce.07], tags: [FAST, Bobath, Neglect, Dysphagie] }
+  - { id: thema.kl.neuro.parkinson,    parentId: thema.kl.neuro, name: "Morbus Parkinson", difficulty: 3, estimatedMinutes: 60, competencyIds: [ce.07] }
+  - { id: thema.kl.neuro.ms,           parentId: thema.kl.neuro, name: "Multiple Sklerose", difficulty: 3, estimatedMinutes: 60 }
+  - { id: thema.kl.neuro.epilepsie,    parentId: thema.kl.neuro, name: "Epilepsie und Krampfanfall", difficulty: 3, estimatedMinutes: 60, competencyIds: [kb.I.4, ce.06] }
+  - { id: thema.kl.demenz,     parentId: thema.kl, name: "Demenz und Delir", difficulty: 3, estimatedMinutes: 120, prerequisites: [thema.ap.nerven], referenceIds: [es.demenz, as.mmst], competencyIds: [ce.11, kb.II.1] }
+  - { id: thema.kl.psych,      parentId: thema.kl, name: "Psychische Erkrankungen (Depression, Angst, Schizophrenie, Sucht)", difficulty: 4, estimatedMinutes: 150, competencyIds: [ce.11, kb.I.3] }
+  - { id: thema.kl.bewegung,   parentId: thema.kl, name: "Erkrankungen des Bewegungsapparats (Arthrose, Osteoporose, Frakturen, Endoprothetik)", difficulty: 3, estimatedMinutes: 90, prerequisites: [thema.ap.bewegung], competencyIds: [ce.02A, ce.07] }
+  - { id: thema.kl.verdauung,  parentId: thema.kl, name: "Erkrankungen des Verdauungstrakts und der Leber", difficulty: 3, estimatedMinutes: 90, prerequisites: [thema.ap.verdauung] }
+  - { id: thema.kl.niere,      parentId: thema.kl, name: "Nieren- und Harnwegserkrankungen (Niereninsuffizienz, HWI)", difficulty: 4, estimatedMinutes: 90, prerequisites: [thema.ap.niere] }
+  - { id: thema.kl.onko,       parentId: thema.kl, name: "Onkologische Erkrankungen und Tumortherapie", difficulty: 4, estimatedMinutes: 120, prerequisites: [thema.kl.allgemein], competencyIds: [ce.08] }
+  - { id: thema.kl.infektion,  parentId: thema.kl, name: "Infektionskrankheiten, multiresistente Erreger und Sepsis", difficulty: 3, estimatedMinutes: 90, prerequisites: [thema.ap.blut], referenceIds: [norm.ifsg], competencyIds: [ce.05] }
+  - { id: thema.kl.paediatrie, parentId: thema.kl, name: "Erkrankungen im Kindes- und Jugendalter", difficulty: 3, estimatedMinutes: 120, competencyIds: [ce.10] }
+  - { id: thema.kl.geriatrie,  parentId: thema.kl, name: "Geriatrische Syndrome und Multimorbidität", difficulty: 3, estimatedMinutes: 90, competencyIds: [ce.09] }
+
+  # ================= Symptome und Krankenbeobachtung =================
+  - { id: thema.beo, subjectId: fach.beobachtung, name: "Symptome und Krankenbeobachtung", difficulty: 2 }
+  - { id: thema.beo.vitalzeichen, parentId: thema.beo, name: "Vitalzeichen (Puls, Blutdruck, Atmung, Temperatur, SpO2)", difficulty: 2, estimatedMinutes: 90, prerequisites: [thema.ap.herz, thema.ap.atmung], referenceIds: [as.news], competencyIds: [kb.I.1, ce.05], tags: [Normwerte] }
+  - { id: thema.beo.bewusstsein,  parentId: thema.beo, name: "Bewusstsein, Orientierung und Schmerz", difficulty: 3, estimatedMinutes: 60, referenceIds: [as.gcs, as.nrs, as.besd, es.schmerz] }
+  - { id: thema.beo.haut,         parentId: thema.beo, name: "Haut, Ausscheidungen und Ernährungszustand", difficulty: 2, estimatedMinutes: 60, referenceIds: [as.bmi, as.mna] }
+  - { id: thema.beo.notfall,      parentId: thema.beo, name: "Notfallerkennung und Erste Hilfe (Reanimation BLS)", difficulty: 3, estimatedMinutes: 90, prerequisites: [thema.beo.vitalzeichen], competencyIds: [kb.I.4, ce.06], tags: [ABCDE, Reanimation] }
+
+  # ================= Pflegerische Maßnahmen und Interventionen =================
+  - { id: thema.ph, subjectId: fach.pflegehandeln, name: "Pflegerische Maßnahmen und Interventionen", difficulty: 2 }
+  - { id: thema.ph.hygiene,    parentId: thema.ph, name: "Hygiene (Händedesinfektion, Standardhygiene, Isolierung)", difficulty: 2, estimatedMinutes: 90, referenceIds: [norm.ifsg], competencyIds: [ce.01, ce.05] }
+  - { id: thema.ph.koerperpflege, parentId: thema.ph, name: "Körperpflege und Unterstützung bei der Selbstversorgung", difficulty: 1, estimatedMinutes: 60, prerequisites: [thema.ap.haut], competencyIds: [ce.02B] }
+  - { id: thema.ph.mobilisation,  parentId: thema.ph, name: "Mobilisation, Lagerung und Kinästhetik", difficulty: 2, estimatedMinutes: 90, prerequisites: [thema.ap.bewegung], referenceIds: [es.mobilitaet], competencyIds: [ce.02A] }
+  - { id: thema.ph.ernaehrung,    parentId: thema.ph, name: "Ernährung, Flüssigkeitszufuhr und Sondenernährung", difficulty: 2, estimatedMinutes: 75, prerequisites: [thema.ap.verdauung], referenceIds: [es.ernaehrung] }
+  - { id: thema.ph.ausscheidung,  parentId: thema.ph, name: "Ausscheidung, Kontinenzförderung und Katheterismus", difficulty: 2, estimatedMinutes: 75, prerequisites: [thema.ap.niere], referenceIds: [es.kontinenz] }
+  - { id: thema.ph.medikamente,   parentId: thema.ph, name: "Arzneimittel (Applikation, 6-R-Regel, Wirkungen, BtM)", difficulty: 3, estimatedMinutes: 120, referenceIds: [norm.btmg], competencyIds: [kb.III.2, ce.05], tags: [6-R-Regel] }
+  - { id: thema.ph.injektion,     parentId: thema.ph, name: "Injektionen, Infusionen und Blutentnahme", difficulty: 3, estimatedMinutes: 90, prerequisites: [thema.ph.hygiene, thema.ph.medikamente], competencyIds: [kb.III.2] }
+  - { id: thema.ph.wunde,         parentId: thema.ph, name: "Wundversorgung und Wundmanagement", difficulty: 3, estimatedMinutes: 90, prerequisites: [thema.ap.haut, thema.ph.hygiene], referenceIds: [es.wunden] }
+  - { id: thema.ph.periop,        parentId: thema.ph, name: "Prä- und postoperative Pflege", difficulty: 3, estimatedMinutes: 90, competencyIds: [ce.05] }
+  - { id: thema.ph.palliativ,     parentId: thema.ph, name: "Palliativpflege und Sterbebegleitung", difficulty: 3, estimatedMinutes: 90, competencyIds: [kb.I.3, ce.08] }
+  - { id: thema.ph.mund,          parentId: thema.ph, name: "Mundpflege und Mundgesundheit", difficulty: 1, estimatedMinutes: 45, referenceIds: [es.mundgesundheit] }
+
+  # ================= Prophylaxen und Risikoeinschätzung =================
+  - { id: thema.pro, subjectId: fach.prophylaxen, name: "Prophylaxen und Risikoeinschätzung", difficulty: 2, competencyIds: [kb.I.2, ce.04], taskFormatIds: [format.prophylaxe] }
+  - { id: thema.pro.dekubitus,   parentId: thema.pro, name: "Dekubitusprophylaxe", difficulty: 2, estimatedMinutes: 75, prerequisites: [thema.ap.haut, thema.ph.mobilisation], referenceIds: [es.dekubitus, as.braden, as.norton], tags: [Fingertest, Kategorien nach EPUAP] }
+  - { id: thema.pro.sturz,       parentId: thema.pro, name: "Sturzprophylaxe", difficulty: 2, estimatedMinutes: 60, referenceIds: [es.sturz, as.tug] }
+  - { id: thema.pro.pneumonie,   parentId: thema.pro, name: "Pneumonieprophylaxe", difficulty: 2, estimatedMinutes: 60, prerequisites: [thema.ap.atmung] }
+  - { id: thema.pro.thrombose,   parentId: thema.pro, name: "Thromboseprophylaxe", difficulty: 2, estimatedMinutes: 60, prerequisites: [thema.ap.herz], tags: [Virchow-Trias, MTS] }
+  - { id: thema.pro.kontraktur,  parentId: thema.pro, name: "Kontrakturenprophylaxe", difficulty: 2, estimatedMinutes: 45, prerequisites: [thema.ap.bewegung] }
+  - { id: thema.pro.aspiration,  parentId: thema.pro, name: "Aspirationsprophylaxe", difficulty: 2, estimatedMinutes: 45, tags: [Dysphagie] }
+  - { id: thema.pro.obstipation, parentId: thema.pro, name: "Obstipationsprophylaxe", difficulty: 1, estimatedMinutes: 30 }
+  - { id: thema.pro.intertrigo,  parentId: thema.pro, name: "Intertrigoprophylaxe", difficulty: 1, estimatedMinutes: 30 }
+  - { id: thema.pro.soor,        parentId: thema.pro, name: "Soor- und Parotitisprophylaxe", difficulty: 1, estimatedMinutes: 30, referenceIds: [es.mundgesundheit] }
+  - { id: thema.pro.dehydratation, parentId: thema.pro, name: "Dehydratations- und Mangelernährungsprophylaxe", difficulty: 2, estimatedMinutes: 45, referenceIds: [es.ernaehrung, as.mna] }
+  - { id: thema.pro.zystitis,    parentId: thema.pro, name: "Zystitisprophylaxe", difficulty: 1, estimatedMinutes: 30 }
+  - { id: thema.pro.deprivation, parentId: thema.pro, name: "Deprivationsprophylaxe", difficulty: 2, estimatedMinutes: 30, competencyIds: [ce.09] }
+  - { id: thema.pro.delir,       parentId: thema.pro, name: "Delirprophylaxe", difficulty: 3, estimatedMinutes: 45, prerequisites: [thema.kl.demenz] }
+
+  # ================= Pflegeprozess und Pflegedokumentation =================
+  - { id: thema.pp, subjectId: fach.pflegeprozess, name: "Pflegeprozess und Pflegedokumentation", difficulty: 3, competencyIds: [kb.I.1, ce.01], referenceIds: [norm.pflbg] }
+  - { id: thema.pp.modelle,      parentId: thema.pp, name: "Pflegemodelle und -theorien (ATL, AEDL, Orem, Roper)", difficulty: 3, estimatedMinutes: 90, referenceIds: [mo.atl-juchli, mo.aedl-krohwinkel, mo.orem, mo.roper], competencyIds: [kb.V.1] }
+  - { id: thema.pp.prozess,      parentId: thema.pp, name: "Pflegeprozess (6 Schritte Fiechter/Meier, 4 Phasen WHO)", difficulty: 2, estimatedMinutes: 90, referenceIds: [mo.fiechter-meier, mo.who-4-phasen], taskFormatIds: [format.pflegeplanung], tags: [vorbehaltene Tätigkeit] }
+  - { id: thema.pp.anamnese,     parentId: thema.pp, name: "Informationssammlung und Pflegeanamnese", difficulty: 2, estimatedMinutes: 60, prerequisites: [thema.pp.prozess] }
+  - { id: thema.pp.diagnosen,    parentId: thema.pp, name: "Pflegediagnosen, Probleme und Ressourcen (PESR)", difficulty: 3, estimatedMinutes: 90, prerequisites: [thema.pp.anamnese], referenceIds: [kl.nanda], taskFormatIds: [format.pesr] }
+  - { id: thema.pp.ziele,        parentId: thema.pp, name: "Pflegeziele formulieren (SMART)", difficulty: 3, estimatedMinutes: 60, prerequisites: [thema.pp.diagnosen], taskFormatIds: [format.smart] }
+  - { id: thema.pp.massnahmen,   parentId: thema.pp, name: "Pflegemaßnahmen planen und begründen", difficulty: 3, estimatedMinutes: 60, prerequisites: [thema.pp.ziele], taskFormatIds: [format.massnahme] }
+  - { id: thema.pp.evaluation,   parentId: thema.pp, name: "Durchführung, Evaluation und Pflegebericht", difficulty: 3, estimatedMinutes: 60, prerequisites: [thema.pp.massnahmen], taskFormatIds: [format.pflegebericht] }
+  - { id: thema.pp.sis,          parentId: thema.pp, name: "Strukturmodell und SIS", difficulty: 3, estimatedMinutes: 90, prerequisites: [thema.pp.prozess], referenceIds: [mo.strukturmodell], taskFormatIds: [format.sis] }
+  - { id: thema.pp.uebergabe,    parentId: thema.pp, name: "Dienstübergabe und Überleitung (SBAR)", difficulty: 2, estimatedMinutes: 45, referenceIds: [es.entlassung], competencyIds: [kb.III.3], taskFormatIds: [format.sbar] }
+
+  # ================= Kommunikation, Beratung und Ethik =================
+  - { id: thema.kom, subjectId: fach.kommunikation, name: "Kommunikation, Beratung und Ethik", difficulty: 2, competencyIds: [kb.II] }
+  - { id: thema.kom.grundlagen,  parentId: thema.kom, name: "Kommunikationsmodelle (Watzlawick, Schulz von Thun, Rogers)", difficulty: 2, estimatedMinutes: 90, competencyIds: [kb.II.1, ce.03] }
+  - { id: thema.kom.gespraech,   parentId: thema.kom, name: "Gesprächsführung, Konflikte und schwierige Gespräche", difficulty: 3, estimatedMinutes: 60, prerequisites: [thema.kom.grundlagen], competencyIds: [kb.II.1] }
+  - { id: thema.kom.beratung,    parentId: thema.kom, name: "Information, Schulung und Beratung (Anleitung, Edukation)", difficulty: 3, estimatedMinutes: 75, prerequisites: [thema.kom.grundlagen], competencyIds: [kb.II.2, ce.04], taskFormatIds: [format.beratung] }
+  - { id: thema.kom.ethik,       parentId: thema.kom, name: "Pflegeethik (Prinzipien, ICN-Ethikkodex, ethische Fallbesprechung)", difficulty: 4, estimatedMinutes: 90, competencyIds: [kb.II.3, kb.IV], taskFormatIds: [format.ethik] }
+  - { id: thema.kom.kultur,      parentId: thema.kom, name: "Kultursensible Pflege und Diversität", difficulty: 2, estimatedMinutes: 45, competencyIds: [kb.II.1, ce.09] }
+  - { id: thema.kom.selbstpflege, parentId: thema.kom, name: "Rollenverständnis, Stress und Selbstpflege", difficulty: 2, estimatedMinutes: 45, competencyIds: [kb.V.2, ce.01, ce.03] }
+
+  # ================= Recht und Rahmenbedingungen =================
+  - { id: thema.re, subjectId: fach.recht, name: "Recht und Rahmenbedingungen", difficulty: 3, competencyIds: [kb.IV] }
+  - { id: thema.re.berufsrecht,  parentId: thema.re, name: "Berufsrecht (PflBG, PflAPrV, vorbehaltene Tätigkeiten)", difficulty: 2, estimatedMinutes: 60, referenceIds: [norm.pflbg, norm.pflaprv], competencyIds: [ce.01] }
+  - { id: thema.re.sozialrecht,  parentId: thema.re, name: "Sozialrecht und Sozialversicherung", difficulty: 3, estimatedMinutes: 60, competencyIds: [kb.IV.2] }
+  - { id: thema.re.sgb5,         parentId: thema.re.sozialrecht, name: "SGB V (Krankenversicherung, häusliche Krankenpflege)", difficulty: 3, estimatedMinutes: 60, referenceIds: [norm.sgb5] }
+  - { id: thema.re.sgb11,        parentId: thema.re.sozialrecht, name: "SGB XI (Pflegeversicherung, Pflegebedürftigkeit)", difficulty: 3, estimatedMinutes: 75, referenceIds: [norm.sgb11] }
+  - { id: thema.re.pflegegrade,  parentId: thema.re.sozialrecht, name: "Pflegegrade, Begutachtung (NBA) und Leistungen", difficulty: 4, estimatedMinutes: 90, prerequisites: [thema.re.sgb11], referenceIds: [as.nba, norm.sgb11], tags: [MD, Module, Pflegegeld, Sachleistung] }
+  - { id: thema.re.schweigepflicht, parentId: thema.re, name: "Schweigepflicht und Datenschutz", difficulty: 2, estimatedMinutes: 45, referenceIds: [norm.stgb203, norm.dsgvo] }
+  - { id: thema.re.haftung,      parentId: thema.re, name: "Haftung, Delegation und Durchführungsverantwortung", difficulty: 3, estimatedMinutes: 60, referenceIds: [norm.bgb-haftung, norm.stgb-koerperverletzung], competencyIds: [kb.III.2] }
+  - { id: thema.re.betreuung,    parentId: thema.re, name: "Betreuungsrecht, Patientenverfügung und Vorsorgevollmacht", difficulty: 3, estimatedMinutes: 60, referenceIds: [norm.bgb-betreuung], competencyIds: [ce.08] }
+  - { id: thema.re.fem,          parentId: thema.re, name: "Freiheitsentziehende Maßnahmen", difficulty: 3, estimatedMinutes: 45, prerequisites: [thema.re.betreuung], referenceIds: [norm.bgb-betreuung, norm.stgb-koerperverletzung], tags: [Werdenfelser Weg] }
+  - { id: thema.re.arbeitsrecht, parentId: thema.re, name: "Arbeitsrecht und Arbeitsschutz", difficulty: 2, estimatedMinutes: 45, referenceIds: [norm.arbzg] }
+  - { id: thema.re.versorgung,   parentId: thema.re, name: "Versorgungsstrukturen (Krankenhaus, stationäre Langzeitpflege, ambulante Pflege)", difficulty: 2, estimatedMinutes: 45, referenceIds: [norm.heimrecht], competencyIds: [kb.IV.2] }
+
+  # ================= Qualität, Expertenstandards, Pflegewissenschaft =================
+  - { id: thema.qw, subjectId: fach.qualitaet, name: "Qualität, Expertenstandards und Pflegewissenschaft", difficulty: 3, competencyIds: [kb.IV.1, kb.V.1] }
+  - { id: thema.qw.qm,           parentId: thema.qw, name: "Qualitätsmanagement (Struktur-, Prozess-, Ergebnisqualität, PDCA)", difficulty: 3, estimatedMinutes: 60, competencyIds: [kb.IV.1] }
+  - { id: thema.qw.expertenstandards, parentId: thema.qw, name: "Expertenstandards des DNQP (Aufbau und Anwendung)", difficulty: 3, estimatedMinutes: 60, prerequisites: [thema.qw.qm], referenceIds: [es.dekubitus, es.sturz, es.schmerz, es.entlassung, es.kontinenz, es.wunden, es.ernaehrung, es.demenz, es.mobilitaet, es.mundgesundheit, norm.sgb11] }
+  - { id: thema.qw.ebn,          parentId: thema.qw, name: "Evidence-based Nursing und Studien lesen", difficulty: 4, estimatedMinutes: 90, competencyIds: [kb.V.1] }
+
+  # ================= Praxisfälle und Fallbearbeitung =================
+  - { id: thema.fa, subjectId: fach.fallarbeit, name: "Praxisfälle und Fallbearbeitung", difficulty: 4, competencyIds: [kb.I.1], taskFormatIds: [format.fallbearbeitung] }
+  - { id: thema.fa.analyse,      parentId: thema.fa, name: "Pflegesituation analysieren (Bedarf, Ressourcen, Risiken)", difficulty: 3, estimatedMinutes: 60, prerequisites: [thema.pp.diagnosen] }
+  - { id: thema.fa.planung,      parentId: thema.fa, name: "Ziele und Maßnahmen fallbezogen ableiten und begründen", difficulty: 4, estimatedMinutes: 90, prerequisites: [thema.fa.analyse, thema.pp.ziele, thema.pp.massnahmen] }
+  - { id: thema.fa.evaluation,   parentId: thema.fa, name: "Durchführung und Evaluation fallbezogen beurteilen", difficulty: 4, estimatedMinutes: 60, prerequisites: [thema.fa.planung, thema.pp.evaluation] }
+  - { id: thema.fa.akut,         parentId: thema.fa, name: "Fälle Akutpflege (Krankenhaus)", difficulty: 4, estimatedMinutes: 120, prerequisites: [thema.fa.planung], competencyIds: [ce.05, ce.06] }
+  - { id: thema.fa.langzeit,     parentId: thema.fa, name: "Fälle stationäre Langzeitpflege", difficulty: 4, estimatedMinutes: 120, prerequisites: [thema.fa.planung, thema.pp.sis], competencyIds: [ce.09] }
+  - { id: thema.fa.ambulant,     parentId: thema.fa, name: "Fälle ambulante Pflege", difficulty: 4, estimatedMinutes: 120, prerequisites: [thema.fa.planung, thema.re.sgb11], competencyIds: [ce.09, kb.IV.2] }
+  - { id: thema.fa.paediatrie,   parentId: thema.fa, name: "Fälle pädiatrische Versorgung", difficulty: 4, estimatedMinutes: 120, prerequisites: [thema.fa.planung, thema.kl.paediatrie], competencyIds: [ce.10] }
+  - { id: thema.fa.psychiatrie,  parentId: thema.fa, name: "Fälle psychiatrische Versorgung", difficulty: 4, estimatedMinutes: 120, prerequisites: [thema.fa.planung, thema.kl.psych], competencyIds: [ce.11] }
+
+  # ================= Fachsprache =================
+  - { id: thema.fs, subjectId: fach.fachsprache, name: "Medizinische Fachbegriffe und Abkürzungen", difficulty: 2 }
+  - { id: thema.fs.wortbildung,  parentId: thema.fs, name: "Wortbausteine (Präfixe, Suffixe, Wortstämme)", difficulty: 2, estimatedMinutes: 60 }
+  - { id: thema.fs.lage,         parentId: thema.fs, name: "Lage- und Richtungsbezeichnungen", difficulty: 1, estimatedMinutes: 30, prerequisites: [thema.fs.wortbildung] }
+  - { id: thema.fs.abkuerzungen, parentId: thema.fs, name: "Abkürzungen in Klinik und Dokumentation", difficulty: 2, estimatedMinutes: 45 }

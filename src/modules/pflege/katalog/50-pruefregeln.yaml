@@ -1,0 +1,48 @@
+# Fachspezifische Prüfregeln für die Qualitätskontrolle (CheckRule: id, description).
+# Erweiterungen:
+#   severity: fehler | warnung | hinweis
+#   scope: welche Ausgaben die Regel prüft (Aufgabenformat-IDs oder "zusammenfassung")
+#   method: struktur (maschinell prüfbar) | llm (Modell beurteilt) | abgleich (gegen Katalog/Quelle)
+# Die allgemeinen Regeln (Quellenprüfung, Seitenzahlen, Erfindungen) liegen im Kern.
+
+checkRules:
+  - { id: regel.pesr.vollstaendig, severity: fehler, method: struktur, scope: [format.pesr],
+      description: "PESR enthält P, E, S und R; bei Risikodiagnosen darf S fehlen." }
+  - { id: regel.pesr.keine-med-diagnose, severity: fehler, method: llm, scope: [format.pesr],
+      description: "Das Pflegeproblem ist keine medizinische Diagnose (z. B. nicht 'Diabetes', sondern die daraus folgende Beeinträchtigung)." }
+  - { id: regel.pesr.risiko-ohne-s, severity: hinweis, method: llm, scope: [format.pesr],
+      description: "Bei einer Risikodiagnose ('Gefahr von ...') werden keine Symptome genannt, sondern Risikofaktoren." }
+  - { id: regel.smart.termin, severity: fehler, method: struktur, scope: [format.smart],
+      description: "Pflegeziel enthält einen Überprüfungszeitpunkt oder Zeitraum." }
+  - { id: regel.smart.messbar, severity: fehler, method: llm, scope: [format.smart],
+      description: "Pflegeziel enthält ein beobachtbares oder messbares Kriterium." }
+  - { id: regel.smart.patientenperspektive, severity: warnung, method: llm, scope: [format.smart],
+      description: "Pflegeziel ist aus Sicht des zu pflegenden Menschen formuliert ('Frau M. kann ...'), nicht als Pflegehandlung." }
+  - { id: regel.ziel-passt-zu-problem, severity: fehler, method: llm, scope: [format.smart, format.pflegeplanung, format.fallbearbeitung],
+      description: "Jedes Ziel ist einem Problem zugeordnet und jede Maßnahme einem Ziel." }
+  - { id: regel.massnahme.konkret, severity: warnung, method: llm, scope: [format.massnahme],
+      description: "Maßnahme beantwortet was, wie, wann/wie oft und wer." }
+  - { id: regel.massnahme.begruendet, severity: warnung, method: abgleich, scope: [format.massnahme, format.fallbearbeitung],
+      description: "Maßnahme ist fachlich begründet, bevorzugt mit Quelle oder Expertenstandard." }
+  - { id: regel.pflegeplanung.durchgaengig, severity: fehler, method: struktur, scope: [format.pflegeplanung],
+      description: "Alle Schritte des Pflegeprozesses sind vorhanden und in der richtigen Reihenfolge." }
+  - { id: regel.sis.perspektive, severity: warnung, method: llm, scope: [format.sis],
+      description: "Feld A gibt die Sicht der Person wieder; Themenfelder trennen Sicht der Person und fachliche Einschätzung." }
+  - { id: regel.sis.matrix, severity: fehler, method: struktur, scope: [format.sis],
+      description: "Die Risikomatrix ist für alle Risiken ausgefüllt." }
+  - { id: regel.bericht.wertfrei, severity: warnung, method: llm, scope: [format.pflegebericht],
+      description: "Pflegebericht beschreibt Beobachtungen sachlich, ohne Wertungen ('aggressiv', 'uneinsichtig')." }
+  - { id: regel.fall.bezug, severity: fehler, method: llm, scope: [format.fallbearbeitung],
+      description: "Antworten beziehen sich auf die konkrete Person und Situation des Falls, nicht nur auf Lehrbuchwissen." }
+  - { id: regel.operator.erfuellt, severity: fehler, method: llm, scope: [format.fallbearbeitung],
+      description: "Die Antwort erfüllt den Operator der Aufgabe (z. B. 'begründen' verlangt eine Begründung, 'nennen' keine Erklärung)." }
+  - { id: regel.anzahl.exakt, severity: fehler, method: struktur, scope: [format.fallbearbeitung],
+      description: "Die geforderte Anzahl an Punkten wird exakt eingehalten (z. B. 'Nennen Sie drei ...')." }
+  - { id: regel.recht.aktualitaet, severity: warnung, method: abgleich, scope: [zusammenfassung],
+      description: "Genannte Paragraphen passen zum aktuellen Rechtsstand; Abweichungen zum Lehrbuch (z. B. Betreuungsrecht vor 2023) werden gekennzeichnet, nicht stillschweigend korrigiert." }
+  - { id: regel.fachbegriff.erhalten, severity: fehler, method: abgleich, scope: [zusammenfassung],
+      description: "Fachbegriffe aus dem Glossar werden nicht durch Synonyme ersetzt, wenn die Quelle den Fachbegriff verwendet." }
+  - { id: regel.zahlen.quelle, severity: fehler, method: abgleich, scope: [zusammenfassung],
+      description: "Normwerte, Grenzwerte und Dosierungen stammen aus der Quelle; Katalogwerte werden als ergänzend markiert." }
+  - { id: regel.expertenstandard.version, severity: hinweis, method: abgleich, scope: [zusammenfassung],
+      description: "Bei Expertenstandards wird die Auflage/Aktualisierung aus der Quelle angegeben." }

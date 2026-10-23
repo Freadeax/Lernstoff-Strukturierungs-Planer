@@ -1,0 +1,128 @@
+# Aufgabenformate (TaskFormat im Kernvertrag: id, name, description, requiredParts).
+# Erweiterung "parts": jedes Pflichtteil mit Label und Hinweis, damit Arbeitsauftrags-
+# und Prüfungsmodus Antworten strukturiert abfragen und bewerten können.
+# requiredParts wird beim Build aus parts (required: true) erzeugt.
+# checkRuleIds verweist auf 50-pruefregeln.yaml.
+
+taskFormats:
+  - id: format.pesr
+    name: Pflegediagnose nach PESR
+    description: Pflegeproblem/Pflegediagnose strukturiert formulieren. In manchen Lehrbüchern als PÄS bzw. PÄSR bezeichnet (Ä = Ätiologie).
+    referenceIds: [kl.nanda]
+    parts:
+      - { key: P, label: "Problem (Pflegediagnosetitel)", required: true, hint: "Beeinträchtigung bzw. Risiko des Menschen, nicht die medizinische Diagnose." }
+      - { key: E, label: "Einflussfaktoren/Ursache (Ätiologie)", required: true, hint: "Eingeleitet mit 'beeinflusst durch' oder 'aufgrund von'. Muss pflegerisch beeinflussbar sein." }
+      - { key: S, label: "Symptome/Merkmale", required: true, hint: "Eingeleitet mit 'angezeigt durch' bzw. 'erkennbar an'. Bei Risikodiagnosen entfällt S." }
+      - { key: R, label: "Ressourcen", required: true, hint: "Fähigkeiten und Unterstützung, die der Mensch einbringen kann." }
+    checkRuleIds: [regel.pesr.vollstaendig, regel.pesr.keine-med-diagnose, regel.pesr.risiko-ohne-s]
+
+  - id: format.smart
+    name: Pflegeziel nach SMART
+    description: Überprüfbares Pflegeziel aus Sicht des zu pflegenden Menschen.
+    parts:
+      - { key: S, label: "Spezifisch", required: true, hint: "Konkret und eindeutig auf den Menschen bezogen" }
+      - { key: M, label: "Messbar", required: true, hint: "Beobachtbares Kriterium oder Wert (z. B. Gehstrecke, NRS < 3)." }
+      - { key: A, label: "Akzeptiert/attraktiv", required: true, hint: "Mit dem Menschen abgestimmt" }
+      - { key: R, label: "Realistisch", required: true, hint: "Mit den vorhandenen Ressourcen erreichbar" }
+      - { key: T, label: "Terminiert", required: true, hint: "Datum oder Zeitraum der Überprüfung" }
+    checkRuleIds: [regel.smart.termin, regel.smart.messbar, regel.smart.patientenperspektive, regel.ziel-passt-zu-problem]
+
+  - id: format.massnahme
+    name: Pflegemaßnahme
+    description: Maßnahme so konkret planen, dass jede Pflegeperson sie gleich durchführen kann.
+    parts:
+      - { key: was,       label: "Was", required: true }
+      - { key: wie,       label: "Wie (Durchführung, Hilfsmittel)", required: true }
+      - { key: wann,      label: "Wann/wie oft", required: true }
+      - { key: wer,       label: "Wer", required: true }
+      - { key: begruendung, label: "Fachliche Begründung", required: true, hint: "Bezug zu Ziel, Expertenstandard oder Quelle." }
+    checkRuleIds: [regel.massnahme.konkret, regel.massnahme.begruendet]
+
+  - id: format.pflegeplanung
+    name: Pflegeplanung (Pflegeprozess)
+    description: Vollständige Planung entlang des Pflegeprozesses.
+    referenceIds: [mo.fiechter-meier]
+    parts:
+      - { key: info,       label: "Informationssammlung", required: true }
+      - { key: probleme,   label: "Probleme und Ressourcen (PESR)", required: true }
+      - { key: ziele,      label: "Pflegeziele (SMART)", required: true }
+      - { key: massnahmen, label: "Pflegemaßnahmen", required: true }
+      - { key: durchfuehrung, label: "Durchführung", required: false }
+      - { key: evaluation, label: "Evaluation", required: true }
+    checkRuleIds: [regel.pflegeplanung.durchgaengig, regel.ziel-passt-zu-problem]
+
+  - id: format.sis
+    name: Strukturierte Informationssammlung (SIS)
+    description: Einstiegselement des Strukturmodells. Themenfelder aus Sicht der pflegebedürftigen Person und fachliche Einschätzung der Pflegefachperson.
+    referenceIds: [mo.strukturmodell]
+    parts:
+      - { key: A,  label: "Feld A: Eigeneinschätzung der Person (Was bewegt Sie? Was brauchen Sie?)", required: true, hint: "Wörtlich bzw. sinngemäß aus Sicht der Person" }
+      - { key: TF1, label: "Themenfeld 1: Kognitive und kommunikative Fähigkeiten", required: true }
+      - { key: TF2, label: "Themenfeld 2: Mobilität und Beweglichkeit", required: true }
+      - { key: TF3, label: "Themenfeld 3: Krankheitsbezogene Anforderungen und Belastungen", required: true }
+      - { key: TF4, label: "Themenfeld 4: Selbstversorgung", required: true }
+      - { key: TF5, label: "Themenfeld 5: Leben in sozialen Beziehungen", required: true }
+      - { key: TF6, label: "Themenfeld 6: Wohnen/Häuslichkeit (stationär) bzw. Haushaltsführung (ambulant)", required: true }
+      - { key: matrix, label: "Risikomatrix (Dekubitus, Sturz, Inkontinenz, Schmerz, Ernährung, Sonstiges)", required: true, hint: "Je Risiko: ja/nein, weitere Einschätzung notwendig ja/nein, Beratung erfolgt." }
+    checkRuleIds: [regel.sis.perspektive, regel.sis.matrix]
+
+  - id: format.pflegebericht
+    name: Pflegebericht
+    description: Sachliche, zeitnahe Dokumentation mit Fokus auf Abweichungen und Besonderheiten.
+    parts:
+      - { key: zeit,   label: "Datum, Uhrzeit, Handzeichen", required: true }
+      - { key: beobachtung, label: "Beobachtung (objektiv)", required: true }
+      - { key: massnahme,   label: "Ergriffene Maßnahme", required: false }
+      - { key: wirkung,     label: "Wirkung/Reaktion", required: false }
+    checkRuleIds: [regel.bericht.wertfrei]
+
+  - id: format.sbar
+    name: Übergabe nach SBAR
+    description: Strukturierte Kommunikation bei Übergabe und Arztinformation.
+    parts:
+      - { key: S, label: "Situation", required: true }
+      - { key: B, label: "Background (Hintergrund)", required: true }
+      - { key: A, label: "Assessment (Einschätzung)", required: true }
+      - { key: R, label: "Recommendation (Empfehlung/Bitte)", required: true }
+
+  - id: format.prophylaxe
+    name: Prophylaxe-Schema
+    description: Wiederkehrende Gliederung, nach der Prophylaxen gelernt und abgefragt werden.
+    parts:
+      - { key: definition, label: "Definition", required: true }
+      - { key: ursachen,   label: "Ursachen und Risikofaktoren", required: true }
+      - { key: einschaetzung, label: "Risikoeinschätzung (Assessment)", required: true }
+      - { key: massnahmen, label: "Prophylaktische Maßnahmen mit Begründung", required: true }
+      - { key: beobachtung, label: "Beobachtung und Evaluation", required: true }
+      - { key: standard,   label: "Bezug zum Expertenstandard", required: false }
+
+  - id: format.beratung
+    name: Beratungs- oder Anleitungssituation
+    description: Planung einer Information, Schulung oder Beratung.
+    parts:
+      - { key: anlass,  label: "Anlass und Bedarf", required: true }
+      - { key: ziel,    label: "Beratungsziel", required: true }
+      - { key: inhalt,  label: "Inhalte", required: true }
+      - { key: methode, label: "Methoden und Medien", required: true }
+      - { key: evaluation, label: "Evaluation", required: true }
+
+  - id: format.ethik
+    name: Ethische Fallbesprechung
+    description: Strukturierte Bearbeitung eines ethischen Dilemmas (z. B. nach Nimwegener Methode).
+    parts:
+      - { key: problem, label: "Ethisches Problem benennen", required: true }
+      - { key: fakten,  label: "Fakten (medizinisch, pflegerisch, weltanschaulich, organisatorisch)", required: true }
+      - { key: prinzipien, label: "Abwägung ethischer Prinzipien (Autonomie, Fürsorge, Nichtschaden, Gerechtigkeit)", required: true }
+      - { key: entscheidung, label: "Entscheidung und Begründung", required: true }
+
+  - id: format.fallbearbeitung
+    name: Fallbearbeitung (Klausur/Prüfung)
+    description: Analyse einer Pflegesituation nach der Logik der fallbezogenen Prüfungsaufgaben.
+    parts:
+      - { key: situation, label: "Situationsanalyse (Wer? Setting? Diagnosen?)", required: true }
+      - { key: bedarf,    label: "Pflegebedarf und Ressourcen", required: true }
+      - { key: probleme,  label: "Pflegeprobleme und Risiken (PESR)", required: true }
+      - { key: ziele,     label: "Pflegeziele (SMART)", required: true }
+      - { key: massnahmen, label: "Maßnahmen mit Begründung", required: true }
+      - { key: evaluation, label: "Durchführung und Evaluation beurteilen", required: true }
+    checkRuleIds: [regel.fall.bezug, regel.operator.erfuellt, regel.anzahl.exakt, regel.ziel-passt-zu-problem]

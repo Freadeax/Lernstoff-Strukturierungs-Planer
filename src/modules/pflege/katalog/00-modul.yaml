@@ -1,0 +1,28 @@
+# Fachmodul: Generalistische Pflegeausbildung (PflBG / PflAPrV)
+# Quelle dieses Katalogs ist Fachwissen, NICHT die Lernmaterialien des Nutzers.
+# Alle Inhalte gelten daher in der App als "ergänzendes Wissen" (isSupplementary),
+# bis sie durch ein importiertes Dokument belegt sind. Rechtsangaben tragen
+# pruefstatus "ungeprueft", solange sie nicht gegen den Normtext geprüft wurden.
+
+id: pflege-generalistisch
+name: Generalistische Pflegeausbildung (Pflegefachfrau/Pflegefachmann)
+version: 0.1.0
+sprache: de
+stand: "2026-10-23"
+rechtsgrundlagen: [norm.pflbg, norm.pflaprv]
+
+# Fächer = Lernbereiche, in die der Nutzer Material und Prüfungen einsortiert.
+# Pflegeschulen arbeiten mit curricularen Einheiten (CE) statt klassischer Fächer;
+# die CE-Zuordnung steht deshalb zusätzlich an jedem Thema (curriculumUnitIds).
+subjects:
+  - { id: fach.anatomie,        code: AP,  name: "Anatomie und Physiologie" }
+  - { id: fach.krankheitslehre, code: KL,  name: "Krankheitslehre (Pathologie und Krankheitsbilder)" }
+  - { id: fach.beobachtung,     code: BEO, name: "Symptome und Krankenbeobachtung" }
+  - { id: fach.pflegehandeln,   code: PH,  name: "Pflegerische Maßnahmen und Interventionen" }
+  - { id: fach.prophylaxen,     code: PRO, name: "Prophylaxen und Risikoeinschätzung" }
+  - { id: fach.pflegeprozess,   code: PP,  name: "Pflegeprozess und Pflegedokumentation" }
+  - { id: fach.kommunikation,   code: KOM, name: "Kommunikation, Beratung und Ethik" }
+  - { id: fach.recht,           code: RE,  name: "Recht und Rahmenbedingungen" }
+  - { id: fach.qualitaet,       code: QW,  name: "Qualität, Expertenstandards und Pflegewissenschaft" }
+  - { id: fach.fallarbeit,      code: FA,  name: "Praxisfälle und Fallbearbeitung" }
+  - { id: fach.fachsprache,     code: FS,  name: "Medizinische Fachbegriffe und Abkürzungen" }
