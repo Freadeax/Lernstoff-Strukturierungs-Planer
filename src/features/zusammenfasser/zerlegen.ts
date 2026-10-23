@@ -2,7 +2,7 @@
 // in Aussagen zerlegen. Markierungen wie <ergaenzung> bestimmen die Art der Aussage.
 
 import type { Beleg, Chunk, PruefClaim } from '../qualitaet/deterministisch';
-import type { ClaimKind } from './typen';
+import type { ClaimKind } from '../../core/types';
 
 // ---------------------------------------------------------------------------
 

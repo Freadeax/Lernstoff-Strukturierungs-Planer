@@ -1,11 +1,11 @@
 // Deterministische Prüfungen Q1–Q6 der Qualitätskontrolle (siehe docs/ZUSAMMENFASSER.md, Abschnitt 6).
 // Laufen per Code, nicht per KI, damit die Kontrolle nicht auf dem Modell beruht, das den Text geschrieben hat.
 
-import type { SourceChunk, SummaryMode } from '../../core/types';
-import type { CitationExt, ClaimKind } from '../zusammenfasser/typen';
+import type { Citation, ClaimKind, SourceChunk, SummaryMode } from '../../core/types';
+import type { CatalogGlossaryEntry } from '../../modules/catalog-types';
 
 export type Chunk = SourceChunk;
-export type Beleg = CitationExt;
+export type Beleg = Citation;
 export type Modus = SummaryMode;
 /** Aussage in der Form, die die Prüfungen brauchen (Teilmenge von ClaimExt). */
 export interface PruefClaim { id: string; text: string; kind: ClaimKind; citations: Beleg[]; aufgabeNr?: string; }
@@ -191,7 +191,7 @@ export function pruefeZahlenwiderspruch(claim: PruefClaim): PruefBefund[] {
 // Q3: Fachbegriffe
 // ---------------------------------------------------------------------------
 
-export interface Begriff { term: string; abbreviation?: string; synonyms?: string[]; }
+export type Begriff = Pick<CatalogGlossaryEntry, 'term' | 'abbreviation' | 'synonyms'>;
 
 const enthaelt = (text: string, wort: string) =>
   new RegExp(`(^|[^\\p{L}])${normalisiere(wort).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'u').test(normalisiere(text));

@@ -6,7 +6,7 @@ Richtet sich nach dem Kernvertrag `src/core/types.ts` und `docs/ARCHITEKTUR.md`.
 | Datei | Inhalt |
 |---|---|
 | `docs/ZUSAMMENFASSER.md` | dieses Dokument |
-| `src/features/zusammenfasser/typen.ts` | Erweiterungstypen für Pipeline, Belege und Prüfbefunde (bauen auf dem Kernvertrag auf) |
+| `src/features/zusammenfasser/typen.ts` | Typen nur für den Zusammenfasser (Aufgaben, Prüfungsfragen, Vergleich, Pipeline-Läufe) |
 | `src/features/zusammenfasser/prompts/` | Prompt-Vorlagen: Basis, fünf Modi, Aufgaben-Extraktion, KI-Prüfer, Reparatur |
 | `src/features/zusammenfasser/zerlegen.ts` | Schritt [4]: Citations-Antwort in Aussagen zerlegen |
 | `src/features/qualitaet/deterministisch.ts` | Prüfungen, die per Code statt per KI laufen (Zitat, Zahlen, Begriffe, Punktanzahl, Markierungen) |
@@ -104,7 +104,7 @@ Jeder Chunk-Text beginnt mit einer kurzen Kopfzeile `[S. 412 | 12.3 Dekubituspro
 
 ### Intern (gespeichert)
 
-`Citation` aus dem Kernvertrag, ergänzt um Zeichenpositionen für die Hervorhebung (Änderungswunsch an den Architektur-Thread, siehe Abschnitt 10):
+`Citation` aus dem Kernvertrag (mit Zeichenpositionen für die Hervorhebung):
 
 ```ts
 { chunkId, documentId, page, printedPage?, quote, charStart?, charEnd? }
@@ -180,7 +180,7 @@ Zweistufig, weil ein falsch gelesener Auftrag alles Weitere verdirbt.
 
 1. **Aufgabenanalyse** (`prompts/10-aufgaben-extraktion.md`, strukturierte Ausgabe): Aus Arbeitsblatt/Foto/PDF werden alle Aufgaben in Originalreihenfolge gelesen: Nummer, Wortlaut, Operator(en), geforderte Anzahl („Nennen Sie fünf…“ → 5), verlangte Bestandteile („mit Begründung“, „in Tabellenform“, „nach PESR“), Quellenvorgabe („anhand von S. 40–45“), Fallbezug. Unsichere Lesungen werden markiert.
 2. **Bestätigung:** Die App zeigt die erkannte Aufgabenliste. Du bestätigst oder korrigierst sie. (Kann in den Einstellungen auf „nur bei Unsicherheit nachfragen“ gestellt werden.)
-3. **Bearbeitung** (`prompts/03-arbeitsauftrag.md`): Je Aufgabe ein Abschnitt `<aufgabe nr="…">`, in der vorgegebenen Reihenfolge. Genau die geforderte Anzahl Punkte. Operator laut Operatorenkatalog des Fachmoduls (z. B. *nennen* = ohne Erläuterung aufzählen, *erläutern* = mit Beispielen/Begründung verständlich machen, *beurteilen* = begründetes Urteil). Aufgabenformate wie PESR, SMART, SIS kommen als `TaskFormat` mit `requiredParts` aus dem Fachmodul und werden vom Code geprüft.
+3. **Bearbeitung** (`prompts/03-arbeitsauftrag.md`): Je Aufgabe ein Abschnitt `<aufgabe nr="…">`, in der vorgegebenen Reihenfolge. Genau die geforderte Anzahl Punkte. Operator laut Operatorenkatalog des Fachmoduls (`operators` in `catalog-types.ts`) (z. B. *nennen* = ohne Erläuterung aufzählen, *erläutern* = mit Beispielen/Begründung verständlich machen, *beurteilen* = begründetes Urteil). Aufgabenformate wie PESR, SMART, SIS kommen als `TaskFormat` mit `requiredParts` aus dem Fachmodul und werden vom Code geprüft.
 4. Niveau: generalistische Pflegeausbildung, Sprache einer guten schriftlichen Schülerleistung, keine Fachsprache über dem Niveau der Quellen.
 
 ### 5.4 Prüfungsmodus (`pruefung`)
@@ -202,7 +202,7 @@ Drei Schritte, damit Unterschiede nicht beim Zusammenfassen verschwinden:
 
 ## 6. Qualitätskontrolle
 
-Jede Prüfung erzeugt `Befund`e mit Schwere `blocker`, `warnung` oder `hinweis` (siehe `typen.ts`). Q1–Q6 laufen per Code (Prototyp vorhanden), K1–K5 im KI-Prüfer (`prompts/20-pruefer.md`).
+Jede Prüfung erzeugt `Befund`e mit Schwere `blocker`, `warnung` oder `hinweis` (Typ `Befund` in `src/core/types.ts`). Q1–Q6 laufen per Code (Prototyp vorhanden), K1–K5 im KI-Prüfer (`prompts/20-pruefer.md`).
 
 ### 6.1 Quellenprüfung
 
@@ -299,16 +299,16 @@ Ohne Messung lässt sich nicht sagen, ob ein geänderter Prompt besser ist. Vors
 
 ## 10. Abstimmung mit dem Kernvertrag
 
-Ich nutze `Summary`, `Claim`, `Citation`, `SourceChunk`, `SummaryMode`, `SummaryLength` unverändert. Zusätzlich brauche ich (in `typen.ts` als Erweiterung angelegt, Vorschlag zur Übernahme in den Kern):
+Mit dem Architektur-Thread abgestimmt und als optionale Felder in `src/core/types.ts` übernommen:
 
-1. `Citation.printedPage`, `charStart`, `charEnd` für Anzeige und Hervorhebung.
-2. `Claim.kind`: `'fakt' | 'definition' | 'ablauf' | 'zahl' | 'lernhilfe' | 'struktur' | 'fehlt' | 'rueckfrage'`, damit Q3b und die Anzeige unterscheiden können.
-3. `Claim.blockId` und `Summary.blocks`, weil eine Zusammenfassung Überschriften, Tabellen und Listen hat und eine flache Claim-Liste die Gliederung verliert.
-4. `ClaimStatus` ergänzt um `'fehlt'` (ausdrücklich gekennzeichnete Lücke) und `'ungeprueft'` (vor der Prüfung).
-5. `Summary.qa: QaBericht` und `Summary.pipelineRunId`.
-6. Im Fachmodul: `operators: Operator[]` (Operatorenkatalog) und `synonymPairs` im Glossar für Q3a.
+1. `Citation.printedPage`, `charStart`, `charEnd` für Anzeige und Hervorhebung (Positionen setzt der Code beim Zitatabgleich).
+2. `ClaimKind` und `Claim.kind`.
+3. `SummaryBlock`, `Summary.blocks`/`rootBlockIds` und `Claim.blockId` für die Gliederung.
+4. `ClaimStatus` ergänzt um `'fehlt'` und `'ungeprueft'` (Startwert vor der Qualitätskontrolle).
+5. `Befund`, `QaBericht`, `Summary.qa` und `Summary.pipelineRunId`.
+6. Operatorenkatalog (`Operator`: `name`, `afb`, `expects`) und `CatalogGlossaryEntry.synonyms` kommen aus `src/modules/catalog-types.ts`.
 
----
+Nur für den Zusammenfasser gebraucht und deshalb in `src/features/zusammenfasser/typen.ts`: Prüf-IDs, `Aufgabe`, `Pruefungsfrage`, `VergleichsZeile`, `PipelineEingabe`, `PipelineRun`.
 
 ## 11. Umsetzungsreihenfolge
 
