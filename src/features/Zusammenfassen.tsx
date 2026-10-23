@@ -4,6 +4,7 @@ import type { Claim, Document, SourceChunk, Summary, SummaryLength } from '../co
 import { getApiKey } from '../core/settings';
 import { pflegeModule } from '../modules/pflege';
 import { fasseZusammen } from './zusammenfasser/pipeline';
+import { logActivity } from '../core/activity';
 
 const AMPEL = { gruen: 'Alle Aussagen belegt', gelb: 'Mit Hinweisen, bitte prüfen', rot: 'Nicht verlässlich: unbelegte oder falsch zitierte Aussagen' };
 const STATUS_TEXT: Record<string, string> = {
@@ -47,6 +48,12 @@ export function Zusammenfassen() {
       const chunks = await db.chunks.where('documentId').anyOf([...selected]).toArray();
       const { summary } = await fasseZusammen({ apiKey, modul: pflegeModule, length, docs: auswahl, chunks });
       await db.summaries.add(summary);
+      await logActivity({
+        kind: 'zusammenfassung', ref: summary.id, subjectIds: [...new Set(auswahl.flatMap((d) => d.subjectIds))],
+        severity: summary.qa?.ampel === 'rot' ? 'critical' : summary.qa?.ampel === 'gelb' ? 'warning' : 'info',
+        title: `Zusammenfassung: ${auswahl.map((d) => d.title).join(', ')}`,
+        detail: summary.qa ? `${summary.qa.statistik.belegt} von ${summary.qa.statistik.claims} Aussagen belegt` : undefined,
+      });
       setCurrent(summary);
       reload();
     } catch (e) {
@@ -57,7 +64,7 @@ export function Zusammenfassen() {
   }
 
   return (
-    <section>
+    <section className="page">
       <h2>Zusammenfassen</h2>
       <div className="card">
         <h3>Originalgetreu</h3>

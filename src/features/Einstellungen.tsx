@@ -18,7 +18,7 @@ export function Einstellungen() {
     if (confirm('Wirklich alle lokal gespeicherten Daten löschen?')) await deleteAll();
   }
   return (
-    <section>
+    <section className="page">
       <h2>Einstellungen</h2>
       <div className="card">
         <h3>Claude-API-Schlüssel</h3>

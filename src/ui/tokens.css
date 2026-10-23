@@ -1,0 +1,196 @@
+/*
+ * Design-Tokens des Lernstoff-Planers.
+ * Regel: Komponenten verwenden ausschließlich diese Variablen, keine festen Pixelwerte.
+ * Ausnahme: Breakpoints in @media/@container, weil CSS dort keine Variablen erlaubt
+ * (Werte siehe --bp-* unten, nur zur Dokumentation).
+ */
+:root {
+  /* Abstände: 8px-Raster, 4px als Halbschritt */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 32px;
+  --space-6: 48px;
+  --space-7: 64px;
+
+  /* Eckenradien */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  /* Typografie */
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.75rem;
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-bold: 650;
+
+  /* Bedienelemente: 40px Maus, 44px Finger (iOS-Empfehlung) */
+  --control-h: 40px;
+  --control-h-sm: 32px;
+  --row-h: 44px;
+  --sidebar-w: 256px;
+  --sidebar-w-collapsed: 64px;
+  --header-h: 56px;
+  --tabbar-h: 56px;
+  --focus-ring: 0 0 0 2px var(--color-background), 0 0 0 4px var(--color-focus);
+
+  /* Breakpoints (nur Dokumentation, siehe Kopfkommentar) */
+  --bp-xs: 320px;
+  --bp-sm: 768px;
+  --bp-md: 1024px;
+  --bp-lg: 1440px;
+  --bp-xl: 1920px;
+
+  /* Bewegung */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --dur-fast: 120ms;
+  --dur-normal: 200ms;
+
+  /* Ebenen */
+  --z-sticky: 10;
+  --z-sidebar: 30;
+  --z-overlay: 40;
+  --z-dialog: 50;
+  --z-toast: 60;
+
+  /* Farben: hell */
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-primary-soft: #dbeafe;
+  --color-on-primary: #ffffff;
+  --color-secondary: #0f766e;
+  --color-secondary-soft: #ccfbf1;
+  --color-on-secondary: #ffffff;
+  --color-background: #f6f7f9;
+  --color-surface: #ffffff;
+  --color-surface-raised: #ffffff;
+  --color-surface-sunken: #eef0f3;
+  --color-border: #d9dde3;
+  --color-border-strong: #b6bcc6;
+  --color-text: #111827;
+  --color-text-muted: #5b6472;
+  --color-focus: #2563eb;
+  --color-success: #15803d;
+  --color-success-soft: #dcfce7;
+  --color-warning: #b45309;
+  --color-warning-soft: #fef3c7;
+  --color-danger: #b91c1c;
+  --color-danger-soft: #fee2e2;
+  --color-info: #1d4ed8;
+  --color-info-soft: #dbeafe;
+  --color-skeleton: #e6e9ee;
+  --color-skeleton-shine: #f3f5f8;
+  --color-highlight: #fde68a;
+  /* Diagrammreihen */
+  --color-series-1: #2563eb;
+  --color-series-2: #0f766e;
+  --color-series-3: #c2410c;
+
+  /* Schatten (Elevation) */
+  --elevation-0: none;
+  --elevation-1: 0 1px 2px rgb(16 24 40 / 0.06), 0 1px 3px rgb(16 24 40 / 0.08);
+  --elevation-2: 0 4px 8px -2px rgb(16 24 40 / 0.10), 0 2px 4px -2px rgb(16 24 40 / 0.06);
+  --elevation-3: 0 12px 16px -4px rgb(16 24 40 / 0.12), 0 4px 6px -2px rgb(16 24 40 / 0.05);
+  --elevation-4: 0 24px 48px -12px rgb(16 24 40 / 0.25);
+
+  color-scheme: light;
+}
+
+@media (pointer: coarse) {
+  :root { --control-h: 44px; --control-h-sm: 36px; }
+}
+
+/* Farben: dunkel (Systemeinstellung oder manuell über data-theme) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --color-primary: #60a5fa;
+    --color-primary-hover: #93c5fd;
+    --color-primary-soft: #1e3a8a66;
+    --color-on-primary: #0b1220;
+    --color-secondary: #2dd4bf;
+    --color-secondary-soft: #134e4a88;
+    --color-on-secondary: #0b1220;
+    --color-background: #0b1018;
+    --color-surface: #131a24;
+    --color-surface-raised: #1a2330;
+    --color-surface-sunken: #0f151e;
+    --color-border: #2a3443;
+    --color-border-strong: #3d495b;
+    --color-text: #e6e9ee;
+    --color-text-muted: #a0a9b8;
+    --color-focus: #93c5fd;
+    --color-success: #4ade80;
+    --color-success-soft: #14532d66;
+    --color-warning: #fbbf24;
+    --color-warning-soft: #78350f66;
+    --color-danger: #f87171;
+    --color-danger-soft: #7f1d1d66;
+    --color-info: #93c5fd;
+    --color-info-soft: #1e3a8a66;
+    --color-skeleton: #1f2937;
+    --color-skeleton-shine: #283445;
+    --color-highlight: #a16207;
+    --color-series-1: #60a5fa;
+    --color-series-2: #2dd4bf;
+    --color-series-3: #fb923c;
+    --elevation-1: 0 1px 2px rgb(0 0 0 / 0.5);
+    --elevation-2: 0 4px 10px rgb(0 0 0 / 0.5);
+    --elevation-3: 0 12px 24px rgb(0 0 0 / 0.55);
+    --elevation-4: 0 24px 48px rgb(0 0 0 / 0.7);
+    color-scheme: dark;
+  }
+}
+:root[data-theme='dark'] {
+  --color-primary: #60a5fa;
+  --color-primary-hover: #93c5fd;
+  --color-primary-soft: #1e3a8a66;
+  --color-on-primary: #0b1220;
+  --color-secondary: #2dd4bf;
+  --color-secondary-soft: #134e4a88;
+  --color-on-secondary: #0b1220;
+  --color-background: #0b1018;
+  --color-surface: #131a24;
+  --color-surface-raised: #1a2330;
+  --color-surface-sunken: #0f151e;
+  --color-border: #2a3443;
+  --color-border-strong: #3d495b;
+  --color-text: #e6e9ee;
+  --color-text-muted: #a0a9b8;
+  --color-focus: #93c5fd;
+  --color-success: #4ade80;
+  --color-success-soft: #14532d66;
+  --color-warning: #fbbf24;
+  --color-warning-soft: #78350f66;
+  --color-danger: #f87171;
+  --color-danger-soft: #7f1d1d66;
+  --color-info: #93c5fd;
+  --color-info-soft: #1e3a8a66;
+  --color-skeleton: #1f2937;
+  --color-skeleton-shine: #283445;
+  --color-highlight: #a16207;
+  --color-series-1: #60a5fa;
+  --color-series-2: #2dd4bf;
+  --color-series-3: #fb923c;
+  --elevation-1: 0 1px 2px rgb(0 0 0 / 0.5);
+  --elevation-2: 0 4px 10px rgb(0 0 0 / 0.5);
+  --elevation-3: 0 12px 24px rgb(0 0 0 / 0.55);
+  --elevation-4: 0 24px 48px rgb(0 0 0 / 0.7);
+  color-scheme: dark;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur-fast: 0ms; --dur-normal: 0ms; }
+}
