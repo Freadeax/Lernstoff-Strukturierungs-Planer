@@ -53,9 +53,20 @@ export interface SourceChunk {
   illegibleSpans?: Array<{ start: number; end: number }>;
 }
 
-export interface Citation { chunkId: ID; documentId: ID; page: number; quote: string; }
+export interface Citation {
+  chunkId: ID; documentId: ID; page: number; quote: string;
+  printedPage?: string;   // gedruckte Seite für Anzeige und Export
+  charStart?: number;     // vom Code beim Zitatabgleich gesetzt, Position im Chunk-Text (für Hervorhebung)
+  charEnd?: number;
+}
 
-export type ClaimStatus = 'belegt' | 'unbelegt' | 'abweichend' | 'widerspruch' | 'unleserlich';
+/** 'ungeprueft' ist der Startwert vor der Qualitätskontrolle; 'fehlt' = ausdrücklich gekennzeichnete Lücke. */
+export type ClaimStatus = 'belegt' | 'unbelegt' | 'abweichend' | 'widerspruch' | 'unleserlich' | 'fehlt' | 'ungeprueft';
+
+export type ClaimKind =
+  | 'fakt' | 'definition' | 'ablauf'
+  | 'lernhilfe' | 'ergaenzung' | 'struktur'
+  | 'fehlt' | 'rueckfrage' | 'widerspruch' | 'unleserlich';
 
 export interface Claim {
   id: ID;
@@ -63,6 +74,8 @@ export interface Claim {
   citations: Citation[];
   status: ClaimStatus;
   isSupplementary: boolean;   // ergänzendes Wissen, nicht aus der Quelle
+  kind?: ClaimKind;
+  blockId?: ID;               // Gliederungsblock in Summary.blocks
 }
 
 export type SummaryMode = 'originalgetreu' | 'lernen' | 'arbeitsauftrag' | 'pruefung' | 'vergleich';
@@ -77,6 +90,41 @@ export interface Summary {
   claims: Claim[];
   createdAt: string;
   needsReview: boolean;       // z. B. nach neuer Dokumentversion
+  blocks?: SummaryBlock[];    // Gliederung (Überschriften, Listen, Tabellen); Claims hängen über blockId daran
+  rootBlockIds?: ID[];
+  qa?: QaBericht;             // Ergebnis der Qualitätskontrolle
+  pipelineRunId?: ID;
+}
+
+/** Gliederungsblock einer Zusammenfassung. */
+export interface SummaryBlock {
+  id: ID;
+  type: 'ueberschrift' | 'absatz' | 'liste' | 'tabelle' | 'kasten' | 'aufgabe';
+  level?: number;
+  title?: string;
+  kastenArt?: 'ergaenzung' | 'lernhilfe' | 'widerspruch' | 'fehlt' | 'merke';
+  claimIds: ID[];
+  children?: ID[];
+}
+
+/** Prüf-IDs siehe docs/ZUSAMMENFASSER.md, Abschnitt 6 (Q = Code, K = KI-Prüfer). */
+export type Schwere = 'blocker' | 'warnung' | 'hinweis';
+
+export interface Befund {
+  id: ID;
+  pruefung: string;           // z. B. 'Q1a', 'K1'
+  schwere: Schwere;
+  claimId?: ID;
+  chunkId?: ID;
+  aufgabeNr?: string;
+  meldung: string;
+}
+
+export interface QaBericht {
+  befunde: Befund[];
+  ampel: 'gruen' | 'gelb' | 'rot';
+  reparaturVersucht: boolean;
+  statistik: { claims: number; belegt: number; unbelegt: number; ergaenzung: number; fehlt: number };
 }
 
 export interface Exam { id: ID; name: string; date: string; subjectIds: ID[]; topicIds: ID[]; }
