@@ -6,10 +6,21 @@
 #   tags               -> freie Schlagworte für Suche und automatische Zuordnung
 # Build-Regeln (scripts/build-module.py): subjectId wird vom Elternthema geerbt, wenn es fehlt;
 # prerequisites ist standardmäßig []. estimatedMinutes = Erstlernzeit, ohne Wiederholungen.
+#
+# Kompetenzbereiche (kb.*) werden an Unterthemen vererbt. Jedes Thema muss über sich oder ein
+# Oberthema mindestens einem Kompetenzbereich nach Anlage 2 PflAPrV zugeordnet sein (Test in
+# index.test.ts). Die Zuordnung ist eine fachliche Einschätzung des Katalogs, keine Vorgabe der
+# PflAPrV, und folgt dem Handlungsbezug des Themas in der Prüfung:
+#   Anatomie/Physiologie  -> I.2  Grundlage, um gesundheitliche Problemlagen einzuschätzen
+#   Krankheitslehre       -> I.2, I.3  Pflege bei gesundheitlichen Problemlagen und kritischen Verläufen
+#   Krankenbeobachtung    -> I.1, I.2  Pflegebedarf erheben, Pflegediagnostik
+#   Pflegerische Maßnahmen -> I.1  Pflege durchführen; III.2 dort, wo ärztlich angeordnete
+#                            Maßnahmen oder Hygiene/Infektionsschutz im Mittelpunkt stehen
+#   Fachsprache           -> III.3  Verständigung und Dokumentation im interprofessionellen Team
 
 topics:
   # ================= Anatomie und Physiologie =================
-  - { id: thema.ap, subjectId: fach.anatomie, name: "Anatomie und Physiologie", difficulty: 3 }
+  - { id: thema.ap, subjectId: fach.anatomie, name: "Anatomie und Physiologie", difficulty: 3, competencyIds: [kb.I.2] }
   - { id: thema.ap.zelle,      parentId: thema.ap, name: "Zelle, Gewebe und Organsysteme (Grundlagen)", difficulty: 2, estimatedMinutes: 90, competencyIds: [ce.01] }
   - { id: thema.ap.herz,       parentId: thema.ap, name: "Herz und Blutkreislauf", difficulty: 3, estimatedMinutes: 120, prerequisites: [thema.ap.zelle], competencyIds: [ce.05, ce.06] }
   - { id: thema.ap.blut,       parentId: thema.ap, name: "Blut, Immunsystem und Lymphsystem", difficulty: 3, estimatedMinutes: 90, prerequisites: [thema.ap.zelle] }
@@ -20,10 +31,10 @@ topics:
   - { id: thema.ap.nerven,     parentId: thema.ap, name: "Nervensystem und Sinnesorgane", difficulty: 4, estimatedMinutes: 150, prerequisites: [thema.ap.zelle] }
   - { id: thema.ap.bewegung,   parentId: thema.ap, name: "Bewegungsapparat (Knochen, Gelenke, Muskulatur)", difficulty: 2, estimatedMinutes: 90, prerequisites: [thema.ap.zelle], competencyIds: [ce.02A] }
   - { id: thema.ap.haut,       parentId: thema.ap, name: "Haut und Hautanhangsgebilde", difficulty: 2, estimatedMinutes: 60, prerequisites: [thema.ap.zelle], competencyIds: [ce.02B] }
-  - { id: thema.ap.fortpflanzung, parentId: thema.ap, name: "Geschlechtsorgane, Schwangerschaft und Entwicklung", difficulty: 3, estimatedMinutes: 90, competencyIds: [ce.10] }
+  - { id: thema.ap.fortpflanzung, parentId: thema.ap, name: "Geschlechtsorgane, Schwangerschaft und Entwicklung", difficulty: 3, estimatedMinutes: 90, competencyIds: [kb.I.6, ce.10] }
 
   # ================= Krankheitslehre =================
-  - { id: thema.kl, subjectId: fach.krankheitslehre, name: "Krankheitslehre", difficulty: 3 }
+  - { id: thema.kl, subjectId: fach.krankheitslehre, name: "Krankheitslehre", difficulty: 3, competencyIds: [kb.I.2, kb.I.3] }
   - { id: thema.kl.allgemein,  parentId: thema.kl, name: "Allgemeine Krankheitslehre (Entzündung, Tumor, Ödem, Schock)", difficulty: 3, estimatedMinutes: 120, prerequisites: [thema.ap.zelle, thema.ap.blut] }
   - { id: thema.kl.herz,       parentId: thema.kl, name: "Herz-Kreislauf-Erkrankungen", difficulty: 4, prerequisites: [thema.ap.herz, thema.kl.allgemein], competencyIds: [kb.I.2, kb.I.3, ce.05] }
   - { id: thema.kl.herz.hypertonie,  parentId: thema.kl.herz, name: "Arterielle Hypertonie", difficulty: 2, estimatedMinutes: 60 }
@@ -42,29 +53,29 @@ topics:
   - { id: thema.kl.bewegung,   parentId: thema.kl, name: "Erkrankungen des Bewegungsapparats (Arthrose, Osteoporose, Frakturen, Endoprothetik)", difficulty: 3, estimatedMinutes: 90, prerequisites: [thema.ap.bewegung], competencyIds: [ce.02A, ce.07] }
   - { id: thema.kl.verdauung,  parentId: thema.kl, name: "Erkrankungen des Verdauungstrakts und der Leber", difficulty: 3, estimatedMinutes: 90, prerequisites: [thema.ap.verdauung] }
   - { id: thema.kl.niere,      parentId: thema.kl, name: "Nieren- und Harnwegserkrankungen (Niereninsuffizienz, HWI)", difficulty: 4, estimatedMinutes: 90, prerequisites: [thema.ap.niere] }
-  - { id: thema.kl.onko,       parentId: thema.kl, name: "Onkologische Erkrankungen und Tumortherapie", difficulty: 4, estimatedMinutes: 120, prerequisites: [thema.kl.allgemein], competencyIds: [ce.08] }
-  - { id: thema.kl.infektion,  parentId: thema.kl, name: "Infektionskrankheiten, multiresistente Erreger und Sepsis", difficulty: 3, estimatedMinutes: 90, prerequisites: [thema.ap.blut], referenceIds: [norm.ifsg], competencyIds: [ce.05] }
-  - { id: thema.kl.paediatrie, parentId: thema.kl, name: "Erkrankungen im Kindes- und Jugendalter", difficulty: 3, estimatedMinutes: 120, competencyIds: [ce.10] }
-  - { id: thema.kl.geriatrie,  parentId: thema.kl, name: "Geriatrische Syndrome und Multimorbidität", difficulty: 3, estimatedMinutes: 90, competencyIds: [ce.09] }
+  - { id: thema.kl.onko,       parentId: thema.kl, name: "Onkologische Erkrankungen und Tumortherapie", difficulty: 4, estimatedMinutes: 120, prerequisites: [thema.kl.allgemein], competencyIds: [kb.III.2, ce.08] }
+  - { id: thema.kl.infektion,  parentId: thema.kl, name: "Infektionskrankheiten, multiresistente Erreger und Sepsis", difficulty: 3, estimatedMinutes: 90, prerequisites: [thema.ap.blut], referenceIds: [norm.ifsg], competencyIds: [kb.III.2, ce.05] }
+  - { id: thema.kl.paediatrie, parentId: thema.kl, name: "Erkrankungen im Kindes- und Jugendalter", difficulty: 3, estimatedMinutes: 120, competencyIds: [kb.I.6, ce.10] }
+  - { id: thema.kl.geriatrie,  parentId: thema.kl, name: "Geriatrische Syndrome und Multimorbidität", difficulty: 3, estimatedMinutes: 90, competencyIds: [kb.I.5, ce.09] }
 
   # ================= Symptome und Krankenbeobachtung =================
-  - { id: thema.beo, subjectId: fach.beobachtung, name: "Symptome und Krankenbeobachtung", difficulty: 2 }
+  - { id: thema.beo, subjectId: fach.beobachtung, name: "Symptome und Krankenbeobachtung", difficulty: 2, competencyIds: [kb.I.1, kb.I.2] }
   - { id: thema.beo.vitalzeichen, parentId: thema.beo, name: "Vitalzeichen (Puls, Blutdruck, Atmung, Temperatur, SpO2)", difficulty: 2, estimatedMinutes: 90, prerequisites: [thema.ap.herz, thema.ap.atmung], referenceIds: [as.news], competencyIds: [kb.I.1, ce.05], tags: [Normwerte] }
   - { id: thema.beo.bewusstsein,  parentId: thema.beo, name: "Bewusstsein, Orientierung und Schmerz", difficulty: 3, estimatedMinutes: 60, referenceIds: [as.gcs, as.nrs, as.besd, es.schmerz] }
   - { id: thema.beo.haut,         parentId: thema.beo, name: "Haut, Ausscheidungen und Ernährungszustand", difficulty: 2, estimatedMinutes: 60, referenceIds: [as.bmi, as.mna] }
   - { id: thema.beo.notfall,      parentId: thema.beo, name: "Notfallerkennung und Erste Hilfe (Reanimation BLS)", difficulty: 3, estimatedMinutes: 90, prerequisites: [thema.beo.vitalzeichen], competencyIds: [kb.I.4, ce.06], tags: [ABCDE, Reanimation] }
 
   # ================= Pflegerische Maßnahmen und Interventionen =================
-  - { id: thema.ph, subjectId: fach.pflegehandeln, name: "Pflegerische Maßnahmen und Interventionen", difficulty: 2 }
-  - { id: thema.ph.hygiene,    parentId: thema.ph, name: "Hygiene (Händedesinfektion, Standardhygiene, Isolierung)", difficulty: 2, estimatedMinutes: 90, referenceIds: [norm.ifsg], competencyIds: [ce.01, ce.05] }
+  - { id: thema.ph, subjectId: fach.pflegehandeln, name: "Pflegerische Maßnahmen und Interventionen", difficulty: 2, competencyIds: [kb.I.1] }
+  - { id: thema.ph.hygiene,    parentId: thema.ph, name: "Hygiene (Händedesinfektion, Standardhygiene, Isolierung)", difficulty: 2, estimatedMinutes: 90, referenceIds: [norm.ifsg], competencyIds: [kb.III.2, ce.01, ce.05] }
   - { id: thema.ph.koerperpflege, parentId: thema.ph, name: "Körperpflege und Unterstützung bei der Selbstversorgung", difficulty: 1, estimatedMinutes: 60, prerequisites: [thema.ap.haut], competencyIds: [ce.02B] }
   - { id: thema.ph.mobilisation,  parentId: thema.ph, name: "Mobilisation, Lagerung und Kinästhetik", difficulty: 2, estimatedMinutes: 90, prerequisites: [thema.ap.bewegung], referenceIds: [es.mobilitaet], competencyIds: [ce.02A] }
-  - { id: thema.ph.ernaehrung,    parentId: thema.ph, name: "Ernährung, Flüssigkeitszufuhr und Sondenernährung", difficulty: 2, estimatedMinutes: 75, prerequisites: [thema.ap.verdauung], referenceIds: [es.ernaehrung] }
-  - { id: thema.ph.ausscheidung,  parentId: thema.ph, name: "Ausscheidung, Kontinenzförderung und Katheterismus", difficulty: 2, estimatedMinutes: 75, prerequisites: [thema.ap.niere], referenceIds: [es.kontinenz] }
+  - { id: thema.ph.ernaehrung,    parentId: thema.ph, name: "Ernährung, Flüssigkeitszufuhr und Sondenernährung", difficulty: 2, estimatedMinutes: 75, prerequisites: [thema.ap.verdauung], referenceIds: [es.ernaehrung], competencyIds: [kb.I.2] }
+  - { id: thema.ph.ausscheidung,  parentId: thema.ph, name: "Ausscheidung, Kontinenzförderung und Katheterismus", difficulty: 2, estimatedMinutes: 75, prerequisites: [thema.ap.niere], referenceIds: [es.kontinenz], competencyIds: [kb.III.2] }
   - { id: thema.ph.medikamente,   parentId: thema.ph, name: "Arzneimittel (Applikation, 6-R-Regel, Wirkungen, BtM)", difficulty: 3, estimatedMinutes: 120, referenceIds: [norm.btmg], competencyIds: [kb.III.2, ce.05], tags: [6-R-Regel] }
   - { id: thema.ph.injektion,     parentId: thema.ph, name: "Injektionen, Infusionen und Blutentnahme", difficulty: 3, estimatedMinutes: 90, prerequisites: [thema.ph.hygiene, thema.ph.medikamente], competencyIds: [kb.III.2] }
-  - { id: thema.ph.wunde,         parentId: thema.ph, name: "Wundversorgung und Wundmanagement", difficulty: 3, estimatedMinutes: 90, prerequisites: [thema.ap.haut, thema.ph.hygiene], referenceIds: [es.wunden] }
-  - { id: thema.ph.periop,        parentId: thema.ph, name: "Prä- und postoperative Pflege", difficulty: 3, estimatedMinutes: 90, competencyIds: [ce.05] }
+  - { id: thema.ph.wunde,         parentId: thema.ph, name: "Wundversorgung und Wundmanagement", difficulty: 3, estimatedMinutes: 90, prerequisites: [thema.ap.haut, thema.ph.hygiene], referenceIds: [es.wunden], competencyIds: [kb.III.2] }
+  - { id: thema.ph.periop,        parentId: thema.ph, name: "Prä- und postoperative Pflege", difficulty: 3, estimatedMinutes: 90, competencyIds: [kb.III.2, kb.III.3, ce.05] }
   - { id: thema.ph.palliativ,     parentId: thema.ph, name: "Palliativpflege und Sterbebegleitung", difficulty: 3, estimatedMinutes: 90, competencyIds: [kb.I.3, ce.08] }
   - { id: thema.ph.mund,          parentId: thema.ph, name: "Mundpflege und Mundgesundheit", difficulty: 1, estimatedMinutes: 45, referenceIds: [es.mundgesundheit] }
 
@@ -137,7 +148,7 @@ topics:
   - { id: thema.fa.psychiatrie,  parentId: thema.fa, name: "Fälle psychiatrische Versorgung", difficulty: 4, estimatedMinutes: 120, prerequisites: [thema.fa.planung, thema.kl.psych], competencyIds: [ce.11] }
 
   # ================= Fachsprache =================
-  - { id: thema.fs, subjectId: fach.fachsprache, name: "Medizinische Fachbegriffe und Abkürzungen", difficulty: 2 }
+  - { id: thema.fs, subjectId: fach.fachsprache, name: "Medizinische Fachbegriffe und Abkürzungen", difficulty: 2, competencyIds: [kb.III.3] }
   - { id: thema.fs.wortbildung,  parentId: thema.fs, name: "Wortbausteine (Präfixe, Suffixe, Wortstämme)", difficulty: 2, estimatedMinutes: 60 }
   - { id: thema.fs.lage,         parentId: thema.fs, name: "Lage- und Richtungsbezeichnungen", difficulty: 1, estimatedMinutes: 30, prerequisites: [thema.fs.wortbildung] }
   - { id: thema.fs.abkuerzungen, parentId: thema.fs, name: "Abkürzungen in Klinik und Dokumentation", difficulty: 2, estimatedMinutes: 45 }

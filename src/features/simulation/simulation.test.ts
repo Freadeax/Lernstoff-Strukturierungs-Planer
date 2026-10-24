@@ -22,9 +22,11 @@ function satz(fragen: Pruefungsfrage[]): FragenSatz {
 describe('Katalog', () => {
   it('erbt Kompetenzbereiche von Oberthemen und fasst sie auf die oberste Ebene zusammen', () => {
     expect(kompetenzbereiche(k, 'thema.pro.dekubitus')).toEqual(['kb.I']);          // von thema.pro (kb.I.2)
-    expect(kompetenzbereiche(k, 'thema.ph.medikamente')).toEqual(['kb.III']);       // kb.III.2
+    expect(kompetenzbereiche(k, 'thema.ph.medikamente')).toEqual(['kb.I', 'kb.III']); // kb.III.2, von thema.ph kb.I.1
     expect(kompetenzbereiche(k, 'thema.kom.ethik')).toEqual(['kb.II', 'kb.IV']);
-    expect(kompetenzbereiche(k, 'thema.ap.herz')).toEqual([]);                      // nur curriculare Einheiten
+    expect(kompetenzbereiche(k, 'thema.ap.herz')).toEqual(['kb.I']);                // von thema.ap (kb.I.2)
+    expect(kompetenzbereiche(k, 'thema.fs.abkuerzungen')).toEqual(['kb.III']);      // von thema.fs (kb.III.3)
+    expect(kompetenzbereiche(k, 'thema.ph.hygiene')).toEqual(['kb.I', 'kb.III']);
     expect(k.operatoren.get('berechnen')?.afb).toBe(2);
   });
 });
