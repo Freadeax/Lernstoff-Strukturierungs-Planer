@@ -4,6 +4,7 @@ import type { Fingerprint } from '../features/dokumente/import/types';
 import type { ActivityEntry } from './activity';
 import type { BoardEntry } from './board';
 import type { PlannerConfig, StoredReviewLog, StoredStudyLog } from '../features/lernplan/store';
+import type { Karte, KartenConfig, KartenLog, KartenStand } from '../features/karteikarten/typen';
 
 /** Absatztext zu einem Absatz-Hash, für die Anzeige entfallener Absätze beim Versionsvergleich. */
 export interface ParagraphText { hash: string; text: string; }
@@ -23,6 +24,10 @@ export class LernstoffDB extends Dexie {
   studyLogs!: EntityTable<StoredStudyLog, 'id'>;
   reviewLogs!: EntityTable<StoredReviewLog, 'id'>;
   planner!: EntityTable<PlannerConfig, 'id'>;
+  karten!: EntityTable<Karte, 'id'>;
+  kartenStand!: EntityTable<KartenStand, 'cardId'>;
+  kartenLogs!: EntityTable<KartenLog, 'id'>;
+  kartenConfig!: EntityTable<KartenConfig, 'id'>;
 
   constructor(name = 'lernstoff-planer') {
     super(name);
@@ -61,6 +66,14 @@ export class LernstoffDB extends Dexie {
       studyLogs: '++id, topicId, date',
       reviewLogs: '++id, topicId, date',
       planner: 'id',
+    });
+    // v5: Karteikarten. Gespeichert werden nur eigene und übernommene Karten; Glossar- und
+    // Katalogkarten entstehen bei jedem Öffnen neu aus dem Fachmodul, ihr Lernstand liegt in kartenStand.
+    this.version(5).stores({
+      karten: 'id, quelle, ref, *topicIds',
+      kartenStand: 'cardId, due',
+      kartenLogs: '++id, cardId, date',
+      kartenConfig: 'id',
     });
   }
 }

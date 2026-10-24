@@ -3,6 +3,7 @@ import { navigate } from '../../../ui/shell/router';
 import { blockTitel, bloecke, dauer, inTagen } from './format';
 import { usePlan } from './usePlan';
 import { daysBetween } from '../dates';
+import { KartenHinweis } from '../../karteikarten/ui/KartenHinweis';
 
 /** Kurzansicht für die Übersicht: was heute im Lernplan steht und die nächste Prüfung. */
 export function HeuteKarte() {
@@ -26,6 +27,7 @@ export function HeuteKarte() {
             <ul>{zeigen.map((b, i) => <li key={i}>{blockTitel(b)}: {ctx.topics.get(b.topicId)?.name}</li>)}{tag.blocks.length > zeigen.length && <li>… und {tag.blocks.length - zeigen.length} weitere</li>}</ul>
           </>
           : <p>Für heute ist nichts mehr geplant.</p>}
+      <KartenHinweis className="muted" />
       <div>
         <button type="button" className={naechste ? '' : 'primary'} onClick={() => navigate(naechste ? '/lernen/plan' : '/lernen/plan?ansicht=pruefungen&neu=1')}>
           {naechste ? 'Zum Lernplan' : 'Prüfung eintragen'}
