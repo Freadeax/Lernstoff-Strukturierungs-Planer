@@ -73,6 +73,9 @@
       "subjectId": "fach.anatomie",
       "name": "Anatomie und Physiologie",
       "difficulty": 3,
+      "competencyIds": [
+        "kb.I.2"
+      ],
       "prerequisites": []
     },
     {
@@ -211,6 +214,7 @@
       "difficulty": 3,
       "estimatedMinutes": 90,
       "competencyIds": [
+        "kb.I.6",
         "ce.10"
       ],
       "prerequisites": [],
@@ -221,6 +225,10 @@
       "subjectId": "fach.krankheitslehre",
       "name": "Krankheitslehre",
       "difficulty": 3,
+      "competencyIds": [
+        "kb.I.2",
+        "kb.I.3"
+      ],
       "prerequisites": []
     },
     {
@@ -476,6 +484,7 @@
         "thema.kl.allgemein"
       ],
       "competencyIds": [
+        "kb.III.2",
         "ce.08"
       ],
       "subjectId": "fach.krankheitslehre"
@@ -493,6 +502,7 @@
         "norm.ifsg"
       ],
       "competencyIds": [
+        "kb.III.2",
         "ce.05"
       ],
       "subjectId": "fach.krankheitslehre"
@@ -504,6 +514,7 @@
       "difficulty": 3,
       "estimatedMinutes": 120,
       "competencyIds": [
+        "kb.I.6",
         "ce.10"
       ],
       "prerequisites": [],
@@ -516,6 +527,7 @@
       "difficulty": 3,
       "estimatedMinutes": 90,
       "competencyIds": [
+        "kb.I.5",
         "ce.09"
       ],
       "prerequisites": [],
@@ -526,6 +538,10 @@
       "subjectId": "fach.beobachtung",
       "name": "Symptome und Krankenbeobachtung",
       "difficulty": 2,
+      "competencyIds": [
+        "kb.I.1",
+        "kb.I.2"
+      ],
       "prerequisites": []
     },
     {
@@ -602,6 +618,9 @@
       "subjectId": "fach.pflegehandeln",
       "name": "Pflegerische Maßnahmen und Interventionen",
       "difficulty": 2,
+      "competencyIds": [
+        "kb.I.1"
+      ],
       "prerequisites": []
     },
     {
@@ -614,6 +633,7 @@
         "norm.ifsg"
       ],
       "competencyIds": [
+        "kb.III.2",
         "ce.01",
         "ce.05"
       ],
@@ -663,6 +683,9 @@
       "referenceIds": [
         "es.ernaehrung"
       ],
+      "competencyIds": [
+        "kb.I.2"
+      ],
       "subjectId": "fach.pflegehandeln"
     },
     {
@@ -676,6 +699,9 @@
       ],
       "referenceIds": [
         "es.kontinenz"
+      ],
+      "competencyIds": [
+        "kb.III.2"
       ],
       "subjectId": "fach.pflegehandeln"
     },
@@ -726,6 +752,9 @@
       "referenceIds": [
         "es.wunden"
       ],
+      "competencyIds": [
+        "kb.III.2"
+      ],
       "subjectId": "fach.pflegehandeln"
     },
     {
@@ -735,6 +764,8 @@
       "difficulty": 3,
       "estimatedMinutes": 90,
       "competencyIds": [
+        "kb.III.2",
+        "kb.III.3",
         "ce.05"
       ],
       "prerequisites": [],
@@ -1552,6 +1583,9 @@
       "subjectId": "fach.fachsprache",
       "name": "Medizinische Fachbegriffe und Abkürzungen",
       "difficulty": 2,
+      "competencyIds": [
+        "kb.III.3"
+      ],
       "prerequisites": []
     },
     {

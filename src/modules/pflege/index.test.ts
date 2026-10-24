@@ -24,6 +24,16 @@ describe('Pflege-Fachmodul', () => {
     expect(missing).toEqual([]);
   });
 
+  it('ordnet jedes Thema direkt oder über ein Oberthema einem Kompetenzbereich zu', () => {
+    const kb = new Set((m.frameworks ?? []).filter((f) => f.kind === 'kompetenzen').flatMap((f) => f.items.map((i) => i.id)));
+    const topics = new Map(m.topics.map((t) => [t.id, t]));
+    const hatKb = (id: string | undefined): boolean => {
+      const t = id ? topics.get(id) : undefined;
+      return !!t && ((t.competencyIds ?? []).some((c) => kb.has(c)) || hatKb(t.parentId));
+    };
+    expect(m.topics.filter((t) => !hatKb(t.id)).map((t) => t.id)).toEqual([]);
+  });
+
   it('hat keine Zyklen in den Voraussetzungen', () => {
     const prereqs = new Map(m.topics.map((t) => [t.id, t.prerequisites]));
     const done = new Set<string>();
