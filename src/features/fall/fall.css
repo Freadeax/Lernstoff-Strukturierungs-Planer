@@ -1,0 +1,117 @@
+/* Fallbeispiel-Simulator. Nur Tokens aus src/ui/tokens.css. */
+.fall__einstellungen { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+
+.fall__szenarien { display: grid; gap: var(--space-3); grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr)); }
+.fall__szenario {
+  display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-2);
+  text-align: left; font: inherit; color: inherit; cursor: pointer; min-height: 0; height: auto;
+  transition: border-color var(--dur-fast) var(--ease-standard), box-shadow var(--dur-fast) var(--ease-standard);
+}
+.fall__szenario:hover:not(:disabled) { border-color: var(--color-primary); }
+.fall__szenario:disabled { opacity: 0.6; cursor: not-allowed; }
+.fall__szenario strong { font-size: var(--text-lg); }
+.fall__szenario .muted { font-size: var(--text-sm); line-height: var(--leading-normal); }
+
+.fall__eigen-felder { display: grid; gap: var(--space-2); grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); }
+.fall__eigen-felder label { display: flex; flex-direction: column; gap: var(--space-1); }
+.fall__eigen-felder select { width: 100%; }
+
+.fall__archiv { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-1); }
+.fall__archiv button { width: 100%; height: auto; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; padding: var(--space-2); }
+.fall__archiv .muted { font-size: var(--text-sm); }
+
+.fall__layout { display: grid; gap: var(--space-3); grid-template-columns: minmax(0, 1fr); align-items: start; }
+/* iPad quer und Rechner: Verlauf links, Kurve rechts */
+@container content (min-width: 820px) {
+  .fall__layout { grid-template-columns: minmax(0, 3fr) minmax(15rem, 1fr); }
+  .fall__kurve { position: sticky; top: calc(var(--header-h) + var(--space-3)); }
+}
+
+.fall__haupt { display: flex; flex-direction: column; gap: var(--space-3); }
+.fall__kopf { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-2); }
+.fall__kopf h3 { margin: var(--space-1) 0 0; }
+.fall__haupt > .muted { margin: 0; }
+
+.fall__verlauf { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+.fall__verlauf > li { display: flex; flex-direction: column; gap: var(--space-2); }
+.fall__verlauf .note { margin: 0; }
+.fall__situation { margin: 0; line-height: var(--leading-normal); font-size: var(--text-md, 1rem); }
+.fall__ich {
+  margin: 0; align-self: flex-end; max-width: 85%;
+  padding: var(--space-2) var(--space-3); border-radius: var(--radius-md) var(--radius-md) var(--radius-sm) var(--radius-md);
+  background: var(--color-primary-soft);
+}
+.fall__uhr { font-variant-numeric: tabular-nums; font-size: var(--text-sm); font-weight: var(--weight-medium); color: var(--color-text-muted); }
+.fall__gefahr { border-left-color: var(--color-danger) !important; background: var(--color-danger-soft) !important; }
+
+.fall__laedt { display: flex; align-items: center; gap: var(--space-2); margin: 0; color: var(--color-text-muted); }
+.fall__punkte { display: inline-flex; gap: 4px; }
+.fall__punkte i { width: 6px; height: 6px; border-radius: var(--radius-pill); background: var(--color-primary); animation: fall-punkt 1.2s ease-in-out infinite; }
+.fall__punkte i:nth-child(2) { animation-delay: 0.2s; }
+.fall__punkte i:nth-child(3) { animation-delay: 0.4s; }
+@keyframes fall-punkt { 0%, 80%, 100% { opacity: 0.25; } 40% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .fall__punkte i { animation: none; opacity: 0.6; } }
+
+.fall__eingabe { display: flex; flex-direction: column; gap: var(--space-2); border-top: 1px solid var(--color-border); padding-top: var(--space-3); }
+.fall__eingabe textarea { width: 100%; resize: vertical; font: inherit; }
+.fall__eingabe .row { justify-content: flex-start; margin-top: 0; flex-wrap: wrap; }
+.fall__optionen { display: flex; flex-direction: column; gap: var(--space-2); }
+.fall__option {
+  height: auto; min-height: var(--control-h); text-align: left; white-space: normal; line-height: var(--leading-normal);
+  padding: var(--space-2) var(--space-3); justify-content: flex-start;
+}
+
+.fall__kurve h3 { margin: 0 0 var(--space-2); }
+.fall__kurve-kopf { display: flex; justify-content: space-between; align-items: baseline; }
+.fall__zustand { margin: 0 0 var(--space-2); padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm); background: var(--color-surface-sunken); }
+.fall__zustand--verbessert { background: var(--color-success-soft); }
+.fall__zustand--verschlechtert { background: var(--color-warning-soft); }
+.fall__zustand--kritisch { background: var(--color-danger-soft); }
+.fall__vital { display: grid; grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr)); gap: var(--space-2); margin: 0 0 var(--space-2); }
+.fall__vital > div { padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm); background: var(--color-surface-sunken); }
+.fall__vital dt { font-size: var(--text-xs); color: var(--color-text-muted); }
+.fall__vital dd { margin: 0; font-weight: var(--weight-medium); font-variant-numeric: tabular-nums; }
+.fall__vital small { font-weight: normal; color: var(--color-text-muted); }
+.fall__vital .is-leer dd { color: var(--color-text-muted); font-weight: normal; }
+.fall__news { margin: 0 0 var(--space-3); font-size: var(--text-sm); padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm); }
+.fall__news--niedrig { background: var(--color-success-soft); }
+.fall__news--niedrig-mittel, .fall__news--mittel { background: var(--color-warning-soft); }
+.fall__news--hoch { background: var(--color-danger-soft); }
+.fall__prozess { margin: 0 0 var(--space-2); padding-left: var(--space-4); display: flex; flex-direction: column; gap: var(--space-1); font-size: var(--text-sm); }
+.fall__prozess li { color: var(--color-text-muted); }
+.fall__prozess li.is-bearbeitet { color: var(--color-text); }
+.fall__prozess li.is-bearbeitet::marker { color: var(--color-success); }
+.fall__prozess li.is-aktiv { font-weight: var(--weight-medium); }
+.fall__hinweis { font-size: var(--text-xs); margin: 0; }
+
+.fall__auswertung { display: flex; flex-direction: column; gap: var(--space-3); }
+.fall__auswertung > p, .fall__auswertung h3, .fall__auswertung h4 { margin: 0; }
+.fall__note { padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); align-self: flex-start; }
+.fall__note--sicher, .fall__note--ueberwiegend_sicher { background: var(--color-success-soft); }
+.fall__note--teilweise { background: var(--color-warning-soft); }
+.fall__note--unsicher { background: var(--color-danger-soft); }
+.fall__schritte { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
+.fall__schritte th, .fall__schritte td { text-align: left; vertical-align: top; padding: var(--space-2); border-bottom: 1px solid var(--color-border); }
+.fall__schritte tbody th { font-weight: var(--weight-medium); white-space: nowrap; }
+.fall__bew { padding: 0 var(--space-2); border-radius: var(--radius-pill); white-space: nowrap; background: var(--color-surface-sunken); }
+.fall__bew--stark { background: var(--color-success-soft); }
+.fall__bew--luecke { background: var(--color-warning-soft); }
+.fall__bew--nicht_bearbeitet { background: var(--color-danger-soft); }
+.fall__zweispaltig { display: grid; gap: var(--space-3); grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); }
+.fall__zweispaltig ul { margin: var(--space-1) 0 0; padding-left: var(--space-4); }
+.fall__auswertung details summary { cursor: pointer; }
+.fall__auswertung .row { justify-content: flex-start; }
+
+@media (max-width: 480px) {
+  .fall__schritte thead { display: none; }
+  .fall__schritte tr { display: grid; grid-template-columns: 1fr auto; padding: var(--space-2) 0; border-bottom: 1px solid var(--color-border); }
+  .fall__schritte th, .fall__schritte td { border: 0; padding: var(--space-1) 0; }
+  .fall__schritte td:last-child { grid-column: 1 / -1; }
+  .fall__ich { max-width: 95%; }
+}
+
+/* Handy: Kurve zuerst, damit die Werte beim Lesen sichtbar sind */
+@container content (max-width: 819px) {
+  .fall__kurve { order: -1; }
+  .fall__prozess, .fall__prozess-titel, .fall__hinweis { display: none; }
+}

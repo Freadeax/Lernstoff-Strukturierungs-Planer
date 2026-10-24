@@ -23,7 +23,7 @@ export function Einstellungen() {
       <div className="card">
         <h3>Claude-API-Schlüssel</h3>
         <p className="muted">
-          Wird nur auf diesem Gerät gespeichert und nur für Zusammenfassungen und Handschrifterkennung an Anthropic gesendet.
+          Wird nur auf diesem Gerät gespeichert und nur für Zusammenfassungen, Handschrifterkennung und den Fallsimulator an Anthropic gesendet.
           Einen Schlüssel bekommst du unter console.anthropic.com → API Keys.
         </p>
         <input className="wide" type="password" autoComplete="off" placeholder="sk-ant-…" value={key}

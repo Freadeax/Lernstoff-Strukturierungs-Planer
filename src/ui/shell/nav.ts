@@ -23,6 +23,7 @@ export const NAV: NavItem[] = [
       { id: 'themen', label: 'Themen', path: '/lernen/themen', icon: 'table', tab: true },
       { id: 'board', label: 'Lernstand', path: '/lernen/board', icon: 'board', tab: true },
       { id: 'rechnen', label: 'Rechentrainer', path: '/lernen/rechnen', icon: 'calc' },
+      { id: 'fall', label: 'Fallsimulator', path: '/lernen/fall', icon: 'user' },
       { id: 'faecher', label: 'Fächer', path: '/lernen/faecher', icon: 'layers' },
     ],
   },
