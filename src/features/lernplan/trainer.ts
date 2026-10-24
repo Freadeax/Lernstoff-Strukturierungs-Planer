@@ -14,9 +14,11 @@ import { pflegeModule } from '../../modules/pflege';
 import { TYPEN } from '../rechnen/aufgaben';
 import { fallThemen, SZENARIEN } from '../fall/faelle';
 import { FAELLE as PLANFAELLE, PFLEGEPROZESS_THEMEN } from '../pflegeplanung/faelle';
+import { INSTRUMENTE } from '../assessment/instrumente';
+import { GRUPPEN } from '../assessment/vignetten';
 import { heute, leafTopics, logReview, TRAINER_NAME } from './store';
 
-export type TrainerId = 'rechnen' | 'duell' | 'fall' | 'uebergabe' | 'pflegeplanung' | 'sis' | 'mindmap' | 'bericht';
+export type TrainerId = 'rechnen' | 'duell' | 'fall' | 'uebergabe' | 'pflegeplanung' | 'sis' | 'mindmap' | 'bericht' | 'assessment';
 
 export const TRAINER_LABEL = TRAINER_NAME as Record<TrainerId, string>;
 
@@ -96,6 +98,8 @@ export function uebungenFuer(topicId: string, modul: CatalogModule = pflegeModul
   if (topicId === UEBERGABE_THEMA) out.push({ trainer: 'uebergabe', label: 'Übergabe-Trainer', path: '/lernen/uebergabe' });
   if (topicId === SIS_THEMA) out.push({ trainer: 'sis', label: 'SIS-Trainer', path: '/lernen/sis' });
   if (topicId === BERICHT_THEMA) out.push({ trainer: 'bericht', label: 'Pflegebericht-Trainer', path: '/lernen/bericht' });
+  const assessment = GRUPPEN.find((g) => g.instrumente.some((i) => INSTRUMENTE[i].topicIds.includes(topicId)));
+  if (assessment) out.push({ trainer: 'assessment', label: `Assessment üben (${assessment.label})`, path: `/lernen/assessment?gruppe=${assessment.id}&modus=faelle` });
   if (PFLEGEPROZESS_THEMEN.includes(topicId)) out.push({ trainer: 'pflegeplanung', label: 'Pflegeplanung schreiben', path: '/lernen/pflegeplanung' });
   else {
     const planfall = PLANFAELLE.find((f) => f.topicIds.includes(topicId));
