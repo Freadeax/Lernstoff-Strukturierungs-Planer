@@ -176,3 +176,11 @@ Dunkelmodus folgt dem System oder wird im Profilmenü gewählt (`data-theme`).
 - Code-Splitting: jedes Modul und die Designsystem-Seite sind eigene Chunks; Laden erst bei Sichtbarkeit (Intersection Observer, 300 px Vorlauf).
 - Virtuelles Scrollen in der Tabelle, Nachladen im Board und Feed.
 - Skelette haben feste Höhen aus Komponenten-Tokens, damit beim Laden nichts springt.
+
+### SIS-Trainer (`#/lernen/sis`)
+
+Strukturierte Informationssammlung nach dem Strukturmodell in `src/features/sis/`: vier erfundene Fälle (stationär und ambulant) mit Erstgespräch, Beobachtungen und Unterlagen. Eingabe in drei Abschnitten (Feld B, Themenfelder 1 bis 6, Risikomatrix mit ja/nein, weitere Einschätzung und Themenfeld). Die Checkliste (`pruefung.ts`) läuft offline: Kernpunkte je Feld (im falschen Feld halbe Punkte), Matrix gegen die Lösung (`'beides'` = fachlich beides vertretbar), Hinweise zu Ich-Perspektive und Fachsprache in Feld B, Verständigung in den Themenfeldern und wertenden Begriffen. Optional Rückmeldung von Claude. Entwürfe in localStorage; ins Lernplan-Thema `thema.pp.sis` geht nur eine vollständig ausgefüllte SIS (erster Versuch des Tages).
+
+### Mindmaps (`#/lernen/mindmap`)
+
+Eigene Mindmaps in `src/features/mindmap/`, gespeichert in localStorage (`lernstoff.mindmaps`). Bearbeiten über die Gliederung (Eingabe, Tab, Umschalt+Tab, Alt+Pfeile; auf dem Handy über die Werkzeugleiste), die Karte zeichnet sich automatisch (`layout()` in `modell.ts`, Zoom wie die Landkarte). Vorlagen: leer, Krankheitsbild, aus dem Katalog (Unterthemen und Glossar); Anlegen auch aus einer eingerückten Liste aus Notizen. Üben: Lücken füllen und alles aus dem Gedächtnis; mit einem Unterthema verknüpft und ab 5 abgefragten Begriffen zählt das Ergebnis im Lernplan. Export als SVG und als Text.

@@ -1,0 +1,104 @@
+/* Mindmaps. Astfarben als Komponenten-Tokens aus src/ui/tokens.css (Hell- und Dunkelmodus). */
+.mm {
+  --mm-ast-0: var(--color-series-1); --mm-ast-1: var(--color-success); --mm-ast-2: var(--color-series-3); --mm-ast-3: var(--color-danger);
+  --mm-ast-4: var(--color-secondary); --mm-ast-5: var(--color-warning); --mm-ast-6: var(--color-info); --mm-ast-7: var(--color-text-muted);
+}
+.mm__ast--0 { --ast: var(--mm-ast-0); } .mm__ast--1 { --ast: var(--mm-ast-1); } .mm__ast--2 { --ast: var(--mm-ast-2); } .mm__ast--3 { --ast: var(--mm-ast-3); }
+.mm__ast--4 { --ast: var(--mm-ast-4); } .mm__ast--5 { --ast: var(--mm-ast-5); } .mm__ast--6 { --ast: var(--mm-ast-6); } .mm__ast--7 { --ast: var(--mm-ast-7); }
+
+/* Anlegen und Liste */
+.mm__neu h3 { margin: 0 0 var(--space-2); }
+.mm__neu-felder { display: grid; gap: var(--space-2); grid-template-columns: minmax(0, 1fr); }
+@container content (min-width: 640px) { .mm__neu-felder { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.mm__neu select, .mm__neu input, .mm__neu textarea, .mm__thema select { width: 100%; }
+.mm__vorlagen { display: grid; gap: var(--space-2); grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); margin-top: var(--space-2); }
+.mm__vorlage { display: flex; flex-direction: column; gap: var(--space-1); padding: var(--space-2) var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-sm); cursor: pointer; }
+.mm__vorlage input { position: absolute; opacity: 0; pointer-events: none; }
+.mm__vorlage.is-aktiv { border-color: var(--color-primary); background: var(--color-primary-soft); }
+.mm__vorlage.is-aus { opacity: 0.6; cursor: default; }
+.mm__vorlage:focus-within { box-shadow: var(--focus-ring); }
+.mm__vorlage .muted { font-size: var(--text-sm); }
+.mm__neu .pills { margin-top: var(--space-1); }
+.mm__neu textarea { font-family: inherit; margin-top: var(--space-1); }
+
+.mm__liste { display: grid; gap: var(--space-3); grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr)); margin-top: var(--space-3); }
+.mm__eintrag p { margin: var(--space-1) 0 0; font-size: var(--text-sm); }
+.mm__eintrag .row { justify-content: flex-start; }
+.mm__eintrag-titel { font-size: var(--text-lg); font-weight: var(--weight-bold); text-align: left; padding: 0; }
+
+/* Bearbeiten */
+.mm__kopfzeile .row { align-items: flex-end; }
+.mm__titelzeile { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+.mm__thema { margin: 0; flex: 1 1 16rem; min-width: 0; }
+.mm__aktionen { margin-top: 0; justify-content: flex-start; }
+
+.mm__editor { display: grid; gap: var(--space-3); grid-template-columns: minmax(0, 1fr); align-items: start; margin-top: var(--space-3); }
+/* iPad quer und Rechner: Karte links, Gliederung rechts */
+@container content (min-width: 900px) {
+  .mm__editor { grid-template-columns: minmax(0, 3fr) minmax(18rem, 2fr); }
+  .mm__seite { position: sticky; top: calc(var(--header-h) + var(--space-3)); max-height: calc(100dvh - var(--header-h) - var(--space-6)); overflow: auto; }
+}
+
+.mm__rahmen { position: relative; }
+.mm__viewport {
+  position: relative; overflow: hidden; touch-action: none; cursor: grab;
+  height: max(22rem, calc(100dvh - var(--header-h) - 18rem));
+  border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-background);
+}
+.mm__rahmen--klein .mm__viewport { height: 12rem; }
+@media (max-width: 767px) {
+  .mm__viewport { height: max(18rem, 52dvh); }
+}
+.mm__viewport:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.mm__viewport.is-dragging { cursor: grabbing; }
+.mm__welt { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.mm__welt.is-animated { transition: transform var(--dur-normal) var(--ease-standard); }
+@media (prefers-reduced-motion: reduce) { .mm__welt.is-animated { transition: none; } }
+.mm__welt svg { display: block; overflow: visible; }
+.mm__zoom { position: absolute; right: var(--space-2); bottom: var(--space-2); display: flex; gap: var(--space-1); background: var(--color-surface-raised); border-radius: var(--radius-sm); box-shadow: var(--elevation-2); padding: var(--space-1); }
+
+.mm__kante { fill: none; stroke: var(--ast, var(--color-border-strong)); stroke-linecap: round; stroke-width: 1.6; opacity: 0.85; }
+.mm__kante--t1 { stroke-width: 3; }
+.mm__knoten { cursor: pointer; }
+.mm__knoten rect { fill: var(--color-surface); stroke: var(--ast, var(--color-border-strong)); stroke-width: 1.4; }
+.mm__knoten text { fill: var(--color-text); font-family: inherit; pointer-events: none; }
+.mm__knoten--t0 rect { fill: var(--color-primary); stroke: none; }
+.mm__knoten--t0 text { fill: var(--color-on-primary); font-weight: var(--weight-bold); }
+.mm__knoten--t1 rect { fill: var(--color-surface-raised); stroke-width: 2.4; }
+.mm__knoten--t1 text { font-weight: var(--weight-bold); }
+.mm__knoten.is-auswahl rect { stroke: var(--color-focus); stroke-width: 3.5; }
+.mm__knoten.is-luecke rect { fill: var(--color-warning-soft); stroke-dasharray: 5 4; }
+.mm__knoten.is-ok rect { fill: var(--color-success-soft); stroke: var(--color-success); }
+.mm__knoten.is-falsch rect, .mm__knoten.is-verpasst rect { fill: var(--color-danger-soft); stroke: var(--color-danger); stroke-dasharray: 5 4; }
+
+.mm__seite { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; }
+.mm__werkzeuge { display: flex; flex-wrap: wrap; gap: var(--space-1); position: sticky; top: 0; z-index: 1; background: var(--color-surface); padding-bottom: var(--space-1); }
+.mm__werkzeuge button { display: inline-flex; align-items: center; gap: var(--space-1); }
+.mm__gliederung { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.mm__zeile { display: flex; align-items: center; gap: var(--space-1); padding-left: calc(var(--tiefe) * var(--space-4)); border-radius: var(--radius-sm); }
+.mm__zeile.is-auswahl { background: var(--color-primary-soft); }
+.mm__zeile input { flex: 1; min-width: 0; border-color: transparent; background: transparent; }
+.mm__zeile input:hover { border-color: var(--color-border); }
+.mm__zeile input:focus { border-color: var(--color-primary); background: var(--color-surface); }
+.mm__zeile[style*="--tiefe: 0"] input, .mm__zeile:first-child input { font-weight: var(--weight-bold); font-size: var(--text-lg); }
+.mm__punkt { width: 10px; height: 10px; border-radius: 50%; background: var(--ast, var(--color-primary)); flex-shrink: 0; }
+.mm__punkt--wurzel { width: 14px; height: 14px; }
+.mm__tasten { font-size: var(--text-xs); margin: 0; }
+@media (pointer: coarse) { .mm__tasten { display: none; } }
+.mm__vorschlaege summary { cursor: pointer; font-weight: var(--weight-medium); }
+.mm__chips { display: flex; flex-wrap: wrap; gap: var(--space-1); }
+.mm__chips .pill { display: inline-flex; align-items: center; gap: var(--space-1); }
+
+/* Üben */
+.mm h3 { margin: var(--space-1) 0; }
+.mm__luecken { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.mm__luecken label { display: flex; flex-direction: column; gap: var(--space-1); }
+.mm__luecken input { width: 100%; }
+.mm__luecken li.is-ok input { border-color: var(--color-success); background: var(--color-success-soft); }
+.mm__luecken li.is-falsch input { border-color: var(--color-danger); background: var(--color-danger-soft); }
+.mm__pfad { font-size: var(--text-sm); color: var(--color-text-muted); display: flex; align-items: center; gap: var(--space-1); }
+.mm__nr { display: inline-flex; align-items: center; justify-content: center; min-width: 1.6em; height: 1.6em; border-radius: var(--radius-pill); background: var(--color-warning-soft); color: var(--color-text); font-weight: var(--weight-bold); font-size: var(--text-xs); }
+.mm__loesung { font-size: var(--text-sm); }
+.mm__ergebnis { font-size: var(--text-lg); margin: 0 0 var(--space-2); }
+.mm .note ul { margin: var(--space-1) 0 0; padding-left: var(--space-4); }
+.mm textarea { width: 100%; }
