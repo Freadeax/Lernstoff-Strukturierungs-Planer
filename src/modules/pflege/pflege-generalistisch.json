@@ -12285,6 +12285,12 @@
       "expects": "Gemeinsamkeiten und Unterschiede kriteriengeleitet herausarbeiten."
     },
     {
+      "id": "op.berechnen",
+      "name": "berechnen",
+      "afb": 2,
+      "expects": "Ergebnis vom Ansatz aus durch Rechenschritte gewinnen und den Rechenweg mit Einheiten darstellen."
+    },
+    {
       "id": "op.planen",
       "name": "planen",
       "afb": 2,
