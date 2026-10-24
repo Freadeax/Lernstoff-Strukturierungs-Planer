@@ -147,6 +147,7 @@ function Karte({ e, ctx, f, bearbeiten, onEdit, onDone, onDelete }: {
           <p className="muted">{langDatum(e.date)} · {inTagen(daysBetween(today, e.date))} · {e.topicIds.length} Themen · {GEWICHTE.find((g) => g.w === w)?.label}</p>
         </div>
         <div className="pruefung__aktionen">
+          {e.date > today && <button type="button" className="small" onClick={() => navigate(`/lernen/simulation?pruefung=${e.id}`)}>Simulieren</button>}
           <button type="button" className="small" onClick={onEdit}>Bearbeiten</button>
           <button type="button" className="small danger" onClick={onDelete}>Löschen</button>
         </div>

@@ -12,6 +12,7 @@ operators:
   - { id: op.ableiten,     name: "ableiten",      afb: 2, expects: "Aus Informationen (z. B. Fallbeschreibung) sachgerechte Folgerungen ziehen." }
   - { id: op.zuordnen,     name: "zuordnen",      afb: 2, expects: "Sachverhalte begründet in einen Zusammenhang oder eine Kategorie stellen." }
   - { id: op.vergleichen,  name: "vergleichen",   afb: 2, expects: "Gemeinsamkeiten und Unterschiede kriteriengeleitet herausarbeiten." }
+  - { id: op.berechnen,    name: "berechnen",     afb: 2, expects: "Ergebnis vom Ansatz aus durch Rechenschritte gewinnen und den Rechenweg mit Einheiten darstellen." }
   - { id: op.planen,       name: "planen",        afb: 2, expects: "Vorgehen (z. B. Maßnahmen) zielgerichtet und vollständig entwerfen." }
   - { id: op.begruenden,   name: "begründen",     afb: 3, expects: "Aussage oder Maßnahme durch fachliche Argumente stützen." }
   - { id: op.analysieren,  name: "analysieren",   afb: 3, expects: "Situation kriteriengeleitet in Bestandteile zerlegen und Zusammenhänge herausarbeiten." }

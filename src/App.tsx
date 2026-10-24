@@ -16,6 +16,7 @@ const Rechentrainer = lazy(() => import('./features/rechnen/Rechentrainer'));
 const Fallsimulator = lazy(() => import('./features/fall/Fallsimulator'));
 const Duell = lazy(() => import('./features/duell/Duell'));
 const Uebergabetrainer = lazy(() => import('./features/uebergabe/Uebergabetrainer'));
+const Simulation = lazy(() => import('./features/simulation/Simulation'));
 const Lernplan = lazy(() => import('./features/lernplan/ui/Lernplan'));
 const Landkarte = lazy(() => import('./features/landkarte/Landkarte'));
 
@@ -40,6 +41,7 @@ function View() {
     case '/lernen/rechnen': return <Suspense fallback={<p className="muted">Lädt …</p>}><Rechentrainer /></Suspense>;
     case '/lernen/fall': return <Suspense fallback={<p className="muted">Lädt …</p>}><Fallsimulator /></Suspense>;
     case '/lernen/duell': return <Suspense fallback={<p className="muted">Lädt …</p>}><Duell /></Suspense>;
+    case '/lernen/simulation': return <Suspense fallback={<p className="muted">Lädt …</p>}><Simulation /></Suspense>;
     case '/lernen/uebergabe': return <Suspense fallback={<p className="muted">Lädt …</p>}><Uebergabetrainer /></Suspense>;
     case '/lernen/faecher': return <Faecher />;
     case '/material/dokumente': return <Dokumente />;
