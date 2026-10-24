@@ -3,12 +3,14 @@ import './fall.css';
 import { logActivity } from '../../core/activity';
 import { getApiKey } from '../../core/settings';
 import { pflegeModule } from '../../modules/pflege';
+import { proThema } from '../lernplan/trainer';
+import { LernplanHinweis, useLernplanUebernahme } from '../lernplan/ui/LernplanHinweis';
 import {
   fallThemen, SETTING_LABEL, STUFE_LABEL, SZENARIEN, szenarioAusThema,
   type Setting, type Stufe, type Szenario,
 } from './faelle';
 import {
-  archiviere, ladeAktuell, ladeArchiv, neuerFall, news2, NOTE_LABEL, SCHRITT_BEWERTUNG_LABEL, SCHRITT_LABEL, SCHRITTE,
+  archiviere, fallTreffer, ladeAktuell, ladeArchiv, neuerFall, news2, NOTE_LABEL, SCHRITT_BEWERTUNG_LABEL, SCHRITT_LABEL, SCHRITTE,
   speichereAktuell, spieleZug, werteAus, WERTUNG_LABEL, ZUSTAND_LABEL,
   type Fall, type Vitalwerte, type Wertung,
 } from './simulator';
@@ -237,6 +239,7 @@ export default function Fallsimulator() {
   const [fehler, setFehler] = useState('');
   const endeRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const lernplan = useLernplanUebernahme('fall');
 
   useEffect(() => { speichereAktuell(fall); }, [fall]);
   useEffect(() => { endeRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, [fall?.runden.length, laedt]);
@@ -274,6 +277,7 @@ export default function Fallsimulator() {
         detail: `${STUFE_LABEL[f.stufe]}, ${f.runden.filter((r) => r.eingabe).length} Entscheidungen`,
         ref: f.szenario.topicIds[0],
       });
+      lernplan.uebernimm(proThema(fallTreffer(fertig)));
     } catch (e) {
       setFehler(fehlertext(e));
     } finally {
@@ -299,7 +303,12 @@ export default function Fallsimulator() {
 
       {!fall && <Start apiKey={apiKey} onStart={(s, st) => void starte(s, st)} />}
 
-      {fall?.abschluss && <Auswertung fall={fall} onNeu={() => setFall(null)} onNochmal={() => void starte(fall.szenario, fall.stufe)} />}
+      {fall?.abschluss && (
+        <>
+          <Auswertung fall={fall} onNeu={() => { setFall(null); lernplan.zuruecksetzen(); }} onNochmal={() => { lernplan.zuruecksetzen(); void starte(fall.szenario, fall.stufe); }} />
+          <LernplanHinweis uebernahme={lernplan.uebernahme} fehler={lernplan.fehler} />
+        </>
+      )}
 
       {fall && !fall.abschluss && (
         <div className="fall__layout">

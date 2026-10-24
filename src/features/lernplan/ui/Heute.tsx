@@ -4,7 +4,7 @@ import { navigate } from '../../../ui/shell/router';
 import { notify } from '../../../ui/shell/notifications';
 import type { PlanBlock } from '../scheduler';
 import type { EvidenceSource, Rating } from '../types';
-import { logReview, logStudy, RATING_LABEL, SOURCE_LABEL } from '../store';
+import { logReview, logStudy, RATING_LABEL, SOURCE_LABEL, TRAINER_NAME } from '../store';
 import { blockTitel, bloecke, dauer, langDatum, STATUS_LABEL } from './format';
 import { OhnePruefung, type PlanCtx } from './Lernplan';
 
@@ -132,7 +132,7 @@ export function Heute({ ctx }: { ctx: PlanCtx }) {
     ...data.studyLogs.filter((l) => l.date === data.today).map((l) => ({ at: l.at, text: `${dauer(l.minutes)} gelernt`, topicId: l.topicId })),
     ...data.reviewLogs.filter((l) => l.date === data.today).map((l) => ({
       at: l.at, topicId: l.topicId,
-      text: `${SOURCE_LABEL[l.source]}: ${l.rating ? RATING_LABEL[l.rating] : `${l.scorePercent} %`}`,
+      text: `${l.trainer ? TRAINER_NAME[l.trainer] ?? SOURCE_LABEL[l.source] : SOURCE_LABEL[l.source]}: ${l.rating ? RATING_LABEL[l.rating] : `${l.scorePercent} %`}`,
     })),
   ].sort((a, b) => (a.at < b.at ? -1 : 1));
   const warnungen = plan.warnings.filter((w) => w.kind !== 'fehlende_voraussetzung' || alleWarnungen);

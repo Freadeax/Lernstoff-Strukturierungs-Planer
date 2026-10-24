@@ -16,17 +16,21 @@ export interface Aufgabe {
   schritte: string[];    // Lösungsweg
 }
 
-export interface TypInfo { typ: AufgabenTyp; label: string; formel: string; merke?: string }
+/** `thema`: Katalogthema, in das eine Prüfungsrunde als Abfrage eingeht (Lernplan). */
+export interface TypInfo { typ: AufgabenTyp; label: string; formel: string; merke?: string; thema: string }
+
+const ARZNEI = 'thema.ph.medikamente';
+const INFUSION = 'thema.ph.injektion';
 
 export const TYPEN: TypInfo[] = [
-  { typ: 'einheiten', label: 'Einheiten', formel: '1 g = 1000 mg · 1 mg = 1000 µg · 1 l = 1000 ml', merke: 'Eine Stufe größer: durch 1000. Eine Stufe kleiner: mal 1000.' },
-  { typ: 'dosis', label: 'Dosis aus Ampulle', formel: 'ml = verordnete Menge ÷ Konzentration (mg/ml)', merke: 'Erst die Konzentration ausrechnen: Wirkstoff ÷ Volumen.' },
-  { typ: 'mgkg', label: 'Dosis nach Gewicht', formel: 'Dosis = mg/kg × Körpergewicht', merke: 'Danach wie bei der Ampulle: ml = mg ÷ Konzentration.' },
-  { typ: 'prozent', label: 'Prozentlösungen', formel: '1 % = 1 g in 100 ml = 10 mg/ml', merke: 'G 10 % heißt: 10 g Glukose in 100 ml.' },
-  { typ: 'laufrate', label: 'Laufrate Pumpe', formel: 'ml/h = Volumen (ml) ÷ Zeit (h)', merke: 'Minuten zuerst in Stunden umrechnen: min ÷ 60.' },
-  { typ: 'tropfen', label: 'Tropfgeschwindigkeit', formel: 'Tropfen/min = ml × Tropfenfaktor ÷ Minuten', merke: 'Standardbesteck 20 Tropfen/ml: Tropfen/min = ml/h ÷ 3. Mikrotropf 60 Tropfen/ml: Tropfen/min = ml/h.' },
-  { typ: 'laufzeit', label: 'Laufzeit', formel: 'Minuten = Volumen (ml) ÷ Laufrate (ml/h) × 60' },
-  { typ: 'perfusor', label: 'Perfusor', formel: 'ml/h = Dosis pro Stunde ÷ Konzentration der Spritze', merke: 'µg/kg/min → mg/h: × kg × 60 ÷ 1000.' },
+  { typ: 'einheiten', label: 'Einheiten', formel: '1 g = 1000 mg · 1 mg = 1000 µg · 1 l = 1000 ml', merke: 'Eine Stufe größer: durch 1000. Eine Stufe kleiner: mal 1000.', thema: ARZNEI },
+  { typ: 'dosis', label: 'Dosis aus Ampulle', formel: 'ml = verordnete Menge ÷ Konzentration (mg/ml)', merke: 'Erst die Konzentration ausrechnen: Wirkstoff ÷ Volumen.', thema: ARZNEI },
+  { typ: 'mgkg', label: 'Dosis nach Gewicht', formel: 'Dosis = mg/kg × Körpergewicht', merke: 'Danach wie bei der Ampulle: ml = mg ÷ Konzentration.', thema: ARZNEI },
+  { typ: 'prozent', label: 'Prozentlösungen', formel: '1 % = 1 g in 100 ml = 10 mg/ml', merke: 'G 10 % heißt: 10 g Glukose in 100 ml.', thema: ARZNEI },
+  { typ: 'laufrate', label: 'Laufrate Pumpe', formel: 'ml/h = Volumen (ml) ÷ Zeit (h)', merke: 'Minuten zuerst in Stunden umrechnen: min ÷ 60.', thema: INFUSION },
+  { typ: 'tropfen', label: 'Tropfgeschwindigkeit', formel: 'Tropfen/min = ml × Tropfenfaktor ÷ Minuten', merke: 'Standardbesteck 20 Tropfen/ml: Tropfen/min = ml/h ÷ 3. Mikrotropf 60 Tropfen/ml: Tropfen/min = ml/h.', thema: INFUSION },
+  { typ: 'laufzeit', label: 'Laufzeit', formel: 'Minuten = Volumen (ml) ÷ Laufrate (ml/h) × 60', thema: INFUSION },
+  { typ: 'perfusor', label: 'Perfusor', formel: 'ml/h = Dosis pro Stunde ÷ Konzentration der Spritze', merke: 'µg/kg/min → mg/h: × kg × 60 ÷ 1000.', thema: INFUSION },
 ];
 
 export const TYP_LABEL = Object.fromEntries(TYPEN.map((t) => [t.typ, t.label])) as Record<AufgabenTyp, string>;

@@ -1,0 +1,4 @@
+/* Hinweis unter Trainer-Auswertungen: was im Lernplan gelandet ist */
+.lp-hinweis { margin-top: var(--space-3); }
+.lp-hinweis__liste { list-style: none; margin: var(--space-2) 0; padding: 0; display: grid; gap: var(--space-1); }
+.lp-hinweis__liste li { display: flex; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; }

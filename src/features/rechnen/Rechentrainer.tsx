@@ -6,6 +6,8 @@ import {
   type Aufgabe, type AufgabenTyp, type Bewertung, type Stufe,
 } from './aufgaben';
 import { ladeStatistik, quote, schwaechen, zaehle, type Statistik } from './statistik';
+import { proThema } from '../lernplan/trainer';
+import { LernplanHinweis, useLernplanUebernahme } from '../lernplan/ui/LernplanHinweis';
 
 type Modus = 'training' | 'pruefung';
 const PRUEFUNG_LAENGE = 10;
@@ -16,6 +18,9 @@ const ALLE = TYPEN.map((t) => t.typ);
 
 const neuerSeed = () => Math.floor(Math.random() * 2 ** 31);
 const ok = (b: Bewertung) => b === 'richtig' || b === 'gerundet';
+const THEMA = Object.fromEntries(TYPEN.map((t) => [t.typ, t.thema])) as Record<AufgabenTyp, string>;
+/** Mindestens so viele Aufgaben eines Themas in der Prüfungsrunde, bevor sie im Lernplan zählt. */
+const MIN_PRO_THEMA = 3;
 
 interface Ergebnis { aufgabe: Aufgabe; eingabe: string; bewertung: Bewertung }
 
@@ -49,6 +54,7 @@ export default function Rechentrainer() {
   const [runde, setRunde] = useState<Ergebnis[]>([]);
   const [start, setStart] = useState(() => Date.now());
   const inputRef = useRef<HTMLInputElement>(null);
+  const lernplan = useLernplanUebernahme('rechnen');
 
   const fertig = modus === 'pruefung' && runde.length >= PRUEFUNG_LAENGE;
   const info = TYPEN.find((t) => t.typ === aufgabe.typ)!;
@@ -61,7 +67,7 @@ export default function Rechentrainer() {
   }
 
   function neueRunde(m: Modus, t = typen, s = stufe) {
-    setModus(m); setRunde([]); setSerie(0); setStart(Date.now());
+    setModus(m); setRunde([]); setSerie(0); setStart(Date.now()); lernplan.zuruecksetzen();
     neu({ typen: t, stufe: s });
   }
 
@@ -97,6 +103,8 @@ export default function Rechentrainer() {
       title: `Rechentrainer: ${richtig} von ${runde.length} richtig`,
       detail: `Prüfungsrunde, Stufe ${STUFEN.find((x) => x.stufe === stufe)?.label}, ${Math.round((Date.now() - start) / 60000)} min`,
     });
+    // Nur die Prüfungsrunde zählt als Abfrage, Training mit Tipp und Lösungsweg nicht
+    lernplan.uebernimm(proThema(runde.map((e) => ({ topicIds: [THEMA[e.aufgabe.typ]], punkte: ok(e.bewertung) ? 1 : 0, max: 1 })), MIN_PRO_THEMA));
   }, [fertig]);
 
   const richtigInRunde = runde.filter((e) => ok(e.bewertung)).length;
@@ -158,6 +166,8 @@ export default function Rechentrainer() {
                 </li>
               ))}
             </ol>
+            <LernplanHinweis uebernahme={lernplan.uebernahme} fehler={lernplan.fehler}
+              leer={`Für den Lernplan zählt ein Thema ab ${MIN_PRO_THEMA} Aufgaben in der Runde.`} />
             <div className="row">
               <button type="button" className="primary" onClick={() => neueRunde('pruefung')}>Neue Prüfungsrunde</button>
               <button type="button" onClick={() => neueRunde('training')}>Zum Training</button>
