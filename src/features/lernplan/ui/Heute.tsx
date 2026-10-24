@@ -7,6 +7,7 @@ import type { EvidenceSource, Rating } from '../types';
 import { logReview, logStudy, RATING_LABEL, SOURCE_LABEL } from '../store';
 import { blockTitel, bloecke, dauer, langDatum, STATUS_LABEL } from './format';
 import { OhnePruefung, type PlanCtx } from './Lernplan';
+import { KartenHinweis } from '../../karteikarten/ui/KartenHinweis';
 
 const QUELLEN: EvidenceSource[] = ['karteikarten', 'quiz', 'offene_frage', 'pruefungssimulation', 'selbsteinschaetzung'];
 
@@ -81,7 +82,10 @@ function BlockKarte({ block, ctx }: { block: PlanBlock; ctx: PlanCtx }) {
             <button type="button" className="primary small" onClick={() => sicher(() => logStudy(topic, block.minutes), `${block.minutes} Min. Lernzeit gespeichert`)}>Erledigt</button>
             <button type="button" className="small" onClick={() => setOffen('zeit')}>Andere Dauer</button>
           </> : (
-            <button type="button" className="primary small" onClick={() => setOffen('abfrage')}>Ergebnis eintragen</button>
+            <>
+              <button type="button" className="primary small" onClick={() => navigate(`/lernen/karten?thema=${encodeURIComponent(topic.id)}`)}>Mit Karteikarten abfragen</button>
+              <button type="button" className="small" onClick={() => setOffen('abfrage')}>Ergebnis eintragen</button>
+            </>
           )}
           <button type="button" className="small ghost" onClick={() => navigate(`/lernen/landkarte?thema=${encodeURIComponent(topic.id)}`)}>Auf der Landkarte</button>
         </div>
@@ -155,6 +159,7 @@ export function Heute({ ctx }: { ctx: PlanCtx }) {
         )}
       </div>
 
+      <KartenHinweis />
       {sichtbar.map((w, i) => <p key={i} className="note warn">{w.message}</p>)}
       {(warnungen.length > 2 || plan.warnings.some((w) => w.kind === 'fehlende_voraussetzung')) && (
         <button type="button" className="link" onClick={() => setAlle((x) => !x)}>{alleWarnungen ? 'Weniger Hinweise' : `Alle Hinweise zeigen (${plan.warnings.length})`}</button>

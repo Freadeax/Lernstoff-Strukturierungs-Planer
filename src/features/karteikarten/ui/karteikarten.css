@@ -1,0 +1,87 @@
+/* Karteikarten. Nur Tokens aus src/ui/tokens.css. */
+.karten { max-width: 960px; }
+.karten__tabs { margin-bottom: var(--space-3); }
+
+.karten__start { display: flex; flex-direction: column; gap: var(--space-3); align-items: flex-start; }
+.karten__zahlen { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); width: 100%; }
+.karten__zahlen--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.karten__zahlen > div { display: flex; flex-direction: column; padding: var(--space-2); border-radius: var(--radius-sm); background: var(--color-surface-sunken); }
+.karten__zahlen strong { font-size: var(--text-2xl); font-variant-numeric: tabular-nums; line-height: var(--leading-tight); }
+.karten__zahlen span { font-size: var(--text-sm); }
+
+/* Sitzung */
+.karten__sitzung { display: flex; flex-direction: column; gap: var(--space-3); }
+.karten__kopf { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); }
+.karte { display: flex; flex-direction: column; gap: var(--space-3); min-height: 14rem; }
+.karte__meta { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; font-size: var(--text-sm); }
+.karte__neu { background: var(--color-primary-soft); }
+.karte__vorne { font-size: var(--text-xl); line-height: var(--leading-normal); margin: 0; white-space: pre-line; overflow-wrap: anywhere; }
+.karte__vorne-klein { white-space: pre-line; overflow-wrap: anywhere; }
+.karte__hinten { border-top: 1px dashed var(--color-border-strong); padding-top: var(--space-3); display: flex; flex-direction: column; gap: var(--space-2); }
+.karte__text { margin: 0; font-size: var(--text-lg); line-height: var(--leading-normal); overflow-wrap: anywhere; }
+.karte__liste { margin: 0; padding-left: var(--space-4); display: flex; flex-direction: column; gap: var(--space-1); font-size: var(--text-md); }
+.karte__belege { margin: 0; font-size: var(--text-sm); }
+.karte__eingabe input { width: 100%; min-height: calc(var(--control-h) * 1.3); font-size: var(--text-lg); }
+
+.karten__aktionen { display: flex; flex-direction: column; gap: var(--space-2); }
+.karten__aufdecken { min-height: calc(var(--control-h) * 1.3); min-width: 14rem; font-size: var(--text-md); }
+.karten__bewertung { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-2); }
+.karten__bewertung .bew {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  min-height: calc(var(--control-h) * 1.5); border-width: 2px; padding: var(--space-1);
+}
+.karten__bewertung .bew small { font-size: var(--text-xs); color: var(--color-text-muted); font-variant-numeric: tabular-nums; }
+.karten__bewertung .bew.is-vorschlag { box-shadow: var(--focus-ring); }
+.karten__nebenaktionen { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); }
+.karten__tasten { font-size: var(--text-xs); }
+
+/* Handy: Aufdecken und Bewerten unten am Daumen, über der Tab-Leiste */
+@media (max-width: 760px) {
+  .karten__aktionen {
+    position: sticky; bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + var(--space-2)); z-index: var(--z-sticky);
+    background: var(--color-background); padding: var(--space-2) 0;
+  }
+  .karten__aufdecken { width: 100%; }
+  .karten__tasten { display: none; }
+}
+
+.karten__auswertung { display: flex; flex-direction: column; gap: var(--space-2); }
+.karten__verteilung { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-2); }
+.karten__verteilung li { border: 2px solid; border-radius: var(--radius-sm); padding: var(--space-2); display: flex; flex-direction: column; font-size: var(--text-sm); }
+.karten__verteilung strong { font-size: var(--text-xl); }
+.karten__themen, .karten__faecher, .karten__prognose { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-1); }
+.karten__themen li { display: flex; justify-content: space-between; gap: var(--space-2); padding: var(--space-1) 0; border-bottom: 1px solid var(--color-border); }
+
+/* Verwaltung */
+.karten__optionen { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.karten__optionen li { display: flex; flex-direction: column; }
+.karten__optionen .muted { font-size: var(--text-sm); padding-left: 1.6rem; }
+.karten__tempo { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: flex-end; }
+.karten__tempo .field { margin: 0; }
+.karten__summaries, .karten__vorschlaege, .karten__eigene { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.karten__summary { border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: var(--space-2) var(--space-3); }
+.karten__summary-kopf { display: flex; justify-content: space-between; gap: var(--space-2); align-items: center; }
+.karten__summary-kopf .muted { font-size: var(--text-sm); }
+.karten__vorschlaege { margin-top: var(--space-2); max-height: 60vh; overflow-y: auto; }
+.karten__vorschlaege label { display: flex; gap: var(--space-2); align-items: flex-start; }
+.karten__vorschlaege details { padding-left: 1.6rem; font-size: var(--text-sm); }
+.karten__eigene li { border-bottom: 1px solid var(--color-border); padding: var(--space-2) 0; }
+.karten__eigene li .muted { font-size: var(--text-sm); }
+.karten__eigene .row { justify-content: flex-start; }
+.karten__ausgesetzt { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); }
+.karten__liste-kopf { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+.karten__form textarea { width: 100%; }
+
+.karten__prognose li, .karten__faecher li { display: grid; grid-template-columns: 7rem minmax(0, 1fr) 3.5rem; gap: var(--space-2); align-items: center; font-variant-numeric: tabular-nums; }
+.karten__faecher li { grid-template-columns: minmax(6rem, 12rem) minmax(0, 1fr) 4.5rem; }
+.karten__balken { position: relative; display: block; height: 10px; border-radius: var(--radius-pill); background: var(--color-surface-sunken); overflow: hidden; }
+.karten__balken > span { position: absolute; inset: 0 auto 0 0; background: var(--color-primary); border-radius: var(--radius-pill); }
+.karten__balken--doppelt > span:first-child { background: var(--color-primary-soft); }
+
+@media (max-width: 480px) {
+  .karten__zahlen--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .karten__bewertung { gap: var(--space-1); }
+  .karte__vorne { font-size: var(--text-lg); }
+  .karten__faecher li { grid-template-columns: minmax(0, 1fr) 4.5rem; }
+  .karten__faecher li .karten__balken { grid-column: 1 / -1; grid-row: 2; }
+}
