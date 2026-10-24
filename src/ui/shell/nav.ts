@@ -31,6 +31,7 @@ export const NAV: NavItem[] = [
       { id: 'simulation', label: 'Prüfungssimulation', path: '/lernen/simulation', icon: 'timer' },
       { id: 'pflegeplanung', label: 'Pflegeplanung', path: '/lernen/pflegeplanung', icon: 'clipboard' },
       { id: 'sis', label: 'SIS-Trainer', path: '/lernen/sis', icon: 'form' },
+      { id: 'bericht', label: 'Pflegebericht-Trainer', path: '/lernen/bericht', icon: 'pen' },
       { id: 'mindmap', label: 'Mindmaps', path: '/lernen/mindmap', icon: 'mindmap' },
       { id: 'uebergabe', label: 'Übergabe-Trainer', path: '/lernen/uebergabe', icon: 'chat' },
       { id: 'faecher', label: 'Fächer', path: '/lernen/faecher', icon: 'layers' },

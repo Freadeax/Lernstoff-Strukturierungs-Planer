@@ -184,3 +184,7 @@ Strukturierte Informationssammlung nach dem Strukturmodell in `src/features/sis/
 ### Mindmaps (`#/lernen/mindmap`)
 
 Eigene Mindmaps in `src/features/mindmap/`, gespeichert in localStorage (`lernstoff.mindmaps`). Bearbeiten über die Gliederung (Eingabe, Tab, Umschalt+Tab, Alt+Pfeile; auf dem Handy über die Werkzeugleiste), die Karte zeichnet sich automatisch (`layout()` in `modell.ts`, Zoom wie die Landkarte). Vorlagen: leer, Krankheitsbild, aus dem Katalog (Unterthemen und Glossar); Anlegen auch aus einer eingerückten Liste aus Notizen. Üben: Lücken füllen und alles aus dem Gedächtnis; mit einem Unterthema verknüpft und ab 5 abgefragten Begriffen zählt das Ergebnis im Lernplan. Export als SVG und als Text.
+
+### Pflegebericht-Trainer (`#/lernen/bericht`)
+
+Sachliche Berichtseinträge in `src/features/bericht/`: sechs erfundene Fälle, entweder einen wertenden Eintrag umschreiben oder aus einer Situation neu schreiben. Die Checkliste (`pruefung.ts`) prüft offline die Kernpunkte je Baustein (Zeit, Beobachtung, Aussage, Maßnahme, Wirkung, Weitergabe) und markiert wertende, ungenaue und vermutende Wörter; wörtliche Rede in Anführungszeichen ist ausgenommen. Optional Rückmeldung von Claude mit Umformulierungen. Lernplan-Thema `thema.pp.evaluation` ab 15 Wörtern.
