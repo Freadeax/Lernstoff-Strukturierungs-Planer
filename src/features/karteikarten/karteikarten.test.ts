@@ -220,3 +220,25 @@ describe('Datenbank-Version 5', () => {
     expect(logs[0]).toMatchObject({ topicId: topic.id, source: 'karteikarten', scorePercent: 100, date: '2026-10-24' });
   });
 });
+
+describe('Sitzung über das Menü verlassen', () => {
+  it('meldet das bisherige Ergebnis trotzdem an den Lernplan, aber nur einmal', async () => {
+    const m = new Map<string, string>();
+    (globalThis as { localStorage?: unknown }).localStorage = {
+      getItem: (k: string) => m.get(k) ?? null, setItem: (k: string, v: string) => void m.set(k, v), removeItem: (k: string) => void m.delete(k),
+    };
+    const { db } = await import('../../core/db');
+    const { merkeOffeneSitzung, schliesseOffeneSitzungAb } = await import('./store');
+    const topic = pflegeModule.topics.find((t) => t.id === 'thema.ap.herz')!;
+    const topics = new Map([[topic.id, topic]]);
+    const vorher = await db.reviewLogs.count();
+    merkeOffeneSitzung(['x', 'y', 'z', 'x'].map((cardId, i) => ({ cardId, rating: (i === 0 ? 1 : 3) as 1 | 3, topicIds: [topic.id] })), '2026-10-23');
+    const [e, doppelt] = await Promise.all([schliesseOffeneSitzungAb(topics), schliesseOffeneSitzungAb(topics)]);
+    expect(e).toEqual([{ topicId: topic.id, karten: 3, scorePercent: Math.round((0 + 85 + 85) / 3) }]);
+    expect(doppelt).toBeNull();
+    const logs = await db.reviewLogs.toArray();
+    expect(logs).toHaveLength(vorher + 1);
+    expect(logs.at(-1)).toMatchObject({ source: 'karteikarten', date: '2026-10-23' });
+    expect(await schliesseOffeneSitzungAb(topics)).toBeNull();
+  });
+});

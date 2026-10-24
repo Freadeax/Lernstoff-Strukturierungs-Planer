@@ -1,0 +1,11 @@
+.sicherung__knoepfe { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-2); }
+.sicherung__vorschau { margin-top: var(--space-3); padding-top: var(--space-3); border-top: 1px solid var(--color-border); }
+.sicherung__liste { list-style: none; padding: 0; margin: var(--space-2) 0; display: grid; gap: var(--space-1); }
+.sicherung__liste li { display: flex; justify-content: space-between; gap: var(--space-2); padding: var(--space-1) 0; border-bottom: 1px solid var(--color-border); }
+.sicherung__modus { border: 0; padding: 0; margin: var(--space-3) 0 0; display: grid; gap: var(--space-2); }
+.sicherung__modus legend { font-weight: var(--weight-bold); margin-bottom: var(--space-1); }
+.sicherung__modus label { display: flex; gap: var(--space-2); align-items: flex-start; }
+.sicherung__modus input { margin-top: 0.2em; flex: none; }
+.sicherung__fakten { padding-left: 1.2em; }
+.sicherung-hinweis ul { padding-left: 1.2em; }
+.sicherung-hinweis h3 { margin-top: 0; }

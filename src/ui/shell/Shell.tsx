@@ -3,8 +3,6 @@ import { Icon } from '../icons';
 import { Menu } from '../Menu';
 import { useStore } from '../lib/store';
 import { modules } from '../../modules/registry';
-import { exportAll } from '../../core/db';
-import { download } from '../widget/export';
 import { Omnibar } from './Omnibar';
 import { NotificationCenter, Toaster } from './NotificationCenter';
 import { Sidebar, TabBar } from './Sidebar';
@@ -33,7 +31,7 @@ function ProfileMenu() {
       items={[
         { id: 'settings', label: 'Einstellungen', onSelect: () => navigate('/einstellungen') },
         ...themes.map(([t, l]) => ({ id: `theme-${t}`, label: `${t === theme ? '✓ ' : ''}Darstellung ${l}`, onSelect: () => setWorkspace({ theme: t }) })),
-        { id: 'export', label: 'Alle Daten exportieren', onSelect: async () => download(`lernstoff-export-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(await exportAll(), null, 2), 'application/json') },
+        { id: 'sicherung', label: 'Datensicherung (sichern, übertragen)', onSelect: () => navigate('/system/sicherung') },
       ]} />
   );
 }

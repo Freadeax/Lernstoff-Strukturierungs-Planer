@@ -6,6 +6,7 @@ import { FilterBar } from '../widgets/filter/FilterBar';
 import { WIDGETS } from '../widgets/registry';
 import { navigate } from '../ui/shell/router';
 import { HeuteKarte } from './lernplan/ui/HeuteKarte';
+import { SicherungsHinweis } from './sicherung/SicherungsHinweis';
 
 function ErsteSchritte() {
   const [counts, setCounts] = useState<{ docs: number; summaries: number } | null>(null);
@@ -32,6 +33,7 @@ export function Dashboard() {
       <div className="page__head">
         <h2>Übersicht</h2>
       </div>
+      <SicherungsHinweis />
       <ErsteSchritte />
       <HeuteKarte />
       <FilterBar />

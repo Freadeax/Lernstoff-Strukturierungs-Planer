@@ -41,6 +41,7 @@ const PATHS = {
   pen: 'M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4M14 20h6',
   form: 'M5 3h14v18H5zM8 7h8M8 11h8M8 15h5',
   klasse: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M13 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8',
+  save: 'M5 3h11l3 3v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2zM8 3v5h7V3M8 21v-7h8v7',
   sort: 'M8 4v16M4 8l4-4 4 4M16 20V4M12 16l4 4 4-4',
 } as const;
 

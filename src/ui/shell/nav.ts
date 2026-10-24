@@ -48,6 +48,7 @@ export const NAV: NavItem[] = [
   },
   {
     id: 'system', label: 'System', icon: 'settings', children: [
+      { id: 'sicherung', label: 'Datensicherung', path: '/system/sicherung', icon: 'save' },
       { id: 'einstellungen', label: 'Einstellungen', path: '/einstellungen', icon: 'settings' },
       { id: 'design', label: 'Designsystem', path: '/system/design', icon: 'palette' },
     ],
@@ -71,4 +72,5 @@ export const REDIRECTS: Record<string, string> = {
   '/zusammenfassen': '/material/zusammenfassen',
   '/faecher': '/lernen/faecher',
   '/lernplan': '/lernen/plan',
+  '/sicherung': '/system/sicherung',
 };

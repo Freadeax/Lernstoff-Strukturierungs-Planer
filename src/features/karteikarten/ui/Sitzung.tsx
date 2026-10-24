@@ -6,7 +6,7 @@ import { RATING_LABEL } from '../../lernplan/store';
 import type { Rating } from '../../lernplan/types';
 import { pruefeEingabe, VORSCHLAG, type EingabeErgebnis } from '../erzeugen';
 import { intervallText, vorschau, wiedereinreihen, type ThemenErgebnis } from '../planung';
-import { antworte, schliesseSitzungAb, setzeAus } from '../store';
+import { antworte, merkeOffeneSitzung, schliesseOffeneSitzungAb, schliesseSitzungAb, setzeAus, vergissOffeneSitzung } from '../store';
 import { QUELLE_LABEL, type Karte, type KartenLog, type KartenStand } from '../typen';
 
 type Antwort = Pick<KartenLog, 'cardId' | 'rating' | 'topicIds'>;
@@ -58,6 +58,7 @@ export function Sitzung({ karten, staende: start, retention, heute, topics, titl
   const [busy, setBusy] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const aufdeckenRef = useRef<HTMLButtonElement>(null);
+  const abgeschlossen = useRef(false);
   const gesamt = karten.length;
   const fertigeKarten = new Set(antworten.map((a) => a.cardId)).size;
   const karte = queue[0];
@@ -70,12 +71,23 @@ export function Sitzung({ karten, staende: start, retention, heute, topics, titl
     else aufdeckenRef.current?.focus({ preventScroll: true });
   }, [karte?.id, queue.length]);
 
+  // Verlassen ohne Abschluss (Menü, Zurück, anderer Tab): Ergebnis trotzdem an den Lernplan
+  useEffect(() => () => {
+    if (abgeschlossen.current) return;
+    schliesseOffeneSitzungAb(topics)
+      .then((e) => { if (e?.length) notify('info', 'Karteikarten-Sitzung beendet', `${e.length} ${e.length === 1 ? 'Thema' : 'Themen'} an den Lernplan gemeldet.`); })
+      .catch((e) => notify('warning', 'Ergebnis noch nicht im Lernplan', `Wird beim nächsten Öffnen der Karteikarten nachgeholt. ${e instanceof Error ? e.message : ''}`));
+  }, []);
+
   async function beende(liste = antworten) {
-    if (ergebnis) return;
+    if (ergebnis || abgeschlossen.current) return;
+    abgeschlossen.current = true;
+    vergissOffeneSitzung();
     setBusy(true);
     try {
       setErgebnis(await schliesseSitzungAb(liste, topics, heute));
     } catch (e) {
+      merkeOffeneSitzung(liste, heute);
       notify('critical', 'Ergebnis nicht an den Lernplan übertragen', e instanceof Error ? e.message : String(e));
       setErgebnis([]);
     } finally { setBusy(false); }
@@ -89,6 +101,7 @@ export function Sitzung({ karten, staende: start, retention, heute, topics, titl
       setStaende((m) => new Map(m).set(karte.id, s));
       const neu = [...antworten, { cardId: karte.id, rating: r, topicIds: karte.topicIds }];
       setAntworten(neu);
+      merkeOffeneSitzung(neu, heute);
       const rest = queue.slice(1);
       const naechste = r === 1 ? wiedereinreihen(rest, karte) : rest;
       setQueue(naechste);

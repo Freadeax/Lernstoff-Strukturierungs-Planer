@@ -116,3 +116,29 @@ export async function schliesseSitzungAb(antworten: Pick<KartenLog, 'cardId' | '
   }
   return ergebnisse;
 }
+
+// ---------------------------------------------------------------- Unterbrochene Sitzung
+
+type Antwort = Pick<KartenLog, 'cardId' | 'rating' | 'topicIds'>;
+const OFFEN = 'lernstoff.karten.offeneSitzung';
+
+/** Antworten der laufenden Sitzung merken, damit ihr Ergebnis auch ohne „Fertig“ im Lernplan ankommt. */
+export function merkeOffeneSitzung(antworten: Antwort[], tag: string) {
+  try { localStorage.setItem(OFFEN, JSON.stringify({ tag, antworten })); } catch { /* privater Modus */ }
+}
+export function vergissOffeneSitzung() {
+  try { localStorage.removeItem(OFFEN); } catch { /* privater Modus */ }
+}
+
+/**
+ * Sitzung über Menü, Zurück-Taste oder Schließen der App verlassen: das bisherige Ergebnis
+ * trotzdem an den Lernplan melden. Der Merker wird vorher entfernt, damit nichts doppelt zählt.
+ */
+export async function schliesseOffeneSitzungAb(topics: Map<ID, Topic>): Promise<ThemenErgebnis[] | null> {
+  let offen: { tag: string; antworten: Antwort[] } | null = null;
+  try { offen = JSON.parse(localStorage.getItem(OFFEN) ?? 'null'); } catch { offen = null; }
+  vergissOffeneSitzung();
+  if (!offen || !Array.isArray(offen.antworten) || !offen.antworten.length) return null;
+  try { return await schliesseSitzungAb(offen.antworten, topics, offen.tag); }
+  catch (e) { merkeOffeneSitzung(offen.antworten, offen.tag); throw e; }
+}
