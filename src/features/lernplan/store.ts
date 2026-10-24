@@ -58,7 +58,7 @@ export const SOURCE_LABEL: Record<EvidenceSource, string> = {
 
 /** Anzeigenamen der Übungstrainer (Schlüssel wie TrainerId in trainer.ts). */
 export const TRAINER_NAME: Record<string, string> = {
-  rechnen: 'Rechentrainer', duell: 'Fachbegriff-Duell', fall: 'Fallsimulator', uebergabe: 'Übergabe-Trainer', pflegeplanung: 'Pflegeplanung', sis: 'SIS-Trainer', mindmap: 'Mindmap', bericht: 'Pflegebericht-Trainer',
+  rechnen: 'Rechentrainer', duell: 'Fachbegriff-Duell', fall: 'Fallsimulator', uebergabe: 'Übergabe-Trainer', pflegeplanung: 'Pflegeplanung', sis: 'SIS-Trainer', mindmap: 'Mindmap', bericht: 'Pflegebericht-Trainer', assessment: 'Assessment-Rechner',
 };
 
 export const RATING_LABEL: Record<Rating, string> = { 1: 'Vergessen', 2: 'Schwer', 3: 'Gut', 4: 'Leicht' };

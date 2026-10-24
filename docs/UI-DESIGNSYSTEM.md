@@ -188,3 +188,7 @@ Eigene Mindmaps in `src/features/mindmap/`, gespeichert in localStorage (`lernst
 ### Pflegebericht-Trainer (`#/lernen/bericht`)
 
 Sachliche Berichtseinträge in `src/features/bericht/`: sechs erfundene Fälle, entweder einen wertenden Eintrag umschreiben oder aus einer Situation neu schreiben. Die Checkliste (`pruefung.ts`) prüft offline die Kernpunkte je Baustein (Zeit, Beobachtung, Aussage, Maßnahme, Wirkung, Weitergabe) und markiert wertende, ungenaue und vermutende Wörter; wörtliche Rede in Anführungszeichen ist ausgenommen. Optional Rückmeldung von Claude mit Umformulierungen. Lernplan-Thema `thema.pp.evaluation` ab 15 Wörtern.
+
+### Assessment-Rechner (`#/lernen/assessment`)
+
+Braden, Barthel (Hamburger Einstufungsmanual), NRS, BESD und MNA-SF in `src/features/assessment/`. Instrumente als Daten in `instrumente.ts` (Items, Stufen, Kategorien, Hinweise; MNA mit Wadenumfang als Ersatz für den BMI, BMI-Hilfe), 14 erfundene Fallvignetten mit Musterlösung und Begründung je Item in `vignetten.ts`, Auswertung als reine Funktion in `bewertung.ts`. Zwei Modi: freier Rechner (zählt nicht) und Fallvignetten (je Item, Einstufung und bei Schmerzfällen die Instrumentwahl ein Punkt; geht per `inLernplan` an die Themen des Instruments, erster Versuch des Tages). Adresse: `?gruppe=braden|barthel|schmerz|mna&modus=rechner|faelle&fall=<id>`. Zuletzt erreichte Prozente je Fall in localStorage (`lernstoff.assessment.erledigt`). Neue Fälle brauchen ein Fazit, das mit der Summe beginnt (der Test prüft das).
