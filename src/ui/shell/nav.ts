@@ -20,6 +20,7 @@ export const NAV: NavItem[] = [
   { id: 'uebersicht', label: 'Übersicht', path: '/', icon: 'home', tab: true },
   {
     id: 'lernen', label: 'Lernen', icon: 'book', children: [
+      { id: 'plan', label: 'Lernplan', path: '/lernen/plan', icon: 'calendar', tab: true },
       { id: 'themen', label: 'Themen', path: '/lernen/themen', icon: 'table', tab: true },
       { id: 'landkarte', label: 'Themen-Landkarte', path: '/lernen/landkarte', icon: 'map' },
       { id: 'board', label: 'Lernstand', path: '/lernen/board', icon: 'board', tab: true },
@@ -62,4 +63,5 @@ export const REDIRECTS: Record<string, string> = {
   '/dokumente': '/material/dokumente',
   '/zusammenfassen': '/material/zusammenfassen',
   '/faecher': '/lernen/faecher',
+  '/lernplan': '/lernen/plan',
 };

@@ -5,6 +5,7 @@ import { WidgetGrid } from '../ui/widget/Dashboard';
 import { FilterBar } from '../widgets/filter/FilterBar';
 import { WIDGETS } from '../widgets/registry';
 import { navigate } from '../ui/shell/router';
+import { HeuteKarte } from './lernplan/ui/HeuteKarte';
 
 function ErsteSchritte() {
   const [counts, setCounts] = useState<{ docs: number; summaries: number } | null>(null);
@@ -32,6 +33,7 @@ export function Dashboard() {
         <h2>Übersicht</h2>
       </div>
       <ErsteSchritte />
+      <HeuteKarte />
       <FilterBar />
       <WidgetGrid widgets={[WIDGETS.kpi, WIDGETS.charts, WIDGETS.feed]} />
     </section>

@@ -16,6 +16,7 @@ const Rechentrainer = lazy(() => import('./features/rechnen/Rechentrainer'));
 const Fallsimulator = lazy(() => import('./features/fall/Fallsimulator'));
 const Duell = lazy(() => import('./features/duell/Duell'));
 const Uebergabetrainer = lazy(() => import('./features/uebergabe/Uebergabetrainer'));
+const Lernplan = lazy(() => import('./features/lernplan/ui/Lernplan'));
 const Landkarte = lazy(() => import('./features/landkarte/Landkarte'));
 
 function Page({ title, intro, children }: { title: string; intro?: string; children: React.ReactNode }) {
@@ -32,6 +33,7 @@ function View() {
   useEffect(() => { if (REDIRECTS[path]) navigate(REDIRECTS[path]!); }, [path]);
   switch (path) {
     case '/': return <Dashboard />;
+    case '/lernen/plan': return <Suspense fallback={<p className="muted">Lädt …</p>}><Lernplan /></Suspense>;
     case '/lernen/themen': return <Page title="Themen" intro="Alle Themen des Fachmoduls. Arbeitsstand direkt in der Tabelle ändern oder mehrere auswählen."><WidgetGrid widgets={[WIDGETS.themen]} allowHide={false} /></Page>;
     case '/lernen/landkarte': return <Suspense fallback={<p className="muted">Lädt …</p>}><Landkarte /></Suspense>;
     case '/lernen/board': return <Page title="Lernstand"><WidgetGrid widgets={[WIDGETS.board]} allowHide={false} /></Page>;

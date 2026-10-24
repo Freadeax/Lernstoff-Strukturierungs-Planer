@@ -15,6 +15,8 @@ import {
   type MapLayout, type MapNode,
 } from './layout';
 import { usePanZoom, type View } from './usePanZoom';
+import { heute, topicKnowledge } from '../lernplan/store';
+import { STATUS_LABEL } from '../lernplan/ui/format';
 
 const DIFF = ['', 'sehr leicht', 'leicht', 'mittel', 'schwer', 'sehr schwer'];
 
@@ -91,6 +93,22 @@ const Welt = memo(function Welt({ map, stand, ready, focus, onSelect, onFocusNod
   );
 });
 
+/** Wissensstand aus dem Lernplan: nur echte Abfragen machen ein Thema „sicher“. */
+function Wissensstand({ topic }: { topic: Topic }) {
+  const { state } = useWidgetData({ deps: [topic.id], load: () => topicKnowledge(topic) });
+  if (state.status !== 'ideal' && state.status !== 'partial') return null;
+  const p = state.data;
+  const faellig = p.nextReview ? (p.nextReview <= heute() ? 'jetzt fällig' : `nächste Abfrage am ${p.nextReview.split('-').reverse().join('.')}`) : '';
+  return (
+    <section className="karte__abschnitt">
+      <h4>Wissensstand</h4>
+      <p><span className={`tag tag--wissen-${p.status}`}>{STATUS_LABEL[p.status]}</span>{faellig ? ` · ${faellig}` : ''}</p>
+      <p className="muted">{p.reasons[0]}</p>
+      <button type="button" className="small" onClick={() => navigate('/lernen/plan')}>Zum Lernplan</button>
+    </section>
+  );
+}
+
 function Details({ id, topics, preds, succs, stand, rankOf, subjects, onSelect, onClose }: {
   id: string; topics: Map<string, Topic>; preds: Map<string, string[]>; succs: Map<string, string[]>;
   stand: (id: string) => BoardColumn; rankOf: (id: string) => number; subjects: Map<string, { name: string; code?: string }>;
@@ -151,6 +169,8 @@ function Details({ id, topics, preds, succs, stand, rankOf, subjects, onSelect, 
           <button key={c.id} type="button" className="pill" aria-pressed={s === c.id} title={c.hint} onClick={() => s !== c.id && setze([id], c.id)}>{c.label}</button>
         ))}
       </div>
+
+      <Wissensstand topic={t} />
 
       <section className="karte__abschnitt">
         <h4>Lernpfad bis hierhin</h4>

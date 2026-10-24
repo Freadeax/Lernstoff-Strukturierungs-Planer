@@ -30,6 +30,7 @@ const PATHS = {
   minus: 'M5 12h14',
   map: 'M9 4L3 6v14l6-2 6 2 6-2V4l-6 2zM9 4v14M15 6v14',
   trash: 'M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3',
+  calendar: 'M4 6h16v14H4zM4 10h16M8 3v5M16 3v5M8 14h3',
   calc: 'M6 3h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM8 7h8M8 12h.01M12 12h.01M16 12h.01M8 16h.01M12 16h.01M16 16h.01',
   duell: 'M4 6h9v6H8l-4 3zM20 12h-3M11 15v3h5l4 3V12h-3',
   chat: 'M4 5h16v11H9l-5 4zM8 9h8M8 12h5',

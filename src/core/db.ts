@@ -3,6 +3,7 @@ import type { Document, Exam, SourceChunk, Subject, Summary, Topic } from './typ
 import type { Fingerprint } from '../features/dokumente/import/types';
 import type { ActivityEntry } from './activity';
 import type { BoardEntry } from './board';
+import type { PlannerConfig, StoredReviewLog, StoredStudyLog } from '../features/lernplan/store';
 
 /** Absatztext zu einem Absatz-Hash, für die Anzeige entfallener Absätze beim Versionsvergleich. */
 export interface ParagraphText { hash: string; text: string; }
@@ -19,6 +20,9 @@ export class LernstoffDB extends Dexie {
   paragraphs!: EntityTable<ParagraphText, 'hash'>;
   activity!: EntityTable<ActivityEntry, 'id'>;
   board!: EntityTable<BoardEntry, 'topicId'>;
+  studyLogs!: EntityTable<StoredStudyLog, 'id'>;
+  reviewLogs!: EntityTable<StoredReviewLog, 'id'>;
+  planner!: EntityTable<PlannerConfig, 'id'>;
 
   constructor(name = 'lernstoff-planer') {
     super(name);
@@ -50,6 +54,13 @@ export class LernstoffDB extends Dexie {
           title: 'Zusammenfassung erstellt', detail: s.qa ? `${s.qa.statistik.belegt} von ${s.qa.statistik.claims} Aussagen belegt` : undefined,
         })),
       ]);
+    });
+    // v4: Lernplan. Nur Fakten (Lernzeit, echte Abfragen, verfügbare Zeit), der Plan selbst
+    // wird nie gespeichert, sondern bei jedem Öffnen neu berechnet.
+    this.version(4).stores({
+      studyLogs: '++id, topicId, date',
+      reviewLogs: '++id, topicId, date',
+      planner: 'id',
     });
   }
 }
