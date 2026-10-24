@@ -34,6 +34,10 @@ Für dauerhafte Offline-Nutzung ohne laufenden Rechner muss die App über HTTPS 
 
 Modulare Oberfläche mit Seitenleiste (Handy: untere Leiste), Suche (Strg/Cmd+K) und Modulen für Lernfortschritt, Aktivität, Themen-Tabelle, Lernstand-Board und Import-Assistent. Aufbau, Zustände und Design-Tokens: `docs/UI-DESIGNSYSTEM.md`, live unter **System → Designsystem**.
 
+## Große Dateien für Claude
+
+**Material → Große Dateien** lädt Bücher und Skripte beliebiger Größe in ein privates GitHub-Repo, aus dem Claude-Threads sie abholen (Chat-Upload ist auf 30 MB begrenzt). Einrichtung und Abholen: `docs/MATERIAL-ABLAGE.md`.
+
 ## Erste Schritte in der App
 
 1. **Einstellungen:** Claude-API-Schlüssel eintragen (von [console.anthropic.com](https://console.anthropic.com) → API Keys). Er bleibt nur auf dem Gerät.
