@@ -23,6 +23,7 @@ const Simulation = lazy(() => import('./features/simulation/Simulation'));
 const Pflegeplanung = lazy(() => import('./features/pflegeplanung/Pflegeplanung'));
 const Lernplan = lazy(() => import('./features/lernplan/ui/Lernplan'));
 const Landkarte = lazy(() => import('./features/landkarte/Landkarte'));
+const Klassenmodus = lazy(() => import('./features/klasse/Klassenmodus'));
 const Karteikarten = lazy(() => import('./features/karteikarten/ui/Karteikarten'));
 
 function Page({ title, intro, children }: { title: string; intro?: string; children: React.ReactNode }) {
@@ -37,6 +38,7 @@ function Page({ title, intro, children }: { title: string; intro?: string; child
 function View() {
   const { path } = useRoute();
   useEffect(() => { if (REDIRECTS[path]) navigate(REDIRECTS[path]!); }, [path]);
+  if (path === '/lernen/klasse' || path.startsWith('/lernen/klasse/')) return <Suspense fallback={<p className="muted">Lädt …</p>}><Klassenmodus /></Suspense>;
   switch (path) {
     case '/': return <Dashboard />;
     case '/lernen/plan': return <Suspense fallback={<p className="muted">Lädt …</p>}><Lernplan /></Suspense>;
