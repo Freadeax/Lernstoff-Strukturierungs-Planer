@@ -1,0 +1,190 @@
+# Glossar, Teil 5: Pflegepraxis – Hygiene, Körperpflege, Mobilisation, Ernährung, Ausscheidung,
+# Arzneimittel, Wunden, Perioperatives, Palliative Care, Prophylaxen (Format wie 70-glossar.yaml).
+
+glossary:
+  # --- Hygiene ---
+  - { id: gl.basishygiene, term: "Basishygiene", topicIds: [thema.ph.hygiene], definition: "Hygienemaßnahmen, die bei allen Patientinnen und Patienten unabhängig von einer bekannten Infektion gelten, u. a. Händehygiene, Schutzkleidung und Flächendesinfektion.", synonyms: [Standardhygiene] }
+  - { id: gl.haendedesinfektion, term: "Hygienische Händedesinfektion", topicIds: [thema.ph.hygiene], definition: "Einreiben der trockenen Hände mit alkoholischem Desinfektionsmittel über die vorgeschriebene Einwirkzeit, meist 30 Sekunden, zur Reduktion der Keime." }
+  - { id: gl.fuenf-momente, term: "5 Momente der Händedesinfektion", topicIds: [thema.ph.hygiene], definition: "WHO-Indikationen: vor Patientenkontakt, vor aseptischen Tätigkeiten, nach Kontakt mit potenziell infektiösem Material, nach Patientenkontakt und nach Kontakt mit der unmittelbaren Patientenumgebung." }
+  - { id: gl.chirurgische-haendedesinfektion, term: "Chirurgische Händedesinfektion", topicIds: [thema.ph.hygiene, thema.ph.periop], definition: "Desinfektion von Händen und Unterarmen vor operativen Eingriffen mit längerer Einwirkzeit, um auch die residente Hautflora zu reduzieren." }
+  - { id: gl.desinfektion, term: "Desinfektion", topicIds: [thema.ph.hygiene], definition: "Abtöten oder Inaktivieren von Krankheitserregern, sodass sie keine Infektion mehr verursachen können." }
+  - { id: gl.sterilisation, term: "Sterilisation", topicIds: [thema.ph.hygiene], definition: "Abtöten bzw. Entfernen aller Mikroorganismen einschließlich Sporen von Gegenständen." }
+  - { id: gl.asepsis, term: "Asepsis", topicIds: [thema.ph.hygiene, thema.ph.wunde], definition: "Zustand der Keimfreiheit bzw. Arbeitsweise, die eine Übertragung von Keimen verhindert, z. B. beim Verbandwechsel." }
+  - { id: gl.antiseptik, term: "Antiseptik", topicIds: [thema.ph.hygiene, thema.ph.wunde], definition: "Keimreduktion auf Haut, Schleimhaut oder Wunden mit Antiseptika." }
+  - { id: gl.kontamination, term: "Kontamination", topicIds: [thema.ph.hygiene], definition: "Verunreinigung von Gegenständen, Flächen oder Personen mit Krankheitserregern." }
+  - { id: gl.kontaktinfektion, term: "Kontaktinfektion", topicIds: [thema.ph.hygiene, thema.kl.infektion], definition: "Übertragung von Erregern durch direkten Körperkontakt oder indirekt über Hände und Gegenstände; häufigster Übertragungsweg im Krankenhaus." }
+  - { id: gl.troepfcheninfektion, term: "Tröpfcheninfektion", topicIds: [thema.ph.hygiene, thema.kl.infektion], definition: "Übertragung über größere Tröpfchen beim Husten, Niesen oder Sprechen, die nur über kurze Distanz fliegen." }
+  - { id: gl.aerogen, term: "Aerogene Übertragung", topicIds: [thema.ph.hygiene, thema.kl.infektion], definition: "Übertragung über feinste Aerosole, die lange in der Luft schweben, z. B. bei Tuberkulose oder Masern.", synonyms: [Luftübertragung] }
+  - { id: gl.isolierung, term: "Isolierung", topicIds: [thema.ph.hygiene], definition: "Räumliche Unterbringung von Patientinnen und Patienten mit übertragbaren Erregern, um andere zu schützen; Schutzisolierung schützt dagegen besonders gefährdete Personen." }
+  - { id: gl.psa, term: "Persönliche Schutzausrüstung", abbreviation: "PSA", topicIds: [thema.ph.hygiene, thema.re.arbeitsrecht], definition: "Schutzkleidung wie Handschuhe, Schutzkittel, Mund-Nasen-Schutz, Atemschutzmaske und Schutzbrille." }
+  - { id: gl.ffp2, term: "FFP2-Maske", topicIds: [thema.ph.hygiene], definition: "Partikelfiltrierende Atemschutzmaske, die die tragende Person vor Aerosolen schützt." }
+  - { id: gl.nadelstichverletzung, term: "Nadelstichverletzung", topicIds: [thema.ph.hygiene, thema.re.arbeitsrecht], definition: "Verletzung mit einer gebrauchten Kanüle oder einem scharfen Gegenstand mit Infektionsrisiko u. a. für Hepatitis B, C und HIV; Wunde bluten lassen, desinfizieren und als Arbeitsunfall melden." }
+  - { id: gl.recapping, term: "Recapping", topicIds: [thema.ph.hygiene, thema.ph.injektion], definition: "Zurückstecken der Schutzkappe auf eine gebrauchte Kanüle; wegen Stichverletzungsgefahr verboten." }
+  - { id: gl.krinko, term: "Kommission für Krankenhaushygiene und Infektionsprävention", abbreviation: "KRINKO", topicIds: [thema.ph.hygiene, thema.qw.qm], definition: "Kommission beim Robert Koch-Institut, die Empfehlungen zur Infektionsprävention herausgibt." }
+  - { id: gl.hygieneplan, term: "Hygieneplan", topicIds: [thema.ph.hygiene, thema.qw.qm], definition: "Einrichtungsbezogene Festlegung innerbetrieblicher Verfahren zur Infektionshygiene, nach dem Infektionsschutzgesetz vorgeschrieben." }
+
+  # --- Körperpflege und Mundpflege ---
+  - { id: gl.ganzkoerperwaschung, term: "Ganzkörperwaschung", topicIds: [thema.ph.koerperpflege], definition: "Vollständige Körperpflege im Bett oder am Waschbecken, je nach Ressourcen teilweise oder vollständig übernommen." }
+  - { id: gl.basale-stimulation, term: "Basale Stimulation", topicIds: [thema.ph.koerperpflege, thema.pro.deprivation], definition: "Pflegekonzept nach Andreas Fröhlich, das wahrnehmungsbeeinträchtigten Menschen über Körperkontakt, Bewegung und Sinnesreize Orientierung und Beziehung anbietet." }
+  - { id: gl.belebende-waschung, term: "Belebende Waschung", topicIds: [thema.ph.koerperpflege], definition: "Waschung der Basalen Stimulation gegen die Haarwuchsrichtung mit kühlerem Wasser zur Aktivierung." }
+  - { id: gl.beruhigende-waschung, term: "Beruhigende Waschung", topicIds: [thema.ph.koerperpflege], definition: "Waschung der Basalen Stimulation in Haarwuchsrichtung mit warmem Wasser zur Entspannung." }
+  - { id: gl.intimpflege, term: "Intimpflege", topicIds: [thema.ph.koerperpflege, thema.pro.zystitis], definition: "Reinigung des Genital- und Analbereichs, bei Frauen von vorn nach hinten, um Harnwegsinfektionen vorzubeugen." }
+  - { id: gl.mundpflege, term: "Mundpflege", topicIds: [thema.ph.mund], definition: "Reinigung und Pflege von Zähnen, Zahnersatz, Zunge und Mundschleimhaut zur Vorbeugung von Infektionen, Soor und Parotitis." }
+  - { id: gl.parotitis, term: "Parotitis", topicIds: [thema.ph.mund], definition: "Entzündung der Ohrspeicheldrüse, begünstigt durch fehlendes Kauen und verminderten Speichelfluss." }
+  - { id: gl.stomatitis, term: "Stomatitis", topicIds: [thema.ph.mund], definition: "Entzündung der Mundschleimhaut." }
+  - { id: gl.xerostomie, term: "Xerostomie", topicIds: [thema.ph.mund, thema.ph.palliativ], definition: "Mundtrockenheit durch verminderten Speichelfluss." }
+  - { id: gl.mundinspektion, term: "Mundinspektion", topicIds: [thema.ph.mund], definition: "Begutachtung von Lippen, Zunge, Zähnen und Mundschleimhaut auf Beläge, Verletzungen und Entzündungen." }
+
+  # --- Mobilisation und Lagerung ---
+  - { id: gl.mobilisation, term: "Mobilisation", topicIds: [thema.ph.mobilisation], definition: "Maßnahmen, die die Bewegungsfähigkeit eines Menschen erhalten, fördern oder wiederherstellen." }
+  - { id: gl.fruehmobilisation, term: "Frühmobilisation", topicIds: [thema.ph.mobilisation, thema.ph.periop], definition: "Möglichst frühes Aufsetzen und Aufstehen nach Operation oder Erkrankung zur Vermeidung von Komplikationen." }
+  - { id: gl.kinaesthetik, term: "Kinästhetik", topicIds: [thema.ph.mobilisation], definition: "Konzept zur Bewegungsunterstützung, das die eigenen Bewegungsmöglichkeiten der Person nutzt und Pflegende körperlich entlastet." }
+  - { id: gl.positionierung, term: "Positionierung", topicIds: [thema.ph.mobilisation, thema.pro.dekubitus], definition: "Gezielte Lagerung des Körpers zur Druckentlastung, Atemförderung, Schmerzlinderung oder Kontrakturprophylaxe.", synonyms: [Lagerung] }
+  - { id: gl.mikrolagerung, term: "Mikrolagerung", topicIds: [thema.pro.dekubitus, thema.ph.mobilisation], definition: "Kleine, häufige Veränderungen der Körperposition zur Druckverteilung, z. B. durch Unterschieben eines Handtuchs." }
+  - { id: gl.30-grad, term: "30-Grad-Seitenlage", topicIds: [thema.pro.dekubitus, thema.fs.lage], definition: "Seitliche Schräglage, bei der Kreuzbein und Trochanter entlastet werden." }
+  - { id: gl.hilfsmittel-mobilitaet, term: "Rollator", topicIds: [thema.ph.mobilisation, thema.pro.sturz], definition: "Gehhilfe mit Rädern, Handbremsen und Sitzfläche, die beim Gehen Stabilität gibt." }
+  - { id: gl.transfer, term: "Transfer", topicIds: [thema.ph.mobilisation], definition: "Positionswechsel einer Person von einer Unterlage auf eine andere, z. B. vom Bett in den Rollstuhl." }
+  - { id: gl.immobilitaet, term: "Immobilität", topicIds: [thema.ph.mobilisation, thema.kl.geriatrie], definition: "Starke Einschränkung oder Verlust der Fähigkeit, sich selbstständig zu bewegen; Risikofaktor für viele Komplikationen." }
+  - { id: gl.sturz, term: "Sturz", topicIds: [thema.pro.sturz], definition: "Ereignis, bei dem eine Person unbeabsichtigt auf dem Boden oder einer tieferen Ebene zu liegen kommt." }
+  - { id: gl.sturzangst, term: "Sturzangst", topicIds: [thema.pro.sturz], definition: "Angst vor einem erneuten Sturz, die zu Bewegungsvermeidung und damit zu weiterem Sturzrisiko führen kann.", synonyms: [Post-Fall-Syndrom] }
+  - { id: gl.hueftprotektor, term: "Hüftprotektor", topicIds: [thema.pro.sturz], definition: "In Unterwäsche eingearbeitete Polster, die bei einem Sturz die Hüfte schützen und Frakturen vorbeugen." }
+
+  # --- Prophylaxen ---
+  - { id: gl.pneumonieprophylaxe, term: "Pneumonieprophylaxe", topicIds: [thema.pro.pneumonie], definition: "Maßnahmen zur Vorbeugung einer Lungenentzündung, z. B. Mobilisation, Atemübungen, Sekretmanagement und Mundpflege." }
+  - { id: gl.atemstimulierende-einreibung, term: "Atemstimulierende Einreibung", abbreviation: "ASE", topicIds: [thema.pro.pneumonie, thema.ph.koerperpflege], definition: "Rhythmische Einreibung des Rückens aus der Basalen Stimulation, die zu einer ruhigen, tiefen und gleichmäßigen Atmung anregen soll." }
+  - { id: gl.atemtrainer, term: "Atemtrainer", topicIds: [thema.pro.pneumonie], definition: "Gerät, das mit sichtbarer Rückmeldung zu tiefer Einatmung anregt, z. B. nach Operationen.", synonyms: [Inspirationstrainer] }
+  - { id: gl.thromboseprophylaxe, term: "Thromboseprophylaxe", topicIds: [thema.pro.thrombose], definition: "Maßnahmen gegen die Entstehung einer Thrombose: Bewegung, Kompression und medikamentöse Antikoagulation." }
+  - { id: gl.mts, term: "Medizinischer Thromboseprophylaxestrumpf", abbreviation: "MTPS", topicIds: [thema.pro.thrombose], definition: "Kompressionsstrumpf für liegende Personen, der den venösen Rückfluss beschleunigt; Kontraindikation u. a. bei pAVK.", synonyms: [Antithrombosestrumpf, ATS] }
+  - { id: gl.antikoagulation, term: "Antikoagulation", topicIds: [thema.pro.thrombose, thema.ph.medikamente], definition: "Medikamentöse Hemmung der Blutgerinnung, z. B. mit Heparin oder direkten oralen Antikoagulanzien." }
+  - { id: gl.dekubitusprophylaxe, term: "Dekubitusprophylaxe", topicIds: [thema.pro.dekubitus], definition: "Maßnahmen zur Vorbeugung von Druckgeschwüren, vor allem Bewegungsförderung, Druckentlastung und Hautpflege." }
+  - { id: gl.dekubitus-kategorie, term: "Dekubituskategorie", topicIds: [thema.pro.dekubitus], definition: "Einteilung nach EPUAP/NPIAP: Kategorie 1 nicht wegdrückbare Rötung, 2 Teilverlust der Haut, 3 vollständiger Hautverlust, 4 vollständiger Gewebeverlust mit freiliegenden Knochen, Sehnen oder Muskeln." }
+  - { id: gl.scherkraefte, term: "Scherkräfte", topicIds: [thema.pro.dekubitus], definition: "Gegeneinander verschobene Gewebeschichten, z. B. beim Herunterrutschen im Bett, die Gefäße abknicken und Dekubitus begünstigen." }
+  - { id: gl.weichlagerung, term: "Druckverteilende Matratze", topicIds: [thema.pro.dekubitus], definition: "Hilfsmittel, das das Körpergewicht auf eine größere Fläche verteilt oder Auflagepunkte zeitweise entlastet, z. B. Weichlagerungs- oder Wechseldruckmatratze." }
+  - { id: gl.kontrakturprophylaxe, term: "Kontrakturprophylaxe", topicIds: [thema.pro.kontraktur], definition: "Vorbeugung von Gelenkversteifungen durch aktive und passive Bewegungsübungen sowie physiologische Positionierung." }
+  - { id: gl.spitzfuss, term: "Spitzfuß", topicIds: [thema.pro.kontraktur], definition: "Kontraktur im oberen Sprunggelenk mit Streckstellung des Fußes, z. B. durch Bettdeckendruck bei Bettlägerigkeit." }
+  - { id: gl.aspirationsprophylaxe, term: "Aspirationsprophylaxe", topicIds: [thema.pro.aspiration], definition: "Maßnahmen zur Vermeidung von Aspiration, z. B. aufrechte Sitzposition beim Essen, angepasste Kostform und Andicken von Getränken." }
+  - { id: gl.obstipationsprophylaxe, term: "Obstipationsprophylaxe", topicIds: [thema.pro.obstipation], definition: "Vorbeugung von Verstopfung durch ausreichende Flüssigkeit, ballaststoffreiche Ernährung, Bewegung und regelmäßige Toilettenzeiten." }
+  - { id: gl.sturzprophylaxe, term: "Sturzprophylaxe", topicIds: [thema.pro.sturz], definition: "Maßnahmen zur Erkennung und Verringerung des Sturzrisikos, z. B. Kraft- und Balancetraining, Umgebungsanpassung und Medikamentenüberprüfung." }
+  - { id: gl.deprivation, term: "Deprivation", topicIds: [thema.pro.deprivation], definition: "Zustand des Mangels an Reizen, sozialen Kontakten oder Zuwendung, der zu Rückzug, Orientierungsverlust und Hospitalismus führen kann." }
+  - { id: gl.hospitalismus, term: "Hospitalismus", topicIds: [thema.pro.deprivation], definition: "Schäden durch langen Aufenthalt in Einrichtungen, psychisch durch Reizarmut und Isolation oder infektiologisch durch Krankenhauskeime." }
+  - { id: gl.delirprophylaxe, term: "Delirprophylaxe", topicIds: [thema.pro.delir], definition: "Maßnahmen gegen ein Delir wie Orientierungshilfen, Brille und Hörgerät, Schlafförderung, Flüssigkeitszufuhr, Mobilisation und Vermeidung delirogener Medikamente." }
+  - { id: gl.zystitisprophylaxe, term: "Zystitisprophylaxe", topicIds: [thema.pro.zystitis], definition: "Vorbeugung von Harnwegsinfektionen durch ausreichende Trinkmenge, korrekte Intimpflege und hygienischen Umgang mit Kathetern." }
+  - { id: gl.soorprophylaxe, term: "Soor- und Parotitisprophylaxe", topicIds: [thema.pro.soor, thema.ph.mund], definition: "Vorbeugung durch regelmäßige Mundpflege, Anregung des Speichelflusses und Kontrolle der Mundschleimhaut." }
+  - { id: gl.intertrigoprophylaxe, term: "Intertrigoprophylaxe", topicIds: [thema.pro.intertrigo], definition: "Hautfalten sauber und trocken halten, z. B. durch Einlegen von Leinen- oder Baumwollstreifen und Vermeiden reibender Kleidung." }
+
+  # --- Ernährung ---
+  - { id: gl.grundumsatz, term: "Grundumsatz", topicIds: [thema.ph.ernaehrung], definition: "Energiemenge, die der Körper in völliger Ruhe für die Aufrechterhaltung der Lebensfunktionen benötigt." }
+  - { id: gl.makronaehrstoffe, term: "Makronährstoffe", topicIds: [thema.ph.ernaehrung], definition: "Energieliefernde Hauptnährstoffe: Kohlenhydrate, Fette und Eiweiße." }
+  - { id: gl.ballaststoffe, term: "Ballaststoffe", topicIds: [thema.ph.ernaehrung, thema.pro.obstipation], definition: "Unverdauliche pflanzliche Nahrungsbestandteile, die die Darmtätigkeit anregen." }
+  - { id: gl.enterale-ernaehrung, term: "Enterale Ernährung", topicIds: [thema.ph.ernaehrung], definition: "Ernährung über den Magen-Darm-Trakt, oral oder über eine Sonde." }
+  - { id: gl.parenterale-ernaehrung, term: "Parenterale Ernährung", topicIds: [thema.ph.ernaehrung, thema.ph.injektion], definition: "Ernährung unter Umgehung des Magen-Darm-Trakts über eine Vene." }
+  - { id: gl.magensonde, term: "Nasogastrale Sonde", topicIds: [thema.ph.ernaehrung], definition: "Über die Nase in den Magen gelegte Sonde zur Ernährung oder Ableitung; die korrekte Lage wird vor jeder Nutzung überprüft.", synonyms: [Magensonde] }
+  - { id: gl.trinknahrung, term: "Trinknahrung", topicIds: [thema.ph.ernaehrung], definition: "Energie- und eiweißreiche Fertignahrung zum Trinken, die bei Mangelernährung ergänzend gegeben wird.", synonyms: [Zusatznahrung] }
+  - { id: gl.andickung, term: "Andickungsmittel", topicIds: [thema.ph.ernaehrung, thema.pro.aspiration], definition: "Pulver, mit dem Getränke und Speisen bei Schluckstörungen auf eine sicher schluckbare Konsistenz gebracht werden." }
+  - { id: gl.kostform, term: "Kostform", topicIds: [thema.ph.ernaehrung], definition: "Festgelegte Ernährungsform wie Vollkost, leichte Vollkost, pürierte Kost oder eine spezielle Diät." }
+  - { id: gl.nahrungskarenz, term: "Nahrungskarenz", topicIds: [thema.ph.ernaehrung, thema.ph.periop], definition: "Verzicht auf Nahrung vor Untersuchungen oder Operationen.", synonyms: [Nüchternheit] }
+  - { id: gl.refeeding, term: "Refeeding-Syndrom", topicIds: [thema.ph.ernaehrung], definition: "Lebensbedrohliche Elektrolytverschiebung, wenn schwer mangelernährte Menschen zu schnell wieder ernährt werden." }
+  - { id: gl.fingerfood, term: "Fingerfood", topicIds: [thema.ph.ernaehrung, thema.kl.demenz], definition: "Mundgerechte Speisen, die ohne Besteck gegessen werden können und so die Selbstständigkeit, z. B. bei Demenz, fördern." }
+
+  # --- Ausscheidung ---
+  - { id: gl.miktion, term: "Miktion", topicIds: [thema.ph.ausscheidung], definition: "Wasserlassen; Entleerung der Harnblase." }
+  - { id: gl.defaekation, term: "Defäkation", topicIds: [thema.ph.ausscheidung], definition: "Stuhlentleerung." }
+  - { id: gl.stuhlinkontinenz, term: "Stuhlinkontinenz", topicIds: [thema.ph.ausscheidung], definition: "Unfähigkeit, Stuhl und Darmgase willentlich zurückzuhalten." }
+  - { id: gl.belastungsinkontinenz, term: "Belastungsinkontinenz", topicIds: [thema.ph.ausscheidung], definition: "Unwillkürlicher Harnverlust bei Druckerhöhung im Bauchraum, z. B. beim Husten, Niesen oder Heben." }
+  - { id: gl.dranginkontinenz, term: "Dranginkontinenz", topicIds: [thema.ph.ausscheidung], definition: "Unwillkürlicher Harnverlust mit plötzlichem, starkem Harndrang.", synonyms: [Urge-Inkontinenz] }
+  - { id: gl.toilettentraining, term: "Toilettentraining", topicIds: [thema.ph.ausscheidung], definition: "Kontinenzförderung durch festgelegte oder an das individuelle Ausscheidungsmuster angepasste Toilettenzeiten." }
+  - { id: gl.kontinenzprofil, term: "Kontinenzprofil", topicIds: [thema.ph.ausscheidung, thema.qw.expertenstandards], definition: "Einteilung im Expertenstandard Kontinenzförderung von Kontinenz bis nicht kompensierter Inkontinenz, abhängig von Hilfsmitteln und personeller Unterstützung." }
+  - { id: gl.spk, term: "Suprapubischer Katheter", abbreviation: "SPK", topicIds: [thema.ph.ausscheidung], definition: "Durch die Bauchdecke oberhalb des Schambeins in die Blase gelegter Katheter zur Harnableitung." }
+  - { id: gl.einmalkatheterismus, term: "Intermittierender Katheterismus", topicIds: [thema.ph.ausscheidung], definition: "Regelmäßige Blasenentleerung mit einem Einmalkatheter, auch als Selbstkatheterismus; geringeres Infektionsrisiko als ein Dauerkatheter." }
+  - { id: gl.geschlossenes-system, term: "Geschlossenes Ableitungssystem", topicIds: [thema.ph.ausscheidung, thema.pro.zystitis], definition: "Urinableitung mit fest verbundenem Beutel, Rückflussventil und Ablass, die nicht diskonnektiert wird; Beutel stets unter Blasenniveau." }
+  - { id: gl.einlauf, term: "Einlauf", topicIds: [thema.ph.ausscheidung, thema.pro.obstipation], definition: "Einbringen von Flüssigkeit in den Enddarm zur Darmentleerung oder zur Gabe von Medikamenten.", synonyms: [Klistier] }
+  - { id: gl.laxanzien, term: "Laxanzien", topicIds: [thema.ph.medikamente, thema.pro.obstipation], definition: "Abführmittel, die die Stuhlentleerung fördern; bei Opioidtherapie meist prophylaktisch verordnet.", synonyms: [Abführmittel] }
+
+  # --- Arzneimittel ---
+  - { id: gl.arzneimittel, term: "Arzneimittel", topicIds: [thema.ph.medikamente], definition: "Stoff oder Zubereitung zur Heilung, Linderung oder Verhütung von Krankheiten oder zur Diagnose.", synonyms: [Medikament] }
+  - { id: gl.wirkstoff, term: "Wirkstoff", topicIds: [thema.ph.medikamente], definition: "Bestandteil eines Arzneimittels, der die arzneiliche Wirkung hervorruft." }
+  - { id: gl.generikum, term: "Generikum", topicIds: [thema.ph.medikamente], definition: "Arzneimittel mit gleichem Wirkstoff wie das Originalpräparat, das nach Ablauf des Patentschutzes unter anderem Namen vertrieben wird." }
+  - { id: gl.pharmakokinetik, term: "Pharmakokinetik", topicIds: [thema.ph.medikamente], definition: "Lehre davon, was der Körper mit dem Arzneimittel macht: Aufnahme, Verteilung, Verstoffwechselung und Ausscheidung." }
+  - { id: gl.pharmakodynamik, term: "Pharmakodynamik", topicIds: [thema.ph.medikamente], definition: "Lehre davon, was das Arzneimittel im Körper bewirkt: Wirkmechanismus, Wirkung und Nebenwirkung." }
+  - { id: gl.halbwertszeit, term: "Halbwertszeit", topicIds: [thema.ph.medikamente], definition: "Zeit, in der die Konzentration eines Wirkstoffs im Blut auf die Hälfte abgesunken ist." }
+  - { id: gl.first-pass, term: "First-Pass-Effekt", topicIds: [thema.ph.medikamente], definition: "Teilweiser Abbau eines oral aufgenommenen Wirkstoffs in der Leber, bevor er den Körperkreislauf erreicht." }
+  - { id: gl.indikation, term: "Indikation", topicIds: [thema.ph.medikamente], definition: "Grund für die Anwendung einer diagnostischen oder therapeutischen Maßnahme." }
+  - { id: gl.kontraindikation, term: "Kontraindikation", topicIds: [thema.ph.medikamente], definition: "Umstand, der die Anwendung einer Maßnahme oder eines Arzneimittels verbietet oder einschränkt.", synonyms: [Gegenanzeige] }
+  - { id: gl.nebenwirkung, term: "Unerwünschte Arzneimittelwirkung", abbreviation: "UAW", topicIds: [thema.ph.medikamente], definition: "Schädliche und unbeabsichtigte Reaktion auf ein Arzneimittel.", synonyms: [Nebenwirkung] }
+  - { id: gl.wechselwirkung, term: "Wechselwirkung", topicIds: [thema.ph.medikamente], definition: "Gegenseitige Beeinflussung von Arzneimitteln oder von Arzneimitteln und Nahrung in Wirkung oder Abbau.", synonyms: [Interaktion] }
+  - { id: gl.compliance, term: "Adhärenz", topicIds: [thema.ph.medikamente, thema.kom.beratung], definition: "Ausmaß, in dem eine Person gemeinsam vereinbarte Therapieempfehlungen einhält.", synonyms: [Compliance] }
+  - { id: gl.sechs-r, term: "6-R-Regel", topicIds: [thema.ph.medikamente], definition: "Kontrollregel bei der Arzneimittelgabe: richtige Person, richtiges Arzneimittel, richtige Dosis, richtige Applikationsart, richtiger Zeitpunkt und richtige Dokumentation.", note: "Je nach Lehrbuch auch als 5-R-, 7-R- oder 10-R-Regel mit weiteren Punkten." }
+  - { id: gl.applikation, term: "Applikation", topicIds: [thema.ph.medikamente, thema.ph.injektion], definition: "Art und Weise, wie ein Arzneimittel verabreicht wird, z. B. oral, rektal, transdermal oder parenteral." }
+  - { id: gl.sublingual, term: "sublingual", topicIds: [thema.ph.medikamente], definition: "Unter der Zunge; der Wirkstoff wird über die Mundschleimhaut schnell aufgenommen." }
+  - { id: gl.transdermal, term: "transdermal", topicIds: [thema.ph.medikamente], definition: "Durch die Haut; z. B. Wirkstoffpflaster mit gleichmäßiger Abgabe über Tage." }
+  - { id: gl.retard, term: "Retardpräparat", topicIds: [thema.ph.medikamente], definition: "Arzneiform mit verzögerter, verlängerter Wirkstofffreisetzung; darf in der Regel nicht geteilt oder gemörsert werden." }
+  - { id: gl.btm, term: "Betäubungsmittel", abbreviation: "BtM", topicIds: [thema.ph.medikamente, thema.re.berufsrecht], definition: "Stoffe nach dem Betäubungsmittelgesetz, z. B. stark wirksame Opioide; Lagerung im verschlossenen Fach und lückenloser Nachweis jeder Entnahme." }
+  - { id: gl.opioide, term: "Opioide", topicIds: [thema.ph.medikamente, thema.ph.palliativ], definition: "Stark wirksame Schmerzmittel wie Morphin; typische Nebenwirkungen sind Obstipation, Übelkeit, Müdigkeit und Atemdepression." }
+  - { id: gl.nsar, term: "Nichtsteroidale Antirheumatika", abbreviation: "NSAR", topicIds: [thema.ph.medikamente], definition: "Schmerz-, entzündungs- und fiebersenkende Arzneimittel wie Ibuprofen oder Diclofenac; Nebenwirkungen u. a. Magenschleimhautschäden und Nierenschäden." }
+  - { id: gl.antibiotikum, term: "Antibiotikum", topicIds: [thema.ph.medikamente, thema.kl.infektion], definition: "Arzneimittel, das Bakterien abtötet oder ihr Wachstum hemmt; unwirksam gegen Viren." }
+  - { id: gl.antihypertensiva, term: "Antihypertensiva", topicIds: [thema.ph.medikamente, thema.kl.herz.hypertonie], definition: "Blutdrucksenkende Arzneimittel, z. B. ACE-Hemmer, Betablocker, Diuretika oder Kalziumantagonisten." }
+  - { id: gl.diuretika, term: "Diuretika", topicIds: [thema.ph.medikamente, thema.kl.herz.insuffizienz], definition: "Harntreibende Arzneimittel, die die Ausscheidung von Salz und Wasser steigern; Gewichts- und Elektrolytkontrollen nötig." }
+  - { id: gl.psychopharmaka, term: "Psychopharmaka", topicIds: [thema.ph.medikamente, thema.kl.psych], definition: "Arzneimittel, die auf psychische Vorgänge wirken, z. B. Antidepressiva, Neuroleptika und Beruhigungsmittel." }
+  - { id: gl.sedativa, term: "Sedativa", topicIds: [thema.ph.medikamente, thema.re.fem], definition: "Beruhigungsmittel; werden sie zur Einschränkung der Bewegungsfreiheit eingesetzt, gelten sie als freiheitsentziehende Maßnahme." }
+  - { id: gl.bedarfsmedikation, term: "Bedarfsmedikation", topicIds: [thema.ph.medikamente], definition: "Ärztlich verordnetes Arzneimittel, das bei definierten Symptomen nach festgelegter Einzel- und Höchstdosis gegeben wird.", synonyms: [Bedarfsmedikament] }
+
+  # --- Injektion, Infusion, Transfusion ---
+  - { id: gl.injektion, term: "Injektion", topicIds: [thema.ph.injektion], definition: "Einbringen eines flüssigen Arzneimittels mit Spritze und Kanüle in den Körper." }
+  - { id: gl.infusion, term: "Infusion", topicIds: [thema.ph.injektion], definition: "Kontinuierliche Gabe größerer Flüssigkeitsmengen, meist über einen venösen Zugang." }
+  - { id: gl.pvk, term: "Peripherer Venenverweilkatheter", abbreviation: "PVK", topicIds: [thema.ph.injektion], definition: "In eine periphere Vene gelegte Kunststoffkanüle für Infusionen und i.v.-Medikamente; täglich auf Entzündungszeichen kontrollieren.", synonyms: [Viggo, Braunüle] }
+  - { id: gl.zvk, term: "Zentraler Venenkatheter", abbreviation: "ZVK", topicIds: [thema.ph.injektion], definition: "Katheter, dessen Spitze in einer herznahen großen Vene liegt, z. B. für venenreizende Medikamente oder parenterale Ernährung." }
+  - { id: gl.port, term: "Portsystem", topicIds: [thema.ph.injektion, thema.kl.onko], definition: "Unter der Haut implantierte Kammer mit Katheter in eine große Vene, die mit einer speziellen Portnadel punktiert wird.", synonyms: [Port] }
+  - { id: gl.paravasat, term: "Paravasat", topicIds: [thema.ph.injektion], definition: "Unbeabsichtigter Austritt einer Infusion oder Injektion neben das Gefäß ins Gewebe; bei Zytostatika besonders gewebeschädigend." }
+  - { id: gl.phlebitis, term: "Phlebitis", topicIds: [thema.ph.injektion], definition: "Venenentzündung, z. B. an der Einstichstelle eines Venenkatheters." }
+  - { id: gl.tropfgeschwindigkeit, term: "Tropfgeschwindigkeit", topicIds: [thema.ph.injektion], definition: "Anzahl Tropfen pro Minute bei Schwerkraftinfusion; bei Standardbesteck entsprechen 20 Tropfen etwa 1 ml." }
+  - { id: gl.perfusor, term: "Spritzenpumpe", topicIds: [thema.ph.injektion], definition: "Gerät, das Medikamente aus einer Spritze mit exakt eingestellter Rate kontinuierlich abgibt.", synonyms: [Perfusor] }
+  - { id: gl.transfusion, term: "Bluttransfusion", topicIds: [thema.ph.injektion, thema.ap.blut], definition: "Übertragung von Blutprodukten wie Erythrozytenkonzentrat; vorher ärztlich durchgeführter Bedside-Test zur AB0-Kontrolle." }
+  - { id: gl.bedside-test, term: "Bedside-Test", topicIds: [thema.ph.injektion, thema.ap.blut], definition: "AB0-Identitätstest der empfangenden Person unmittelbar vor einer Transfusion am Patientenbett." }
+  - { id: gl.ventrogluteal, term: "Ventrogluteale Injektion", topicIds: [thema.ph.injektion], definition: "Intramuskuläre Injektion in den seitlichen Gesäßmuskel nach Hochstetter oder Sachtleben, um Nerven und Gefäße zu schonen." }
+  - { id: gl.aspirieren, term: "Aspirieren", topicIds: [thema.ph.injektion], definition: "Kurzes Zurückziehen des Spritzenkolbens nach dem Einstich, um zu prüfen, ob die Kanüle in einem Blutgefäß liegt; bei s.c.-Injektion von Heparin nicht empfohlen." }
+  - { id: gl.blutzuckermessung, term: "Kapillare Blutzuckermessung", topicIds: [thema.kl.diabetes, thema.beo.vitalzeichen], definition: "Bestimmung des Blutzuckers aus einem Blutstropfen, meist seitlich an der Fingerbeere, mit einem Messgerät." }
+  - { id: gl.insulinpen, term: "Insulinpen", topicIds: [thema.kl.diabetes, thema.ph.injektion], definition: "Injektionshilfe in Stiftform zur subkutanen Gabe von Insulin mit einstellbarer Dosis." }
+
+  # --- Wunden ---
+  - { id: gl.wunde, term: "Wunde", topicIds: [thema.ph.wunde], definition: "Unterbrechung des Zusammenhangs von Körpergewebe mit oder ohne Substanzverlust." }
+  - { id: gl.chronische-wunde, term: "Chronische Wunde", topicIds: [thema.ph.wunde, thema.qw.expertenstandards], definition: "Wunde, die nach etwa vier bis zwölf Wochen trotz Behandlung nicht abgeheilt ist, z. B. Ulcus cruris, Dekubitus oder diabetisches Fußulkus." }
+  - { id: gl.ulcus-cruris, term: "Ulcus cruris", topicIds: [thema.ph.wunde, thema.kl.herz], definition: "Unterschenkelgeschwür, meist venös bedingt (Ulcus cruris venosum), seltener arteriell oder gemischt.", synonyms: [offenes Bein] }
+  - { id: gl.wundheilungsphasen, term: "Wundheilungsphasen", topicIds: [thema.ph.wunde], definition: "Exsudationsphase (Reinigung), Granulationsphase (Gewebeaufbau) und Epithelisierungsphase (Verschluss)." }
+  - { id: gl.primaere-wundheilung, term: "Primäre Wundheilung", topicIds: [thema.ph.wunde], definition: "Schnelle Heilung glatter, eng aneinanderliegender Wundränder mit schmaler Narbe, z. B. bei OP-Wunden." }
+  - { id: gl.sekundaere-wundheilung, term: "Sekundäre Wundheilung", topicIds: [thema.ph.wunde], definition: "Langsame Heilung klaffender oder infizierter Wunden über Granulationsgewebe mit breiterer Narbe." }
+  - { id: gl.granulation, term: "Granulationsgewebe", topicIds: [thema.ph.wunde], definition: "Neu gebildetes, gut durchblutetes, rotes und körniges Gewebe, das den Wunddefekt auffüllt." }
+  - { id: gl.exsudat, term: "Exsudat", topicIds: [thema.ph.wunde], definition: "Aus der Wunde austretende Flüssigkeit; Menge, Farbe und Geruch geben Hinweise auf den Wundzustand." }
+  - { id: gl.fibrinbelag, term: "Fibrinbelag", topicIds: [thema.ph.wunde], definition: "Gelblicher, festhaftender Belag in der Wunde, der die Heilung behindern kann." }
+  - { id: gl.debridement, term: "Débridement", topicIds: [thema.ph.wunde], definition: "Entfernung von abgestorbenem Gewebe und Belägen aus der Wunde, chirurgisch, mechanisch, enzymatisch oder biologisch." }
+  - { id: gl.feuchte-wundbehandlung, term: "Feuchte Wundbehandlung", topicIds: [thema.ph.wunde], definition: "Prinzip moderner Wundversorgung, bei dem ein feuchtes Wundmilieu die Heilung fördert, z. B. mit Hydrogelen oder Schaumverbänden." }
+  - { id: gl.wundinfektion, term: "Wundinfektion", topicIds: [thema.ph.wunde, thema.kl.infektion], definition: "Vermehrung von Erregern in der Wunde mit Entzündungszeichen, vermehrtem Exsudat, Geruch oder Fieber." }
+  - { id: gl.wunddokumentation, term: "Wunddokumentation", topicIds: [thema.ph.wunde, thema.pp.prozess], definition: "Regelmäßige Erfassung von Lokalisation, Größe, Tiefe, Wundgrund, Exsudat, Wundrand, Umgebung und Schmerz, möglichst mit Foto." }
+  - { id: gl.drainage, term: "Drainage", topicIds: [thema.ph.wunde, thema.ph.periop], definition: "Ableitung von Wundsekret, Blut oder anderen Flüssigkeiten aus Wunden oder Körperhöhlen über einen Schlauch." }
+  - { id: gl.kompressionstherapie, term: "Kompressionstherapie", topicIds: [thema.ph.wunde, thema.kl.herz], definition: "Behandlung mit Kompressionsverbänden oder -strümpfen zur Verbesserung des venösen Rückflusses, Basis der Therapie bei venösem Ulcus cruris." }
+
+  # --- Perioperative Pflege ---
+  - { id: gl.praeoperativ, term: "präoperativ", topicIds: [thema.ph.periop], definition: "Vor einer Operation." }
+  - { id: gl.postoperativ, term: "postoperativ", topicIds: [thema.ph.periop], definition: "Nach einer Operation." }
+  - { id: gl.nuechternheit, term: "Präoperative Nüchternheit", topicIds: [thema.ph.periop], definition: "Verzicht auf feste Nahrung und Getränke vor einer Narkose nach festgelegten Zeiten, um eine Aspiration zu verhindern.", note: "Konkrete Stundenangaben nach aktueller Leitlinie und Hausstandard." }
+  - { id: gl.narkose, term: "Allgemeinanästhesie", topicIds: [thema.ph.periop], definition: "Medikamentös herbeigeführter, kontrollierter Zustand von Bewusstlosigkeit, Schmerzfreiheit und Muskelentspannung für Eingriffe.", synonyms: [Narkose, Vollnarkose] }
+  - { id: gl.regionalanaesthesie, term: "Regionalanästhesie", topicIds: [thema.ph.periop], definition: "Schmerzausschaltung eines Körperabschnitts bei erhaltenem Bewusstsein, z. B. Spinal- oder Periduralanästhesie." }
+  - { id: gl.pda, term: "Periduralanästhesie", abbreviation: "PDA", topicIds: [thema.ph.periop], definition: "Regionalanästhesie durch Einspritzen von Lokalanästhetika in den Periduralraum, oft über einen Katheter zur postoperativen Schmerztherapie.", synonyms: [Epiduralanästhesie] }
+  - { id: gl.ponv, term: "Postoperative Übelkeit und Erbrechen", abbreviation: "PONV", topicIds: [thema.ph.periop], definition: "Häufige Komplikation nach Narkosen; Risikofaktoren u. a. weibliches Geschlecht, Nichtrauchen und Opioidgabe." }
+  - { id: gl.aufwachraum, term: "Aufwachraum", abbreviation: "AWR", topicIds: [thema.ph.periop], definition: "Überwachungsbereich, in dem Patientinnen und Patienten nach einer Narkose bis zur Stabilisierung betreut werden." }
+  - { id: gl.op-checkliste, term: "OP-Checkliste", topicIds: [thema.ph.periop, thema.qw.qm], definition: "Strukturierte Prüfung vor der Operation, z. B. Identität, Eingriffsort und Seite, Einwilligung, Nüchternheit, Schmuck und Prothesen, nach dem WHO-Konzept der sicheren Chirurgie." }
+  - { id: gl.seitenmarkierung, term: "Seitenmarkierung", topicIds: [thema.ph.periop, thema.qw.qm], definition: "Markierung der Operationsstelle auf der Haut vor dem Eingriff, um Eingriffsverwechslungen zu vermeiden." }
+  - { id: gl.nachblutung, term: "Nachblutung", topicIds: [thema.ph.periop], definition: "Blutung nach einer Operation; Zeichen sind durchgeblutete Verbände, steigende Drainagemenge, Tachykardie und Blutdruckabfall." }
+  - { id: gl.fast-track, term: "Fast-Track-Chirurgie", topicIds: [thema.ph.periop], definition: "Behandlungskonzept mit verkürzter Nüchternheit, früher Mobilisation und früher Ernährung zur schnelleren Erholung nach Operationen.", synonyms: [ERAS] }
+
+  # --- Palliative Care ---
+  - { id: gl.palliative-care, term: "Palliative Care", topicIds: [thema.ph.palliativ], definition: "Ansatz zur Verbesserung der Lebensqualität von Menschen mit lebensbegrenzenden Erkrankungen und ihren Angehörigen durch Linderung von Leiden auf körperlicher, psychischer, sozialer und spiritueller Ebene." }
+  - { id: gl.total-pain, term: "Total Pain", topicIds: [thema.ph.palliativ], definition: "Konzept nach Cicely Saunders, das Schmerz als Gesamterleben mit körperlichen, psychischen, sozialen und spirituellen Anteilen versteht." }
+  - { id: gl.hospiz, term: "Hospiz", topicIds: [thema.ph.palliativ, thema.re.versorgung], definition: "Einrichtung oder Dienst zur Begleitung schwerstkranker und sterbender Menschen in ihrer letzten Lebensphase." }
+  - { id: gl.sapv, term: "Spezialisierte ambulante Palliativversorgung", abbreviation: "SAPV", topicIds: [thema.ph.palliativ, thema.re.sgb5], definition: "Leistung der Krankenversicherung, die Menschen mit besonders aufwendigem Versorgungsbedarf eine palliative Betreuung zu Hause ermöglicht." }
+  - { id: gl.sterbephase, term: "Sterbephase", topicIds: [thema.ph.palliativ], definition: "Letzte Tage bis Stunden des Lebens mit Zeichen wie Rückzug, verminderter Nahrungs- und Flüssigkeitsaufnahme, veränderter Atmung und Marmorierung der Haut.", synonyms: [Finalphase] }
+  - { id: gl.sterbephasen-kuebler-ross, term: "Sterbephasen nach Kübler-Ross", topicIds: [thema.ph.palliativ, thema.kom.gespraech], definition: "Modell der emotionalen Reaktionen auf eine tödliche Diagnose: Nicht-wahrhaben-Wollen, Zorn, Verhandeln, Depression und Zustimmung; Phasen verlaufen nicht zwingend nacheinander." }
+  - { id: gl.palliative-sedierung, term: "Palliative Sedierung", topicIds: [thema.ph.palliativ], definition: "Überwachter Einsatz sedierender Medikamente zur Linderung sonst unerträglichen Leidens am Lebensende." }
+  - { id: gl.trauer, term: "Trauer", topicIds: [thema.ph.palliativ, thema.kom.gespraech], definition: "Natürliche Reaktion auf einen Verlust mit seelischen, körperlichen und sozialen Ausdrucksformen." }
+  - { id: gl.postmortale-versorgung, term: "Postmortale Versorgung", topicIds: [thema.ph.palliativ], definition: "Würdevolle Versorgung eines verstorbenen Menschen unter Beachtung kultureller und religiöser Wünsche." }
+  - { id: gl.todeszeichen, term: "Sichere Todeszeichen", topicIds: [thema.ph.palliativ], definition: "Totenflecken, Totenstarre, Fäulnis und mit dem Leben nicht vereinbare Verletzungen; der Tod wird ärztlich festgestellt." }
+  - { id: gl.dyspnoe-palliativ, term: "Atemnot in der Palliativsituation", topicIds: [thema.ph.palliativ, thema.kl.atmung], definition: "Häufiges belastendes Symptom; Linderung u. a. durch Oberkörperhochlage, Luftzug (Handventilator), Ruhe und ärztlich verordnete Opioide." }

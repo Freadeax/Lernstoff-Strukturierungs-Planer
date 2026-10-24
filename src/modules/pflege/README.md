@@ -16,7 +16,7 @@ weiteren Ordner unter `src/modules/` mit denselben YAML-Dateien anlegt, baut und
 | `katalog/40-aufgabenformate.yaml` | PESR, SMART, Maßnahme, Pflegeplanung, SIS, Pflegebericht, SBAR, Prophylaxe-Schema, Beratung, Ethik, Fallbearbeitung – jeweils mit Pflichtteilen |
 | `katalog/50-pruefregeln.yaml` | 20 fachspezifische Prüfregeln für die Qualitätskontrolle |
 | `katalog/60-pruefungen-operatoren.yaml` | 17 Operatoren mit Anforderungsbereich, Prüfungsformate (Klausur, Zwischenprüfung, staatliche Prüfung) |
-| `katalog/70-glossar.yaml` | 53 Fachbegriffe und Abkürzungen |
+| `katalog/70-glossar.yaml` … `77-glossar-abkuerzungen.yaml` | 936 Fachbegriffe, davon 190 mit Abkürzung, nach Themen zugeordnet: Grundbegriffe (70), Anatomie (71), Krankheitslehre (72), Beobachtung und Notfall (73), Pflegepraxis und Prophylaxen (74), Pflegeprozess, Qualität, Recht, Kommunikation und Ethik (75), Wortbausteine und Lagebezeichnungen (76), Abkürzungen (77). Jeder Begriff und jede Abkürzung kommt nur einmal vor. |
 | `../schema/domain-module.schema.json` | Fachneutrales JSON Schema (Draft 2020-12) für jedes Fachmodul |
 | `../catalog-types.ts` | TypeScript-Erweiterungen zum Kernvertrag |
 | `scripts/build-module.py` (Repo-Wurzel) | Baut `pflege-generalistisch.json` und prüft Schema, IDs, Verweise und Zyklen |

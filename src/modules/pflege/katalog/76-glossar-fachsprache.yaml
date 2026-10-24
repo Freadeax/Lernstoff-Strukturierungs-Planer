@@ -1,0 +1,122 @@
+# Glossar, Teil 7: Fachsprache – Wortbausteine sowie Lage- und Richtungsbezeichnungen
+# (Format wie 70-glossar.yaml). Wortbausteine stehen mit Bindestrich, Beispiele in der Definition.
+
+glossary:
+  # --- Präfixe ---
+  - { id: gl.fs.a, term: "a-/an-", topicIds: [thema.fs.wortbildung], definition: "Vorsilbe für ohne, fehlend; z. B. Anurie, Apnoe." }
+  - { id: gl.fs.anti, term: "anti-", topicIds: [thema.fs.wortbildung], definition: "Vorsilbe für gegen; z. B. Antibiotikum, Antikoagulation." }
+  - { id: gl.fs.brady, term: "brady-", topicIds: [thema.fs.wortbildung], definition: "Vorsilbe für langsam; z. B. Bradypnoe, Bradykinese." }
+  - { id: gl.fs.tachy, term: "tachy-", topicIds: [thema.fs.wortbildung], definition: "Vorsilbe für schnell; z. B. Tachypnoe, Tachyarrhythmie." }
+  - { id: gl.fs.dys, term: "dys-", topicIds: [thema.fs.wortbildung], definition: "Vorsilbe für gestört, erschwert, fehlerhaft; z. B. Dysurie, Dysarthrie." }
+  - { id: gl.fs.eu, term: "eu-", topicIds: [thema.fs.wortbildung], definition: "Vorsilbe für gut, normal; z. B. Eupnoe, Euthyreose." }
+  - { id: gl.fs.hyper, term: "hyper-", topicIds: [thema.fs.wortbildung], definition: "Vorsilbe für über, übermäßig, erhöht; z. B. Hyperthermie, Hyperkapnie." }
+  - { id: gl.fs.hypo, term: "hypo-", topicIds: [thema.fs.wortbildung], definition: "Vorsilbe für unter, vermindert; z. B. Hypothermie, Hypoxie." }
+  - { id: gl.fs.poly, term: "poly-", topicIds: [thema.fs.wortbildung], definition: "Vorsilbe für viel; z. B. Polyurie, Polyneuropathie." }
+  - { id: gl.fs.oligo, term: "oligo-", topicIds: [thema.fs.wortbildung], definition: "Vorsilbe für wenig; z. B. Oligurie." }
+  - { id: gl.fs.hemi, term: "hemi-", topicIds: [thema.fs.wortbildung], definition: "Vorsilbe für halb, eine Körperhälfte; z. B. Hemiparese." }
+  - { id: gl.fs.para, term: "para-", topicIds: [thema.fs.wortbildung], definition: "Vorsilbe für neben, abweichend; z. B. Paravasat, Parästhesie." }
+  - { id: gl.fs.peri, term: "peri-", topicIds: [thema.fs.wortbildung], definition: "Vorsilbe für um herum; z. B. Perikard, perioperativ." }
+  - { id: gl.fs.endo, term: "endo-", topicIds: [thema.fs.wortbildung], definition: "Vorsilbe für innen, innerhalb; z. B. Endokard, Endoskopie." }
+  - { id: gl.fs.exo, term: "ex-/exo-", topicIds: [thema.fs.wortbildung], definition: "Vorsilbe für außen, heraus; z. B. Exsudat, exokrin." }
+  - { id: gl.fs.intra, term: "intra-", topicIds: [thema.fs.wortbildung], definition: "Vorsilbe für innerhalb, hinein; z. B. intramuskulär, intravenös." }
+  - { id: gl.fs.inter, term: "inter-", topicIds: [thema.fs.wortbildung], definition: "Vorsilbe für zwischen; z. B. interkostal, interdisziplinär." }
+  - { id: gl.fs.sub, term: "sub-", topicIds: [thema.fs.wortbildung], definition: "Vorsilbe für unter, unterhalb; z. B. subkutan, sublingual." }
+  - { id: gl.fs.supra, term: "supra-", topicIds: [thema.fs.wortbildung], definition: "Vorsilbe für über, oberhalb; z. B. suprapubisch." }
+  - { id: gl.fs.trans, term: "trans-", topicIds: [thema.fs.wortbildung], definition: "Vorsilbe für durch, hindurch; z. B. transurethral, transdermal." }
+  - { id: gl.fs.prae, term: "prä-", topicIds: [thema.fs.wortbildung], definition: "Vorsilbe für vor (zeitlich oder räumlich); z. B. präoperativ." }
+  - { id: gl.fs.post, term: "post-", topicIds: [thema.fs.wortbildung], definition: "Vorsilbe für nach; z. B. postoperativ, postmortal." }
+  - { id: gl.fs.re, term: "re-", topicIds: [thema.fs.wortbildung], definition: "Vorsilbe für zurück, wieder; z. B. Rezidiv, Reanimation." }
+  - { id: gl.fs.contra, term: "kontra-", topicIds: [thema.fs.wortbildung], definition: "Vorsilbe für gegen, gegenüber; z. B. Kontraindikation, kontralateral." }
+  - { id: gl.fs.iso, term: "iso-", topicIds: [thema.fs.wortbildung], definition: "Vorsilbe für gleich; z. B. isoton." }
+  - { id: gl.fs.makro, term: "makro-", topicIds: [thema.fs.wortbildung], definition: "Vorsilbe für groß; z. B. Makrohämaturie." }
+  - { id: gl.fs.mikro, term: "mikro-", topicIds: [thema.fs.wortbildung], definition: "Vorsilbe für klein; z. B. Mikroorganismus, Mikrolagerung." }
+  - { id: gl.fs.neo, term: "neo-", topicIds: [thema.fs.wortbildung], definition: "Vorsilbe für neu; z. B. Neoplasie, Neonatologie." }
+  - { id: gl.fs.pseudo, term: "pseudo-", topicIds: [thema.fs.wortbildung], definition: "Vorsilbe für falsch, scheinbar; z. B. Pseudokrupp." }
+
+  # --- Suffixe ---
+  - { id: gl.fs.itis, term: "-itis", topicIds: [thema.fs.wortbildung], definition: "Nachsilbe für Entzündung; z. B. Zystitis, Gastritis." }
+  - { id: gl.fs.ose, term: "-ose", topicIds: [thema.fs.wortbildung], definition: "Nachsilbe für nicht entzündliche, oft degenerative Erkrankung oder Zustand; z. B. Arthrose, Osteoporose." }
+  - { id: gl.fs.om, term: "-om", topicIds: [thema.fs.wortbildung], definition: "Nachsilbe für Geschwulst, Schwellung; z. B. Karzinom, Hämatom." }
+  - { id: gl.fs.algie, term: "-algie", topicIds: [thema.fs.wortbildung], definition: "Nachsilbe für Schmerz; z. B. Neuralgie, Myalgie." }
+  - { id: gl.fs.ektomie, term: "-ektomie", topicIds: [thema.fs.wortbildung], definition: "Nachsilbe für operative Entfernung; z. B. Appendektomie, Cholezystektomie." }
+  - { id: gl.fs.tomie, term: "-tomie", topicIds: [thema.fs.wortbildung], definition: "Nachsilbe für operatives Eröffnen, Schnitt; z. B. Tracheotomie, Laparotomie." }
+  - { id: gl.fs.stomie, term: "-stomie", topicIds: [thema.fs.wortbildung], definition: "Nachsilbe für operativ angelegte Öffnung oder Verbindung nach außen; z. B. Kolostomie, Gastrostomie." }
+  - { id: gl.fs.skopie, term: "-skopie", topicIds: [thema.fs.wortbildung], definition: "Nachsilbe für Betrachtung, Spiegelung; z. B. Gastroskopie, Koloskopie." }
+  - { id: gl.fs.gramm, term: "-gramm/-graphie", topicIds: [thema.fs.wortbildung], definition: "Nachsilbe für Aufzeichnung bzw. Aufzeichnungsverfahren; z. B. Elektrokardiogramm, Sonographie." }
+  - { id: gl.fs.aemie, term: "-ämie", topicIds: [thema.fs.wortbildung], definition: "Nachsilbe für einen Zustand des Blutes; z. B. Anämie, Hypoglykämie." }
+  - { id: gl.fs.urie, term: "-urie", topicIds: [thema.fs.wortbildung], definition: "Nachsilbe für Harn bzw. Harnausscheidung; z. B. Hämaturie, Nykturie." }
+  - { id: gl.fs.pnoe, term: "-pnoe", topicIds: [thema.fs.wortbildung], definition: "Nachsilbe für Atmung; z. B. Dyspnoe, Orthopnoe." }
+  - { id: gl.fs.plegie, term: "-plegie", topicIds: [thema.fs.wortbildung], definition: "Nachsilbe für vollständige Lähmung; z. B. Hemiplegie, Tetraplegie." }
+  - { id: gl.fs.parese, term: "-parese", topicIds: [thema.fs.wortbildung], definition: "Nachsilbe für unvollständige Lähmung; z. B. Hemiparese." }
+  - { id: gl.fs.pathie, term: "-pathie", topicIds: [thema.fs.wortbildung], definition: "Nachsilbe für Erkrankung, Leiden; z. B. Neuropathie, Kardiomyopathie." }
+  - { id: gl.fs.logie, term: "-logie", topicIds: [thema.fs.wortbildung], definition: "Nachsilbe für Lehre, Wissenschaft; z. B. Kardiologie, Pathologie." }
+  - { id: gl.fs.zyt, term: "-zyt", topicIds: [thema.fs.wortbildung], definition: "Nachsilbe für Zelle; z. B. Erythrozyt, Leukozyt." }
+  - { id: gl.fs.penie, term: "-penie", topicIds: [thema.fs.wortbildung], definition: "Nachsilbe für Mangel, Verminderung; z. B. Thrombopenie, Neutropenie." }
+  - { id: gl.fs.ektasie, term: "-ektasie", topicIds: [thema.fs.wortbildung], definition: "Nachsilbe für Erweiterung; z. B. Bronchiektasie." }
+  - { id: gl.fs.genese, term: "-genese", topicIds: [thema.fs.wortbildung], definition: "Nachsilbe für Entstehung; z. B. Pathogenese, Salutogenese." }
+
+  # --- Wortstämme ---
+  - { id: gl.fs.kardio, term: "kardi(o)-", topicIds: [thema.fs.wortbildung], definition: "Wortstamm für Herz; z. B. Kardiologie, Myokard." }
+  - { id: gl.fs.pneumo, term: "pneum(o)-/pulmo-", topicIds: [thema.fs.wortbildung], definition: "Wortstamm für Lunge oder Luft; z. B. Pneumonie, pulmonal." }
+  - { id: gl.fs.gastro, term: "gastr(o)-", topicIds: [thema.fs.wortbildung], definition: "Wortstamm für Magen; z. B. Gastritis, Gastroskopie." }
+  - { id: gl.fs.entero, term: "enter(o)-", topicIds: [thema.fs.wortbildung], definition: "Wortstamm für Darm, meist Dünndarm; z. B. enteral, Enteritis." }
+  - { id: gl.fs.hepato, term: "hepat(o)-", topicIds: [thema.fs.wortbildung], definition: "Wortstamm für Leber; z. B. Hepatitis, hepatotoxisch." }
+  - { id: gl.fs.nephro, term: "nephr(o)-/ren-", topicIds: [thema.fs.wortbildung], definition: "Wortstamm für Niere; z. B. Nephrologie, renal." }
+  - { id: gl.fs.zysto, term: "zyst(o)-", topicIds: [thema.fs.wortbildung], definition: "Wortstamm für Blase; z. B. Zystitis, Zystoskopie." }
+  - { id: gl.fs.neuro, term: "neur(o)-", topicIds: [thema.fs.wortbildung], definition: "Wortstamm für Nerv; z. B. Neurologie, Neuropathie." }
+  - { id: gl.fs.enzephalo, term: "enzephal(o)-/zerebr-", topicIds: [thema.fs.wortbildung], definition: "Wortstamm für Gehirn; z. B. Enzephalitis, zerebral." }
+  - { id: gl.fs.osteo, term: "oste(o)-", topicIds: [thema.fs.wortbildung], definition: "Wortstamm für Knochen; z. B. Osteoporose, Osteoblast." }
+  - { id: gl.fs.arthro, term: "arthr(o)-", topicIds: [thema.fs.wortbildung], definition: "Wortstamm für Gelenk; z. B. Arthrose, Arthroskopie." }
+  - { id: gl.fs.myo, term: "my(o)-", topicIds: [thema.fs.wortbildung], definition: "Wortstamm für Muskel; z. B. Myalgie, Myokard." }
+  - { id: gl.fs.derma, term: "derm(a)-/kut-", topicIds: [thema.fs.wortbildung], definition: "Wortstamm für Haut; z. B. Dermatologie, subkutan." }
+  - { id: gl.fs.haem, term: "häm(at)-", topicIds: [thema.fs.wortbildung], definition: "Wortstamm für Blut; z. B. Hämatom, Hämaturie." }
+  - { id: gl.fs.angio, term: "angi(o)-/vas-", topicIds: [thema.fs.wortbildung], definition: "Wortstamm für Gefäß; z. B. Angiographie, vaskulär." }
+  - { id: gl.fs.phleb, term: "phleb(o)-/ven-", topicIds: [thema.fs.wortbildung], definition: "Wortstamm für Vene; z. B. Phlebitis, intravenös." }
+  - { id: gl.fs.glyk, term: "glyk-/glyc-", topicIds: [thema.fs.wortbildung], definition: "Wortstamm für Zucker; z. B. Hypoglykämie, Glykogen." }
+  - { id: gl.fs.thermo, term: "therm(o)-", topicIds: [thema.fs.wortbildung], definition: "Wortstamm für Wärme; z. B. Hypothermie." }
+  - { id: gl.fs.ortho, term: "orth(o)-", topicIds: [thema.fs.wortbildung], definition: "Wortstamm für gerade, aufrecht, richtig; z. B. Orthopnoe, Orthopädie." }
+  - { id: gl.fs.geronto, term: "geront(o)-/ger-", topicIds: [thema.fs.wortbildung], definition: "Wortstamm für Alter, alter Mensch; z. B. Gerontologie, Geriatrie." }
+  - { id: gl.fs.paed, term: "päd-", topicIds: [thema.fs.wortbildung], definition: "Wortstamm für Kind; z. B. Pädiatrie." }
+  - { id: gl.fs.psych, term: "psych-", topicIds: [thema.fs.wortbildung], definition: "Wortstamm für Seele; z. B. Psychiatrie, Psychopharmaka." }
+  - { id: gl.fs.stoma, term: "stomat-/or-", topicIds: [thema.fs.wortbildung], definition: "Wortstamm für Mund; z. B. Stomatitis, oral." }
+  - { id: gl.fs.rhino, term: "rhin(o)-/nas-", topicIds: [thema.fs.wortbildung], definition: "Wortstamm für Nase; z. B. Rhinitis, nasogastral." }
+  - { id: gl.fs.ophthalmo, term: "ophthalm(o)-", topicIds: [thema.fs.wortbildung], definition: "Wortstamm für Auge; z. B. Ophthalmologie." }
+
+  # --- Lage- und Richtungsbezeichnungen ---
+  - { id: gl.fs.anterior, term: "anterior", topicIds: [thema.fs.lage], definition: "Vorn, vorne gelegen." }
+  - { id: gl.fs.posterior, term: "posterior", topicIds: [thema.fs.lage], definition: "Hinten, hinten gelegen." }
+  - { id: gl.fs.ventral, term: "ventral", topicIds: [thema.fs.lage], definition: "Bauchwärts, zur Vorderseite des Körpers hin." }
+  - { id: gl.fs.dorsal, term: "dorsal", topicIds: [thema.fs.lage], definition: "Rückenwärts, zur Rückseite hin; am Fuß und an der Hand: zum Fuß- bzw. Handrücken hin." }
+  - { id: gl.fs.kranial, term: "kranial", topicIds: [thema.fs.lage], definition: "Kopfwärts, zum Schädel hin." }
+  - { id: gl.fs.kaudal, term: "kaudal", topicIds: [thema.fs.lage], definition: "Steißwärts, zum unteren Rumpfende hin." }
+  - { id: gl.fs.superior, term: "superior", topicIds: [thema.fs.lage], definition: "Oben, weiter oben gelegen." }
+  - { id: gl.fs.inferior, term: "inferior", topicIds: [thema.fs.lage], definition: "Unten, weiter unten gelegen." }
+  - { id: gl.fs.medial, term: "medial", topicIds: [thema.fs.lage], definition: "Zur Mitte des Körpers hin." }
+  - { id: gl.fs.lateral, term: "lateral", topicIds: [thema.fs.lage], definition: "Seitlich, von der Körpermitte weg." }
+  - { id: gl.fs.proximal, term: "proximal", topicIds: [thema.fs.lage], definition: "Zum Rumpf bzw. zum Ursprung einer Gliedmaße hin." }
+  - { id: gl.fs.distal, term: "distal", topicIds: [thema.fs.lage], definition: "Vom Rumpf bzw. Ursprung einer Gliedmaße entfernt." }
+  - { id: gl.fs.palmar, term: "palmar", topicIds: [thema.fs.lage], definition: "Zur Handfläche hin.", synonyms: [volar] }
+  - { id: gl.fs.plantar, term: "plantar", topicIds: [thema.fs.lage], definition: "Zur Fußsohle hin." }
+  - { id: gl.fs.sinister, term: "sinister", topicIds: [thema.fs.lage], definition: "Links." }
+  - { id: gl.fs.dexter, term: "dexter", topicIds: [thema.fs.lage], definition: "Rechts." }
+  - { id: gl.fs.ipsilateral, term: "ipsilateral", topicIds: [thema.fs.lage], definition: "Auf derselben Körperseite gelegen." }
+  - { id: gl.fs.kontralateral, term: "kontralateral", topicIds: [thema.fs.lage], definition: "Auf der gegenüberliegenden Körperseite gelegen." }
+  - { id: gl.fs.superfiziell, term: "superfiziell", topicIds: [thema.fs.lage], definition: "Oberflächlich gelegen." }
+  - { id: gl.fs.profund, term: "profund", topicIds: [thema.fs.lage], definition: "In der Tiefe gelegen." }
+  - { id: gl.fs.peripher, term: "peripher", topicIds: [thema.fs.lage], definition: "Am Rand, außen bzw. vom Zentrum entfernt gelegen." }
+  - { id: gl.fs.zentral, term: "zentral", topicIds: [thema.fs.lage], definition: "In der Mitte bzw. zum Zentrum hin gelegen." }
+  - { id: gl.fs.sagittal, term: "Sagittalebene", topicIds: [thema.fs.lage], definition: "Senkrechte Körperebene von vorn nach hinten, die den Körper in eine rechte und linke Hälfte teilt." }
+  - { id: gl.fs.frontal, term: "Frontalebene", topicIds: [thema.fs.lage], definition: "Senkrechte Körperebene parallel zur Stirn, die den Körper in eine vordere und hintere Hälfte teilt." }
+  - { id: gl.fs.transversal, term: "Transversalebene", topicIds: [thema.fs.lage], definition: "Waagerechte Körperebene, die den Körper in einen oberen und unteren Teil teilt." }
+  - { id: gl.fs.flexion, term: "Flexion", topicIds: [thema.fs.lage, thema.pro.kontraktur], definition: "Beugung eines Gelenks." }
+  - { id: gl.fs.extension, term: "Extension", topicIds: [thema.fs.lage, thema.pro.kontraktur], definition: "Streckung eines Gelenks." }
+  - { id: gl.fs.abduktion, term: "Abduktion", topicIds: [thema.fs.lage, thema.pro.kontraktur], definition: "Abspreizen einer Gliedmaße von der Körperachse weg." }
+  - { id: gl.fs.adduktion, term: "Adduktion", topicIds: [thema.fs.lage, thema.pro.kontraktur], definition: "Heranführen einer Gliedmaße an die Körperachse." }
+  - { id: gl.fs.rotation, term: "Rotation", topicIds: [thema.fs.lage], definition: "Drehbewegung um die Längsachse, nach innen (Innenrotation) oder außen (Außenrotation)." }
+  - { id: gl.fs.supination, term: "Supination", topicIds: [thema.fs.lage], definition: "Auswärtsdrehung von Unterarm bzw. Hand, sodass die Handfläche nach oben zeigt." }
+  - { id: gl.fs.pronation, term: "Pronation", topicIds: [thema.fs.lage], definition: "Einwärtsdrehung von Unterarm bzw. Hand, sodass die Handfläche nach unten zeigt." }
+  - { id: gl.fs.rueckenlage, term: "Rückenlage", topicIds: [thema.fs.lage], definition: "Liegen auf dem Rücken mit dem Gesicht nach oben.", synonyms: [Supinationslage] }
+  - { id: gl.fs.bauchlage, term: "Bauchlage", topicIds: [thema.fs.lage], definition: "Liegen auf dem Bauch mit dem Gesicht nach unten oder zur Seite.", synonyms: [Prone Position] }
+  - { id: gl.fs.oberkoerperhochlage, term: "Oberkörperhochlage", topicIds: [thema.fs.lage, thema.kl.atmung], definition: "Lagerung mit erhöhtem Oberkörper, z. B. zur Erleichterung der Atmung oder als Aspirationsschutz.", synonyms: [Fowler-Position] }
+  - { id: gl.fs.trendelenburg, term: "Kopftieflage", topicIds: [thema.fs.lage], definition: "Lagerung mit tiefer liegendem Kopf und erhöhtem Becken, z. B. beim Legen eines zentralen Venenkatheters.", synonyms: [Trendelenburg-Lagerung] }
+  - { id: gl.fs.herzbettlage, term: "Herzbettlage", topicIds: [thema.fs.lage, thema.kl.herz.insuffizienz], definition: "Lagerung mit stark erhöhtem Oberkörper und tief gelagerten Beinen zur Entlastung des Herzens bei Lungenödem." }

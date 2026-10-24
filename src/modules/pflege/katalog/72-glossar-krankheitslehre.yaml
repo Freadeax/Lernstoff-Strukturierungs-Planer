@@ -1,0 +1,203 @@
+# Glossar, Teil 3: Krankheitslehre (Format wie 70-glossar.yaml).
+# Katalogwissen ohne citation; Grenzwerte schwanken zwischen Leitlinien und Lehrbüchern.
+
+glossary:
+  # --- Allgemeine Krankheitslehre ---
+  - { id: gl.entzuendung, term: "Entzündung", topicIds: [thema.kl.allgemein], definition: "Abwehrreaktion des Gewebes auf eine Schädigung mit den Kardinalzeichen Rötung, Schwellung, Überwärmung, Schmerz und eingeschränkter Funktion.", synonyms: [Inflammation] }
+  - { id: gl.kardinalzeichen, term: "Kardinalzeichen der Entzündung", topicIds: [thema.kl.allgemein, thema.ph.wunde], definition: "Rubor (Rötung), Tumor (Schwellung), Calor (Überwärmung), Dolor (Schmerz) und Functio laesa (gestörte Funktion)." }
+  - { id: gl.aetiologie, term: "Ätiologie", topicIds: [thema.kl.allgemein], definition: "Lehre von den Krankheitsursachen bzw. die Ursache einer bestimmten Erkrankung." }
+  - { id: gl.pathogenese, term: "Pathogenese", topicIds: [thema.kl.allgemein], definition: "Entstehung und Entwicklung einer Krankheit." }
+  - { id: gl.symptom, term: "Symptom", topicIds: [thema.kl.allgemein], definition: "Krankheitszeichen, das auf eine Erkrankung hinweist." }
+  - { id: gl.syndrom, term: "Syndrom", topicIds: [thema.kl.allgemein], definition: "Gruppe gleichzeitig auftretender Symptome, die ein typisches Krankheitsbild ergeben." }
+  - { id: gl.prognose, term: "Prognose", topicIds: [thema.kl.allgemein], definition: "Vorhersage über den wahrscheinlichen Verlauf und Ausgang einer Erkrankung." }
+  - { id: gl.akut, term: "akut", topicIds: [thema.kl.allgemein], definition: "Plötzlich einsetzend und meist von kurzer Dauer." }
+  - { id: gl.chronisch, term: "chronisch", topicIds: [thema.kl.allgemein], definition: "Langsam entwickelnd und lang andauernd, häufig über mehr als drei bis sechs Monate." }
+  - { id: gl.rezidiv, term: "Rezidiv", topicIds: [thema.kl.allgemein, thema.kl.onko], definition: "Wiederauftreten einer Erkrankung nach scheinbarer Heilung.", synonyms: [Rückfall] }
+  - { id: gl.komorbiditaet, term: "Komorbidität", topicIds: [thema.kl.allgemein, thema.kl.geriatrie], definition: "Begleiterkrankung, die zusätzlich zu einer Grunderkrankung besteht." }
+  - { id: gl.multimorbiditaet, term: "Multimorbidität", topicIds: [thema.kl.geriatrie], definition: "Gleichzeitiges Bestehen mehrerer, meist chronischer Erkrankungen bei einer Person." }
+  - { id: gl.nekrose, term: "Nekrose", topicIds: [thema.kl.allgemein, thema.ph.wunde], definition: "Absterben von Zellen oder Gewebe im lebenden Organismus." }
+  - { id: gl.ischaemie, term: "Ischämie", topicIds: [thema.kl.allgemein, thema.kl.herz.khk], definition: "Minderdurchblutung bzw. fehlende Durchblutung eines Gewebes." }
+  - { id: gl.infarkt, term: "Infarkt", topicIds: [thema.kl.allgemein], definition: "Absterben von Gewebe infolge einer anhaltenden Unterbrechung der Blutversorgung." }
+  - { id: gl.embolie, term: "Embolie", topicIds: [thema.kl.allgemein, thema.pro.thrombose], definition: "Verschluss eines Blutgefäßes durch verschlepptes Material, meist einen Thrombus (Embolus)." }
+  - { id: gl.lungenembolie, term: "Lungenembolie", abbreviation: "LE", topicIds: [thema.pro.thrombose, thema.kl.atmung], definition: "Verschluss einer Lungenarterie, meist durch einen Thrombus aus den tiefen Bein- oder Beckenvenen; lebensbedrohlicher Notfall." }
+  - { id: gl.arteriosklerose, term: "Arteriosklerose", topicIds: [thema.kl.herz, thema.kl.herz.khk], definition: "Krankhafte Veränderung der Arterienwand mit Ablagerungen, Verhärtung und Verengung des Gefäßes.", synonyms: [Atherosklerose] }
+  - { id: gl.aneurysma, term: "Aneurysma", topicIds: [thema.kl.herz], definition: "Krankhafte, örtlich begrenzte Ausweitung eines arteriellen Blutgefäßes." }
+  - { id: gl.schock, term: "Schock", topicIds: [thema.beo.notfall, thema.kl.allgemein], definition: "Lebensbedrohliches Kreislaufversagen mit Missverhältnis zwischen Sauerstoffbedarf und Sauerstoffangebot der Gewebe." }
+  - { id: gl.schockindex, term: "Schockindex", topicIds: [thema.beo.notfall], definition: "Quotient aus Puls und systolischem Blutdruck; Werte über 1 weisen auf einen drohenden Schock hin." }
+  - { id: gl.sepsis, term: "Sepsis", topicIds: [thema.kl.infektion, thema.beo.notfall], definition: "Lebensbedrohliche Organfunktionsstörung durch eine fehlregulierte Reaktion des Körpers auf eine Infektion." }
+  - { id: gl.anaphylaxie, term: "Anaphylaxie", topicIds: [thema.beo.notfall, thema.ph.medikamente], definition: "Akute, potenziell lebensbedrohliche allergische Allgemeinreaktion, bis hin zum anaphylaktischen Schock." }
+  - { id: gl.allergie, term: "Allergie", topicIds: [thema.kl.allgemein], definition: "Überempfindlichkeitsreaktion des Immunsystems gegen eigentlich harmlose Stoffe (Allergene)." }
+  - { id: gl.autoimmunerkrankung, term: "Autoimmunerkrankung", topicIds: [thema.kl.allgemein], definition: "Erkrankung, bei der das Immunsystem körpereigenes Gewebe angreift." }
+  - { id: gl.anaemie, term: "Anämie", topicIds: [thema.kl.allgemein, thema.ap.blut], definition: "Blutarmut; Verminderung von Hämoglobin, Hämatokrit oder Erythrozytenzahl unter den Normbereich.", synonyms: [Blutarmut] }
+  - { id: gl.adipositas, term: "Adipositas", topicIds: [thema.kl.allgemein, thema.ph.ernaehrung], definition: "Starkes Übergewicht mit krankhaft vermehrtem Körperfett; nach WHO ab einem BMI von 30 kg/m²." }
+  - { id: gl.kachexie, term: "Kachexie", topicIds: [thema.ph.ernaehrung, thema.kl.onko], definition: "Krankhafte, ausgeprägte Abmagerung mit Verlust von Fett- und Muskelmasse, z. B. bei Tumorerkrankungen." }
+  - { id: gl.malnutrition, term: "Mangelernährung", topicIds: [thema.ph.ernaehrung, thema.kl.geriatrie], definition: "Zustand, bei dem der Bedarf an Energie, Eiweiß oder anderen Nährstoffen über längere Zeit nicht gedeckt ist; Thema eines Expertenstandards.", synonyms: [Malnutrition] }
+  - { id: gl.hyperglykaemie, term: "Hyperglykämie", topicIds: [thema.kl.diabetes], definition: "Überzuckerung; Blutzucker oberhalb des Normbereichs." }
+
+  # --- Herz und Gefäße ---
+  - { id: gl.hypertonie, term: "Arterielle Hypertonie", topicIds: [thema.kl.herz.hypertonie], definition: "Dauerhaft erhöhter arterieller Blutdruck, nach gängiger Definition ab 140/90 mmHg in der Praxismessung.", synonyms: [Bluthochdruck], note: "Grenzwerte unterscheiden sich zwischen Leitlinien (z. B. ESC, ESH) – Quelle beachten." }
+  - { id: gl.hypotonie, term: "Hypotonie", topicIds: [thema.kl.herz, thema.beo.vitalzeichen], definition: "Erniedrigter Blutdruck, häufig definiert als systolisch unter 100 mmHg." }
+  - { id: gl.orthostase, term: "Orthostatische Hypotonie", topicIds: [thema.kl.herz, thema.pro.sturz, thema.ph.mobilisation], definition: "Blutdruckabfall beim Aufstehen oder Aufsetzen mit Schwindel bis hin zur Ohnmacht; Sturzrisiko bei der Mobilisation." }
+  - { id: gl.hypertensive-krise, term: "Hypertensive Krise", topicIds: [thema.kl.herz.hypertonie, thema.beo.notfall], definition: "Starker Blutdruckanstieg; bei Organschäden wie Brustschmerz oder neurologischen Ausfällen als hypertensiver Notfall bezeichnet." }
+  - { id: gl.angina-pectoris, term: "Angina pectoris", topicIds: [thema.kl.herz.khk], definition: "Anfallsartiger Brustschmerz mit Engegefühl durch Sauerstoffmangel des Herzmuskels, Leitsymptom der KHK." }
+  - { id: gl.herzinfarkt, term: "Myokardinfarkt", abbreviation: "MI", topicIds: [thema.kl.herz.khk, thema.beo.notfall], definition: "Absterben von Herzmuskelgewebe durch den Verschluss einer Koronararterie.", synonyms: [Herzinfarkt] }
+  - { id: gl.acs, term: "Akutes Koronarsyndrom", abbreviation: "ACS", topicIds: [thema.kl.herz.khk, thema.beo.notfall], definition: "Sammelbegriff für die akuten, lebensbedrohlichen Phasen der KHK von der instabilen Angina pectoris bis zum Herzinfarkt." }
+  - { id: gl.herzinsuffizienz, term: "Herzinsuffizienz", topicIds: [thema.kl.herz.insuffizienz], definition: "Unfähigkeit des Herzens, den Körper ausreichend mit Blut zu versorgen.", synonyms: [Herzschwäche] }
+  - { id: gl.nyha, term: "NYHA-Klassifikation", abbreviation: "NYHA", topicIds: [thema.kl.herz.insuffizienz], definition: "Einteilung der Herzinsuffizienz in vier Stadien nach der körperlichen Belastbarkeit, von Beschwerdefreiheit bis Beschwerden in Ruhe." }
+  - { id: gl.lungenoedem, term: "Lungenödem", topicIds: [thema.kl.herz.insuffizienz, thema.kl.atmung, thema.beo.notfall], definition: "Flüssigkeitsansammlung in Lungengewebe und Alveolen, z. B. bei Linksherzinsuffizienz, mit schwerer Atemnot und Rasselgeräuschen." }
+  - { id: gl.vorhofflimmern, term: "Vorhofflimmern", abbreviation: "VHF", topicIds: [thema.kl.herz], definition: "Häufigste anhaltende Herzrhythmusstörung mit ungeordneter Vorhoferregung und unregelmäßigem Puls; erhöht das Schlaganfallrisiko." }
+  - { id: gl.arrhythmie, term: "Arrhythmie", topicIds: [thema.kl.herz, thema.beo.vitalzeichen], definition: "Herzrhythmusstörung; unregelmäßige Herzschlagfolge.", synonyms: [Herzrhythmusstörung] }
+  - { id: gl.pavk, term: "Periphere arterielle Verschlusskrankheit", abbreviation: "pAVK", topicIds: [thema.kl.herz.pavk], definition: "Durchblutungsstörung der Extremitäten, meist der Beine, durch Arteriosklerose; typisch ist die Schaufensterkrankheit." }
+  - { id: gl.claudicatio, term: "Claudicatio intermittens", topicIds: [thema.kl.herz.pavk], definition: "Belastungsabhängiger Wadenschmerz bei pAVK, der zum Stehenbleiben zwingt und in Ruhe nachlässt.", synonyms: [Schaufensterkrankheit] }
+  - { id: gl.varizen, term: "Varizen", topicIds: [thema.kl.herz, thema.pro.thrombose], definition: "Krampfadern; erweiterte, geschlängelte oberflächliche Venen, meist an den Beinen.", synonyms: [Krampfadern] }
+  - { id: gl.cvi, term: "Chronisch venöse Insuffizienz", abbreviation: "CVI", topicIds: [thema.kl.herz, thema.ph.wunde], definition: "Dauerhafte Störung des venösen Rückflusses aus den Beinen mit Ödemen, Hautveränderungen und möglichem Ulcus cruris venosum." }
+  - { id: gl.tvt, term: "Tiefe Venenthrombose", abbreviation: "TVT", topicIds: [thema.pro.thrombose], definition: "Thrombose in den tiefen Bein- oder Beckenvenen mit Gefahr der Lungenembolie." }
+
+  # --- Atemwege ---
+  - { id: gl.pneumonie, term: "Pneumonie", topicIds: [thema.kl.atmung, thema.pro.pneumonie], definition: "Entzündung des Lungengewebes, meist durch Bakterien oder Viren.", synonyms: [Lungenentzündung] }
+  - { id: gl.asthma, term: "Asthma bronchiale", topicIds: [thema.kl.atmung], definition: "Chronisch-entzündliche Atemwegserkrankung mit anfallsartiger, reversibler Verengung der Bronchien." }
+  - { id: gl.emphysem, term: "Lungenemphysem", topicIds: [thema.kl.atmung], definition: "Irreversible Überblähung der Lunge mit Zerstörung der Alveolenwände, häufig bei COPD." }
+  - { id: gl.pneumothorax, term: "Pneumothorax", topicIds: [thema.kl.atmung, thema.beo.notfall], definition: "Luftansammlung im Pleuraspalt, die zum teilweisen oder vollständigen Kollaps der Lunge führt." }
+  - { id: gl.pleuraerguss, term: "Pleuraerguss", topicIds: [thema.kl.atmung], definition: "Flüssigkeitsansammlung im Pleuraspalt." }
+  - { id: gl.atelektase, term: "Atelektase", topicIds: [thema.kl.atmung, thema.pro.pneumonie], definition: "Nicht oder nur unzureichend belüfteter, kollabierter Lungenabschnitt." }
+  - { id: gl.tuberkulose, term: "Tuberkulose", abbreviation: "Tbc", topicIds: [thema.kl.infektion, thema.kl.atmung], definition: "Meldepflichtige bakterielle Infektionskrankheit durch Mycobacterium tuberculosis, meist der Lunge, die aerogen übertragen wird.", synonyms: [TB] }
+  - { id: gl.respiratorische-insuffizienz, term: "Respiratorische Insuffizienz", topicIds: [thema.kl.atmung], definition: "Störung des Gasaustauschs mit Sauerstoffmangel im Blut, ggf. zusätzlich Kohlendioxid-Anstieg." }
+
+  # --- Stoffwechsel und Hormone ---
+  - { id: gl.diabetes, term: "Diabetes mellitus", abbreviation: "DM", topicIds: [thema.kl.diabetes], definition: "Chronische Stoffwechselerkrankung mit erhöhtem Blutzucker durch Insulinmangel oder verminderte Insulinwirkung." }
+  - { id: gl.diabetes-typ1, term: "Typ-1-Diabetes", topicIds: [thema.kl.diabetes], definition: "Diabetesform mit absolutem Insulinmangel durch autoimmune Zerstörung der Betazellen; meist Beginn im Kindes- und Jugendalter." }
+  - { id: gl.diabetes-typ2, term: "Typ-2-Diabetes", topicIds: [thema.kl.diabetes], definition: "Häufigste Diabetesform mit Insulinresistenz und gestörter Insulinausschüttung, begünstigt durch Übergewicht und Bewegungsmangel." }
+  - { id: gl.hba1c, term: "Glykiertes Hämoglobin", abbreviation: "HbA1c", topicIds: [thema.kl.diabetes], definition: "Laborwert, der den durchschnittlichen Blutzucker der letzten etwa acht bis zwölf Wochen widerspiegelt.", synonyms: [Langzeitzucker] }
+  - { id: gl.ketoazidose, term: "Diabetische Ketoazidose", topicIds: [thema.kl.diabetes, thema.beo.notfall], definition: "Akute Stoffwechselentgleisung bei Insulinmangel mit Übersäuerung des Blutes durch Ketonkörper, typisch bei Typ-1-Diabetes; Zeichen sind u. a. Azetongeruch und Kussmaul-Atmung." }
+  - { id: gl.diabetisches-fusssyndrom, term: "Diabetisches Fußsyndrom", abbreviation: "DFS", topicIds: [thema.kl.diabetes, thema.ph.wunde], definition: "Folgeerkrankung des Diabetes mit Wunden am Fuß infolge von Nervenschädigung und/oder Durchblutungsstörung." }
+  - { id: gl.polyneuropathie, term: "Polyneuropathie", topicIds: [thema.kl.diabetes, thema.kl.neuro], definition: "Schädigung mehrerer peripherer Nerven mit Empfindungsstörungen, oft strumpfförmig an den Füßen beginnend." }
+  - { id: gl.hypothyreose, term: "Hypothyreose", topicIds: [thema.kl.allgemein, thema.ap.hormone], definition: "Schilddrüsenunterfunktion mit Mangel an Schilddrüsenhormonen, u. a. mit Müdigkeit, Kälteempfindlichkeit und Gewichtszunahme." }
+  - { id: gl.hyperthyreose, term: "Hyperthyreose", topicIds: [thema.kl.allgemein, thema.ap.hormone], definition: "Schilddrüsenüberfunktion mit Überschuss an Schilddrüsenhormonen, u. a. mit Unruhe, Tachykardie und Gewichtsverlust." }
+  - { id: gl.gicht, term: "Gicht", topicIds: [thema.kl.bewegung, thema.kl.allgemein], definition: "Stoffwechselerkrankung mit erhöhter Harnsäure und schmerzhaften Entzündungen der Gelenke durch Harnsäurekristalle." }
+
+  # --- Nervensystem ---
+  - { id: gl.schlaganfall, term: "Schlaganfall", topicIds: [thema.kl.neuro.schlaganfall], definition: "Akute Durchblutungsstörung oder Blutung im Gehirn mit plötzlich auftretenden neurologischen Ausfällen.", synonyms: [Apoplex, Insult] }
+  - { id: gl.tia, term: "Transitorische ischämische Attacke", abbreviation: "TIA", topicIds: [thema.kl.neuro.schlaganfall], definition: "Vorübergehende Durchblutungsstörung des Gehirns mit Ausfällen, die sich vollständig zurückbilden; Warnzeichen für einen Schlaganfall." }
+  - { id: gl.fast, term: "FAST-Test", abbreviation: "FAST", topicIds: [thema.kl.neuro.schlaganfall, thema.beo.notfall], definition: "Schnelltest auf Schlaganfall: Face (Gesicht), Arms (Arme), Speech (Sprache), Time (sofort Notruf)." }
+  - { id: gl.hemiparese, term: "Hemiparese", topicIds: [thema.kl.neuro.schlaganfall], definition: "Unvollständige Lähmung einer Körperhälfte." }
+  - { id: gl.hemiplegie, term: "Hemiplegie", topicIds: [thema.kl.neuro.schlaganfall], definition: "Vollständige Lähmung einer Körperhälfte." }
+  - { id: gl.aphasie, term: "Aphasie", topicIds: [thema.kl.neuro.schlaganfall, thema.kom.grundlagen], definition: "Erworbene Sprachstörung durch Hirnschädigung, die Sprachverständnis und/oder Sprachproduktion betrifft." }
+  - { id: gl.dysarthrie, term: "Dysarthrie", topicIds: [thema.kl.neuro.schlaganfall, thema.kom.grundlagen], definition: "Sprechstörung durch gestörte Steuerung der Sprechmuskulatur bei erhaltenem Sprachverständnis." }
+  - { id: gl.neglect, term: "Neglect", topicIds: [thema.kl.neuro.schlaganfall], definition: "Halbseitige Vernachlässigung des Körpers und der Umgebung, meist der linken Seite nach rechtsseitiger Hirnschädigung." }
+  - { id: gl.spastik, term: "Spastik", topicIds: [thema.kl.neuro.schlaganfall, thema.kl.neuro.ms], definition: "Krankhaft erhöhte Muskelspannung nach Schädigung zentraler motorischer Bahnen." }
+  - { id: gl.bobath, term: "Bobath-Konzept", topicIds: [thema.kl.neuro.schlaganfall, thema.ph.mobilisation], definition: "Therapeutisch-pflegerisches Konzept für Menschen mit zentralen Lähmungen, das über Lagerung, Bewegung und Alltagsaktivitäten die betroffene Seite einbezieht." }
+  - { id: gl.parkinson, term: "Morbus Parkinson", topicIds: [thema.kl.neuro.parkinson], definition: "Fortschreitende neurodegenerative Erkrankung mit Dopaminmangel und den Leitsymptomen Bradykinese, Rigor, Ruhetremor und posturale Instabilität.", synonyms: [Parkinson-Krankheit] }
+  - { id: gl.rigor, term: "Rigor", topicIds: [thema.kl.neuro.parkinson], definition: "Muskelsteifigkeit mit gleichmäßig erhöhtem Widerstand bei passiver Bewegung, oft als Zahnradphänomen." }
+  - { id: gl.tremor, term: "Tremor", topicIds: [thema.kl.neuro.parkinson], definition: "Unwillkürliches, rhythmisches Zittern von Körperteilen." }
+  - { id: gl.akinese, term: "Akinese", topicIds: [thema.kl.neuro.parkinson], definition: "Bewegungsarmut bis Bewegungslosigkeit; verlangsamte Bewegung wird als Bradykinese bezeichnet." }
+  - { id: gl.freezing, term: "Freezing", topicIds: [thema.kl.neuro.parkinson, thema.pro.sturz], definition: "Plötzliche Blockade beim Gehen, als ob die Füße am Boden kleben, typisch bei fortgeschrittenem Parkinson." }
+  - { id: gl.ms, term: "Multiple Sklerose", abbreviation: "MS", topicIds: [thema.kl.neuro.ms], definition: "Chronisch-entzündliche Autoimmunerkrankung des ZNS mit Entmarkungsherden, verläuft oft in Schüben." }
+  - { id: gl.schub, term: "Schub", topicIds: [thema.kl.neuro.ms], definition: "Bei MS neu auftretende oder sich verschlechternde neurologische Symptome, die mindestens 24 Stunden anhalten." }
+  - { id: gl.epilepsie, term: "Epilepsie", topicIds: [thema.kl.neuro.epilepsie], definition: "Erkrankung des Gehirns mit Neigung zu wiederholten, nicht provozierten epileptischen Anfällen." }
+  - { id: gl.status-epilepticus, term: "Status epilepticus", topicIds: [thema.kl.neuro.epilepsie, thema.beo.notfall], definition: "Lang anhaltender epileptischer Anfall (meist über fünf Minuten) oder Anfallsserie ohne Wiedererlangen des Bewusstseins; Notfall." }
+  - { id: gl.aura, term: "Aura", topicIds: [thema.kl.neuro.epilepsie], definition: "Wahrnehmungsveränderung, die einem Anfall oder einer Migräneattacke vorausgehen kann." }
+  - { id: gl.meningitis, term: "Meningitis", topicIds: [thema.kl.neuro, thema.kl.infektion], definition: "Hirnhautentzündung, typisch mit Fieber, Kopfschmerz und Nackensteifigkeit (Meningismus)." }
+  - { id: gl.querschnitt, term: "Querschnittlähmung", topicIds: [thema.kl.neuro], definition: "Lähmung und Gefühlsstörung unterhalb einer Rückenmarksschädigung; als Paraplegie (Beine) oder Tetraplegie (Arme und Beine)." }
+  - { id: gl.sht, term: "Schädel-Hirn-Trauma", abbreviation: "SHT", topicIds: [thema.kl.neuro, thema.beo.notfall], definition: "Verletzung des Schädels mit Beteiligung des Gehirns, eingeteilt nach Schweregrad u. a. mit der Glasgow Coma Scale." }
+
+  # --- Demenz und Psychiatrie ---
+  - { id: gl.alzheimer, term: "Alzheimer-Demenz", topicIds: [thema.kl.demenz], definition: "Häufigste Demenzform; neurodegenerative Erkrankung mit Eiweißablagerungen im Gehirn und schleichend fortschreitendem Gedächtnisverlust." }
+  - { id: gl.vaskulaere-demenz, term: "Vaskuläre Demenz", topicIds: [thema.kl.demenz], definition: "Demenz infolge von Durchblutungsstörungen des Gehirns, oft mit schrittweisem Verlauf." }
+  - { id: gl.validation, term: "Validation", topicIds: [thema.kl.demenz, thema.kom.gespraech], definition: "Kommunikationsmethode (nach Naomi Feil, integrativ nach Nicole Richard), die Gefühle und Antriebe von Menschen mit Demenz wertschätzend annimmt, statt sie zu korrigieren." }
+  - { id: gl.herausforderndes-verhalten, term: "Herausforderndes Verhalten", topicIds: [thema.kl.demenz], definition: "Verhalten von Menschen mit Demenz, das für sie selbst oder andere belastend ist, z. B. Rufen, Umherlaufen oder Abwehr; wird als Ausdruck unerfüllter Bedürfnisse verstanden." }
+  - { id: gl.orientierung, term: "Orientierung", topicIds: [thema.kl.demenz, thema.beo.bewusstsein], definition: "Wissen um Zeit, Ort, Situation und die eigene Person; Störungen werden nach diesen Qualitäten beschrieben." }
+  - { id: gl.depression, term: "Depression", topicIds: [thema.kl.psych], definition: "Psychische Erkrankung mit gedrückter Stimmung, Interessenverlust und Antriebsminderung über mindestens zwei Wochen." }
+  - { id: gl.suizidalitaet, term: "Suizidalität", topicIds: [thema.kl.psych], definition: "Gesamtheit von Gedanken, Absichten und Handlungen, die auf eine Selbsttötung gerichtet sind; muss offen angesprochen werden." }
+  - { id: gl.schizophrenie, term: "Schizophrenie", topicIds: [thema.kl.psych], definition: "Psychische Erkrankung mit Störungen von Denken, Wahrnehmung, Ich-Erleben und Affekt, z. B. Wahn und Halluzinationen." }
+  - { id: gl.wahn, term: "Wahn", topicIds: [thema.kl.psych], definition: "Unkorrigierbare, objektiv falsche Überzeugung, an der trotz Gegenbeweisen festgehalten wird." }
+  - { id: gl.halluzination, term: "Halluzination", topicIds: [thema.kl.psych, thema.pro.delir], definition: "Sinneswahrnehmung ohne entsprechenden äußeren Reiz, z. B. Stimmenhören." }
+  - { id: gl.angststoerung, term: "Angststörung", topicIds: [thema.kl.psych], definition: "Psychische Erkrankung mit unangemessen starker oder anhaltender Angst, z. B. Panikstörung oder Phobie." }
+  - { id: gl.sucht, term: "Abhängigkeitserkrankung", topicIds: [thema.kl.psych], definition: "Erkrankung mit starkem Verlangen nach einer Substanz oder Tätigkeit, Kontrollverlust, Toleranzentwicklung und Entzugserscheinungen.", synonyms: [Sucht] }
+  - { id: gl.alkoholentzug, term: "Alkoholentzugssyndrom", topicIds: [thema.kl.psych, thema.pro.delir], definition: "Körperliche und psychische Symptome nach Absetzen von Alkohol, z. B. Zittern, Schwitzen, Unruhe, im schweren Fall Krampfanfälle und Delir." }
+  - { id: gl.burnout, term: "Burn-out", topicIds: [thema.kom.selbstpflege], definition: "Zustand emotionaler Erschöpfung, Distanzierung und verminderter Leistungsfähigkeit infolge chronischer Arbeitsbelastung." }
+
+  # --- Bewegungsapparat ---
+  - { id: gl.arthrose, term: "Arthrose", topicIds: [thema.kl.bewegung], definition: "Degenerative Gelenkerkrankung mit fortschreitendem Knorpelverschleiß." }
+  - { id: gl.arthritis, term: "Arthritis", topicIds: [thema.kl.bewegung], definition: "Entzündung eines oder mehrerer Gelenke." }
+  - { id: gl.rheumatoide-arthritis, term: "Rheumatoide Arthritis", abbreviation: "RA", topicIds: [thema.kl.bewegung], definition: "Chronisch-entzündliche Autoimmunerkrankung der Gelenke, häufig symmetrisch an Finger- und Handgelenken, mit Morgensteifigkeit." }
+  - { id: gl.osteoporose, term: "Osteoporose", topicIds: [thema.kl.bewegung, thema.pro.sturz], definition: "Systemische Skeletterkrankung mit verminderter Knochenmasse und erhöhtem Frakturrisiko." }
+  - { id: gl.fraktur, term: "Fraktur", topicIds: [thema.kl.bewegung], definition: "Knochenbruch." }
+  - { id: gl.oberschenkelhalsfraktur, term: "Oberschenkelhalsfraktur", topicIds: [thema.kl.bewegung, thema.pro.sturz], definition: "Bruch des Oberschenkelhalses, typische Sturzfolge bei älteren Menschen mit Osteoporose.", synonyms: [Schenkelhalsfraktur] }
+  - { id: gl.endoprothese, term: "Endoprothese", topicIds: [thema.kl.bewegung, thema.ph.periop], definition: "Im Körper eingesetzter künstlicher Gelenkersatz, z. B. Hüft-TEP." }
+  - { id: gl.bandscheibenvorfall, term: "Bandscheibenvorfall", topicIds: [thema.kl.bewegung], definition: "Austritt von Bandscheibengewebe in den Wirbelkanal, der Nerven einengen und Schmerzen oder Lähmungen verursachen kann.", synonyms: [Diskusprolaps] }
+  - { id: gl.sarkopenie, term: "Sarkopenie", topicIds: [thema.kl.geriatrie, thema.kl.bewegung], definition: "Altersassoziierter Verlust von Muskelmasse und Muskelkraft." }
+
+  # --- Verdauung ---
+  - { id: gl.gastritis, term: "Gastritis", topicIds: [thema.kl.verdauung], definition: "Entzündung der Magenschleimhaut." }
+  - { id: gl.ulkus-ventrikuli, term: "Magengeschwür", topicIds: [thema.kl.verdauung], definition: "Schleimhautdefekt der Magenwand, häufig durch Helicobacter pylori oder Schmerzmittel (NSAR).", synonyms: [Ulcus ventriculi] }
+  - { id: gl.reflux, term: "Refluxkrankheit", topicIds: [thema.kl.verdauung], definition: "Rückfluss von saurem Mageninhalt in die Speiseröhre mit Sodbrennen und möglicher Schleimhautentzündung.", synonyms: [GERD] }
+  - { id: gl.ileus, term: "Ileus", topicIds: [thema.kl.verdauung, thema.beo.notfall], definition: "Darmverschluss durch mechanisches Hindernis oder Darmlähmung; lebensbedrohlicher Notfall." }
+  - { id: gl.leberzirrhose, term: "Leberzirrhose", topicIds: [thema.kl.verdauung], definition: "Endstadium chronischer Lebererkrankungen mit bindegewebigem Umbau und Funktionsverlust der Leber." }
+  - { id: gl.hepatitis, term: "Hepatitis", topicIds: [thema.kl.verdauung, thema.kl.infektion], definition: "Leberentzündung, häufig durch Hepatitisviren (A bis E), aber auch durch Alkohol, Medikamente oder Autoimmunprozesse." }
+  - { id: gl.ced, term: "Chronisch-entzündliche Darmerkrankung", abbreviation: "CED", topicIds: [thema.kl.verdauung], definition: "Oberbegriff für chronische, schubweise Entzündungen des Darms, vor allem Morbus Crohn und Colitis ulcerosa." }
+  - { id: gl.divertikulitis, term: "Divertikulitis", topicIds: [thema.kl.verdauung], definition: "Entzündung von Ausstülpungen der Darmwand (Divertikel), meist im Sigma." }
+  - { id: gl.appendizitis, term: "Appendizitis", topicIds: [thema.kl.verdauung], definition: "Entzündung des Wurmfortsatzes des Blinddarms.", synonyms: [Blinddarmentzündung] }
+  - { id: gl.pankreatitis, term: "Pankreatitis", topicIds: [thema.kl.verdauung], definition: "Entzündung der Bauchspeicheldrüse, akut häufig durch Gallensteine oder Alkohol." }
+  - { id: gl.ikterus, term: "Ikterus", topicIds: [thema.kl.verdauung, thema.beo.haut], definition: "Gelbfärbung von Haut, Schleimhäuten und Skleren durch erhöhtes Bilirubin.", synonyms: [Gelbsucht] }
+  - { id: gl.stoma, term: "Stoma", topicIds: [thema.kl.verdauung, thema.ph.ausscheidung], definition: "Operativ angelegte Öffnung eines Hohlorgans an der Körperoberfläche, z. B. Kolostoma, Ileostoma oder Urostoma." }
+
+  # --- Niere und Harnwege ---
+  - { id: gl.niereninsuffizienz, term: "Niereninsuffizienz", topicIds: [thema.kl.niere], definition: "Eingeschränkte Nierenfunktion mit verminderter Ausscheidung harnpflichtiger Substanzen; akut oder chronisch." }
+  - { id: gl.dialyse, term: "Dialyse", topicIds: [thema.kl.niere], definition: "Blutreinigungsverfahren als Nierenersatztherapie, als Hämodialyse oder Peritonealdialyse." }
+  - { id: gl.shunt, term: "Dialyse-Shunt", topicIds: [thema.kl.niere], definition: "Operativ angelegte Verbindung zwischen Arterie und Vene, meist am Unterarm, als Zugang für die Hämodialyse; am Shuntarm keine Blutdruckmessung und keine Punktion." }
+  - { id: gl.harnwegsinfekt, term: "Harnwegsinfektion", abbreviation: "HWI", topicIds: [thema.kl.niere, thema.pro.zystitis], definition: "Infektion der ableitenden Harnwege, meist durch Darmbakterien; häufigste nosokomiale Infektion bei Dauerkatheter." }
+  - { id: gl.zystitis, term: "Zystitis", topicIds: [thema.pro.zystitis], definition: "Harnblasenentzündung mit Brennen beim Wasserlassen und häufigem Harndrang." }
+  - { id: gl.pyelonephritis, term: "Pyelonephritis", topicIds: [thema.kl.niere], definition: "Bakterielle Entzündung des Nierenbeckens und Nierengewebes, typisch mit Fieber und Flankenschmerz." }
+  - { id: gl.harninkontinenz, term: "Harninkontinenz", topicIds: [thema.ph.ausscheidung, thema.kl.geriatrie], definition: "Unfähigkeit, Harn sicher zu speichern und Ort und Zeitpunkt der Entleerung selbst zu bestimmen; Thema eines Expertenstandards." }
+  - { id: gl.harnverhalt, term: "Harnverhalt", topicIds: [thema.ph.ausscheidung], definition: "Unfähigkeit, die gefüllte Harnblase spontan zu entleeren.", synonyms: [Harnretention] }
+  - { id: gl.prostatahyperplasie, term: "Benigne Prostatahyperplasie", abbreviation: "BPH", topicIds: [thema.kl.niere], definition: "Gutartige Vergrößerung der Prostata, die zu Abschwächung des Harnstrahls und Restharn führen kann." }
+
+  # --- Onkologie ---
+  - { id: gl.tumor, term: "Tumor", topicIds: [thema.kl.onko], definition: "Gewebsvermehrung bzw. Schwellung; im engeren Sinn eine gutartige oder bösartige Neubildung.", synonyms: [Neoplasie] }
+  - { id: gl.benigne, term: "benigne", topicIds: [thema.kl.onko], definition: "Gutartig; wächst verdrängend, nicht zerstörend und bildet keine Metastasen." }
+  - { id: gl.maligne, term: "maligne", topicIds: [thema.kl.onko], definition: "Bösartig; wächst infiltrierend und zerstörend und kann Metastasen bilden." }
+  - { id: gl.metastase, term: "Metastase", topicIds: [thema.kl.onko], definition: "Tochtergeschwulst eines bösartigen Tumors, die über Blut oder Lymphe an anderer Stelle entsteht." }
+  - { id: gl.karzinom, term: "Karzinom", topicIds: [thema.kl.onko], definition: "Bösartiger Tumor, der vom Epithelgewebe ausgeht." }
+  - { id: gl.sarkom, term: "Sarkom", topicIds: [thema.kl.onko], definition: "Bösartiger Tumor, der vom Binde- oder Stützgewebe ausgeht." }
+  - { id: gl.leukaemie, term: "Leukämie", topicIds: [thema.kl.onko, thema.ap.blut], definition: "Bösartige Erkrankung der blutbildenden Zellen mit unkontrollierter Vermehrung unreifer Leukozyten.", synonyms: [Blutkrebs] }
+  - { id: gl.tnm, term: "TNM-Klassifikation", abbreviation: "TNM", topicIds: [thema.kl.onko], definition: "Einteilung bösartiger Tumoren nach Tumorgröße (T), Lymphknotenbefall (N) und Fernmetastasen (M)." }
+  - { id: gl.chemotherapie, term: "Chemotherapie", topicIds: [thema.kl.onko], definition: "Behandlung mit Zytostatika, die schnell teilende Zellen hemmen; Nebenwirkungen u. a. Übelkeit, Haarausfall und Immunschwäche." }
+  - { id: gl.zytostatika, term: "Zytostatika", topicIds: [thema.kl.onko, thema.ph.medikamente], definition: "Medikamente, die Zellwachstum und Zellteilung hemmen; im Umgang gelten besondere Arbeitsschutzregeln." }
+  - { id: gl.strahlentherapie, term: "Strahlentherapie", topicIds: [thema.kl.onko], definition: "Behandlung mit ionisierender Strahlung zur Zerstörung von Tumorzellen; bestrahlte Haut braucht besondere Pflege.", synonyms: [Radiatio] }
+  - { id: gl.mukositis, term: "Mukositis", topicIds: [thema.kl.onko, thema.ph.mund], definition: "Entzündung der Schleimhaut, besonders der Mundschleimhaut, häufig als Nebenwirkung von Chemo- oder Strahlentherapie." }
+  - { id: gl.neutropenie, term: "Neutropenie", topicIds: [thema.kl.onko, thema.kl.infektion], definition: "Verminderung der neutrophilen Granulozyten mit stark erhöhter Infektionsgefahr, häufig nach Chemotherapie." }
+  - { id: gl.fatigue, term: "Fatigue", topicIds: [thema.kl.onko, thema.ph.palliativ], definition: "Belastende, anhaltende Erschöpfung, die sich durch Schlaf kaum bessert, häufig bei Tumorerkrankungen." }
+
+  # --- Infektionen ---
+  - { id: gl.infektion, term: "Infektion", topicIds: [thema.kl.infektion], definition: "Eindringen und Vermehrung von Krankheitserregern im Körper mit nachfolgender Reaktion des Organismus." }
+  - { id: gl.nosokomial, term: "Nosokomiale Infektion", topicIds: [thema.kl.infektion, thema.ph.hygiene], definition: "Infektion, die im Zusammenhang mit einer medizinischen Maßnahme erworben wird, z. B. im Krankenhaus.", synonyms: [Krankenhausinfektion] }
+  - { id: gl.inkubationszeit, term: "Inkubationszeit", topicIds: [thema.kl.infektion], definition: "Zeitraum zwischen Ansteckung und Auftreten der ersten Krankheitszeichen." }
+  - { id: gl.kolonisation, term: "Kolonisation", topicIds: [thema.kl.infektion, thema.ph.hygiene], definition: "Besiedlung mit Mikroorganismen ohne Krankheitszeichen.", synonyms: [Besiedlung] }
+  - { id: gl.erreger-bakterien, term: "Bakterien", topicIds: [thema.kl.infektion], definition: "Einzellige Mikroorganismen ohne Zellkern, die sich selbst vermehren und mit Antibiotika behandelt werden können." }
+  - { id: gl.viren, term: "Viren", topicIds: [thema.kl.infektion], definition: "Infektiöse Partikel ohne eigenen Stoffwechsel, die sich nur in Wirtszellen vermehren können; Antibiotika wirken nicht." }
+  - { id: gl.pilze, term: "Mykose", topicIds: [thema.kl.infektion, thema.pro.soor], definition: "Durch Pilze verursachte Infektion von Haut, Schleimhaut oder Organen.", synonyms: [Pilzinfektion] }
+  - { id: gl.mrgn, term: "Multiresistente gramnegative Erreger", abbreviation: "MRGN", topicIds: [thema.kl.infektion, thema.ph.hygiene], definition: "Gramnegative Bakterien mit Resistenz gegen drei (3MRGN) oder vier (4MRGN) Antibiotikagruppen." }
+  - { id: gl.vre, term: "Vancomycin-resistente Enterokokken", abbreviation: "VRE", topicIds: [thema.kl.infektion, thema.ph.hygiene], definition: "Enterokokken mit Resistenz gegen das Reserveantibiotikum Vancomycin." }
+  - { id: gl.clostridioides, term: "Clostridioides difficile", abbreviation: "C. diff.", topicIds: [thema.kl.infektion, thema.ph.hygiene], definition: "Sporenbildendes Bakterium, das vor allem nach Antibiotikatherapie schwere Durchfälle auslöst; Sporen werden durch alkoholische Händedesinfektion nicht sicher abgetötet, daher zusätzlich Hände waschen." }
+  - { id: gl.norovirus, term: "Norovirus", topicIds: [thema.kl.infektion, thema.ph.hygiene], definition: "Hochansteckendes Virus, das akute Brechdurchfälle verursacht; erfordert viruzide Desinfektionsmittel." }
+  - { id: gl.influenza, term: "Influenza", topicIds: [thema.kl.infektion], definition: "Echte Grippe; akute Virusinfektion mit plötzlichem hohem Fieber, Kopf- und Gliederschmerzen; jährliche Impfung für Pflegende empfohlen." }
+  - { id: gl.hiv, term: "Humanes Immundefizienz-Virus", abbreviation: "HIV", topicIds: [thema.kl.infektion], definition: "Virus, das Zellen des Immunsystems befällt und unbehandelt zum erworbenen Immunschwächesyndrom (AIDS) führt; Übertragung u. a. über Blut." }
+  - { id: gl.erysipel, term: "Erysipel", topicIds: [thema.kl.infektion, thema.beo.haut], definition: "Wundrose; bakterielle Infektion der Haut und Lymphwege mit scharf begrenzter Rötung, meist durch Streptokokken." }
+  - { id: gl.skabies, term: "Skabies", topicIds: [thema.kl.infektion, thema.beo.haut], definition: "Krätze; ansteckender Hautbefall durch Milben mit starkem, nächtlichem Juckreiz.", synonyms: [Krätze] }
+  - { id: gl.covid, term: "COVID-19", topicIds: [thema.kl.infektion], definition: "Durch das Coronavirus SARS-CoV-2 verursachte Infektionskrankheit, vor allem der Atemwege." }
+
+  # --- Pädiatrie und Geriatrie ---
+  - { id: gl.fruehgeborenes, term: "Frühgeborenes", topicIds: [thema.kl.paediatrie], definition: "Kind, das vor Vollendung der 37. Schwangerschaftswoche geboren wird." }
+  - { id: gl.neugeborenes, term: "Neugeborenes", topicIds: [thema.kl.paediatrie], definition: "Kind in den ersten 28 Lebenstagen." }
+  - { id: gl.apgar, term: "APGAR-Score", abbreviation: "APGAR", topicIds: [thema.kl.paediatrie], definition: "Punkteschema zur Beurteilung von Neugeborenen nach 1, 5 und 10 Minuten anhand von Atmung, Puls, Grundtonus, Aussehen (Hautfarbe) und Reflexen; 0 bis 10 Punkte." }
+  - { id: gl.neugeborenenikterus, term: "Neugeborenenikterus", topicIds: [thema.kl.paediatrie], definition: "Gelbfärbung der Haut in den ersten Lebenstagen durch vorübergehend erhöhtes Bilirubin; meist harmlos, bei hohen Werten Phototherapie." }
+  - { id: gl.fieberkrampf, term: "Fieberkrampf", topicIds: [thema.kl.paediatrie, thema.kl.neuro.epilepsie], definition: "Krampfanfall im Kleinkindalter im Zusammenhang mit Fieber, ohne Infektion des Gehirns." }
+  - { id: gl.pseudokrupp, term: "Pseudokrupp", topicIds: [thema.kl.paediatrie, thema.kl.atmung], definition: "Virale Entzündung im Kehlkopfbereich bei Kleinkindern mit bellendem Husten und inspiratorischem Stridor.", synonyms: [Krupp-Syndrom] }
+  - { id: gl.ploetzlicher-kindstod, term: "Plötzlicher Kindstod", abbreviation: "SIDS", topicIds: [thema.kl.paediatrie], definition: "Unerwarteter Tod eines Säuglings im Schlaf ohne erkennbare Ursache; empfohlen werden u. a. Rückenlage, eigenes Bett im Elternschlafzimmer und rauchfreie Umgebung.", synonyms: [Sudden Infant Death Syndrome] }
+  - { id: gl.u-untersuchung, term: "Früherkennungsuntersuchung", topicIds: [thema.kl.paediatrie, thema.re.sgb5], definition: "Gesetzlich vorgesehene Kinderuntersuchungen (U1 bis U9, J1) zur frühen Erkennung von Entwicklungsstörungen und Krankheiten.", synonyms: [U-Untersuchung] }
+  - { id: gl.entwicklungsmeilenstein, term: "Entwicklungsmeilenstein", topicIds: [thema.kl.paediatrie], definition: "Fähigkeit, die die meisten Kinder in einem bestimmten Alter erreichen, z. B. freies Gehen um das erste Lebensjahr." }
+  - { id: gl.geriatrische-syndrome, term: "Geriatrische Syndrome", topicIds: [thema.kl.geriatrie], definition: "Typische Problemkomplexe im Alter wie Immobilität, Sturzneigung, Inkontinenz, kognitive Einschränkung und Mangelernährung; oft als geriatrische I's bezeichnet." }
+  - { id: gl.frailty, term: "Frailty", topicIds: [thema.kl.geriatrie], definition: "Gebrechlichkeit; altersassoziierter Zustand verminderter körperlicher Reserven mit erhöhter Anfälligkeit für Stürze, Krankheit und Pflegebedürftigkeit.", synonyms: [Gebrechlichkeit] }
+  - { id: gl.geriatrisches-assessment, term: "Geriatrisches Assessment", topicIds: [thema.kl.geriatrie, thema.pp.anamnese], definition: "Mehrdimensionale Einschätzung älterer Menschen zu Mobilität, Kognition, Emotion, Ernährung und sozialer Situation, z. B. mit Barthel-Index oder Timed-up-and-go-Test." }
+  - { id: gl.polypharmazie, term: "Polypharmazie", topicIds: [thema.kl.geriatrie, thema.ph.medikamente], definition: "Gleichzeitige Einnahme vieler Medikamente, meist ab fünf Wirkstoffen, mit erhöhtem Risiko für Wechselwirkungen und Nebenwirkungen." }
+  - { id: gl.priscus, term: "PRISCUS-Liste", topicIds: [thema.kl.geriatrie, thema.ph.medikamente], definition: "Liste potenziell inadäquater Medikamente für ältere Menschen mit Alternativen." }

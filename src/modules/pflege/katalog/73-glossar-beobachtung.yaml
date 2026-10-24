@@ -1,0 +1,110 @@
+# Glossar, Teil 4: Beobachtung, Symptome, Assessments und Notfall (Format wie 70-glossar.yaml).
+# Normwerte sind Richtwerte für Erwachsene; Lehrbuch und Hausstandard haben Vorrang.
+
+glossary:
+  # --- Puls, Blutdruck, Temperatur ---
+  - { id: gl.puls, term: "Puls", topicIds: [thema.beo.vitalzeichen], definition: "Tastbare Druckwelle in den Arterien bei jedem Herzschlag; beurteilt werden Frequenz, Rhythmus und Qualität." }
+  - { id: gl.pulsdefizit, term: "Pulsdefizit", topicIds: [thema.beo.vitalzeichen, thema.kl.herz], definition: "Differenz zwischen der am Herzen auskultierten und der peripher getasteten Pulsfrequenz, z. B. bei Vorhofflimmern." }
+  - { id: gl.normofrequenz, term: "Normofrequenz", topicIds: [thema.beo.vitalzeichen], definition: "Herzfrequenz im Normbereich, beim Erwachsenen in Ruhe etwa 60 bis 100 Schläge pro Minute." }
+  - { id: gl.blutdruck, term: "Blutdruck", topicIds: [thema.beo.vitalzeichen], definition: "Druck des Blutes auf die Gefäßwände, angegeben als systolischer und diastolischer Wert in mmHg." }
+  - { id: gl.blutdruckamplitude, term: "Blutdruckamplitude", topicIds: [thema.beo.vitalzeichen], definition: "Differenz zwischen systolischem und diastolischem Blutdruck.", synonyms: [Pulsdruck] }
+  - { id: gl.korotkow, term: "Korotkow-Geräusche", topicIds: [thema.beo.vitalzeichen], definition: "Klopfende Strömungsgeräusche, die bei der auskultatorischen Blutdruckmessung zwischen systolischem und diastolischem Wert hörbar sind." }
+  - { id: gl.map, term: "Mittlerer arterieller Druck", abbreviation: "MAD", topicIds: [thema.beo.vitalzeichen], definition: "Durchschnittlicher Blutdruck während eines Herzzyklus, Maß für die Organdurchblutung; Faustformel diastolisch plus ein Drittel der Amplitude.", synonyms: [MAP] }
+  - { id: gl.koerpertemperatur, term: "Körpertemperatur", topicIds: [thema.beo.vitalzeichen], definition: "Wärme des Körperkerns, normal etwa 36,3 bis 37,4 °C; Werte schwanken je nach Messort und Tageszeit." }
+  - { id: gl.fieber, term: "Fieber", topicIds: [thema.beo.vitalzeichen, thema.kl.infektion], definition: "Durch Sollwertverstellung im Temperaturzentrum erhöhte Körpertemperatur, meist ab 38,0 °C.", synonyms: [Pyrexie], note: "Abgrenzung subfebril/Fieber variiert zwischen Lehrbüchern." }
+  - { id: gl.subfebril, term: "subfebril", topicIds: [thema.beo.vitalzeichen], definition: "Leicht erhöhte Körpertemperatur unterhalb der Fiebergrenze, etwa 37,5 bis 38,0 °C." }
+  - { id: gl.hyperthermie, term: "Hyperthermie", topicIds: [thema.beo.vitalzeichen], definition: "Überwärmung des Körpers ohne Sollwertverstellung, z. B. bei Hitzschlag, wenn die Wärmeabgabe nicht ausreicht." }
+  - { id: gl.hypothermie, term: "Hypothermie", topicIds: [thema.beo.vitalzeichen, thema.beo.notfall], definition: "Unterkühlung mit Körperkerntemperatur unter 35 °C." }
+  - { id: gl.schuettelfrost, term: "Schüttelfrost", topicIds: [thema.beo.vitalzeichen, thema.kl.infektion], definition: "Unwillkürliches Muskelzittern mit Kältegefühl im Fieberanstieg, durch das der Körper Wärme erzeugt." }
+
+  # --- Atmung ---
+  - { id: gl.eupnoe, term: "Eupnoe", topicIds: [thema.beo.vitalzeichen], definition: "Normale, ruhige und regelmäßige Atmung, beim Erwachsenen etwa 12 bis 20 Atemzüge pro Minute." }
+  - { id: gl.tachypnoe, term: "Tachypnoe", topicIds: [thema.beo.vitalzeichen, thema.kl.atmung], definition: "Erhöhte Atemfrequenz, beim Erwachsenen über 20 Atemzüge pro Minute." }
+  - { id: gl.bradypnoe, term: "Bradypnoe", topicIds: [thema.beo.vitalzeichen], definition: "Verlangsamte Atemfrequenz, beim Erwachsenen unter 12 Atemzüge pro Minute, z. B. bei Opioid-Überdosierung." }
+  - { id: gl.apnoe, term: "Apnoe", topicIds: [thema.beo.vitalzeichen, thema.beo.notfall], definition: "Atemstillstand." }
+  - { id: gl.orthopnoe, term: "Orthopnoe", topicIds: [thema.kl.atmung, thema.kl.herz.insuffizienz], definition: "Schwerste Atemnot, die nur in aufrechter Haltung mit Einsatz der Atemhilfsmuskulatur erträglich ist." }
+  - { id: gl.kussmaul, term: "Kussmaul-Atmung", topicIds: [thema.beo.vitalzeichen, thema.kl.diabetes], definition: "Vertiefte, regelmäßige Atmung zum Abatmen von Kohlendioxid bei metabolischer Azidose, z. B. bei diabetischer Ketoazidose." }
+  - { id: gl.cheyne-stokes, term: "Cheyne-Stokes-Atmung", topicIds: [thema.beo.vitalzeichen, thema.ph.palliativ], definition: "Periodische Atmung mit zu- und abnehmender Atemtiefe und Atempausen, z. B. bei Schädigung des Atemzentrums oder in der Sterbephase." }
+  - { id: gl.schnappatmung, term: "Schnappatmung", topicIds: [thema.beo.notfall, thema.ph.palliativ], definition: "Vereinzelte, schnappende Atemzüge vor dem Atemstillstand; gilt bei der Reanimation nicht als normale Atmung." }
+  - { id: gl.stridor, term: "Stridor", topicIds: [thema.kl.atmung, thema.kl.paediatrie], definition: "Pfeifendes Atemgeräusch durch Verengung der Atemwege; inspiratorisch bei Verengung der oberen, exspiratorisch eher der unteren Atemwege." }
+  - { id: gl.rasselgeraeusche, term: "Rasselgeräusche", topicIds: [thema.kl.atmung], definition: "Atemgeräusche durch Flüssigkeit oder Sekret in den Atemwegen; in der Sterbephase als terminales Rasseln bezeichnet." }
+  - { id: gl.sputum, term: "Sputum", topicIds: [thema.kl.atmung, thema.pro.pneumonie], definition: "Ausgehustetes Sekret der Atemwege; beurteilt werden Menge, Farbe, Konsistenz und Geruch.", synonyms: [Auswurf] }
+  - { id: gl.haemoptyse, term: "Hämoptyse", topicIds: [thema.kl.atmung], definition: "Aushusten von Blut oder blutigem Sputum." }
+  - { id: gl.hypoxie, term: "Hypoxie", topicIds: [thema.kl.atmung, thema.beo.vitalzeichen], definition: "Sauerstoffmangel im Gewebe." }
+  - { id: gl.hyperkapnie, term: "Hyperkapnie", topicIds: [thema.kl.atmung], definition: "Erhöhter Kohlendioxid-Partialdruck im Blut, z. B. bei COPD." }
+
+  # --- Bewusstsein und Neurologie ---
+  - { id: gl.bewusstsein, term: "Bewusstsein", topicIds: [thema.beo.bewusstsein], definition: "Zustand, in dem ein Mensch sich selbst und seine Umgebung wahrnimmt und darauf reagieren kann." }
+  - { id: gl.somnolenz, term: "Somnolenz", topicIds: [thema.beo.bewusstsein], definition: "Schläfrigkeit, aus der die Person durch Ansprache leicht erweckbar ist." }
+  - { id: gl.sopor, term: "Sopor", topicIds: [thema.beo.bewusstsein], definition: "Schlafähnlicher Zustand, aus dem die Person nur durch starke Reize wie Schmerz kurz erweckbar ist." }
+  - { id: gl.koma, term: "Koma", topicIds: [thema.beo.bewusstsein, thema.beo.notfall], definition: "Tiefe Bewusstlosigkeit, aus der die Person auch durch starke Schmerzreize nicht erweckbar ist." }
+  - { id: gl.gcs, term: "Glasgow Coma Scale", abbreviation: "GCS", topicIds: [thema.beo.bewusstsein, thema.beo.notfall], definition: "Skala zur Einschätzung der Bewusstseinslage anhand von Augenöffnen, verbaler und motorischer Reaktion; 3 bis 15 Punkte, 8 und weniger gilt als schwere Bewusstseinsstörung." }
+  - { id: gl.pupillenkontrolle, term: "Pupillenkontrolle", topicIds: [thema.beo.bewusstsein], definition: "Prüfung von Größe, Form, Seitengleichheit und Lichtreaktion der Pupillen, z. B. bei Schädel-Hirn-Trauma." }
+  - { id: gl.anisokorie, term: "Anisokorie", topicIds: [thema.beo.bewusstsein], definition: "Ungleich weite Pupillen; neu aufgetreten ein Warnzeichen für erhöhten Hirndruck." }
+  - { id: gl.synkope, term: "Synkope", topicIds: [thema.beo.bewusstsein, thema.pro.sturz], definition: "Kurze, spontan reversible Bewusstlosigkeit durch vorübergehende Minderdurchblutung des Gehirns.", synonyms: [Ohnmacht] }
+  - { id: gl.vertigo, term: "Schwindel", topicIds: [thema.beo.bewusstsein, thema.pro.sturz], definition: "Gestörte Gleichgewichtswahrnehmung, z. B. als Dreh-, Schwank- oder Benommenheitsschwindel.", synonyms: [Vertigo] }
+  - { id: gl.paraesthesie, term: "Parästhesie", topicIds: [thema.kl.neuro], definition: "Missempfindung wie Kribbeln, Taubheit oder Ameisenlaufen ohne äußeren Reiz." }
+  - { id: gl.ataxie, term: "Ataxie", topicIds: [thema.kl.neuro], definition: "Störung der Bewegungskoordination, z. B. als unsicherer, breitbeiniger Gang." }
+
+  # --- Haut, Ausscheidung, Ernährung ---
+  - { id: gl.blaesse, term: "Blässe", topicIds: [thema.beo.haut], definition: "Fahle Hautfarbe durch Minderdurchblutung der Haut oder Anämie." }
+  - { id: gl.erythem, term: "Erythem", topicIds: [thema.beo.haut, thema.pro.dekubitus], definition: "Rötung der Haut durch vermehrte Durchblutung." }
+  - { id: gl.fingertest, term: "Fingertest", topicIds: [thema.pro.dekubitus, thema.beo.haut], definition: "Prüfung einer Hautrötung durch kurzes Eindrücken: bleibt die Rötung bestehen (nicht wegdrückbar), liegt bereits ein Dekubitus Kategorie 1 vor." }
+  - { id: gl.petechien, term: "Petechien", topicIds: [thema.beo.haut], definition: "Punktförmige Hautblutungen, die sich nicht wegdrücken lassen, z. B. bei Gerinnungsstörung." }
+  - { id: gl.haematom, term: "Hämatom", topicIds: [thema.beo.haut, thema.ph.injektion], definition: "Bluterguss; Blutansammlung im Gewebe.", synonyms: [Bluterguss] }
+  - { id: gl.pruritus, term: "Pruritus", topicIds: [thema.beo.haut], definition: "Juckreiz." }
+  - { id: gl.exanthem, term: "Exanthem", topicIds: [thema.beo.haut, thema.kl.infektion], definition: "Ausgedehnter Hautausschlag, z. B. bei Virusinfektionen oder Arzneimittelreaktionen." }
+  - { id: gl.diaphorese, term: "Diaphorese", topicIds: [thema.beo.haut], definition: "Starkes Schwitzen.", synonyms: [Hyperhidrose] }
+  - { id: gl.diarrhoe, term: "Diarrhö", topicIds: [thema.ph.ausscheidung], definition: "Durchfall; mehr als drei breiige bis flüssige Stuhlentleerungen am Tag.", synonyms: [Durchfall] }
+  - { id: gl.obstipation, term: "Obstipation", topicIds: [thema.pro.obstipation], definition: "Verstopfung; erschwerte, seltene oder unvollständige Stuhlentleerung.", synonyms: [Verstopfung] }
+  - { id: gl.bristol, term: "Bristol-Stuhlformen-Skala", topicIds: [thema.ph.ausscheidung, thema.pro.obstipation], definition: "Einteilung der Stuhlbeschaffenheit in sieben Typen von harten Kugeln bis flüssig." }
+  - { id: gl.melaena, term: "Meläna", topicIds: [thema.ph.ausscheidung, thema.kl.verdauung], definition: "Teerstuhl; schwarzer, glänzender Stuhl als Zeichen einer Blutung im oberen Verdauungstrakt.", synonyms: [Teerstuhl] }
+  - { id: gl.haematemesis, term: "Hämatemesis", topicIds: [thema.kl.verdauung, thema.beo.notfall], definition: "Bluterbrechen, z. B. kaffeesatzartig bei Kontakt mit Magensäure." }
+  - { id: gl.emesis, term: "Erbrechen", topicIds: [thema.ph.ausscheidung], definition: "Rückläufige, schwallartige Entleerung des Mageninhalts über den Mund.", synonyms: [Emesis, Vomitus] }
+  - { id: gl.nausea, term: "Übelkeit", topicIds: [thema.ph.ausscheidung, thema.ph.palliativ], definition: "Unangenehmes Gefühl im Oberbauch mit Brechreiz.", synonyms: [Nausea] }
+  - { id: gl.oligurie, term: "Oligurie", topicIds: [thema.ph.ausscheidung, thema.kl.niere], definition: "Verminderte Harnausscheidung, beim Erwachsenen unter 500 ml in 24 Stunden." }
+  - { id: gl.anurie, term: "Anurie", topicIds: [thema.ph.ausscheidung, thema.kl.niere], definition: "Fehlende bzw. nahezu fehlende Harnausscheidung, unter 100 ml in 24 Stunden." }
+  - { id: gl.polyurie, term: "Polyurie", topicIds: [thema.ph.ausscheidung, thema.kl.diabetes], definition: "Krankhaft erhöhte Harnausscheidung, über 3 Liter in 24 Stunden." }
+  - { id: gl.nykturie, term: "Nykturie", topicIds: [thema.ph.ausscheidung, thema.kl.herz.insuffizienz], definition: "Vermehrtes nächtliches Wasserlassen." }
+  - { id: gl.dysurie, term: "Dysurie", topicIds: [thema.ph.ausscheidung, thema.pro.zystitis], definition: "Erschwertes oder schmerzhaftes Wasserlassen." }
+  - { id: gl.haematurie, term: "Hämaturie", topicIds: [thema.ph.ausscheidung, thema.kl.niere], definition: "Blut im Urin, sichtbar (Makrohämaturie) oder nur mikroskopisch nachweisbar." }
+  - { id: gl.restharn, term: "Restharn", topicIds: [thema.ph.ausscheidung], definition: "Harnmenge, die nach dem Wasserlassen in der Blase verbleibt." }
+  - { id: gl.bilanzierung, term: "Flüssigkeitsbilanz", topicIds: [thema.ph.ernaehrung, thema.pro.dehydratation, thema.kl.herz.insuffizienz], definition: "Gegenüberstellung von Einfuhr und Ausfuhr an Flüssigkeit über einen festgelegten Zeitraum, meist 24 Stunden." }
+  - { id: gl.bmi, term: "Body-Mass-Index", abbreviation: "BMI", topicIds: [thema.ph.ernaehrung], definition: "Körpergewicht in Kilogramm geteilt durch das Quadrat der Körpergröße in Metern; Normbereich nach WHO 18,5 bis 24,9 kg/m²." }
+  - { id: gl.appetitlosigkeit, term: "Inappetenz", topicIds: [thema.ph.ernaehrung], definition: "Appetitlosigkeit; fehlendes Verlangen nach Nahrung.", synonyms: [Appetitlosigkeit, Anorexie] }
+
+  # --- Schmerz ---
+  - { id: gl.schmerz, term: "Schmerz", topicIds: [thema.beo, thema.qw.expertenstandards], definition: "Unangenehmes Sinnes- und Gefühlserlebnis, das mit tatsächlicher oder drohender Gewebeschädigung verbunden ist oder so beschrieben wird; Schmerz ist, was die betroffene Person als Schmerz angibt." }
+  - { id: gl.akuter-schmerz, term: "Akuter Schmerz", topicIds: [thema.beo], definition: "Kurz andauernder Schmerz mit Warnfunktion, der meist eine erkennbare Ursache hat." }
+  - { id: gl.chronischer-schmerz, term: "Chronischer Schmerz", topicIds: [thema.beo], definition: "Anhaltender oder wiederkehrender Schmerz über mehr als drei bis sechs Monate, der seine Warnfunktion verloren hat und eigenen Krankheitswert besitzt." }
+  - { id: gl.nrs, term: "Numerische Rating-Skala", abbreviation: "NRS", topicIds: [thema.beo, thema.qw.expertenstandards], definition: "Selbsteinschätzung der Schmerzintensität auf einer Skala von 0 (kein Schmerz) bis 10 (stärkster vorstellbarer Schmerz)." }
+  - { id: gl.vas, term: "Visuelle Analogskala", abbreviation: "VAS", topicIds: [thema.beo], definition: "Schmerzskala in Form einer Linie zwischen kein Schmerz und stärkster Schmerz, auf der die Person ihre Intensität markiert." }
+  - { id: gl.besd, term: "Beurteilung von Schmerzen bei Demenz", abbreviation: "BESD", topicIds: [thema.beo, thema.kl.demenz], definition: "Fremdeinschätzungsinstrument für Schmerzen bei Menschen mit Demenz anhand von Atmung, Lautäußerung, Gesichtsausdruck, Körpersprache und Trost." }
+  - { id: gl.durchbruchschmerz, term: "Durchbruchschmerz", topicIds: [thema.ph.palliativ, thema.beo], definition: "Vorübergehende Schmerzspitze trotz ausreichender Basisanalgesie; wird mit einer Bedarfsmedikation behandelt." }
+  - { id: gl.analgesie, term: "Analgesie", topicIds: [thema.ph.medikamente], definition: "Aufhebung bzw. Linderung der Schmerzempfindung." }
+  - { id: gl.who-stufenschema, term: "WHO-Stufenschema", topicIds: [thema.ph.medikamente, thema.ph.palliativ], definition: "Stufenweise Schmerztherapie: Nicht-Opioide, zusätzlich schwach wirksame und dann stark wirksame Opioide, jeweils ergänzt um Begleitmedikamente." }
+
+  # --- Assessments und Skalen ---
+  - { id: gl.assessment, term: "Assessment", topicIds: [thema.pp.anamnese], definition: "Systematische Einschätzung eines Pflegephänomens, oft mit standardisierten Instrumenten." }
+  - { id: gl.braden, term: "Braden-Skala", topicIds: [thema.pro.dekubitus], definition: "Instrument zur Einschätzung des Dekubitusrisikos mit sechs Kategorien (u. a. Mobilität, Feuchtigkeit, Ernährung, Reibung); niedrige Punktzahl bedeutet höheres Risiko." }
+  - { id: gl.norton, term: "Norton-Skala", topicIds: [thema.pro.dekubitus], definition: "Älteres Instrument zur Einschätzung des Dekubitusrisikos; der Expertenstandard empfiehlt vor allem die fachliche Einschätzung." }
+  - { id: gl.barthel, term: "Barthel-Index", topicIds: [thema.pp.anamnese, thema.kl.geriatrie], definition: "Instrument zur Erfassung der Selbstständigkeit bei Alltagsaktivitäten wie Essen, Waschen und Gehen; 0 bis 100 Punkte." }
+  - { id: gl.mna, term: "Mini Nutritional Assessment", abbreviation: "MNA", topicIds: [thema.ph.ernaehrung, thema.kl.geriatrie], definition: "Screening- und Assessmentinstrument zur Erkennung von Mangelernährung bei älteren Menschen." }
+  - { id: gl.mmst, term: "Mini-Mental-Status-Test", abbreviation: "MMST", topicIds: [thema.kl.demenz], definition: "Kurztest zur Einschätzung kognitiver Fähigkeiten; maximal 30 Punkte, niedrige Werte sprechen für kognitive Einschränkungen.", synonyms: [MMSE] }
+  - { id: gl.tug, term: "Timed-up-and-go-Test", abbreviation: "TUG", topicIds: [thema.pro.sturz, thema.kl.geriatrie], definition: "Mobilitätstest: Aufstehen vom Stuhl, drei Meter gehen, umdrehen, zurückgehen und hinsetzen; die benötigte Zeit weist auf das Sturzrisiko hin." }
+  - { id: gl.cam, term: "Confusion Assessment Method", abbreviation: "CAM", topicIds: [thema.pro.delir], definition: "Kurzes Instrument zur Erkennung eines Delirs anhand von akutem Beginn, Aufmerksamkeitsstörung, desorganisiertem Denken und veränderter Bewusstseinslage." }
+  - { id: gl.news2, term: "National Early Warning Score 2", abbreviation: "NEWS2", topicIds: [thema.beo.vitalzeichen, thema.beo.notfall], definition: "Frühwarnscore aus Atemfrequenz, Sauerstoffsättigung, Sauerstoffgabe, Blutdruck, Puls, Bewusstsein und Temperatur, um eine Verschlechterung früh zu erkennen." }
+  - { id: gl.screening, term: "Screening", topicIds: [thema.pp.anamnese], definition: "Kurze Suchuntersuchung, mit der Personen mit einem möglichen Risiko erkannt werden, bevor ein ausführliches Assessment folgt." }
+
+  # --- Notfall ---
+  - { id: gl.reanimation, term: "Kardiopulmonale Reanimation", abbreviation: "CPR", topicIds: [thema.beo.notfall], definition: "Wiederbelebung bei Kreislaufstillstand durch Herzdruckmassage und Beatmung, beim Erwachsenen im Verhältnis 30 zu 2.", synonyms: [Wiederbelebung] }
+  - { id: gl.bls, term: "Basic Life Support", abbreviation: "BLS", topicIds: [thema.beo.notfall], definition: "Basismaßnahmen der Wiederbelebung ohne Hilfsmittel bzw. mit automatisiertem externem Defibrillator." }
+  - { id: gl.aed, term: "Automatisierter externer Defibrillator", abbreviation: "AED", topicIds: [thema.beo.notfall], definition: "Gerät, das den Herzrhythmus analysiert und bei Kammerflimmern sprachgeführt einen Stromstoß abgibt." }
+  - { id: gl.kammerflimmern, term: "Kammerflimmern", topicIds: [thema.beo.notfall, thema.kl.herz], definition: "Ungeordnete, hochfrequente Erregung der Herzkammern ohne Pumpleistung; funktioneller Kreislaufstillstand, der defibrilliert wird." }
+  - { id: gl.abcde, term: "ABCDE-Schema", abbreviation: "ABCDE", topicIds: [thema.beo.notfall], definition: "Strukturierte Ersteinschätzung von Notfallpatienten: Airway, Breathing, Circulation, Disability, Exposure." }
+  - { id: gl.stabile-seitenlage, term: "Stabile Seitenlage", topicIds: [thema.beo.notfall, thema.fs.lage], definition: "Lagerung bewusstloser Personen mit erhaltener Atmung, die die Atemwege frei hält und Aspiration verhindert." }
+  - { id: gl.schocklage, term: "Schocklage", topicIds: [thema.beo.notfall, thema.fs.lage], definition: "Flache Rückenlage mit angehobenen Beinen zur Verbesserung des venösen Rückstroms; nicht bei kardiogenem Schock." }
+  - { id: gl.heimlich, term: "Heimlich-Manöver", topicIds: [thema.beo.notfall, thema.pro.aspiration], definition: "Oberbauchkompressionen bei Bolusaspiration, wenn Rückenschläge erfolglos waren; Verletzungsgefahr, daher ärztliche Nachkontrolle.", synonyms: [Oberbauchkompression] }
+  - { id: gl.bolusaspiration, term: "Bolusaspiration", topicIds: [thema.pro.aspiration, thema.beo.notfall], definition: "Verlegung der Atemwege durch einen Fremdkörper wie einen Speisebrocken mit akuter Erstickungsgefahr." }
+  - { id: gl.hypoglykaemie-schock, term: "Hypoglykämischer Schock", topicIds: [thema.kl.diabetes, thema.beo.notfall], definition: "Schwere Unterzuckerung mit Bewusstseinsstörung bis zur Bewusstlosigkeit; bei bewusstlosen Personen keine Gabe über den Mund, sondern Glukose i.v. oder Glukagon." }
+  - { id: gl.notruf, term: "Notruf 112", topicIds: [thema.beo.notfall], definition: "Europaweite Notrufnummer für Rettungsdienst und Feuerwehr; Meldeschema u. a. Wo, Was, Wie viele, Welche Verletzungen, Warten auf Rückfragen." }

@@ -52,8 +52,9 @@ describe('erzeugeRunde', () => {
   });
 
   it('fragt bei Abkürzungen nur Einträge mit Abkürzung', () => {
-    const r = erzeugeRunde(alle, alle, ['abkuerzung'], 100, 7);
-    expect(r.length).toBe(alle.filter((k) => passt(k, 'abkuerzung')).length);
+    const mitAbk = alle.filter((k) => passt(k, 'abkuerzung')).length;
+    const r = erzeugeRunde(alle, alle, ['abkuerzung'], alle.length, 7);
+    expect(r.length).toBe(mitAbk);
     expect(r.every((f) => f.frage === f.karte.abkuerzung)).toBe(true);
   });
 
