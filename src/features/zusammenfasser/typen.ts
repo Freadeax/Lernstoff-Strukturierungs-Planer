@@ -3,7 +3,7 @@
 // Operatoren und Glossar-Synonyme in src/modules/catalog-types.ts.
 
 import type {
-  ID, Befund, SummaryLength, SummaryMode, SourceChunk, MasteryStatus,
+  ID, Befund, SummaryLength, SummaryMode, SourceChunk, MasteryStatus, Summary,
 } from '../../core/types';
 
 // ---------- Prüf-IDs ----------
@@ -82,4 +82,21 @@ export interface PipelineRun {
   befunde: Befund[];
   ergebnisSummaryId?: ID;
   kosten?: { inputTokens: number; outputTokens: number; cacheReadTokens: number };
+}
+
+// ---------- Gespeicherte Ergebnisse der JSON-Modi ----------
+// Liegen in der Tabelle summaries (Felder außerhalb des Index stört Dexie nicht), claims bleibt leer.
+
+export interface FragenSatz extends Summary {
+  mode: 'pruefung';
+  pruefungName: string;
+  fragen: Pruefungsfrage[];
+  verworfen: number;                    // Fragen ohne gültigen Beleg
+}
+
+export interface VergleichsErgebnis extends Summary {
+  mode: 'vergleich';
+  thema: string;
+  zeilen: VergleichsZeile[];
+  verworfen: number;                    // Zeilen ohne gültige Belege
 }

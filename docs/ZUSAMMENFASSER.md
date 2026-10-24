@@ -318,3 +318,15 @@ Passend zu den Phasen der Architektur:
 - **Phase 2:** Lernmodus (braucht Wissensstand aus dem Planer), Arbeitsauftragsmodus mit Aufgabenanalyse und Q4.
 - **Phase 3:** Prüfungsmodus mit Fragen und Antwortbewertung.
 - **Phase 4:** Vergleichsmodus, K4/K5, Versionsvergleich.
+
+### Stand der Umsetzung (Oktober 2026)
+
+- Alle fünf Modi sind in der App wählbar (Seite „Zusammenfassen“).
+- Text-Modi: Schritte [3]–[7] inklusive KI-Prüfer (`pruefer.ts`) und genau einer Reparaturrunde. Der KI-Prüfer bekommt die Quellen ohne Citations, weil Citations und strukturierte Ausgabe nicht zusammen gehen; er hat deshalb einen eigenen Cache-Eintrag. Schwere: K1 wie Tabelle 6.1, K3 und K5 `blocker` (K3 im Lernmodus `warnung`), fachlich falsche Lernhilfe `blocker`, K2 `warnung`, K4 `warnung` (bereits markiert: `hinweis`). Der KI-Prüfer lässt sich pro Lauf abschalten.
+- Arbeitsauftrag: Aufgabenerkennung [2] mit Bestätigung, Q4a–c mit `requiredParts` des Aufgabenformats.
+- Lernmodus: Der Wissensstand kommt aus dem Lernplan (`topicKnowledge`), sobald ein Katalogthema gewählt ist, und lässt sich ändern; häufige Fehler gibt die lernende Person selbst an. Verwandte Themen kommen aus dem Themenkatalog (Voraussetzungen, Oberthema, Folgethemen).
+- Prüfungsmodus: Fragen mit Code-Prüfung der Belege, eine Nachforderung für verworfene Fragen, MC-Auswertung lokal, offene Fragen per `05-antwortbewertung.md`. Noch offen: Lernzielübersicht als Text, Prüfung der MC-Ablenker durch den KI-Prüfer. Ist ein Katalogthema gewählt, geht das Gesamtergebnis als Abfrage (`pruefungssimulation`) an den Lernplan.
+- Vergleichsmodus: Aussagen je Quelle, Abgleich, Matrix mit „fehlt in Quelle X“. Noch offen: zusammengeführte Fassung.
+- Ergebnisse von Prüfung und Vergleich liegen als `FragenSatz` bzw. `VergleichsErgebnis` (Erweiterungen von `Summary`) in der Tabelle `summaries`, ohne Schemaänderung.
+- `PipelineRun` wird noch nicht gespeichert.
+

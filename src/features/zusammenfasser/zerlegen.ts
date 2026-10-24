@@ -12,7 +12,14 @@ export interface ApiTextBlock {
   citations?: Array<{ type: 'content_block_location'; cited_text: string; document_index: number; start_block_index: number; end_block_index: number }>;
 }
 
-export function zerlegeAntwort(bloecke: ApiTextBlock[], blockZuChunk: string[][], chunks: Map<string, Chunk>): PruefClaim[] {
+/** Aussage mit Lage im Antworttext, damit die Anzeige Zeilen, Listen, Tabellen und Kästen wieder aufbauen kann. */
+export interface ZerlegtClaim extends PruefClaim {
+  zeile: number;
+  zeilenart: 'ueberschrift' | 'liste' | 'tabelle' | 'absatz';
+  kasten?: string;           // innerste Markierung (ergaenzung, lernhilfe, fehlt, …)
+}
+
+export function zerlegeAntwort(bloecke: ApiTextBlock[], blockZuChunk: string[][], chunks: Map<string, Chunk>): ZerlegtClaim[] {
   // 1. Volltext zusammensetzen, Beleg-Spannen merken
   let voll = '';
   const spannen: Array<{ von: number; bis: number; belege: Beleg[] }> = [];
@@ -31,10 +38,12 @@ export function zerlegeAntwort(bloecke: ApiTextBlock[], blockZuChunk: string[][]
     }
   }
   // 2. In Segmente teilen: Zeilen, dann Sätze; Markierungen bestimmen die Art
-  const claims: PruefClaim[] = [];
+  const claims: ZerlegtClaim[] = [];
   const kontext: string[] = [];
   let aufgabeNr: string | undefined;
   let pos = 0;
+  let zeile = 0;
+  let zeilenart: ZerlegtClaim['zeilenart'] | undefined;
   const segmentRe = /<(\/?)([a-z]+)(?:\s+nr="([^"]+)")?[^>]*>|[^<\n]+|\n/g;
   let m: RegExpExecArray | null;
   while ((m = segmentRe.exec(voll))) {
@@ -44,11 +53,13 @@ export function zerlegeAntwort(bloecke: ApiTextBlock[], blockZuChunk: string[][]
       else if (m[1]) kontext.pop(); else kontext.push(m[2]);
       continue;
     }
-    if (m[0] === '\n') continue;
+    if (m[0] === '\n') { zeile++; zeilenart = undefined; continue; }
+    zeilenart ??= /^\s*#{1,6}\s/.test(m[0]) ? 'ueberschrift' : /^\s*([-*•]|\d+[.)])\s+\S/.test(m[0]) ? 'liste'
+      : /^\s*\|/.test(m[0]) ? 'tabelle' : m[0].trim() ? 'absatz' : undefined;
     // Sätze innerhalb der Zeile
     for (const s of m[0].matchAll(/[^.!?]+(?:[.!?]+(?=\s|$)|$)/g)) {
       const satz = s[0].trim();
-      if (!satz || /^[-*•\s|:]+$/.test(satz)) continue;
+      if (!satz || /^[-*•\s|:]+$/.test(satz) || /^\d+[.)]$/.test(satz)) continue;   // Aufzählungsnummer allein ist keine Aussage
       const sVon = pos + s.index!, sBis = sVon + s[0].length;
       const belege = spannen.filter(sp => sp.von < sBis && sp.bis > sVon).flatMap(sp => sp.belege);
       const tag = kontext[kontext.length - 1];
@@ -58,7 +69,8 @@ export function zerlegeAntwort(bloecke: ApiTextBlock[], blockZuChunk: string[][]
         : tag === 'rueckfrage' ? 'rueckfrage' : tag === 'widerspruch' ? 'widerspruch' : tag === 'unleserlich' ? 'unleserlich'
         : /\b(versteht man|bezeichnet man|wird definiert|definiert als|Definition)\b/i.test(satz)
           || /^\S+(\s\S+)?\s+(ist|sind)\s+(ein|eine|der|die|das)?\s*["„“]/.test(satz) ? 'definition' : 'fakt';
-      claims.push({ id: `c${claims.length + 1}`, text: satz.replace(/^[-*•]\s+/, ''), kind, citations: dedupe(belege), aufgabeNr });
+      claims.push({ id: `c${claims.length + 1}`, text: satz.replace(/^([-*•]|\d+[.)])\s+/, ''), kind, citations: dedupe(belege), aufgabeNr,
+        zeile, zeilenart: zeilenart ?? 'absatz', kasten: tag });
     }
   }
   return claims;

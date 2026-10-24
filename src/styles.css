@@ -70,7 +70,7 @@ select, input:not([type='checkbox']):not([type='radio']):not([type='file']), tex
 }
 textarea { padding: var(--space-2); }
 input[type='checkbox'], input[type='radio'] { width: 1.15em; height: 1.15em; accent-color: var(--color-primary); }
-input.wide { width: 100%; }
+input.wide, textarea.wide { width: 100%; }
 .field { display: flex; flex-direction: column; gap: var(--space-1); margin-bottom: var(--space-2); }
 .field-error { color: var(--color-danger); font-size: var(--text-sm); }
 .check { display: flex; gap: var(--space-2); align-items: flex-start; margin: var(--space-2) 0; }
@@ -116,3 +116,35 @@ input.wide { width: 100%; }
 .source { margin-top: var(--space-3); padding: var(--space-3); border-radius: var(--radius-sm); background: var(--color-surface-sunken); }
 .quote { margin-top: var(--space-2); }
 mark { background: var(--color-highlight); color: inherit; }
+
+/* Zusammenfasser: Modi, Gliederung, Kästen, Prüfhinweise, Fragen, Vergleich */
+.modi { display: flex; flex-wrap: wrap; gap: var(--space-1); margin-bottom: var(--space-2); }
+.summary ul { margin: var(--space-1) 0 var(--space-2); padding-left: var(--space-4); }
+.summary p { margin: 0 0 var(--space-2); }
+.claim.zusatz { border-bottom: 1px dashed var(--color-border-strong); }
+.kasten { margin: var(--space-2) 0; padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); border-left: 4px solid var(--color-info); background: var(--color-info-soft); }
+.kasten.ergaenzung { border-left-color: var(--color-warning); background: var(--color-warning-soft); }
+.kasten.widerspruch { border-left-color: var(--color-danger); background: var(--color-danger-soft); }
+.kasten.fehlt { border-left-color: var(--color-border-strong); background: var(--color-surface-sunken); }
+.kasten p:last-child { margin-bottom: 0; }
+.kasten__titel { font-size: var(--text-sm); font-weight: var(--weight-bold); margin-bottom: var(--space-1); }
+.befunde { margin: 0; padding-left: var(--space-4); }
+.befunde li { margin: var(--space-1) 0; }
+.befunde li.blocker { color: var(--color-danger); }
+.befunde-alle { margin-top: var(--space-3); }
+.befunde-alle summary { cursor: pointer; color: var(--color-text-muted); }
+.tabelle-wrap { overflow-x: auto; margin: var(--space-2) 0; }
+.zf-tabelle { border-collapse: collapse; width: 100%; font-size: var(--text-sm); }
+.zf-tabelle td, .zf-tabelle th { border: 1px solid var(--color-border); padding: var(--space-1) var(--space-2); text-align: left; vertical-align: top; }
+.zf-tabelle tr.claim td, .zf-tabelle td.claim { cursor: pointer; }
+.zf-tabelle td.leer { background: var(--color-surface-sunken); }
+.art-label { display: inline-block; margin: var(--space-1) 0; font-size: var(--text-xs); padding: 0 var(--space-1); border-radius: var(--radius-xs); background: var(--color-surface-sunken); }
+.art-label.widerspruechlich, .art-label.definition_unterschiedlich { background: var(--color-danger-soft); }
+.art-label.abweichend { background: var(--color-warning-soft); }
+.art-label.uebereinstimmend { background: var(--color-success-soft); }
+.aufgabe { border-top: 1px solid var(--color-border); padding: var(--space-2) 0; }
+.aufgabe.unsicher textarea { border-color: var(--color-warning); }
+.frage .option.richtig { background: var(--color-success-soft); border-radius: var(--radius-xs); }
+.frage .option.falsch { background: var(--color-danger-soft); border-radius: var(--radius-xs); }
+.frage details { margin-top: var(--space-2); }
+.frage details summary { cursor: pointer; }
