@@ -1,0 +1,134 @@
+# Glossar, Teil 2: Anatomie und Physiologie (Format wie 70-glossar.yaml).
+# Katalogwissen ohne citation; Lehrbuchdefinitionen aus importiertem Material haben Vorrang.
+
+glossary:
+  # --- Zelle und Gewebe ---
+  - { id: gl.zelle, term: "Zelle", topicIds: [thema.ap.zelle], definition: "Kleinste selbstständig lebensfähige Bau- und Funktionseinheit aller Lebewesen." }
+  - { id: gl.zellkern, term: "Zellkern", topicIds: [thema.ap.zelle], definition: "Von einer Doppelmembran umgebenes Zellorganell, das die Erbinformation (DNA) enthält und die Zellvorgänge steuert.", synonyms: [Nukleus] }
+  - { id: gl.mitochondrium, term: "Mitochondrium", topicIds: [thema.ap.zelle], definition: "Zellorganell, in dem durch Zellatmung der Großteil der Energie in Form von ATP gewonnen wird." }
+  - { id: gl.mitose, term: "Mitose", topicIds: [thema.ap.zelle], definition: "Kernteilung, bei der aus einer Zelle zwei erbgleiche Tochterzellen mit vollständigem Chromosomensatz entstehen." }
+  - { id: gl.meiose, term: "Meiose", topicIds: [thema.ap.zelle, thema.ap.fortpflanzung], definition: "Reifeteilung zur Bildung der Keimzellen, bei der der Chromosomensatz halbiert wird." }
+  - { id: gl.osmose, term: "Osmose", topicIds: [thema.ap.zelle], definition: "Wanderung von Wasser durch eine halbdurchlässige Membran in Richtung der höheren Teilchenkonzentration." }
+  - { id: gl.diffusion, term: "Diffusion", topicIds: [thema.ap.zelle], definition: "Passive Ausbreitung von Teilchen entlang eines Konzentrationsgefälles bis zum Ausgleich." }
+  - { id: gl.homoeostase, term: "Homöostase", topicIds: [thema.ap.zelle], definition: "Aufrechterhaltung eines stabilen inneren Milieus (z. B. Temperatur, pH-Wert, Wasserhaushalt) durch Regelkreise." }
+  - { id: gl.epithelgewebe, term: "Epithelgewebe", topicIds: [thema.ap.zelle], definition: "Gewebe, das innere und äußere Körperoberflächen bedeckt und Drüsen bildet." }
+  - { id: gl.bindegewebe, term: "Bindegewebe", topicIds: [thema.ap.zelle], definition: "Gewebe aus Zellen und reichlich Zwischenzellsubstanz mit Stütz-, Verbindungs- und Speicherfunktion; dazu gehören z. B. Knochen, Knorpel und Fettgewebe." }
+  - { id: gl.metabolismus, term: "Stoffwechsel", topicIds: [thema.ap.zelle], definition: "Gesamtheit der chemischen Vorgänge im Körper zum Auf-, Um- und Abbau von Stoffen und zur Energiegewinnung.", synonyms: [Metabolismus] }
+  - { id: gl.anabolismus, term: "Anabolismus", topicIds: [thema.ap.zelle], definition: "Aufbauender Teil des Stoffwechsels, bei dem unter Energieverbrauch körpereigene Stoffe gebildet werden." }
+  - { id: gl.katabolismus, term: "Katabolismus", topicIds: [thema.ap.zelle], definition: "Abbauender Teil des Stoffwechsels, bei dem Stoffe zerlegt und Energie freigesetzt wird." }
+
+  # --- Herz und Kreislauf ---
+  - { id: gl.myokard, term: "Myokard", topicIds: [thema.ap.herz], definition: "Herzmuskelschicht, die mittlere und dickste Schicht der Herzwand." }
+  - { id: gl.endokard, term: "Endokard", topicIds: [thema.ap.herz], definition: "Innerste Schicht der Herzwand, die Herzhöhlen und Herzklappen auskleidet." }
+  - { id: gl.perikard, term: "Perikard", topicIds: [thema.ap.herz], definition: "Herzbeutel aus Bindegewebe, der das Herz umgibt.", synonyms: [Herzbeutel] }
+  - { id: gl.systole, term: "Systole", topicIds: [thema.ap.herz, thema.beo.vitalzeichen], definition: "Anspannungs- und Austreibungsphase des Herzens, in der sich die Kammern zusammenziehen und Blut auswerfen." }
+  - { id: gl.diastole, term: "Diastole", topicIds: [thema.ap.herz, thema.beo.vitalzeichen], definition: "Entspannungs- und Füllungsphase des Herzens, in der sich die Kammern mit Blut füllen." }
+  - { id: gl.sinusknoten, term: "Sinusknoten", topicIds: [thema.ap.herz], definition: "Primärer Schrittmacher des Herzens im rechten Vorhof, der die elektrische Erregung mit etwa 60 bis 80 Impulsen pro Minute bildet." }
+  - { id: gl.av-knoten, term: "AV-Knoten", topicIds: [thema.ap.herz], definition: "Erregungsleitungsstruktur zwischen Vorhöfen und Kammern, die die Erregung verzögert weiterleitet; sekundärer Schrittmacher.", synonyms: [Atrioventrikularknoten] }
+  - { id: gl.herzzeitvolumen, term: "Herzzeitvolumen", abbreviation: "HZV", topicIds: [thema.ap.herz], definition: "Blutmenge, die das Herz pro Minute in den Kreislauf pumpt; Schlagvolumen mal Herzfrequenz, in Ruhe etwa 5 Liter.", synonyms: [Herzminutenvolumen] }
+  - { id: gl.schlagvolumen, term: "Schlagvolumen", topicIds: [thema.ap.herz], definition: "Blutmenge, die eine Herzkammer pro Herzschlag auswirft, in Ruhe beim Erwachsenen etwa 70 ml." }
+  - { id: gl.koronararterien, term: "Koronararterien", topicIds: [thema.ap.herz, thema.kl.herz.khk], definition: "Arterien, die den Herzmuskel mit sauerstoffreichem Blut versorgen.", synonyms: [Herzkranzgefäße] }
+  - { id: gl.arterie, term: "Arterie", topicIds: [thema.ap.herz], definition: "Blutgefäß, das Blut vom Herzen wegführt." }
+  - { id: gl.vene, term: "Vene", topicIds: [thema.ap.herz], definition: "Blutgefäß, das Blut zum Herzen hinführt; in den Extremitäten meist mit Venenklappen." }
+  - { id: gl.kapillare, term: "Kapillare", topicIds: [thema.ap.herz], definition: "Feinstes Blutgefäß, in dem der Stoff- und Gasaustausch zwischen Blut und Gewebe stattfindet." }
+  - { id: gl.muskelpumpe, term: "Muskelpumpe", topicIds: [thema.ap.herz, thema.pro.thrombose], definition: "Förderung des venösen Rückstroms durch Kontraktion der Skelettmuskulatur, die die Venen zusammendrückt, in Verbindung mit den Venenklappen.", synonyms: [Wadenmuskelpumpe] }
+  - { id: gl.grosser-kreislauf, term: "Körperkreislauf", topicIds: [thema.ap.herz], definition: "Teil des Blutkreislaufs von der linken Herzkammer über die Aorta zu den Organen und über die Hohlvenen zurück zum rechten Vorhof.", synonyms: [großer Kreislauf] }
+  - { id: gl.kleiner-kreislauf, term: "Lungenkreislauf", topicIds: [thema.ap.herz, thema.ap.atmung], definition: "Teil des Blutkreislaufs von der rechten Herzkammer zur Lunge und zurück zum linken Vorhof, dient dem Gasaustausch.", synonyms: [kleiner Kreislauf] }
+  - { id: gl.aorta, term: "Aorta", topicIds: [thema.ap.herz], definition: "Hauptschlagader, die das Blut aus der linken Herzkammer in den Körperkreislauf leitet." }
+  - { id: gl.lymphe, term: "Lymphe", topicIds: [thema.ap.blut], definition: "Gewebsflüssigkeit, die über Lymphgefäße und Lymphknoten gesammelt und in das Venensystem zurückgeführt wird." }
+
+  # --- Blut und Abwehr ---
+  - { id: gl.erythrozyt, term: "Erythrozyt", topicIds: [thema.ap.blut], definition: "Rotes Blutkörperchen ohne Zellkern, das mit Hämoglobin Sauerstoff transportiert.", synonyms: [rotes Blutkörperchen] }
+  - { id: gl.leukozyt, term: "Leukozyt", topicIds: [thema.ap.blut], definition: "Weißes Blutkörperchen, Zelle der Immunabwehr.", synonyms: [weißes Blutkörperchen] }
+  - { id: gl.thrombozyt, term: "Thrombozyt", topicIds: [thema.ap.blut], definition: "Blutplättchen, das an der Blutstillung und Blutgerinnung beteiligt ist.", synonyms: [Blutplättchen] }
+  - { id: gl.haemoglobin, term: "Hämoglobin", abbreviation: "Hb", topicIds: [thema.ap.blut], definition: "Eisenhaltiger roter Blutfarbstoff in den Erythrozyten, der Sauerstoff und teilweise Kohlendioxid bindet." }
+  - { id: gl.haematokrit, term: "Hämatokrit", abbreviation: "Hkt", topicIds: [thema.ap.blut], definition: "Anteil der zellulären Bestandteile, vor allem der Erythrozyten, am Gesamtblutvolumen." }
+  - { id: gl.plasma, term: "Blutplasma", topicIds: [thema.ap.blut], definition: "Flüssiger, zellfreier Anteil des Blutes mit Wasser, Eiweißen, Elektrolyten und Gerinnungsfaktoren." }
+  - { id: gl.serum, term: "Serum", topicIds: [thema.ap.blut], definition: "Blutplasma ohne Gerinnungsfaktoren, das nach der Gerinnung des Blutes übrig bleibt." }
+  - { id: gl.haemostase, term: "Hämostase", topicIds: [thema.ap.blut], definition: "Blutstillung durch Gefäßverengung, Thrombozytenpfropf und plasmatische Gerinnung." }
+  - { id: gl.antigen, term: "Antigen", topicIds: [thema.ap.blut, thema.kl.infektion], definition: "Struktur, die vom Immunsystem als fremd erkannt wird und eine spezifische Immunantwort auslöst." }
+  - { id: gl.antikoerper, term: "Antikörper", topicIds: [thema.ap.blut, thema.kl.infektion], definition: "Von Plasmazellen gebildetes Eiweiß (Immunglobulin), das spezifisch an ein Antigen bindet.", synonyms: [Immunglobulin] }
+  - { id: gl.lymphozyt, term: "Lymphozyt", topicIds: [thema.ap.blut], definition: "Leukozyt der spezifischen Abwehr; B-Lymphozyten bilden Antikörper, T-Lymphozyten wirken zellvermittelt." }
+  - { id: gl.immunitaet, term: "Immunität", topicIds: [thema.ap.blut, thema.kl.infektion], definition: "Schutz vor einem bestimmten Krankheitserreger durch eine erworbene spezifische Abwehr." }
+  - { id: gl.blutgruppe, term: "Blutgruppe", topicIds: [thema.ap.blut], definition: "Erbliche Merkmale auf der Oberfläche der Erythrozyten, vor allem AB0-System und Rhesusfaktor, die bei Transfusionen beachtet werden müssen." }
+
+  # --- Atmung ---
+  - { id: gl.alveole, term: "Alveole", topicIds: [thema.ap.atmung], definition: "Lungenbläschen, in dem der Gasaustausch zwischen Atemluft und Blut stattfindet.", synonyms: [Lungenbläschen] }
+  - { id: gl.bronchien, term: "Bronchien", topicIds: [thema.ap.atmung], definition: "Verzweigte Atemwege, die die Luft von der Luftröhre zu den Lungenabschnitten leiten." }
+  - { id: gl.trachea, term: "Trachea", topicIds: [thema.ap.atmung], definition: "Luftröhre zwischen Kehlkopf und Aufteilung in die beiden Hauptbronchien.", synonyms: [Luftröhre] }
+  - { id: gl.pleura, term: "Pleura", topicIds: [thema.ap.atmung], definition: "Seröse Haut, die als Lungenfell die Lunge und als Rippenfell die Brustwand innen überzieht.", synonyms: [Brustfell] }
+  - { id: gl.zwerchfell, term: "Zwerchfell", topicIds: [thema.ap.atmung], definition: "Muskel-Sehnen-Platte zwischen Brust- und Bauchraum, wichtigster Einatemmuskel.", synonyms: [Diaphragma] }
+  - { id: gl.surfactant, term: "Surfactant", topicIds: [thema.ap.atmung, thema.kl.paediatrie], definition: "Oberflächenaktive Substanz in den Alveolen, die die Oberflächenspannung senkt und ein Kollabieren der Lungenbläschen verhindert." }
+  - { id: gl.vitalkapazitaet, term: "Vitalkapazität", topicIds: [thema.ap.atmung], definition: "Luftmenge, die nach maximaler Einatmung maximal ausgeatmet werden kann." }
+  - { id: gl.atemzugvolumen, term: "Atemzugvolumen", topicIds: [thema.ap.atmung], definition: "Luftmenge, die bei einem normalen Atemzug ein- und ausgeatmet wird, beim Erwachsenen etwa 500 ml." }
+  - { id: gl.gasaustausch, term: "Gasaustausch", topicIds: [thema.ap.atmung], definition: "Aufnahme von Sauerstoff ins Blut und Abgabe von Kohlendioxid durch Diffusion in den Alveolen." }
+  - { id: gl.atemhilfsmuskulatur, term: "Atemhilfsmuskulatur", topicIds: [thema.ap.atmung, thema.kl.atmung], definition: "Muskeln von Hals, Schultergürtel und Bauch, die bei erhöhter Atemarbeit die Atmung unterstützen." }
+
+  # --- Verdauung ---
+  - { id: gl.oesophagus, term: "Ösophagus", topicIds: [thema.ap.verdauung], definition: "Speiseröhre, muskulärer Schlauch zwischen Rachen und Magen.", synonyms: [Speiseröhre] }
+  - { id: gl.peristaltik, term: "Peristaltik", topicIds: [thema.ap.verdauung, thema.pro.obstipation], definition: "Wellenförmige Muskelbewegung von Hohlorganen, die den Inhalt weitertransportiert." }
+  - { id: gl.duodenum, term: "Duodenum", topicIds: [thema.ap.verdauung], definition: "Zwölffingerdarm, erster Abschnitt des Dünndarms, in den Galle und Bauchspeichel münden.", synonyms: [Zwölffingerdarm] }
+  - { id: gl.kolon, term: "Kolon", topicIds: [thema.ap.verdauung], definition: "Hauptteil des Dickdarms, in dem dem Darminhalt Wasser und Elektrolyte entzogen werden." }
+  - { id: gl.leber, term: "Leber", topicIds: [thema.ap.verdauung], definition: "Größte Drüse des Körpers; Zentralorgan des Stoffwechsels, bildet Galle, entgiftet und speichert Glykogen.", synonyms: [Hepar] }
+  - { id: gl.galle, term: "Galle", topicIds: [thema.ap.verdauung], definition: "In der Leber gebildete Flüssigkeit, die in der Gallenblase gespeichert wird und die Fettverdauung unterstützt." }
+  - { id: gl.pankreas, term: "Pankreas", topicIds: [thema.ap.verdauung, thema.ap.hormone], definition: "Bauchspeicheldrüse mit exokrinem Anteil (Verdauungsenzyme) und endokrinem Anteil (Insulin, Glukagon).", synonyms: [Bauchspeicheldrüse] }
+  - { id: gl.peritoneum, term: "Peritoneum", topicIds: [thema.ap.verdauung], definition: "Bauchfell, seröse Haut, die die Bauchhöhle auskleidet und viele Bauchorgane überzieht.", synonyms: [Bauchfell] }
+  - { id: gl.enzym, term: "Enzym", topicIds: [thema.ap.verdauung, thema.ap.zelle], definition: "Eiweiß, das als Biokatalysator chemische Reaktionen im Körper beschleunigt." }
+  - { id: gl.resorption, term: "Resorption", topicIds: [thema.ap.verdauung, thema.ph.medikamente], definition: "Aufnahme von Stoffen über Haut oder Schleimhaut, z. B. von Nährstoffen aus dem Darm in Blut und Lymphe." }
+
+  # --- Niere und Harnwege ---
+  - { id: gl.nephron, term: "Nephron", topicIds: [thema.ap.niere], definition: "Funktionseinheit der Niere aus Nierenkörperchen und Nierenkanälchen." }
+  - { id: gl.glomerulum, term: "Glomerulum", topicIds: [thema.ap.niere], definition: "Gefäßknäuel im Nierenkörperchen, in dem der Primärharn abgefiltert wird." }
+  - { id: gl.primaerharn, term: "Primärharn", topicIds: [thema.ap.niere], definition: "Im Glomerulum abgefiltertes, eiweißarmes Plasmafiltrat, täglich etwa 150 bis 180 Liter, das größtenteils zurückgewonnen wird." }
+  - { id: gl.ureter, term: "Ureter", topicIds: [thema.ap.niere], definition: "Harnleiter, der den Harn vom Nierenbecken zur Harnblase transportiert.", synonyms: [Harnleiter] }
+  - { id: gl.urethra, term: "Urethra", topicIds: [thema.ap.niere, thema.ph.ausscheidung], definition: "Harnröhre, die den Harn aus der Blase nach außen leitet.", synonyms: [Harnröhre] }
+  - { id: gl.diurese, term: "Diurese", topicIds: [thema.ap.niere, thema.ph.ausscheidung], definition: "Harnausscheidung; beim Erwachsenen normal etwa 1,5 Liter pro Tag." }
+  - { id: gl.elektrolyte, term: "Elektrolyte", topicIds: [thema.ap.niere], definition: "In Körperflüssigkeiten gelöste, elektrisch geladene Teilchen wie Natrium, Kalium, Calcium und Chlorid." }
+  - { id: gl.saeure-basen, term: "Säure-Basen-Haushalt", topicIds: [thema.ap.niere, thema.ap.atmung], definition: "Regulation des pH-Werts im Blut im engen Bereich von etwa 7,35 bis 7,45 durch Puffer, Lunge und Niere." }
+
+  # --- Hormone ---
+  - { id: gl.hormon, term: "Hormon", topicIds: [thema.ap.hormone], definition: "Botenstoff, der von Drüsen oder Zellen ins Blut abgegeben wird und an entfernten Zielzellen wirkt." }
+  - { id: gl.insulin, term: "Insulin", topicIds: [thema.ap.hormone, thema.kl.diabetes], definition: "Hormon der Betazellen des Pankreas, das den Blutzucker senkt, indem es die Glukoseaufnahme in die Zellen fördert." }
+  - { id: gl.glukagon, term: "Glukagon", topicIds: [thema.ap.hormone, thema.kl.diabetes], definition: "Hormon der Alphazellen des Pankreas, das den Blutzucker durch Freisetzung von Glukose aus der Leber erhöht." }
+  - { id: gl.schilddruese, term: "Schilddrüse", topicIds: [thema.ap.hormone], definition: "Hormondrüse am Hals, die die jodhaltigen Hormone T3 und T4 bildet und damit den Grundumsatz steuert.", synonyms: [Glandula thyroidea] }
+  - { id: gl.cortisol, term: "Cortisol", topicIds: [thema.ap.hormone], definition: "Stresshormon der Nebennierenrinde mit Wirkung auf Blutzucker, Stoffwechsel und Immunsystem; wirkt entzündungshemmend.", synonyms: [Kortisol] }
+  - { id: gl.adrenalin, term: "Adrenalin", topicIds: [thema.ap.hormone, thema.beo.notfall], definition: "Hormon des Nebennierenmarks, das in Stresssituationen Herzfrequenz, Blutdruck und Blutzucker erhöht; auch Notfallmedikament.", synonyms: [Epinephrin] }
+  - { id: gl.hypophyse, term: "Hypophyse", topicIds: [thema.ap.hormone], definition: "Hirnanhangsdrüse, die übergeordnete Hormone bildet und viele andere Hormondrüsen steuert.", synonyms: [Hirnanhangsdrüse] }
+  - { id: gl.adh, term: "Antidiuretisches Hormon", abbreviation: "ADH", topicIds: [thema.ap.hormone, thema.ap.niere], definition: "Hormon aus dem Hypophysenhinterlappen, das die Wasserrückresorption in der Niere steigert und so die Harnmenge senkt.", synonyms: [Vasopressin] }
+
+  # --- Nervensystem ---
+  - { id: gl.neuron, term: "Neuron", topicIds: [thema.ap.nerven], definition: "Nervenzelle mit Zellkörper, Dendriten und Axon, die Erregungen aufnimmt und weiterleitet.", synonyms: [Nervenzelle] }
+  - { id: gl.synapse, term: "Synapse", topicIds: [thema.ap.nerven], definition: "Kontaktstelle zwischen Nervenzellen oder zwischen Nerven- und Muskelzelle, an der die Erregung meist chemisch über Neurotransmitter übertragen wird." }
+  - { id: gl.zns, term: "Zentralnervensystem", abbreviation: "ZNS", topicIds: [thema.ap.nerven], definition: "Gehirn und Rückenmark." }
+  - { id: gl.vegetatives-ns, term: "Vegetatives Nervensystem", topicIds: [thema.ap.nerven], definition: "Weitgehend unwillkürlich arbeitender Teil des Nervensystems, der Organfunktionen über Sympathikus und Parasympathikus steuert.", synonyms: [autonomes Nervensystem] }
+  - { id: gl.sympathikus, term: "Sympathikus", topicIds: [thema.ap.nerven], definition: "Teil des vegetativen Nervensystems, der den Körper auf Leistung und Stress einstellt, z. B. mit steigender Herzfrequenz." }
+  - { id: gl.parasympathikus, term: "Parasympathikus", topicIds: [thema.ap.nerven], definition: "Teil des vegetativen Nervensystems, der Ruhe, Erholung und Verdauung fördert." }
+  - { id: gl.reflex, term: "Reflex", topicIds: [thema.ap.nerven], definition: "Unwillkürliche, gleichartige Reaktion auf einen bestimmten Reiz." }
+  - { id: gl.liquor, term: "Liquor", topicIds: [thema.ap.nerven], definition: "Klare Flüssigkeit, die Gehirn und Rückenmark umgibt und schützt.", synonyms: [Hirnwasser] }
+  - { id: gl.hirnstamm, term: "Hirnstamm", topicIds: [thema.ap.nerven], definition: "Abschnitt des Gehirns aus Mittelhirn, Brücke und verlängertem Mark mit Zentren für Atmung und Kreislauf." }
+  - { id: gl.kleinhirn, term: "Kleinhirn", topicIds: [thema.ap.nerven], definition: "Hirnabschnitt, der Gleichgewicht, Muskelspannung und die Feinabstimmung von Bewegungen steuert.", synonyms: [Cerebellum] }
+  - { id: gl.neurotransmitter, term: "Neurotransmitter", topicIds: [thema.ap.nerven], definition: "Botenstoff, der an Synapsen die Erregung von einer Zelle auf die nächste überträgt, z. B. Acetylcholin oder Dopamin." }
+
+  # --- Bewegungsapparat ---
+  - { id: gl.gelenk, term: "Gelenk", topicIds: [thema.ap.bewegung], definition: "Bewegliche Verbindung zwischen zwei oder mehreren Knochen." }
+  - { id: gl.sehne, term: "Sehne", topicIds: [thema.ap.bewegung], definition: "Straffes Bindegewebe, das Muskeln mit Knochen verbindet." }
+  - { id: gl.band, term: "Ligament", topicIds: [thema.ap.bewegung], definition: "Band aus straffem Bindegewebe, das Knochen miteinander verbindet und Gelenke stabilisiert.", synonyms: [Band] }
+  - { id: gl.knorpel, term: "Knorpel", topicIds: [thema.ap.bewegung], definition: "Druckelastisches, gefäßloses Stützgewebe, z. B. als Überzug der Gelenkflächen." }
+  - { id: gl.skelettmuskel, term: "Skelettmuskulatur", topicIds: [thema.ap.bewegung], definition: "Quergestreifte, willkürlich steuerbare Muskulatur, die über Sehnen am Skelett ansetzt." }
+  - { id: gl.wirbelsaeule, term: "Wirbelsäule", topicIds: [thema.ap.bewegung], definition: "Doppelt-S-förmige Achse des Skeletts aus Wirbeln und Bandscheiben, die das Rückenmark schützt." }
+  - { id: gl.bandscheibe, term: "Bandscheibe", topicIds: [thema.ap.bewegung], definition: "Faserknorpelige Scheibe mit gallertigem Kern zwischen zwei Wirbelkörpern, die als Stoßdämpfer wirkt." }
+  - { id: gl.osteoblast, term: "Osteoblast", topicIds: [thema.ap.bewegung], definition: "Knochenbildende Zelle." }
+  - { id: gl.osteoklast, term: "Osteoklast", topicIds: [thema.ap.bewegung], definition: "Knochenabbauende Zelle." }
+
+  # --- Haut ---
+  - { id: gl.epidermis, term: "Epidermis", topicIds: [thema.ap.haut], definition: "Oberhaut, äußerste, gefäßlose Schicht der Haut aus verhorntem Plattenepithel.", synonyms: [Oberhaut] }
+  - { id: gl.dermis, term: "Dermis", topicIds: [thema.ap.haut], definition: "Lederhaut unter der Epidermis mit Gefäßen, Nerven, Haarwurzeln und Drüsen.", synonyms: [Lederhaut, Korium] }
+  - { id: gl.subkutis, term: "Subkutis", topicIds: [thema.ap.haut, thema.ph.injektion], definition: "Unterhaut aus lockerem Binde- und Fettgewebe, dient als Wärmeschutz und Energiespeicher.", synonyms: [Unterhaut] }
+  - { id: gl.saeureschutzmantel, term: "Säureschutzmantel", topicIds: [thema.ap.haut, thema.ph.koerperpflege], definition: "Leicht saurer Film auf der Hautoberfläche (pH etwa 5,5), der das Wachstum von Krankheitserregern hemmt." }
+  - { id: gl.hautturgor, term: "Hautturgor", topicIds: [thema.ap.haut, thema.pro.dehydratation], definition: "Spannungszustand der Haut; eine stehende Hautfalte kann auf Flüssigkeitsmangel hinweisen, ist bei alten Menschen aber nur eingeschränkt aussagekräftig." }
+
+  # --- Fortpflanzung und Entwicklung ---
+  - { id: gl.uterus, term: "Uterus", topicIds: [thema.ap.fortpflanzung], definition: "Gebärmutter, muskuläres Hohlorgan, in dem sich die befruchtete Eizelle einnistet und entwickelt.", synonyms: [Gebärmutter] }
+  - { id: gl.menstruationszyklus, term: "Menstruationszyklus", topicIds: [thema.ap.fortpflanzung], definition: "Hormonell gesteuerter, etwa 28-tägiger Zyklus aus Eizellreifung, Eisprung und Monatsblutung." }
+  - { id: gl.plazenta, term: "Plazenta", topicIds: [thema.ap.fortpflanzung], definition: "Mutterkuchen, Organ, das in der Schwangerschaft den Stoffaustausch zwischen Mutter und Kind ermöglicht.", synonyms: [Mutterkuchen] }
+  - { id: gl.prostata, term: "Prostata", topicIds: [thema.ap.fortpflanzung], definition: "Vorsteherdrüse des Mannes unterhalb der Harnblase, die die Harnröhre umschließt und einen Teil der Samenflüssigkeit bildet.", synonyms: [Vorsteherdrüse] }
