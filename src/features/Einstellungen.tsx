@@ -1,21 +1,15 @@
 import { useState } from 'react';
-import { deleteAll, exportAll } from '../core/db';
+import { deleteAll } from '../core/db';
+import { loescheLokaleEintraege } from '../core/sicherung';
+import { navigate } from '../ui/shell/router';
 import { getApiKey, setApiKey } from '../core/settings';
 
 export function Einstellungen() {
   const [key, setKey] = useState(getApiKey());
   const [saved, setSaved] = useState(false);
 
-  async function download() {
-    const blob = new Blob([JSON.stringify(await exportAll(), null, 2)], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `lernstoff-export-${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    URL.revokeObjectURL(a.href);
-  }
   async function wipe() {
-    if (confirm('Wirklich alle lokal gespeicherten Daten löschen?')) await deleteAll();
+    if (confirm('Wirklich alle lokal gespeicherten Daten löschen? Ohne Sicherung ist dein Lernstand danach weg.')) { await deleteAll(); loescheLokaleEintraege(); }
   }
   return (
     <section className="page">
@@ -35,8 +29,8 @@ export function Einstellungen() {
       </div>
       <div className="card">
         <h3>Meine Daten</h3>
-        <p>Alle Unterlagen und Ergebnisse liegen nur auf diesem Gerät.</p>
-        <button onClick={download}>Alle Daten exportieren</button>{' '}
+        <p>Alle Unterlagen und Ergebnisse liegen nur auf diesem Gerät. Unter „Datensicherung“ sicherst du sie als Datei und überträgst sie auf ein anderes Gerät.</p>
+        <button className="primary" onClick={() => navigate('/system/sicherung')}>Zur Datensicherung</button>{' '}
         <button className="danger" onClick={wipe}>Alle Daten löschen</button>
       </div>
     </section>

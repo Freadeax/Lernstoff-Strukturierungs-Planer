@@ -24,6 +24,7 @@ const Pflegeplanung = lazy(() => import('./features/pflegeplanung/Pflegeplanung'
 const Lernplan = lazy(() => import('./features/lernplan/ui/Lernplan'));
 const Landkarte = lazy(() => import('./features/landkarte/Landkarte'));
 const Klassenmodus = lazy(() => import('./features/klasse/Klassenmodus'));
+const Datensicherung = lazy(() => import('./features/sicherung/Datensicherung'));
 const Karteikarten = lazy(() => import('./features/karteikarten/ui/Karteikarten'));
 
 function Page({ title, intro, children }: { title: string; intro?: string; children: React.ReactNode }) {
@@ -61,6 +62,7 @@ function View() {
     case '/material/ablage': return <Suspense fallback={<p className="muted">Lädt …</p>}><Ablage /></Suspense>;
     case '/material/zusammenfassen': return <Zusammenfassen />;
     case '/einstellungen': return <Einstellungen />;
+    case '/system/sicherung': return <Suspense fallback={<p className="muted">Lädt …</p>}><Datensicherung /></Suspense>;
     case '/system/design': return <Suspense fallback={<p className="muted">Lädt …</p>}><Designsystem /></Suspense>;
     default:
       return (

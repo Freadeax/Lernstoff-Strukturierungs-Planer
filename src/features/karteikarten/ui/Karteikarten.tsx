@@ -6,7 +6,8 @@ import { db } from '../../../core/db';
 import type { ID } from '../../../core/types';
 import { navigate, useRoute } from '../../../ui/shell/router';
 import { stelleSitzungZusammen, type Sitzung as SitzungsPlan } from '../planung';
-import { heute as heuteTag, ladeKartenDaten, neueHeute } from '../store';
+import { notify } from '../../../ui/shell/notifications';
+import { heute as heuteTag, ladeKartenDaten, neueHeute, schliesseOffeneSitzungAb } from '../store';
 import type { Karte } from '../typen';
 import { Sitzung } from './Sitzung';
 import { alleThemen, blaetter, modul, type KartenCtx } from './kontext';
@@ -80,8 +81,15 @@ export default function Karteikarten() {
       setCtx({ daten, heute, summaries: summaries.sort((a, b) => b.createdAt.localeCompare(a.createdAt)), titles: new Map(docs.map((d) => [d.id, d.title])), neuLaden });
     } catch (e) { setFehler(e instanceof Error ? e.message : String(e)); }
   }, []);
-  useEffect(() => { void neuLaden(); }, [neuLaden]);
-  // Menü oder Zurück-Taste während einer Sitzung: Sitzung verlassen, Antworten sind schon gespeichert
+  useEffect(() => {
+    // Sitzung, die beim letzten Mal ohne Abschluss endete (App geschlossen): Ergebnis nachmelden
+    schliesseOffeneSitzungAb(blaetter)
+      .then((e) => { if (e?.length) notify('info', 'Letzte Karteikarten-Sitzung nachgemeldet', `${e.length} ${e.length === 1 ? 'Thema' : 'Themen'} an den Lernplan übertragen.`); })
+      .catch(() => undefined)
+      .finally(() => void neuLaden());
+  }, [neuLaden]);
+  // Menü oder Zurück-Taste während einer Sitzung: Sitzung verlassen. Antworten sind schon gespeichert,
+  // das Ergebnis meldet die Sitzung beim Verlassen selbst an den Lernplan.
   useEffect(() => { setSitzung(null); void neuLaden(); }, [ansicht, thema]);
 
   const wechsel = (a: Ansicht) => navigate(`/lernen/karten${a === 'lernen' ? (thema ? `?thema=${encodeURIComponent(thema)}` : '') : `?ansicht=${a}`}`);
