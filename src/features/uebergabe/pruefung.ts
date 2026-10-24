@@ -37,7 +37,7 @@ export function vereinfache(text: string): string {
 }
 
 /** Satzzeichen zu Leerzeichen, außer in Zahlen (38,9 · 92/55 · 14:20) und „?“, „%“. */
-function suchtext(seg: string): string {
+export function suchtext(seg: string): string {
   const t = seg
     .replace(/[,/:](?!\d)|(?<!\d)[,/:]/g, ' ')
     .replace(/[^a-z0-9?%,/:]+/g, ' ');

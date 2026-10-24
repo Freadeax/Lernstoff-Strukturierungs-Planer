@@ -1,0 +1,387 @@
+// Fallvorlagen für den Pflegeplanungs-Trainer. Alle Personen und Werte sind frei erfunden.
+//
+// Muster für die Prüfung per Code (siehe pruefung.ts, gleiche Regeln wie im Übergabe-Trainer):
+// - `muster` sind Alternativen; eine reicht.
+// - Eine Alternative mit „ + “ verlangt alle Teile (z. B. 'nrs + 6').
+// - Text wird vorher vereinfacht: klein, ä→ae, ß→ss, „38 Komma 9“→„38,9“.
+// - Wortteile genügen („sturz“ trifft „Sturzgefahr“), reine Zahlen nur als ganze Zahl.
+
+export type Setting = 'akut' | 'langzeit' | 'ambulant' | 'paediatrie';
+export type ProblemArt = 'aktuell' | 'risiko';
+
+export interface Erwartung {
+  id: string;
+  text: string;          // so wird es angezeigt
+  muster: string[];
+  pflicht: boolean;
+}
+
+export interface ErwartetesProblem extends Erwartung {
+  art: ProblemArt;
+  /** Passende Maßnahmen (Stichworte); eine Fundstelle in irgendeiner Maßnahme genügt. */
+  massnahmen: { text: string; muster: string[] };
+}
+
+export interface PlanFall {
+  id: string;
+  titel: string;
+  setting: Setting;
+  bereich: string;
+  person: string;
+  text: string;                            // Fallbeschreibung, Ausgangslage
+  daten: { label: string; wert: string }[];
+  verlauf: string;                         // wird erst bei der Evaluation gezeigt
+  topicIds: string[];                      // fachliche Themen des Falls (zusätzlich zum Pflegeprozess)
+  info: Erwartung[];                       // wichtige Informationen, die gesammelt werden sollen
+  probleme: ErwartetesProblem[];
+  ressourcen: Erwartung[];
+  beispiel: string;                        // Ausschnitt einer möglichen Planung
+}
+
+/** Pflegeprozess-Themen, die jede Planung abfragt (siehe pruefung.ts, SCHRITT_THEMA). */
+export const PFLEGEPROZESS_THEMEN = ['thema.pp.prozess', 'thema.pp.anamnese', 'thema.pp.diagnosen', 'thema.pp.ziele', 'thema.pp.massnahmen', 'thema.pp.evaluation'];
+
+export const SETTING_LABEL: Record<Setting, string> = {
+  akut: 'Krankenhaus', langzeit: 'Pflegeheim', ambulant: 'Ambulant', paediatrie: 'Kinderklinik',
+};
+
+export const FAELLE: PlanFall[] = [
+  {
+    id: 'huefte',
+    titel: 'Herr Weber nach Hüft-TEP',
+    setting: 'akut',
+    bereich: 'Unfallchirurgie',
+    person: 'Klaus Weber, 78 Jahre',
+    text: 'Herr Weber ist vor zwei Tagen gestürzt und hat gestern eine Hüft-TEP rechts bekommen. Er liegt meist auf dem Rücken und traut sich kaum, sich zu bewegen: „Ich hab Angst, dass das Gelenk rausspringt.“ Bei Bewegung gibt er Schmerzen von 6 auf der NRS an, in Ruhe 2. Seit der Aufnahme hatte er keinen Stuhlgang. Er trinkt wenig, weil er nicht ständig klingeln will. Vor dem Sturz lebte er mit seiner Frau im eigenen Haus und war selbstständig, er möchte bald wieder in seinen Garten.',
+    daten: [
+      { label: 'Diagnose', wert: 'Mediale Schenkelhalsfraktur rechts, Hüft-TEP am 1. postoperativen Tag' },
+      { label: 'Vorerkrankungen', wert: 'Arterielle Hypertonie, leichte Schwerhörigkeit' },
+      { label: 'Schmerz', wert: 'NRS 2 in Ruhe, NRS 6 bei Bewegung; Metamizol 4 × 1 g, Bedarf Piritramid' },
+      { label: 'Mobilität', wert: 'Mobilisation an die Bettkante mit Physiotherapie, Vollbelastung erlaubt' },
+      { label: 'Haut', wert: 'Braden-Skala 14, Rötung über dem Sakrum wegdrückbar' },
+      { label: 'Ausscheidung', wert: 'Letzter Stuhlgang vor 3 Tagen, Blasenkatheter seit OP' },
+      { label: 'Trinkmenge', wert: 'Gestern etwa 800 ml' },
+      { label: 'Sozial', wert: 'Ehefrau (75) besucht täglich, Tochter in der Nähe' },
+    ],
+    verlauf: 'Drei Tage später: Herr Weber bekommt 30 Minuten vor der Mobilisation sein Schmerzmittel und gibt dann NRS 3 bei Bewegung an. Er geht mit dem Rollator 20 Meter über den Flur, beim Aufstehen braucht er noch Hilfe. Die Rötung am Sakrum ist verschwunden. Er trinkt etwa 1200 ml, wenn ihm die Ehefrau Getränke hinstellt. Stuhlgang hatte er gestern nach Gabe von Macrogol. Der Blasenkatheter ist gezogen.',
+    topicIds: ['thema.ph.mobilisation', 'thema.pro.sturz', 'thema.pro.dekubitus', 'thema.pro.thrombose', 'thema.ph.periop'],
+    info: [
+      { id: 'nrs', text: 'Schmerz NRS 6 bei Bewegung, 2 in Ruhe', muster: ['nrs', 'schmerz + 6', '6/10'], pflicht: true },
+      { id: 'angst', text: 'Angst vor Bewegung („Gelenk springt raus“)', muster: ['angst', 'traut sich', 'sorge'], pflicht: true },
+      { id: 'braden', text: 'Braden 14, Rötung am Sakrum', muster: ['braden', 'roetung', 'sakrum', 'steiss'], pflicht: true },
+      { id: 'stuhl', text: 'Kein Stuhlgang seit 3 Tagen', muster: ['stuhl', 'obstipation', 'verstopf'], pflicht: true },
+      { id: 'trinken', text: 'Trinkt nur etwa 800 ml', muster: ['800', 'trink', 'fluessigkeit'], pflicht: true },
+      { id: 'vollbelastung', text: 'Vollbelastung erlaubt', muster: ['vollbelast', 'belastung'], pflicht: false },
+      { id: 'hoeren', text: 'Leichte Schwerhörigkeit', muster: ['schwerhoer', 'hoert schlecht', 'hoeren'], pflicht: false },
+      { id: 'ziel', text: 'Wunsch: zurück nach Hause und in den Garten', muster: ['garten', 'nach hause', 'zuhause', 'heim'], pflicht: false },
+    ],
+    probleme: [
+      { id: 'schmerz', art: 'aktuell', pflicht: true, text: 'Akute Schmerzen bei Bewegung',
+        muster: ['schmerz'], massnahmen: { text: 'Analgetikum vor Mobilisation, Schmerzeinschätzung mit NRS', muster: ['analget', 'schmerzmittel', 'metamizol', 'piritramid', 'bedarf', 'vor der mobilis', 'nrs', 'schmerzeinsch', 'schmerzerfass'] } },
+      { id: 'mobilitaet', art: 'aktuell', pflicht: true, text: 'Beeinträchtigte Mobilität',
+        muster: ['mobil', 'beweg', 'gehen', 'gehfaeh', 'laufen', 'transfer', 'aufstehen'], massnahmen: { text: 'Mobilisation mit Rollator, schrittweise steigern', muster: ['mobilis', 'rollator', 'gehwagen', 'gehstrecke', 'aufstehen', 'bettkante', 'physio'] } },
+      { id: 'sturz', art: 'risiko', pflicht: true, text: 'Sturzgefahr',
+        muster: ['sturz'], massnahmen: { text: 'Sturzprophylaxe: Klingel, festes Schuhwerk, Bett tief, Begleitung', muster: ['klingel', 'schuh', 'bett tief', 'niedrig', 'begleit', 'stolper', 'sturzprophyl', 'hilfsmittel'] } },
+      { id: 'dekubitus', art: 'risiko', pflicht: true, text: 'Dekubitusgefahr',
+        muster: ['dekubitus', 'druckgeschw', 'haut'], massnahmen: { text: 'Positionswechsel, Hautinspektion, Druckentlastung', muster: ['lagerung', 'positionswechsel', 'umlager', 'druckentlast', 'hautinspekt', 'haut kontroll', 'fingertest', 'weichlager', 'mikrolager'] } },
+      { id: 'thrombose', art: 'risiko', pflicht: true, text: 'Thrombosegefahr',
+        muster: ['thrombo'], massnahmen: { text: 'Bewegungsübungen, Kompression, Antikoagulation nach AVO', muster: ['ats', 'kompression', 'strumpf', 'heparin', 'antikoag', 'fusswipp', 'venenpump', 'bewegungsueb', 'sprunggelenk'] } },
+      { id: 'obstipation', art: 'aktuell', pflicht: false, text: 'Obstipation',
+        muster: ['obstipation', 'verstopf', 'stuhl', 'darm'], massnahmen: { text: 'Flüssigkeit, Bewegung, Abführmittel nach AVO, Stuhlprotokoll', muster: ['abfuehr', 'laxan', 'macrogol', 'stuhlprotokoll', 'kolonmassage', 'ballast', 'trinkmenge', 'trinken'] } },
+      { id: 'fluessigkeit', art: 'risiko', pflicht: false, text: 'Gefahr eines Flüssigkeitsdefizits',
+        muster: ['fluessigkeit', 'dehydr', 'exsikk', 'trink'], massnahmen: { text: 'Getränke in Reichweite, Trinkplan, Ein- und Ausfuhr', muster: ['trinkplan', 'reichweite', 'bilanz', 'ein- und ausfuhr', 'einfuhr', 'trinkprotokoll', 'getraenk'] } },
+    ],
+    ressourcen: [
+      { id: 'motiviert', text: 'Motiviert, will zurück in den Garten', muster: ['motiv', 'garten', 'will', 'moechte', 'wunsch'], pflicht: true },
+      { id: 'familie', text: 'Ehefrau und Tochter unterstützen', muster: ['ehefrau', 'frau', 'tochter', 'angehoer', 'familie'], pflicht: true },
+      { id: 'orientiert', text: 'Orientiert, kann sich mitteilen', muster: ['orientiert', 'mitteil', 'kommunik', 'aeussert', 'klar', 'wach'], pflicht: false },
+      { id: 'vorher', text: 'Vor dem Sturz selbstständig', muster: ['selbststaendig', 'selbstaendig', 'vorher', 'zuvor'], pflicht: false },
+    ],
+    beispiel: `P: Akute Schmerzen bei Bewegung im rechten Hüftgelenk
+E: beeinflusst durch Operationswunde nach Hüft-TEP
+S: angezeigt durch NRS 6 bei Bewegung, Schonhaltung
+R: kann Schmerzen benennen und einschätzen, nimmt Schmerzmittel an
+
+Ziel: Herr Weber gibt bei der Mobilisation höchstens NRS 3 an. Überprüfung: täglich, Ziel bis in 3 Tagen.
+Maßnahme: 30 Minuten vor jeder Mobilisation Bedarfsmedikation nach AVO anbieten (Pflegefachperson), Schmerz mit NRS vor und 30 Min. nach Gabe erfassen und dokumentieren.
+
+P: Sturzgefahr
+E: beeinflusst durch Schmerzen, Angst vor Bewegung, neue Gehhilfe
+R: motiviert, kann klingeln, Ehefrau ist täglich da
+
+Ziel: Herr Weber stürzt während des Aufenthalts nicht und klingelt vor jedem Aufstehen.
+Maßnahme: Bett in tiefster Position, Klingel und Rollator in Reichweite (bei jeder Versorgung), festes Schuhwerk; Begleitung bei jedem Gang bis zur sicheren Gehfähigkeit.`,
+  },
+  {
+    id: 'demenz-ernaehrung',
+    titel: 'Frau Schmitt isst immer weniger',
+    setting: 'langzeit',
+    bereich: 'Stationäre Langzeitpflege',
+    person: 'Gertrud Schmitt, 86 Jahre',
+    text: 'Frau Schmitt lebt seit einem Jahr im Pflegeheim und hat eine mittelgradige Alzheimer-Demenz. In den letzten drei Monaten hat sie 4 kg abgenommen. Beim Essen im Speisesaal steht sie oft nach wenigen Bissen auf und läuft über den Flur. Vom Hauptgericht isst sie meist weniger als die Hälfte, Kuchen und Pudding isst sie gern ganz. Sie trinkt am Tag etwa 900 ml. Nachts ist sie häufig unruhig und war zweimal auf dem Weg zur Toilette verunsichert. Sie geht ohne Hilfsmittel, ist aber unsicher im Dunkeln. Ihr Sohn kommt zweimal pro Woche, sie singt gern Volkslieder mit.',
+    daten: [
+      { label: 'Diagnose', wert: 'Alzheimer-Demenz, mittelgradig' },
+      { label: 'Gewicht', wert: '52 kg bei 1,65 m (BMI 19), vor 3 Monaten 56 kg' },
+      { label: 'Screening', wert: 'MNA-SF 6 Punkte (Mangelernährung)' },
+      { label: 'Trinkmenge', wert: 'Etwa 900 ml am Tag' },
+      { label: 'Zähne', wert: 'Oberkiefer-Prothese, sitzt locker' },
+      { label: 'Mobilität', wert: 'Läuft selbstständig, nachts unsicher, ein Beinahe-Sturz vor einer Woche' },
+      { label: 'Biografie', wert: 'Früher Hauswirtschafterin, backte gern, steht früh auf' },
+      { label: 'Sozial', wert: 'Sohn besucht zweimal pro Woche' },
+    ],
+    verlauf: 'Vier Wochen später: Frau Schmitt bekommt Fingerfood und kleine Portionen, die sie im Gehen essen kann. Sie isst morgens in der Wohnküche mit zwei Mitbewohnerinnen. Ihr Gewicht ist stabil bei 52 kg, zugenommen hat sie nicht. Die Prothese wurde vom Zahnarzt unterfüttert. Sie trinkt etwa 1300 ml, wenn ihr jede Stunde ein Getränk angeboten wird. Nachts brennt ein Orientierungslicht, gestürzt ist sie nicht.',
+    topicIds: ['thema.kl.demenz', 'thema.ph.ernaehrung', 'thema.pro.dehydratation', 'thema.pro.sturz'],
+    info: [
+      { id: 'gewicht', text: 'Gewichtsverlust 4 kg in 3 Monaten, BMI 19', muster: ['4 kg', 'abgenommen', 'gewichtsverlust', 'bmi'], pflicht: true },
+      { id: 'mna', text: 'MNA-SF 6 Punkte', muster: ['mna', 'screening'], pflicht: false },
+      { id: 'portion', text: 'Isst weniger als die Hälfte, steht beim Essen auf', muster: ['haelfte', 'steht auf', 'laeuft weg', 'bissen', 'unruhig beim essen', 'wenig'], pflicht: true },
+      { id: 'vorliebe', text: 'Mag Süßes (Kuchen, Pudding)', muster: ['suess', 'kuchen', 'pudding'], pflicht: true },
+      { id: 'trinken', text: 'Trinkt etwa 900 ml', muster: ['900', 'trink'], pflicht: true },
+      { id: 'prothese', text: 'Prothese sitzt locker', muster: ['prothese', 'gebiss', 'zahn'], pflicht: true },
+      { id: 'nacht', text: 'Nachts unruhig und unsicher, Beinahe-Sturz', muster: ['nacht', 'beinahe', 'dunkel'], pflicht: true },
+      { id: 'bio', text: 'Biografie: Hauswirtschafterin, backte gern', muster: ['hauswirtschaft', 'backt', 'biograf'], pflicht: false },
+    ],
+    probleme: [
+      { id: 'ernaehrung', art: 'aktuell', pflicht: true, text: 'Mangelernährung',
+        muster: ['ernaehr', 'nahrung', 'gewicht', 'essen', 'isst', 'mangel', 'unterernaehr'], massnahmen: { text: 'Fingerfood, kleine Portionen, Vorlieben, Wunschkost, Gewicht wöchentlich', muster: ['fingerfood', 'eat by walking', 'im gehen', 'kleine portion', 'zwischenmahlzeit', 'hochkalor', 'anreicher', 'vorlieb', 'wunsch', 'suess', 'gewicht', 'wiegen', 'ernaehrungsprotokoll', 'tellerprotokoll'] } },
+      { id: 'fluessigkeit', art: 'risiko', pflicht: true, text: 'Gefahr eines Flüssigkeitsdefizits',
+        muster: ['fluessigkeit', 'dehydr', 'exsikk', 'trink'], massnahmen: { text: 'Getränke regelmäßig anbieten, Trinkprotokoll', muster: ['trinkprotokoll', 'trinkplan', 'anbieten', 'stuendlich', 'jede stunde', 'getraenk', 'bilanz'] } },
+      { id: 'sturz', art: 'risiko', pflicht: true, text: 'Sturzgefahr (nachts)',
+        muster: ['sturz'], massnahmen: { text: 'Orientierungslicht, Wege frei, feste Schuhe, Toilettengang begleiten', muster: ['licht', 'nachtlicht', 'beleucht', 'schuh', 'stolper', 'toilettengang', 'begleit', 'sensormatte', 'hueftprotektor', 'bett tief'] } },
+      { id: 'orientierung', art: 'aktuell', pflicht: false, text: 'Beeinträchtigte Orientierung, Unruhe',
+        muster: ['orientier', 'unruh', 'verwirr', 'kognit', 'gedaechtnis', 'erinner'], massnahmen: { text: 'Feste Tagesstruktur, Validation, Biografiearbeit', muster: ['tagesstruktur', 'validation', 'biograf', 'ritual', 'singen', 'lied', 'beschaeftig', 'backen', 'orientierungshilf'] } },
+      { id: 'mund', art: 'aktuell', pflicht: false, text: 'Beeinträchtigte Kaufähigkeit (lockere Prothese)',
+        muster: ['prothese', 'kau', 'zahn', 'mund'], massnahmen: { text: 'Zahnarzt informieren, Prothesenhaftcreme, weiche Kost', muster: ['zahnarzt', 'haftcreme', 'haftmittel', 'unterfuetter', 'weiche kost', 'prothese'] } },
+    ],
+    ressourcen: [
+      { id: 'mobil', text: 'Läuft selbstständig', muster: ['laeuft', 'geht', 'mobil', 'selbststaendig'], pflicht: true },
+      { id: 'suess', text: 'Isst Süßes gern', muster: ['suess', 'kuchen', 'pudding', 'mag'], pflicht: true },
+      { id: 'sohn', text: 'Sohn besucht regelmäßig', muster: ['sohn', 'angehoer', 'besuch'], pflicht: false },
+      { id: 'singen', text: 'Singt gern, Biografie Hauswirtschaft', muster: ['sing', 'lied', 'musik', 'backt', 'hauswirtschaft'], pflicht: false },
+    ],
+    beispiel: `P: Mangelernährung
+E: beeinflusst durch Bewegungsdrang beim Essen, verminderte Konzentration bei Demenz, lockere Zahnprothese
+S: angezeigt durch Gewichtsverlust von 4 kg in 3 Monaten, BMI 19, MNA-SF 6
+R: läuft selbstständig, isst Süßes gern, Biografie: hat gern gebacken
+
+Ziel: Frau Schmitt hält ihr Gewicht von 52 kg. Überprüfung: wöchentliches Wiegen, Auswertung in 4 Wochen.
+Maßnahme: Zu jeder Mahlzeit Fingerfood in kleinen Portionen anbieten, das sie im Gehen essen kann (Bezugspflegekraft); zweimal täglich eine süße, kalorienreiche Zwischenmahlzeit; Tellerprotokoll führen.`,
+  },
+  {
+    id: 'diabetes-insulin',
+    titel: 'Herr Yılmaz beginnt mit Insulin',
+    setting: 'akut',
+    bereich: 'Innere Medizin',
+    person: 'Mehmet Yılmaz, 62 Jahre',
+    text: 'Herr Yılmaz hat seit acht Jahren Diabetes mellitus Typ 2. Wegen hoher Werte (HbA1c 9,8 %) wird er auf Insulin umgestellt. Er sagt: „Spritzen kann ich nicht, ich hab Angst vor Nadeln.“ Er sieht schlecht in der Nähe und hat seine Lesebrille zu Hause vergessen. An beiden Füßen hat er ein vermindertes Berührungsempfinden, die Fußnägel sind lang und verdickt. Er arbeitet noch als Busfahrer im Schichtdienst und isst unregelmäßig. Seine Frau kocht und möchte bei der Schulung dabei sein.',
+    daten: [
+      { label: 'Diagnose', wert: 'Diabetes mellitus Typ 2, Neueinstellung auf Basal-Bolus-Insulin' },
+      { label: 'Werte', wert: 'HbA1c 9,8 %, BZ nüchtern 210 mg/dl, gestern um 16 Uhr 68 mg/dl nach ausgelassenem Mittagessen' },
+      { label: 'Füße', wert: 'Monofilament-Test beidseits vermindert, Haut trocken, Nägel verdickt' },
+      { label: 'Sehen', wert: 'Weitsichtig, Lesebrille vergessen' },
+      { label: 'Beruf', wert: 'Busfahrer im Schichtdienst' },
+      { label: 'Sozial', wert: 'Verheiratet, Ehefrau kocht, zwei erwachsene Kinder' },
+      { label: 'Sprache', wert: 'Spricht gut Deutsch, liest lieber Türkisch' },
+    ],
+    verlauf: 'Fünf Tage später: Herr Yılmaz misst seinen Blutzucker selbst und schreibt die Werte in ein Tagebuch. Den Pen bereitet er mit Lesebrille richtig vor und spritzt nach anfänglichem Zögern selbst in den Bauch. Die Ehefrau kennt die Zeichen einer Unterzuckerung und weiß, was zu tun ist. Er selbst kann zwei von fünf Zeichen nennen. Eine Hypoglykämie trat nicht mehr auf. Termin bei der Podologie ist vereinbart, Fußinspektion macht er noch nicht.',
+    topicIds: ['thema.kl.diabetes', 'thema.ph.injektion', 'thema.kom.beratung'],
+    info: [
+      { id: 'angst', text: 'Angst vor Nadeln, „Spritzen kann ich nicht“', muster: ['angst', 'nadel', 'spritzen kann'], pflicht: true },
+      { id: 'hba1c', text: 'HbA1c 9,8 %, BZ nüchtern 210 mg/dl', muster: ['hba1c', '9,8', '210'], pflicht: true },
+      { id: 'hypo', text: 'Hypoglykämie 68 mg/dl nach ausgelassenem Essen', muster: ['68', 'hypo', 'unterzucker'], pflicht: true },
+      { id: 'fuss', text: 'Vermindertes Berührungsempfinden an den Füßen', muster: ['monofilament', 'beruehrung', 'empfind', 'neuropath', 'fuesse', 'fuss'], pflicht: true },
+      { id: 'sehen', text: 'Sieht in der Nähe schlecht, Lesebrille fehlt', muster: ['brille', 'sehen', 'sieht', 'weitsicht'], pflicht: true },
+      { id: 'beruf', text: 'Busfahrer im Schichtdienst, isst unregelmäßig', muster: ['busfahr', 'schicht', 'unregelmaessig'], pflicht: true },
+      { id: 'sprache', text: 'Liest lieber Türkisch', muster: ['tuerkisch', 'sprache', 'muttersprach'], pflicht: false },
+    ],
+    probleme: [
+      { id: 'wissen', art: 'aktuell', pflicht: true, text: 'Fehlendes Wissen und Können zur Insulintherapie',
+        muster: ['wissen', 'kenntnis', 'umgang', 'selbstmanage', 'insulin', 'injektion', 'spritz', 'informations'], massnahmen: { text: 'Schulung Pen-Technik, Blutzucker selbst messen, Schritt für Schritt üben', muster: ['schul', 'anleit', 'beratung', 'ueben', 'pen', 'demonstr', 'selbst messen', 'bz-messung', 'blutzuckermess', 'tagebuch'] } },
+      { id: 'angst', art: 'aktuell', pflicht: true, text: 'Angst vor dem Spritzen',
+        muster: ['angst', 'nadel', 'furcht'], massnahmen: { text: 'Gespräch, Angst ernst nehmen, kurze Nadel zeigen, erst am Übungskissen', muster: ['gespraech', 'ernst nehmen', 'uebungskissen', 'kissen', 'nadel zeigen', 'kurze nadel', 'zuerst', 'begleit', 'ermutig'] } },
+      { id: 'hypo', art: 'risiko', pflicht: true, text: 'Gefahr einer Hypoglykämie',
+        muster: ['hypo', 'unterzucker', 'blutzucker', 'bz'], massnahmen: { text: 'Zeichen der Unterzuckerung schulen, Traubenzucker dabei, BZ-Kontrollen', muster: ['traubenzucker', 'zeichen', 'symptom', 'kohlenhydrat', 'bz-kontroll', 'blutzuckerkontroll', 'bz messen', 'mahlzeit'] } },
+      { id: 'fuss', art: 'risiko', pflicht: true, text: 'Gefahr eines diabetischen Fußsyndroms (Hautschädigung)',
+        muster: ['fuss', 'haut', 'wunde', 'verletz', 'ulkus', 'ulcus'], massnahmen: { text: 'Tägliche Fußinspektion, Podologie, passende Schuhe, Hautpflege', muster: ['fussinspekt', 'fuesse kontroll', 'fuesse taeglich', 'spiegel', 'podolog', 'fusspflege', 'schuh', 'eincremen', 'hautpflege', 'harnstoff'] } },
+    ],
+    ressourcen: [
+      { id: 'frau', text: 'Ehefrau unterstützt und will mitlernen', muster: ['ehefrau', 'frau', 'familie', 'angehoer'], pflicht: true },
+      { id: 'deutsch', text: 'Spricht gut Deutsch, kann lesen (mit Brille)', muster: ['deutsch', 'lesen', 'liest', 'versteht', 'kommunik'], pflicht: false },
+      { id: 'selbst', text: 'Selbstständig, steht im Berufsleben', muster: ['selbststaendig', 'beruf', 'arbeit', 'aktiv', 'mobil'], pflicht: false },
+      { id: 'offen', text: 'Spricht seine Angst offen an', muster: ['offen', 'aeussert', 'spricht', 'ehrlich'], pflicht: false },
+    ],
+    beispiel: `P: Fehlende Fähigkeit, Insulin selbst zu spritzen
+E: beeinflusst durch Angst vor Nadeln, neue Therapie, fehlende Lesebrille
+S: angezeigt durch Aussage „Spritzen kann ich nicht“, hat noch nie einen Pen benutzt
+R: motiviert, Ehefrau will mitlernen, spricht seine Angst offen aus
+
+Ziel: Herr Yılmaz bereitet den Insulin-Pen mit Brille richtig vor und spritzt sich bis zur Entlassung (in 5 Tagen) selbst in die Bauchhaut.
+Maßnahme: Lesebrille von der Ehefrau mitbringen lassen; täglich vor dem Frühstück Pen-Technik zeigen, dann von Herrn Yılmaz am Übungskissen und danach am eigenen Bauch durchführen lassen (Pflegefachperson, Diabetesberatung).`,
+  },
+  {
+    id: 'copd-ambulant',
+    titel: 'Frau Berger bekommt schlecht Luft',
+    setting: 'ambulant',
+    bereich: 'Ambulanter Pflegedienst',
+    person: 'Hannelore Berger, 74 Jahre',
+    text: 'Frau Berger hat eine COPD und lebt allein in einer Wohnung im zweiten Stock ohne Aufzug. Der Pflegedienst kommt morgens zur Unterstützung beim Duschen. Beim Waschen und Anziehen muss sie oft Pausen machen und ist danach erschöpft. Seit einem Jahr verlässt sie die Wohnung kaum noch, ihr Hund wird von der Nachbarin ausgeführt. Sie hustet morgens zähen, weißlichen Schleim ab. Sie raucht noch fünf Zigaretten am Tag. Die Lippenbremse kennt sie aus der Reha, wendet sie aber selten an. Sie sagt: „Ich bin nur noch eine Last.“',
+    daten: [
+      { label: 'Diagnose', wert: 'COPD GOLD 3, Langzeit-Sauerstoff 2 l/min bei Belastung' },
+      { label: 'Werte', wert: 'SpO₂ in Ruhe 91 %, nach dem Duschen 86 %, AF 26/min nach Belastung' },
+      { label: 'Medikamente', wert: 'Inhalative Dauertherapie, Notfallspray' },
+      { label: 'Gewicht', wert: '58 kg bei 1,68 m' },
+      { label: 'Wohnung', wert: '2. Stock ohne Aufzug, Badewanne mit Duschvorhang' },
+      { label: 'Sozial', wert: 'Verwitwet, Tochter wohnt 200 km entfernt, Nachbarin hilft beim Einkaufen' },
+      { label: 'Pflegegrad', wert: '2' },
+    ],
+    verlauf: 'Sechs Wochen später: Frau Berger setzt sich beim Waschen auf einen Duschhocker und macht die Lippenbremse, wenn der Pflegedienst sie daran erinnert. Die SpO₂ nach dem Duschen liegt bei 89 % mit Sauerstoff. Sie raucht weiter drei Zigaretten am Tag. Einmal pro Woche geht sie mit der Nachbarin und dem Hund bis zur Bank vor dem Haus. Einen Platz in einer Lungensportgruppe lehnt sie ab.',
+    topicIds: ['thema.kl.atmung', 'thema.pro.pneumonie', 'thema.ph.koerperpflege', 'thema.fa.ambulant'],
+    info: [
+      { id: 'spo2', text: 'SpO₂ 91 % in Ruhe, 86 % nach dem Duschen', muster: ['spo2', 'saettig', '86', '91'], pflicht: true },
+      { id: 'erschoepft', text: 'Pausen und Erschöpfung bei Waschen und Anziehen', muster: ['erschoepf', 'pause', 'anstreng', 'luftnot', 'atemnot', 'dyspnoe'], pflicht: true },
+      { id: 'schleim', text: 'Zäher Schleim morgens', muster: ['schleim', 'sekret', 'auswurf', 'sputum', 'husten'], pflicht: true },
+      { id: 'rauchen', text: 'Raucht 5 Zigaretten am Tag', muster: ['rauch', 'zigarett', 'nikotin'], pflicht: true },
+      { id: 'lippenbremse', text: 'Kennt Lippenbremse, nutzt sie selten', muster: ['lippenbremse'], pflicht: true },
+      { id: 'isolation', text: 'Verlässt die Wohnung kaum, „nur noch eine Last“', muster: ['last', 'kaum', 'verlaesst', 'isol', 'allein', 'rueckzug'], pflicht: true },
+      { id: 'wohnung', text: '2. Stock ohne Aufzug, Badewanne', muster: ['stock', 'aufzug', 'treppe', 'badewanne'], pflicht: false },
+    ],
+    probleme: [
+      { id: 'atmung', art: 'aktuell', pflicht: true, text: 'Atemnot bei Belastung',
+        muster: ['atem', 'luft', 'dyspnoe', 'gasaustausch', 'sauerstoff'], massnahmen: { text: 'Lippenbremse, atemerleichternde Sitzpositionen, O₂ nach AVO', muster: ['lippenbremse', 'kutschersitz', 'torwart', 'atemerleicht', 'sauerstoff', 'o2', 'atemuebung', 'atemtherap'] } },
+      { id: 'selbstversorgung', art: 'aktuell', pflicht: true, text: 'Eingeschränkte Selbstversorgung (Körperpflege)',
+        muster: ['selbstversorg', 'koerperpflege', 'waschen', 'anziehen', 'duschen', 'kleiden'], massnahmen: { text: 'Duschhocker, Pausen einplanen, Hilfe bei Beinen und Rücken', muster: ['duschhocker', 'hocker', 'sitzen', 'pausen', 'pause', 'badewannenbrett', 'unterstuetz', 'teilweise uebernahme', 'hilfsmittel'] } },
+      { id: 'sekret', art: 'aktuell', pflicht: false, text: 'Erschwertes Abhusten (Sekretstau)',
+        muster: ['sekret', 'schleim', 'abhust', 'husten', 'atemweg'], massnahmen: { text: 'Trinken, Inhalation, Hustentechnik', muster: ['inhal', 'hustentechnik', 'trinken', 'fluessigkeit', 'abhust', 'flutter', 'sekretmobil'] } },
+      { id: 'pneumonie', art: 'risiko', pflicht: true, text: 'Pneumoniegefahr',
+        muster: ['pneumonie', 'infekt', 'lungenentz'], massnahmen: { text: 'Atemübungen, Rauchentwöhnung beraten, Impfungen ansprechen', muster: ['atemuebung', 'atemtrain', 'rauchentwoehn', 'rauchstopp', 'impf', 'mundpflege', 'mobilis'] } },
+      { id: 'sozial', art: 'aktuell', pflicht: true, text: 'Soziale Isolation, Gefühl, eine Last zu sein',
+        muster: ['isol', 'einsam', 'sozial', 'rueckzug', 'last', 'selbstwert', 'teilhabe'], massnahmen: { text: 'Gespräch, Kontakte fördern, Lungensport oder Besuchsdienst vorschlagen', muster: ['gespraech', 'kontakt', 'besuchsdienst', 'selbsthilfe', 'lungensport', 'nachbarin', 'tochter', 'telefon', 'spazier', 'hund'] } },
+    ],
+    ressourcen: [
+      { id: 'lippenbremse', text: 'Kennt die Lippenbremse aus der Reha', muster: ['lippenbremse', 'reha', 'kennt'], pflicht: true },
+      { id: 'nachbarin', text: 'Nachbarin hilft, Hund', muster: ['nachbar', 'hund'], pflicht: true },
+      { id: 'tochter', text: 'Tochter (telefonisch)', muster: ['tochter'], pflicht: false },
+      { id: 'mitarbeit', text: 'Wäscht Oberkörper selbst, nimmt Hilfe an', muster: ['selbst', 'nimmt', 'mitarbeit', 'oberkoerper', 'kooperativ'], pflicht: false },
+    ],
+    beispiel: `P: Atemnot bei Belastung (Körperpflege)
+E: beeinflusst durch COPD GOLD 3, Rauchen
+S: angezeigt durch SpO₂ 86 % und AF 26/min nach dem Duschen, Pausen beim Anziehen
+R: kennt die Lippenbremse aus der Reha, hat Sauerstoff zu Hause
+
+Ziel: Frau Berger wendet beim Duschen selbstständig die Lippenbremse an, die SpO₂ liegt danach mit Sauerstoff bei mindestens 88 %. Überprüfung: in 2 Wochen.
+Maßnahme: Bei jedem Einsatz vor dem Duschen Sauerstoff nach AVO anlegen, Duschhocker nutzen, an die Lippenbremse erinnern und gemeinsam üben; SpO₂ vor und nach dem Duschen messen und dokumentieren (Pflegefachperson).`,
+  },
+  {
+    id: 'kind-gastroenteritis',
+    titel: 'Lena mit Magen-Darm-Infekt',
+    setting: 'paediatrie',
+    bereich: 'Kinderstation',
+    person: 'Lena, 4 Jahre',
+    text: 'Lena wird mit ihrer Mutter aufgenommen. Seit gestern hat sie sechsmal erbrochen und achtmal dünnen Stuhl gehabt. Sie wirkt müde, die Lippen sind trocken, sie weint ohne Tränen. Trinken will sie nur Apfelsaft, Tee lehnt sie ab. Sie hat 38,9 °C Fieber. Der Po ist gerötet. Lena klammert sich an ihre Mutter und fängt an zu weinen, sobald jemand in einem Kittel ins Zimmer kommt. Ihr Kuscheltier, ein Hase, ist immer dabei. Die Mutter möchte bei ihr bleiben, macht sich Vorwürfe und fragt, was sie falsch gemacht hat.',
+    daten: [
+      { label: 'Diagnose', wert: 'Akute Gastroenteritis (Noroviren), mittelgradige Dehydratation' },
+      { label: 'Gewicht', wert: '15,2 kg (vor einer Woche 16 kg)' },
+      { label: 'Werte', wert: 'Temperatur 38,9 °C, Puls 132/min, Rekapillarisierung 3 Sekunden' },
+      { label: 'Ausscheidung', wert: 'Letzte nasse Windel vor 7 Stunden (nachts noch Windel)' },
+      { label: 'Haut', wert: 'Windelbereich gerötet, nicht offen' },
+      { label: 'Ärztliche Anordnung', wert: 'Orale Rehydratation, ggf. Magensonde, Isolation' },
+      { label: 'Sozial', wert: 'Mutter als Begleitperson aufgenommen' },
+    ],
+    verlauf: 'Zwei Tage später: Lena trinkt die Rehydratationslösung aus einem Becher mit Strohhalm, wenn ihre Mutter ihr nach jedem Stuhlgang 100 ml anbietet. Sie hat einmal erbrochen, dreimal Stuhl. Sie wiegt 15,6 kg und hat wieder Tränen. Temperatur 37,6 °C. Der Po ist weiter leicht gerötet. Lena lässt sich mit dem Hasen auf dem Arm messen. Die Mutter weiß, wie sie zu Hause die Hände desinfiziert und Lenas Trinkmenge beobachtet.',
+    topicIds: ['thema.kl.paediatrie', 'thema.pro.dehydratation', 'thema.kl.infektion', 'thema.ph.hygiene', 'thema.fa.paediatrie'],
+    info: [
+      { id: 'verlust', text: '6 × Erbrechen, 8 × Durchfall', muster: ['erbroch', 'erbrech', 'durchfall', 'diarrh', 'duenn'], pflicht: true },
+      { id: 'zeichen', text: 'Trockene Lippen, keine Tränen, müde', muster: ['lippen', 'traenen', 'muede', 'trocken'], pflicht: true },
+      { id: 'gewicht', text: 'Gewicht 15,2 kg statt 16 kg', muster: ['15,2', 'gewicht', '800 g', '5 %'], pflicht: true },
+      { id: 'windel', text: 'Letzte nasse Windel vor 7 Stunden', muster: ['windel', 'urin', 'ausscheid'], pflicht: true },
+      { id: 'fieber', text: 'Fieber 38,9 °C, Puls 132', muster: ['38,9', 'fieber', 'temperatur', '132'], pflicht: true },
+      { id: 'po', text: 'Gerötete Haut im Windelbereich', muster: [' po ', 'windelbereich', 'gesaess', 'roet', 'dermatitis'], pflicht: true },
+      { id: 'angst', text: 'Angst vor Personal im Kittel, Kuscheltier', muster: ['angst', 'weint', 'klammert', 'kittel', 'hase', 'kuscheltier'], pflicht: true },
+      { id: 'mutter', text: 'Mutter macht sich Vorwürfe', muster: ['vorwuerf', 'schuld', 'falsch gemacht'], pflicht: false },
+    ],
+    probleme: [
+      { id: 'fluessigkeit', art: 'aktuell', pflicht: true, text: 'Flüssigkeitsdefizit',
+        muster: ['fluessigkeit', 'dehydr', 'exsikk', 'wasserhaushalt', 'trink'], massnahmen: { text: 'Orale Rehydratation in kleinen Mengen, Bilanz, Windeln wiegen, Gewicht täglich', muster: ['rehydrat', 'ors', 'elektrolytl', 'teeloeffel', 'kleine schluck', 'kleinen mengen', 'loeffel', 'bilanz', 'windel wiegen', 'windeln wiegen', 'gewicht', 'trinkprotokoll', 'strohhalm', 'becher'] } },
+      { id: 'haut', art: 'risiko', pflicht: true, text: 'Gefahr einer Hautschädigung im Windelbereich',
+        muster: ['haut', 'windel', 'dermatitis', 'intertrigo', ' po ', 'gesaess'], massnahmen: { text: 'Häufig wickeln, sanft reinigen, Zinkpaste, Luft an die Haut', muster: ['wickeln', 'windelwechsel', 'zink', 'schutzcreme', 'hautschutz', 'luft', 'trocken tupf', 'reinig', 'inspekt'] } },
+      { id: 'fieber', art: 'aktuell', pflicht: false, text: 'Erhöhte Körpertemperatur',
+        muster: ['fieber', 'temperatur', 'hypertherm'], massnahmen: { text: 'Temperatur messen, leichte Kleidung, Fiebersenkung nach AVO', muster: ['temperatur mess', 'temperaturkontroll', 'fieber mess', 'leichte kleid', 'wadenwick', 'antipyret', 'paracetamol', 'ibuprofen'] } },
+      { id: 'angst', art: 'aktuell', pflicht: true, text: 'Angst in fremder Umgebung',
+        muster: ['angst', 'furcht', 'trennung', 'fremd'], massnahmen: { text: 'Mutter einbeziehen, Kuscheltier, kindgerecht erklären, wenig wechselndes Personal', muster: ['mutter', 'kuscheltier', 'hase', 'kindgerecht', 'erklaer', 'spiel', 'bezugspfleg', 'ruhig', 'zeit lassen'] } },
+      { id: 'infektion', art: 'risiko', pflicht: false, text: 'Gefahr der Übertragung (Noroviren)',
+        muster: ['infekt', 'uebertrag', 'noro', 'ansteck', 'isolation', 'hygiene'], massnahmen: { text: 'Isolation, Händedesinfektion (viruzid), Mutter anleiten', muster: ['isolation', 'isolier', 'haendedesinf', 'desinf', 'viruzid', 'schutzkittel', 'handschuh', 'hygien'] } },
+    ],
+    ressourcen: [
+      { id: 'mutter', text: 'Mutter bleibt und hilft mit', muster: ['mutter', 'eltern', 'mama'], pflicht: true },
+      { id: 'saft', text: 'Trinkt gern Apfelsaft', muster: ['apfelsaft', 'saft', 'trinkt gern', 'mag'], pflicht: true },
+      { id: 'hase', text: 'Kuscheltier gibt Sicherheit', muster: ['hase', 'kuscheltier'], pflicht: false },
+    ],
+    beispiel: `P: Flüssigkeitsdefizit
+E: beeinflusst durch Erbrechen und Durchfall bei Gastroenteritis, lehnt Tee ab
+S: angezeigt durch Gewichtsverlust von 0,8 kg, trockene Lippen, keine Tränen, letzte nasse Windel vor 7 Stunden
+R: Mutter ist anwesend, Lena trinkt gern Apfelsaft
+
+Ziel: Lena hat innerhalb von 24 Stunden wieder eine nasse Windel mindestens alle 4 Stunden und weint mit Tränen.
+Maßnahme: Mutter anleiten, alle 5 Minuten einen Teelöffel Rehydratationslösung (mit etwas Apfelsaft) zu geben, nach jedem Stuhlgang zusätzlich 100 ml anbieten; Windeln wiegen, Ein- und Ausfuhr bilanzieren, täglich morgens wiegen (Pflegefachperson mit Mutter).`,
+  },
+  {
+    id: 'schlaganfall',
+    titel: 'Herr Krüger nach Schlaganfall',
+    setting: 'akut',
+    bereich: 'Stroke Unit',
+    person: 'Peter Krüger, 70 Jahre',
+    text: 'Herr Krüger hatte vor drei Tagen einen Schlaganfall rechts. Sein linker Arm und das linke Bein sind deutlich geschwächt. Beim Trinken von Wasser hustet er, nach dem Schlucken klingt seine Stimme feucht. Er übersieht oft Dinge auf seiner linken Seite, der Teller wird nur rechts leer gegessen. Er möchte allein zur Toilette, hat sich gestern ohne zu klingeln an die Bettkante gesetzt und wäre fast herausgerutscht. Sprechen kann er gut, er ist ungeduldig: „Ich will hier raus.“ Seine Frau besucht ihn jeden Nachmittag.',
+    daten: [
+      { label: 'Diagnose', wert: 'Ischämischer Schlaganfall rechts (Mediainfarkt), Hemiparese links, Neglect links' },
+      { label: 'Schlucken', wert: 'Schluckscreening auffällig: Husten bei Wasser, feuchte Stimme; Logopädie angefordert' },
+      { label: 'Kost', wert: 'Andickung der Getränke, pürierte Kost bis zur logopädischen Untersuchung' },
+      { label: 'Mobilität', wert: 'Sitzt mit Unterstützung an der Bettkante, Transfer nur mit Hilfe' },
+      { label: 'Arm links', wert: 'Hängt herab, Schulter schmerzt bei Bewegung' },
+      { label: 'Kontinenz', wert: 'Drangsymptomatik, schafft es nicht rechtzeitig' },
+      { label: 'Sozial', wert: 'Verheiratet, Ehefrau täglich da, wohnen im Erdgeschoss' },
+    ],
+    verlauf: 'Eine Woche später: Herr Krüger isst angedickte Kost und trinkt angedickte Getränke aufrecht im Stuhl sitzend, Husten beim Essen tritt selten auf. Fieber oder Zeichen einer Aspiration gab es nicht. Er klingelt vor dem Aufstehen, wenn die Klingel rechts liegt; einmal hat er es vergessen. Mit Hilfe einer Pflegeperson geht er mit Vierpunktstock 10 Meter. Die linke Schulter schmerzt weniger, wenn der Arm auf einem Kissen liegt. Seine Frau hat gelernt, ihn von links anzusprechen.',
+    topicIds: ['thema.kl.neuro.schlaganfall', 'thema.pro.aspiration', 'thema.pro.sturz', 'thema.pro.kontraktur', 'thema.ph.mobilisation'],
+    info: [
+      { id: 'parese', text: 'Hemiparese links', muster: ['hemipar', 'parese', 'laehm', 'geschwaecht', 'schwaech'], pflicht: true },
+      { id: 'schlucken', text: 'Husten beim Trinken, feuchte Stimme', muster: ['husten', 'feuchte stimme', 'schluck', 'dysphag'], pflicht: true },
+      { id: 'neglect', text: 'Übersieht die linke Seite (Neglect)', muster: ['neglect', 'uebersieht', 'linke seite', 'links nicht'], pflicht: true },
+      { id: 'beinahe', text: 'Ohne Klingeln aufgestanden, fast gestürzt', muster: ['klingel', 'fast', 'beinahe', 'gerutscht'], pflicht: true },
+      { id: 'schulter', text: 'Linke Schulter schmerzt, Arm hängt', muster: ['schulter', 'arm haengt', 'subluxation'], pflicht: true },
+      { id: 'drang', text: 'Drang, schafft Toilette nicht rechtzeitig', muster: ['drang', 'inkontin', 'rechtzeitig', 'toilette'], pflicht: false },
+      { id: 'ungeduld', text: 'Ungeduldig, „Ich will hier raus“', muster: ['ungeduld', 'will hier raus', 'frust'], pflicht: false },
+    ],
+    probleme: [
+      { id: 'aspiration', art: 'risiko', pflicht: true, text: 'Aspirationsgefahr',
+        muster: ['aspiration', 'verschluck', 'schluck', 'dysphag'], massnahmen: { text: 'Aufrecht sitzend essen, angedickte Kost, Logopädie, Mundpflege', muster: ['andick', 'puerier', 'aufrecht', '90', 'oberkoerper hoch', 'logopaed', 'kleine bissen', 'mundpflege', 'nachkontroll', 'schlucktrain'] } },
+      { id: 'sturz', art: 'risiko', pflicht: true, text: 'Sturzgefahr',
+        muster: ['sturz'], massnahmen: { text: 'Klingel rechts, Bett tief, Begleitung beim Transfer, Toilettengänge planen', muster: ['klingel', 'bett tief', 'niedrig', 'rechts', 'begleit', 'transfer', 'toilettengang', 'sensormatte', 'schuh'] } },
+      { id: 'mobilitaet', art: 'aktuell', pflicht: true, text: 'Beeinträchtigte Mobilität und Selbstversorgung',
+        muster: ['mobil', 'beweg', 'transfer', 'gehen', 'selbstversorg', 'koerperpflege', 'waschen'], massnahmen: { text: 'Bobath-Konzept, über die betroffene Seite arbeiten, Physiotherapie', muster: ['bobath', 'betroffene seite', 'mobilis', 'physio', 'ergo', 'transfer', 'aktivier', 'anleit'] } },
+      { id: 'neglect', art: 'aktuell', pflicht: false, text: 'Beeinträchtigte Wahrnehmung der linken Seite',
+        muster: ['neglect', 'wahrnehm', 'linke seite', 'uebersieht'], massnahmen: { text: 'Von links ansprechen, Teller drehen, Umgebung bewusst gestalten', muster: ['von links', 'teller drehen', 'linke seite', 'betroffene seite', 'bobath', 'umgebung', 'stimul', 'wahrnehmungsfoerder'] } },
+      { id: 'schulter', art: 'risiko', pflicht: false, text: 'Gefahr von Schulterschäden und Kontrakturen links',
+        muster: ['schulter', 'kontraktur', 'subluxation', 'arm'], massnahmen: { text: 'Arm unterlagern, nicht am Arm ziehen, Bewegungsübungen', muster: ['kissen', 'unterlager', 'nicht am arm', 'positionier', 'lagerung', 'bewegungsueb', 'durchbewegen', 'kontrakturprophyl'] } },
+    ],
+    ressourcen: [
+      { id: 'sprache', text: 'Spricht gut, kann sich mitteilen', muster: ['sprich', 'sprech', 'sprache', 'mitteil', 'kommunik'], pflicht: true },
+      { id: 'rechts', text: 'Rechte Körperseite voll beweglich', muster: ['rechte', 'rechts'], pflicht: true },
+      { id: 'motiv', text: 'Motiviert, will selbstständig sein', muster: ['motiv', 'will', 'selbststaendig', 'moechte'], pflicht: false },
+      { id: 'frau', text: 'Ehefrau täglich da', muster: ['ehefrau', 'frau', 'angehoer'], pflicht: false },
+    ],
+    beispiel: `P: Aspirationsgefahr (Risikodiagnose, daher ohne S)
+E: beeinflusst durch Schluckstörung nach Schlaganfall
+R: ist wach und kooperativ, kann Husten, sitzt mit Hilfe aufrecht
+
+Ziel: Herr Krüger isst und trinkt ohne Aspiration (kein Husten, keine feuchte Stimme, kein Fieber) während des Aufenthalts.
+Maßnahme: Zu jeder Mahlzeit aufrecht (90°) im Stuhl oder Bett positionieren, nur angedickte Getränke und pürierte Kost nach Anordnung, kleine Portionen; 20 Minuten nach dem Essen aufrecht sitzen lassen, danach Mundpflege (Pflegefachperson). Logopädie einbeziehen.`,
+  },
+];
+
+/** Leerer Fall für „eigener Fall“: keine Erwartungen, nur Strukturprüfung. */
+export function eigenerFall(text: string, verlauf = ''): PlanFall {
+  return {
+    id: 'eigen', titel: 'Eigener Fall', setting: 'akut', bereich: 'Eigene Vorlage', person: '',
+    text, daten: [], verlauf, topicIds: [], info: [], probleme: [], ressourcen: [], beispiel: '',
+  };
+}
