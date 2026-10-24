@@ -11,6 +11,7 @@ import { Faecher } from './features/Faecher';
 import { Einstellungen } from './features/Einstellungen';
 
 const Designsystem = lazy(() => import('./features/Designsystem'));
+const Rechentrainer = lazy(() => import('./features/rechnen/Rechentrainer'));
 
 function Page({ title, intro, children }: { title: string; intro?: string; children: React.ReactNode }) {
   return (
@@ -28,6 +29,7 @@ function View() {
     case '/': return <Dashboard />;
     case '/lernen/themen': return <Page title="Themen" intro="Alle Themen des Fachmoduls. Arbeitsstand direkt in der Tabelle ändern oder mehrere auswählen."><WidgetGrid widgets={[WIDGETS.themen]} allowHide={false} /></Page>;
     case '/lernen/board': return <Page title="Lernstand"><WidgetGrid widgets={[WIDGETS.board]} allowHide={false} /></Page>;
+    case '/lernen/rechnen': return <Suspense fallback={<p className="muted">Lädt …</p>}><Rechentrainer /></Suspense>;
     case '/lernen/faecher': return <Faecher />;
     case '/material/dokumente': return <Dokumente />;
     case '/material/import': return <Page title="Import"><WidgetGrid widgets={[WIDGETS.wizard]} allowHide={false} /></Page>;
