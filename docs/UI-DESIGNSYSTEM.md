@@ -25,6 +25,10 @@ Stand: 2026-10-23. Umsetzung der UI/UX-Spezifikation für den Lernstoff-Planer. 
 | Audit Trail | **Lernaktivität**: Importe, Zusammenfassungen (Ampel → Schweregrad), Verschiebungen, Löschungen; Filter Info/Warnung/Kritisch, unendliches Scrollen, `role="feed"` mit `aria-live="polite"` |
 | Multi-Step Wizard | **Import-Assistent**: Fach und Art → Dateien → Prüfen → Ergebnis; Validierung je Schritt, Entwurf wird automatisch gespeichert (ohne Dateien, das erlauben Browser nicht) |
 
+### Themen-Landkarte (`#/lernen/landkarte`)
+
+Concept-Map des Fachkatalogs in `src/features/landkarte/`. Spalten = Lernstufe (längster Voraussetzungspfad), Bänder = Fach; Pfeile = Voraussetzung, gestrichelt = Unterthema. Farbe = Arbeitsstand aus der Tabelle `board`, gestrichelter Rahmen = „bereit“ (alle Voraussetzungen erarbeitet). Antippen zeigt den Lernpfad mit offenen Voraussetzungen in Lernreihenfolge, die sich mit einem Tipp für diese Woche einplanen lassen. Zoom/Pan mit Fingern (Pinch, Doppeltipp), Maus/Trackpad und Tastatur; die Ansicht wird direkt am DOM gesetzt, damit Verschieben auf dem iPad flüssig bleibt. Das Layout (`layout.ts`) ist rein und fachneutral, `?fach=` und `?thema=` steuern Filter und Auswahl.
+
 ### Bewusst nur als Erweiterungspunkt
 
 | Spezifikation | Warum nicht voll gebaut | Wo der Haken sitzt |
