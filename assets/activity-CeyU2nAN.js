@@ -1,1 +1,0 @@
-import{t as e}from"./db-C4J-c-In.js";var t={import:`Import`,zusammenfassung:`Zusammenfassung`,lernstand:`Lernstand`,dokument:`Dokument`,uebung:`Übung`,lernplan:`Lernplan`,system:`System`},n={info:`Info`,warning:`Warnung`,critical:`Kritisch`};async function r(t){try{await e.activity.add({at:new Date().toISOString(),...t})}catch{}}export{n,r,t};
