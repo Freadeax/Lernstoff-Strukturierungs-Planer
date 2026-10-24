@@ -1,1 +1,0 @@
-import{_ as e}from"./time-pBuXWcYm.js";var t=[e];function n(e){return t.find(t=>t.id===e)}export{t as n,n as t};
