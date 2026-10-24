@@ -1,0 +1,1 @@
+import{t as e}from"./pflege-C3GflPRA.js";var t=[e];function n(e){return t.find(t=>t.id===e)}export{t as n,n as t};
