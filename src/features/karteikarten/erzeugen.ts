@@ -3,7 +3,7 @@
 // gespeichert). Karten aus Zusammenfassungen und Prüfungsfragen übernimmt man bewusst und speichert sie.
 
 import type { Claim, DomainModule, ID, SourceChunk, Summary } from '../../core/types';
-import type { CatalogGlossaryEntry, CatalogModule, Reference } from '../../modules/catalog-types';
+import type { CatalogGlossaryEntry, CatalogModule, DrugProfile, Reference } from '../../modules/catalog-types';
 import { maskiere } from '../duell/duell';
 import type { FragenSatz } from '../zusammenfasser/typen';
 import type { Karte, KartenBeleg, KartenConfig, Richtung } from './typen';
@@ -79,9 +79,59 @@ export function ausKatalog(modul: Pick<CatalogModule, 'topics'> & Partial<Pick<C
   return out;
 }
 
+/** Name eines Wirkstoffs mit Abkürzung, z. B. „Acetylsalicylsäure (ASS)“. */
+export const wirkstoffName = (d: Pick<DrugProfile, 'substance' | 'abbreviation'>) =>
+  d.abbreviation && !d.substance.includes(d.abbreviation) ? `${d.substance} (${d.abbreviation})` : d.substance;
+
+/** Zusätze in Klammern, die keine eigene Antwort sind (Darreichung, Unterart). */
+const KEIN_SYNONYM = new Set(['inhalativ', 'unfraktioniert', 'pflaster']);
+
+/** Weitere richtige Antworten beim Eintippen: Synonyme in Klammern, Hauptwirkstoff einer Kombination, Abkürzung. */
+export function wirkstoffAntworten(d: Pick<DrugProfile, 'substance' | 'abbreviation'>): string[] {
+  const klammer = /\(([^)]*)\)/.exec(d.substance)?.[1]?.split(',').map((x) => x.trim()) ?? [];
+  const kombination = d.substance.includes(' mit ') ? [d.substance.split(' mit ')[0]!] : [];
+  return [...klammer.filter((x) => x && !KEIN_SYNONYM.has(x.toLowerCase())), ...kombination, d.abbreviation]
+    .filter((x): x is string => !!x);
+}
+
+/**
+ * Medikamenten-Steckbriefe: je Wirkstoff Gruppe und Wirkprinzip, Anwendung, Nebenwirkungen,
+ * Pflegerelevanz, dazu Antidot und Handelsname → Wirkstoff (eintippen), wo vorhanden.
+ * Quellen und Prüfstatus wandern mit auf die Rückseite.
+ */
+export function ausSteckbriefen(modul: Pick<CatalogModule, 'topics'> & Partial<Pick<CatalogModule, 'drugProfiles'>>): Karte[] {
+  const faecher = fachVon(modul);
+  const out: Karte[] = [];
+  for (const d of modul.drugProfiles ?? []) {
+    const name = wirkstoffName(d);
+    const basis = {
+      quelle: 'arzneimittel' as const, topicIds: d.topicIds, subjectIds: faecher(d.topicIds), ref: d.id,
+      quellen: d.sources, ungeprueft: d.pruefstatus !== 'geprueft',
+    };
+    const karte = (teil: string, art: string, vorne: string, rest: Partial<Karte>) => out.push({ ...basis, id: `arz:${d.id}:${teil}`, art, vorne, hinten: '', ...rest });
+    karte('wirkung', 'Wirkstoff → Gruppe und Wirkung', `${name}: Zu welcher Gruppe gehört es und wie wirkt es?`, { hinten: `${d.drugClass}. ${d.mechanism}` });
+    karte('anwendung', 'Wirkstoff → Anwendung', `Wofür wird ${name} eingesetzt?`, { liste: d.indications });
+    karte('nebenwirkungen', 'Wirkstoff → Nebenwirkungen', `Welche Nebenwirkungen von ${name} musst du kennen?`, {
+      liste: d.adverseEffects, hinten: d.contraindications?.length ? `Nicht geben bei (Auswahl): ${d.contraindications.join('; ')}.` : '',
+    });
+    karte('pflege', 'Wirkstoff → Pflegerelevanz', `${name}: Worauf achtest du in der Pflege?`, { liste: d.nursing, hinten: d.mnemonic ?? '' });
+    if (d.antidote) karte('antidot', 'Wirkstoff → Antidot', `Was ist das Gegenmittel (Antidot) bei ${name}?`, { hinten: d.antidote });
+    const handel = d.brandNames ?? [];
+    if (handel.length) {
+      karte('handelsname', 'Handelsname → Wirkstoff', `Welcher Wirkstoff steckt in ${handel.join(' bzw. ')}?`, {
+        hinten: d.substance.replace(/\s*\(.*\)$/, ''), eingabe: true, alternativen: wirkstoffAntworten(d),
+      });
+    }
+  }
+  return out;
+}
+
 /** Aktive Karten aus dem Fachmodul nach den Stapel-Einstellungen. Karten ohne Fach (Operatoren) gelten für alle. */
-export function modulKarten(modul: CatalogModule, config: Pick<KartenConfig, 'faecher' | 'richtungen' | 'katalog'>): Karte[] {
-  const alle = [...ausGlossar(modul, config.richtungen), ...(config.katalog ? ausKatalog(modul) : [])];
+export function modulKarten(modul: CatalogModule, config: Pick<KartenConfig, 'faecher' | 'richtungen' | 'katalog'> & Partial<Pick<KartenConfig, 'arzneimittel'>>): Karte[] {
+  const alle = [
+    ...ausGlossar(modul, config.richtungen), ...(config.katalog ? ausKatalog(modul) : []),
+    ...(config.arzneimittel !== false ? ausSteckbriefen(modul) : []),
+  ];
   if (!config.faecher.length) return alle;
   const f = new Set(config.faecher);
   return alle.filter((k) => !k.subjectIds.length || k.subjectIds.some((s) => f.has(s)));

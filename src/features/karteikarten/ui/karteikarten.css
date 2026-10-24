@@ -86,3 +86,16 @@
   .karten__faecher li { grid-template-columns: minmax(0, 1fr) 4.5rem; }
   .karten__faecher li .karten__balken { grid-column: 1 / -1; grid-row: 2; }
 }
+
+/* Medikamenten-Steckbriefe */
+.steckbriefe { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.steckbrief { border-bottom: 1px solid var(--color-border); }
+.steckbrief summary { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); padding: var(--space-2) 0; cursor: pointer; min-height: var(--control-h); }
+.steckbrief__kopf { display: flex; flex-direction: column; min-width: 0; overflow-wrap: anywhere; }
+.steckbrief__kopf .muted, .steckbrief__stand { font-size: var(--text-sm); }
+.steckbrief__stand { white-space: nowrap; }
+.steckbrief__inhalt { display: flex; flex-direction: column; gap: var(--space-2); padding: 0 0 var(--space-3); }
+.steckbrief__inhalt h4 { margin: var(--space-1) 0 0; font-size: var(--text-md); }
+.steckbrief__inhalt p { margin: 0; }
+.steckbrief__suche { flex: 1 1 18rem; margin: 0; }
+.steckbrief__suche input { width: 100%; }

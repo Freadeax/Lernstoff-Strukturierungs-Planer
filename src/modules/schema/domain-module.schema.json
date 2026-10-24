@@ -20,7 +20,8 @@
     "frameworks": { "type": "array", "items": { "$ref": "#/$defs/framework" } },
     "references": { "type": "array", "items": { "$ref": "#/$defs/reference" } },
     "operators": { "type": "array", "items": { "$ref": "#/$defs/operator" } },
-    "examFormats": { "type": "array", "items": { "$ref": "#/$defs/examFormat" } }
+    "examFormats": { "type": "array", "items": { "$ref": "#/$defs/examFormat" } },
+    "drugProfiles": { "type": "array", "items": { "$ref": "#/$defs/drugProfile" } }
   },
   "additionalProperties": false,
   "$defs": {
@@ -161,6 +162,38 @@
       },
       "additionalProperties": false
     },
+
+    "drugProfile": {
+      "type": "object",
+      "required": ["id", "substance", "drugClass", "mechanism", "indications", "adverseEffects", "nursing", "topicIds", "sources"],
+      "description": "Arzneimittel-Steckbrief: Wirkstoff, Gruppe, Wirkprinzip, Anwendung, Nebenwirkungen, Pflegerelevanz, mit Quellen.",
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "substance": { "type": "string", "minLength": 1 },
+        "abbreviation": { "type": "string" },
+        "brandNames": { "type": "array", "items": { "type": "string" } },
+        "drugClass": { "type": "string", "minLength": 1 },
+        "mechanism": { "type": "string", "minLength": 1 },
+        "indications": { "$ref": "#/$defs/textList" },
+        "adverseEffects": { "$ref": "#/$defs/textList" },
+        "contraindications": { "$ref": "#/$defs/textList" },
+        "nursing": { "$ref": "#/$defs/textList" },
+        "mnemonic": { "type": "string" },
+        "antidote": { "type": "string" },
+        "topicIds": { "$ref": "#/$defs/idList" },
+        "sources": {
+          "type": "array", "minItems": 1,
+          "items": {
+            "type": "object", "required": ["title", "url"],
+            "properties": { "title": { "type": "string" }, "url": { "type": "string", "pattern": "^https://" } },
+            "additionalProperties": false
+          }
+        },
+        "pruefstatus": { "$ref": "#/$defs/pruefstatus" }
+      },
+      "additionalProperties": false
+    },
+    "textList": { "type": "array", "items": { "type": "string", "minLength": 1 }, "minItems": 1 },
 
     "operator": {
       "type": "object",
