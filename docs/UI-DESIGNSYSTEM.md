@@ -29,6 +29,10 @@ Stand: 2026-10-23. Umsetzung der UI/UX-Spezifikation für den Lernstoff-Planer. 
 
 Concept-Map des Fachkatalogs in `src/features/landkarte/`. Spalten = Lernstufe (längster Voraussetzungspfad), Bänder = Fach; Pfeile = Voraussetzung, gestrichelt = Unterthema. Farbe = Arbeitsstand aus der Tabelle `board`, gestrichelter Rahmen = „bereit“ (alle Voraussetzungen erarbeitet). Antippen zeigt den Lernpfad mit offenen Voraussetzungen in Lernreihenfolge, die sich mit einem Tipp für diese Woche einplanen lassen. Zoom/Pan mit Fingern (Pinch, Doppeltipp), Maus/Trackpad und Tastatur; die Ansicht wird direkt am DOM gesetzt, damit Verschieben auf dem iPad flüssig bleibt. Das Layout (`layout.ts`) ist rein und fachneutral, `?fach=` und `?thema=` steuern Filter und Auswahl.
 
+### Lernplan (`#/lernen/plan`)
+
+Oberfläche zur Planungslogik in `src/features/lernplan/ui/`: Heute (Blöcke abhaken, Abfrageergebnisse eintragen), Woche (Tageskarten mit Auslastung, „aufs Board legen“), Prüfungen (Termine, Themenwahl, Prognose) und Lernzeit (Wochentage, Ausnahmen, Blocklänge). Daten in DB-Version 4 (`studyLogs`, `reviewLogs`, `planner`). Das Lernstand-Board fließt in den Plan ein („Erarbeitet“ = erste Abfrage fällig, „Diese Woche“ = Vorrang), die Landkarte zeigt den Wissensstand je Thema, die Übersicht „Heute im Lernplan“. Details: `src/features/lernplan/README.md`.
+
 ### Bewusst nur als Erweiterungspunkt
 
 | Spezifikation | Warum nicht voll gebaut | Wo der Haken sitzt |

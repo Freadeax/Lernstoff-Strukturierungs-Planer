@@ -4,7 +4,7 @@
 import { db } from './db';
 
 export type Severity = 'info' | 'warning' | 'critical';
-export type ActivityKind = 'import' | 'zusammenfassung' | 'lernstand' | 'dokument' | 'uebung' | 'system';
+export type ActivityKind = 'import' | 'zusammenfassung' | 'lernstand' | 'dokument' | 'uebung' | 'lernplan' | 'system';
 
 export interface ActivityEntry {
   id?: number;
@@ -18,7 +18,7 @@ export interface ActivityEntry {
 }
 
 export const KIND_LABEL: Record<ActivityKind, string> = {
-  import: 'Import', zusammenfassung: 'Zusammenfassung', lernstand: 'Lernstand', dokument: 'Dokument', uebung: 'Übung', system: 'System',
+  import: 'Import', zusammenfassung: 'Zusammenfassung', lernstand: 'Lernstand', dokument: 'Dokument', uebung: 'Übung', lernplan: 'Lernplan', system: 'System',
 };
 export const SEVERITY_LABEL: Record<Severity, string> = { info: 'Info', warning: 'Warnung', critical: 'Kritisch' };
 

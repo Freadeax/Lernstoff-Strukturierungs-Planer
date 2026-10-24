@@ -91,6 +91,29 @@ Bewusst **keine Bestehenswahrscheinlichkeit**. Je Prüfung:
 - Zuverlässigkeit `niedrig` / `mittel` / `hoch` je nach Datenbasis,
 - konkrete Empfehlungen: nicht begonnene Themen, nie abgefragte Themen, die unsichersten Themen zuerst.
 
+## Oberfläche (`#/lernen/plan`)
+
+`ui/` enthält die Seite **Lernplan** mit vier Ansichten (`?ansicht=heute|woche|pruefungen|zeit`):
+
+| Ansicht | Inhalt |
+|---|---|
+| Heute | Blöcke des Tages. Erarbeiten: „Erledigt“ oder „Andere Dauer“ speichert Lernzeit. Abfragen: Art der Abfrage (Karteikarten, Quiz, offene Fragen, Prüfungssimulation, nur eingeschätzt) und Ergebnis (Vergessen bis Leicht oder Prozent richtig). Außerdem fällige Wiederholungen ohne Platz im Tag, „Heute erledigt“ und Nachtragen außerhalb des Plans. |
+| Woche | Sieben Tage ab heute mit Auslastung, blätterbar bis zur letzten Prüfung. Erarbeitungsthemen der Woche lassen sich mit einem Tipp aufs Board unter „Diese Woche“ legen. |
+| Prüfungen | Prüfung mit Datum, Gewicht und Themen (ganzes Fach, einzelne Themen, Suche, Übernahme von „Diese Woche“). Je Prüfung die vorsichtige Prognose aus `forecast.ts`. |
+| Lernzeit | Minuten je Wochentag, Ausnahmen (Ausfall oder andere Zeit, mit Notiz), Blocklänge, Abfragedauer, Puffer. |
+
+Die Übersicht zeigt „Heute im Lernplan“ (`ui/HeuteKarte.tsx`), die Themen-Landkarte den Wissensstand je Thema.
+
+### Speicherung und Anbindung (`store.ts`, DB-Version 4)
+
+Gespeichert werden nur Fakten: `studyLogs`, `reviewLogs`, `exams` und die Einstellungszeile `planner` (Verfügbarkeit, Einstellungen, Prüfungsgewichte). Der Plan wird nie gespeichert. `assembleInput` baut daraus die Planer-Eingabe und verbindet das Lernstand-Board:
+
+- **Erarbeitet** auf dem Board = Erarbeitung fertig; fehlende Lernzeit wird rechnerisch ergänzt, sodass die erste Abfrage fällig wird. Sicher wird ein Thema weiterhin nur durch echte Abfragen.
+- **Diese Woche** und **In Arbeit** heben die Prüfungsrelevanz auf „hoch“, der Plan zieht diese Themen vor.
+- Was heute schon gelernt oder abgefragt wurde, wird von der heutigen Zeit abgezogen, damit der Tag nach einem erledigten Block nicht neu aufgefüllt wird.
+- Erfasste Lernzeit schiebt das Thema auf dem Board nach „In Arbeit“ bzw. „Erarbeitet“.
+- Alles landet im Aktivitätsprotokoll (Art `lernplan`).
+
 ## Offene Punkte
 
 - FSRS-Parameter später aus den eigenen Abfragedaten optimieren (ab ca. 1000 Abfragen sinnvoll).
