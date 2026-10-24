@@ -58,7 +58,8 @@ export function parseRepo(eingabe: string): { owner: string; repo: string } | nu
 /** Ordnername aus dem Dateinamen: klein, ohne Umlaute und Sonderzeichen. */
 export function slug(dateiname: string): string {
   const ohneEndung = dateiname.replace(/\.[^.]+$/, '');
-  const s = ohneEndung.toLowerCase()
+  // iOS liefert Dateinamen oft zerlegt (a + Trema), daher erst zusammensetzen.
+  const s = ohneEndung.normalize('NFC').toLowerCase()
     .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
     .normalize('NFKD').replace(/[̀-ͯ]/g, '')
     .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
@@ -201,12 +202,12 @@ async function ladeManifest(z: AblageZiel, ordner: string, f: Fetch): Promise<Ma
 
 /** Ziel-Ordner: gleicher Name und gleiche Größe = schon da (überspringen), sonst freien Namen wählen. */
 export function waehleOrdner(datei: { name: string; size: number }, vorhanden: Eintrag[]): { ordner: string; schonDa: boolean } {
+  const gleich = vorhanden.find((e) => e.manifest && e.manifest.name.normalize('NFC') === datei.name.normalize('NFC') && e.manifest.groesse === datei.size);
+  if (gleich) return { ordner: gleich.ordner, schonDa: true };
   const basis = slug(datei.name);
   const belegt = new Set(vorhanden.map((e) => e.ordner));
   for (let n = 1; ; n++) {
     const kandidat = n === 1 ? basis : `${basis}-${n}`;
-    const e = vorhanden.find((x) => x.ordner === kandidat);
-    if (e?.manifest && e.manifest.name === datei.name && e.manifest.groesse === datei.size) return { ordner: kandidat, schonDa: true };
     if (!belegt.has(kandidat)) return { ordner: kandidat, schonDa: false };
   }
 }
