@@ -1,0 +1,110 @@
+/* Pflegeplanungs-Trainer. Nur Tokens aus src/ui/tokens.css. */
+.pp__auswahl .field { margin-bottom: 0; }
+.pp__auswahl select { width: 100%; }
+.pp__aktionen { margin-top: 0; justify-content: flex-end; }
+
+.pp__layout { display: grid; gap: var(--space-3); grid-template-columns: minmax(0, 1fr); align-items: start; }
+/* iPad quer und Rechner: Fall links, Planung rechts */
+@container content (min-width: 820px) {
+  .pp__layout { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); }
+  .pp__fall { position: sticky; top: calc(var(--header-h) + var(--space-3)); max-height: calc(100dvh - var(--header-h) - var(--space-6)); overflow: auto; }
+  .pp__schritte { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pp__horizont { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+.pp__kopf { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); flex-wrap: wrap; margin-bottom: var(--space-2); }
+.pp__kopf h3 { margin: 0; }
+.pp__setting--akut { background: var(--color-info-soft); }
+.pp__setting--langzeit { background: var(--color-secondary-soft); }
+.pp__setting--ambulant { background: var(--color-success-soft); }
+.pp__setting--paediatrie { background: var(--color-warning-soft); }
+
+.pp__text { line-height: var(--leading-normal); }
+.pp__daten { margin: 0 0 var(--space-2); display: flex; flex-direction: column; gap: var(--space-1); }
+.pp__daten > div { display: grid; grid-template-columns: 8.5rem minmax(0, 1fr); gap: var(--space-2); padding: var(--space-1) 0; border-top: 1px solid var(--color-border); }
+.pp__daten dt { font-weight: var(--weight-medium); font-size: var(--text-sm); }
+.pp__daten dd { margin: 0; font-size: var(--text-sm); }
+.pp__verlauf p { margin: var(--space-1) 0 0; }
+
+.pp__hilfe { margin: var(--space-2) 0 0; display: grid; gap: var(--space-2); }
+.pp__hilfe dt { font-weight: var(--weight-medium); }
+.pp__hilfe dd { margin: var(--space-1) 0 0; font-size: var(--text-sm); }
+
+/* Schrittanzeige */
+.pp__stepper ol { list-style: none; margin: 0 0 var(--space-3); padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--space-1); }
+.pp__step {
+  width: 100%; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: var(--space-1) 0;
+  border-radius: var(--radius-sm); background: var(--color-surface-sunken); border: 2px solid transparent; min-height: 44px;
+}
+.pp__step[aria-current='step'] { border-color: var(--color-primary); }
+.pp__nr {
+  display: inline-flex; align-items: center; justify-content: center; width: 1.6em; height: 1.6em; border-radius: 50%;
+  background: var(--color-border); font-weight: var(--weight-bold); font-size: var(--text-sm);
+}
+.pp__step.is-gut .pp__nr { background: var(--color-success); color: var(--color-on-primary); }
+.pp__step.is-mittel .pp__nr { background: var(--color-warning); }
+.pp__step.is-schwach .pp__nr { background: var(--color-danger-soft); }
+.pp__steplabel { font-size: var(--text-xs); }
+
+.pp__eingabe { display: flex; flex-direction: column; gap: var(--space-2); }
+.pp__eingabe > p.muted { margin: 0; }
+.pp__hilfetext { font-size: var(--text-sm); }
+.pp__live { font-size: var(--text-xs); padding: 0 var(--space-2); border-radius: var(--radius-pill); background: var(--color-surface-sunken); }
+.pp__live.is-gut { background: var(--color-success-soft); }
+.pp__live.is-mittel { background: var(--color-warning-soft); }
+.pp__live.is-schwach { background: var(--color-danger-soft); }
+
+.pp__feld { display: flex; flex-direction: column; gap: var(--space-1); flex: 1; min-width: 0; }
+.pp__feld textarea, .pp__feld input { width: 100%; font-size: var(--text-md); line-height: var(--leading-normal); }
+.pp__feld textarea { resize: vertical; }
+.pp__feldkopf { font-weight: var(--weight-medium); font-size: var(--text-sm); }
+
+.pp__block { border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-2) var(--space-3) var(--space-3); margin: 0; display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; }
+.pp__block legend { font-weight: var(--weight-medium); padding: 0 var(--space-1); max-width: 100%; overflow-wrap: anywhere; }
+.pp__block--risiko { border-style: dashed; }
+.pp__blockkopf { justify-content: space-between; margin-top: 0; }
+.pp__unter { display: flex; flex-direction: column; gap: var(--space-2); padding-bottom: var(--space-2); border-bottom: 1px solid var(--color-border); }
+.pp__zeile { align-items: flex-end; margin-top: 0; flex-wrap: nowrap; }
+.pp__zweier { display: grid; gap: var(--space-2); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.pp__massnahme > .ghost { align-self: flex-start; }
+.pp__knoepfe { justify-content: flex-start; margin-top: var(--space-1); }
+
+.pp__befunde { list-style: none; margin: var(--space-1) 0 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-1); }
+.pp__befunde li { display: flex; gap: var(--space-2); font-size: var(--text-sm); align-items: baseline; }
+.pp__schwere { flex-shrink: 0; font-size: var(--text-xs); font-weight: var(--weight-medium); padding: 0 var(--space-2); border-radius: var(--radius-pill); background: var(--color-surface-sunken); }
+.pp__befunde li.is-fehler .pp__schwere { background: var(--color-danger-soft); }
+.pp__befunde li.is-warnung .pp__schwere { background: var(--color-warning-soft); }
+.pp__befunde li.is-hinweis .pp__schwere { background: var(--color-info-soft); }
+.pp__livebefunde summary { cursor: pointer; font-size: var(--text-sm); }
+
+/* Auswertung */
+.pp__auswertung { display: flex; flex-direction: column; gap: var(--space-3); scroll-margin-top: calc(var(--header-h) + var(--space-3)); }
+.pp__balken { height: 8px; border-radius: var(--radius-pill); background: var(--color-surface-sunken); overflow: hidden; margin-bottom: var(--space-3); }
+.pp__balken span { display: block; height: 100%; background: var(--color-success); transition: width var(--dur-normal) var(--ease-standard); }
+.pp__balken--mittel span { background: var(--color-warning); }
+.pp__balken--schwach span { background: var(--color-danger); }
+
+.pp__schritte { display: grid; gap: var(--space-2); grid-template-columns: minmax(0, 1fr); margin-bottom: var(--space-2); }
+.pp__schritt { padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); background: var(--color-surface-sunken); border-left: 4px solid var(--color-danger); }
+.pp__schritt.is-gut { border-left-color: var(--color-success); }
+.pp__schritt.is-mittel { border-left-color: var(--color-warning); }
+.pp__schritt h4 { margin: 0 0 var(--space-1); }
+.pp__schritt p { margin: 0; font-size: var(--text-sm); }
+
+.pp__horizont { display: grid; gap: var(--space-3); grid-template-columns: minmax(0, 1fr); margin-top: var(--space-2); }
+.pp__horizont ul, .pp__regeln { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-1); font-size: var(--text-sm); }
+.pp__regeln li { display: flex; gap: var(--space-2); }
+.pp li.is-ok > span[aria-hidden] { color: var(--color-success); font-weight: var(--weight-bold); }
+.pp li.is-fehlt > span[aria-hidden] { color: var(--color-danger); font-weight: var(--weight-bold); }
+
+.pp__note { font-weight: var(--weight-bold); font-size: var(--text-lg); padding: 0 var(--space-3); border-radius: var(--radius-pill); background: var(--color-primary-soft); }
+.pp__ki ul { margin: var(--space-1) 0 0; padding-left: var(--space-4); }
+.pp__ki .pp__regeln { padding-left: 0; }
+.pp__muster { padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); background: var(--color-surface-sunken); margin-top: var(--space-2); }
+.pp details summary { cursor: pointer; margin-top: var(--space-2); }
+
+@media (max-width: 480px) {
+  .pp__daten > div { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .pp__zweier { grid-template-columns: minmax(0, 1fr); }
+  .pp__steplabel { font-size: 10px; }
+}

@@ -29,6 +29,7 @@ export const NAV: NavItem[] = [
       { id: 'fall', label: 'Fallsimulator', path: '/lernen/fall', icon: 'user' },
       { id: 'duell', label: 'Fachbegriff-Duell', path: '/lernen/duell', icon: 'duell' },
       { id: 'simulation', label: 'Prüfungssimulation', path: '/lernen/simulation', icon: 'timer' },
+      { id: 'pflegeplanung', label: 'Pflegeplanung', path: '/lernen/pflegeplanung', icon: 'clipboard' },
       { id: 'uebergabe', label: 'Übergabe-Trainer', path: '/lernen/uebergabe', icon: 'chat' },
       { id: 'faecher', label: 'Fächer', path: '/lernen/faecher', icon: 'layers' },
     ],
