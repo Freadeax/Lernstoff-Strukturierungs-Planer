@@ -5,6 +5,7 @@ import type { SourceChunk } from '../../../core/types';
 import { getApiKey } from '../../../core/settings';
 import { pflegeModule } from '../../../modules/pflege';
 import { logActivity } from '../../../core/activity';
+import { logReview } from '../../lernplan/store';
 import { belegStelle } from '../belege';
 import { bewerteAntwort, bewerteMc, type AntwortBewertung } from '../pruefung';
 import type { BelegJson, FragenSatz, Pruefungsfrage } from '../typen';
@@ -98,6 +99,9 @@ export function FragenAnsicht({ satz, chunkMap, titles }: { satz: FragenSatz; ch
     if (Object.keys(neu).length === satz.fragen.length) {
       const s = Object.values(neu).reduce((a, e) => ({ p: a.p + e.p, max: a.max + e.max }), { p: 0, max: 0 });
       logActivity({ kind: 'uebung', ref: satz.id, severity: s.p >= s.max * 0.5 ? 'info' : 'warning', title: `Prüfungsfragen: ${satz.pruefungName}`, detail: `${s.p} von ${s.max} Punkten` });
+      // Ergebnis geht als Abfrage an den Lernplan, denn „gelesen“ ist nicht „verstanden“
+      const topic = pflegeModule.topics.find((t) => t.id === satz.topicIds[0]);
+      if (topic && s.max > 0) logReview(topic, 'pruefungssimulation', { scorePercent: Math.round((s.p / s.max) * 100) }).catch(() => {});
     }
   }
 

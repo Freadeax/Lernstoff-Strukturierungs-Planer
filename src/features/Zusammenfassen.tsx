@@ -13,6 +13,7 @@ import { AufgabenEditor } from './zusammenfasser/ui/AufgabenEditor';
 import { FragenAnsicht } from './zusammenfasser/ui/FragenAnsicht';
 import { VergleichsAnsicht } from './zusammenfasser/ui/VergleichsAnsicht';
 import { logActivity } from '../core/activity';
+import { topicKnowledge } from './lernplan/store';
 
 type Modus = TextModus | 'pruefung' | 'vergleich';
 
@@ -74,6 +75,15 @@ export function Zusammenfassen() {
   const titles = useMemo(() => new Map(docs.map((d) => [d.id, d.title])), [docs]);
   const topic = topicByName.get(thema.trim().toLowerCase());
   const info = MODI.find((m) => m.id === modus)!;
+  const [wissenAusPlan, setWissenAusPlan] = useState(false);
+  // Lernmodus: Wissensstand aus dem Lernplan übernehmen, solange die Person ihn nicht selbst ändert
+  useEffect(() => {
+    setWissenAusPlan(false);
+    if (!topic || modus !== 'lernen') return;
+    let aktiv = true;
+    topicKnowledge(topic).then((p) => { if (aktiv) { setWissen(p.status); setWissenAusPlan(true); } }).catch(() => {});
+    return () => { aktiv = false; };
+  }, [topic?.id, modus]);
 
   function toggle(id: string) {
     const next = new Set(selected);
@@ -168,7 +178,8 @@ export function Zusammenfassen() {
         {modus === 'lernen' && (
           <>
             <label className="field"><span>Mein Wissensstand</span>
-              <select value={wissen} onChange={(e) => setWissen(e.target.value as MasteryStatus)}>{WISSEN.map((w) => <option key={w.id} value={w.id}>{w.label}</option>)}</select>
+              <select value={wissen} onChange={(e) => { setWissen(e.target.value as MasteryStatus); setWissenAusPlan(false); }}>{WISSEN.map((w) => <option key={w.id} value={w.id}>{w.label}</option>)}</select>
+              {wissenAusPlan && <span className="muted">aus deinem Lernplan übernommen</span>}
             </label>
             <label className="field"><span>Was verwechsle ich oft? (optional, eine Zeile je Punkt)</span>
               <textarea className="wide" rows={2} value={fehler} onChange={(e) => setFehler(e.target.value)} />
