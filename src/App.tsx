@@ -14,6 +14,7 @@ const Designsystem = lazy(() => import('./features/Designsystem'));
 const Ablage = lazy(() => import('./features/ablage/Ablage'));
 const Rechentrainer = lazy(() => import('./features/rechnen/Rechentrainer'));
 const Fallsimulator = lazy(() => import('./features/fall/Fallsimulator'));
+const Duell = lazy(() => import('./features/duell/Duell'));
 
 function Page({ title, intro, children }: { title: string; intro?: string; children: React.ReactNode }) {
   return (
@@ -33,6 +34,7 @@ function View() {
     case '/lernen/board': return <Page title="Lernstand"><WidgetGrid widgets={[WIDGETS.board]} allowHide={false} /></Page>;
     case '/lernen/rechnen': return <Suspense fallback={<p className="muted">Lädt …</p>}><Rechentrainer /></Suspense>;
     case '/lernen/fall': return <Suspense fallback={<p className="muted">Lädt …</p>}><Fallsimulator /></Suspense>;
+    case '/lernen/duell': return <Suspense fallback={<p className="muted">Lädt …</p>}><Duell /></Suspense>;
     case '/lernen/faecher': return <Faecher />;
     case '/material/dokumente': return <Dokumente />;
     case '/material/import': return <Page title="Import"><WidgetGrid widgets={[WIDGETS.wizard]} allowHide={false} /></Page>;
