@@ -21,6 +21,7 @@ export const NAV: NavItem[] = [
   {
     id: 'lernen', label: 'Lernen', icon: 'book', children: [
       { id: 'themen', label: 'Themen', path: '/lernen/themen', icon: 'table', tab: true },
+      { id: 'landkarte', label: 'Themen-Landkarte', path: '/lernen/landkarte', icon: 'map' },
       { id: 'board', label: 'Lernstand', path: '/lernen/board', icon: 'board', tab: true },
       { id: 'rechnen', label: 'Rechentrainer', path: '/lernen/rechnen', icon: 'calc' },
       { id: 'fall', label: 'Fallsimulator', path: '/lernen/fall', icon: 'user' },

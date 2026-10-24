@@ -27,6 +27,8 @@ const PATHS = {
   maximize: 'M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5',
   refresh: 'M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7',
   plus: 'M12 5v14M5 12h14',
+  minus: 'M5 12h14',
+  map: 'M9 4L3 6v14l6-2 6 2 6-2V4l-6 2zM9 4v14M15 6v14',
   trash: 'M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3',
   calc: 'M6 3h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM8 7h8M8 12h.01M12 12h.01M16 12h.01M8 16h.01M12 16h.01M16 16h.01',
   duell: 'M4 6h9v6H8l-4 3zM20 12h-3M11 15v3h5l4 3V12h-3',
