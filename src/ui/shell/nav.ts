@@ -25,6 +25,7 @@ export const NAV: NavItem[] = [
       { id: 'rechnen', label: 'Rechentrainer', path: '/lernen/rechnen', icon: 'calc' },
       { id: 'fall', label: 'Fallsimulator', path: '/lernen/fall', icon: 'user' },
       { id: 'duell', label: 'Fachbegriff-Duell', path: '/lernen/duell', icon: 'duell' },
+      { id: 'uebergabe', label: 'Übergabe-Trainer', path: '/lernen/uebergabe', icon: 'chat' },
       { id: 'faecher', label: 'Fächer', path: '/lernen/faecher', icon: 'layers' },
     ],
   },
