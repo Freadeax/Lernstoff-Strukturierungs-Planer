@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { pflegeModule } from '../../modules/pflege';
 import { bewerte, erzeuge, leseZahl, naechste, runde, TYPEN, zahl, type Stufe } from './aufgaben';
 
 describe('leseZahl', () => {
@@ -62,5 +63,15 @@ describe('Aufgaben', () => {
       expect(a.typ).toBe('prozent');
     }
     expect(naechste(['laufzeit'], 1, 7, 'laufzeit').typ).toBe('laufzeit');
+  });
+});
+
+describe('Lernplan-Themen', () => {
+  it('ordnet jeden Aufgabentyp einem lernbaren Katalogthema zu', () => {
+    const eltern = new Set(pflegeModule.topics.map((t) => t.parentId));
+    for (const t of TYPEN) {
+      expect(pflegeModule.topics.some((x) => x.id === t.thema), t.thema).toBe(true);
+      expect(eltern.has(t.thema), t.thema).toBe(false);
+    }
   });
 });

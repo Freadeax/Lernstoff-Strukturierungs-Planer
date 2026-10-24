@@ -4,6 +4,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import type { CatalogModule } from '../../modules/catalog-types';
 import { SETTING_LABEL, type Stufe, type Szenario } from './faelle';
+import type { Treffer } from '../lernplan/trainer';
 
 export const MODEL = 'claude-opus-5-5';
 
@@ -230,6 +231,35 @@ export function parseAbschluss(text: string, modul: CatalogModule): Abschluss {
     musterloesung: istText(roh.musterloesung) ? roh.musterloesung : '',
     themen: [...new Set(arr(roh.themen).filter((id) => ids.has(id)))],
   };
+}
+
+// ---------- Lernplan ----------
+
+const NOTE_PROZENT: Record<Note, number> = { sicher: 95, ueberwiegend_sicher: 80, teilweise: 60, unsicher: 30 };
+const SCHRITT_PROZENT: Partial<Record<SchrittBewertung, number>> = { stark: 95, ok: 75, luecke: 40 };
+/** Welcher Pflegeprozess-Schritt welches Katalogthema abfragt. */
+export const SCHRITT_THEMA: Record<Schritt, string> = {
+  informationssammlung: 'thema.pp.anamnese',
+  probleme: 'thema.pp.diagnosen',
+  ziele: 'thema.pp.ziele',
+  massnahmen: 'thema.pp.massnahmen',
+  durchfuehrung: 'thema.pp.evaluation',
+  evaluation: 'thema.pp.evaluation',
+};
+
+/**
+ * Ein ausgewerteter Fall als Abfrage: die Gesamtnote zählt für die Themen des Szenarios,
+ * jeder bearbeitete Pflegeprozess-Schritt für sein Pflegeprozess-Thema. Nicht bearbeitete
+ * Schritte sagen nichts über das Wissen und fallen weg.
+ */
+export function fallTreffer(f: Fall): Treffer[] {
+  if (!f.abschluss) return [];
+  const treffer: Treffer[] = [{ topicIds: f.szenario.topicIds, punkte: NOTE_PROZENT[f.abschluss.note], max: 100 }];
+  for (const s of f.abschluss.schritte) {
+    const p = SCHRITT_PROZENT[s.bewertung];
+    if (p !== undefined) treffer.push({ topicIds: [SCHRITT_THEMA[s.schritt]], punkte: p, max: 100 });
+  }
+  return treffer;
 }
 
 // ---------- NEWS2 (per Code, nicht von der KI) ----------

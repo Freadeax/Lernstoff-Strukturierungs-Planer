@@ -18,6 +18,7 @@ export type EvidenceSource =
   | 'karteikarten'
   | 'offene_frage'
   | 'pruefungssimulation'
+  | 'trainer'
   | 'selbsteinschaetzung';
 
 /** Ergebnis einer Abfrage zu einem Thema. Entweder `rating` oder `scorePercent` angeben. */

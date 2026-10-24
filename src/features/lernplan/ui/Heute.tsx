@@ -4,7 +4,8 @@ import { navigate } from '../../../ui/shell/router';
 import { notify } from '../../../ui/shell/notifications';
 import type { PlanBlock } from '../scheduler';
 import type { EvidenceSource, Rating } from '../types';
-import { logReview, logStudy, RATING_LABEL, SOURCE_LABEL } from '../store';
+import { logReview, logStudy, RATING_LABEL, SOURCE_LABEL, TRAINER_NAME } from '../store';
+import { uebungenFuer } from '../trainer';
 import { blockTitel, bloecke, dauer, langDatum, STATUS_LABEL } from './format';
 import { OhnePruefung, type PlanCtx } from './Lernplan';
 import { KartenHinweis } from '../../karteikarten/ui/KartenHinweis';
@@ -87,6 +88,9 @@ function BlockKarte({ block, ctx }: { block: PlanBlock; ctx: PlanCtx }) {
               <button type="button" className="small" onClick={() => setOffen('abfrage')}>Ergebnis eintragen</button>
             </>
           )}
+          {block.kind !== 'erarbeiten' && uebungenFuer(topic.id).slice(0, 2).map((u) => (
+            <button key={u.trainer} type="button" className="small" onClick={() => navigate(u.path)}>{u.label}</button>
+          ))}
           <button type="button" className="small ghost" onClick={() => navigate(`/lernen/landkarte?thema=${encodeURIComponent(topic.id)}`)}>Auf der Landkarte</button>
         </div>
       )}
@@ -136,7 +140,7 @@ export function Heute({ ctx }: { ctx: PlanCtx }) {
     ...data.studyLogs.filter((l) => l.date === data.today).map((l) => ({ at: l.at, text: `${dauer(l.minutes)} gelernt`, topicId: l.topicId })),
     ...data.reviewLogs.filter((l) => l.date === data.today).map((l) => ({
       at: l.at, topicId: l.topicId,
-      text: `${SOURCE_LABEL[l.source]}: ${l.rating ? RATING_LABEL[l.rating] : `${l.scorePercent} %`}`,
+      text: `${l.trainer ? TRAINER_NAME[l.trainer] ?? SOURCE_LABEL[l.source] : SOURCE_LABEL[l.source]}: ${l.rating ? RATING_LABEL[l.rating] : `${l.scorePercent} %`}`,
     })),
   ].sort((a, b) => (a.at < b.at ? -1 : 1));
   const warnungen = plan.warnings.filter((w) => w.kind !== 'fehlende_voraussetzung' || alleWarnungen);

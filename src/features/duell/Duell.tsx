@@ -2,8 +2,11 @@ import { useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import './duell.css';
 import { logActivity } from '../../core/activity';
 import { modules } from '../../modules/registry';
+import { useRoute } from '../../ui/shell/router';
+import { inLernplan, proThema } from '../lernplan/trainer';
+import { LernplanHinweis, useLernplanUebernahme } from '../lernplan/ui/LernplanHinweis';
 import {
-  ARTEN, erzeugeRunde, filtere, karten, nacharbeiten, passt, punkte, stand,
+  ARTEN, erzeugeRunde, filtere, karten, nacharbeiten, passt, punkte, stand, trefferVon,
   type Antwort, type Frage, type FrageArt, type Spieler, type Zug,
 } from './duell';
 
@@ -17,12 +20,15 @@ interface Einstellungen {
   anzahl: number;
   sekunden: number;     // 0 = ohne Zeitlimit
   sitz: Sitz;
+  lernplan: Spieler | null;   // wessen Antworten als Abfrage in den Lernplan gehen
 }
 
 const SPEICHER = 'duell.einstellungen';
 const STANDARD: Einstellungen = {
-  namen: ['Spieler 1', 'Spieler 2'], faecher: [], arten: ['definition', 'abkuerzung'], anzahl: 10, sekunden: 20, sitz: 'gegenueber',
+  namen: ['Spieler 1', 'Spieler 2'], faecher: [], arten: ['definition', 'abkuerzung'], anzahl: 10, sekunden: 20, sitz: 'gegenueber', lernplan: 0,
 };
+/** Ein Thema zählt im Lernplan erst ab so vielen Begriffen in der Runde. */
+const MIN_PRO_THEMA = 2;
 
 function lade(): Einstellungen {
   try { return { ...STANDARD, ...JSON.parse(localStorage.getItem(SPEICHER) ?? '{}') }; } catch { return STANDARD; }
@@ -255,8 +261,15 @@ export default function Duell() {
   const [fragen, setFragen] = useState<Frage[] | null>(null);
   const [runde, setRunde] = useState(0);      // erzwingt frischen Spielzustand bei Revanche
   const [letzte, setLetzte] = useState<Zug[] | null>(null);
+  const lernplan = useLernplanUebernahme('duell');
 
   const setze = (teil: Partial<Einstellungen>) => setE((x) => { const n = { ...x, ...teil }; speichere(n); return n; });
+  // Sprung aus dem Lernplan: #/lernen/duell?fach=… wählt das Fach vor
+  const { params } = useRoute();
+  const fachAusAdresse = params.get('fach');
+  useEffect(() => {
+    if (fachAusAdresse && modul.subjects.some((f) => f.id === fachAusAdresse)) setze({ faecher: [fachAusAdresse] });
+  }, [fachAusAdresse]);
 
   const faecher = useMemo(
     () => modul.subjects.filter((f) => alle.some((k) => k.faecher.includes(f.id) && e.arten.some((a) => passt(k, a)))),
@@ -265,7 +278,12 @@ export default function Duell() {
   const pool = filtere(alle, e.faecher).filter((k) => e.arten.some((a) => passt(k, a)));
   const anzahl = Math.min(e.anzahl, pool.length);
 
-  const starte = () => { setFragen(erzeugeRunde(alle, pool, e.arten, anzahl, neuerSeed())); setRunde((r) => r + 1); setLetzte(null); };
+  const starte = () => { setFragen(erzeugeRunde(alle, pool, e.arten, anzahl, neuerSeed())); setRunde((r) => r + 1); setLetzte(null); lernplan.zuruecksetzen(); };
+  // Abgebrochene Runden zählen nicht: nur wenn alle Fragen gespielt sind
+  const beende = (zuege: Zug[]) => {
+    setFragen(null); setLetzte(zuege);
+    if (e.lernplan !== null && fragen && zuege.length === fragen.length) lernplan.uebernimm(proThema(trefferVon(zuege, e.lernplan), MIN_PRO_THEMA));
+  };
   const toggle = <T,>(xs: T[], x: T) => (xs.includes(x) ? xs.filter((y) => y !== x) : [...xs, x]);
   const [pa, pb] = letzte ? stand(letzte) : [0, 0];
   const offen = letzte ? nacharbeiten(letzte) : [];
@@ -299,6 +317,8 @@ export default function Duell() {
               </ul>
             </>
           ) : <p className="muted">Alles von beiden richtig beantwortet. Stark!</p>}
+          <LernplanHinweis uebernahme={lernplan.uebernahme} fehler={lernplan.fehler}
+            leer={e.lernplan === null ? undefined : `Für den Lernplan zählt ein Thema ab ${MIN_PRO_THEMA} Begriffen in der Runde. Tipp: ein Fach auswählen, dann kommen mehr Begriffe je Thema.`} />
         </div>
       )}
 
@@ -345,6 +365,15 @@ export default function Duell() {
           </div>
         </div>
         <div className="duell__zeile">
+          <span className="muted">Lernplan</span>
+          <div className="pills" role="group" aria-label="Wessen Ergebnis zählt im Lernplan">
+            {([0, 1] as Spieler[]).map((s) => (
+              <button key={s} type="button" className="pill" aria-pressed={e.lernplan === s} onClick={() => setze({ lernplan: s })}>{name(e, s)} zählt</button>
+            ))}
+            <button type="button" className="pill" aria-pressed={e.lernplan === null} onClick={() => setze({ lernplan: null })}>Nur Spaß</button>
+          </div>
+        </div>
+        <div className="duell__zeile">
           <span className="muted">Sitzen</span>
           <div className="pills" role="group" aria-label="Sitzordnung">
             <button type="button" className="pill" aria-pressed={e.sitz === 'gegenueber'} onClick={() => setze({ sitz: 'gegenueber' })}>Gegenüber (iPad flach)</button>
@@ -366,8 +395,8 @@ export default function Duell() {
 
       {fragen && (
         <Arena key={runde} e={e} fragen={fragen}
-          onEnde={(zuege) => { setFragen(null); setLetzte(zuege); }}
-          onRevanche={() => starte()} />
+          onEnde={beende}
+          onRevanche={(zuege) => { if (e.lernplan !== null) void inLernplan('duell', proThema(trefferVon(zuege, e.lernplan), MIN_PRO_THEMA)).catch(() => {}); starte(); }} />
       )}
     </section>
   );

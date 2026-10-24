@@ -2,6 +2,7 @@ import './lernplan.css';
 import { navigate } from '../../../ui/shell/router';
 import { blockTitel, bloecke, dauer, inTagen } from './format';
 import { usePlan } from './usePlan';
+import { uebungenFuer } from '../trainer';
 import { daysBetween } from '../dates';
 import { KartenHinweis } from '../../karteikarten/ui/KartenHinweis';
 
@@ -24,7 +25,10 @@ export function HeuteKarte() {
         : tag?.blocks.length
           ? <>
             <p>{bloecke(tag.blocks.length)}, {dauer(tag.plannedMinutes)}:</p>
-            <ul>{zeigen.map((b, i) => <li key={i}>{blockTitel(b)}: {ctx.topics.get(b.topicId)?.name}</li>)}{tag.blocks.length > zeigen.length && <li>… und {tag.blocks.length - zeigen.length} weitere</li>}</ul>
+            <ul>{zeigen.map((b, i) => {
+              const u = b.kind !== 'erarbeiten' ? uebungenFuer(b.topicId)[0] : undefined;
+              return <li key={i}>{blockTitel(b)}: {ctx.topics.get(b.topicId)?.name}{u && <> · <button type="button" className="link" onClick={() => navigate(u.path)}>{u.label}</button></>}</li>;
+            })}{tag.blocks.length > zeigen.length && <li>… und {tag.blocks.length - zeigen.length} weitere</li>}</ul>
           </>
           : <p>Für heute ist nichts mehr geplant.</p>}
       <KartenHinweis className="muted" />

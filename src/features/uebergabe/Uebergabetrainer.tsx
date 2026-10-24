@@ -1,6 +1,8 @@
 import { useMemo, useRef, useState } from 'react';
 import './uebergabe.css';
 import { logActivity } from '../../core/activity';
+import { UEBERGABE_THEMA } from '../lernplan/trainer';
+import { LernplanHinweis, useLernplanUebernahme } from '../lernplan/ui/LernplanHinweis';
 import { getApiKey } from '../../core/settings';
 import { navigate } from '../../ui/shell/router';
 import { ANLASS_LABEL, FAELLE, TEIL_HILFE, TEIL_LABEL, type Fall, type Teil } from './faelle';
@@ -116,6 +118,7 @@ export default function Uebergabetrainer() {
   const [beste, setBeste] = useState(ladeBeste);
   const [hilfe, setHilfe] = useState(false);
   const ergebnisRef = useRef<HTMLDivElement>(null);
+  const lernplan = useLernplanUebernahme('uebergabe');
   const apiKey = getApiKey();
 
   const fall = FAELLE.find((f) => f.id === fallId)!;
@@ -130,7 +133,7 @@ export default function Uebergabetrainer() {
     zuruecksetzen();
   });
 
-  function zuruecksetzen() { setErgebnis(null); setKi(null); setKiFehler(''); }
+  function zuruecksetzen() { setErgebnis(null); setKi(null); setKiFehler(''); lernplan.zuruecksetzen(); }
 
   function waehleFall(id: string) {
     diktat.stop();
@@ -155,6 +158,8 @@ export default function Uebergabetrainer() {
       title: `SBAR-Übergabe: ${fall.titel} ${e.prozent} %`,
       detail: e.pflichtFehlend.length ? `Fehlt: ${e.pflichtFehlend.map((p) => p.text).join('; ')}` : 'Alle Pflichtpunkte enthalten',
     });
+    // Übergabe nach SBAR ist ein eigenes Katalogthema; der erste Versuch des Tages zählt
+    lernplan.uebernimm([{ topicId: UEBERGABE_THEMA, scorePercent: e.prozent, anzahl: 1 }]);
     requestAnimationFrame(() => ergebnisRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
   }
 
@@ -268,6 +273,7 @@ export default function Uebergabetrainer() {
         {ergebnis && (
           <>
             <Ergebnis e={ergebnis} />
+            <LernplanHinweis uebernahme={lernplan.uebernahme} fehler={lernplan.fehler} />
             <div className="card">
               <div className="row">
                 {apiKey

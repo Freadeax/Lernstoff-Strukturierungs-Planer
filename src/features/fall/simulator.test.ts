@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { pflegeModule } from '../../modules/pflege';
 import { fallThemen, SZENARIEN, szenarioAusThema } from './faelle';
 import {
-  ABSCHLUSS_SCHEMA, nachrichten, neuerFall, news2, parseAbschluss, parseZug, SCHRITTE, START_TEXT, systemPrompt, ZUG_SCHEMA,
+  ABSCHLUSS_SCHEMA, fallTreffer, nachrichten, neuerFall, news2, parseAbschluss, parseZug, SCHRITT_THEMA, SCHRITTE, START_TEXT, systemPrompt, ZUG_SCHEMA,
   type Vitalwerte, type Zug,
 } from './simulator';
 
@@ -93,6 +93,25 @@ describe('parseAbschluss', () => {
     expect(a.schritte[0]!.bewertung).toBe('stark');
     expect(a.themen).toEqual(['thema.pro.sturz']);
     expect(SCHRITTE).toHaveLength(6);
+  });
+});
+
+describe('Lernplan', () => {
+  it('gibt die Note an die Szenario-Themen und jeden bearbeiteten Schritt an sein Pflegeprozess-Thema', () => {
+    const ids = new Set(pflegeModule.topics.map((t) => t.id));
+    for (const id of Object.values(SCHRITT_THEMA)) expect(ids.has(id), id).toBe(true);
+    const f = { ...neuerFall(SZENARIEN[0]!, 1), abschluss: parseAbschluss(JSON.stringify({
+      note: 'teilweise', gesamt: 'ok', staerken: [], verbesserungen: [], musterloesung: '', themen: [],
+      schritte: [
+        { schritt: 'informationssammlung', bewertung: 'stark', kommentar: '' },
+        { schritt: 'ziele', bewertung: 'nicht_bearbeitet', kommentar: '' },
+      ],
+    }), pflegeModule) };
+    expect(fallTreffer(f)).toEqual([
+      { topicIds: SZENARIEN[0]!.topicIds, punkte: 60, max: 100 },
+      { topicIds: ['thema.pp.anamnese'], punkte: 95, max: 100 },
+    ]);
+    expect(fallTreffer({ ...f, abschluss: undefined })).toEqual([]);
   });
 });
 

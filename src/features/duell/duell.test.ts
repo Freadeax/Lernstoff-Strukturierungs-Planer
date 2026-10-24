@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { pflegeModule } from '../../modules/pflege';
-import { erzeugeRunde, filtere, karten, maskiere, nacharbeiten, passt, punkte, stand, type FrageArt, type Zug } from './duell';
+import { erzeugeRunde, filtere, karten, maskiere, nacharbeiten, passt, punkte, stand, trefferVon, type FrageArt, type Zug } from './duell';
 
 const alle = karten(pflegeModule);
 const ARTEN: FrageArt[] = ['definition', 'abkuerzung', 'begriff'];
@@ -86,5 +86,21 @@ describe('punkte', () => {
     ];
     expect(stand(zuege)).toEqual([2, 3]);
     expect(nacharbeiten(zuege).map((z) => z.frage.id)).toEqual([q2!.id]);
+  });
+});
+
+describe('Duell im Lernplan', () => {
+  it('kennt für die meisten Begriffe ein Katalogthema', () => {
+    const ids = new Set(pflegeModule.topics.map((t) => t.id));
+    expect(alle.every((k) => k.themen.every((t) => ids.has(t)))).toBe(true);
+    expect(alle.filter((k) => k.themen.length).length / alle.length).toBeGreaterThan(0.9);
+  });
+
+  it('liefert je Begriff die Themen der Karte und ob die gewählte Person richtig lag', () => {
+    const karte = { id: 'gl.x', begriff: 'X', definition: 'd', erklaerung: 'd', faecher: [], themen: ['thema.fs.lage'] };
+    const frage = { id: 'definition:gl.x', art: 'definition' as const, karte, frage: 'd', optionen: ['X', 'Y'], richtig: 0 };
+    const zuege = [{ frage, antworten: [{ wahl: 0, ms: 900 }, { wahl: 1, ms: 500 }] as [{ wahl: number; ms: number }, { wahl: number; ms: number }], punkte: [2, 0] as [number, number] }];
+    expect(trefferVon(zuege, 0)).toEqual([{ topicIds: ['thema.fs.lage'], punkte: 1, max: 1 }]);
+    expect(trefferVon(zuege, 1)).toEqual([{ topicIds: ['thema.fs.lage'], punkte: 0, max: 1 }]);
   });
 });

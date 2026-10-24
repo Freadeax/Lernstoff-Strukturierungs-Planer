@@ -21,6 +21,7 @@ export interface Karte {
   definition: string;        // eigener Begriff, Abkürzung und Synonyme sind ausgeblendet
   erklaerung: string;        // ungekürzt, für Auflösung und Nacharbeiten
   faecher: ID[];
+  themen: ID[];              // Katalogthemen, in die ein Ergebnis im Lernplan eingeht
 }
 
 export interface Frage {
@@ -57,6 +58,7 @@ export function karten(modul: Pick<DomainModule, 'glossary' | 'topics'>): Karte[
     definition: maskiere(g.definition, [g.term, g.abbreviation, ...(g.synonyms ?? [])]),
     erklaerung: g.definition,
     faecher: [...new Set((g.topicIds ?? []).map((t) => fachVonThema.get(t)).filter((f): f is ID => !!f))],
+    themen: [...new Set(g.topicIds ?? [])],
   }));
 }
 
@@ -152,4 +154,9 @@ export function stand(zuege: Zug[]): [number, number] {
 /** Begriffe, bei denen mindestens eine Person falsch lag oder nicht geantwortet hat. */
 export function nacharbeiten(zuege: Zug[]): Zug[] {
   return zuege.filter((z) => z.antworten.some((a) => !a || a.wahl !== z.frage.richtig));
+}
+
+/** Ergebnis einer Person je Begriff, als Treffer für den Lernplan (1 = richtig, 0 = falsch oder keine Antwort). */
+export function trefferVon(zuege: Zug[], s: Spieler) {
+  return zuege.map((z) => ({ topicIds: z.frage.karte.themen, punkte: z.antworten[s]?.wahl === z.frage.richtig ? 1 : 0, max: 1 }));
 }

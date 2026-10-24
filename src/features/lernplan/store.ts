@@ -23,7 +23,8 @@ import {
 } from './types';
 
 export interface StoredStudyLog extends StudyLog { id?: number; at: string }
-export interface StoredReviewLog extends ReviewLog { id?: number; at: string }
+/** `trainer`: aus welchem Übungstrainer das Ergebnis stammt (siehe trainer.ts), sonst leer. */
+export interface StoredReviewLog extends ReviewLog { id?: number; at: string; trainer?: string }
 
 /** Einstellungen des Planers, eine Zeile mit id 'standard'. */
 export interface PlannerConfig {
@@ -51,7 +52,13 @@ export const SOURCE_LABEL: Record<EvidenceSource, string> = {
   karteikarten: 'Karteikarten',
   offene_frage: 'Offene Fragen',
   pruefungssimulation: 'Prüfungssimulation',
+  trainer: 'Übungstrainer',
   selbsteinschaetzung: 'Nur eingeschätzt',
+};
+
+/** Anzeigenamen der Übungstrainer (Schlüssel wie TrainerId in trainer.ts). */
+export const TRAINER_NAME: Record<string, string> = {
+  rechnen: 'Rechentrainer', duell: 'Fachbegriff-Duell', fall: 'Fallsimulator', uebergabe: 'Übergabe-Trainer',
 };
 
 export const RATING_LABEL: Record<Rating, string> = { 1: 'Vergessen', 2: 'Schwer', 3: 'Gut', 4: 'Leicht' };
@@ -179,14 +186,14 @@ export async function logStudy(topic: Topic, minutes: number, date = heute()) {
 }
 
 /** Abfrageergebnis speichern. Selbsteinschätzungen werden gespeichert, zählen aber nicht als Nachweis. */
-export async function logReview(topic: Topic, source: EvidenceSource, result: { rating?: Rating; scorePercent?: number }, date = heute()) {
-  await db.reviewLogs.add({ topicId: topic.id, date, source, ...result, at: new Date().toISOString() });
+export async function logReview(topic: Topic, source: EvidenceSource, result: { rating?: Rating; scorePercent?: number }, date = heute(), trainer?: string) {
+  await db.reviewLogs.add({ topicId: topic.id, date, source, ...result, at: new Date().toISOString(), ...(trainer ? { trainer } : {}) });
   const was = result.rating ? RATING_LABEL[result.rating] : `${result.scorePercent} %`;
   await logActivity({
     kind: 'lernplan', ref: topic.id,
     severity: source !== 'selbsteinschaetzung' && (result.rating === 1 || (result.scorePercent ?? 100) < 50) ? 'warning' : 'info',
     title: `Abfrage ${topic.name}: ${was}`,
-    detail: source === 'selbsteinschaetzung' ? 'Selbsteinschätzung, zählt nicht als Nachweis' : SOURCE_LABEL[source],
+    detail: source === 'selbsteinschaetzung' ? 'Selbsteinschätzung, zählt nicht als Nachweis' : trainer ? `${SOURCE_LABEL[source]}: ${TRAINER_NAME[trainer] ?? trainer}` : SOURCE_LABEL[source],
   });
 }
 

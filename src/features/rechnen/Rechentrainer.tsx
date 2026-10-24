@@ -6,6 +6,9 @@ import {
   type Aufgabe, type AufgabenTyp, type Bewertung, type Stufe,
 } from './aufgaben';
 import { ladeStatistik, quote, schwaechen, zaehle, type Statistik } from './statistik';
+import { proThema } from '../lernplan/trainer';
+import { useRoute } from '../../ui/shell/router';
+import { LernplanHinweis, useLernplanUebernahme } from '../lernplan/ui/LernplanHinweis';
 
 type Modus = 'training' | 'pruefung';
 const PRUEFUNG_LAENGE = 10;
@@ -16,6 +19,9 @@ const ALLE = TYPEN.map((t) => t.typ);
 
 const neuerSeed = () => Math.floor(Math.random() * 2 ** 31);
 const ok = (b: Bewertung) => b === 'richtig' || b === 'gerundet';
+const THEMA = Object.fromEntries(TYPEN.map((t) => [t.typ, t.thema])) as Record<AufgabenTyp, string>;
+/** Mindestens so viele Aufgaben eines Themas in der Prüfungsrunde, bevor sie im Lernplan zählt. */
+const MIN_PRO_THEMA = 3;
 
 interface Ergebnis { aufgabe: Aufgabe; eingabe: string; bewertung: Bewertung }
 
@@ -35,11 +41,19 @@ const MELDUNG: Record<Bewertung, string> = {
   leer: 'Bitte eine Zahl eingeben.',
 };
 
+/** Startwerte aus der Adresse, z. B. #/lernen/rechnen?modus=pruefung&typen=dosis,mgkg (Sprung aus dem Lernplan). */
+function ausAdresse(params: URLSearchParams): { typen: AufgabenTyp[]; modus: Modus } {
+  const typen = (params.get('typen') ?? '').split(',').filter((t): t is AufgabenTyp => (ALLE as string[]).includes(t));
+  return { typen: typen.length ? typen : ALLE, modus: params.get('modus') === 'pruefung' ? 'pruefung' : 'training' };
+}
+
 export default function Rechentrainer() {
-  const [typen, setTypen] = useState<AufgabenTyp[]>(ALLE);
+  const { params } = useRoute();
+  const [start0] = useState(() => ausAdresse(params));
+  const [typen, setTypen] = useState<AufgabenTyp[]>(start0.typen);
   const [stufe, setStufe] = useState<Stufe>(1);
-  const [modus, setModus] = useState<Modus>('training');
-  const [aufgabe, setAufgabe] = useState(() => naechste(ALLE, 1, neuerSeed()));
+  const [modus, setModus] = useState<Modus>(start0.modus);
+  const [aufgabe, setAufgabe] = useState(() => naechste(start0.typen, 1, neuerSeed()));
   const [eingabe, setEingabe] = useState('');
   const [bewertung, setBewertung] = useState<Bewertung | null>(null);
   const [tipp, setTipp] = useState(false);
@@ -49,6 +63,7 @@ export default function Rechentrainer() {
   const [runde, setRunde] = useState<Ergebnis[]>([]);
   const [start, setStart] = useState(() => Date.now());
   const inputRef = useRef<HTMLInputElement>(null);
+  const lernplan = useLernplanUebernahme('rechnen');
 
   const fertig = modus === 'pruefung' && runde.length >= PRUEFUNG_LAENGE;
   const info = TYPEN.find((t) => t.typ === aufgabe.typ)!;
@@ -61,7 +76,7 @@ export default function Rechentrainer() {
   }
 
   function neueRunde(m: Modus, t = typen, s = stufe) {
-    setModus(m); setRunde([]); setSerie(0); setStart(Date.now());
+    setModus(m); setRunde([]); setSerie(0); setStart(Date.now()); lernplan.zuruecksetzen();
     neu({ typen: t, stufe: s });
   }
 
@@ -97,6 +112,8 @@ export default function Rechentrainer() {
       title: `Rechentrainer: ${richtig} von ${runde.length} richtig`,
       detail: `Prüfungsrunde, Stufe ${STUFEN.find((x) => x.stufe === stufe)?.label}, ${Math.round((Date.now() - start) / 60000)} min`,
     });
+    // Nur die Prüfungsrunde zählt als Abfrage, Training mit Tipp und Lösungsweg nicht
+    lernplan.uebernimm(proThema(runde.map((e) => ({ topicIds: [THEMA[e.aufgabe.typ]], punkte: ok(e.bewertung) ? 1 : 0, max: 1 })), MIN_PRO_THEMA));
   }, [fertig]);
 
   const richtigInRunde = runde.filter((e) => ok(e.bewertung)).length;
@@ -105,7 +122,7 @@ export default function Rechentrainer() {
     <section className="page rechnen">
       <div className="page__head">
         <h2>Rechentrainer</h2>
-        <p className="muted">Pflegerisches Rechnen mit unendlich vielen Aufgaben und Lösungsweg. Funktioniert offline. Die Werte sind fiktive Übungswerte, keine Dosierungsempfehlung.</p>
+        <p className="muted">Pflegerisches Rechnen mit unendlich vielen Aufgaben und Lösungsweg. Funktioniert offline. Prüfungsrunden zählen im Lernplan als Abfrage. Die Werte sind fiktive Übungswerte, keine Dosierungsempfehlung.</p>
       </div>
 
       <div className="card rechnen__einstellungen">
@@ -149,6 +166,8 @@ export default function Rechentrainer() {
               {richtigInRunde === runde.length ? 'Fehlerfrei. Stark!' : richtigInRunde >= 8 ? 'Gut, schau dir die Fehler kurz an.' : 'Lies die Lösungswege und versuch es gleich noch einmal.'}
               {' '}Zeit: {Math.max(1, Math.round((Date.now() - start) / 60000))} min.
             </p>
+            <LernplanHinweis uebernahme={lernplan.uebernahme} fehler={lernplan.fehler}
+              leer={`Für den Lernplan zählt ein Thema ab ${MIN_PRO_THEMA} Aufgaben in der Runde.`} />
             <ol className="rechnen__liste">
               {runde.map((e, i) => (
                 <li key={i} className={ok(e.bewertung) ? 'is-ok' : 'is-falsch'}>

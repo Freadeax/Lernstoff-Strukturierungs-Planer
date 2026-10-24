@@ -3,7 +3,7 @@
 
 .fall__szenarien { display: grid; gap: var(--space-3); grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr)); }
 .fall__szenario {
-  display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-2);
+  display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: var(--space-2);
   text-align: left; font: inherit; color: inherit; cursor: pointer; min-height: 0; height: auto;
   transition: border-color var(--dur-fast) var(--ease-standard), box-shadow var(--dur-fast) var(--ease-standard);
 }
@@ -11,6 +11,7 @@
 .fall__szenario:disabled { opacity: 0.6; cursor: not-allowed; }
 .fall__szenario strong { font-size: var(--text-lg); }
 .fall__szenario .muted { font-size: var(--text-sm); line-height: var(--leading-normal); }
+.fall__badges { margin-top: 0; justify-content: flex-start; width: 100%; }
 
 .fall__eigen-felder { display: grid; gap: var(--space-2); grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); }
 .fall__eigen-felder label { display: flex; flex-direction: column; gap: var(--space-1); }
