@@ -56,7 +56,7 @@ taskFormats:
     description: Einstiegselement des Strukturmodells. Themenfelder aus Sicht der pflegebedürftigen Person und fachliche Einschätzung der Pflegefachperson.
     referenceIds: [mo.strukturmodell]
     parts:
-      - { key: A,  label: "Feld A: Eigeneinschätzung der Person (Was bewegt Sie? Was brauchen Sie?)", required: true, hint: "Wörtlich bzw. sinngemäß aus Sicht der Person" }
+      - { key: A,  label: "Feld B: Eigeneinschätzung der Person (Was bewegt Sie? Was brauchen Sie?)", required: true, hint: "Wörtlich bzw. sinngemäß aus Sicht der Person" }
       - { key: TF1, label: "Themenfeld 1: Kognitive und kommunikative Fähigkeiten", required: true }
       - { key: TF2, label: "Themenfeld 2: Mobilität und Beweglichkeit", required: true }
       - { key: TF3, label: "Themenfeld 3: Krankheitsbezogene Anforderungen und Belastungen", required: true }

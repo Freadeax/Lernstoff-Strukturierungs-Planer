@@ -1,0 +1,384 @@
+// Übungsfälle für den SIS-Trainer (Strukturmodell, Strukturierte Informationssammlung).
+// Alle Personen und Angaben sind frei erfunden.
+//
+// Aufbau der SIS: Feld A (Stammdaten, hier vorgegeben), Feld B (Eigeneinschätzung der Person),
+// Feld C1 (sechs Themenfelder mit Sicht der Person, fachlicher Einschätzung und Verständigung),
+// Feld C2 (Matrix zur Risikoeinschätzung). Hausversionen können in Details abweichen.
+//
+// Muster für die Prüfung per Code wie im Übergabe-Trainer (siehe ../uebergabe/faelle.ts):
+// Alternativen, „ + “ = alle Teile, Text vorher vereinfacht (klein, ä→ae, ß→ss), Wortteile genügen.
+
+export type Themenfeld = 'TF1' | 'TF2' | 'TF3' | 'TF4' | 'TF5' | 'TF6';
+export type Feld = 'B' | Themenfeld;
+export type Setting = 'stationaer' | 'ambulant';
+export type Risiko = 'dekubitus' | 'sturz' | 'inkontinenz' | 'schmerz' | 'ernaehrung' | 'sonstiges';
+/** Antwort in der Matrix; 'beides' = fachlich ist ja wie nein vertretbar. */
+export type JaNein = 'ja' | 'nein';
+export type Loesung = JaNein | 'beides';
+
+export const FELDER: Feld[] = ['B', 'TF1', 'TF2', 'TF3', 'TF4', 'TF5', 'TF6'];
+export const THEMENFELDER: Themenfeld[] = ['TF1', 'TF2', 'TF3', 'TF4', 'TF5', 'TF6'];
+/** Zeilen der Risikomatrix: Themenfeld 1 bis 5. */
+export const MATRIX_FELDER: Themenfeld[] = ['TF1', 'TF2', 'TF3', 'TF4', 'TF5'];
+export const RISIKEN: Risiko[] = ['dekubitus', 'sturz', 'inkontinenz', 'schmerz', 'ernaehrung', 'sonstiges'];
+
+export const RISIKO_LABEL: Record<Risiko, string> = {
+  dekubitus: 'Dekubitus', sturz: 'Sturz', inkontinenz: 'Inkontinenz', schmerz: 'Schmerz', ernaehrung: 'Ernährung', sonstiges: 'Sonstiges',
+};
+
+export function feldLabel(feld: Feld, setting: Setting): string {
+  switch (feld) {
+    case 'B': return 'Was bewegt Sie im Augenblick? Was brauchen Sie? Was können wir für Sie tun?';
+    case 'TF1': return 'Kognitive und kommunikative Fähigkeiten';
+    case 'TF2': return 'Mobilität und Beweglichkeit';
+    case 'TF3': return 'Krankheitsbezogene Anforderungen und Belastungen';
+    case 'TF4': return 'Selbstversorgung';
+    case 'TF5': return 'Leben in sozialen Beziehungen';
+    case 'TF6': return setting === 'ambulant' ? 'Haushaltsführung' : 'Wohnen/Häuslichkeit';
+  }
+}
+
+export const FELD_KURZ: Record<Feld, string> = { B: 'B', TF1: '1', TF2: '2', TF3: '3', TF4: '4', TF5: '5', TF6: '6' };
+
+export function feldHilfe(feld: Feld, setting: Setting): string {
+  switch (feld) {
+    case 'B': return 'Die Sicht der Person, möglichst wörtlich und in Anführungszeichen. Keine Fachsprache, keine Bewertung. Spricht jemand anderes (Angehörige), das kennzeichnen.';
+    case 'TF1': return 'Orientierung, Gedächtnis, Entscheidungen treffen, Sprechen und Verstehen, Hören und Sehen.';
+    case 'TF2': return 'Gehen, Stehen, Transfer, Treppen, Lagewechsel im Bett, Hilfsmittel, frühere Stürze.';
+    case 'TF3': return 'Diagnosen, Medikamente, Schmerzen, Wunden, Therapien, Umgang mit der Erkrankung und Belastung.';
+    case 'TF4': return 'Körperpflege, An- und Auskleiden, Essen und Trinken, Ausscheidung.';
+    case 'TF5': return 'Familie, Freundschaften, Kontakte, Tagesgestaltung, Interessen, Glaube.';
+    case 'TF6': return setting === 'ambulant'
+      ? 'Einkaufen, Kochen, Wäsche, Reinigung, Geldangelegenheiten, Hilfen im Umfeld.'
+      : 'Zimmer gestalten, persönliche Dinge, Gewohnheiten (Schlafen, Aufstehen, Rituale).';
+  }
+}
+
+export const SETTING_LABEL: Record<Setting, string> = { stationaer: 'Stationäre Langzeitpflege', ambulant: 'Ambulante Pflege' };
+
+export interface Kernpunkt {
+  id: string;
+  feld: Feld;
+  text: string;       // was erwartet wird, so wird es auch angezeigt
+  muster: string[];
+  pflicht: boolean;
+}
+
+export interface MatrixZeile {
+  risiko: Risiko;
+  vorhanden: Loesung;
+  weitere: Loesung;          // weitere fachliche Einschätzung notwendig (z. B. Assessment)
+  themenfelder: Themenfeld[]; // wo sich das Risiko zeigt, mindestens eines sollte genannt sein
+  begruendung: string;
+  /** Nur bei Sonstiges: welches Risiko (Muster wie bei Kernpunkten). */
+  welches?: string[];
+}
+
+export interface Aussage { wer: string; text: string }
+
+export interface SisFall {
+  id: string;
+  titel: string;
+  setting: Setting;
+  anlass: string;
+  person: { label: string; wert: string }[];   // Feld A, vorgegeben
+  gespraech: Aussage[];                         // Erstgespräch
+  beobachtungen: string[];
+  unterlagen: { label: string; wert: string }[];
+  kernpunkte: Kernpunkt[];
+  matrix: MatrixZeile[];
+  muster: Record<Feld, string>;                 // Beispiel-SIS, erfüllt alle Kernpunkte
+}
+
+export const SIS_FAELLE: SisFall[] = [
+  {
+    id: 'sommer',
+    titel: 'Einzug nach Hüftoperation',
+    setting: 'stationaer',
+    anlass: 'Einzug in die stationäre Langzeitpflege nach Krankenhaus und Reha',
+    person: [
+      { label: 'Name', wert: 'Hildegard Sommer, 84 Jahre' },
+      { label: 'Gespräch', wert: 'Am Einzugstag mit Frau Sommer und ihrer Tochter Petra Lang' },
+    ],
+    gespraech: [
+      { wer: 'Frau Sommer', text: 'Ich will wieder sicher laufen können und nicht noch mal hinfallen. Das war so schlimm, ich lag zwei Stunden in der Küche.' },
+      { wer: 'Frau Sommer', text: 'Und ich möchte nicht wie ein Kind behandelt werden. Waschen kann ich mich oben selbst, nur unten und an die Füße komme ich nicht.' },
+      { wer: 'Frau Sommer', text: 'Nachts muss ich zwei-, dreimal raus. Deshalb trinke ich abends nichts mehr, und auch tagsüber nicht so viel.' },
+      { wer: 'Frau Sommer', text: 'Manchmal geht es nicht schnell genug zur Toilette, dann ist die Einlage nass. Das ist mir peinlich.' },
+      { wer: 'Frau Sommer', text: 'Die Hüfte tut beim Laufen weh, so eine Vier von zehn. Im Sitzen geht es. Fragen mag ich nicht dauernd nach einer Tablette.' },
+      { wer: 'Frau Sommer', text: 'Lesen geht nicht mehr, die Augen. Aber Hörbücher höre ich gern. Und bitte nicht vor acht Uhr wecken, das war immer so.' },
+      { wer: 'Tochter', text: 'Ich komme dienstags und samstags. Meine Mutter war 40 Jahre im Kirchenchor, der Gottesdienst ist ihr wichtig.' },
+      { wer: 'Frau Sommer', text: 'Hier soll es ein bisschen wie zu Hause sein. Mein Sessel und die Fotos von meinem Mann sollen mit.' },
+    ],
+    beobachtungen: [
+      'Geht mit Rollator etwa 20 Meter, dann unsicher. Beim Aufstehen aus dem Sessel braucht sie zwei Anläufe.',
+      'Wach, zu allen Qualitäten orientiert. Hörgerät links, versteht damit gut.',
+      'Dreht sich im Bett selbst, Haut am Gesäß und an den Fersen intakt.',
+      'Einlage beim Einzug feucht. Trinkmenge laut Überleitungsbogen etwa 800 ml am Tag.',
+      'Isst ihre Portion auf, Gewicht stabil (BMI 24).',
+    ],
+    unterlagen: [
+      { label: 'Diagnosen', wert: 'Hüft-TEP links nach Oberschenkelhalsfraktur vor 6 Wochen, Osteoporose, arterielle Hypertonie, altersbedingte Makuladegeneration' },
+      { label: 'Medikamente', wert: 'Ramipril, Torasemid morgens, Calcium/Vitamin D, Alendronsäure wöchentlich, Metamizol bei Bedarf' },
+      { label: 'Hilfsmittel', wert: 'Rollator, Hörgerät links, Greifzange, Strumpfanziehhilfe' },
+      { label: 'Ärztliche Vorgabe', wert: 'Hüfte nicht über 90 Grad beugen (bis 12 Wochen nach OP)' },
+    ],
+    kernpunkte: [
+      { id: 'b-laufen', feld: 'B', pflicht: true, text: 'Wunsch, wieder sicher zu laufen und nicht zu stürzen', muster: ['laufen', 'hinfallen', 'stuerz'] },
+      { id: 'b-kind', feld: 'B', pflicht: true, text: 'Möchte nicht wie ein Kind behandelt werden (Selbstbestimmung)', muster: ['kind', 'selbst'] },
+      { id: 'b-zuhause', feld: 'B', pflicht: false, text: 'Soll wie zu Hause sein (eigener Sessel, Fotos)', muster: ['zu hause', 'zuhause', 'sessel', 'foto'] },
+      { id: 'tf1-orientiert', feld: 'TF1', pflicht: true, text: 'Orientiert, trifft Entscheidungen selbst', muster: ['orientiert', 'klar', 'entscheid'] },
+      { id: 'tf1-hoeren', feld: 'TF1', pflicht: true, text: 'Hörgerät links', muster: ['hoergeraet', 'hoeren', 'schwerhoer'] },
+      { id: 'tf1-sehen', feld: 'TF1', pflicht: true, text: 'Sieht schlecht (Makuladegeneration), Hörbücher statt Lesen', muster: ['sieht', 'sehen', 'makula', 'augen', 'sehvermoegen'] },
+      { id: 'tf2-rollator', feld: 'TF2', pflicht: true, text: 'Geht mit Rollator etwa 20 m, dann unsicher', muster: ['rollator'] },
+      { id: 'tf2-aufstehen', feld: 'TF2', pflicht: false, text: 'Aufstehen aus dem Sitzen schwer (zwei Anläufe)', muster: ['aufstehen', 'anlaeuf', 'anlauf', 'transfer'] },
+      { id: 'tf2-sturz', feld: 'TF2', pflicht: true, text: 'Sturz in der Vorgeschichte, Angst vor erneutem Sturz', muster: ['sturz', 'gestuerzt', 'hingefallen', 'angst'] },
+      { id: 'tf2-bett', feld: 'TF2', pflicht: false, text: 'Dreht sich im Bett selbst', muster: ['dreht', 'lagewechsel', 'positionswechsel', 'im bett selbst', 'selbststaendig im bett'] },
+      { id: 'tf3-tep', feld: 'TF3', pflicht: true, text: 'Hüft-TEP links, nicht über 90 Grad beugen', muster: ['tep', 'hueft', '90'] },
+      { id: 'tf3-schmerz', feld: 'TF3', pflicht: true, text: 'Belastungsschmerz Hüfte NRS 4, fragt ungern nach Bedarfsmedikation', muster: ['schmerz'] },
+      { id: 'tf3-diuretikum', feld: 'TF3', pflicht: false, text: 'Entwässerung (Torasemid) als Grund für häufigen Harndrang', muster: ['torasemid', 'diuret', 'entwaesser', 'wassertablette'] },
+      { id: 'tf4-waschen', feld: 'TF4', pflicht: true, text: 'Wäscht Oberkörper selbst, braucht Hilfe am Unterkörper und an den Füßen', muster: ['oberkoerper', 'unterkoerper', 'fuesse', 'fuss', 'beine'] },
+      { id: 'tf4-trinken', feld: 'TF4', pflicht: true, text: 'Trinkt wenig (ca. 800 ml) aus Sorge vor nächtlichen Toilettengängen', muster: ['trink', '800'] },
+      { id: 'tf4-kontinenz', feld: 'TF4', pflicht: true, text: 'Kommt nicht immer rechtzeitig zur Toilette, Einlage, Scham', muster: ['einlage', 'toilette', 'inkontinen', 'harndrang', 'rechtzeitig', 'peinlich'] },
+      { id: 'tf5-tochter', feld: 'TF5', pflicht: true, text: 'Tochter besucht dienstags und samstags', muster: ['tochter'] },
+      { id: 'tf5-kirche', feld: 'TF5', pflicht: true, text: 'Kirchenchor und Gottesdienst sind wichtig', muster: ['chor', 'gottesdienst', 'kirche', 'glaube'] },
+      { id: 'tf6-moebel', feld: 'TF6', pflicht: true, text: 'Eigener Sessel und Fotos ihres Mannes im Zimmer', muster: ['sessel', 'foto', 'eigene moebel'] },
+      { id: 'tf6-wecken', feld: 'TF6', pflicht: true, text: 'Nicht vor 8 Uhr wecken', muster: ['wecken', '8 uhr', 'acht uhr', 'ausschlafen'] },
+    ],
+    matrix: [
+      { risiko: 'dekubitus', vorhanden: 'nein', weitere: 'nein', themenfelder: [], begruendung: 'Dreht sich im Bett selbst, Haut intakt, isst ausreichend.' },
+      { risiko: 'sturz', vorhanden: 'ja', weitere: 'ja', themenfelder: ['TF2', 'TF3', 'TF1'], begruendung: 'Sturz in der Vorgeschichte, unsicheres Gehen und Aufstehen, nächtliche Toilettengänge, Entwässerung, schlechtes Sehen. Ursachen genauer einschätzen (Expertenstandard Sturzprophylaxe).' },
+      { risiko: 'inkontinenz', vorhanden: 'ja', weitere: 'ja', themenfelder: ['TF4', 'TF3', 'TF2'], begruendung: 'Kommt nicht immer rechtzeitig zur Toilette, Einlage nass. Kontinenzprofil erheben (Expertenstandard Kontinenzförderung).' },
+      { risiko: 'schmerz', vorhanden: 'ja', weitere: 'ja', themenfelder: ['TF3', 'TF2'], begruendung: 'Belastungsschmerz NRS 4, Bedarfsmedikation wird aus Zurückhaltung nicht erfragt: Schmerzsituation genauer einschätzen.' },
+      { risiko: 'ernaehrung', vorhanden: 'ja', weitere: 'ja', themenfelder: ['TF4'], begruendung: 'Essen unauffällig, aber Trinkmenge zu gering (etwa 800 ml). Trinkmenge für einige Tage erfassen.' },
+      { risiko: 'sonstiges', vorhanden: 'nein', weitere: 'nein', themenfelder: [], begruendung: 'Kein weiteres Risiko erkennbar.' },
+    ],
+    muster: {
+      B: '„Ich will wieder sicher laufen können und nicht noch mal hinfallen.“ „Ich möchte nicht wie ein Kind behandelt werden.“ „Hier soll es ein bisschen wie zu Hause sein, mein Sessel und die Fotos von meinem Mann sollen mit.“',
+      TF1: 'Frau Sommer ist wach und orientiert und trifft ihre Entscheidungen selbst. Mit dem Hörgerät links versteht sie gut. Sie sieht durch die Makuladegeneration schlecht und kann nicht mehr lesen, sie hört gern Hörbücher. Verständigung: Hörbücher werden mit der Tochter besorgt.',
+      TF2: 'Sie geht mit dem Rollator etwa 20 m, danach wird sie unsicher. Beim Aufstehen aus dem Sessel braucht sie zwei Anläufe. Sie ist vor 6 Wochen zu Hause gestürzt und hat große Angst vor einem erneuten Sturz. Im Bett dreht sie sich selbst. Sie wünscht sich, wieder sicher zu laufen; Gehtraining mit Physiotherapie ist vereinbart.',
+      TF3: 'Hüft-TEP links nach Oberschenkelhalsfraktur, Hüfte nicht über 90 Grad beugen. Beim Gehen Schmerzen in der Hüfte (NRS 4), in Ruhe kaum. Sie fragt ungern nach der Bedarfsmedikation; vereinbart ist, dass wir vor dem Gehtraining nachfragen. Torasemid morgens, dadurch häufiger Harndrang.',
+      TF4: 'Sie wäscht Gesicht und Oberkörper selbst am Waschbecken, Unterkörper und Füße übernehmen wir wegen der Beugegrenze, Strümpfe mit Anziehhilfe. Sie isst selbstständig und gut. Sie trinkt nur etwa 800 ml, weil sie nachts nicht so oft aufstehen möchte. Sie kommt nicht immer rechtzeitig zur Toilette und trägt Einlagen, das ist ihr peinlich. Sie ist einverstanden, mehr am Vormittag zu trinken.',
+      TF5: 'Die Tochter kommt dienstags und samstags. Frau Sommer war 40 Jahre im Kirchenchor, der Gottesdienst ist ihr wichtig; sie möchte sonntags zum Gottesdienst im Haus begleitet werden.',
+      TF6: 'Ihr eigener Sessel und Fotos ihres Mannes kommen ins Zimmer. Sie möchte nicht vor 8 Uhr geweckt werden. Klingel und Rollator stehen in Reichweite am Bett.',
+    },
+  },
+  {
+    id: 'kraus',
+    titel: 'Erstbesuch zu Hause: Diabetes und Herzschwäche',
+    setting: 'ambulant',
+    anlass: 'Erstbesuch des ambulanten Pflegedienstes',
+    person: [
+      { label: 'Name', wert: 'Erwin Kraus, 79 Jahre' },
+      { label: 'Gespräch', wert: 'Erstbesuch in seiner Wohnung, der Sohn ist per Telefon zugeschaltet' },
+    ],
+    gespraech: [
+      { wer: 'Herr Kraus', text: 'Ich will in meiner Wohnung bleiben, solange es irgendwie geht. Ins Heim gehe ich nicht.' },
+      { wer: 'Herr Kraus', text: 'Seit meine Gerda tot ist, koche ich nicht mehr richtig. Meistens gibt es Brot oder was aus der Dose.' },
+      { wer: 'Herr Kraus', text: 'Das Insulin spritze ich selbst, das mache ich seit 15 Jahren. Letzte Woche war mir aber plötzlich ganz schwummrig, der Zucker war bei 52.' },
+      { wer: 'Herr Kraus', text: 'Die Tabletten vergesse ich manchmal, mittags vor allem.' },
+      { wer: 'Herr Kraus', text: 'Die Treppe ist mein Problem. Mit den Einkaufstüten schaffe ich die zwei Stockwerke kaum noch. Und nachts muss ich oft raus, dann ist mir beim Aufstehen schwindelig.' },
+      { wer: 'Herr Kraus', text: 'Meine Füße spüre ich kaum noch. Weh tut nichts.' },
+      { wer: 'Sohn (Telefon)', text: 'Ich wohne in Hamburg und rufe jeden Sonntag an. Früher war mein Vater jeden Donnerstag beim Skat, das hat er aufgegeben.' },
+      { wer: 'Herr Kraus', text: 'Frau Öz von nebenan kauft manchmal für mich ein. Ich will aber niemandem zur Last fallen.' },
+    ],
+    beobachtungen: [
+      'Wohnung im 2. Obergeschoss ohne Aufzug. Lose Teppiche im Flur, Licht im Flur schwach.',
+      'Wach, orientiert, liest mit Lesebrille, hört gut.',
+      'Geht in der Wohnung ohne Hilfsmittel, hält sich an Möbeln fest. Unterschenkel geschwollen.',
+      'Rötung an der rechten Großzehe, vermutlich vom Schuh. Er hat sie nicht bemerkt.',
+      'Im Kühlschrank wenig Frisches. Gewicht nach eigener Angabe stabil.',
+      'Kontinent, geht nachts dreimal zur Toilette.',
+    ],
+    unterlagen: [
+      { label: 'Diagnosen', wert: 'Diabetes mellitus Typ 2 mit Insulin, diabetische Polyneuropathie, Herzinsuffizienz NYHA III, arterielle Hypertonie' },
+      { label: 'Medikamente', wert: 'Mischinsulin morgens und abends (Pen), Metformin, Furosemid morgens, Bisoprolol, Ramipril' },
+      { label: 'Verordnung', wert: 'Medikamente richten (Wochendosette), Kompressionsstrümpfe an- und ausziehen, Blutzucker 2-mal täglich' },
+      { label: 'Pflegegrad', wert: 'Pflegegrad 2' },
+    ],
+    kernpunkte: [
+      { id: 'b-wohnung', feld: 'B', pflicht: true, text: 'Möchte in der eigenen Wohnung bleiben, nicht ins Heim', muster: ['wohnung', 'heim', 'zu hause', 'zuhause'] },
+      { id: 'b-kochen', feld: 'B', pflicht: false, text: 'Kocht seit dem Tod seiner Frau nicht mehr richtig', muster: ['koche', 'gerda'] },
+      { id: 'b-last', feld: 'B', pflicht: false, text: 'Will niemandem zur Last fallen', muster: ['last'] },
+      { id: 'tf1-orientiert', feld: 'TF1', pflicht: true, text: 'Orientiert, liest mit Lesebrille, hört gut', muster: ['orientiert', 'klar', 'lesebrille'] },
+      { id: 'tf1-vergessen', feld: 'TF1', pflicht: true, text: 'Vergisst manchmal die Mittagstabletten', muster: ['vergisst', 'vergessen', 'vergesse', 'erinner'] },
+      { id: 'tf2-treppe', feld: 'TF2', pflicht: true, text: 'Treppe (2. OG ohne Aufzug) kaum noch zu schaffen', muster: ['treppe', 'stockwerk', 'obergeschoss', 'aufzug'] },
+      { id: 'tf2-schwindel', feld: 'TF2', pflicht: true, text: 'Schwindel beim nächtlichen Aufstehen', muster: ['schwindel', 'schwummrig'] },
+      { id: 'tf2-moebel', feld: 'TF2', pflicht: false, text: 'Geht ohne Hilfsmittel, hält sich an Möbeln fest', muster: ['moebel', 'ohne hilfsmittel', 'festhalten', 'haelt sich'] },
+      { id: 'tf3-diabetes', feld: 'TF3', pflicht: true, text: 'Diabetes mit Insulin, spritzt selbst', muster: ['insulin', 'diabet'] },
+      { id: 'tf3-hypo', feld: 'TF3', pflicht: true, text: 'Unterzuckerung letzte Woche (52 mg/dl)', muster: ['52', 'unterzucker', 'hypoglyk'] },
+      { id: 'tf3-fuesse', feld: 'TF3', pflicht: true, text: 'Polyneuropathie: spürt die Füße kaum, Rötung an der rechten Großzehe', muster: ['grosszeh', 'polyneuropath', 'roetung', 'spuert'] },
+      { id: 'tf3-herz', feld: 'TF3', pflicht: false, text: 'Herzinsuffizienz, Unterschenkel geschwollen, Kompressionsstrümpfe', muster: ['herzinsuff', 'herzschwaech', 'oedem', 'geschwollen', 'kompression'] },
+      { id: 'tf4-essen', feld: 'TF4', pflicht: true, text: 'Isst unregelmäßig und einseitig (Brot, Dosen)', muster: ['brot', 'dose', 'unregelmaessig', 'einseitig', 'mahlzeit'] },
+      { id: 'tf4-strumpf', feld: 'TF4', pflicht: false, text: 'Braucht Hilfe bei den Kompressionsstrümpfen', muster: ['struempf', 'strumpf'] },
+      { id: 'tf4-toilette', feld: 'TF4', pflicht: false, text: 'Kontinent, nachts mehrmals zur Toilette', muster: ['kontinent', 'toilette', 'nachts'] },
+      { id: 'tf5-sohn', feld: 'TF5', pflicht: true, text: 'Sohn in Hamburg, ruft sonntags an', muster: ['sohn'] },
+      { id: 'tf5-skat', feld: 'TF5', pflicht: true, text: 'Skatrunde aufgegeben, wenig Kontakte seit dem Tod der Frau', muster: ['skat', 'einsam', 'kontakt'] },
+      { id: 'tf5-nachbarin', feld: 'TF5', pflicht: false, text: 'Nachbarin Frau Öz hilft gelegentlich', muster: ['oez', 'nachbarin'] },
+      { id: 'tf6-einkaufen', feld: 'TF6', pflicht: true, text: 'Einkaufen schwer, Nachbarin hilft manchmal', muster: ['einkauf', 'einkaeuf'] },
+      { id: 'tf6-kochen', feld: 'TF6', pflicht: true, text: 'Kocht kaum noch, wenig Frisches im Kühlschrank', muster: ['koch', 'kuehlschrank', 'frisch'] },
+      { id: 'tf6-teppich', feld: 'TF6', pflicht: true, text: 'Lose Teppiche und schwaches Licht im Flur', muster: ['teppich', 'licht', 'beleuchtung'] },
+    ],
+    matrix: [
+      { risiko: 'dekubitus', vorhanden: 'nein', weitere: 'nein', themenfelder: [], begruendung: 'Ausreichend mobil, wechselt seine Position selbst. Die Rötung am Zeh gehört zum Fuß (Sonstiges).' },
+      { risiko: 'sturz', vorhanden: 'ja', weitere: 'ja', themenfelder: ['TF2', 'TF3'], begruendung: 'Schwindel beim nächtlichen Aufstehen, Entwässerung, Unterzuckerung, verminderte Wahrnehmung der Füße, lose Teppiche und Treppe.' },
+      { risiko: 'inkontinenz', vorhanden: 'nein', weitere: 'nein', themenfelder: [], begruendung: 'Kontinent. Häufiges nächtliches Wasserlassen ist kein Kontinenzproblem, wohl aber ein Sturzanlass.' },
+      { risiko: 'schmerz', vorhanden: 'nein', weitere: 'nein', themenfelder: [], begruendung: 'Keine Schmerzen. Wegen der Polyneuropathie spürt er Verletzungen eher zu wenig.' },
+      { risiko: 'ernaehrung', vorhanden: 'ja', weitere: 'ja', themenfelder: ['TF4', 'TF3'], begruendung: 'Unregelmäßige, einseitige Mahlzeiten bei Insulintherapie, Unterzuckerung in der letzten Woche.' },
+      { risiko: 'sonstiges', vorhanden: 'ja', weitere: 'ja', themenfelder: ['TF3'], welches: ['fuss', 'zeh', 'haut', 'polyneuropath', 'wunde', 'druckstelle'], begruendung: 'Diabetisches Fußsyndrom droht: Rötung an der Großzehe, die er nicht spürt. Ärztlich abklären, Füße täglich ansehen, Schuhe prüfen.' },
+    ],
+    muster: {
+      B: '„Ich will in meiner Wohnung bleiben, solange es irgendwie geht. Ins Heim gehe ich nicht.“ „Seit meine Gerda tot ist, koche ich nicht mehr richtig.“ „Ich will niemandem zur Last fallen.“',
+      TF1: 'Herr Kraus ist orientiert und entscheidet selbst. Er liest mit Lesebrille und hört gut. Die Mittagstabletten vergisst er manchmal; er ist einverstanden, dass wir eine Wochendosette richten und er sich eine Erinnerung am Telefon stellt.',
+      TF2: 'In der Wohnung geht er ohne Hilfsmittel und hält sich an Möbeln fest. Die Treppe ins 2. Obergeschoss ohne Aufzug schafft er mit Einkäufen kaum. Nachts ist ihm beim Aufstehen schwindelig. Er möchte keinen Rollator, wir haben besprochen, nachts erst kurz an der Bettkante zu sitzen.',
+      TF3: 'Diabetes mellitus Typ 2, er spritzt das Insulin seit 15 Jahren selbst. Letzte Woche Unterzuckerung mit 52 mg/dl. Polyneuropathie: Er spürt seine Füße kaum, an der rechten Großzehe ist eine Rötung, die er nicht bemerkt hat. Herzinsuffizienz mit geschwollenen Unterschenkeln, Kompressionsstrümpfe verordnet. Er ist einverstanden, dass wir die Füße beim Besuch ansehen und die Hausärztin informieren.',
+      TF4: 'Körperpflege macht er selbst, beim Duschen möchte er keine Hilfe. Die Kompressionsstrümpfe ziehen wir morgens an und abends aus. Er isst unregelmäßig und einseitig, meist Brot oder Dosengerichte. Er ist kontinent und geht nachts dreimal zur Toilette.',
+      TF5: 'Der Sohn lebt in Hamburg und ruft sonntags an. Seit dem Tod seiner Frau hat er die Skatrunde am Donnerstag aufgegeben und wenig Kontakte. Die Nachbarin Frau Öz hilft gelegentlich. Er möchte gern wieder zum Skat, wenn der Weg zu schaffen ist.',
+      TF6: 'Einkaufen ist wegen der Treppe schwer, die Nachbarin hilft manchmal. Er kocht kaum noch, im Kühlschrank ist wenig Frisches. Wäsche und Geldangelegenheiten erledigt er selbst. Im Flur liegen lose Teppiche, das Licht ist schwach; er überlegt, die Teppiche wegzuräumen. Ein Mahlzeitendienst wurde angesprochen.',
+    },
+  },
+  {
+    id: 'wolf',
+    titel: 'Einzug mit Demenz',
+    setting: 'stationaer',
+    anlass: 'Einzug in die stationäre Langzeitpflege, der Ehemann schafft die Pflege nicht mehr',
+    person: [
+      { label: 'Name', wert: 'Ingrid Wolf, 81 Jahre' },
+      { label: 'Gespräch', wert: 'Mit Frau Wolf und ihrem Ehemann Gerhard Wolf (83), aufgeteilt auf zwei kurze Gespräche' },
+    ],
+    gespraech: [
+      { wer: 'Frau Wolf', text: 'Ich muss gleich nach Hause, die Kinder kommen aus der Schule.' },
+      { wer: 'Frau Wolf', text: 'Hier ist es ja ganz nett. Singen wir nachher?' },
+      { wer: 'Ehemann', text: 'Sie war 35 Jahre Grundschullehrerin. Volkslieder singt sie immer noch, jede Strophe.' },
+      { wer: 'Ehemann', text: 'Nachts steht sie auf und will los. Zweimal hat die Polizei sie im Nachthemd an der Bushaltestelle gefunden.' },
+      { wer: 'Ehemann', text: 'Sie vergisst zu essen und steht vom Tisch auf. Brote in kleinen Stücken isst sie im Gehen. Sie hat in drei Monaten vier Kilo abgenommen.' },
+      { wer: 'Ehemann', text: 'Sie findet die Toilette nicht immer, dann geht es daneben. Waschen geht, wenn man ihr jeden Schritt sagt.' },
+      { wer: 'Ehemann', text: 'Beim Aufstehen verzieht sie oft das Gesicht und hält das Knie. Sagen kann sie es nicht.' },
+      { wer: 'Ehemann', text: 'Ich komme jeden Tag nach dem Mittagessen. Unsere Tochter kommt am Wochenende. Bitte ihre Bettwäsche mit den Rosen beziehen, die kennt sie.' },
+    ],
+    beobachtungen: [
+      'Zur Person orientiert, zu Zeit und Ort nicht. Erkennt ihren Mann. Versteht kurze Sätze, sucht oft nach Worten.',
+      'Am Nachmittag zunehmend unruhig, geht viel umher. Auf ebenem Boden sicher, auf Treppen unsicher.',
+      'Haut intakt, wechselt ihre Position häufig selbst.',
+      'BMI 19, Gewichtsverlust 4 kg in 3 Monaten. Trinkt nur, wenn man ihr ein Glas reicht.',
+      'Beim Aufstehen Gesicht verzogen, reibt das rechte Knie.',
+    ],
+    unterlagen: [
+      { label: 'Diagnosen', wert: 'Demenz vom Alzheimer-Typ, mittelgradig; Gonarthrose rechts; arterielle Hypertonie' },
+      { label: 'Medikamente', wert: 'Donepezil, Amlodipin; keine Schmerzmedikation' },
+      { label: 'Betreuung', wert: 'Vorsorgevollmacht für den Ehemann (Gesundheit, Aufenthalt)' },
+    ],
+    kernpunkte: [
+      { id: 'b-woertlich', feld: 'B', pflicht: true, text: 'Eigene Aussagen von Frau Wolf wörtlich (nach Hause, Kinder, Singen)', muster: ['nach hause', 'kinder', 'singen', 'nett'] },
+      { id: 'b-angehoerige', feld: 'B', pflicht: true, text: 'Ergänzende Sicht des Ehemanns gekennzeichnet', muster: ['ehemann', 'mann ', 'herr wolf', 'angehoerig'] },
+      { id: 'tf1-orientierung', feld: 'TF1', pflicht: true, text: 'Zur Person orientiert, zu Zeit und Ort nicht', muster: ['orientiert', 'desorient', 'orientierung'] },
+      { id: 'tf1-sprache', feld: 'TF1', pflicht: true, text: 'Versteht kurze Sätze, Wortfindungsstörungen', muster: ['kurze saetze', 'kurzen saetzen', 'worte', 'wortfind', 'versteht'] },
+      { id: 'tf1-unruhe', feld: 'TF1', pflicht: false, text: 'Nachmittags zunehmend unruhig', muster: ['unruh', 'nachmittag'] },
+      { id: 'tf1-schmerz', feld: 'TF1', pflicht: false, text: 'Kann Schmerzen nicht sicher mitteilen', muster: ['nicht sagen', 'nicht mitteilen', 'nicht aeussern', 'nicht aeusser', 'kann es nicht', 'schmerz'] },
+      { id: 'tf2-gehen', feld: 'TF2', pflicht: true, text: 'Geht viel umher, auf ebenem Boden sicher, Treppen unsicher', muster: ['umher', 'eben', 'treppe', 'laeuft', 'geht viel'] },
+      { id: 'tf2-hinlauf', feld: 'TF2', pflicht: true, text: 'Will nachts los, wurde zweimal von der Polizei gefunden (Hinlauftendenz)', muster: ['hinlauf', 'weglauf', 'polizei', 'will los', 'bushaltestelle'] },
+      { id: 'tf3-demenz', feld: 'TF3', pflicht: true, text: 'Demenz vom Alzheimer-Typ, mittelgradig', muster: ['demenz', 'alzheimer'] },
+      { id: 'tf3-knie', feld: 'TF3', pflicht: true, text: 'Schmerzzeichen am rechten Knie (Gonarthrose), keine Schmerzmedikation', muster: ['knie', 'gonarthros', 'arthrose'] },
+      { id: 'tf3-gewicht', feld: 'TF3', pflicht: false, text: 'Gewichtsverlust 4 kg in 3 Monaten, BMI 19', muster: ['4 kg', 'vier kilo', 'abgenommen', 'gewicht', 'bmi'] },
+      { id: 'tf4-waschen', feld: 'TF4', pflicht: true, text: 'Waschen mit Anleitung Schritt für Schritt', muster: ['anleitung', 'schritt', 'angeleitet'] },
+      { id: 'tf4-essen', feld: 'TF4', pflicht: true, text: 'Vergisst zu essen, isst Fingerfood im Gehen', muster: ['fingerfood', 'im gehen', 'kleine stuecke', 'kleinen stuecken', 'vergisst zu essen'] },
+      { id: 'tf4-trinken', feld: 'TF4', pflicht: true, text: 'Trinkt nur, wenn man ihr ein Glas reicht', muster: ['trink', 'glas'] },
+      { id: 'tf4-toilette', feld: 'TF4', pflicht: true, text: 'Findet die Toilette nicht immer', muster: ['toilette', 'inkontinen', 'einnaess', 'daneben'] },
+      { id: 'tf5-lehrerin', feld: 'TF5', pflicht: true, text: 'Früher Grundschullehrerin, singt gern Volkslieder', muster: ['lehrerin', 'volkslied', 'sing'] },
+      { id: 'tf5-besuch', feld: 'TF5', pflicht: true, text: 'Ehemann täglich nach dem Mittagessen, Tochter am Wochenende', muster: ['taeglich', 'jeden tag', 'tochter', 'wochenende'] },
+      { id: 'tf6-rosen', feld: 'TF6', pflicht: true, text: 'Eigene Bettwäsche mit Rosen', muster: ['bettwaesche', 'rosen'] },
+      { id: 'tf6-nacht', feld: 'TF6', pflicht: false, text: 'Steht nachts auf', muster: ['nachts', 'nacht'] },
+    ],
+    matrix: [
+      { risiko: 'dekubitus', vorhanden: 'nein', weitere: 'nein', themenfelder: [], begruendung: 'Wechselt ihre Position häufig selbst, Haut intakt. Den Gewichtsverlust im Blick behalten.' },
+      { risiko: 'sturz', vorhanden: 'ja', weitere: 'ja', themenfelder: ['TF2', 'TF1'], begruendung: 'Viel Umhergehen, nächtliches Aufstehen, Unsicherheit auf Treppen, Desorientierung, Knieschmerz.' },
+      { risiko: 'inkontinenz', vorhanden: 'ja', weitere: 'ja', themenfelder: ['TF4', 'TF1'], begruendung: 'Findet die Toilette nicht immer (funktionelle Inkontinenz). Kontinenzprofil und Orientierungshilfen.' },
+      { risiko: 'schmerz', vorhanden: 'ja', weitere: 'ja', themenfelder: ['TF3', 'TF1', 'TF2'], begruendung: 'Schmerzzeichen beim Aufstehen, sie kann sie nicht benennen: Fremdeinschätzung mit einem Instrument für Menschen mit Demenz (z. B. BESD).' },
+      { risiko: 'ernaehrung', vorhanden: 'ja', weitere: 'ja', themenfelder: ['TF4', 'TF3'], begruendung: '4 kg Gewichtsverlust in 3 Monaten, BMI 19, vergisst Essen und Trinken (Expertenstandard Ernährungsmanagement).' },
+      { risiko: 'sonstiges', vorhanden: 'ja', weitere: 'ja', themenfelder: ['TF1', 'TF2'], welches: ['hinlauf', 'weglauf', 'verlassen', 'polizei', 'orientierung', 'unruh'], begruendung: 'Hinlauftendenz: Sie hat zweimal nachts das Haus verlassen. Absprache mit dem Ehemann (Vollmacht) zu Schutz ohne Freiheitsentzug.' },
+    ],
+    muster: {
+      B: 'Frau Wolf: „Ich muss gleich nach Hause, die Kinder kommen aus der Schule.“ „Hier ist es ja ganz nett. Singen wir nachher?“ Ergänzend ihr Ehemann: Sie soll sich wohlfühlen und nicht mehr nachts allein draußen unterwegs sein.',
+      TF1: 'Frau Wolf ist zur Person orientiert, zu Zeit und Ort nicht. Sie erkennt ihren Mann. Sie versteht kurze Sätze und sucht oft nach Worten. Am Nachmittag wird sie zunehmend unruhig. Schmerzen kann sie nicht sicher sagen, man erkennt sie an Mimik und Verhalten.',
+      TF2: 'Sie geht viel umher, auf ebenem Boden sicher, auf Treppen unsicher. Nachts steht sie auf und will los; zweimal hat die Polizei sie an der Bushaltestelle gefunden (Hinlauftendenz). Bewegung tut ihr gut und soll möglich bleiben.',
+      TF3: 'Demenz vom Alzheimer-Typ, mittelgradig. Beim Aufstehen verzieht sie das Gesicht und reibt das rechte Knie (Gonarthrose), bisher keine Schmerzmedikation. Gewichtsverlust 4 kg in 3 Monaten, BMI 19. Der Ehemann hat Vorsorgevollmacht und ist einverstanden, dass die Hausärztin zum Knie informiert wird.',
+      TF4: 'Waschen gelingt mit Anleitung Schritt für Schritt. Sie vergisst zu essen und steht vom Tisch auf; Brote in kleinen Stücken (Fingerfood) isst sie im Gehen. Sie trinkt nur, wenn man ihr ein Glas reicht. Die Toilette findet sie nicht immer.',
+      TF5: 'Sie war 35 Jahre Grundschullehrerin und singt gern Volkslieder. Der Ehemann kommt täglich nach dem Mittagessen, die Tochter am Wochenende. Mit dem Ehemann vereinbart: Teilnahme am Singkreis.',
+      TF6: 'Ihre eigene Bettwäsche mit Rosen wird bezogen, die kennt sie. Sie steht nachts auf. Ein Bild an der Zimmertür soll ihr helfen, ihr Zimmer zu finden.',
+    },
+  },
+  {
+    id: 'yildiz',
+    titel: 'Einzug nach Schlaganfall',
+    setting: 'stationaer',
+    anlass: 'Einzug in die stationäre Langzeitpflege nach Schlaganfall und Reha',
+    person: [
+      { label: 'Name', wert: 'Mehmet Yıldız, 71 Jahre' },
+      { label: 'Gespräch', wert: 'Mit Herrn Yıldız und seiner Ehefrau Ayşe Yıldız' },
+    ],
+    gespraech: [
+      { wer: 'Herr Yıldız', text: 'Wieder laufen. Nach Hause … zu meiner Frau.' },
+      { wer: 'Herr Yıldız', text: 'Allein machen. Nicht wie ein Baby.' },
+      { wer: 'Ehefrau', text: 'Er versteht alles, nur das Sprechen ist seit dem Schlaganfall langsam. Man muss ihm Zeit lassen.' },
+      { wer: 'Ehefrau', text: 'Beim Waschen untenrum möchte er nur von Männern versorgt werden. Er ist sehr stolz.' },
+      { wer: 'Ehefrau', text: 'Er betet fünfmal am Tag, im Sitzen. Bitte kein Schweinefleisch, auch keine Gelatine.' },
+      { wer: 'Herr Yıldız', text: 'Schulter … tut weh. Rechts.' },
+      { wer: 'Ehefrau', text: 'Er verschluckt sich beim Trinken, deshalb dicken wir alles an. Er war 30 Jahre Busfahrer, Fußball im Fernsehen ist sein Ein und Alles. Ich komme jeden Tag, die Enkel am Wochenende.' },
+      { wer: 'Herr Yıldız', text: 'Teppich … für Gebet. Und Fernseher.' },
+    ],
+    beobachtungen: [
+      'Wach und orientiert, versteht Fragen, antwortet in kurzen Sätzen und langsam (Aphasie). Hört und sieht gut.',
+      'Hemiparese rechts. Sitzt im Rollstuhl, Transfer mit einer Pflegeperson, steht kurz mit Unterstützung. Versucht, allein aufzustehen.',
+      'Kann seine Sitzposition im Rollstuhl nicht selbst verändern. Am Steiß eine wegdrückbare Rötung nach 3 Stunden Sitzen.',
+      'Schmerz rechte Schulter bei Bewegung, NRS 5.',
+      'Hustet beim Trinken dünner Flüssigkeit. Isst angedickte Kost mit der linken Hand, langsam. Gewicht stabil.',
+      'Meldet sich zur Toilette, nutzt eine Urinflasche, kontinent.',
+    ],
+    unterlagen: [
+      { label: 'Diagnosen', wert: 'Ischämischer Schlaganfall links vor 3 Monaten mit Hemiparese rechts und motorischer Aphasie, Dysphagie, Diabetes mellitus Typ 2, Vorhofflimmern' },
+      { label: 'Medikamente', wert: 'Apixaban, Metformin, Atorvastatin, Ibuprofen bei Bedarf' },
+      { label: 'Logopädie', wert: 'Getränke angedickt (Stufe 2), Oberkörper beim Essen aufrecht, kleine Schlucke' },
+    ],
+    kernpunkte: [
+      { id: 'b-laufen', feld: 'B', pflicht: true, text: 'Wieder laufen, nach Hause zu seiner Frau', muster: ['laufen', 'nach hause', 'meiner frau'] },
+      { id: 'b-allein', feld: 'B', pflicht: true, text: 'Möchte selbst machen, nicht wie ein Baby behandelt werden', muster: ['allein', 'baby', 'selbst'] },
+      { id: 'tf1-aphasie', feld: 'TF1', pflicht: true, text: 'Versteht alles, spricht langsam in kurzen Sätzen (Aphasie), Zeit lassen', muster: ['aphasie', 'langsam', 'kurze saetze', 'kurzen saetzen', 'zeit lassen', 'sprechen'] },
+      { id: 'tf1-orientiert', feld: 'TF1', pflicht: true, text: 'Wach und orientiert', muster: ['orientiert', 'wach'] },
+      { id: 'tf2-rollstuhl', feld: 'TF2', pflicht: true, text: 'Rollstuhl, Transfer mit einer Pflegeperson', muster: ['rollstuhl', 'transfer'] },
+      { id: 'tf2-hemiparese', feld: 'TF2', pflicht: true, text: 'Halbseitenlähmung rechts', muster: ['hemiparese', 'halbseit', 'laehmung', 'gelaehmt'] },
+      { id: 'tf2-sitzen', feld: 'TF2', pflicht: true, text: 'Kann Sitzposition nicht selbst verändern', muster: ['position', 'sitzposition', 'umsetzen', 'entlast'] },
+      { id: 'tf2-allein', feld: 'TF2', pflicht: false, text: 'Versucht, allein aufzustehen', muster: ['allein aufzustehen', 'allein aufstehen', 'alleine aufstehen', 'versucht'] },
+      { id: 'tf3-schlaganfall', feld: 'TF3', pflicht: true, text: 'Schlaganfall vor 3 Monaten', muster: ['schlaganfall', 'apoplex', 'insult'] },
+      { id: 'tf3-schulter', feld: 'TF3', pflicht: true, text: 'Schulterschmerz rechts bei Bewegung, NRS 5', muster: ['schulter'] },
+      { id: 'tf3-schlucken', feld: 'TF3', pflicht: true, text: 'Schluckstörung, Getränke angedickt', muster: ['schluck', 'dysphag', 'angedickt', 'andick', 'verschluck'] },
+      { id: 'tf3-roetung', feld: 'TF3', pflicht: true, text: 'Wegdrückbare Rötung am Steiß nach 3 h Sitzen', muster: ['roetung', 'steiss', 'wegdrueck'] },
+      { id: 'tf3-gerinnung', feld: 'TF3', pflicht: false, text: 'Blutverdünnung (Apixaban)', muster: ['apixaban', 'blutverduenn', 'gerinnung', 'antikoag'] },
+      { id: 'tf4-intim', feld: 'TF4', pflicht: true, text: 'Intimpflege nur durch Männer', muster: ['maenner', 'maennlich', 'pfleger', 'gleichgeschlecht'] },
+      { id: 'tf4-essen', feld: 'TF4', pflicht: true, text: 'Isst angedickte Kost mit der linken Hand, langsam', muster: ['linke', 'links', 'angedickt', 'langsam'] },
+      { id: 'tf4-kontinent', feld: 'TF4', pflicht: true, text: 'Kontinent, meldet sich, Urinflasche', muster: ['kontinent', 'urinflasche', 'meldet sich'] },
+      { id: 'tf4-schwein', feld: 'TF4', pflicht: false, text: 'Kein Schweinefleisch, keine Gelatine', muster: ['schwein', 'gelatine', 'halal'] },
+      { id: 'tf5-familie', feld: 'TF5', pflicht: true, text: 'Ehefrau täglich, Enkel am Wochenende', muster: ['ehefrau', 'frau', 'enkel'] },
+      { id: 'tf5-glaube', feld: 'TF5', pflicht: true, text: 'Betet fünfmal täglich (im Sitzen)', muster: ['bete', 'gebet', 'glaube', 'muslim', 'islam'] },
+      { id: 'tf5-fussball', feld: 'TF5', pflicht: false, text: 'Früher Busfahrer, Fußball im Fernsehen', muster: ['fussball', 'busfahrer'] },
+      { id: 'tf6-gebet', feld: 'TF6', pflicht: true, text: 'Gebetsteppich im Zimmer', muster: ['gebetsteppich', 'teppich'] },
+      { id: 'tf6-fernseher', feld: 'TF6', pflicht: true, text: 'Fernseher im Zimmer', muster: ['fernseh'] },
+    ],
+    matrix: [
+      { risiko: 'dekubitus', vorhanden: 'ja', weitere: 'ja', themenfelder: ['TF2', 'TF3'], begruendung: 'Kann Position nicht selbst wechseln, sitzt lange, wegdrückbare Rötung am Steiß (Expertenstandard Dekubitusprophylaxe).' },
+      { risiko: 'sturz', vorhanden: 'ja', weitere: 'ja', themenfelder: ['TF2'], begruendung: 'Hemiparese, Transfer mit Hilfe, versucht allein aufzustehen; Blutverdünnung erhöht die Folgen eines Sturzes.' },
+      { risiko: 'inkontinenz', vorhanden: 'nein', weitere: 'nein', themenfelder: [], begruendung: 'Kontinent, meldet sich und nutzt die Urinflasche.' },
+      { risiko: 'schmerz', vorhanden: 'ja', weitere: 'ja', themenfelder: ['TF3', 'TF2'], begruendung: 'Schulterschmerz rechts NRS 5 bei Bewegung, typisch nach Schlaganfall. Genauer einschätzen und mit Physiotherapie abstimmen.' },
+      { risiko: 'ernaehrung', vorhanden: 'ja', weitere: 'ja', themenfelder: ['TF3', 'TF4'], begruendung: 'Schluckstörung mit Husten bei dünner Flüssigkeit, angedickte Kost, langsames Essen: Ernährung und Trinkmenge im Blick behalten.' },
+      { risiko: 'sonstiges', vorhanden: 'beides', weitere: 'beides', themenfelder: ['TF3', 'TF4'], welches: ['aspiration', 'verschluck', 'schluck', 'dysphag'], begruendung: 'Die Aspirationsgefahr ist über Ernährung abgebildet; als eigenes Risiko unter Sonstiges ebenfalls vertretbar.' },
+    ],
+    muster: {
+      B: '„Wieder laufen. Nach Hause … zu meiner Frau.“ „Allein machen. Nicht wie ein Baby.“',
+      TF1: 'Herr Yıldız ist wach und orientiert und versteht alles. Seit dem Schlaganfall spricht er langsam in kurzen Sätzen (Aphasie); wir lassen ihm Zeit und stellen Fragen, die er kurz beantworten kann. Hören und Sehen sind gut.',
+      TF2: 'Halbseitenlähmung rechts. Er sitzt im Rollstuhl, der Transfer gelingt mit einer Pflegeperson, kurzes Stehen mit Unterstützung. Er versucht, allein aufzustehen, weil er wieder laufen möchte. Seine Sitzposition kann er nicht selbst verändern. Mit ihm vereinbart: Er klingelt vor dem Aufstehen, Physiotherapie übt den Transfer.',
+      TF3: 'Schlaganfall vor 3 Monaten, Dysphagie mit Verschlucken bei dünner Flüssigkeit, Getränke angedickt nach Vorgabe der Logopädie. Schulterschmerz rechts bei Bewegung (NRS 5). Am Steiß wegdrückbare Rötung nach 3 Stunden Sitzen. Blutverdünnung mit Apixaban, Diabetes Typ 2.',
+      TF4: 'Oberkörper wäscht er mit der linken Hand teilweise selbst, die Intimpflege möchte er nur von Männern. Er isst angedickte Kost selbstständig mit der linken Hand, langsam und aufrecht sitzend. Kein Schweinefleisch und keine Gelatine. Er ist kontinent, meldet sich und nutzt die Urinflasche.',
+      TF5: 'Die Ehefrau kommt täglich, die Enkel am Wochenende. Er betet fünfmal am Tag im Sitzen, die Gebetszeiten werden bei der Tagesplanung berücksichtigt. Er war 30 Jahre Busfahrer, Fußball im Fernsehen ist ihm wichtig.',
+      TF6: 'Sein Gebetsteppich und ein Fernseher kommen ins Zimmer. Der Rollstuhl steht so, dass er Fernseher und Klingel erreicht.',
+    },
+  },
+];

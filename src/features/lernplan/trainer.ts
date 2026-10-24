@@ -16,7 +16,7 @@ import { fallThemen, SZENARIEN } from '../fall/faelle';
 import { FAELLE as PLANFAELLE, PFLEGEPROZESS_THEMEN } from '../pflegeplanung/faelle';
 import { heute, leafTopics, logReview, TRAINER_NAME } from './store';
 
-export type TrainerId = 'rechnen' | 'duell' | 'fall' | 'uebergabe' | 'pflegeplanung';
+export type TrainerId = 'rechnen' | 'duell' | 'fall' | 'uebergabe' | 'pflegeplanung' | 'sis' | 'mindmap';
 
 export const TRAINER_LABEL = TRAINER_NAME as Record<TrainerId, string>;
 
@@ -79,6 +79,7 @@ export interface Uebung { trainer: TrainerId; label: string; path: string }
 /** Mindestzahl Glossarbegriffe, ab der ein Duell zu einem Thema sinnvoll ist. */
 const DUELL_MIN_BEGRIFFE = 6;
 export const UEBERGABE_THEMA = 'thema.pp.uebergabe';
+export const SIS_THEMA = 'thema.pp.sis';
 
 /**
  * Welche Trainer ein Thema abfragen können, mit Sprungziel. Reihenfolge: offline vor KI,
@@ -92,6 +93,7 @@ export function uebungenFuer(topicId: string, modul: CatalogModule = pflegeModul
   const fach = modul.topics.find((t) => t.id === topicId)?.subjectId;
   if (begriffe >= DUELL_MIN_BEGRIFFE && fach) out.push({ trainer: 'duell', label: 'Fachbegriff-Duell', path: `/lernen/duell?fach=${encodeURIComponent(fach)}` });
   if (topicId === UEBERGABE_THEMA) out.push({ trainer: 'uebergabe', label: 'Übergabe-Trainer', path: '/lernen/uebergabe' });
+  if (topicId === SIS_THEMA) out.push({ trainer: 'sis', label: 'SIS-Trainer', path: '/lernen/sis' });
   if (PFLEGEPROZESS_THEMEN.includes(topicId)) out.push({ trainer: 'pflegeplanung', label: 'Pflegeplanung schreiben', path: '/lernen/pflegeplanung' });
   else {
     const planfall = PLANFAELLE.find((f) => f.topicIds.includes(topicId));
@@ -100,5 +102,7 @@ export function uebungenFuer(topicId: string, modul: CatalogModule = pflegeModul
   if (SZENARIEN.some((s) => s.topicIds.includes(topicId)) || fallThemen(modul).some((t) => t.id === topicId)) {
     out.push({ trainer: 'fall', label: 'Fall im Simulator', path: `/lernen/fall?thema=${encodeURIComponent(topicId)}` });
   }
+  // Mindmap aus dem Gedächtnis geht zu jedem Thema, steht als allgemeinste Übung zuletzt
+  if (modul.topics.some((t) => t.id === topicId)) out.push({ trainer: 'mindmap', label: 'Mindmap aus dem Gedächtnis', path: `/lernen/mindmap?thema=${encodeURIComponent(topicId)}` });
   return out;
 }
