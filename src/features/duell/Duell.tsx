@@ -2,6 +2,7 @@ import { useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import './duell.css';
 import { logActivity } from '../../core/activity';
 import { modules } from '../../modules/registry';
+import { useRoute } from '../../ui/shell/router';
 import { inLernplan, proThema } from '../lernplan/trainer';
 import { LernplanHinweis, useLernplanUebernahme } from '../lernplan/ui/LernplanHinweis';
 import {
@@ -263,6 +264,12 @@ export default function Duell() {
   const lernplan = useLernplanUebernahme('duell');
 
   const setze = (teil: Partial<Einstellungen>) => setE((x) => { const n = { ...x, ...teil }; speichere(n); return n; });
+  // Sprung aus dem Lernplan: #/lernen/duell?fach=… wählt das Fach vor
+  const { params } = useRoute();
+  const fachAusAdresse = params.get('fach');
+  useEffect(() => {
+    if (fachAusAdresse && modul.subjects.some((f) => f.id === fachAusAdresse)) setze({ faecher: [fachAusAdresse] });
+  }, [fachAusAdresse]);
 
   const faecher = useMemo(
     () => modul.subjects.filter((f) => alle.some((k) => k.faecher.includes(f.id) && e.arten.some((a) => passt(k, a)))),

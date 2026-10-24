@@ -479,6 +479,8 @@
   overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: var(--space-1); -webkit-overflow-scrolling: touch;
 }
 @container widget (max-width: 600px) { .board { grid-auto-columns: 86%; } }
+/* iPad quer mit Seitenleiste: alle vier Spalten ohne seitliches Scrollen */
+@container widget (min-width: 601px) and (max-width: 1080px) { .board { grid-auto-columns: minmax(180px, 1fr); } }
 .board.is-dragging { scroll-snap-type: none; user-select: none; -webkit-user-select: none; }
 .board__col {
   scroll-snap-align: start; display: flex; flex-direction: column; min-width: 0;

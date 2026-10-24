@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from 'react';
 import './uebergabe.css';
 import { logActivity } from '../../core/activity';
+import { UEBERGABE_THEMA } from '../lernplan/trainer';
 import { LernplanHinweis, useLernplanUebernahme } from '../lernplan/ui/LernplanHinweis';
 import { getApiKey } from '../../core/settings';
 import { navigate } from '../../ui/shell/router';
@@ -45,8 +46,6 @@ function Fallkarte({ fall }: { fall: Fall }) {
     </div>
   );
 }
-
-const UEBERGABE_THEMA = 'thema.pp.uebergabe';
 
 function Ergebnis({ e }: { e: Pruefergebnis }) {
   const stufe = e.prozent >= 85 ? 'gut' : e.prozent >= 60 ? 'mittel' : 'schwach';

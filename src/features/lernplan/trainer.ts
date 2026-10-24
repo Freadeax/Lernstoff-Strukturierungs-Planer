@@ -9,7 +9,10 @@
 
 import { db } from '../../core/db';
 import type { Topic } from '../../core/types';
+import type { CatalogModule } from '../../modules/catalog-types';
 import { pflegeModule } from '../../modules/pflege';
+import { TYPEN } from '../rechnen/aufgaben';
+import { fallThemen, SZENARIEN } from '../fall/faelle';
 import { heute, leafTopics, logReview, TRAINER_NAME } from './store';
 
 export type TrainerId = 'rechnen' | 'duell' | 'fall' | 'uebergabe';
@@ -66,4 +69,30 @@ export async function inLernplan(trainer: TrainerId, ergebnisse: ThemenErgebnis[
     await logReview(byId.get(u.topicId)!, 'trainer', { scorePercent: u.scorePercent }, date, trainer);
   }
   return plan;
+}
+
+// ---------------------------------------------------------------- Passende Übung zu einem Thema
+
+export interface Uebung { trainer: TrainerId; label: string; path: string }
+
+/** Mindestzahl Glossarbegriffe, ab der ein Duell zu einem Thema sinnvoll ist. */
+const DUELL_MIN_BEGRIFFE = 6;
+export const UEBERGABE_THEMA = 'thema.pp.uebergabe';
+
+/**
+ * Welche Trainer ein Thema abfragen können, mit Sprungziel. Reihenfolge: offline vor KI,
+ * damit die schnellste Abfrage zuerst steht.
+ */
+export function uebungenFuer(topicId: string, modul: CatalogModule = pflegeModule): Uebung[] {
+  const out: Uebung[] = [];
+  const typen = TYPEN.filter((t) => t.thema === topicId).map((t) => t.typ);
+  if (typen.length) out.push({ trainer: 'rechnen', label: 'Prüfungsrunde im Rechentrainer', path: `/lernen/rechnen?modus=pruefung&typen=${typen.join(',')}` });
+  const begriffe = modul.glossary.filter((g) => g.topicIds?.includes(topicId)).length;
+  const fach = modul.topics.find((t) => t.id === topicId)?.subjectId;
+  if (begriffe >= DUELL_MIN_BEGRIFFE && fach) out.push({ trainer: 'duell', label: 'Fachbegriff-Duell', path: `/lernen/duell?fach=${encodeURIComponent(fach)}` });
+  if (topicId === UEBERGABE_THEMA) out.push({ trainer: 'uebergabe', label: 'Übergabe-Trainer', path: '/lernen/uebergabe' });
+  if (SZENARIEN.some((s) => s.topicIds.includes(topicId)) || fallThemen(modul).some((t) => t.id === topicId)) {
+    out.push({ trainer: 'fall', label: 'Fall im Simulator', path: `/lernen/fall?thema=${encodeURIComponent(topicId)}` });
+  }
+  return out;
 }

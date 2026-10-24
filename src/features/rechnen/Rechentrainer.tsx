@@ -7,6 +7,7 @@ import {
 } from './aufgaben';
 import { ladeStatistik, quote, schwaechen, zaehle, type Statistik } from './statistik';
 import { proThema } from '../lernplan/trainer';
+import { useRoute } from '../../ui/shell/router';
 import { LernplanHinweis, useLernplanUebernahme } from '../lernplan/ui/LernplanHinweis';
 
 type Modus = 'training' | 'pruefung';
@@ -40,11 +41,19 @@ const MELDUNG: Record<Bewertung, string> = {
   leer: 'Bitte eine Zahl eingeben.',
 };
 
+/** Startwerte aus der Adresse, z. B. #/lernen/rechnen?modus=pruefung&typen=dosis,mgkg (Sprung aus dem Lernplan). */
+function ausAdresse(params: URLSearchParams): { typen: AufgabenTyp[]; modus: Modus } {
+  const typen = (params.get('typen') ?? '').split(',').filter((t): t is AufgabenTyp => (ALLE as string[]).includes(t));
+  return { typen: typen.length ? typen : ALLE, modus: params.get('modus') === 'pruefung' ? 'pruefung' : 'training' };
+}
+
 export default function Rechentrainer() {
-  const [typen, setTypen] = useState<AufgabenTyp[]>(ALLE);
+  const { params } = useRoute();
+  const [start0] = useState(() => ausAdresse(params));
+  const [typen, setTypen] = useState<AufgabenTyp[]>(start0.typen);
   const [stufe, setStufe] = useState<Stufe>(1);
-  const [modus, setModus] = useState<Modus>('training');
-  const [aufgabe, setAufgabe] = useState(() => naechste(ALLE, 1, neuerSeed()));
+  const [modus, setModus] = useState<Modus>(start0.modus);
+  const [aufgabe, setAufgabe] = useState(() => naechste(start0.typen, 1, neuerSeed()));
   const [eingabe, setEingabe] = useState('');
   const [bewertung, setBewertung] = useState<Bewertung | null>(null);
   const [tipp, setTipp] = useState(false);
@@ -113,7 +122,7 @@ export default function Rechentrainer() {
     <section className="page rechnen">
       <div className="page__head">
         <h2>Rechentrainer</h2>
-        <p className="muted">Pflegerisches Rechnen mit unendlich vielen Aufgaben und Lösungsweg. Funktioniert offline. Die Werte sind fiktive Übungswerte, keine Dosierungsempfehlung.</p>
+        <p className="muted">Pflegerisches Rechnen mit unendlich vielen Aufgaben und Lösungsweg. Funktioniert offline. Prüfungsrunden zählen im Lernplan als Abfrage. Die Werte sind fiktive Übungswerte, keine Dosierungsempfehlung.</p>
       </div>
 
       <div className="card rechnen__einstellungen">
@@ -157,6 +166,8 @@ export default function Rechentrainer() {
               {richtigInRunde === runde.length ? 'Fehlerfrei. Stark!' : richtigInRunde >= 8 ? 'Gut, schau dir die Fehler kurz an.' : 'Lies die Lösungswege und versuch es gleich noch einmal.'}
               {' '}Zeit: {Math.max(1, Math.round((Date.now() - start) / 60000))} min.
             </p>
+            <LernplanHinweis uebernahme={lernplan.uebernahme} fehler={lernplan.fehler}
+              leer={`Für den Lernplan zählt ein Thema ab ${MIN_PRO_THEMA} Aufgaben in der Runde.`} />
             <ol className="rechnen__liste">
               {runde.map((e, i) => (
                 <li key={i} className={ok(e.bewertung) ? 'is-ok' : 'is-falsch'}>
@@ -166,8 +177,6 @@ export default function Rechentrainer() {
                 </li>
               ))}
             </ol>
-            <LernplanHinweis uebernahme={lernplan.uebernahme} fehler={lernplan.fehler}
-              leer={`Für den Lernplan zählt ein Thema ab ${MIN_PRO_THEMA} Aufgaben in der Runde.`} />
             <div className="row">
               <button type="button" className="primary" onClick={() => neueRunde('pruefung')}>Neue Prüfungsrunde</button>
               <button type="button" onClick={() => neueRunde('training')}>Zum Training</button>

@@ -3,6 +3,7 @@ import './fall.css';
 import { logActivity } from '../../core/activity';
 import { getApiKey } from '../../core/settings';
 import { pflegeModule } from '../../modules/pflege';
+import { useRoute } from '../../ui/shell/router';
 import { proThema } from '../lernplan/trainer';
 import { LernplanHinweis, useLernplanUebernahme } from '../lernplan/ui/LernplanHinweis';
 import {
@@ -42,7 +43,10 @@ function fehlertext(e: unknown): string {
 function Start({ onStart, apiKey }: { onStart: (s: Szenario, stufe: Stufe) => void; apiKey: string }) {
   const [stufe, setStufe] = useState<Stufe>(1);
   const themen = useMemo(() => fallThemen(modul), []);
-  const [themaId, setThemaId] = useState(themen[0]?.id ?? '');
+  // Sprung aus dem Lernplan: #/lernen/fall?thema=… stellt passende Fälle nach vorn
+  const wunsch = useRoute().params.get('thema') ?? '';
+  const [themaId, setThemaId] = useState(themen.some((t) => t.id === wunsch) ? wunsch : themen[0]?.id ?? '');
+  const szenarien = useMemo(() => [...SZENARIEN].sort((a, b) => Number(b.topicIds.includes(wunsch)) - Number(a.topicIds.includes(wunsch))), [wunsch]);
   const [setting, setSetting] = useState<Setting>('krankenhaus');
   const [archiv] = useState(ladeArchiv);
   const [offen, setOffen] = useState<Fall | null>(null);
@@ -66,9 +70,12 @@ function Start({ onStart, apiKey }: { onStart: (s: Szenario, stufe: Stufe) => vo
       </div>
 
       <div className="fall__szenarien">
-        {SZENARIEN.map((s) => (
+        {szenarien.map((s) => (
           <button key={s.id} type="button" className="card fall__szenario" disabled={!apiKey} onClick={() => onStart(s, stufe)}>
-            <span className="badge badge--demo">{SETTING_LABEL[s.setting]}</span>
+            <span className="row fall__badges">
+              <span className="badge badge--demo">{SETTING_LABEL[s.setting]}</span>
+              {wunsch && s.topicIds.includes(wunsch) && <span className="badge">passt zu {themaName(wunsch)}</span>}
+            </span>
             <strong>{s.titel}</strong>
             <span className="muted">{s.kurz}</span>
           </button>

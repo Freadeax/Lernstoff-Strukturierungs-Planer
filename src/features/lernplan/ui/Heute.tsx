@@ -5,6 +5,7 @@ import { notify } from '../../../ui/shell/notifications';
 import type { PlanBlock } from '../scheduler';
 import type { EvidenceSource, Rating } from '../types';
 import { logReview, logStudy, RATING_LABEL, SOURCE_LABEL, TRAINER_NAME } from '../store';
+import { uebungenFuer } from '../trainer';
 import { blockTitel, bloecke, dauer, langDatum, STATUS_LABEL } from './format';
 import { OhnePruefung, type PlanCtx } from './Lernplan';
 
@@ -83,6 +84,9 @@ function BlockKarte({ block, ctx }: { block: PlanBlock; ctx: PlanCtx }) {
           </> : (
             <button type="button" className="primary small" onClick={() => setOffen('abfrage')}>Ergebnis eintragen</button>
           )}
+          {block.kind !== 'erarbeiten' && uebungenFuer(topic.id).slice(0, 2).map((u) => (
+            <button key={u.trainer} type="button" className="small" onClick={() => navigate(u.path)}>{u.label}</button>
+          ))}
           <button type="button" className="small ghost" onClick={() => navigate(`/lernen/landkarte?thema=${encodeURIComponent(topic.id)}`)}>Auf der Landkarte</button>
         </div>
       )}

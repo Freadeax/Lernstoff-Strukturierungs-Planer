@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { db, deleteAll } from '../../../core/db';
 import type { Topic } from '../../../core/types';
 import { evidenceRating } from '../fsrs';
-import { inLernplan, planeUebernahme, proThema } from '../trainer';
+import { inLernplan, planeUebernahme, proThema, uebungenFuer } from '../trainer';
 
 const topics: Topic[] = [
   { id: 'a', subjectId: 's', name: 'Anatomie', prerequisites: [] },
@@ -58,5 +58,19 @@ describe('Trainer-Ergebnisse in der Datenbank', () => {
     expect(logs.map((l) => [l.trainer, l.date, l.scorePercent])).toEqual([
       ['uebergabe', TODAY, 40], ['fall', TODAY, 80], ['uebergabe', '2026-10-27', 90],
     ]);
+  });
+});
+
+describe('Passende Übung zu einem Thema', () => {
+  it('schickt Arzneimittel in die Prüfungsrunde des Rechentrainers mit den passenden Aufgabentypen', () => {
+    const u = uebungenFuer('thema.ph.medikamente');
+    expect(u[0]).toMatchObject({ trainer: 'rechnen', path: '/lernen/rechnen?modus=pruefung&typen=einheiten,dosis,mgkg,prozent' });
+  });
+
+  it('kennt Übergabe, Fallsimulator und Duell', () => {
+    expect(uebungenFuer('thema.pp.uebergabe').map((u) => u.trainer)).toContain('uebergabe');
+    expect(uebungenFuer('thema.pro.sturz').map((u) => u.trainer)).toContain('fall');
+    expect(uebungenFuer('thema.fs.abkuerzungen').map((u) => u.trainer)).toContain('duell');
+    expect(uebungenFuer('thema.gibtsnicht')).toEqual([]);
   });
 });
