@@ -25,7 +25,7 @@ export interface Manifest {
   teile: ManifestTeil[];
 }
 
-export interface RepoInfo { privat: boolean; branch: string; schreiben: boolean; leer: boolean; vollerName: string }
+export interface RepoInfo { privat: boolean; branch: string; schreiben: boolean; leer: boolean; eingerichtet: boolean; vollerName: string }
 
 export class AblageFehler extends Error {
   constructor(message: string, readonly status?: number) { super(message); }
@@ -154,13 +154,14 @@ async function existiert(z: AblageZiel, pfad: string, f: Fetch): Promise<boolean
   catch (e) { if (e instanceof AblageFehler && e.status === 404) return false; throw e; }
 }
 
-/** Prüft Zugriff und dass das Repo privat ist. Ein leeres Repo bekommt eine README. */
+/** Prüft Zugriff, ob das Repo privat ist und ob abholen.py schon darin liegt. */
 export async function pruefeRepo(z: AblageZiel, f: Fetch = fetch): Promise<RepoInfo> {
   const r = await gh<{ private: boolean; default_branch: string; full_name: string; permissions?: { push?: boolean } }>(z, '', {}, f);
   let leer = false;
   try { await gh(z, `/git/ref/heads/${r.default_branch}`, {}, f); }
   catch (e) { if (e instanceof AblageFehler && (e.status === 409 || e.status === 404)) leer = true; else throw e; }
-  return { privat: r.private, branch: r.default_branch, schreiben: r.permissions?.push !== false, leer, vollerName: r.full_name };
+  const eingerichtet = !leer && await existiert(z, `/contents/abholen.py?ref=${r.default_branch}`, f);
+  return { privat: r.private, branch: r.default_branch, schreiben: r.permissions?.push !== false, leer, eingerichtet, vollerName: r.full_name };
 }
 
 /** Legt README.md und abholen.py an (beides klein, per Contents-API, geht auch im leeren Repo). */
@@ -177,6 +178,7 @@ export async function richteEin(z: AblageZiel, info: RepoInfo, readme: string, s
     }, f);
     info.leer = false;
   }
+  info.eingerichtet = true;
 }
 
 export interface Eintrag { ordner: string; manifest?: Manifest }

@@ -42,7 +42,7 @@ export default function Ablage() {
         return;
       }
       if (!i.schreiben) throw new AblageFehler('Der Token darf in diesem Repo nicht schreiben. Bei „Contents“ „Read and write“ wählen.');
-      if (i.leer) { setVerbinden('Richte Repo ein …'); await richteEin(z, i, readmeText(z), skript); }
+      if (!i.eingerichtet) { setVerbinden('Richte Repo ein …'); await richteEin(z, i, readmeText(z), skript); }
       setInfo(i);
       setVerbinden('Lade Liste …');
       setListe(await listeDateien(z));
