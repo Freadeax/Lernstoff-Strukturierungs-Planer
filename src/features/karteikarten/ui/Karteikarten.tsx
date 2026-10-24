@@ -81,6 +81,8 @@ export default function Karteikarten() {
     } catch (e) { setFehler(e instanceof Error ? e.message : String(e)); }
   }, []);
   useEffect(() => { void neuLaden(); }, [neuLaden]);
+  // Menü oder Zurück-Taste während einer Sitzung: Sitzung verlassen, Antworten sind schon gespeichert
+  useEffect(() => { setSitzung(null); void neuLaden(); }, [ansicht, thema]);
 
   const wechsel = (a: Ansicht) => navigate(`/lernen/karten${a === 'lernen' ? (thema ? `?thema=${encodeURIComponent(thema)}` : '') : `?ansicht=${a}`}`);
 

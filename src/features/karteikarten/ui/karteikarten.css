@@ -81,6 +81,7 @@
 @media (max-width: 480px) {
   .karten__zahlen--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .karten__bewertung { gap: var(--space-1); }
+  .karten__verteilung { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .karte__vorne { font-size: var(--text-lg); }
   .karten__faecher li { grid-template-columns: minmax(0, 1fr) 4.5rem; }
   .karten__faecher li .karten__balken { grid-column: 1 / -1; grid-row: 2; }
