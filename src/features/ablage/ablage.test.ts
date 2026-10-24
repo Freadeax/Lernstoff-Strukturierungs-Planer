@@ -96,6 +96,7 @@ describe('Hilfsfunktionen', () => {
     expect(slug('Pflege Heute – 8. Auflage.pdf')).toBe('pflege-heute-8-auflage');
     expect(slug('Größe & Gewicht.PDF')).toBe('groesse-gewicht');
     expect(slug('***.pdf')).toBe('datei');
+    expect(slug('Verst\u0061\u0308ndigung.pdf')).toBe('verstaendigung');
     expect(sichererName('Anatomie für Pflege.PDF')).toBe('anatomie-fuer-pflege.pdf');
   });
   it('liest Repo-Angaben', () => {
@@ -118,6 +119,8 @@ describe('Hilfsfunktionen', () => {
     expect(waehleOrdner({ name: 'Buch.pdf', size: 10 }, [{ ordner: 'buch', manifest: m }])).toEqual({ ordner: 'buch', schonDa: true });
     expect(waehleOrdner({ name: 'Buch.pdf', size: 11 }, [{ ordner: 'buch', manifest: m }])).toEqual({ ordner: 'buch-2', schonDa: false });
     expect(waehleOrdner({ name: 'Buch.pdf', size: 11 }, [])).toEqual({ ordner: 'buch', schonDa: false });
+    // Ordner aus älterer Namensregel: trotzdem als vorhanden erkennen
+    expect(waehleOrdner({ name: 'Grö\u00dfe.pdf', size: 5 }, [{ ordner: 'gro-sse', manifest: { name: 'Gro\u0308\u00dfe.pdf', groesse: 5 } as Manifest }])).toEqual({ ordner: 'gro-sse', schonDa: true });
   });
 });
 
