@@ -1,0 +1,22 @@
+/* Material-Ablage. Nur Tokens aus src/ui/tokens.css. */
+.ablage__felder { display: grid; gap: var(--space-2); grid-template-columns: minmax(0, 1fr); }
+@container content (min-width: 640px) { .ablage__felder { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.ablage__felder input { width: 100%; }
+
+.ablage__hilfe { margin-top: var(--space-3); }
+.ablage__hilfe summary { cursor: pointer; font-weight: var(--weight-medium); }
+.ablage__hilfe ol { padding-left: var(--space-4); line-height: var(--leading-normal); }
+.ablage__hilfe li { margin: var(--space-1) 0; }
+
+.ablage__gesamt { display: flex; align-items: center; gap: var(--space-2); margin: var(--space-3) 0 var(--space-2); }
+.ablage__gesamt .ablage__balken { flex: 1; }
+
+.ablage__liste { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.ablage__liste li { padding: var(--space-2) 0; border-bottom: 1px solid var(--color-border); display: flex; flex-direction: column; gap: var(--space-1); }
+.ablage__liste li:last-child { border-bottom: 0; }
+.ablage__name { overflow-wrap: anywhere; }
+.ablage__auftrag--fehler .muted { color: var(--color-danger); }
+
+.ablage__balken { height: 6px; border-radius: var(--radius-pill); background: var(--color-surface-sunken); overflow: hidden; }
+.ablage__balken span { display: block; height: 100%; background: var(--color-primary); transition: width var(--dur-normal) var(--ease-standard); }
+.ablage__auftrag--uebersprungen .ablage__balken span, .ablage__auftrag--fertig .ablage__balken span { background: var(--color-success); }

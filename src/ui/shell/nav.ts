@@ -30,6 +30,7 @@ export const NAV: NavItem[] = [
     id: 'material', label: 'Material', icon: 'folder', children: [
       { id: 'dokumente', label: 'Dokumente', path: '/material/dokumente', icon: 'folder', tab: true },
       { id: 'import', label: 'Import-Assistent', path: '/material/import', icon: 'upload' },
+      { id: 'ablage', label: 'Große Dateien', path: '/material/ablage', icon: 'upload' },
       { id: 'zusammenfassen', label: 'Zusammenfassen', path: '/material/zusammenfassen', icon: 'sparkle' },
     ],
   },
