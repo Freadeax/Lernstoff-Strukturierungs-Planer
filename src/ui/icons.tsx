@@ -30,6 +30,7 @@ const PATHS = {
   trash: 'M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3',
   calc: 'M6 3h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM8 7h8M8 12h.01M12 12h.01M16 12h.01M8 16h.01M12 16h.01M16 16h.01',
   duell: 'M4 6h9v6H8l-4 3zM20 12h-3M11 15v3h5l4 3V12h-3',
+  chat: 'M4 5h16v11H9l-5 4zM8 9h8M8 12h5',
   sort: 'M8 4v16M4 8l4-4 4 4M16 20V4M12 16l4 4 4-4',
 } as const;
 
