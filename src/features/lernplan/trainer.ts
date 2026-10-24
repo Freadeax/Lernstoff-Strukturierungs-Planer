@@ -16,7 +16,7 @@ import { fallThemen, SZENARIEN } from '../fall/faelle';
 import { FAELLE as PLANFAELLE, PFLEGEPROZESS_THEMEN } from '../pflegeplanung/faelle';
 import { heute, leafTopics, logReview, TRAINER_NAME } from './store';
 
-export type TrainerId = 'rechnen' | 'duell' | 'fall' | 'uebergabe' | 'pflegeplanung' | 'sis' | 'mindmap';
+export type TrainerId = 'rechnen' | 'duell' | 'fall' | 'uebergabe' | 'pflegeplanung' | 'sis' | 'mindmap' | 'bericht';
 
 export const TRAINER_LABEL = TRAINER_NAME as Record<TrainerId, string>;
 
@@ -80,6 +80,7 @@ export interface Uebung { trainer: TrainerId; label: string; path: string }
 const DUELL_MIN_BEGRIFFE = 6;
 export const UEBERGABE_THEMA = 'thema.pp.uebergabe';
 export const SIS_THEMA = 'thema.pp.sis';
+export const BERICHT_THEMA = 'thema.pp.evaluation';
 
 /**
  * Welche Trainer ein Thema abfragen können, mit Sprungziel. Reihenfolge: offline vor KI,
@@ -94,6 +95,7 @@ export function uebungenFuer(topicId: string, modul: CatalogModule = pflegeModul
   if (begriffe >= DUELL_MIN_BEGRIFFE && fach) out.push({ trainer: 'duell', label: 'Fachbegriff-Duell', path: `/lernen/duell?fach=${encodeURIComponent(fach)}` });
   if (topicId === UEBERGABE_THEMA) out.push({ trainer: 'uebergabe', label: 'Übergabe-Trainer', path: '/lernen/uebergabe' });
   if (topicId === SIS_THEMA) out.push({ trainer: 'sis', label: 'SIS-Trainer', path: '/lernen/sis' });
+  if (topicId === BERICHT_THEMA) out.push({ trainer: 'bericht', label: 'Pflegebericht-Trainer', path: '/lernen/bericht' });
   if (PFLEGEPROZESS_THEMEN.includes(topicId)) out.push({ trainer: 'pflegeplanung', label: 'Pflegeplanung schreiben', path: '/lernen/pflegeplanung' });
   else {
     const planfall = PLANFAELLE.find((f) => f.topicIds.includes(topicId));
