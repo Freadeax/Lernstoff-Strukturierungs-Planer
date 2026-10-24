@@ -60,7 +60,7 @@ function fakeGitHub(opts: { privat?: boolean; leer?: boolean } = {}) {
       head = body.sha; return json({ object: { sha: head } });
     }
     if ((r = p.match(/^\/contents\/(.+)$/))) {
-      const pfad = decodeURIComponent(r[1]!);
+      const pfad = decodeURIComponent(r[1]!.split("?")[0]!);
       const all = files();
       if (m === 'PUT') {
         const d = new Uint8Array(Buffer.from(body.content, 'base64'));
@@ -69,6 +69,8 @@ function fakeGitHub(opts: { privat?: boolean; leer?: boolean } = {}) {
         return json({}, 201);
       }
       if (all.has(pfad)) {
+        const raw = String((init.headers as Record<string, string> | undefined)?.Accept ?? '').includes('raw');
+        if (!raw) return json({ sha: all.get(pfad), type: 'file' });
         const d = blobs.get(all.get(pfad)!)!;
         return new Response(d as BodyInit, { status: 200 });
       }
@@ -132,6 +134,16 @@ describe('Upload ins Material-Repo', () => {
     await richteEin(Z, info, '# Ablage', 'print(1)', gh.f);
     expect(new TextDecoder().decode(gh.lies('abholen.py'))).toBe('print(1)');
     expect([...gh.files().keys()].sort()).toEqual(['README.md', 'abholen.py']);
+    expect(info.eingerichtet).toBe(true);
+  });
+
+  it('richtet auch ein Repo mit GitHub-README ein und ersetzt die README', async () => {
+    const gh = fakeGitHub();
+    const info = await pruefeRepo(Z, gh.f);
+    expect(info).toMatchObject({ leer: false, eingerichtet: false });
+    await richteEin(Z, info, '# Ablage', 'print(1)', gh.f);
+    expect(new TextDecoder().decode(gh.lies('README.md'))).toBe('# Ablage');
+    expect((await pruefeRepo(Z, gh.f)).eingerichtet).toBe(true);
   });
 
   it('zerlegt große Dateien, legt ein Manifest an und setzt sie wieder richtig zusammen', async () => {
