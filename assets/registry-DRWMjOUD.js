@@ -1,1 +1,0 @@
-import{l as e}from"./time-BHMQGFh4.js";var t=[e];function n(e){return t.find(t=>t.id===e)}export{t as n,n as t};
