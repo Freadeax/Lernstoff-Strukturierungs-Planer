@@ -73,4 +73,9 @@ describe('Passende Übung zu einem Thema', () => {
     expect(uebungenFuer('thema.fs.abkuerzungen').map((u) => u.trainer)).toContain('duell');
     expect(uebungenFuer('thema.gibtsnicht')).toEqual([]);
   });
+
+  it('kennt den Pflegeplanung-Trainer für Pflegeprozess- und Fallthemen', () => {
+    expect(uebungenFuer('thema.pp.ziele').map((u) => u.path)).toContain('/lernen/pflegeplanung');
+    expect(uebungenFuer('thema.pro.aspiration').map((u) => u.path)).toContain('/lernen/pflegeplanung?fall=schlaganfall');
+  });
 });

@@ -38,6 +38,9 @@ export interface PlanFall {
   beispiel: string;                        // Ausschnitt einer möglichen Planung
 }
 
+/** Pflegeprozess-Themen, die jede Planung abfragt (siehe pruefung.ts, SCHRITT_THEMA). */
+export const PFLEGEPROZESS_THEMEN = ['thema.pp.prozess', 'thema.pp.anamnese', 'thema.pp.diagnosen', 'thema.pp.ziele', 'thema.pp.massnahmen', 'thema.pp.evaluation'];
+
 export const SETTING_LABEL: Record<Setting, string> = {
   akut: 'Krankenhaus', langzeit: 'Pflegeheim', ambulant: 'Ambulant', paediatrie: 'Kinderklinik',
 };

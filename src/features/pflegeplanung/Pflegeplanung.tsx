@@ -3,7 +3,8 @@ import './pflegeplanung.css';
 import { logActivity } from '../../core/activity';
 import { getApiKey } from '../../core/settings';
 import { pflegeModule } from '../../modules/pflege';
-import { navigate } from '../../ui/shell/router';
+import { navigate, useRoute } from '../../ui/shell/router';
+import { LernplanHinweis, useLernplanUebernahme } from '../lernplan/ui/LernplanHinweis';
 import { eigenerFall, FAELLE, SETTING_LABEL, type PlanFall, type ProblemArt } from './faelle';
 import {
   ERREICHT_LABEL, hatInhalt, leererPlan, neueMassnahme, neuesProblem, neuesZiel, ohneProblem, ohneZiel, problemName,
@@ -12,7 +13,7 @@ import {
 } from './plan';
 import { pruefe, type Befund, type Pruefergebnis, type Schwere } from './pruefung';
 import { bewerteMitClaude, type KiRueckmeldung } from './claude';
-import { lernplanEintraege, meldeAnLernplan } from './lernplan';
+import { lernplanErgebnisse } from './lernplan';
 
 // ---------- Entwürfe und Bestwerte (nur dieses Gerät) ----------
 
@@ -327,8 +328,9 @@ function KiErgebnis({ r }: { r: KiRueckmeldung }) {
 // ---------- Seite ----------
 
 export default function Pflegeplanung() {
-  const [fallId, setFallId] = useState(FAELLE[0]!.id);
-  const start = ladeEntwurf(FAELLE[0]!.id);
+  const wunsch = useRoute().params.get('fall') ?? '';
+  const [fallId, setFallId] = useState(() => (FAELLE.some((f) => f.id === wunsch) ? wunsch : FAELLE[0]!.id));
+  const start = ladeEntwurf(fallId);
   const [plan, setPlan] = useState<Plan>(start?.plan ?? leererPlan());
   const [schritt, setSchritt] = useState<Schritt>(start?.schritt ?? 'info');
   const [eigen, setEigen] = useState({ text: '', verlauf: '' });
@@ -336,11 +338,11 @@ export default function Pflegeplanung() {
   const [ki, setKi] = useState<KiRueckmeldung | null>(null);
   const [kiLaeuft, setKiLaeuft] = useState(false);
   const [kiFehler, setKiFehler] = useState('');
-  const [gemeldet, setGemeldet] = useState<'nein' | 'laeuft' | 'ja'>('nein');
   const [beste, setBeste] = useState(() => lese<Record<string, number>>(BESTE_KEY, {}));
   const [hilfe, setHilfe] = useState(false);
   const ergebnisRef = useRef<HTMLDivElement>(null);
   const apiKey = getApiKey();
+  const lernplan = useLernplanUebernahme('pflegeplanung');
 
   const istEigen = fallId === EIGEN;
   const fall = istEigen ? eigenerFall(eigen.text, eigen.verlauf) : FAELLE.find((f) => f.id === fallId)!;
@@ -352,7 +354,7 @@ export default function Pflegeplanung() {
     speichereEntwurf(fallId, { plan, schritt, ...(istEigen ? { eigenText: eigen.text, eigenVerlauf: eigen.verlauf } : {}) });
   }, [fallId, plan, schritt, istEigen, eigen]);
 
-  function zuruecksetzen() { setErgebnis(null); setKi(null); setKiFehler(''); setGemeldet('nein'); }
+  function zuruecksetzen() { setErgebnis(null); setKi(null); setKiFehler(''); lernplan.zuruecksetzen(); }
 
   const setze: Setze = (f) => { setPlan(f); zuruecksetzen(); };
 
@@ -373,7 +375,7 @@ export default function Pflegeplanung() {
 
   function auswerten() {
     const e = pruefe(fall, plan);
-    setErgebnis(e); setKi(null); setKiFehler(''); setGemeldet('nein');
+    setErgebnis(e); setKi(null); setKiFehler(''); lernplan.zuruecksetzen();
     if (!istEigen) {
       const neu = { ...beste, [fall.id]: Math.max(beste[fall.id] ?? 0, e.prozent) };
       setBeste(neu); schreibe(BESTE_KEY, neu);
@@ -389,17 +391,12 @@ export default function Pflegeplanung() {
 
   async function fragClaude() {
     setKiLaeuft(true); setKiFehler('');
-    try { setKi(await bewerteMitClaude({ apiKey, fall, plan, modul: pflegeModule })); setGemeldet('nein'); }
+    try { setKi(await bewerteMitClaude({ apiKey, fall, plan, modul: pflegeModule })); }
     catch (err) { setKiFehler(err instanceof Error ? err.message : String(err)); }
     finally { setKiLaeuft(false); }
   }
 
-  const eintraege = ergebnis ? lernplanEintraege(pflegeModule.topics, fall, ergebnis, ki) : [];
-  async function melden() {
-    setGemeldet('laeuft');
-    try { await meldeAnLernplan(eintraege); setGemeldet('ja'); }
-    catch { setGemeldet('nein'); setKiFehler('Speichern im Lernplan hat nicht geklappt.'); }
-  }
+  const melden = () => { if (ergebnis) lernplan.uebernimm(lernplanErgebnisse(fall, ergebnis, ki)); };
 
   const live_s = (s: Schritt) => live.schritte.find((x) => x.schritt === s)!;
   // Live nur Aufbau und Formulierung zeigen; was im Fall fehlt, erst bei der Auswertung
@@ -499,17 +496,18 @@ export default function Pflegeplanung() {
                 {apiKey
                   ? <button type="button" className="primary" onClick={fragClaude} disabled={kiLaeuft}>{kiLaeuft ? 'Claude liest …' : ki ? 'Noch einmal bewerten' : 'Fachliche Rückmeldung von Claude'}</button>
                   : <p className="muted">Für eine fachliche Rückmeldung (prüft auch, ob Maßnahmen richtig sind und zum Fall passen) einen API-Schlüssel hinterlegen. <button type="button" className="link" onClick={() => navigate('/einstellungen')}>Zu den Einstellungen</button></p>}
-                <button type="button" onClick={melden} disabled={gemeldet !== 'nein' || !eintraege.length}>
-                  {gemeldet === 'ja' ? 'Im Lernplan gespeichert ✓' : gemeldet === 'laeuft' ? 'Speichert …' : 'Ergebnis in den Lernplan'}
+                <button type="button" onClick={melden} disabled={!!lernplan.uebernahme}>
+                  {lernplan.uebernahme ? 'An den Lernplan übergeben' : 'Fertig: Ergebnis in den Lernplan'}
                 </button>
               </div>
               {apiKey && !ki && !kiLaeuft && <p className="muted">Gesendet werden nur der Fall und deine Planung.</p>}
               {kiFehler && <div className="note warn" role="alert">{kiFehler}</div>}
-              {eintraege.length > 0 && (
+              {!lernplan.uebernahme && (
                 <p className="muted">
-                  Geht als Abfrage ({ki ? 'Bewertung von Claude' : 'Checkliste'}) an {eintraege.length} Themen: {eintraege.map((x) => `${x.topic.name} ${x.prozent} %`).join(' · ')}
+                  Übergib erst, wenn die Planung fertig ist: je Thema zählt die erste Übergabe des Tages. Gewertet wird {ki ? 'die Bewertung von Claude' : 'die Checkliste (mit Rückmeldung von Claude genauer)'}.
                 </p>
               )}
+              <LernplanHinweis uebernahme={lernplan.uebernahme} fehler={lernplan.fehler} />
               {fall.beispiel && (
                 <details>
                   <summary>Beispiel-Planung ansehen</summary>

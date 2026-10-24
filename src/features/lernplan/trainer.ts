@@ -13,9 +13,10 @@ import type { CatalogModule } from '../../modules/catalog-types';
 import { pflegeModule } from '../../modules/pflege';
 import { TYPEN } from '../rechnen/aufgaben';
 import { fallThemen, SZENARIEN } from '../fall/faelle';
+import { FAELLE as PLANFAELLE, PFLEGEPROZESS_THEMEN } from '../pflegeplanung/faelle';
 import { heute, leafTopics, logReview, TRAINER_NAME } from './store';
 
-export type TrainerId = 'rechnen' | 'duell' | 'fall' | 'uebergabe';
+export type TrainerId = 'rechnen' | 'duell' | 'fall' | 'uebergabe' | 'pflegeplanung';
 
 export const TRAINER_LABEL = TRAINER_NAME as Record<TrainerId, string>;
 
@@ -91,6 +92,11 @@ export function uebungenFuer(topicId: string, modul: CatalogModule = pflegeModul
   const fach = modul.topics.find((t) => t.id === topicId)?.subjectId;
   if (begriffe >= DUELL_MIN_BEGRIFFE && fach) out.push({ trainer: 'duell', label: 'Fachbegriff-Duell', path: `/lernen/duell?fach=${encodeURIComponent(fach)}` });
   if (topicId === UEBERGABE_THEMA) out.push({ trainer: 'uebergabe', label: 'Übergabe-Trainer', path: '/lernen/uebergabe' });
+  if (PFLEGEPROZESS_THEMEN.includes(topicId)) out.push({ trainer: 'pflegeplanung', label: 'Pflegeplanung schreiben', path: '/lernen/pflegeplanung' });
+  else {
+    const planfall = PLANFAELLE.find((f) => f.topicIds.includes(topicId));
+    if (planfall) out.push({ trainer: 'pflegeplanung', label: 'Pflegeplanung zum Fall', path: `/lernen/pflegeplanung?fall=${planfall.id}` });
+  }
   if (SZENARIEN.some((s) => s.topicIds.includes(topicId)) || fallThemen(modul).some((t) => t.id === topicId)) {
     out.push({ trainer: 'fall', label: 'Fall im Simulator', path: `/lernen/fall?thema=${encodeURIComponent(topicId)}` });
   }

@@ -4,7 +4,7 @@ import { eigenerFall, FAELLE } from './faelle';
 import { leererPlan, neueMassnahme, neuesProblem, neuesZiel, ohneProblem, planAlsText, type Plan } from './plan';
 import { pruefe, SCHRITT_THEMA } from './pruefung';
 import { kiRegeln, leseRueckmeldung } from './claude';
-import { lernplanEintraege } from './lernplan';
+import { lernplanErgebnisse } from './lernplan';
 
 const fall = (id: string) => FAELLE.find((f) => f.id === id)!;
 const regeln = (e: ReturnType<typeof pruefe>) => e.befunde.map((b) => b.regelId);
@@ -163,17 +163,18 @@ describe('Lernplan-Anbindung', () => {
   it('meldet Gesamtwert, Schritte und Fallthemen, Claude hat Vorrang', () => {
     const f = fall('huefte');
     const e = pruefe(f, guterPlan());
-    const ohneKi = lernplanEintraege(pflegeModule.topics, f, e);
-    const ids = ohneKi.map((x) => x.topic.id);
+    const wert = (r: ReturnType<typeof lernplanErgebnisse>, id: string) => r.find((x) => x.topicId === id)!.scorePercent;
+    const ohneKi = lernplanErgebnisse(f, e);
+    const ids = ohneKi.map((x) => x.topicId);
     expect(ids).toEqual(expect.arrayContaining(['thema.pp.prozess', 'thema.pp.diagnosen', 'thema.pp.evaluation', 'thema.pro.sturz']));
-    expect(ohneKi.find((x) => x.topic.id === 'thema.pp.prozess')!.prozent).toBe(e.prozent);
+    expect(wert(ohneKi, 'thema.pp.prozess')).toBe(e.prozent);
     expect(new Set(ids).size).toBe(ids.length);
 
     const ki = leseRueckmeldung(JSON.stringify({ note: 3, prozent: 62, schritte: [{ schritt: 'ziele', prozent: 40, kommentar: 'x' }], regeln: [] }), []);
-    const mitKi = lernplanEintraege(pflegeModule.topics, f, e, ki);
-    expect(mitKi.find((x) => x.topic.id === 'thema.pp.prozess')!.prozent).toBe(62);
-    expect(mitKi.find((x) => x.topic.id === 'thema.pp.ziele')!.prozent).toBe(40);
-    expect(mitKi.find((x) => x.topic.id === 'thema.pro.sturz')!.prozent).toBe(62);
+    const mitKi = lernplanErgebnisse(f, e, ki);
+    expect(wert(mitKi, 'thema.pp.prozess')).toBe(62);
+    expect(wert(mitKi, 'thema.pp.ziele')).toBe(40);
+    expect(wert(mitKi, 'thema.pro.sturz')).toBe(62);
   });
 });
 
