@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import type { Summary } from '../../core/types';
 import { pflegeModule } from '../../modules/pflege';
 import { ratingFromScore } from '../lernplan/fsrs';
-import { ausFragenSatz, ausGlossar, ausKatalog, ausZusammenfassung, definitionsBegriff, modulKarten, pruefeEingabe } from './erzeugen';
+import { ausFragenSatz, ausGlossar, ausKatalog, ausSteckbriefen, ausZusammenfassung, definitionsBegriff, modulKarten, pruefeEingabe, wirkstoffAntworten } from './erzeugen';
 import {
   bewerte, einstreuen, ergebnisseJeThema, prognose, stelleSitzungZusammen, vorschau, wiedereinreihen,
 } from './planung';
@@ -158,6 +158,36 @@ describe('Karten aus dem Fachmodul Pflege', () => {
     expect(nurAp.length).toBeLessThan(alle.length);
     expect(nurAp.every((k) => !k.subjectIds.length || k.subjectIds.includes('fach.anatomie'))).toBe(true);
     expect(nurAp.some((k) => k.id === 'kat:op.nennen')).toBe(true);
+  });
+});
+
+describe('Medikamenten-Steckbriefe', () => {
+  const k = ausSteckbriefen(pflegeModule);
+  const von = (id: string) => k.filter((x) => x.ref === id);
+
+  it('baut je Wirkstoff Wirkung, Anwendung, Nebenwirkungen und Pflege, dazu Antidot und Handelsname', () => {
+    const furo = von('arz.furosemid').map((x) => x.id);
+    expect(furo).toEqual(['arz:arz.furosemid:wirkung', 'arz:arz.furosemid:anwendung', 'arz:arz.furosemid:nebenwirkungen', 'arz:arz.furosemid:pflege', 'arz:arz.furosemid:handelsname']);
+    expect(von('arz.morphin').some((x) => x.id.endsWith(':antidot') && x.hinten === 'Naloxon')).toBe(true);
+    expect(k.every((x) => x.vorne && (x.hinten || x.liste?.length) && x.quellen?.length && x.ungeprueft)).toBe(true);
+    expect(k.every((x) => x.topicIds.includes('thema.ph.medikamente') && x.subjectIds.length)).toBe(true);
+  });
+
+  it('prüft eingetippte Wirkstoffe mit Synonymen und Kombinationen', () => {
+    const lasix = von('arz.furosemid').find((x) => x.eingabe)!;
+    expect(lasix.vorne).toContain('Lasix');
+    expect(pruefeEingabe('furosemid', lasix)).toBe('richtig');
+    const adrenalin = von('arz.epinephrin').find((x) => x.eingabe)!;
+    expect(pruefeEingabe('Adrenalin', adrenalin)).toBe('richtig');
+    expect(pruefeEingabe('Epinephrin', adrenalin)).toBe('richtig');
+    expect(wirkstoffAntworten({ substance: 'Levodopa mit Benserazid', abbreviation: 'L-Dopa' })).toEqual(['Levodopa', 'L-Dopa']);
+    expect(wirkstoffAntworten({ substance: 'Fentanyl (Pflaster)' })).toEqual([]);
+  });
+
+  it('lässt sich im Stapel abschalten; ältere Einstellungen ohne Schalter zeigen sie', () => {
+    const basis = { faecher: [], richtungen: ['vorwaerts' as const], katalog: false };
+    expect(modulKarten(pflegeModule, { ...basis, arzneimittel: false }).some((x) => x.quelle === 'arzneimittel')).toBe(false);
+    expect(modulKarten(pflegeModule, basis).filter((x) => x.quelle === 'arzneimittel')).toHaveLength(k.length);
   });
 });
 

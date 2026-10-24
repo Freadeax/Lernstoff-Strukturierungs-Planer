@@ -51,6 +51,21 @@ describe('Pflege-Fachmodul', () => {
     expect(pesr?.requiredParts).toEqual(['P', 'E', 'S', 'R']);
   });
 
+  it('hat Medikamenten-Steckbriefe mit Quelle, Prüfstatus und gültigen Themen', () => {
+    const d = m.drugProfiles ?? [];
+    expect(d.length).toBeGreaterThanOrEqual(40);
+    expect(new Set(d.map((x) => x.id)).size).toBe(d.length);
+    expect(new Set(d.map((x) => x.substance.toLowerCase())).size).toBe(d.length);
+    const themen = new Set(m.topics.map((t) => t.id));
+    expect(d.flatMap((x) => x.topicIds.filter((t) => !themen.has(t)).map((t) => `${x.id} -> ${t}`))).toEqual([]);
+    expect(d.filter((x) => !x.topicIds.includes('thema.ph.medikamente')).map((x) => x.id)).toEqual([]);
+    expect(d.filter((x) => !x.sources.length || x.sources.some((q) => !q.url.startsWith('https://'))).map((x) => x.id)).toEqual([]);
+    expect(d.every((x) => x.pruefstatus === 'ungeprueft')).toBe(true);
+    // Handelsnamen nur einmal, sonst ist die Karte „Handelsname → Wirkstoff“ mehrdeutig
+    const handel = d.flatMap((x) => x.brandNames ?? []).map((n) => n.toLowerCase());
+    expect(new Set(handel).size).toBe(handel.length);
+  });
+
   it('kennzeichnet Katalogdefinitionen als ergänzendes Wissen', () => {
     expect(m.glossary.every((g) => g.origin === 'katalog' || g.citation)).toBe(true);
   });

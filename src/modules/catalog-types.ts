@@ -73,6 +73,31 @@ export interface ExamFormat {
   pruefstatus?: Pruefstatus;
 }
 
+/** Quelle eines Steckbriefs (öffentlich erreichbar, damit man nachprüfen kann). */
+export interface SourceLink { title: string; url: string; }
+
+/**
+ * Arzneimittel-Steckbrief. Katalogwissen mit Quellen, keine Dosierungsanweisung;
+ * pruefstatus bleibt ungeprueft, bis es gegen Lehrbuch oder Fachinformation geprüft ist.
+ */
+export interface DrugProfile {
+  id: ID;
+  substance: string;
+  abbreviation?: string;
+  brandNames?: string[];  // Beispiele, keine Empfehlung
+  drugClass: string;
+  mechanism: string;
+  indications: string[];
+  adverseEffects: string[];
+  contraindications?: string[];
+  nursing: string[];      // Pflegerelevanz: beobachten, verabreichen, beraten
+  mnemonic?: string;
+  antidote?: string;
+  topicIds: ID[];
+  sources: SourceLink[];
+  pruefstatus?: Pruefstatus;
+}
+
 export interface CatalogModule extends DomainModule {
   sprache?: string;
   stand?: string;
@@ -85,4 +110,5 @@ export interface CatalogModule extends DomainModule {
   references?: Reference[];
   operators?: Operator[];
   examFormats?: ExamFormat[];
+  drugProfiles?: DrugProfile[];
 }

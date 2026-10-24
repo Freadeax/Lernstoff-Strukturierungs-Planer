@@ -11,11 +11,12 @@ import { heute as heuteTag, ladeKartenDaten, neueHeute, schliesseOffeneSitzungAb
 import type { Karte } from '../typen';
 import { Sitzung } from './Sitzung';
 import { alleThemen, blaetter, modul, type KartenCtx } from './kontext';
+import { Steckbriefe } from './Steckbriefe';
 import { Eigene, Stapel, Statistik } from './Verwalten';
 
-type Ansicht = 'lernen' | 'stapel' | 'eigene' | 'statistik';
+type Ansicht = 'lernen' | 'steckbriefe' | 'stapel' | 'eigene' | 'statistik';
 const ANSICHTEN: { id: Ansicht; label: string }[] = [
-  { id: 'lernen', label: 'Lernen' }, { id: 'stapel', label: 'Stapel' }, { id: 'eigene', label: 'Eigene Karten' }, { id: 'statistik', label: 'Statistik' },
+  { id: 'lernen', label: 'Lernen' }, { id: 'steckbriefe', label: 'Medikamente' }, { id: 'stapel', label: 'Stapel' }, { id: 'eigene', label: 'Eigene Karten' }, { id: 'statistik', label: 'Statistik' },
 ];
 
 function Start({ ctx, thema, onStart }: { ctx: KartenCtx; thema?: ID; onStart: (s: SitzungsPlan, titel?: string) => void }) {
@@ -98,7 +99,7 @@ export default function Karteikarten() {
     <section className="page karten">
       <div className="page__head">
         <h2>Karteikarten</h2>
-        <p className="muted">Fachbegriffe, Katalogwissen und deine eigenen Zusammenfassungen mit Wiederholung im richtigen Abstand. Funktioniert offline, alles bleibt auf diesem Gerät.</p>
+        <p className="muted">Fachbegriffe, Katalogwissen, Medikamenten-Steckbriefe und deine eigenen Zusammenfassungen mit Wiederholung im richtigen Abstand. Funktioniert offline, alles bleibt auf diesem Gerät.</p>
       </div>
       {!sitzung && (
         <div className="pills karten__tabs" role="tablist" aria-label="Ansicht">
@@ -112,6 +113,7 @@ export default function Karteikarten() {
           topics={blaetter} titles={ctx.titles} onEnde={() => { setSitzung(null); void neuLaden(); }} />
       )}
       {ctx && !sitzung && ansicht === 'lernen' && <Start ctx={ctx} thema={thema} onStart={(s, titel) => setSitzung({ karten: s.karten, titel })} />}
+      {ctx && !sitzung && ansicht === 'steckbriefe' && <Steckbriefe ctx={ctx} />}
       {ctx && !sitzung && ansicht === 'stapel' && <Stapel ctx={ctx} />}
       {ctx && !sitzung && ansicht === 'eigene' && <Eigene ctx={ctx} />}
       {ctx && !sitzung && ansicht === 'statistik' && <Statistik ctx={ctx} />}

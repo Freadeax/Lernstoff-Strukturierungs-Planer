@@ -4,11 +4,12 @@
 import type { ID } from '../../core/types';
 import type { Rating } from '../lernplan/types';
 
-export type KartenQuelle = 'glossar' | 'katalog' | 'zusammenfassung' | 'pruefungsfragen' | 'eigen';
+export type KartenQuelle = 'glossar' | 'katalog' | 'arzneimittel' | 'zusammenfassung' | 'pruefungsfragen' | 'eigen';
 
 export const QUELLE_LABEL: Record<KartenQuelle, string> = {
   glossar: 'Glossar',
   katalog: 'Themenkatalog',
+  arzneimittel: 'Medikamenten-Steckbrief',
   zusammenfassung: 'Zusammenfassung',
   pruefungsfragen: 'Prüfungsfrage',
   eigen: 'Eigene Karte',
@@ -17,11 +18,14 @@ export const QUELLE_LABEL: Record<KartenQuelle, string> = {
 /** Fundstelle im eigenen Material, damit die Rückseite nachprüfbar bleibt. */
 export interface KartenBeleg { documentId: ID; page: number; printedPage?: string; quote: string }
 
+/** Öffentliche Quelle (z. B. Gelbe Liste) für Katalogkarten wie Medikamenten-Steckbriefe. */
+export interface KartenLink { title: string; url: string }
+
 export interface Karte {
   /**
    * Stabile ID, damit der Lernstand beim Neuaufbau aus dem Katalog erhalten bleibt:
    * gl:<glossarId>, glr:<glossarId> (rückwärts), gla:<glossarId> (Abkürzung),
-   * kat:<referenz-, format- oder operatorId>, sum:<summaryId>:<blockId>[:teil], def:<summaryId>:<claimId>,
+   * kat:<referenz-, format- oder operatorId>, arz:<steckbriefId>:<teil>, sum:<summaryId>:<blockId>[:teil], def:<summaryId>:<claimId>,
    * pf:<fragensatzId>:<frageId>, eigen:<uuid>.
    */
   id: ID;
@@ -39,6 +43,9 @@ export interface Karte {
   topicIds: ID[];
   subjectIds: ID[];
   belege?: KartenBeleg[];
+  quellen?: KartenLink[];
+  /** Katalogangabe noch nicht gegen Lehrbuch oder Fachinformation geprüft. */
+  ungeprueft?: boolean;
   /** Woraus die Karte entstanden ist (Summary-ID, Glossar-ID …). */
   ref?: ID;
   erstellt?: string;
@@ -75,6 +82,8 @@ export interface KartenConfig {
   faecher: ID[];
   richtungen: Richtung[];
   katalog: boolean;
+  /** Medikamenten-Steckbriefe aus dem Fachmodul. Fehlt in älteren Einstellungen, dann gilt der Standard. */
+  arzneimittel: boolean;
   neueProTag: number;
   /** Höchstzahl Karten pro Sitzung (fällige zuerst). */
   sitzungsGroesse: number;
@@ -87,6 +96,7 @@ export const STANDARD_CONFIG: KartenConfig = {
   faecher: [],
   richtungen: ['vorwaerts', 'abkuerzung'],
   katalog: true,
+  arzneimittel: true,
   neueProTag: 15,
   sitzungsGroesse: 40,
   retention: 0.9,

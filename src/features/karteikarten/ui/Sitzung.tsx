@@ -27,6 +27,16 @@ export function Rueckseite({ karte, titles }: { karte: Karte; titles: Map<ID, st
           Quelle: {karte.belege.map((b) => `${titles.get(b.documentId) ?? 'Dokument'}, S. ${b.printedPage ?? b.page}`).filter((x, i, a) => a.indexOf(x) === i).join(' · ')}
         </p>
       )}
+      {!!karte.quellen?.length && (
+        <p className="karte__belege muted">
+          Quelle: {karte.quellen.map((q, i) => <span key={q.url}>{i > 0 && ' · '}<a href={q.url} target="_blank" rel="noopener noreferrer">{q.title}</a></span>)}
+        </p>
+      )}
+      {karte.quelle === 'arzneimittel' && (
+        <p className="karte__belege muted">
+          {karte.ungeprueft ? 'Noch ungeprüft. ' : ''}Lernhilfe, keine Dosierungsanweisung: Es gelten ärztliche Anordnung, Fachinformation und dein Unterrichtsmaterial.
+        </p>
+      )}
       {karte.quelle === 'glossar' || karte.quelle === 'katalog'
         ? <p className="karte__belege muted">Katalogwissen des Fachmoduls. Bei Abweichungen gilt dein Unterrichtsmaterial.</p>
         : null}

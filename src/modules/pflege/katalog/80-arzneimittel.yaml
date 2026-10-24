@@ -1,0 +1,688 @@
+# Medikamenten-Steckbriefe: häufige Wirkstoffe in der generalistischen Pflegeausbildung.
+# Je Wirkstoff: Gruppe, Wirkprinzip, Anwendung, wichtige Nebenwirkungen und Kontraindikationen (Auswahl),
+# Pflegerelevanz. Fachliche Angaben abgeglichen mit den Wirkstoffseiten der Gelben Liste Online
+# (abgerufen 2026-10-24) und, wo genannt, mit Gebrauchsinformationen (Beipackzetteln).
+# Pflegerelevanz = aus diesen Angaben abgeleitete Beobachtungs- und Beratungspunkte.
+# Alles bleibt pruefstatus: ungeprueft, bis es gegen Lehrbuch/Fachinformation geprüft ist.
+# Keine Dosierungsanweisung: maßgeblich sind ärztliche Anordnung, Fachinformation und Hausstandard.
+# Handelsnamen sind Beispiele (Auswahl), keine Empfehlung.
+
+drugProfiles:
+  # ---------------------------------------------------------------- Herz-Kreislauf
+  - id: arz.furosemid
+    substance: Furosemid
+    brandNames: [Lasix]
+    drugClass: Schleifendiuretikum
+    mechanism: "Hemmt in der Henle-Schleife den Natrium-Kalium-Chlorid-Transport. Stark, schnell und kurz wirksam: mehr Wasser- und Elektrolytausscheidung, Ödeme werden ausgeschwemmt, das Herz entlastet."
+    indications: [Ödeme bei Herzinsuffizienz, Leber- oder Nierenerkrankungen, Lungenödem, Arterielle Hypertonie, Oligurie bei Niereninsuffizienz]
+    adverseEffects: ["Elektrolytstörungen, v. a. Hypokaliämie und Hyponatriämie", "Dehydratation, Hypovolämie, Blutdruckabfall bis Kollaps (auch beim Aufstehen)", "Anstieg von Harnsäure (Gichtanfall), Kreatinin und Blutfetten", "Selten Hörstörungen"]
+    contraindications: [Anurie, "Schwere Hypokaliämie oder Hyponatriämie", "Hypovolämie, Dehydratation", Coma hepaticum, Sulfonamid-Allergie]
+    nursing: ["Täglich wiegen (gleiche Zeit, gleiche Kleidung): Gewichtsabnahme laut Gelber Liste höchstens etwa 1 kg pro Tag", "Ein- und Ausfuhr bilanzieren, auf Exsikkosezeichen achten (trockene Schleimhäute, stehende Hautfalten, Verwirrtheit)", "Blutdruck kontrollieren, beim ersten Aufstehen begleiten (Sturzgefahr)", "Kalium- und Natriumwerte im Blick behalten; Hypokaliämie verstärkt die Wirkung von Herzglykosiden", "Morgens geben, damit der Harndrang nicht in die Nacht fällt; Toilette oder Hilfsmittel gut erreichbar machen"]
+    mnemonic: "Furosemid: Wasser raus, Kalium raus."
+    topicIds: [thema.ph.medikamente, thema.kl.herz.insuffizienz, thema.kl.herz.hypertonie, thema.kl.niere]
+    sources:
+      - { title: "Gelbe Liste: Furosemid", url: "https://www.gelbe-liste.de/wirkstoffe/Furosemid_283" }
+    pruefstatus: ungeprueft
+
+  - id: arz.hydrochlorothiazid
+    substance: Hydrochlorothiazid
+    abbreviation: HCT
+    brandNames: [Esidrix]
+    drugClass: Thiaziddiuretikum
+    mechanism: "Hemmt im distalen Tubulus den Natrium-Chlorid-Kotransporter. Mehr Natrium-, Chlorid- und Kaliumausscheidung; senkt den Blutdruck. Oft mit ACE-Hemmern oder Sartanen kombiniert."
+    indications: [Arterielle Hypertonie, Ödeme, Chronische Herzinsuffizienz (zusätzlich zu ACE-Hemmern)]
+    adverseEffects: ["Hypokaliämie, Hyponatriämie, Hypomagnesiämie", "Hyperurikämie (Gicht), Hyperglykämie, erhöhte Blutfette", "Nicht-melanozytärer Hautkrebs bei Langzeiteinnahme (Häufigkeit unbekannt)"]
+    contraindications: ["Schwere Niereninsuffizienz", "Bestehende Hypokaliämie, Hyponatriämie, Hyperkalzämie", Gicht, Coma hepaticum]
+    nursing: ["Morgens geben", "Blutdruck und Gewicht kontrollieren", "Elektrolyte, Blutzucker und Harnsäure laut Anordnung kontrollieren lassen; bei Diabetes Blutzucker genauer beobachten", "Zu Sonnenschutz und Hautbeobachtung beraten"]
+    topicIds: [thema.ph.medikamente, thema.kl.herz.hypertonie, thema.kl.herz.insuffizienz]
+    sources:
+      - { title: "Gelbe Liste: Hydrochlorothiazid", url: "https://www.gelbe-liste.de/wirkstoffe/Hydrochlorothiazid_10079" }
+    pruefstatus: ungeprueft
+
+  - id: arz.spironolacton
+    substance: Spironolacton
+    brandNames: [Aldactone]
+    drugClass: Kaliumsparendes Diuretikum (Aldosteronantagonist)
+    mechanism: "Blockiert den Aldosteronrezeptor im distalen Tubulus und Sammelrohr: weniger Natrium wird zurückgeholt, weniger Kalium ausgeschieden. Volle Wirkung oft erst nach 2 bis 3 Tagen."
+    indications: [Ödeme und Aszites bei sekundärem Hyperaldosteronismus (z. B. Leberzirrhose), Primärer Hyperaldosteronismus, Arterielle Hypertonie, Nephrotisches Syndrom]
+    adverseEffects: ["Hyperkaliämie, lebensbedrohlich v. a. bei Niereninsuffizienz", "Gynäkomastie, Brustspannen, Potenzstörungen", "Hyperurikämie, Magen-Darm-Beschwerden, Schläfrigkeit"]
+    contraindications: [Hyperkaliämie, "Schwere Niereninsuffizienz, Anurie", Hyponatriämie, Morbus Addison, Schwangerschaft und Stillzeit]
+    nursing: ["Kaliumwert im Blick: Kombination mit ACE-Hemmern, Sartanen oder Kaliumpräparaten erhöht das Hyperkaliämierisiko", "Auf Zeichen der Hyperkaliämie achten (Muskelschwäche, Missempfindungen, Herzrhythmusstörungen)", "Gewicht und Bilanz kontrollieren; nicht mehr als etwa 1 kg Abnahme pro Tag", "Keine kaliumreichen Salzersatzmittel ohne ärztliche Rücksprache"]
+    mnemonic: "Spironolacton spart Kalium: Kalium steigt."
+    topicIds: [thema.ph.medikamente, thema.kl.herz.insuffizienz, thema.kl.herz.hypertonie, thema.kl.verdauung]
+    sources:
+      - { title: "Gelbe Liste: Spironolacton", url: "https://www.gelbe-liste.de/wirkstoffe/Spironolacton_516" }
+    pruefstatus: ungeprueft
+
+  - id: arz.ramipril
+    substance: Ramipril
+    brandNames: [Delix]
+    drugClass: ACE-Hemmer
+    mechanism: "Hemmt das Angiotensin-Converting-Enzym: weniger Angiotensin II, die Gefäße weiten sich, weniger Aldosteron. Der Blutdruck sinkt, das Herz wird entlastet."
+    indications: [Arterielle Hypertonie, Herzinsuffizienz, Nach Herzinfarkt, Nierenschutz bei Diabetes mit Proteinurie]
+    adverseEffects: ["Trockener Reizhusten", "Schwindel, Blutdruckabfall (v. a. zu Beginn und mit Diuretika)", "Hyperkaliämie, Nierenfunktionsverschlechterung", "Selten Angioödem (Schwellung von Gesicht, Zunge, Rachen): Notfall"]
+    contraindications: [Angioödem in der Vorgeschichte, Schwangerschaft (2. und 3. Trimenon), Kombination mit Aliskiren oder Sartanen nicht empfohlen]
+    nursing: ["Blutdruck messen, besonders nach der ersten Gabe und bei Dosiserhöhung; beim Aufstehen begleiten", "Reizhusten erfragen und weitergeben, nicht als Erkältung abtun", "Schwellung von Lippen, Zunge oder Rachen sofort melden: Atemwege in Gefahr", "Kalium und Nierenwerte laut Anordnung; NSAR (z. B. Ibuprofen) schwächen die Wirkung und belasten die Niere"]
+    mnemonic: "-pril = ACE-Hemmer, typisch: Reizhusten."
+    topicIds: [thema.ph.medikamente, thema.kl.herz.hypertonie, thema.kl.herz.insuffizienz, thema.kl.herz.khk]
+    sources:
+      - { title: "Gelbe Liste: Ramipril", url: "https://www.gelbe-liste.de/wirkstoffe/Ramipril_10240" }
+    pruefstatus: ungeprueft
+
+  - id: arz.candesartan
+    substance: Candesartan
+    brandNames: [Blopress, Atacand]
+    drugClass: AT1-Rezeptorantagonist (Sartan)
+    mechanism: "Blockiert den AT1-Rezeptor, sodass Angiotensin II nicht mehr wirkt: Gefäße weiten sich, der Blutdruck sinkt. Hemmt das ACE nicht, daher kein typischer ACE-Hemmer-Husten."
+    indications: [Arterielle Hypertonie, "Herzinsuffizienz, wenn ACE-Hemmer nicht vertragen werden"]
+    adverseEffects: [Schwindel und Kopfschmerzen, Blutdruckabfall, Hyperkaliämie, Veränderte Nierenwerte]
+    contraindications: [Schwangerschaft, "Schwere Leber- oder Nierenerkrankung, Cholestase"]
+    nursing: ["Blutdruck kontrollieren, beim Aufstehen auf Schwindel achten", "Kalium und Nierenwerte laut Anordnung", "Allergische Schwellung von Gesicht oder Rachen oder Atemnot sofort melden", "Einmal täglich, unabhängig von den Mahlzeiten"]
+    mnemonic: "-sartan = Sartan, wirkt wie ACE-Hemmer, aber meist ohne Husten."
+    topicIds: [thema.ph.medikamente, thema.kl.herz.hypertonie, thema.kl.herz.insuffizienz]
+    sources:
+      - { title: "Gelbe Liste: Candesartan", url: "https://www.gelbe-liste.de/wirkstoffe/Candesartan_26997" }
+    pruefstatus: ungeprueft
+
+  - id: arz.metoprolol
+    substance: Metoprolol
+    brandNames: [Beloc-Zok]
+    drugClass: Betablocker (β1-selektiv)
+    mechanism: "Blockiert β1-Rezeptoren am Herzen: Herzfrequenz, Kontraktionskraft und Sauerstoffbedarf sinken, der Blutdruck fällt."
+    indications: [Arterielle Hypertonie, Koronare Herzkrankheit, Tachykarde Herzrhythmusstörungen, Herzinfarkt und Reinfarktprophylaxe, Migräneprophylaxe]
+    adverseEffects: ["Bradykardie, Blutdruckabfall, Schwindel beim Aufstehen", "Müdigkeit, Kopfschmerzen", "Belastungsdyspnoe, Bronchospasmus bei Asthma möglich", "Kann Warnzeichen einer Unterzuckerung verschleiern"]
+    contraindications: ["Bradykardie, AV-Block II./III. Grades, Sinusknotensyndrom", "Dekompensierte Herzinsuffizienz, kardiogener Schock", Asthma bronchiale, Hypotonie]
+    nursing: ["Puls und Blutdruck vor der Gabe messen; bei niedrigem Puls oder Blutdruck Rücksprache nach Anordnung", "Nicht plötzlich absetzen, nur ausschleichen (Gefahr von Angina pectoris, Rebound)", "Bei Diabetes Blutzucker engmaschiger kontrollieren: Zittern und Herzrasen als Warnzeichen können fehlen", "Auf Atemnot achten, besonders bei Lungenerkrankungen"]
+    mnemonic: "-olol = Betablocker: Puls vor der Gabe."
+    topicIds: [thema.ph.medikamente, thema.kl.herz.hypertonie, thema.kl.herz.khk, thema.kl.herz.insuffizienz]
+    sources:
+      - { title: "Gelbe Liste: Metoprolol", url: "https://www.gelbe-liste.de/wirkstoffe/Metoprolol_455" }
+    pruefstatus: ungeprueft
+
+  - id: arz.amlodipin
+    substance: Amlodipin
+    brandNames: [Norvasc]
+    drugClass: Calciumantagonist (Dihydropyridin)
+    mechanism: "Hemmt Calciumkanäle in der Gefäßmuskulatur: Arterien weiten sich, der Gefäßwiderstand und damit der Blutdruck sinken; auch die Herzkranzgefäße werden weiter."
+    indications: [Arterielle Hypertonie, Stabile Angina pectoris, Vasospastische Angina]
+    adverseEffects: ["Knöchelödeme (sehr häufig)", "Kopfschmerz, Gesichtsröte, Schwindel", "Herzklopfen", "Zahnfleischwucherung (Gingivahyperplasie)"]
+    contraindications: ["Schwere Hypotonie, Schock", "Höhergradige Aortenstenose", Instabile Herzinsuffizienz nach Herzinfarkt]
+    nursing: ["Beine und Knöchel auf Ödeme beobachten (kein Zeichen für Überwässerung wie bei Herzinsuffizienz, trotzdem melden)", "Blutdruck kontrollieren", "Grapefruitsaft meiden (verstärkt die Wirkung)", "Mundpflege und Zahnarztkontrollen wegen Gingivahyperplasie"]
+    mnemonic: "-dipin = Calciumantagonist, typisch dicke Knöchel."
+    topicIds: [thema.ph.medikamente, thema.kl.herz.hypertonie, thema.kl.herz.khk]
+    sources:
+      - { title: "Gelbe Liste: Amlodipin", url: "https://www.gelbe-liste.de/wirkstoffe/Amlodipin_20531" }
+    pruefstatus: ungeprueft
+
+  - id: arz.digitoxin
+    substance: Digitoxin
+    brandNames: [Digimerck]
+    drugClass: Herzglykosid (Digitalis)
+    mechanism: "Hemmt die Natrium-Kalium-ATPase: mehr Calcium in der Herzmuskelzelle, stärkere Kontraktion; die Überleitung im AV-Knoten wird verlangsamt. Sehr lange Halbwertszeit (etwa eine Woche)."
+    indications: ["Herzinsuffizienz, wenn andere Mittel nicht ausreichen", Vorhofflimmern mit schneller Kammerfrequenz]
+    adverseEffects: ["Geringe therapeutische Breite: Nebenwirkungen sind oft Zeichen der Überdosierung", "Übelkeit und Erbrechen (frühes Zeichen)", "Herzrhythmusstörungen, Bradykardie, AV-Block", "Farbsehstörungen (Gelb-Grün-Sehen), Verwirrtheit, Halluzinationen"]
+    contraindications: ["Verdacht auf Digitalisvergiftung", "AV-Block II./III. Grades, Kammertachykardie", "Hypokaliämie, Hyperkalzämie, Hypomagnesiämie", "Gleichzeitige i.v.-Calciumgabe"]
+    nursing: ["Puls vor der Gabe zählen (eine volle Minute); bei Bradykardie oder unregelmäßigem Puls Rücksprache", "Auf Übelkeit, Appetitlosigkeit, Sehstörungen und Verwirrtheit achten und sofort melden", "Hypokaliämie (z. B. durch Diuretika, Abführmittel) erhöht die Giftigkeit: Kalium im Blick", "Ältere Menschen sind empfindlicher; Nierenfunktion beachten"]
+    mnemonic: "Digitalis: Übelkeit, gelb-grün sehen, langsamer Puls = an Überdosierung denken."
+    topicIds: [thema.ph.medikamente, thema.kl.herz.insuffizienz]
+    sources:
+      - { title: "Gelbe Liste: Digitoxin", url: "https://www.gelbe-liste.de/wirkstoffe/Digitoxin_622" }
+      - { title: "Gebrauchsinformation Digitoxin AWD 0,07", url: "https://www.gelbe-liste.de/produkte/beipackzettel_Digitoxin-AWD-0-07-Tablette.pdf/4f04f7e2-8d1f-42f2-96d1-7efb689d5fd4" }
+    pruefstatus: ungeprueft
+
+  - id: arz.glyceroltrinitrat
+    substance: Glyceroltrinitrat
+    abbreviation: GTN
+    brandNames: [Nitrolingual]
+    drugClass: Nitrat (Vasodilatator)
+    mechanism: "Wird im Körper zu Stickstoffmonoxid (NO): glatte Gefäßmuskulatur erschlafft, vor allem Venen weiten sich. Die Vorlast und der Sauerstoffbedarf des Herzens sinken."
+    indications: [Akuter Angina-pectoris-Anfall, Akuter Herzinfarkt, Akute Linksherzinsuffizienz / Lungenödem, Hypertensive Krise]
+    adverseEffects: ["Kopfschmerz (Nitratkopfschmerz)", "Blutdruckabfall, Schwindel, Kollaps", "Reflextachykardie, Gesichtsröte"]
+    contraindications: ["Systolischer Blutdruck unter 90 mmHg, Schock", "Einnahme von PDE-5-Hemmern (z. B. Sildenafil): lebensbedrohlicher Blutdruckabfall", Erhöhter Hirndruck]
+    nursing: ["Vor der Gabe Blutdruck messen; Patient sitzt oder liegt", "Nach PDE-5-Hemmern (Potenzmittel) fragen", "Nach der Gabe Blutdruck, Puls und Schmerz neu einschätzen; bleibt der Schmerz, an Herzinfarkt denken", "Kopfschmerz ist häufig und meist harmlos, trotzdem dokumentieren"]
+    mnemonic: "Nitro nur, wenn der Blutdruck es hergibt (über 90 systolisch) und keine Potenzmittel."
+    topicIds: [thema.ph.medikamente, thema.kl.herz.khk, thema.kl.herz.insuffizienz]
+    sources:
+      - { title: "Gelbe Liste: Glyceroltrinitrat", url: "https://www.gelbe-liste.de/wirkstoffe/Glyceroltrinitrat_269" }
+    pruefstatus: ungeprueft
+
+  # ---------------------------------------------------------------- Gerinnung
+  - id: arz.acetylsalicylsaeure
+    substance: Acetylsalicylsäure
+    abbreviation: ASS
+    brandNames: [Aspirin]
+    drugClass: Thrombozytenaggregationshemmer (niedrig dosiert) / NSAR (hoch dosiert)
+    mechanism: "Hemmt die Cyclooxygenase irreversibel. Niedrig dosiert (z. B. 100 mg) wird in den Blutplättchen die Thromboxanbildung gehemmt: Plättchen verklumpen schlechter. Hoch dosiert schmerzstillend, fiebersenkend, entzündungshemmend."
+    indications: ["Niedrig dosiert: Sekundärprophylaxe nach Herzinfarkt, Schlaganfall, bei pAVK", "Hoch dosiert: Schmerzen, Fieber, Migräne"]
+    adverseEffects: ["Erhöhte Blutungsneigung", "Magenbeschwerden, Magen-Darm-Ulzera und -Blutungen", "Analgetika-Asthma bei empfindlichen Menschen", "Reye-Syndrom bei Kindern mit fieberhaften Infekten"]
+    contraindications: [Akute Magen-Darm-Ulzera oder -Blutungen, Erhöhte Blutungsneigung (hämorrhagische Diathese), "Asthma durch Salicylate oder NSAR", Letztes Schwangerschaftsdrittel]
+    nursing: ["Auf Blutungszeichen achten: Teerstuhl, Hämatome, Zahnfleisch- oder Nasenbluten", "Vor Operationen und Eingriffen ASS-Einnahme erfragen und weitergeben", "Kombination mit anderen Gerinnungshemmern, NSAR, Kortison oder SSRI erhöht Blutungs- und Magenrisiko", "Bei Kindern mit Fieber nicht ohne ärztliche Anordnung (Reye-Syndrom)"]
+    topicIds: [thema.ph.medikamente, thema.kl.herz.khk, thema.kl.herz.pavk, thema.kl.neuro.schlaganfall]
+    sources:
+      - { title: "Gelbe Liste: Acetylsalicylsäure", url: "https://www.gelbe-liste.de/wirkstoffe/Acetylsalicylsaeure_41" }
+    pruefstatus: ungeprueft
+
+  - id: arz.clopidogrel
+    substance: Clopidogrel
+    brandNames: [Plavix, Iscover]
+    drugClass: Thrombozytenaggregationshemmer (P2Y12-Hemmer)
+    mechanism: "Prodrug, wird in der Leber aktiviert und blockiert dauerhaft den ADP-Rezeptor (P2Y12) der Blutplättchen. Nach Stent oft zusammen mit ASS (duale Plättchenhemmung)."
+    indications: ["Akutes Koronarsyndrom, nach Stent-Implantation (mit ASS)", "Nach ischämischem Schlaganfall", pAVK]
+    adverseEffects: ["Blutungen: Hämatome, Nasenbluten, Magen-Darm-Blutung, Blutung an Punktionsstellen", "Durchfall, Bauchschmerzen", "Selten thrombotisch-thrombozytopenische Purpura (TTP): Notfall"]
+    contraindications: [Akute Blutung (z. B. Ulkus, Hirnblutung), Schwere Leberfunktionsstörung]
+    nursing: ["Auf Blutungszeichen achten, Punktionsstellen länger komprimieren", "Nicht eigenmächtig absetzen lassen (Stentthrombose); vor Eingriffen Einnahme weitergeben", "Omeprazol und Esomeprazol schwächen die Wirkung ab (Wechselwirkung beachten)"]
+    topicIds: [thema.ph.medikamente, thema.kl.herz.khk, thema.kl.herz.pavk, thema.kl.neuro.schlaganfall]
+    sources:
+      - { title: "Gelbe Liste: Clopidogrel", url: "https://www.gelbe-liste.de/wirkstoffe/Clopidogrel_27391" }
+    pruefstatus: ungeprueft
+
+  - id: arz.heparin
+    substance: Heparin (unfraktioniert)
+    abbreviation: UFH
+    brandNames: []
+    drugClass: Antikoagulans (Heparin)
+    mechanism: "Verstärkt Antithrombin und hemmt so Thrombin und Faktor Xa. Nur parenteral (i.v. oder s.c.), kurze Halbwertszeit von wenigen Stunden."
+    indications: [Thromboseprophylaxe, Therapie von Thrombose und Lungenembolie, "Überbrückung, bis ein orales Antikoagulans wirkt"]
+    adverseEffects: ["Blutungen", "Heparininduzierte Thrombozytopenie (HIT Typ II): Thrombozytenabfall mit paradoxen Thrombosen", "Schmerzen und Hämatome an der Injektionsstelle"]
+    contraindications: [HIT Typ II in der Vorgeschichte, Aktive schwere Blutung, Spinal- oder Periduralanästhesie bzw. Lumbalpunktion (zeitlicher Abstand nötig)]
+    nursing: ["Auf Blutungszeichen achten", "Thrombozytenwerte laut Anordnung; bei Abfall an HIT denken und melden", "Bei i.v.-Gabe über Perfusor: Laufrate genau kontrollieren, Gerinnungskontrollen (aPTT) nach Anordnung", "s.c.-Injektion in die Bauchhaut, Einstichstelle nicht reiben"]
+    antidote: "Protamin (hebt unfraktioniertes Heparin auf, niedermolekulares nur teilweise)"
+    topicIds: [thema.ph.medikamente, thema.pro.thrombose, thema.kl.herz.pavk, thema.ph.injektion]
+    sources:
+      - { title: "Gelbe Liste: Heparin", url: "https://www.gelbe-liste.de/wirkstoffe/Heparin_225" }
+    pruefstatus: ungeprueft
+
+  - id: arz.enoxaparin
+    substance: Enoxaparin
+    abbreviation: NMH
+    brandNames: [Clexane]
+    drugClass: Niedermolekulares Heparin (NMH)
+    mechanism: "Bindet an Antithrombin und hemmt vor allem Faktor Xa. Meist einmal täglich s.c., keine engmaschige Gerinnungskontrolle nötig."
+    indications: ["Thromboseprophylaxe vor und nach Operationen und bei Immobilität", Therapie von tiefer Venenthrombose und Lungenembolie, Akutes Koronarsyndrom]
+    adverseEffects: ["Blutungen, Hämatome an der Injektionsstelle", "Thrombozytopenie, HIT Typ II (seltener als bei unfraktioniertem Heparin, meist 5 bis 10 Tage nach Beginn)", "Hyperkaliämie (v. a. mit ACE-Hemmern)"]
+    contraindications: [HIT in den letzten 100 Tagen, Akute Blutung oder hohes Blutungsrisiko, "Spinal- oder Periduralanästhesie innerhalb von 24 Stunden nach der Gabe"]
+    nursing: ["Subkutan, nicht intramuskulär: Hautfalte bilden, Fertigspritze senkrecht einstechen, Luftblase nicht entfernen, Einstichstelle nicht reiben", "Injektionsstellen am Bauch wechseln, Hämatome beobachten", "Thrombozyten vor und während der Therapie kontrollieren lassen", "Bei eingeschränkter Nierenfunktion Dosis prüfen lassen"]
+    antidote: "Protamin (wirkt bei niedermolekularem Heparin nur zu etwa 50 %)"
+    topicIds: [thema.ph.medikamente, thema.pro.thrombose, thema.ph.injektion, thema.ph.periop]
+    sources:
+      - { title: "Gelbe Liste: Enoxaparin", url: "https://www.gelbe-liste.de/wirkstoffe/Enoxaparin_2127" }
+      - { title: "Gelbe Liste: Heparin (Antidot)", url: "https://www.gelbe-liste.de/wirkstoffe/Heparin_225" }
+    pruefstatus: ungeprueft
+
+  - id: arz.phenprocoumon
+    substance: Phenprocoumon
+    brandNames: [Marcumar, Falithrom]
+    drugClass: Vitamin-K-Antagonist (Cumarin)
+    mechanism: "Hemmt das Vitamin-K-Recycling in der Leber: Gerinnungsfaktoren II, VII, IX und X werden weniger gebildet. Wirkt verzögert (volle Wirkung nach Tagen) und sehr lange (Halbwertszeit etwa 6,5 Tage)."
+    indications: [Behandlung und Prophylaxe von Thrombosen und Embolien, "Langzeitbehandlung z. B. bei Vorhofflimmern oder mechanischen Herzklappen"]
+    adverseEffects: ["Blutungen (sehr häufig), auch lebensbedrohlich (Hirn, Magen-Darm, Harnwege)"]
+    contraindications: [Erhöhte Blutungsneigung, Frischer Schlaganfall, Magen-Darm-Ulzera, Schwangerschaft]
+    nursing: ["INR-Wert regelmäßig nach Anordnung; Zielbereich je nach Indikation (meist 2 bis 3)", "Auf Blutungszeichen achten; keine i.m.-Injektionen", "Vitamin-K-reiche Lebensmittel (z. B. grünes Blattgemüse) nicht weglassen, aber gleichmäßig essen: plötzliche Ernährungsumstellung verändert den INR", "Viele Wechselwirkungen (z. B. Antibiotika, NSAR, Alkohol): neue Medikamente immer melden", "Marcumar-Ausweis mitführen lassen"]
+    antidote: "Vitamin K (wirkt erst nach Stunden); bei lebensbedrohlicher Blutung Gerinnungsfaktoren (PPSB)"
+    topicIds: [thema.ph.medikamente, thema.kl.herz.pavk, thema.kl.neuro.schlaganfall]
+    sources:
+      - { title: "Gelbe Liste: Phenprocoumon", url: "https://www.gelbe-liste.de/wirkstoffe/Phenprocoumon_2615" }
+      - { title: "Gelbe Liste: Vitamin-K-Antagonisten", url: "https://www.gelbe-liste.de/wirkstoffgruppen/vitamin-k-antagonisten" }
+    pruefstatus: ungeprueft
+
+  - id: arz.apixaban
+    substance: Apixaban
+    brandNames: [Eliquis]
+    drugClass: Direktes orales Antikoagulans (DOAK, Faktor-Xa-Hemmer)
+    mechanism: "Hemmt Faktor Xa direkt und reversibel: weniger Thrombin, kein Gerinnsel. Wirkt schnell, keine INR-Kontrolle nötig."
+    indications: [Schlaganfallprophylaxe bei nicht-valvulärem Vorhofflimmern, Therapie und Rezidivprophylaxe von Thrombose und Lungenembolie, Thromboseprophylaxe nach Hüft- oder Knieprothese]
+    adverseEffects: ["Blutungen, Hämatome, Nasenbluten"]
+    contraindications: [Akute relevante Blutung, Lebererkrankung mit Gerinnungsstörung, "Gleichzeitig andere Antikoagulanzien (außer beim Umstellen)"]
+    nursing: ["Zweimal täglich zu festen Zeiten; Einnahmetreue ist wichtig, weil die Wirkung schnell nachlässt", "Auf Blutungszeichen achten", "Vor Eingriffen Einnahme erfragen und weitergeben", "NSAR, ASS und SSRI erhöhen das Blutungsrisiko"]
+    antidote: "Andexanet alfa (für Apixaban und Rivaroxaban bei lebensbedrohlicher Blutung)"
+    topicIds: [thema.ph.medikamente, thema.kl.herz.pavk, thema.kl.neuro.schlaganfall, thema.pro.thrombose]
+    sources:
+      - { title: "Gelbe Liste: Apixaban", url: "https://www.gelbe-liste.de/wirkstoffe/Apixaban_51266" }
+      - { title: "Gelbe Liste: Ondexxya (Andexanet alfa)", url: "https://www.gelbe-liste.de/neue-medikamente/ondexxya-andexanet-alfa-noak-antidot" }
+    pruefstatus: ungeprueft
+
+  - id: arz.simvastatin
+    substance: Simvastatin
+    brandNames: [Zocor]
+    drugClass: Statin (CSE-Hemmer)
+    mechanism: "Hemmt die HMG-CoA-Reduktase, das Schlüsselenzym der Cholesterinbildung in der Leber. Die Leber nimmt mehr LDL aus dem Blut auf, das LDL-Cholesterin sinkt."
+    indications: [Hypercholesterinämie (zusätzlich zur Diät), "Senkung des Herz-Kreislauf-Risikos bei Atherosklerose oder Diabetes"]
+    adverseEffects: ["Muskelschmerzen und -schwäche, selten Rhabdomyolyse", "Erhöhte Leberwerte", "Kopfschmerzen, Magen-Darm-Beschwerden"]
+    contraindications: [Aktive Lebererkrankung, Schwangerschaft und Stillzeit, "Starke CYP3A4-Hemmer (z. B. Clarithromycin, Itraconazol)"]
+    nursing: ["Abends geben", "Muskelschmerzen, Schwäche oder dunklen Urin melden (Rhabdomyolyse)", "Grapefruitsaft meiden", "Zur cholesterinarmen Ernährung beraten"]
+    mnemonic: "-statin = Cholesterinsenker; Muskelschmerz ernst nehmen."
+    topicIds: [thema.ph.medikamente, thema.kl.herz.khk]
+    sources:
+      - { title: "Gelbe Liste: Simvastatin", url: "https://www.gelbe-liste.de/wirkstoffe/Simvastatin_10002" }
+    pruefstatus: ungeprueft
+
+  # ---------------------------------------------------------------- Atemwege
+  - id: arz.salbutamol
+    substance: Salbutamol
+    brandNames: [Sultanol]
+    drugClass: Kurzwirksames β2-Sympathomimetikum (SABA)
+    mechanism: "Stimuliert β2-Rezeptoren der Bronchialmuskulatur: Bronchien weiten sich innerhalb von 5 bis 10 Minuten."
+    indications: ["Akuter Asthmaanfall, anfallsweise Atemnot (Bedarfsspray)", COPD, "Vorbeugung vor Belastungsasthma"]
+    adverseEffects: ["Zittern (Muskeltremor), Unruhe", "Herzrasen, Herzklopfen", Kopfschmerzen, "Hypokaliämie bei hohen Dosen"]
+    contraindications: ["Nicht-selektive Betablocker gleichzeitig", "Schwere Herzerkrankungen (tachykarde Rhythmusstörungen, frischer Herzinfarkt)"]
+    nursing: ["Inhalationstechnik anleiten und kontrollieren (ausatmen, langsam tief einatmen, Luft anhalten), ggf. Spacer", "Puls nach der Inhalation beachten", "Steigender Bedarf ist ein Warnzeichen für schlechter eingestelltes Asthma: weitergeben", "Bei Kombination mit Diuretika oder Kortison Kalium beachten"]
+    mnemonic: "Salbutamol = Notfallspray: schnell, kurz, Zittern."
+    topicIds: [thema.ph.medikamente, thema.kl.atmung]
+    sources:
+      - { title: "Gelbe Liste: Salbutamol", url: "https://www.gelbe-liste.de/wirkstoffe/Salbutamol_302" }
+    pruefstatus: ungeprueft
+
+  - id: arz.tiotropium
+    substance: Tiotropium
+    brandNames: [Spiriva]
+    drugClass: Langwirksames Anticholinergikum (LAMA)
+    mechanism: "Blockiert M3-Rezeptoren der Bronchialmuskulatur: Acetylcholin kann die Bronchien nicht mehr verengen. Wirkt über 24 Stunden."
+    indications: [COPD-Dauertherapie, "Zusätzlich bei schwerem Asthma (Respimat)"]
+    adverseEffects: ["Mundtrockenheit (häufig)", "Harnverhalt, Obstipation", "Verschwommenes Sehen, Schwindel"]
+    contraindications: ["Überempfindlichkeit gegen Atropin-Abkömmlinge (z. B. Ipratropium)"]
+    nursing: ["Einmal täglich zur gleichen Zeit inhalieren; Kapseln nur im Inhalator verwenden, nicht schlucken", "Nicht als Notfallmedikament: im akuten Anfall wirkt ein Bedarfsspray (SABA)", "Vorsicht bei Engwinkelglaukom und Prostatavergrößerung: Harnverhalt und Augenbeschwerden beobachten", "Pulver nicht in die Augen bringen; Mundpflege bei Mundtrockenheit"]
+    topicIds: [thema.ph.medikamente, thema.kl.atmung]
+    sources:
+      - { title: "Gelbe Liste: Tiotropium", url: "https://www.gelbe-liste.de/wirkstoffe/Tiotropium_45381" }
+    pruefstatus: ungeprueft
+
+  - id: arz.budesonid
+    substance: Budesonid (inhalativ)
+    brandNames: [Pulmicort]
+    drugClass: Inhalatives Glukokortikoid (ICS)
+    mechanism: "Wirkt entzündungshemmend auf die Atemwegsschleimhaut. Langzeittherapie, kein Effekt im akuten Anfall."
+    indications: [Asthma bronchiale (Dauertherapie), "COPD mit häufigen Exazerbationen (in Kombination)"]
+    adverseEffects: ["Mundsoor (oropharyngeale Candidose)", "Bei hohen Dosen systemische Kortisonwirkungen möglich"]
+    contraindications: [Überempfindlichkeit gegen den Wirkstoff]
+    nursing: ["Regelmäßig anwenden, auch wenn keine Beschwerden bestehen", "Nach der Inhalation Mund ausspülen oder vor dem Essen inhalieren (Soorprophylaxe)", "Mundschleimhaut auf weiße Beläge kontrollieren", "Nicht für den akuten Anfall"]
+    topicIds: [thema.ph.medikamente, thema.kl.atmung, thema.pro.soor]
+    sources:
+      - { title: "Gelbe Liste: Budesonid", url: "https://www.gelbe-liste.de/wirkstoffe/Budesonid_473" }
+    pruefstatus: ungeprueft
+
+  - id: arz.prednisolon
+    substance: Prednisolon
+    brandNames: [Decortin H]
+    drugClass: Glukokortikoid (systemisch)
+    mechanism: "Bindet an Glukokortikoidrezeptoren und hemmt Entzündungsbotenstoffe: stark entzündungshemmend und immunsuppressiv."
+    indications: ["Rheumatische Erkrankungen und Kollagenosen", "Asthma und COPD-Exazerbation", Allergische Reaktionen, "Chronisch-entzündliche Darmerkrankungen (Schub)", "Multiple Sklerose (Schub)"]
+    adverseEffects: ["Blutzuckeranstieg (Steroiddiabetes), Gewichtszunahme, Ödeme, Hypertonie", "Infektanfälligkeit, verzögerte Wundheilung", "Osteoporose, Muskelschwund", "Magen-Darm-Ulzera (v. a. mit NSAR)", "Psychische Veränderungen, Schlafstörungen", "Cushing-Syndrom bei Langzeittherapie"]
+    contraindications: ["Überempfindlichkeit (bei lebenswichtiger Indikation kaum Gegenanzeigen)"]
+    nursing: ["Morgens geben (vor 9 Uhr, entspricht dem Cortisol-Tagesrhythmus), nach dem Essen", "Nach längerer Gabe nie abrupt absetzen, nur ausschleichen (Nebenniereninsuffizienz)", "Blutzucker kontrollieren, besonders bei Diabetes", "Auf Infektzeichen achten (können maskiert sein), Haut und Wunden beobachten", "Sturz- und Frakturrisiko bedenken, Bewegung fördern"]
+    topicIds: [thema.ph.medikamente, thema.kl.atmung, thema.kl.bewegung]
+    sources:
+      - { title: "Gelbe Liste: Prednisolon", url: "https://www.gelbe-liste.de/wirkstoffe/Prednisolon_76" }
+    pruefstatus: ungeprueft
+
+  # ---------------------------------------------------------------- Diabetes
+  - id: arz.metformin
+    substance: Metformin
+    brandNames: [Glucophage]
+    drugClass: Biguanid (orales Antidiabetikum)
+    mechanism: "Hemmt die Glukoseneubildung in der Leber und verbessert die Glukoseverwertung im Gewebe. Setzt kein Insulin frei, daher allein keine Unterzuckerung."
+    indications: [Diabetes mellitus Typ 2 (Mittel der ersten Wahl v. a. bei Übergewicht)]
+    adverseEffects: ["Magen-Darm-Beschwerden: Übelkeit, Durchfall, Bauchschmerzen, Appetitverlust", Geschmacksveränderungen, "Vitamin-B12-Mangel bei Langzeiteinnahme", "Selten Laktatazidose (lebensbedrohlich)"]
+    contraindications: ["Stark eingeschränkte Nierenfunktion (GFR unter 30 ml/min)", "Diabetische Ketoazidose, Präkoma", Akute oder instabile Herzinsuffizienz]
+    nursing: ["Zu oder nach den Mahlzeiten geben (bessere Magenverträglichkeit)", "Vor Untersuchungen mit jodhaltigem Kontrastmittel und vor Operationen in Narkose pausieren; erst nach frühestens 48 Stunden und stabiler Nierenfunktion wieder ansetzen", "Bei Erbrechen, Durchfall oder Austrocknung Rücksprache (Niere, Laktatazidose)", "Auf Alkohol verzichten"]
+    topicIds: [thema.ph.medikamente, thema.kl.diabetes]
+    sources:
+      - { title: "Gelbe Liste: Metformin", url: "https://www.gelbe-liste.de/wirkstoffe/Metformin_21943" }
+    pruefstatus: ungeprueft
+
+  - id: arz.normalinsulin
+    substance: Normalinsulin (Humaninsulin, Altinsulin)
+    brandNames: [Actrapid, Insuman Rapid, Huminsulin Normal]
+    drugClass: Kurz wirksames Humaninsulin
+    mechanism: "Entspricht dem körpereigenen Insulin: Glukose wird in Muskel- und Fettzellen aufgenommen, der Blutzucker sinkt. Wirkbeginn nach etwa 30 Minuten (s.c.), Maximum nach 2 bis 3 Stunden, Wirkdauer etwa 5 bis 8 Stunden."
+    indications: [Diabetes mellitus Typ 1 und Typ 2 (Mahlzeiten- und Korrekturinsulin)]
+    adverseEffects: ["Hypoglykämie (häufigste und gefährlichste Nebenwirkung)", "Lipohypertrophie an immer gleichen Spritzstellen", Gewichtszunahme, Allergische Reaktionen (selten)]
+    contraindications: [Hypoglykämie]
+    nursing: ["Spritz-Ess-Abstand von etwa 20 bis 30 Minuten einhalten", "Blutzucker vor der Gabe messen und dokumentieren", "Hypoglykämiezeichen kennen (Schwitzen, Zittern, Unruhe, Verwirrtheit) und sofort handeln", "Spritzstellen wechseln und auf Verhärtungen (Lipohypertrophie) prüfen", "Isst der Patient nicht, Rücksprache vor der Gabe"]
+    topicIds: [thema.ph.medikamente, thema.kl.diabetes, thema.ph.injektion]
+    sources:
+      - { title: "Gelbe Liste: Humaninsuline", url: "https://www.gelbe-liste.de/wirkstoffgruppen/humaninsuline" }
+    pruefstatus: ungeprueft
+
+  - id: arz.insulinglargin
+    substance: Insulin glargin
+    brandNames: [Lantus, Toujeo]
+    drugClass: Langwirksames Insulinanalogon (Basalinsulin)
+    mechanism: "Fällt nach der Injektion im Gewebe aus und löst sich langsam über etwa einen Tag: gleichmäßige Grundversorgung mit Insulin ohne ausgeprägten Wirkgipfel."
+    indications: [Diabetes mellitus (Basalinsulin)]
+    adverseEffects: [Hypoglykämie, Lipohypertrophie, Reaktionen an der Einstichstelle]
+    contraindications: [Überempfindlichkeit gegen Insulin glargin]
+    nursing: ["Einmal täglich zur immer gleichen Uhrzeit", "Nie intravenös (schwere Hypoglykämie) und nicht mit anderen Insulinen mischen", "Klare Lösung: nicht mit trübem Verzögerungsinsulin (NPH) verwechseln", "Spritzstellen wechseln, Blutzucker kontrollieren"]
+    topicIds: [thema.ph.medikamente, thema.kl.diabetes, thema.ph.injektion]
+    sources:
+      - { title: "Gelbe Liste: Insulin glargin", url: "https://www.gelbe-liste.de/wirkstoffe/Insulin-glargin_41449" }
+    pruefstatus: ungeprueft
+
+  - id: arz.empagliflozin
+    substance: Empagliflozin
+    brandNames: [Jardiance]
+    drugClass: SGLT-2-Hemmer (Gliflozin)
+    mechanism: "Hemmt in der Niere den Glukose-Rücktransporter SGLT-2: Zucker wird mit dem Urin ausgeschieden, dazu mehr Wasser (osmotische Diurese). Wirkt unabhängig vom Insulin."
+    indications: [Diabetes mellitus Typ 2, Chronische Herzinsuffizienz, Chronische Nierenerkrankung]
+    adverseEffects: ["Genitalinfektionen (Pilz), Harnwegsinfektionen", "Volumenmangel, Blutdruckabfall", "Diabetische Ketoazidose, auch bei nur mäßig erhöhtem Blutzucker", "Selten Fournier-Gangrän (Genital-/Dammbereich)"]
+    contraindications: [Überempfindlichkeit]
+    nursing: ["Intimhygiene unterstützen und beraten, auf Brennen beim Wasserlassen und Juckreiz achten", "Ausreichend trinken; Exsikkosezeichen beachten, besonders bei älteren Menschen", "Bei Übelkeit, Bauchschmerz, schneller Atmung an Ketoazidose denken und melden", "Urinzucker-Test ist unter der Therapie immer positiv"]
+    topicIds: [thema.ph.medikamente, thema.kl.diabetes, thema.kl.herz.insuffizienz]
+    sources:
+      - { title: "Gelbe Liste: Empagliflozin", url: "https://www.gelbe-liste.de/wirkstoffe/Empagliflozin_52416" }
+    pruefstatus: ungeprueft
+
+  # ---------------------------------------------------------------- Schmerz
+  - id: arz.paracetamol
+    substance: Paracetamol
+    brandNames: [ben-u-ron]
+    drugClass: Nichtopioid-Analgetikum
+    mechanism: "Schmerzstillend und fiebersenkend, aber kaum entzündungshemmend. Vermutlich zentrale Hemmung der Cyclooxygenasen."
+    indications: [Leichte bis mäßige Schmerzen, Fieber]
+    adverseEffects: ["Bei Überdosierung Leberschädigung bis Leberversagen", "Sonst selten Nebenwirkungen"]
+    contraindications: [Schwere Leberfunktionsstörung]
+    nursing: ["Höchstdosis beachten (gewichtsbezogen, laut Gelber Liste max. 60 mg/kg KG pro Tag), alle Paracetamol-haltigen Präparate zusammenrechnen", "Mindestens 4 Stunden Abstand zwischen den Einzelgaben", "Vorsicht bei Lebererkrankung und regelmäßigem Alkoholkonsum", "Wirkung auf Schmerz und Fieber nachkontrollieren und dokumentieren"]
+    antidote: "Acetylcystein (Infusion bei Paracetamol-Vergiftung)"
+    topicIds: [thema.ph.medikamente, thema.beo.bewusstsein]
+    sources:
+      - { title: "Gelbe Liste: Paracetamol", url: "https://www.gelbe-liste.de/wirkstoffe/Paracetamol_298" }
+      - { title: "Gelbe Liste: Paracetamol kompakt", url: "https://www.gelbe-liste.de/wissen-kompakt/wirkstoffe/paracetamol-kompakt" }
+      - { title: "Gelbe Liste: Acetylcystein (Antidot)", url: "https://www.gelbe-liste.de/wirkstoffe/Acetylcystein_293" }
+    pruefstatus: ungeprueft
+
+  - id: arz.ibuprofen
+    substance: Ibuprofen
+    brandNames: [Nurofen]
+    drugClass: Nichtsteroidales Antirheumatikum (NSAR)
+    mechanism: "Hemmt COX-1 und COX-2 und damit die Prostaglandinbildung: schmerzstillend, entzündungshemmend, fiebersenkend. Schwächt aber auch den Magenschleimhautschutz."
+    indications: [Leichte bis mäßige Schmerzen, Fieber, "Entzündliche Gelenkerkrankungen, Gichtanfall"]
+    adverseEffects: ["Magenbeschwerden bis Ulkus, Blutung, Perforation", "Nierenfunktionsverschlechterung, Flüssigkeitseinlagerung", "Blutdruckanstieg; erhöhtes Herz-Kreislauf-Risiko bei hohen Dosen", "Asthmaanfall bei Analgetika-Asthma"]
+    contraindications: ["Magen-Darm-Ulzera oder -Blutungen (auch früher durch NSAR)", "Schwere Herz-, Leber- oder Niereninsuffizienz", Letztes Schwangerschaftsdrittel, "Asthma nach ASS oder NSAR"]
+    nursing: ["Zum oder nach dem Essen geben", "Ältere Menschen besonders gefährdet: auf Magenschmerz, Teerstuhl, Ödeme und Trinkmenge achten", "Schwächt die Wirkung von Blutdruckmitteln und Diuretika; mit ACE-Hemmern bei Austrocknung Nierenversagen möglich", "Bei Langzeiteinnahme Nieren- und Leberwerte, Blutbild laut Anordnung"]
+    topicIds: [thema.ph.medikamente, thema.beo.bewusstsein, thema.kl.bewegung]
+    sources:
+      - { title: "Gelbe Liste: Ibuprofen", url: "https://www.gelbe-liste.de/wirkstoffe/Ibuprofen_289" }
+    pruefstatus: ungeprueft
+
+  - id: arz.metamizol
+    substance: Metamizol (Novaminsulfon)
+    brandNames: [Novalgin]
+    drugClass: Nichtopioid-Analgetikum (Pyrazolon)
+    mechanism: "Stark schmerzstillend und fiebersenkend, zusätzlich krampflösend an glatter Muskulatur (z. B. bei Koliken). Genauer Mechanismus nicht vollständig geklärt."
+    indications: ["Koliken (Gallen-, Harnwege)", "Akute und chronische Schmerzen, Tumorschmerzen, nach Operationen", "Hohes Fieber, wenn andere Maßnahmen nicht wirken"]
+    adverseEffects: ["Agranulozytose (selten, lebensbedrohlich, dosisunabhängig)", "Blutdruckabfall bis Schock, v. a. bei zu schneller i.v.-Gabe", "Allergische Reaktionen", "Harmlose Rotfärbung des Urins"]
+    contraindications: ["Agranulozytose oder Allergie auf Pyrazolone in der Vorgeschichte", "Knochenmark- oder Blutbildungsstörungen", "Analgetika-Asthma", "Letztes Schwangerschaftsdrittel, Stillzeit"]
+    nursing: ["i.v. nur langsam (nicht mehr als 500 mg pro Minute) oder als Kurzinfusion, Patient liegt, Blutdruck kontrollieren", "Über Warnzeichen der Agranulozytose informieren: Fieber, Halsschmerzen, schmerzhafte Mundschleimhaut; dann sofort melden", "Rötlicher Urin ist harmlos, Patient darüber aufklären"]
+    topicIds: [thema.ph.medikamente, thema.beo.bewusstsein, thema.ph.periop]
+    sources:
+      - { title: "Gelbe Liste: Metamizol", url: "https://www.gelbe-liste.de/wirkstoffe/Metamizol_297" }
+    pruefstatus: ungeprueft
+
+  - id: arz.morphin
+    substance: Morphin
+    brandNames: [MST]
+    drugClass: Starkes Opioid (Betäubungsmittel)
+    mechanism: "Agonist am µ-Opioidrezeptor im zentralen Nervensystem: unterdrückt die Schmerzweiterleitung; dämpft auch Atemzentrum und Darmbewegung."
+    indications: [Starke und stärkste Schmerzen (z. B. Tumorschmerz), Atemnot bei Linksherzinsuffizienz / Lungenödem, Atemnot in der Palliativversorgung]
+    adverseEffects: ["Obstipation (bleibt dauerhaft, keine Gewöhnung)", "Übelkeit, Erbrechen (v. a. zu Beginn)", "Müdigkeit, Sedierung, Verwirrtheit", "Atemdepression (dosisabhängig)", "Miosis (enge Pupillen), Juckreiz, Harnverhalt", Abhängigkeit und Toleranz]
+    contraindications: ["Schwere Atemdepression ohne Beatmungsmöglichkeit", Paralytischer Ileus, Akutes Abdomen]
+    nursing: ["Betäubungsmittel: Ausgabe und Bestand im BtM-Buch dokumentieren, sicher verschlossen lagern", "Atmung, Bewusstsein und Schmerz regelmäßig einschätzen und dokumentieren", "Obstipationsprophylaxe von Anfang an (Laxans nach Anordnung, Trinkmenge, Bewegung)", "Retardtabletten nicht teilen, zerkauen oder mörsern (gefährliche Überdosierung)", "Nicht abrupt absetzen (Entzugssymptome); Alkohol und Beruhigungsmittel verstärken die Atemdepression"]
+    mnemonic: "Opioid-Überdosis: Miosis, Atemdepression, Bewusstseinsstörung."
+    antidote: "Naloxon"
+    topicIds: [thema.ph.medikamente, thema.beo.bewusstsein, thema.ph.palliativ]
+    sources:
+      - { title: "Gelbe Liste: Morphin", url: "https://www.gelbe-liste.de/wirkstoffe/Morphin_21525" }
+      - { title: "Gebrauchsinformation Morphin-ratiopharm 60 mg Retardtabletten", url: "https://www.gelbe-liste.de/produkte/beipackzettel_Morphin-ratiopharm-60-mg-Retardtabletten.pdf/d4d2a1f6-c0e1-4c59-868e-9d07b7c61380" }
+      - { title: "Gelbe Liste: Naloxon (Antidot)", url: "https://www.gelbe-liste.de/wirkstoffe/Naloxon_21993" }
+    pruefstatus: ungeprueft
+
+  - id: arz.fentanyl
+    substance: Fentanyl (Pflaster)
+    brandNames: [Durogesic]
+    drugClass: Starkes Opioid, transdermal (Betäubungsmittel)
+    mechanism: "µ-Opioidrezeptor-Agonist, etwa 100-mal stärker als Morphin. Das Pflaster gibt den Wirkstoff gleichmäßig über die Haut ab; ausreichender Spiegel erst nach 12 bis 24 Stunden."
+    indications: [Starke chronische Schmerzen (z. B. Tumorschmerz) bei bereits mit Opioiden vorbehandelten Patienten]
+    adverseEffects: ["Atemdepression (kann lange anhalten)", "Müdigkeit, Schwindel, Übelkeit, Obstipation", "Schwitzen, Juckreiz, Harnverhalt", Abhängigkeit, Entzug bei Absetzen]
+    contraindications: ["Akute oder kurzzeitige Schmerzen (Wirkeintritt zu langsam)", "Schwere ZNS-Beeinträchtigung", Kinder unter 2 Jahren]
+    nursing: ["Wechsel meist alle 72 Stunden zur gleichen Uhrzeit; Datum und Uhrzeit auf dem Pflaster oder in der Dokumentation vermerken", "Unbehaarte, intakte Haut am Oberkörper oder Oberarm; Haare abschneiden, nicht rasieren; nur mit Wasser reinigen; 30 Sekunden andrücken; neue Stelle wählen (frühestens nach 7 Tagen dieselbe)", "Keine Wärme auf das Pflaster (Wärmflasche, Heizdecke, Sauna); Fieber erhöht die Aufnahme: melden", "Nie zerschneiden; gebrauchte Pflaster mit Klebeflächen zusammenfalten und sicher entsorgen (BtM), Kinder schützen", "Überdosierungszeichen: langsame, flache Atmung, starke Müdigkeit, enge Pupillen; dann Pflaster entfernen und Arzt rufen"]
+    antidote: "Naloxon (kurze Wirkdauer, Pflaster wirkt nach: Überwachung)"
+    topicIds: [thema.ph.medikamente, thema.beo.bewusstsein, thema.ph.palliativ]
+    sources:
+      - { title: "Gelbe Liste: Fentanyl", url: "https://www.gelbe-liste.de/wirkstoffe/Fentanyl_1686" }
+      - { title: "Gebrauchsinformation Fentanyl STADA 25 µg/h Pflaster", url: "https://www.gelbe-liste.de/produkte/beipackzettel_Fentanyl-STADA-25-Mikrogramm-h-transdermales-Pflaster.pdf/a47d0cad-2040-4d7d-b5df-f6a6c85379de" }
+    pruefstatus: ungeprueft
+
+  - id: arz.naloxon
+    substance: Naloxon
+    brandNames: []
+    drugClass: Opioidantagonist (Antidot)
+    mechanism: "Verdrängt Opioide vom µ-Rezeptor und hebt ihre Wirkung auf. Ohne Opioide keine Eigenwirkung. Wirkt i.v. nach 1 bis 2 Minuten, aber nur etwa 1 bis 4 Stunden."
+    indications: [Opioid-Überdosierung / -Vergiftung, Opioidbedingte Atemdepression (z. B. nach Operation)]
+    adverseEffects: ["Akute Entzugssymptome bei opioidabhängigen Menschen", "Schmerzen kehren zurück (Opioidwirkung aufgehoben)", "Tachykardie, Blutdruckschwankungen, Übelkeit"]
+    contraindications: [Überempfindlichkeit]
+    nursing: ["Nach der Gabe engmaschig überwachen (Atmung, Bewusstsein, Sauerstoffsättigung): die Opioidwirkung kann länger anhalten als Naloxon, Atemdepression kann zurückkehren", "Wiederholte Gaben können nötig sein", "Schmerz neu einschätzen, Entzugszeichen beobachten"]
+    topicIds: [thema.ph.medikamente, thema.beo.notfall]
+    sources:
+      - { title: "Gelbe Liste: Naloxon", url: "https://www.gelbe-liste.de/wirkstoffe/Naloxon_21993" }
+    pruefstatus: ungeprueft
+
+  # ---------------------------------------------------------------- Magen-Darm
+  - id: arz.pantoprazol
+    substance: Pantoprazol
+    brandNames: [Pantozol]
+    drugClass: Protonenpumpenhemmer (PPI)
+    mechanism: "Hemmt in den Belegzellen des Magens die Protonenpumpe (H+/K+-ATPase): deutlich weniger Magensäure."
+    indications: [Refluxösophagitis, Magen- und Zwölffingerdarmgeschwüre, Helicobacter-Eradikation (mit Antibiotika), "Ulkusprophylaxe, z. B. unter NSAR"]
+    adverseEffects: [Kopfschmerzen, Durchfall, Oberbauchbeschwerden]
+    contraindications: [Überempfindlichkeit]
+    nursing: ["Etwa eine Stunde vor einer Mahlzeit geben, meist vor dem Frühstück", "Magensaftresistente Tablette unzerkaut schlucken, nicht mörsern (für Sonden Alternativen erfragen)", "Dauertherapie regelmäßig hinterfragen lassen"]
+    topicIds: [thema.ph.medikamente, thema.kl.verdauung]
+    sources:
+      - { title: "Gelbe Liste: Pantoprazol", url: "https://www.gelbe-liste.de/wirkstoffe/Pantoprazol_22015" }
+    pruefstatus: ungeprueft
+
+  - id: arz.macrogol
+    substance: Macrogol
+    brandNames: [Movicol]
+    drugClass: Osmotisches Laxans
+    mechanism: "Wird kaum aufgenommen und bindet Wasser im Darm: der Stuhl wird weicher und voluminöser, die Darmbewegung angeregt."
+    indications: [Chronische Obstipation, "Koprostase (Kotstau)", Darmreinigung vor Koloskopie]
+    adverseEffects: ["Bauchschmerzen, Blähungen, Übelkeit", Durchfall]
+    contraindications: ["Ileus, Darmverschluss oder -perforation", "Schwere entzündliche Darmerkrankung (toxisches Megakolon)"]
+    nursing: ["Pulver in der vorgeschriebenen Wassermenge auflösen und vollständig trinken lassen", "Stuhlgang beobachten und dokumentieren (Häufigkeit, Konsistenz)", "Obstipationsprophylaxe nicht ersetzen: Trinken, Bewegung, ballaststoffreiche Kost", "Bei Bauchschmerz, Erbrechen, fehlendem Stuhl- und Windabgang an Ileus denken"]
+    topicIds: [thema.ph.medikamente, thema.pro.obstipation]
+    sources:
+      - { title: "Gelbe Liste: Macrogol", url: "https://www.gelbe-liste.de/wirkstoffe/Macrogol_10190" }
+    pruefstatus: ungeprueft
+
+  - id: arz.lactulose
+    substance: Lactulose
+    brandNames: [Bifiteral]
+    drugClass: Osmotisches Laxans (Zucker)
+    mechanism: "Wird im Dünndarm nicht aufgenommen; Bakterien im Dickdarm vergären sie zu Säuren. Mehr Wasser im Stuhl, mehr Peristaltik; im saureren Darm wird weniger Ammoniak aufgenommen."
+    indications: [Obstipation, Hepatische Enzephalopathie (Vorbeugung und Behandlung)]
+    adverseEffects: ["Blähungen (sehr häufig), Bauchschmerzen", "Durchfall, bei Überdosierung Elektrolytverluste"]
+    contraindications: [Ileus, Darmperforation oder Risiko dafür]
+    nursing: ["Blähungen zu Beginn ankündigen", "Bei Diabetes Zuckergehalt beachten", "Bei hepatischer Enzephalopathie Stuhlfrequenz und Bewusstseinslage beobachten und dokumentieren", "Auf Durchfall und Austrocknung achten"]
+    topicIds: [thema.ph.medikamente, thema.pro.obstipation, thema.kl.verdauung]
+    sources:
+      - { title: "Gelbe Liste: Lactulose", url: "https://www.gelbe-liste.de/wirkstoffe/Lactulose_819" }
+    pruefstatus: ungeprueft
+
+  - id: arz.metoclopramid
+    substance: Metoclopramid
+    abbreviation: MCP
+    brandNames: [Paspertin]
+    drugClass: Antiemetikum / Prokinetikum (Dopaminantagonist)
+    mechanism: "Blockiert Dopamin-D2-Rezeptoren in der Chemorezeptor-Triggerzone und fördert die Magen-Darm-Bewegung."
+    indications: ["Übelkeit und Erbrechen (z. B. nach Chemo- oder Strahlentherapie, bei Migräne)"]
+    adverseEffects: ["Müdigkeit, Somnolenz", "Extrapyramidale Störungen (Zungen-Schlund-Krämpfe, Blickkrämpfe), Akathisie, Parkinsonismus", "Spätdyskinesien bei längerer Gabe", Blutdruckabfall]
+    contraindications: ["Morbus Parkinson, gleichzeitig Levodopa", Epilepsie, "Mechanischer Ileus, Magen-Darm-Blutung oder -Perforation", Phäochromozytom, Kinder unter 1 Jahr]
+    nursing: ["Höchstens 5 Tage anwenden, Tageshöchstdosis 30 mg (bzw. 0,5 mg/kg KG)", "i.v. langsam über mindestens 3 Minuten", "Auf Bewegungsstörungen im Gesicht und Unruhe achten und sofort melden", "Bei Parkinson nicht geben: Rücksprache"]
+    topicIds: [thema.ph.medikamente, thema.kl.onko, thema.ph.periop]
+    sources:
+      - { title: "Gelbe Liste: Metoclopramid", url: "https://www.gelbe-liste.de/wirkstoffe/Metoclopramid_912" }
+    pruefstatus: ungeprueft
+
+  - id: arz.ondansetron
+    substance: Ondansetron
+    brandNames: [Zofran]
+    drugClass: Antiemetikum (5-HT3-Antagonist, Setron)
+    mechanism: "Blockiert Serotonin-5-HT3-Rezeptoren zentral und im Darm: der Brechreflex nach Chemo- oder Strahlentherapie wird unterbrochen."
+    indications: [Übelkeit und Erbrechen bei Chemo- oder Strahlentherapie, Postoperative Übelkeit und Erbrechen (PONV)]
+    adverseEffects: ["Kopfschmerzen (sehr häufig)", "Obstipation, Wärmegefühl, Gesichtsröte", "QT-Verlängerung (dosisabhängig)"]
+    contraindications: [Gleichzeitig Apomorphin]
+    nursing: ["Stuhlgang beobachten (Obstipation)", "Bei Herzerkrankungen und Elektrolytstörungen QT-Risiko beachten; Kalium und Magnesium vorher ausgleichen", "Wirkung auf Übelkeit dokumentieren"]
+    topicIds: [thema.ph.medikamente, thema.kl.onko, thema.ph.periop]
+    sources:
+      - { title: "Gelbe Liste: Ondansetron", url: "https://www.gelbe-liste.de/wirkstoffe/Ondansetron_22003" }
+    pruefstatus: ungeprueft
+
+  # ---------------------------------------------------------------- Nervensystem und Psyche
+  - id: arz.levodopa
+    substance: Levodopa mit Benserazid
+    abbreviation: L-Dopa
+    brandNames: [Madopar]
+    drugClass: Parkinsonmittel (Dopamin-Vorstufe + Decarboxylasehemmer)
+    mechanism: "Levodopa gelangt ins Gehirn und wird dort zu Dopamin. Benserazid verhindert den Umbau außerhalb des Gehirns, dadurch weniger Nebenwirkungen und niedrigere Dosis."
+    indications: [Morbus Parkinson, Restless-Legs-Syndrom]
+    adverseEffects: ["Übelkeit, Erbrechen", "Blutdruckabfall beim Aufstehen", "Überbewegungen (Dyskinesien), On-off-Schwankungen bei Langzeittherapie", "Halluzinationen, Verwirrtheit", "Plötzliche Schlafattacken, Impulskontrollstörungen", "Harmlos rötlich-dunkler Urin"]
+    contraindications: [Engwinkelglaukom, Melanom in der Vorgeschichte, "Nicht-selektive MAO-Hemmer"]
+    nursing: ["Pünktlich nach Plan geben, Einnahmezeiten auch im Krankenhaus einhalten", "30 Minuten vor oder 90 Minuten nach einer Mahlzeit; keine eiweißreiche Mahlzeit davor (schwächt die Wirkung)", "Nicht abrupt absetzen: lebensbedrohliches Entzugssyndrom mit hohem Fieber und Muskelsteife möglich", "Beim Aufstehen begleiten (Sturzgefahr); Beweglichkeit über den Tag beobachten", "MCP und viele Neuroleptika (z. B. Haloperidol) wirken entgegen: Rücksprache"]
+    topicIds: [thema.ph.medikamente, thema.kl.neuro.parkinson]
+    sources:
+      - { title: "Gelbe Liste: Levodopa", url: "https://www.gelbe-liste.de/wirkstoffe/Levodopa_1974" }
+      - { title: "Gebrauchsinformation Levodopa/Benserazid-ratiopharm 200 mg/50 mg", url: "https://www.gelbe-liste.de/produkte/beipackzettel_Levodopa-Benserazid-ratiopharm-200-mg-50-mg-Tabletten.pdf/8e26bcc8-7e9e-41ff-85d1-0fe89e4b4a59" }
+    pruefstatus: ungeprueft
+
+  - id: arz.levetiracetam
+    substance: Levetiracetam
+    brandNames: [Keppra]
+    drugClass: Antiepileptikum
+    mechanism: "Bindet an das synaptische Vesikelprotein SV2A und beeinflusst so die Freisetzung von Neurotransmittern: weniger Anfälle."
+    indications: ["Epilepsie: fokale Anfälle, myoklonische und generalisierte tonisch-klonische Anfälle"]
+    adverseEffects: ["Müdigkeit, Schläfrigkeit, Schwindel, Kopfschmerz", "Reizbarkeit, Aggression, Angst, Depression", "Suizidgedanken (selten)"]
+    contraindications: [Überempfindlichkeit]
+    nursing: ["Regelmäßig und pünktlich geben, nicht eigenmächtig absetzen; Absetzen nur schrittweise (Anfallsgefahr)", "Stimmung und Verhalten beobachten, Suizidgedanken ernst nehmen und weitergeben", "Anfälle genau beobachten und dokumentieren", "Dosis richtet sich nach der Nierenfunktion"]
+    topicIds: [thema.ph.medikamente, thema.kl.neuro.epilepsie]
+    sources:
+      - { title: "Gelbe Liste: Levetiracetam", url: "https://www.gelbe-liste.de/wirkstoffe/Levetiracetam_41886" }
+    pruefstatus: ungeprueft
+
+  - id: arz.lorazepam
+    substance: Lorazepam
+    brandNames: [Tavor]
+    drugClass: Benzodiazepin (Tranquilizer)
+    mechanism: "Verstärkt die hemmende Wirkung von GABA im Gehirn: angstlösend, beruhigend, muskelentspannend, schlaffördernd, krampflösend."
+    indications: [Angst- und Spannungszustände, Panikattacken, Status epilepticus (i.v.), Beruhigung vor Eingriffen]
+    adverseEffects: ["Müdigkeit, Benommenheit, Gangunsicherheit, Muskelschwäche", "Atemdepression (v. a. mit Opioiden oder Alkohol)", "Paradoxe Reaktionen (Erregung) bei älteren Menschen und Kindern", "Hohes Abhängigkeitspotenzial, Entzug und Rebound beim Absetzen"]
+    contraindications: [Abhängigkeit in der Vorgeschichte, "Mit Vorsicht: Myasthenia gravis, Schlafapnoe, schwere Atemstörungen"]
+    nursing: ["Sturzgefahr: besonders nachts beim Aufstehen begleiten, Klingel in Reichweite", "Atmung und Bewusstsein beobachten, v. a. zusammen mit Opioiden", "Nur kurz anwenden (wenige Wochen) und nicht abrupt absetzen, sondern ausschleichen", "Kein Alkohol"]
+    antidote: "Flumazenil"
+    topicIds: [thema.ph.medikamente, thema.kl.psych, thema.kl.neuro.epilepsie]
+    sources:
+      - { title: "Gelbe Liste: Lorazepam", url: "https://www.gelbe-liste.de/wirkstoffe/Lorazepam_387" }
+      - { title: "Gebrauchsinformation Lorazepam-ratiopharm", url: "https://www.gelbe-liste.de/produkte/beipackzettel_Lorazepam-ratiopharm-1-mg-Tabletten.pdf/0d435773-116e-4dbc-8017-92008daccdb0" }
+      - { title: "Gelbe Liste: Benzodiazepine (Antidot)", url: "https://www.gelbe-liste.de/wirkstoffgruppen/benzodiazepine" }
+    pruefstatus: ungeprueft
+
+  - id: arz.haloperidol
+    substance: Haloperidol
+    brandNames: [Haldol]
+    drugClass: Hochpotentes Neuroleptikum (Butyrophenon)
+    mechanism: "Blockiert Dopamin-D2-Rezeptoren im Gehirn: antipsychotisch; in niedriger Dosis auch gegen Übelkeit."
+    indications: ["Schizophrenie, akute Psychosen, Manie", "Unruhe und Aggressivität bei Demenz (nur eingeschränkt)", "Delir (akute Verwirrtheit)", "Niedrig dosiert: Übelkeit und Erbrechen"]
+    adverseEffects: ["Extrapyramidale Störungen: Parkinsonoid (Steifigkeit, Zittern), Unruhe, Spätdyskinesien", "QT-Verlängerung, Herzrhythmusstörungen", "Malignes neuroleptisches Syndrom: Fieber, Muskelstarre, Verwirrtheit (Notfall)", Müdigkeit]
+    contraindications: ["Morbus Parkinson, Lewy-Körper-Demenz", "QT-Verlängerung, kürzlicher Herzinfarkt", Unkorrigierte Hypokaliämie, Koma]
+    nursing: ["Auf Bewegungsstörungen, Steifigkeit und Unruhe achten und melden", "EKG vor und während der Behandlung laut Anordnung; Kalium und Magnesium", "Bei Fieber mit Muskelstarre sofort Arzt rufen", "Ältere Menschen mit Demenz: erhöhtes Sterblichkeits- und Schlaganfallrisiko, daher zurückhaltend"]
+    topicIds: [thema.ph.medikamente, thema.kl.psych, thema.kl.demenz]
+    sources:
+      - { title: "Gelbe Liste: Haloperidol", url: "https://www.gelbe-liste.de/wirkstoffe/Haloperidol_902" }
+    pruefstatus: ungeprueft
+
+  - id: arz.melperon
+    substance: Melperon
+    brandNames: [Eunerpan]
+    drugClass: Niederpotentes Neuroleptikum (Butyrophenon)
+    mechanism: "Blockiert Dopamin-D2-Rezeptoren, wirkt vor allem beruhigend und schlaffördernd, kaum antipsychotisch."
+    indications: ["Schlafstörungen, Verwirrtheit", "Psychomotorische Unruhe und Erregung, besonders in der Geriatrie"]
+    adverseEffects: ["Müdigkeit, besonders zu Beginn", "Blutdruckabfall, Herzrasen", "QT-Verlängerung", "Bewegungsstörungen (seltener als bei hochpotenten Neuroleptika)"]
+    contraindications: ["Vergiftung mit Alkohol oder zentral dämpfenden Mitteln", Schwere Leberfunktionsstörung, Malignes neuroleptisches Syndrom in der Vorgeschichte, Kinder unter 12 Jahren]
+    nursing: ["Blutdruck kontrollieren, beim Aufstehen begleiten (Sturzgefahr)", "Mit Wasser einnehmen; Kaffee, Tee und Milch können die Aufnahme verringern", "Kein Alkohol, Wirkung anderer Beruhigungsmittel wird verstärkt", "Ältere Menschen mit Demenz: leicht erhöhte Sterblichkeit unter Antipsychotika"]
+    topicIds: [thema.ph.medikamente, thema.kl.demenz, thema.kl.geriatrie]
+    sources:
+      - { title: "Gelbe Liste: Melperon", url: "https://www.gelbe-liste.de/wirkstoffe/Melperon_2172" }
+      - { title: "Gebrauchsinformation Melperon-ratiopharm 25 mg", url: "https://www.gelbe-liste.de/produkte/beipackzettel_Melperon-ratiopharm-25-mg-Filmtabletten.pdf/a73cb458-4c23-469d-96e5-4cd50e68f5a8" }
+    pruefstatus: ungeprueft
+
+  - id: arz.citalopram
+    substance: Citalopram
+    brandNames: [Cipramil]
+    drugClass: Antidepressivum (SSRI)
+    mechanism: "Hemmt die Wiederaufnahme von Serotonin: mehr Serotonin im synaptischen Spalt. Die stimmungsaufhellende Wirkung setzt erst nach 2 bis 4 Wochen ein."
+    indications: [Depression, Panikstörung, Generalisierte Angststörung, Zwangsstörung]
+    adverseEffects: ["Übelkeit, Schlafstörungen, Schwitzen, Mundtrockenheit", "Sexuelle Funktionsstörungen", "Hyponatriämie (v. a. ältere Menschen)", "QT-Verlängerung, erhöhte Blutungsneigung", "Zu Beginn mögliche Zunahme von Suizidgedanken"]
+    contraindications: ["Gleichzeitig MAO-Hemmer", "QT-Verlängerung oder QT-verlängernde Mittel"]
+    nursing: ["Patienten sagen, dass die Wirkung erst nach Wochen einsetzt (Durchhalten)", "Besonders zu Beginn und bei Dosisänderung auf Suizidgedanken achten", "Ältere Menschen: Höchstdosis 20 mg pro Tag; auf Verwirrtheit achten (Hyponatriämie)", "Nicht abrupt absetzen (Schwindel, Unruhe, Schlafstörungen)", "Mit Antikoagulanzien oder Plättchenhemmern auf Blutungen achten"]
+    topicIds: [thema.ph.medikamente, thema.kl.psych]
+    sources:
+      - { title: "Gelbe Liste: Citalopram", url: "https://www.gelbe-liste.de/wirkstoffe/Citalopram_25633" }
+    pruefstatus: ungeprueft
+
+  # ---------------------------------------------------------------- Weitere
+  - id: arz.amoxicillin
+    substance: Amoxicillin
+    brandNames: []
+    drugClass: Antibiotikum (Aminopenicillin, Betalaktam)
+    mechanism: "Stört den Aufbau der Bakterienzellwand (bakterizid), wirkt nur auf wachsende Bakterien. Mit Clavulansäure auch gegen Betalaktamase-Bildner."
+    indications: ["Atemwegsinfekte (Bronchitis, Sinusitis, Pneumonie), Otitis media, Streptokokken-Angina", "Harnwegsinfekte", Helicobacter-Eradikation, Lyme-Borreliose]
+    adverseEffects: ["Durchfall, Übelkeit", Hautausschlag (Exanthem), "Allergische Reaktion bis Anaphylaxie (selten)", "Antibiotika-assoziierte Kolitis, Pilzinfektionen"]
+    contraindications: ["Penicillinallergie oder schwere Sofortreaktion auf andere Betalaktame"]
+    nursing: ["Vor der ersten Gabe nach Allergien fragen; nach der Gabe auf Hautausschlag, Atemnot, Kreislauf achten", "Regelmäßige Abstände einhalten, damit der Wirkspiegel stimmt", "Durchfall beobachten und melden (Kolitis)", "Säfte frisch zubereiten"]
+    topicIds: [thema.ph.medikamente, thema.kl.infektion]
+    sources:
+      - { title: "Gelbe Liste: Amoxicillin", url: "https://www.gelbe-liste.de/wirkstoffe/Amoxicillin_29" }
+    pruefstatus: ungeprueft
+
+  - id: arz.levothyroxin
+    substance: Levothyroxin
+    abbreviation: L-Thyroxin
+    brandNames: [Euthyrox]
+    drugClass: Schilddrüsenhormon (T4)
+    mechanism: "Ersetzt das Schilddrüsenhormon Thyroxin (T4), das im Körper zum aktiveren T3 wird und den Stoffwechsel steigert."
+    indications: [Hypothyreose, Nach Schilddrüsenoperation, Euthyreote Struma, Schilddrüsenkarzinom (Suppression)]
+    adverseEffects: ["Bei Überdosierung: Herzrasen, Herzrhythmusstörungen, Angina pectoris", "Schwitzen, Zittern, Schlaflosigkeit, Gewichtsabnahme, Durchfall"]
+    contraindications: [Unbehandelte Hyperthyreose, "Akuter Herzinfarkt, Myokarditis", Unbehandelte Nebennieren- oder Hypophyseninsuffizienz]
+    nursing: ["Morgens nüchtern mit Wasser geben, mit Abstand zum Frühstück", "Abstand zu Calcium, Eisen, Antazida (laut Gelber Liste mindestens 4 Stunden)", "Puls und Unruhe, Schwitzen, Schlaf beobachten (Überdosierung)", "TSH-Kontrollen laut Anordnung"]
+    topicIds: [thema.ph.medikamente, thema.ap.hormone]
+    sources:
+      - { title: "Gelbe Liste: Levothyroxin", url: "https://www.gelbe-liste.de/wirkstoffe/Levothyroxin_18511" }
+    pruefstatus: ungeprueft
+
+  - id: arz.alendronsaeure
+    substance: Alendronsäure
+    brandNames: [Fosamax]
+    drugClass: Bisphosphonat
+    mechanism: "Hemmt die Osteoklasten und damit den Knochenabbau: Knochendichte bleibt erhalten, weniger Wirbel- und Hüftfrakturen."
+    indications: [Postmenopausale Osteoporose, Osteoporose bei Männern, Glukokortikoid-induzierte Osteoporose]
+    adverseEffects: ["Speiseröhrenreizung bis Ulkus", "Kieferosteonekrose (selten)", "Atypische Oberschenkelfrakturen (selten)", Muskel- und Knochenschmerzen]
+    contraindications: ["Speiseröhrenerkrankung mit verzögerter Entleerung", "Unfähigkeit, 30 Minuten aufrecht zu sitzen oder zu stehen", Hypokalzämie]
+    nursing: ["Morgens nüchtern mit einem großen Glas Leitungswasser (kein Mineralwasser, Kaffee, Saft), unzerkaut", "Danach mindestens 30 Minuten aufrecht bleiben und nichts essen, trinken oder einnehmen", "Wochentablette: Einnahmetag fest planen und dokumentieren", "Zahnstatus und Mundpflege beachten; Calcium und Vitamin D laut Anordnung"]
+    mnemonic: "Bisphosphonat: nüchtern, Leitungswasser, 30 Minuten aufrecht."
+    topicIds: [thema.ph.medikamente, thema.kl.bewegung]
+    sources:
+      - { title: "Gelbe Liste: Alendronsäure", url: "https://www.gelbe-liste.de/wirkstoffe/Alendronsaeure_26144" }
+    pruefstatus: ungeprueft
+
+  - id: arz.epinephrin
+    substance: Epinephrin (Adrenalin)
+    brandNames: [Suprarenin, Fastjekt, Anapen]
+    drugClass: Katecholamin (Sympathomimetikum)
+    mechanism: "Stimuliert α- und β-Rezeptoren: Gefäßverengung (Blutdruck steigt), stärkere und schnellere Herzaktion (β1), Bronchienerweiterung (β2)."
+    indications: [Anaphylaxie / anaphylaktischer Schock, Reanimation]
+    adverseEffects: ["Herzrasen, Herzklopfen, Blutdruckanstieg", "Zittern, Nervosität, Schwitzen, Kopfschmerz"]
+    contraindications: ["Im Notfall (Anaphylaxie, Reanimation) keine absoluten Gegenanzeigen"]
+    nursing: ["Bei ersten Zeichen einer schweren allergischen Reaktion sofort anwenden (z. B. Autoinjektor des Patienten)", "Danach immer ärztliche Hilfe: biphasische Reaktion möglich", "Vitalzeichen engmaschig überwachen", "Patienten mit Notfallset in der Handhabung des Autoinjektors schulen"]
+    topicIds: [thema.ph.medikamente, thema.beo.notfall]
+    sources:
+      - { title: "Gelbe Liste: Epinephrin", url: "https://www.gelbe-liste.de/wirkstoffe/Epinephrin_160" }
+    pruefstatus: ungeprueft
