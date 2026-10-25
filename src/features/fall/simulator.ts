@@ -324,6 +324,21 @@ export function neuerFall(szenario: Szenario, stufe: Stufe): Fall {
 
 async function frage<T>(apiKey: string, system: string, messages: Anthropic.MessageParam[], schema: object, effort: 'low' | 'medium' | 'high', lese: (t: string) => T): Promise<T> {
   const client = new Anthropic({ apiKey, dangerouslyAllowBrowser: true });
+  // Eine unlesbare Antwort kostet die lernende Person sonst einen Zug: einmal still wiederholen.
+  for (let versuch = 1; ; versuch++) {
+    try {
+      return await frageEinmal(client, system, messages, schema, effort, lese);
+    } catch (e) {
+      if (!(e instanceof AntwortUnlesbar) || versuch >= 2) throw e;
+    }
+  }
+}
+
+export class AntwortUnlesbar extends Error {
+  constructor() { super('Die Antwort von Claude war unvollständig. Bitte noch einmal versuchen.'); }
+}
+
+async function frageEinmal<T>(client: Anthropic, system: string, messages: Anthropic.MessageParam[], schema: object, effort: 'low' | 'medium' | 'high', lese: (t: string) => T): Promise<T> {
   const response = await client.beta.messages.create({
     model: MODEL,
     max_tokens: 16000,
@@ -336,7 +351,7 @@ async function frage<T>(apiKey: string, system: string, messages: Anthropic.Mess
   if (response.stop_reason === 'refusal') throw new Error('Die KI hat diesen Schritt abgelehnt. Formuliere die Handlung bitte anders.');
   if (response.stop_reason === 'max_tokens') throw new Error('Die Antwort wurde abgeschnitten. Bitte noch einmal versuchen.');
   const text = response.content.filter((b) => b.type === 'text').map((b) => (b as { text: string }).text).join('');
-  return lese(text);
+  try { return lese(text); } catch { throw new AntwortUnlesbar(); }
 }
 
 /** Nächster Zug: ohne Eingabe der Start des Falls. */

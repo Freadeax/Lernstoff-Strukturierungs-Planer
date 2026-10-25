@@ -116,3 +116,5 @@
   .fall__kurve { order: -1; }
   .fall__prozess, .fall__prozess-titel, .fall__hinweis { display: none; }
 }
+
+a.pill { display: inline-flex; align-items: center; text-decoration: none; color: inherit; }
