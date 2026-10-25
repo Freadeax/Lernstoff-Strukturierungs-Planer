@@ -1,4 +1,4 @@
-import type { Abgabe, KlassenFall } from './typen';
+import { ART_LABEL, type Abgabe, type KlassenFall } from './typen';
 
 // Fall und Abgabe werden als JSON gepackt (deflate, wenn der Browser es kann) und base64url-kodiert.
 // Erstes Zeichen: „z“ = komprimiert, „j“ = reines JSON. Kein Server, keine Bibliothek.
@@ -55,7 +55,7 @@ export function pruefeFall(x: unknown): KlassenFall {
     situation: istText(f.situation) ? f.situation : '',
     material: Array.isArray(f.material) ? f.material.filter((m) => m && istText(m.titel) && istText(m.text)) : [],
     loesung: f.loesung === 'nach-abgabe' ? 'nach-abgabe' : 'nie',
-    art: f.art === 'sis' || f.art === 'pflegeplanung' ? f.art : 'fallbeispiel',
+    art: f.art in ART_LABEL ? f.art : 'fallbeispiel',
   };
 }
 

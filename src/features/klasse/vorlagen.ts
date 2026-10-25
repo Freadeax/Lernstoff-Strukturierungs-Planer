@@ -1,11 +1,13 @@
 import { FELDER, feldHilfe, feldLabel, RISIKEN, RISIKO_LABEL, SETTING_LABEL as SIS_SETTING, SIS_FAELLE, type SisFall } from '../sis/faelle';
 import { FAELLE as PLAN_FAELLE, SETTING_LABEL as PLAN_SETTING, type PlanFall } from '../pflegeplanung/faelle';
-import { neueId, type Aufgabe, type KlassenFall } from './typen';
+import { allgemeinePunkte, ANLASS_LABEL, FAELLE as UEBERGABE_FAELLE, TEIL_HILFE, TEIL_LABEL, type Fall as UebergabeFall } from '../uebergabe/faelle';
+import { BEREICH_LABEL, BERICHT_FAELLE, type BerichtFall } from '../bericht/faelle';
+import { neueId, type Aufgabe, type FallArt, type KlassenFall } from './typen';
 
 // Vorlagen aus den bestehenden Trainern. Die Kernpunkte der Trainer werden übernommen,
 // damit die Klasse nach der Abgabe dieselbe Rückmeldung per Code bekommt.
 
-export interface Vorlage { id: string; art: 'sis' | 'pflegeplanung'; titel: string; untertitel: string; baue: () => KlassenFall }
+export interface Vorlage { id: string; art: Exclude<FallArt, 'fallbeispiel'>; titel: string; untertitel: string; baue: () => KlassenFall }
 
 const basis = (): Omit<KlassenFall, 'art' | 'titel' | 'situation' | 'material' | 'aufgaben'> => ({
   v: 1, id: neueId(), loesung: 'nach-abgabe', erstellt: new Date().toISOString(),
@@ -56,9 +58,60 @@ export function ausPflegeplanung(f: PlanFall): KlassenFall {
   };
 }
 
+const TEILE = ['S', 'B', 'A', 'R'] as const;
+
+/** Beispiel-Übergabe nach „S:“, „B:“ … zerlegen. */
+function sbarTeile(text: string): Record<string, string> {
+  const r: Record<string, string> = {};
+  for (const m of text.matchAll(/^([SBAR]):\s*([\s\S]*?)(?=^[SBAR]:|$(?![\s\S]))/gm)) r[m[1]!] = m[2]!.trim();
+  return r;
+}
+
+export function ausUebergabe(f: UebergabeFall): KlassenFall {
+  const punkte = [...allgemeinePunkte(f.anlass), ...f.kernpunkte];
+  const beispiel = sbarTeile(f.muster);
+  return {
+    ...basis(), art: 'uebergabe', titel: `Übergabe: ${f.titel}`,
+    situation: `${f.bereich}. ${ANLASS_LABEL[f.anlass]} an: ${f.empfaenger}.\nDu bist: ${f.rolle}.\n\n${f.lage}`,
+    material: [{ titel: 'Daten', text: daten(f.daten) }],
+    aufgaben: TEILE.map((t) => ({
+      id: t.toLowerCase(),
+      frage: `${t} – ${TEIL_LABEL[t]}`,
+      hinweis: TEIL_HILFE[t],
+      erwartung: beispiel[t],
+      kernpunkte: punkte.filter((k) => k.teil === t).map((k) => ({ text: k.text, muster: k.muster })),
+    })),
+  };
+}
+
+export function ausBericht(f: BerichtFall): KlassenFall {
+  const umschreiben = f.art === 'umschreiben';
+  return {
+    ...basis(), art: 'bericht', titel: `Pflegebericht: ${f.titel}`,
+    situation: `${BEREICH_LABEL[f.bereich]}. ${f.person}\n\n${f.szene.join('\n')}`,
+    material: umschreiben && f.vorlage ? [{ titel: 'Vorliegender Eintrag', text: f.vorlage }] : [],
+    aufgaben: [{
+      id: 'eintrag',
+      frage: umschreiben
+        ? 'Der vorliegende Eintrag ist wertend und ungenau. Schreibe ihn sachlich neu.'
+        : 'Schreibe den Eintrag in den Pflegebericht.',
+      hinweis: 'Wann, was beobachtet, was die Person sagt (wörtlich), was du getan hast, wie sie reagiert hat, wen du informiert hast.',
+      erwartung: f.muster,
+      kernpunkte: f.kernpunkte.map((k) => ({ text: k.text, muster: k.muster })),
+    }],
+  };
+}
+
+export const VORLAGE_GRUPPEN: { art: Vorlage['art']; label: string }[] = [
+  { art: 'sis', label: 'SIS' }, { art: 'pflegeplanung', label: 'Pflegeplanung' },
+  { art: 'uebergabe', label: 'Übergabe (SBAR)' }, { art: 'bericht', label: 'Pflegebericht' },
+];
+
 export const VORLAGEN: Vorlage[] = [
   ...SIS_FAELLE.map((f): Vorlage => ({ id: `sis:${f.id}`, art: 'sis', titel: f.titel, untertitel: `SIS · ${SIS_SETTING[f.setting]}`, baue: () => ausSis(f) })),
   ...PLAN_FAELLE.map((f): Vorlage => ({ id: `pp:${f.id}`, art: 'pflegeplanung', titel: f.titel, untertitel: `Pflegeplanung · ${PLAN_SETTING[f.setting]}`, baue: () => ausPflegeplanung(f) })),
+  ...UEBERGABE_FAELLE.map((f): Vorlage => ({ id: `sbar:${f.id}`, art: 'uebergabe', titel: f.titel, untertitel: `Übergabe · ${ANLASS_LABEL[f.anlass]}`, baue: () => ausUebergabe(f) })),
+  ...BERICHT_FAELLE.map((f): Vorlage => ({ id: `ber:${f.id}`, art: 'bericht', titel: f.titel, untertitel: `Pflegebericht · ${BEREICH_LABEL[f.bereich]}`, baue: () => ausBericht(f) })),
 ];
 
 export function leererFall(): KlassenFall {

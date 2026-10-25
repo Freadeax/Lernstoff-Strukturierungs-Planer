@@ -2,7 +2,7 @@
 // und schicken die Abgabe als Text zurück. Es gibt keinen Server: Der ganze Fall steckt im Link,
 // die ganze Abgabe im Abgabe-Code. Alles Weitere bleibt im Browser (localStorage).
 
-export type FallArt = 'fallbeispiel' | 'sis' | 'pflegeplanung';
+export type FallArt = 'fallbeispiel' | 'sis' | 'pflegeplanung' | 'uebergabe' | 'bericht';
 
 /** Erwarteter Punkt für die Rückmeldung per Code (Muster wie im Übergabe-Trainer). */
 export interface Kernpunkt { text: string; muster: string[] }
@@ -46,7 +46,7 @@ export interface Abgabe {
 }
 
 export const ART_LABEL: Record<FallArt, string> = {
-  fallbeispiel: 'Fallbeispiel', sis: 'SIS', pflegeplanung: 'Pflegeplanung',
+  fallbeispiel: 'Fallbeispiel', sis: 'SIS', pflegeplanung: 'Pflegeplanung', uebergabe: 'Übergabe (SBAR)', bericht: 'Pflegebericht',
 };
 
 /** Fassung für die Klasse: ohne Lösung, wenn sie nie gezeigt werden soll. */
