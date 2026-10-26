@@ -236,11 +236,23 @@ export async function ladeHoch(z: AblageZiel, datei: File, o: HochladenOptionen)
   const melde = (phase: Fortschritt['phase'], bytes: number, teil: number) => o.onFortschritt?.({ phase, bytes, teil, teile: anzahl });
 
   const { ordner, schonDa } = waehleOrdner(datei, o.vorhanden);
+  let identisch = schonDa;
   if (schonDa) {
+    const m = o.vorhanden.find((e) => e.ordner === ordner)!.manifest!;
+    let start = 0;
+    for (const t of m.teile) {
+      o.signal?.throwIfAborted();
+      if (await sha256(new Uint8Array(await datei.slice(start, start + t.groesse).arrayBuffer())) !== t.sha256) { identisch = false; break; }
+      start += t.groesse;
+    }
+    if (start !== datei.size) identisch = false;
+  }
+  if (identisch) {
     melde('uebersprungen', datei.size, anzahl);
     return { ordner, manifest: o.vorhanden.find((e) => e.ordner === ordner)!.manifest!, uebersprungen: true };
   }
 
+  const zielOrdner = schonDa ? waehleOrdner(datei, o.vorhanden.map((e) => ({ ordner: e.ordner }))).ordner : ordner;
   const teile: (ManifestTeil & { git: string })[] = [];
   for (let i = 0; i < anzahl; i++) {
     o.signal?.throwIfAborted();
@@ -270,8 +282,8 @@ export async function ladeHoch(z: AblageZiel, datei: File, o: HochladenOptionen)
 
   melde('speichern', datei.size, anzahl);
   const baum = [
-    ...teile.map((t) => ({ path: `dateien/${ordner}/${t.datei}`, mode: '100644', type: 'blob', sha: t.git })),
-    { path: `dateien/${ordner}/manifest.json`, mode: '100644', type: 'blob', content: JSON.stringify(manifest, null, 2) + '\n' },
+    ...teile.map((t) => ({ path: `dateien/${zielOrdner}/${t.datei}`, mode: '100644', type: 'blob', sha: t.git })),
+    { path: `dateien/${zielOrdner}/manifest.json`, mode: '100644', type: 'blob', content: JSON.stringify(manifest, null, 2) + '\n' },
   ];
   // Commit; falls der Branch inzwischen weitergezogen ist, neu aufsetzen.
   for (let versuch = 1; ; versuch++) {
@@ -290,7 +302,30 @@ export async function ladeHoch(z: AblageZiel, datei: File, o: HochladenOptionen)
     }
   }
   melde('fertig', datei.size, anzahl);
-  return { ordner, manifest, uebersprungen: false };
+  return { ordner: zielOrdner, manifest, uebersprungen: false };
+}
+
+/** Original aus dem privaten Repo holen, jedes Teil vor dem Import prüfen. */
+export async function ladeOriginal(z: AblageZiel, eintrag: Eintrag, f: Fetch = fetch): Promise<File> {
+  const info = await pruefeRepo(z, f);
+  if (!info.privat) throw new AblageFehler('Bitte ein privates Material-Repository verwenden.');
+  const ref = await gh<{ object: { sha: string } }>(z, `/git/ref/heads/${encodeURIComponent(info.branch)}`, {}, f);
+  const basis = `/contents/dateien/${encodeURIComponent(eintrag.ordner)}/`;
+  const manifest = await gh<Manifest>(z, `${basis}manifest.json?ref=${ref.object.sha}`, { headers: { Accept: 'application/vnd.github.raw+json' } }, f);
+  if (manifest.format !== FORMAT || !Array.isArray(manifest.teile) || !manifest.teile.length || manifest.teile.some((t) => !/^[\w.-]+$/.test(t.datei) || t.datei === '..' || !Number.isSafeInteger(t.groesse) || t.groesse < 0) || manifest.teile.reduce((s, t) => s + t.groesse, 0) !== manifest.groesse) {
+    throw new AblageFehler('Das Datei-Manifest ist unvollständig oder beschädigt.');
+  }
+  const teile: BlobPart[] = [];
+  for (const t of manifest.teile) {
+    const res = await f(`${API}/repos/${z.owner}/${z.repo}${basis}${encodeURIComponent(t.datei)}?ref=${ref.object.sha}`, {
+      headers: { Authorization: `Bearer ${z.token}`, Accept: 'application/vnd.github.raw+json', 'X-GitHub-Api-Version': '2022-11-28' },
+    });
+    if (!res.ok) throw new AblageFehler(fehlerText(res.status, 'Dateiteil konnte nicht geladen werden.'));
+    const bytes = await res.arrayBuffer();
+    if (bytes.byteLength !== t.groesse || await sha256(new Uint8Array(bytes)) !== t.sha256) throw new AblageFehler('Prüfsumme stimmt nicht. Die Datei wurde nicht importiert.');
+    teile.push(bytes);
+  }
+  return new File(teile, manifest.name, { type: manifest.typ, lastModified: Date.parse(manifest.hochgeladen) || 0 });
 }
 
 // ---------- Anleitung im Material-Repo ----------

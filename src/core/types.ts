@@ -39,6 +39,8 @@ export interface Document {
   previousVersionId?: ID;
   contentHash: string;    // für Dubletten- und Versionserkennung
   importedAt: string;
+  repository?: { owner: string; repo: string; ordner: string };
+  topicSuggestions?: Array<{ name: string; parentId?: ID; subjectId: ID }>;
 }
 
 /** Kleinste belegbare Texteinheit. Jede Quellenangabe zeigt auf einen Chunk. */

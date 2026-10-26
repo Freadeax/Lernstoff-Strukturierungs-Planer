@@ -4,6 +4,9 @@ import type { Document, SourceChunk } from '../core/types';
 import { logActivity } from '../core/activity';
 import { modules } from '../modules/registry';
 import { ACCEPT, importiereDateien, type ImportErgebnis } from './dokumente/importiere';
+import { Field } from '../ui/form/Field';
+import { PageHeading } from '../ui/PageHeading';
+import { Icon } from '../ui/icons';
 
 const subjects = modules.flatMap((m) => m.subjects);
 
@@ -43,25 +46,29 @@ export function Dokumente() {
 
   return (
     <section className="page">
-      <div className="page__head">
-        <h2>Dokumente</h2>
-        <a className="button-link" href="#/material/import">Import-Assistent</a>
-      </div>
-      <div className="card">
-        <label className="field">Fach
-          <select value={subjectId} onChange={(e) => setSubjectId(e.target.value)}>
+      <PageHeading eyebrow="Deine Wissensbasis" title="Alles beginnt mit guten Quellen."
+        description="Sammle Skripte, Arbeitsblätter und Notizen an einem Ort. Seiten und Textstellen bleiben nachvollziehbar."
+        action={<a className="button-link" href="#/material/import"><Icon name="upload" size={18} /> Geführter Import</a>} />
+      <div className="card form-card" aria-busy={!!busy}>
+        <h2>Material direkt hinzufügen</h2>
+        <p className="form-section__description">Wähle ein Fach und danach deine Dateien. Für eine schrittweise Auswahl nutze den geführten Import.</p>
+        <Field label="Fach für dein Material" name="subject" required hint="Alle ausgewählten Dateien werden diesem Fach zugeordnet.">
+          {(props) => <select {...props} disabled={!!busy} value={subjectId} onChange={(e) => setSubjectId(e.target.value)}>
             {subjects.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-          </select>
-        </label>
+          </select>}
+        </Field>
         <label className="check">
-          <input type="checkbox" checked={handwritten} onChange={(e) => setHandwritten(e.target.checked)} />
-          Handschrift (Bild wird zur Texterkennung an Claude gesendet, keine Patientendaten!)
+          <input type="checkbox" disabled={!!busy} checked={handwritten} onChange={(e) => setHandwritten(e.target.checked)} />
+          <span><strong>Handschrift erkennen</strong><br />Bilder werden dafür an Claude gesendet. Verwende keine Patientendaten.</span>
         </label>
         <label className="upload">
           <input type="file" multiple accept={ACCEPT}
-            disabled={!!busy} onChange={(e) => { onFiles(e.target.files); e.target.value = ''; }} />
-          <span>{busy || 'Dateien auswählen (PDF, Word, PowerPoint, Foto)'}</span>
+            disabled={!!busy || !subjectId} onChange={(e) => { onFiles(e.target.files); e.target.value = ''; }} />
+          <Icon name="upload" size={28} />
+          <strong>{busy || 'Dateien auswählen und importieren'}</strong>
+          <small>PDF, Word, PowerPoint, Text oder Foto</small>
         </label>
+        {busy && <p className="note" role="status" aria-live="polite">{busy}</p>}
         {reports.map((r) => (
           <div key={r.name} className={r.error ? 'note warn' : 'note'}>
             <strong>{r.name}</strong>
@@ -78,17 +85,18 @@ export function Dokumente() {
         ))}
       </div>
 
-      {docs.length === 0 && <p className="muted">Noch keine Dokumente.</p>}
+      <div className="section-heading"><h2>Deine Dokumente</h2><span className="muted">{docs.length} {docs.length === 1 ? 'Dokument' : 'Dokumente'}</span></div>
+      {docs.length === 0 && <div className="import-empty"><Icon name="folder" size={30} /><h3>Platz für deinen Lernstoff.</h3><p className="muted">Sobald du Material importierst, findest du es hier mit seinen erkannten Textstellen.</p></div>}
       {docs.map((d) => (
         <div key={d.id} className="card">
           <div className="row">
-            <button className="link" onClick={() => setOpen(open === d.id ? null : d.id)}>
+            <button className="link" aria-expanded={open === d.id} aria-controls={`document-${d.id}`} onClick={() => setOpen(open === d.id ? null : d.id)}>
               <strong>{d.title}</strong> <span className="muted">{d.kind.toUpperCase()}</span>
             </button>
             <button className="danger small" onClick={() => remove(d.id)}>Löschen</button>
           </div>
           {open === d.id && (
-            <div className="chunks">
+            <div id={`document-${d.id}`} className="chunks">
               {chunks.map((c) => (
                 <div key={c.id} className="chunk">
                   <div className="muted">S. {c.printedPage ?? c.page}{c.pageEstimated ? ' (geschätzt)' : ''}{c.chapter ? ` · ${c.chapter}` : ''}{c.ocrConfidence !== undefined ? ` · Lesbarkeit ${Math.round(c.ocrConfidence * 100)} %` : ''}</div>

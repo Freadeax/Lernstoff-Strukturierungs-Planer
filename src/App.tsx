@@ -9,18 +9,19 @@ import { Dokumente } from './features/Dokumente';
 import { Zusammenfassen } from './features/Zusammenfassen';
 import { Faecher } from './features/Faecher';
 import { Einstellungen } from './features/Einstellungen';
+import { PageHeading } from './ui/PageHeading';
 
 const Designsystem = lazy(() => import('./features/Designsystem'));
-const Ablage = lazy(() => import('./features/ablage/Ablage'));
+const Ablage = lazy(() => import('./features/ablage/AblageSeite'));
 const Rechentrainer = lazy(() => import('./features/rechnen/Rechentrainer'));
 const Fallsimulator = lazy(() => import('./features/fall/Fallsimulator'));
-const Duell = lazy(() => import('./features/duell/Duell'));
+const Duell = lazy(() => import('./features/duell/DuellSeite'));
 const SisTrainer = lazy(() => import('./features/sis/SisTrainer'));
 const Berichttrainer = lazy(() => import('./features/bericht/Berichttrainer'));
 const Mindmaps = lazy(() => import('./features/mindmap/Mindmaps'));
 const AssessmentTrainer = lazy(() => import('./features/assessment/AssessmentTrainer'));
 const Uebergabetrainer = lazy(() => import('./features/uebergabe/Uebergabetrainer'));
-const Simulation = lazy(() => import('./features/simulation/Simulation'));
+const Simulation = lazy(() => import('./features/simulation/SimulationSeite'));
 const Pflegeplanung = lazy(() => import('./features/pflegeplanung/Pflegeplanung'));
 const Lernplan = lazy(() => import('./features/lernplan/ui/Lernplan'));
 const Landkarte = lazy(() => import('./features/landkarte/Landkarte'));
@@ -31,7 +32,7 @@ const Karteikarten = lazy(() => import('./features/karteikarten/ui/Karteikarten'
 function Page({ title, intro, children }: { title: string; intro?: string; children: React.ReactNode }) {
   return (
     <section className="page">
-      <div className="page__head"><h2>{title}</h2>{intro && <p className="muted">{intro}</p>}</div>
+      <PageHeading title={title} description={intro ?? ''} />
       {children}
     </section>
   );
@@ -60,7 +61,7 @@ function View() {
     case '/lernen/uebergabe': return <Suspense fallback={<p className="muted">Lädt …</p>}><Uebergabetrainer /></Suspense>;
     case '/lernen/faecher': return <Faecher />;
     case '/material/dokumente': return <Dokumente />;
-    case '/material/import': return <Page title="Import"><WidgetGrid widgets={[WIDGETS.wizard]} allowHide={false} /></Page>;
+    case '/material/import': return <Page title="Dein Material. Bereit zum Lernen." intro="In vier Schritten von der Datei zur nachvollziehbaren Lernquelle."><WidgetGrid widgets={[WIDGETS.wizard]} allowHide={false} /></Page>;
     case '/material/ablage': return <Suspense fallback={<p className="muted">Lädt …</p>}><Ablage /></Suspense>;
     case '/material/zusammenfassen': return <Zusammenfassen />;
     case '/einstellungen': return <Einstellungen />;

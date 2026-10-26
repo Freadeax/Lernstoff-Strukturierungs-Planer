@@ -10,6 +10,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg'],
       workbox: {
+        // Lokal gebündelte Schriften bleiben auch ohne Verbindung verfügbar.
+        globPatterns: ['**/*.{js,wasm,css,html,svg,woff2}'],
         // Texterkennung (ca. 13 MB) nicht vorab laden, sondern beim ersten Gebrauch zwischenspeichern.
         globIgnores: ['tesseract/**'],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,

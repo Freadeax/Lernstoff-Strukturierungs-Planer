@@ -1,5 +1,59 @@
 # UI-Designsystem
 
+## Überarbeitung: Lernarbeitsplatz (26. Oktober 2026)
+
+Die Oberfläche nutzt eine ruhige Papier-/Petrol-Palette und lokal gebündelte Schriften
+(Manrope für Bedientexte, Newsreader für Seitenüberschriften). Lizenztexte liegen unter
+`public/fonts/`. Die Schriften werden vom Service Worker für Offline-Nutzung vorgehalten.
+`src/ui/tokens.css` bleibt die gemeinsame Basis; `src/ui/workspace.css` ergänzt die
+Gestaltung von Shell, Dashboard, Formularen und mobilen Ansichten.
+
+- **Startseite:** Tagesfokus und nächste Prüfung zuerst, danach Einstieg, Lernwerkzeuge
+  und die bestehenden Fortschritts-Widgets. Persönliche Kennzahlen beruhen weiterhin auf
+  tatsächlich gespeicherten Daten.
+- **Navigation:** Lernen, Üben & anwenden, Material und System. Routen bleiben erhalten.
+  Die Trainergruppe startet eingeklappt und öffnet sich bei einer aktiven Trainerseite.
+  Mobil gibt es vier direkte Ziele und „Mehr“, einen schließbaren Navigationsbereich,
+  Fokusbegrenzung bei geöffnetem Menü und Rückgabe des Fokus beim Schließen.
+- **Formulare:** Import, Zusammenfasser, Prüfungserfassung, Lernzeiten, Materialverbindung
+  und Einstellungen haben eine vertikale Leserichtung. Pflichtangaben werden mit `*`
+  markiert. Optionales und Voreinstellungen sind beschrieben. Board, Landkarte und
+  andere fachliche Ansichten behalten ihre zum Inhalt passende Anordnung.
+- **Gemeinsame Felder:** `src/ui/form/Field.tsx` verbindet sichtbare Labels, Hinweise und
+  Fehlermeldungen über IDs und ARIA. `useFormFeedback` zeigt Fehler nach Blur bzw. nach
+  einem Speicherversuch und fokussiert das erste ungültige Eingabefeld. Validierung
+  korrigiert Eingaben nicht heimlich. Die lokale Schlüsselprüfung ist eine Formatprüfung,
+  keine Bestätigung der Gültigkeit bei Anthropic.
+- **Bedienung:** Der Import zeigt Schrittzähler und Fortschrittsbalken. Die Lernplan-Tabs
+  unterstützen Pfeiltasten, Pos1 und Ende. Unnötiges Pulsieren und Skeleton-Schimmern
+  sind entfernt; reduzierte Bewegung wird zusätzlich respektiert.
+
+### Browserprüfung
+
+In einem Terminal `npm run dev` starten. Einmalig den Testbrowser installieren:
+
+```sh
+npx playwright install chromium
+npm run test:ui
+```
+
+Alternativ zeigt `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` auf eine vorhandene Chrome- oder
+Chromium-Binärdatei. `UI_BASE_URL` überschreibt die lokale Adresse (Standard:
+`http://127.0.0.1:5173/`). Screenshots und Prüfergebnisse liegen unter `.ui-check/`
+(nicht versioniert); `UI_ARTIFACT_DIR` kann ein anderes Ausgabeverzeichnis festlegen.
+
+Die Prüfung verwendet ausschließlich isolierte Browser-Kontexte. Sie kontrolliert
+Formularfehler und deren Fokus, Prüfungserfassung, echten Textimport, Quellenauswahl,
+Lernplan-Tastaturbedienung und mobiles Menü. Ausgewählte Seiten werden auf Desktop,
+Mobilgerät und im Dunkelmodus mit axe gegen WCAG-Regeln geprüft. Ein automatischer
+Test ersetzt keine vollständige manuelle Screenreader-Prüfung.
+
+Die Datenbank und fachlichen Algorithmen bleiben unverändert. Die drei UI-Dateien
+`AblageSeite.tsx`, `DuellSeite.tsx` und `SimulationSeite.tsx` haben eindeutige Namen,
+damit TypeScript sie auch unter Windows von den zugehörigen Logikdateien unterscheiden kann.
+
+---
+
 Stand: 2026-10-23. Umsetzung der UI/UX-Spezifikation für den Lernstoff-Planer. Live ansehen: Seite **System → Designsystem** (`#/system/design`) zeigt Tokens, Bausteine und jedes Modul in allen sechs Zuständen mit Beispieldaten.
 
 | Ordner | Inhalt |
