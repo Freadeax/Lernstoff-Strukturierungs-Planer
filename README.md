@@ -7,7 +7,7 @@ Modularer Lernstoff-Planer: Lernmaterial importieren, quellengetreu zusammenfass
 - **Quelle vor KI:** Jede fachliche Aussage ist mit Dokument, Seite und Zitat belegt. Unbelegtes wird markiert.
 - **Fachneutraler Kern:** Pflegespezifisches steckt im Fachmodul `src/modules/pflege`.
 - **Lokal zuerst:** Alle Daten liegen auf dem Gerät (IndexedDB). Funktioniert offline.
-- **Keine CI:** Das Repo nutzt bewusst keine GitHub Actions. Tests laufen lokal mit `npm test`.
+- **Ein gemeinsamer Stand:** Entwicklung und Veröffentlichung gehen ausschließlich von `main` aus. Tests laufen lokal mit `npm test`; GitHub Actions baut und veröffentlicht die Website.
 
 ## Auf dem Rechner starten
 
@@ -44,9 +44,13 @@ Modulare Oberfläche mit Seitenleiste (Handy: untere Leiste), Suche (Strg/Cmd+K)
 2. **Material → Import-Assistent** (oder **Dokumente**): Fach wählen, Dateien hochladen (PDF, Word, PowerPoint, Foto). Scans und Fotos werden auf dem Gerät per Texterkennung gelesen, Handschrift auf Wunsch über Claude.
 3. **Zusammenfassen:** Dokumente auswählen, Länge wählen. Jede Aussage wird gegen den Originaltext geprüft: rot = ohne Beleg, gelb = weicht ab. Antippen zeigt die Originalstelle mit Seite.
 
-## Neue Version veröffentlichen (ohne GitHub Actions)
+## Neue Version veröffentlichen
 
-Die App liegt fertig gebaut auf dem Branch `gh-pages`, GitHub Pages zeigt sie unter https://freadeax.github.io/Lernstoff-Strukturierungs-Planer/. Nach Änderungen auf `main`: `npm run build`, dann den Inhalt von `dist/` (plus eine leere `.nojekyll`) auf `gh-pages` pushen.
+GitHub Pages zeigt die App unter https://freadeax.github.io/Lernstoff-Strukturierungs-Planer/. Nach einem Push auf `main` baut und veröffentlicht `.github/workflows/pages.yml` genau diesen Stand. Ein separater Veröffentlichungsbranch entfällt. Der Workflow lässt sich auch manuell über GitHub Actions starten.
+
+Vor jedem Push: `npm test`, `npm run build` und bei Änderungen an der Oberfläche `npm run test:ui` gegen den laufenden lokalen Server ausführen. Für Materialimport und Themenzuordnung zusätzlich `npm run test:material` verwenden (`UI_BASE_URL` auf den Server setzen).
+
+Die Prüfung und Übernahme der bisherigen Branches ist in [docs/BRANCH-KONSOLIDIERUNG.md](docs/BRANCH-KONSOLIDIERUNG.md) dokumentiert. `main` ist die gemeinsame Grundlage für die weitere Entwicklung; vorhandene Funktionen und private Material-Originale bleiben erhalten.
 
 ## Befehle
 

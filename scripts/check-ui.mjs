@@ -58,7 +58,7 @@ const futureDate = new Date(Date.now() + 21 * 86400000).toISOString().slice(0, 1
   assert(await page.getByText('Bitte mindestens eine Datei auswählen.',{exact:true}).isVisible());
   await page.locator('input[type=file]').setInputFiles({name:'Pflegeprozess.txt',mimeType:'text/plain',buffer:Buffer.from('Pflegeprozess\n\nDie Informationssammlung erfasst den Pflegebedarf und die Ressourcen einer Person.\n\nDie Pflegeplanung verbindet Probleme, Ziele und konkrete Maßnahmen.')});
   await page.getByRole('button',{name:'Weiter',exact:true}).click();
-  await page.getByRole('button',{name:'1 Datei importieren',exact:true}).click();await page.getByText('Import fertig: 1 von 1 Dateien',{exact:false}).waitFor();
+  await page.getByRole('button',{name:'1 Datei importieren',exact:true}).click();await page.getByText('Import fertig: 1 Dokumente verfügbar',{exact:false}).waitFor();
   assert(await page.getByText('Schritt 4 von 4',{exact:true}).isVisible());
   await go('/material/dokumente');assert(await page.getByRole('button',{name:'Pflegeprozess TEXT'}).isVisible());
   await go('/material/zusammenfassen');

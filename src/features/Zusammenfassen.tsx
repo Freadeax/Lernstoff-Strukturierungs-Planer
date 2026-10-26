@@ -1,9 +1,14 @@
+import { liveQuery } from 'dexie';
+import { ladeThemen } from '../core/topics';
+import type { Topic } from '../core/types';
+import { useRoute } from '../ui/shell/router';
+import { fasseGrosseQuellenZusammen } from './zusammenfasser/grosseQuellen';
 import { useEffect, useMemo, useState } from 'react';
 import { db } from '../core/db';
 import type { Document, MasteryStatus, SourceChunk, Summary, SummaryLength } from '../core/types';
 import { getApiKey } from '../core/settings';
 import { pflegeModule } from '../modules/pflege';
-import { fasseZusammen, SCHRITT_TEXT, type TextModus } from './zusammenfasser/pipeline';
+import { SCHRITT_TEXT, type TextModus } from './zusammenfasser/pipeline';
 import { erkenneAufgaben } from './zusammenfasser/aufgaben';
 import { erstelleFragen } from './zusammenfasser/pruefung';
 import { vergleiche } from './zusammenfasser/vergleich';
@@ -31,7 +36,6 @@ const WISSEN: Array<{ id: MasteryStatus; label: string }> = [
   { id: 'offen', label: 'offen (neu für mich)' }, { id: 'bearbeitet', label: 'bearbeitet' }, { id: 'unsicher', label: 'unsicher' }, { id: 'sicher', label: 'sicher' },
 ];
 
-const topicByName = new Map(pflegeModule.topics.map((t) => [t.name.toLowerCase(), t]));
 function verwandteThemen(topicId: string): string[] {
   const t = pflegeModule.topics.find((x) => x.id === topicId);
   if (!t) return [];
@@ -40,6 +44,11 @@ function verwandteThemen(topicId: string): string[] {
 }
 
 export function Zusammenfassen() {
+  const { params } = useRoute();
+  const dokumentId = params.get('dokument');
+  const [topics, setTopics] = useState<Topic[]>([]);
+  useEffect(() => { const sub = liveQuery(() => ladeThemen()).subscribe(setTopics); return () => sub.unsubscribe(); }, []);
+  useEffect(() => { if (dokumentId) { setSelected(new Set([dokumentId])); setLength('kurz'); } }, [dokumentId]);
   const [docs, setDocs] = useState<Document[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [modus, setModus] = useState<Modus>('originalgetreu');
@@ -70,13 +79,13 @@ export function Zusammenfassen() {
     setDocs(await db.documents.toArray());
     setSummaries((await db.summaries.toArray()).sort((a, b) => b.createdAt.localeCompare(a.createdAt)));
   };
-  useEffect(() => { reload(); }, []);
+  useEffect(() => { const sub = liveQuery(async () => ({ docs: await db.documents.toArray(), summaries: await db.summaries.toArray() })).subscribe((v) => { setDocs(v.docs); setSummaries(v.summaries.sort((a, b) => b.createdAt.localeCompare(a.createdAt))); }); return () => sub.unsubscribe(); }, []);
   useEffect(() => {
     if (!current) return;
     db.chunks.where('documentId').anyOf(current.sourceDocumentIds).toArray().then((cs) => setChunkMap(new Map(cs.map((c) => [c.id, c]))));
   }, [current]);
   const titles = useMemo(() => new Map(docs.map((d) => [d.id, d.title])), [docs]);
-  const topic = topicByName.get(thema.trim().toLowerCase());
+  const topic = topics.find((t) => t.name.toLowerCase() === thema.trim().toLowerCase());
   const info = MODI.find((m) => m.id === modus)!;
   const [wissenAusPlan, setWissenAusPlan] = useState(false);
   // Lernmodus: Wissensstand aus dem Lernplan übernehmen, solange die Person ihn nicht selbst ändert
@@ -140,13 +149,13 @@ export function Zusammenfassen() {
       await speichere(erg, `Vergleich: ${erg.thema}`, `${erg.zeilen.length} Unterthemen`);
       return;
     }
-    const { summary } = await fasseZusammen({
+    const { summary } = await fasseGrosseQuellenZusammen({
       apiKey, modul: pflegeModule, length, docs: auswahl, chunks, modus, thema, topicIds, kiPruefer,
       verwandteThemen: topic ? verwandteThemen(topic.id) : undefined,
       wissensstand: { status: wissen, haeufigeFehler: fehler.split('\n').map((s) => s.trim()).filter(Boolean) },
       aufgaben: aufgaben ?? undefined, blattText: blattDoc ? undefined : blattText || undefined,
       onSchritt: (s) => setBusy(SCHRITT_TEXT[s]),
-    });
+    }, setBusy);
     await speichere(summary, `${MODUS_TEXT[modus]}: ${thema || auswahl.map((d) => d.title).join(', ')}`,
       summary.qa ? `${summary.qa.statistik.belegt} von ${summary.qa.statistik.claims} Aussagen belegt` : undefined,
       summary.qa?.ampel === 'rot' ? 'critical' : summary.qa?.ampel === 'gelb' ? 'warning' : 'info');
@@ -188,7 +197,7 @@ export function Zusammenfassen() {
           <Field label="Thema" name="topic" hint="Optional. Wähle ein Katalogthema, um das Ergebnis mit deinem Lernstand zu verbinden.">
             {(props) => <input {...props} list="zf-themen" value={thema} onChange={(e) => setThema(e.target.value)} placeholder="z. B. Dekubitusprophylaxe" />}
           </Field>
-          <datalist id="zf-themen">{pflegeModule.topics.map((t) => <option key={t.id} value={t.name} />)}</datalist>
+          <datalist id="zf-themen">{topics.map((t) => <option key={t.id} value={t.name} />)}</datalist>
           {topic && modus === 'lernen' && verwandteThemen(topic.id).length > 0 && <p className="muted">Verknüpft mit: {verwandteThemen(topic.id).join(', ')}</p>}
           {modus === 'lernen' && <>
             <Field label="Mein Wissensstand" name="knowledge" hint={wissenAusPlan ? 'Aus deinem Lernplan übernommen. Du kannst die Auswahl für diese Zusammenfassung anpassen.' : 'Die Erklärungstiefe richtet sich nach deiner Auswahl.'}>

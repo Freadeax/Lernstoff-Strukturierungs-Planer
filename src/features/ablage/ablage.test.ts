@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import {
-  base64, gitBlobSha, ladeHoch, listeDateien, parseRepo, pruefeRepo, richteEin, sha256, sichererName, slug,
+  base64, gitBlobSha, ladeHoch, ladeOriginal, listeDateien, parseRepo, pruefeRepo, richteEin, sha256, sichererName, slug,
   teilAnzahl, waehleOrdner, type AblageZiel, type Manifest,
 } from './ablage';
 
@@ -169,6 +169,36 @@ describe('Upload ins Material-Repo', () => {
     expect([...gh.commits().values()].filter((c) => c.message.startsWith('Ablage: Pflege Heute.pdf'))).toHaveLength(1);
     const liste = await listeDateien(Z, gh.f);
     expect(liste).toEqual([{ ordner: 'pflege-heute', manifest }]);
+  });
+
+  it('liest Repo-Originale am festen Commit und prüft alle Teile', async () => {
+    const gh = fakeGitHub();
+    const original = datei('Gross.pdf', 2500, 11);
+    const r = await ladeHoch(Z, original, { branch: 'main', vorhanden: [], teilGroesse: 1000, fetch: gh.f });
+    const refs: string[] = [];
+    const f = (async (u, o) => { if (String(u).includes('/contents/dateien/')) refs.push(new URL(String(u)).searchParams.get('ref')!); return gh.f(u, o); }) as typeof fetch;
+    const file = await ladeOriginal(Z, r, f);
+    expect(file.name).toBe(original.name);
+    expect(new Uint8Array(await file.arrayBuffer())).toEqual(new Uint8Array(await original.arrayBuffer()));
+    expect(refs).toHaveLength(4);
+    expect(new Set(refs).size).toBe(1);
+    expect(refs[0]).toMatch(/^[a-f0-9]{40}$/);
+  });
+
+  it('weist beschädigte Dateiteile zurück', async () => {
+    const gh = fakeGitHub();
+    const r = await ladeHoch(Z, datei('A.pdf', 100), { branch: 'main', vorhanden: [], fetch: gh.f });
+    const f = (async (u, o) => String(u).includes('/a.pdf?') ? new Response(new Uint8Array(100)) : gh.f(u, o)) as typeof fetch;
+    await expect(ladeOriginal(Z, r, f)).rejects.toThrow('Prüfsumme');
+  });
+
+  it('bewahrt gleich große Dateien gleichen Namens mit anderem Inhalt als eigene Originale', async () => {
+    const gh = fakeGitHub();
+    await ladeHoch(Z, datei('A.pdf', 100, 1), { branch: 'main', vorhanden: [], fetch: gh.f });
+    const r = await ladeHoch(Z, datei('A.pdf', 100, 2), { branch: 'main', vorhanden: await listeDateien(Z, gh.f), fetch: gh.f });
+    expect(r.uebersprungen).toBe(false);
+    expect(r.ordner).toBe('a-2');
+    expect(await listeDateien(Z, gh.f)).toHaveLength(2);
   });
 
   it('legt kleine Dateien unter ihrem Namen ab', async () => {

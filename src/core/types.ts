@@ -40,7 +40,9 @@ export interface Document {
   contentHash: string;    // für Dubletten- und Versionserkennung
   importedAt: string;
   repository?: { owner: string; repo: string; ordner: string };
-  topicSuggestions?: Array<{ name: string; parentId?: ID; subjectId: ID }>;
+  topicSuggestions?: Array<{ name: string; parentId?: ID; parentNames?: string[]; subjectId: ID }>;
+  ignoredTopicNames?: string[];
+  excludedTopicIds?: ID[];
 }
 
 /** Kleinste belegbare Texteinheit. Jede Quellenangabe zeigt auf einen Chunk. */

@@ -1,0 +1,8 @@
+# Projektregeln
+
+- GitHub ist die maßgebliche Quelle des Projekts. Vor Arbeiten beide Remotes abrufen und vom aktuellen `origin/main` ausgehen.
+- Planer: https://github.com/Freadeax/Lernstoff-Strukturierungs-Planer ; Material: https://github.com/Freadeax/lernstoff-Material- (privat).
+- Lokale Kopien auf F: sind Arbeitskopien. Vorhandene uncommittete Arbeiten erhalten und keine fremden Änderungen überschreiben.
+- Fertige Änderungen prüfen, auf GitHub `main` integrieren und pushen. Bei Änderungen an der App auch die vorhandene GitHub-Pages-Veröffentlichung aktualisieren und prüfen: Nutzung erfolgt überwiegend auf Handy und iPad.
+- Material-Originale bleiben im privaten Material-Repo. Keine Originale, Zugangsdaten oder privaten Inhalte im öffentlichen Planer oder dessen Pages-Build veröffentlichen.
+- Änderungen am Materialformat zwischen App, Material-README und Abholskript abstimmen; bestehende Uploads und Prüfsummen kompatibel halten.

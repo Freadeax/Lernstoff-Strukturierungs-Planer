@@ -315,6 +315,7 @@ export async function ladeOriginal(z: AblageZiel, eintrag: Eintrag, f: Fetch = f
   if (manifest.format !== FORMAT || !Array.isArray(manifest.teile) || !manifest.teile.length || manifest.teile.some((t) => !/^[\w.-]+$/.test(t.datei) || t.datei === '..' || !Number.isSafeInteger(t.groesse) || t.groesse < 0) || manifest.teile.reduce((s, t) => s + t.groesse, 0) !== manifest.groesse) {
     throw new AblageFehler('Das Datei-Manifest ist unvollständig oder beschädigt.');
   }
+  if (manifest.groesse > 512 * 1024 * 1024) throw new AblageFehler('Diese Datei ist für das Einlesen auf Handy/iPad zu groß (über 512 MB). Bitte benötigte Kapitel oder Dokumente einzeln hochladen. Das Original bleibt im Material-Repo.');
   const teile: BlobPart[] = [];
   for (const t of manifest.teile) {
     const res = await f(`${API}/repos/${z.owner}/${z.repo}${basis}${encodeURIComponent(t.datei)}?ref=${ref.object.sha}`, {
@@ -340,6 +341,18 @@ Hochgeladen wird mit der Lernstoff-App: Material → Große Dateien. Jede Datei 
 eigenen Ordner unter \`dateien/\`. Dateien über 15 MiB sind in Teile zerlegt
 (\`teil-001\`, \`teil-002\`, …), \`manifest.json\` nennt Originalname, Größe und die
 SHA-256-Prüfsumme jedes Teils.
+
+
+## In der Lernstoff-App verwenden
+
+- Unter **Material → Import-Assistent** oder **Dokumente** können kleine Dateien und ZIP-Sammlungen direkt eingelesen werden. „Originale auch im privaten Material-Repo speichern“ sichert sie zusätzlich hier. Mit verbundener Repo-Verbindung ist die Option vorausgewählt.
+- Unter **Material → Große Dateien** werden Originale hier abgelegt. „Nach dem Upload Text einlesen und Themen abgleichen“ übernimmt unterstützte Dateien außerdem in die Dokumente des aktuellen Geräts.
+- Bereits hier liegende Dateien lassen sich mit **Als Dokument einlesen / Themen abgleichen** übernehmen. Die App setzt Teile am festen Commit zusammen und prüft Größe und SHA-256 jedes Teils vor dem Import.
+- Bei ZIP-Sammlungen werden unterstützte Dokumente einzeln eingelesen und mit dem ZIP-Original verknüpft. Die Browser-Verarbeitung ist auf 512 MiB komprimiert/entpackt, 128 MiB je ZIP-Eintrag und 500 Dokumente begrenzt. Größere Sammlungen bleiben hier erhalten; benötigte Dokumente oder Kapitel bitte in kleineren Einheiten importieren.
+- Unter **Dokumente → Themen zuordnen** werden erkannte bestehende Themen verknüpft. Neue Themen aus Kapitelüberschriften (bei unstrukturierten Texten aus dem Dokumenttitel) sind Vorschläge. Vor der Übernahme können Name und Oberthema geprüft werden; bestätigte Themen erscheinen in Themenansicht, Themenpool und Lernplan. Eigene Abwahlen werden beim erneuten Abgleich berücksichtigt.
+- **Wichtigste Inhalte zusammenfassen** öffnet das Dokument im Zusammenfasser mit „kurz“. Große Texte werden vollständig in Teilabschnitten zusammengefasst; Originalbelege und Qualitätsprüfung bleiben erhalten. Dafür wird wie bisher ein Claude-API-Schlüssel benötigt und Quelltext an Claude übertragen.
+
+Originale liegen geräteübergreifend in diesem privaten Repo. Eingelesene Texte, Themenzuordnung, Zusammenfassungen und Lernstand liegen weiterhin im jeweiligen Browser. Auf einem anderen Gerät Originale erneut einlesen oder **Datensicherung** exportieren und importieren. GitHub-Zugangsdaten und API-Schlüssel bleiben auf dem jeweiligen Gerät und sind nicht in der Sicherung.
 
 ## Für Claude: Dateien abholen
 

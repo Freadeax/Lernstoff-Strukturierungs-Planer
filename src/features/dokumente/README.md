@@ -42,3 +42,15 @@ const result = await importFile({ name: file.name, bytes: new Uint8Array(await f
 - Fußnoten in Word werden noch übersprungen.
 - Merkkästen werden noch nicht als eigener Chunk erkannt.
 - Erkennung „Scan ist Teil eines vorhandenen Dokuments“ (Enthaltensein statt Ähnlichkeit).
+
+## Gemeinsamer Import und privates Material-Repo
+
+`importiere.ts` wird von Dokumenten, Assistent und großer Ablage genutzt. Es sichert auf Wunsch zuerst das Original im privaten Repo; Repo-Fehler verhindern den lokalen Textimport nicht. Ein Repo-Original wird über `repository` verknüpft und nicht erneut hochgeladen. ZIP-Inhalte werden einzeln verarbeitet, die Ablage verweist weiterhin auf das Original-ZIP. Erfolgreiche Dokument-IDs und Fehler der Original-Sicherung werden getrennt zurückgegeben.
+
+`core/topics.ts` gleicht den Text lokal mit Themennamen und Katalog-Tags ab. Neue Themen aus Kapiteln sind Vorschläge, noch keine Board-Einträge. Bestätigte eigene Themen stehen zusammen mit dem Katalog über `ladeThemen` für Board, Themenansicht, Zusammenfasser und Lernplan bereit. Wiederholter Import legt keine Dubletten an; Themenabgleich behält manuelle Zuordnungen und Abwahlen. Neue Versionen ersetzen alte Quellen nicht automatisch.
+
+`zusammenfasser/grosseQuellen.ts` verteilt große Quelltexte auf vollständige Teilabschnitte und verbindet die quellengetreu geprüften Ergebnisse mit eindeutigen Aussage-/Block-IDs. Quellenbelege behalten ihre Original-Chunk-IDs. Die strengste Qualitätsampel der Teile wird übernommen.
+
+Browser-Grenzen für ZIP: 512 MiB Original und gesamte entpackte Inhalte, 128 MiB pro Eintrag, 500 unterstützte Dokumente. Ein Abruf aus dem Repo über 512 MiB wird vor dem Download abgelehnt. Originale können unabhängig davon weiterhin in 15-MiB-Teilen archiviert werden.
+
+Verifikation: `npm test`, `npm run build`, `node scripts/check-material.mjs` (isolierte Browser, simuliertes privates Repo, keine externen Schreibzugriffe). Browser-Test prüft 390/820/1280 px, Dokumentimport, Themenbestätigung, Quellen-Vorauswahl, Repo-Abruf und Original-Sicherung im Assistenten.

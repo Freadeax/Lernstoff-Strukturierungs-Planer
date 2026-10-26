@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react';
+import { ladeZiel } from '../../features/ablage/ablage';
 import { getApiKey } from '../../core/settings';
 import { Widget } from '../../ui/widget/Widget';
 import { useWidgetData } from '../../ui/widget/useWidgetData';
@@ -53,6 +54,7 @@ function WizardBody({ data, partial }: { data: WizardData; partial: boolean }) {
   const [step, setStep] = useState(data.draft?.step ? Math.min(data.draft.step, 1) : 0);
   const [subjectId, setSubjectId] = useState(data.draft?.subjectId ?? data.subjects[0]?.id ?? '');
   const [handwritten, setHandwritten] = useState(data.draft?.handwritten ?? false);
+  const [archive, setArchive] = useState(() => !!ladeZiel().token);
   const [files, setFiles] = useState<File[]>([]);
   const [touched, setTouched] = useState<Set<number>>(new Set());
   const [progress, setProgress] = useState<{ name: string; index: number } | null>(null);
@@ -86,10 +88,10 @@ function WizardBody({ data, partial }: { data: WizardData; partial: boolean }) {
   async function run() {
     setProgress({ name: files[0]?.name ?? '', index: 0 });
     try {
-      const r = await importiereDateien(files, { subjectId, handwritten, onProgress: (name, index) => setProgress({ name, index }) });
+      const r = await importiereDateien(files, { subjectId, handwritten, archive, onProgress: (name, index) => setProgress({ name, index }) });
       setResults(r);
-      const ok = r.filter((x) => !x.error).length;
-      notify(ok === r.length ? 'info' : 'warning', `Import fertig: ${ok} von ${r.length} Dateien`);
+      const ok = r.filter((x) => x.documentId).length;
+      notify(ok === r.length ? 'info' : 'warning', `Import fertig: ${ok} Dokumente verfügbar`);
       storage.remove(DRAFT_KEY);
       setStep(3);
     } finally {
@@ -154,7 +156,7 @@ function WizardBody({ data, partial }: { data: WizardData; partial: boolean }) {
               <input type="file" multiple accept={ACCEPT} aria-describedby={touched.has(1) && errors[1]!.length ? errId : undefined} aria-invalid={touched.has(1) && !!errors[1]!.length} onBlur={() => setTouched((t) => new Set(t).add(1))} onChange={(e) => { const picked = Array.from(e.target.files ?? []); setFiles((f) => [...f, ...picked]); setTouched((t) => new Set(t).add(1)); e.target.value = ''; }} />
               <Icon name="upload" size={28} />
               <strong>Dateien auswählen <span className="required-mark" aria-hidden="true">*</span></strong>
-              <small>PDF, Word, PowerPoint, TXT, Markdown oder Foto (PNG, JPEG, WebP)</small>
+              <small>PDF, Word, PowerPoint, TXT, Markdown, ZIP oder Foto (PNG, JPEG, WebP)</small>
             </label>
             {files.length > 0 && (
               <ul className="filelist" role="list">
@@ -172,6 +174,7 @@ function WizardBody({ data, partial }: { data: WizardData; partial: boolean }) {
 
         {step === 2 && (
           <>
+            <label className="check"><input type="checkbox" checked={archive} disabled={!!progress} onChange={(e) => setArchive(e.target.checked)} /><span><strong>Originale auch im privaten Material-Repo speichern</strong><br />{ladeZiel().token ? 'Die Dateien bleiben zusätzlich als Originale im verbundenen Repository erhalten.' : <a href="#/material/ablage">Zuerst privates Material-Repo verbinden</a>}</span></label>
             <dl className="summary-list">
               <dt>Fach</dt><dd>{subjectName ?? '–'}</dd>
               <dt>Handschrift</dt><dd>{handwritten ? 'ja, Texterkennung über Claude' : 'nein'}</dd>
@@ -187,9 +190,12 @@ function WizardBody({ data, partial }: { data: WizardData; partial: boolean }) {
         {step === 3 && (
           <div className="stack-2">
             {results.map((r) => (
-              <div key={r.name} className={r.error ? 'note warn' : 'note ok'}>
+              <div key={r.name} className={r.error || r.archiveError ? 'note warn' : 'note ok'}>
                 <strong>{r.name}</strong>
                 {r.error && <div>{r.error}</div>}
+                {r.archive && <div>{r.archive}</div>}
+                {r.archiveError && <div role="alert">{r.archiveError}</div>}
+                {r.documentId && <a href="#/material/dokumente">Themen prüfen und Dokument öffnen</a>}
                 {r.report && !r.error && (
                   <div>
                     {r.report.pages} Seiten{r.report.ocrPages ? `, davon ${r.report.ocrPages} per Texterkennung` : ''}
