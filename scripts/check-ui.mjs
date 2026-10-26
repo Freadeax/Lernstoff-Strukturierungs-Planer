@@ -51,7 +51,7 @@ const futureDate = new Date(Date.now() + 21 * 86400000).toISOString().slice(0, 1
   await go('/lernen/plan?ansicht=zeit');
   const monday=page.getByLabel('Montag · Minuten');await monday.fill('-10');await monday.press('Tab');assert.equal(await monday.getAttribute('aria-invalid'),'true');
   await monday.fill('60');await monday.press('Tab');assert.equal(await monday.getAttribute('aria-invalid'),'false');
-  const tab=page.getByRole('tab',{name:'Lernzeit',exact:true});await tab.focus();await tab.press('Home');assert.equal(await page.getByRole('tab',{name:'Heute',exact:true}).getAttribute('aria-selected'),'true');
+  const tab=page.getByRole('tab',{name:'Lernzeit',exact:true});await tab.focus();await tab.press('Home');await page.waitForFunction(()=>document.getElementById('plan-tab-heute')?.getAttribute('aria-selected')==='true');assert.equal(await page.getByRole('tab',{name:'Heute',exact:true}).getAttribute('aria-selected'),'true');
   await go('/material/import');
   await page.getByRole('button',{name:'Weiter',exact:true}).click();
   await page.getByRole('button',{name:'Weiter',exact:true}).click();

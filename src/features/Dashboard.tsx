@@ -36,6 +36,7 @@ const TOOLS: Array<{ title: string; text: string; icon: IconName; path: string; 
   { title: 'Wissen aufbereiten', text: 'Aus deinen Quellen wird verständlicher Lernstoff.', icon: 'sparkle', path: '/material/zusammenfassen', tag: 'Zusammenfassen' },
   { title: 'Wissen festigen', text: 'Kleine Abfragen. Passende Wiederholungen.', icon: 'cards', path: '/lernen/karten', tag: 'Karteikarten' },
   { title: 'Praxis verstehen', text: 'Entscheidungen in realistischen Pflegefällen üben.', icon: 'clipboard', path: '/lernen/fall', tag: 'Fallsimulator' },
+  { title: 'Eine Schicht übernehmen', text: 'Patienten beobachten, Maßnahmen durchführen und den Verlauf auswerten – ohne KI.', icon: 'user', path: '/lernen/praxis', tag: 'Praxissimulator' },
   { title: 'Prüfungsbereit werden', text: 'Dein Wissen unter Prüfungsbedingungen testen.', icon: 'timer', path: '/lernen/simulation', tag: 'Prüfungssimulation' },
 ];
 

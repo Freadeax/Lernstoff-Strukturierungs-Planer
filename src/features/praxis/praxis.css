@@ -1,0 +1,92 @@
+.praxis { --praxis-ink: #183e3a; --praxis-mint: #cdf0dd; }
+.praxis h2, .praxis h3 { text-wrap: balance; }
+.praxis p { line-height: var(--leading-normal); }
+.praxis button, .praxis input, .praxis select { min-height: var(--control-h); }
+.praxis textarea, .praxis select, .praxis input:not([type=checkbox]) { width: 100%; max-width: 100%; }
+.praxis label { display: grid; gap: var(--space-2); font-size: var(--text-sm); }
+.praxis-disclaimer { border-left: 3px solid var(--color-primary); padding-left: var(--space-3); color: var(--color-text-muted); font-size: var(--text-sm); }
+.praxis-intro { display: grid; grid-template-columns: 1fr auto; gap: var(--space-4); align-items: center; padding: var(--space-5); background: var(--color-primary-soft); }
+.praxis-intro h2 { font-family: var(--font-display); font-size: clamp(2rem, 4vw, 3.4rem); font-weight: 400; line-height: 1.12; margin: var(--space-3) 0; }
+.praxis-intro p { max-width: 65ch; }
+.praxis-intro__number { display: grid; text-align: center; padding: var(--space-4); border-left: 1px solid var(--color-border-strong); }
+.praxis-intro__number strong { font-family: var(--font-display); font-weight: 400; font-size: 5rem; line-height: 1; }
+.praxis-filters { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); margin: var(--space-4) 0; }
+.praxis-scenarios { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); margin-bottom: var(--space-4); }
+.praxis-scenario { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4); border-top: 3px solid var(--color-primary); }
+.praxis-scenario__top { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-2); }
+.praxis-scenario .badge { white-space: normal; }
+.praxis-scenario h3, .praxis-scenario p { margin: 0; }
+.praxis-scenario h3 { font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 400; line-height: var(--leading-tight); }
+.praxis-scenario small { color: var(--color-text-muted); margin-top: auto; }
+.praxis-scenario button { margin-top: var(--space-2); }
+.praxis-sessionhead { display: flex; justify-content: space-between; gap: var(--space-3); align-items: center; margin: var(--space-4) 0; }
+.praxis-sessionhead h2 { font-family: var(--font-display); font-size: clamp(1.8rem, 3vw, 2.6rem); margin: var(--space-2) 0; }
+.praxis-sessionhead p { margin: 0; }
+.praxis-clock { display: grid; text-align: right; color: var(--color-text-muted); font-size: var(--text-sm); }
+.praxis-clock strong { font-family: var(--font-mono); color: var(--color-text); font-size: var(--text-2xl); font-variant-numeric: tabular-nums; }
+.praxis-controls { display: flex; align-items: end; flex-wrap: wrap; gap: var(--space-2); }
+.praxis-controls label { min-width: 8rem; }
+.praxis-clockhint { font-size: var(--text-sm); }
+.praxis-monitor { border-radius: var(--radius-lg); background: var(--praxis-ink); color: #fff; padding: var(--space-4); margin: var(--space-4) 0; }
+.praxis-monitor__heading { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-2); padding-bottom: var(--space-3); border-bottom: 1px solid #ffffff40; }
+.praxis-monitor__heading span { font-size: var(--text-xs); color: #d4e7e0; }
+.praxis-monitor dl { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-4); margin: var(--space-4) 0 0; }
+.praxis-monitor dt { font-size: var(--text-sm); color: #d4e7e0; }
+.praxis-monitor dd { display: flex; align-items: baseline; gap: var(--space-2); margin: 0; font-family: var(--font-mono); font-size: clamp(1.6rem, 3vw, 2.6rem); color: var(--praxis-mint); }
+.praxis-monitor small { font-family: var(--font-sans); font-size: var(--text-xs); color: #d4e7e0; }
+.praxis-feedback { background: var(--color-primary-soft); padding: var(--space-3) var(--space-4); border-left: 3px solid var(--color-primary); border-radius: var(--radius-sm); white-space: pre-line; }
+.praxis-feedback p { margin: var(--space-2) 0 0; }
+.praxis-feedback.is-warning { background: var(--color-warning-soft); border-color: var(--color-warning); color: var(--color-text); }
+.praxis-pending { padding: var(--space-3); }
+.praxis-panels, .praxis-categories { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: var(--space-4) 0; }
+.praxis button[aria-pressed=true], .praxis button[aria-pressed=true]:hover:not(:disabled) { background: var(--color-primary); color: var(--color-on-primary); border-color: var(--color-primary); }
+.praxis-workspace { display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, .35fr); gap: var(--space-3); align-items: start; }
+.praxis-main, .praxis-briefing { min-width: 0; padding: var(--space-4); }
+.praxis-briefing { border-top: 3px solid var(--color-primary); }
+.praxis-briefing li { margin-bottom: var(--space-2); }
+.praxis-room__scene { color: var(--color-primary); border-radius: var(--radius-md); background: var(--color-primary-soft); padding: var(--space-3); }
+.praxis-room svg { display: block; width: 100%; height: auto; }
+.praxis-room__label { font-size: var(--text-xs); color: var(--color-text-muted); }
+.praxis-room__shortcuts { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.praxis-actions { display: grid; gap: var(--space-2); }
+.praxis-actions button { display: grid; gap: var(--space-1); text-align: left; padding: var(--space-3); }
+.praxis-actions small { font-weight: var(--weight-regular); font-size: var(--text-xs); }
+.praxis-record { display: grid; gap: var(--space-3); }
+.praxis-record dt { font-weight: var(--weight-bold); font-size: var(--text-sm); }
+.praxis-record dd { margin: var(--space-1) 0 0; line-height: var(--leading-normal); }
+.praxis-result { border-top: 1px solid var(--color-border); padding-top: var(--space-3); }
+.praxis-formgrid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+.praxis-med fieldset { margin: var(--space-4) 0; border: 1px solid var(--color-border-strong); border-radius: var(--radius-sm); }
+.praxis-med .praxis-check { display: flex; align-items: center; gap: var(--space-2); min-height: var(--control-h); }
+.praxis-check input { width: 1.2rem; height: 1.2rem; flex-shrink: 0; }
+.praxis-med > button { margin-top: var(--space-4); }
+.praxis-documentation { display: grid; gap: var(--space-5); }
+.praxis-documentation form { display: grid; gap: var(--space-3); }
+.praxis-timeline { list-style: none; padding: 0; }
+.praxis-timeline li { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr); gap: var(--space-3); padding: var(--space-3) 0; border-bottom: 1px solid var(--color-border); }
+.praxis-timeline time { font-size: var(--text-xs); font-family: var(--font-mono); padding-top: var(--space-1); }
+.praxis-timeline p { margin: var(--space-2) 0 0; white-space: pre-line; overflow-wrap: anywhere; }
+.praxis-timeline .is-warning strong { color: var(--color-warning); }
+.praxis-criteria { list-style: none; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+.praxis-criteria li { padding: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-sm); }
+.praxis-criteria span { display: block; font-family: var(--font-mono); font-size: var(--text-sm); margin-top: var(--space-2); }
+.praxis-criteria a, .praxis-criteria small { font-size: var(--text-xs); }
+.praxis-editor { margin: var(--space-4) 0; }
+.praxis-editor label { margin: var(--space-3) 0; }
+.praxis-editor textarea { font-family: var(--font-mono); font-size: var(--text-sm); }
+.praxis summary { cursor: pointer; min-height: var(--control-h); padding-top: var(--space-2); }
+.praxis-debrief { padding: var(--space-4); }
+@media (max-width: 1100px) { .praxis-scenarios { grid-template-columns: repeat(2, minmax(0, 1fr)); } .praxis-workspace { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 600px) {
+  .praxis-scenarios, .praxis-filters, .praxis-formgrid, .praxis-criteria { grid-template-columns: minmax(0, 1fr); }
+  .praxis-intro { padding: var(--space-4); grid-template-columns: minmax(0, 1fr); }
+  .praxis-intro__number { display: none; }
+  .praxis-sessionhead { align-items: start; flex-direction: column; }
+  .praxis-clock { text-align: left; }
+  .praxis-monitor { padding: var(--space-3); }
+  .praxis-monitor dl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .praxis-monitor dd { flex-wrap: wrap; }
+  .praxis-panels button { flex: 1 1 40%; }
+  .praxis-main, .praxis-briefing { padding: var(--space-3); }
+  .praxis-timeline li { grid-template-columns: minmax(0, 1fr); gap: var(--space-1); }
+}

@@ -34,6 +34,12 @@ Für dauerhafte Offline-Nutzung ohne laufenden Rechner muss die App über HTTPS 
 
 Modulare Oberfläche mit Seitenleiste (Handy: untere Leiste), Suche (Strg/Cmd+K) und Modulen für Lernfortschritt, Aktivität, Themen-Tabelle, Lernstand-Board und Import-Assistent. Aufbau, Zustände und Design-Tokens: `docs/UI-DESIGNSYSTEM.md`, live unter **System → Designsystem**.
 
+## Neuer Praxissimulator
+
+Unter **Üben & anwenden → Praxissimulator** gibt es eine eigenständige technische Lernvorschau ohne KI-Anbindung. Sie enthält einen regelbasierten Einzelpatienten-Verlauf, Simulationszeit, verzögerte Aufträge, eine Medikations-Rechenprüfung, Dokumentation, SBAR, Debriefing, lokale Speicherung und Replay. Der bisherige Text-Fallsimulator bleibt erhalten. Alle neuen Szenarien sind **fachlich ungeprüft**.
+
+Architektur, vollständiges Anforderungsregister, tatsächlicher Funktionsumfang, Freigabegrenzen und nächste Arbeitspakete: [Praxissimulator](docs/PRAXISSIMULATOR.md). Browserprüfung: `npm run test:praxis` mit laufendem Server (standardmäßig Port 5187, alternativ `UI_BASE_URL`).
+
 ## Große Dateien für Claude
 
 **Material → Große Dateien** lädt Bücher und Skripte beliebiger Größe in ein privates GitHub-Repo, aus dem Claude-Threads sie abholen (Chat-Upload ist auf 30 MB begrenzt). Einrichtung und Abholen: `docs/MATERIAL-ABLAGE.md`.

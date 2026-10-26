@@ -32,6 +32,7 @@ export const NAV: NavItem[] = [
     id: 'ueben', label: 'Üben & anwenden', icon: 'clipboard', children: [
       { id: 'rechnen', label: 'Rechentrainer', path: '/lernen/rechnen', icon: 'calc' },
       { id: 'fall', label: 'Fallsimulator', path: '/lernen/fall', icon: 'user' },
+      { id: 'praxis', label: 'Praxissimulator', path: '/lernen/praxis', icon: 'clipboard' },
       { id: 'duell', label: 'Fachbegriff-Duell', path: '/lernen/duell', icon: 'duell' },
       { id: 'simulation', label: 'Prüfungssimulation', path: '/lernen/simulation', icon: 'timer' },
       { id: 'pflegeplanung', label: 'Pflegeplanung', path: '/lernen/pflegeplanung', icon: 'clipboard' },

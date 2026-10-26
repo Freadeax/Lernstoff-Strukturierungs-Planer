@@ -1,0 +1,86 @@
+import { chromium } from 'playwright';
+import AxeBuilder from '@axe-core/playwright';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+
+const base = (process.env.UI_BASE_URL || 'http://127.0.0.1:5187/').replace(/\/?$/, '/');
+const output = path.resolve(process.env.UI_ARTIFACT_DIR || '.ui-check/praxis');
+fs.mkdirSync(output, { recursive: true });
+const browser = await chromium.launch({ ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH } : {}), headless: true });
+const errors = []; const audits = [];
+try {
+  for (const width of [390, 820, 1440]) {
+    const context = await browser.newContext({ viewport: { width, height: 1050 }, locale: 'de-DE', colorScheme: 'light', acceptDownloads: true });
+    const page = await context.newPage(); page.on('pageerror', e => errors.push(e.message));
+    await page.goto(base + '#/lernen/praxis', { waitUntil: 'networkidle' });
+    await page.getByRole('heading', { name: 'Praxissimulator', exact: true }).waitFor();
+    assert.equal(await page.getByRole('button', { name: 'Schicht übernehmen', exact: true }).count(), 9);
+    const audit = async name => {
+      await page.waitForTimeout(350); // Wait for the shared theme/button color transitions to settle.
+      assert(!(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)), `${name} overflow @${width}`);
+      const axe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+      audits.push({ width, name, violations: axe.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => ({ html: n.html, summary: n.failureSummary })) })) });
+    };
+    await audit('Fallauswahl'); await page.screenshot({ path: path.join(output, `auswahl-${width}.png`), fullPage: true });
+    await page.getByLabel('Einrichtung').selectOption('station');
+    await page.getByRole('button', { name: 'Schicht übernehmen', exact: true }).click();
+    assert(await page.getByText('Noch keine Messung', { exact: true }).isVisible());
+    await page.getByRole('button', { name: 'Messgerät verwenden', exact: true }).click();
+    assert(await page.getByText('Letzte Messung · 00:01:00', { exact: true }).isVisible());
+    await page.getByRole('button', { name: 'Team rufen', exact: true }).click();
+    await page.getByRole('button', { name: 'Team & Übergabe', exact: true }).click();
+    await page.getByRole('button', { name: /Ärztliche Rücksprache und Anordnung/ }).click();
+    await page.getByRole('button', { name: '+5 Minuten', exact: true }).click();
+    await audit('Patientenzimmer'); await page.screenshot({ path: path.join(output, `zimmer-${width}.png`), fullPage: true });
+    await page.getByRole('button', { name: 'Medikation', exact: true }).click();
+    await page.getByLabel('Dosis (mg)', { exact: true }).fill('40');
+    await page.getByLabel('Aufzuziehendes Volumen (ml)', { exact: true }).fill('40');
+    await page.locator('.praxis-med select').nth(0).selectOption('i.v.');
+    await page.getByLabel('Applikationsdauer (Minuten)', { exact: true }).fill('10');
+    await page.getByLabel('Zubehör').selectOption('Spritze und i.v.-Zugang');
+    const med = page.locator('.praxis-med'); for (const box of await med.getByRole('checkbox').all()) await box.check();
+    await page.getByRole('button', { name: 'Geprüfte Gabe durchführen', exact: true }).click();
+    assert(await page.getByText('Medikationsfehler abgefangen', { exact: true }).isVisible());
+    await page.getByLabel('Aufzuziehendes Volumen (ml)', { exact: true }).fill('4');
+    await page.getByRole('button', { name: 'Geprüfte Gabe durchführen', exact: true }).click();
+    assert(await page.getByText('Furosemid verabreicht', { exact: true }).isVisible());
+    await audit('Medikation');
+    await page.getByRole('button', { name: 'Dokumentation', exact: true }).click();
+    await page.getByLabel('Verlaufsdokumentation', { exact: true }).fill('Patient mit Atemnot. Aufrechte Position unterstützt, ärztliches Team hinzugezogen. Wirkung weiter kontrollieren.');
+    await page.getByRole('button', { name: 'Pflegebericht speichern · 1 min', exact: true }).click();
+    const fields = page.locator('.praxis-documentation form').last().locator('textarea');
+    for (const [index, value] of ['Akute Atemnot', 'Bekannte Herzinsuffizienz', 'Tachypnoe beobachtet', 'Erneute ärztliche Beurteilung erbeten'].entries()) await fields.nth(index).fill(value);
+    await page.getByRole('button', { name: 'SBAR übergeben · 1 min', exact: true }).click();
+    await page.reload({ waitUntil: 'networkidle' });
+    assert(await page.getByRole('button', { name: 'Uhr starten', exact: true }).isVisible());
+    await page.getByRole('button', { name: 'Patientenakte', exact: true }).click();
+    assert(await page.getByText('Penicillin', { exact: true }).isVisible());
+    await audit('Patientenakte');
+    const requests = []; await page.route('**/*', route => { requests.push(route.request().url()); return route.abort(); });
+    await page.getByRole('button', { name: '+5 Minuten', exact: true }).click();
+    assert.equal(requests.length, 0, 'Engine arbeitet ohne Netzwerk'); await page.unroute('**/*');
+    await page.getByRole('button', { name: 'Fall abschließen', exact: true }).click();
+    assert(await page.getByRole('heading', { name: 'Deine Entscheidungen im Rückblick' }).isVisible());
+    await page.getByRole('button', { name: 'Replay prüfen', exact: true }).click();
+    assert(await page.getByText('Replay geprüft: Zustand und Verlauf stimmen vollständig überein.', { exact: true }).isVisible());
+    await audit('Debriefing'); await page.screenshot({ path: path.join(output, `debrief-${width}.png`), fullPage: true });
+    const downloadPromise = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Verlauf exportieren', exact: true }).click();
+    const downloaded = await downloadPromise; const file = path.join(output, `verlauf-${width}.json`); await downloaded.saveAs(file);
+    assert.equal(JSON.parse(fs.readFileSync(file, 'utf8')).phase, 'finished');
+    await page.getByRole('button', { name: 'Zur Fallauswahl', exact: true }).click();
+    await page.locator('.praxis-editor summary').click();
+    await page.getByLabel('Vorlage').selectOption('hausbesuch');
+    await page.getByRole('button', { name: 'Eigenes Szenario testen', exact: true }).click();
+    assert(await page.getByRole('heading', { name: 'Die Wohnung ist heute ungewohnt still', exact: true }).isVisible());
+    await page.emulateMedia({ colorScheme: 'dark' }); await audit('Dunkler Modus');
+    await page.screenshot({ path: path.join(output, `dark-${width}.png`), fullPage: true });
+    await page.goto(base + '#/lernen/fall', { waitUntil: 'networkidle' });
+    await page.getByRole('heading', { name: 'Fallbeispiel-Simulator', exact: true }).waitFor();
+    await context.close();
+  }
+  fs.writeFileSync(path.join(output, 'audit.json'), JSON.stringify({ audits, errors }, null, 2));
+  console.log(JSON.stringify({ audits: audits.map(x => ({ width: x.width, name: x.name, violations: x.violations.map(v => v.id) })), errors }, null, 2));
+  assert.deepEqual(errors, []); assert.deepEqual(audits.flatMap(a => a.violations), []);
+} finally { await browser.close(); }

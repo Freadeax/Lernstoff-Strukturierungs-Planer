@@ -1,0 +1,41 @@
+name: Praxissimulator technisch prüfen
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/features/praxis/**'
+      - 'src/App.tsx'
+      - 'src/ui/**'
+      - 'scripts/check-praxis.mjs'
+      - 'package*.json'
+      - '.github/workflows/praxis-pruefen.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm test
+      - run: npm run build
+      - name: Produktionsvorschau prüfen
+        env:
+          UI_BASE_URL: http://127.0.0.1:5187/
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 5187 > /tmp/praxis-preview.log 2>&1 &
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:5187/ > /dev/null; then break; fi
+            sleep 1
+          done
+          npm run test:praxis
