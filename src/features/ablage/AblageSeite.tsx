@@ -56,6 +56,17 @@ export default function Ablage() {
     finally { setImportBusy(''); }
   }
 
+  const neueDateien = liste.filter((e) => e.manifest && SUPPORTED.test(e.manifest.name) && !documents.some((d) => d.repository?.owner === ziel.owner && d.repository?.repo === ziel.repo && d.repository?.ordner === e.ordner));
+  async function neueEinlesen() {
+    setImportBusy('Neue Quellen werden eingelesen …');
+    try {
+      for (const e of neueDateien) {
+        try { setImportBusy(`Lade ${e.manifest!.name} …`); await importiereOriginal(await ladeOriginal(ziel, e), e.ordner); }
+        catch (error) { setReports((r) => [...r, { name: e.manifest!.name, error: text(error) }]); }
+      }
+    } finally { setImportBusy(''); }
+  }
+
   const verbunden = !!info?.privat;
   const feedback = useFormFeedback({
     repo: !parseRepo(repoEingabe) ? 'Gib das Repository als „Name/Repository“ oder als vollständige GitHub-Adresse ein.' : '',
@@ -245,6 +256,7 @@ export default function Ablage() {
         <div className="card">
           <div className="row" style={{ marginTop: 0 }}>
             <h3>Im Repo ({liste.length})</h3>
+            {neueDateien.length > 0 && <button type="button" className="small" disabled={laeuft || !!importBusy} onClick={() => void neueEinlesen()}>Neue Dateien einlesen ({neueDateien.length})</button>}
             <button className="small" onClick={async () => { try { setListe(await listeDateien(ziel)); } catch (e) { setFehler(text(e)); } }}>Aktualisieren</button>
           </div>
           {liste.length === 0 && <p className="muted">Noch nichts hochgeladen.</p>}

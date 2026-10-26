@@ -91,7 +91,7 @@ function WizardBody({ data, partial }: { data: WizardData; partial: boolean }) {
       const r = await importiereDateien(files, { subjectId, handwritten, archive, onProgress: (name, index) => setProgress({ name, index }) });
       setResults(r);
       const ok = r.filter((x) => x.documentId).length;
-      notify(ok === r.length ? 'info' : 'warning', `Import fertig: ${ok} Dokumente verfügbar`);
+      notify(r.some((e) => e.error || e.archiveError) ? 'warning' : 'info', `Import fertig: ${ok} ${ok === 1 ? 'Dokument' : 'Dokumente'} verfügbar`);
       storage.remove(DRAFT_KEY);
       setStep(3);
     } finally {
@@ -189,8 +189,8 @@ function WizardBody({ data, partial }: { data: WizardData; partial: boolean }) {
 
         {step === 3 && (
           <div className="stack-2">
-            {results.map((r) => (
-              <div key={r.name} className={r.error || r.archiveError ? 'note warn' : 'note ok'}>
+            {results.map((r, i) => (
+              <div key={`${r.name}-${i}`} className={r.error || r.archiveError ? 'note warn' : 'note ok'}>
                 <strong>{r.name}</strong>
                 {r.error && <div>{r.error}</div>}
                 {r.archive && <div>{r.archive}</div>}

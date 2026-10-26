@@ -37,4 +37,16 @@ describe('Material und Themenpool', () => {
     await gleicheThemenAb('d');
     expect((await db.documents.get('d'))!.topicIds).toEqual(d!.topicIds);
   });
+  it('übernimmt neue Kapitel als Hierarchie und verwendet sie für weitere Unterthemen wieder', async () => {
+    await db.documents.add(doc);
+    const basis = { subjectId, parentNames: ['Klinische Grundlagen', 'Mobilität'] };
+    await bestaetigeThema('d', { ...basis, name: 'Sicherer Transfer' });
+    await bestaetigeThema('d', { ...basis, name: 'Bewegung fördern' });
+    const eigene = await db.topics.toArray();
+    expect(eigene).toHaveLength(4);
+    const root = eigene.find((t) => t.name === 'Klinische Grundlagen')!;
+    const parent = eigene.find((t) => t.name === 'Mobilität')!;
+    expect(parent.parentId).toBe(root.id);
+    expect(eigene.filter((t) => t.parentId === parent.id)).toHaveLength(2);
+  });
 });

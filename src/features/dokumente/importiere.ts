@@ -59,8 +59,8 @@ export async function importiereDateien(
           } catch (e) { archiveError = `Repo-Sicherung fehlgeschlagen: ${e instanceof Error ? e.message : String(e)}`; }
         }
         opts.onProgress?.(file.name, i);
+        if (file.size > 512 * 1024 * 1024) throw new Error('Diese Datei ist für das Einlesen auf Handy/iPad zu groß (über 512 MB). Bitte benötigte Dokumente oder Kapitel einzeln bzw. als kleinere ZIP hochladen.');
         if (/\.zip$/i.test(file.name)) {
-          if (file.size > 512 * 1024 * 1024) throw new Error('ZIP ist für das Einlesen auf Handy/iPad zu groß (über 512 MB). Zum Einlesen bitte benötigte Dokumente einzeln oder als kleinere ZIP hochladen.');
           const zip = await JSZip.loadAsync(await file.arrayBuffer());
           const entries = Object.values(zip.files).filter((e) => !e.dir && !e.name.startsWith('__MACOSX/') && SUPPORTED.test(e.name) && !/\.zip$/i.test(e.name));
           if (!entries.length) throw new Error('Das ZIP enthält keine unterstützten Dokumente. Verschachtelte ZIP bitte zuerst entpacken.');

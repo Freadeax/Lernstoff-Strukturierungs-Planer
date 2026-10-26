@@ -76,8 +76,8 @@ export function Dokumente() {
           <small>PDF, Word, PowerPoint, Text, Foto oder ZIP</small>
         </label>
         {busy && <p className="note" role="status" aria-live="polite">{busy}</p>}
-        {reports.map((r) => (
-          <div key={r.name} className={r.error || r.archiveError ? 'note warn' : 'note'}>
+        {reports.map((r, i) => (
+          <div key={`${r.name}-${i}`} className={r.error || r.archiveError ? 'note warn' : 'note'}>
             <strong>{r.name}</strong>
             {r.error && <div>{r.error}</div>}
             {r.archive && <div>{r.archive}</div>}

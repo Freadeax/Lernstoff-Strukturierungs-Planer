@@ -32,6 +32,7 @@ export function verbindeZusammenfassungen(teile: Summary[]): Summary {
       for (const k of Object.keys(s.qa!.statistik) as Array<keyof NonNullable<Summary['qa']>['statistik']>) s.qa!.statistik[k] += t.qa.statistik[k];
     }
   });
+  s.createdAt = new Date().toISOString();
   return s;
 }
 
