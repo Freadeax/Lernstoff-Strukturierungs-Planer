@@ -1,0 +1,84 @@
+import{a as e,i as t,o as n,t as r}from"./db-NqOWVqma.js";import{n as i}from"./registry-Cz6uhQe-.js";import{C as a,Gt as ee,S as te,T as o,_ as s,b as c,g as ne,h as l,l as u,m as d,o as f,s as re,u as p,v as m,w as h,x as ie,y as g}from"./index-D4XZ53pZ.js";var _=n(),ae=`#!/usr/bin/env python3\r
+"""Setzt Dateien aus der Material-Ablage wieder zusammen und prüft sie.\r
+\r
+Die Lernstoff-App lädt große Dateien in Teilen (je höchstens 15 MiB) in ein privates\r
+GitHub-Repo. Jede Datei hat einen eigenen Ordner unter dateien/ mit manifest.json.\r
+\r
+Aufruf im geklonten Material-Repo:\r
+    python3 abholen.py                      # alle Dateien auflisten\r
+    python3 abholen.py pflege-heute         # Ordner dateien/pflege-heute zusammensetzen\r
+    python3 abholen.py --alle               # alle zusammensetzen\r
+    python3 abholen.py pflege-heute -z /tmp/buecher\r
+\r
+Ausgabe: standardmäßig nach ausgabe/<Originalname>. Bricht ab, wenn ein Teil fehlt\r
+oder seine Prüfsumme (SHA-256) nicht zum Manifest passt.\r
+"""\r
+import argparse\r
+import hashlib\r
+import json\r
+import sys\r
+from pathlib import Path\r
+\r
+FORMAT = "lernstoff-ablage/1"\r
+\r
+\r
+def manifeste(wurzel: Path):\r
+    for m in sorted((wurzel / "dateien").glob("*/manifest.json")):\r
+        daten = json.loads(m.read_text(encoding="utf-8"))\r
+        if daten.get("format") == FORMAT:\r
+            yield m.parent, daten\r
+\r
+\r
+def zusammensetzen(ordner: Path, daten: dict, ziel: Path) -> Path:\r
+    ziel.mkdir(parents=True, exist_ok=True)\r
+    ausgabe = ziel / Path(daten["name"]).name\r
+    gesamt = 0\r
+    with open(ausgabe, "wb") as out:\r
+        for teil in daten["teile"]:\r
+            pfad = ordner / teil["datei"]\r
+            if not pfad.exists():\r
+                raise SystemExit(\r
+                    f"Teil fehlt: {pfad}. Bei einem Sparse-Klon zuerst "\r
+                    f"'git sparse-checkout add /dateien/{ordner.name}/' ausführen."\r
+                )\r
+            inhalt = pfad.read_bytes()\r
+            if hashlib.sha256(inhalt).hexdigest() != teil["sha256"]:\r
+                raise SystemExit(f"Prüfsumme stimmt nicht: {pfad}")\r
+            out.write(inhalt)\r
+            gesamt += len(inhalt)\r
+    if gesamt != daten["groesse"]:\r
+        raise SystemExit(f"Größe stimmt nicht: {ausgabe} hat {gesamt} statt {daten['groesse']} Bytes")\r
+    return ausgabe\r
+\r
+\r
+def main():\r
+    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)\r
+    p.add_argument("ordner", nargs="*", help="Ordnernamen unter dateien/")\r
+    p.add_argument("--alle", action="store_true", help="alle Dateien zusammensetzen")\r
+    p.add_argument("-z", "--ziel", default="ausgabe", help="Zielordner (Standard: ausgabe)")\r
+    p.add_argument("-r", "--repo", default=".", help="Pfad zum Material-Repo (Standard: .)")\r
+    a = p.parse_args()\r
+\r
+    wurzel = Path(a.repo)\r
+    alle = list(manifeste(wurzel))\r
+    if not a.ordner and not a.alle:\r
+        if not alle:\r
+            print("Keine Dateien gefunden (dateien/*/manifest.json).")\r
+        for ordner, d in alle:\r
+            mb = d["groesse"] / 1024 / 1024\r
+            info = " · ".join(x for x in (d.get("kategorie"), d.get("notiz")) if x)\r
+            print(f"{ordner.name}\\t{d['name']}\\t{mb:.1f} MB\\t{len(d['teile'])} Teil(e)" + (f"\\t{info}" if info else ""))\r
+        return\r
+\r
+    gewuenscht = None if a.alle else set(a.ordner)\r
+    gefunden = [(o, d) for o, d in alle if gewuenscht is None or o.name in gewuenscht]\r
+    fehlend = (gewuenscht or set()) - {o.name for o, _ in gefunden}\r
+    if fehlend:\r
+        sys.exit(f"Nicht gefunden: {', '.join(sorted(fehlend))}")\r
+    for ordner, d in gefunden:\r
+        print(zusammensetzen(ordner, d, Path(a.ziel)))\r
+\r
+\r
+if __name__ == "__main__":\r
+    main()\r
+`,v=e(),oe=1;function y(e){return e instanceof d||e instanceof Error?e.message:String(e)}function b(){let[e,n]=(0,_.useState)(m),[o,b]=(0,_.useState)(()=>{let e=m();return e.owner?`${e.owner}/${e.repo}`:``}),[x,S]=(0,_.useState)(null),[C,w]=(0,_.useState)(``),[T,E]=(0,_.useState)(``),[D,O]=(0,_.useState)([]),[k,ce]=(0,_.useState)(i[0]?.subjects[0]?.id??``),[A,le]=(0,_.useState)(!0),[j,M]=(0,_.useState)(``),[ue,N]=(0,_.useState)([]),[P,de]=(0,_.useState)([]),[F,fe]=(0,_.useState)(``),[I,pe]=(0,_.useState)(``),[L,R]=(0,_.useState)([]),[z,B]=(0,_.useState)(!1),V=(0,_.useRef)(null),H=(0,_.useRef)([]),U=(0,_.useRef)(!1);(0,_.useEffect)(()=>{let e=t(()=>r.documents.toArray()).subscribe(de);return()=>e.unsubscribe()},[]);async function W(t,n){let r=await p([t],{subjectId:k,handwritten:!1,archive:!1,repository:{owner:e.owner,repo:e.repo,ordner:n},onProgress:e=>M(`Verarbeite ${e} …`)});N(e=>[...e,...r])}async function me(t){M(`Lade ${t.manifest?.name??t.ordner} …`),E(``);try{await W(await s(e,t),t.ordner)}catch(e){E(y(e))}finally{M(``)}}let G=D.filter(t=>t.manifest&&u.test(t.manifest.name)&&!P.some(n=>n.repository?.owner===e.owner&&n.repository?.repo===e.repo&&n.repository?.ordner===t.ordner));async function he(){M(`Neue Quellen werden eingelesen …`);try{for(let t of G)try{M(`Lade ${t.manifest.name} …`),await W(await s(e,t),t.ordner)}catch(e){N(n=>[...n,{name:t.manifest.name,error:y(e)}])}}finally{M(``)}}let K=!!x?.privat,q=re({repo:c(o)?``:`Gib das Repository als „Name/Repository“ oder als vollständige GitHub-Adresse ein.`,token:e.token.trim()?``:`Füge einen GitHub-Token mit „Contents: Read and write“ für dieses private Repository ein.`});async function J(e){E(``),w(`Prüfe Zugriff …`);try{let t=await ie(e);if(!t.privat){S(null),E(`${t.vollerName} ist öffentlich. Bücher dürfen dort nicht hin. Bitte ein privates Repo verwenden oder dieses unter Settings → Danger Zone auf „Private“ stellen.`);return}if(!t.schreiben)throw new d(`Der Token darf in diesem Repo nicht schreiben. Bei „Contents“ „Read and write“ wählen.`);t.eingerichtet||(w(`Richte Repo ein …`),await a(e,t,te(e),ae)),S(t),w(`Lade Liste …`),O(await g(e))}catch(e){S(null),E(y(e))}finally{w(``)}}(0,_.useEffect)(()=>{e.owner&&e.repo&&e.token&&J(e)},[]);function Y(){let t=c(o);if(!t){E(`Repo bitte als „name/repo“ angeben, z. B. Freadeax/lernstoff-material.`);return}if(!e.token.trim()){E(`Bitte den Token einfügen.`);return}let r={...t,token:e.token.trim()};n(r),h(r),J(r)}function ge(){confirm(`Token von diesem Gerät entfernen?`)&&(h(null),n({owner:``,repo:``,token:``}),b(``),S(null),O([]))}function X(e,t){R(n=>n.map(n=>n.id===e?{...n,...t}:n));let n=H.current.find(t=>t.id===e);n&&Object.assign(n,t)}function _e(e){if(!e?.length)return;let t=Array.from(e).map(e=>({id:oe++,datei:e,status:`wartet`}));H.current.push(...t),R(e=>[...e,...t]),U.current||Z()}async function Z(){if(!x||U.current)return;U.current=!0,B(!0);let t=new AbortController;V.current=t;let n;try{n=await navigator.wakeLock?.request(`screen`)}catch{}let r=D;try{for(let n=H.current.find(e=>e.status===`wartet`);n&&!t.signal.aborted;n=H.current.find(e=>e.status===`wartet`)){let i=n.id;X(i,{status:`laeuft`});try{let a=await ne(e,n.datei,{branch:x.branch,vorhanden:r,kategorie:F.trim(),notiz:I.trim(),signal:t.signal,onFortschritt:e=>X(i,{fortschritt:e})});if(X(i,{status:a.uebersprungen?`uebersprungen`:`fertig`,ordner:a.ordner}),a.uebersprungen||(r=[...r.filter(e=>e.ordner!==a.ordner),{ordner:a.ordner,manifest:a.manifest}]),O(r),A&&u.test(n.datei.name))try{await W(n.datei,a.ordner)}finally{M(``)}}catch(e){if(t.signal.aborted){X(i,{status:`abgebrochen`});break}X(i,{status:`fehler`,fehler:y(e)})}}}finally{for(let e of H.current)e.status===`wartet`&&t.signal.aborted&&X(e.id,{status:`abgebrochen`});try{await n?.release()}catch{}V.current=null,U.current=!1,B(!1)}}function ve(){for(let e of H.current)(e.status===`fehler`||e.status===`abgebrochen`)&&X(e.id,{status:`wartet`,fehler:void 0});U.current||setTimeout(Z,0)}let Q=L.reduce((e,t)=>e+t.datei.size,0),$=L.reduce((e,t)=>e+(t.status===`fertig`||t.status===`uebersprungen`?t.datei.size:t.status===`laeuft`?t.fortschritt?.bytes??0:0),0),ye=L.some(e=>e.status===`fehler`||e.status===`abgebrochen`);return(0,v.jsxs)(`section`,{className:`page ablage`,children:[(0,v.jsx)(ee,{eyebrow:`Deine Materialablage`,title:`Auch große Quellen haben ihren Platz.`,description:`Lege Bücher und Skripte in deinem privaten GitHub-Repository ab. Große Dateien werden automatisch in Teile zerlegt.`}),(0,v.jsxs)(`div`,{className:`card`,children:[(0,v.jsx)(`h3`,{children:`Verbindung`}),K?(0,v.jsxs)(v.Fragment,{children:[(0,v.jsxs)(`p`,{children:[`Verbunden mit `,(0,v.jsx)(`strong`,{children:x.vollerName}),` `,(0,v.jsx)(`span`,{className:`badge`,children:`privat`})]}),(0,v.jsxs)(`div`,{className:`row`,children:[(0,v.jsx)(`span`,{className:`muted`,children:`Token liegt nur auf diesem Gerät.`}),(0,v.jsx)(`button`,{className:`small`,onClick:ge,children:`Trennen`})]})]}):(0,v.jsxs)(`form`,{className:`form-stack`,noValidate:!0,onSubmit:e=>{e.preventDefault(),q.validate(e.currentTarget)&&Y()},children:[(0,v.jsxs)(`p`,{className:`required-note`,children:[`Mit `,(0,v.jsx)(`span`,{className:`required-mark`,children:`*`}),` markierte Felder sind erforderlich.`]}),(0,v.jsx)(f,{label:`Privates GitHub-Repository`,name:`repo`,required:!0,hint:`Das Repository muss privat sein. Beispiel: Freadeax/lernstoff-Material-.`,error:q.error(`repo`),children:e=>(0,v.jsx)(`input`,{...e,disabled:!!C,autoCapitalize:`off`,autoCorrect:`off`,spellCheck:!1,placeholder:`Name/Repository`,value:o,onBlur:()=>q.touch(`repo`),onChange:e=>b(e.target.value)})}),(0,v.jsx)(f,{label:`GitHub-Zugriffstoken`,name:`token`,required:!0,hint:`Verwende einen Fine-grained Token nur für dieses Repository mit „Contents: Read and write“. Er bleibt auf diesem Gerät.`,error:q.error(`token`),children:t=>(0,v.jsx)(`input`,{...t,disabled:!!C,type:`password`,autoComplete:`off`,autoCapitalize:`none`,spellCheck:!1,placeholder:`github_pat_…`,value:e.token,onBlur:()=>q.touch(`token`),onChange:t=>n({...e,token:t.target.value})})}),(0,v.jsxs)(`div`,{className:`row`,children:[(0,v.jsx)(`button`,{type:`submit`,className:`primary`,disabled:!!C,children:`Repository verbinden`}),C&&(0,v.jsx)(`span`,{className:`muted`,role:`status`,children:C})]}),(0,v.jsxs)(`details`,{className:`ablage__hilfe`,children:[(0,v.jsx)(`summary`,{children:`So richtest du es ein (einmalig, ca. 3 Minuten)`}),(0,v.jsxs)(`ol`,{children:[(0,v.jsxs)(`li`,{children:[`Auf github.com: `,(0,v.jsx)(`strong`,{children:`+ → New repository`}),`. Name z. B. `,(0,v.jsx)(`code`,{children:`lernstoff-material`}),`, `,(0,v.jsx)(`strong`,{children:`Private`}),` wählen, „Add a README file“ ankreuzen, Create.`]}),(0,v.jsxs)(`li`,{children:[`Profilbild → `,(0,v.jsx)(`strong`,{children:`Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token`}),`.`]}),(0,v.jsxs)(`li`,{children:[`Repository access: `,(0,v.jsx)(`strong`,{children:`Only select repositories`}),` → nur `,(0,v.jsx)(`code`,{children:`lernstoff-material`}),`. Permissions → Repository permissions → `,(0,v.jsx)(`strong`,{children:`Contents: Read and write`}),`. Generate, Token kopieren.`]}),(0,v.jsx)(`li`,{children:`Hier Repo und Token eintragen und verbinden.`}),(0,v.jsx)(`li`,{children:`Damit Claude die Dateien abholen kann, das Repo in den Projekteinstellungen unter Repositories hinzufügen.`})]})]})]}),T&&(0,v.jsx)(`div`,{className:`note warn`,role:`alert`,children:T})]}),K&&(0,v.jsxs)(`div`,{className:`card`,children:[(0,v.jsx)(`h3`,{children:`Hochladen und als Lernquelle einlesen`}),(0,v.jsxs)(`label`,{className:`field`,children:[`Fach für Dokumente und Themen`,(0,v.jsx)(`select`,{value:k,disabled:z||!!j,onChange:e=>ce(e.target.value),children:i.flatMap(e=>e.subjects).map(e=>(0,v.jsx)(`option`,{value:e.id,children:e.name},e.id))})]}),(0,v.jsxs)(`label`,{className:`check`,children:[(0,v.jsx)(`input`,{type:`checkbox`,checked:A,disabled:z||!!j,onChange:e=>le(e.target.checked)}),(0,v.jsx)(`span`,{children:`Nach dem Upload Text einlesen und Themen abgleichen (PDF, Office, Text, Fotos und ZIP)`})]}),(0,v.jsxs)(`div`,{className:`ablage__felder`,children:[(0,v.jsxs)(`label`,{className:`field`,children:[`Kategorie (optional)`,(0,v.jsx)(`input`,{placeholder:`z. B. Pflege Heute, Anatomie`,value:F,onChange:e=>fe(e.target.value)})]}),(0,v.jsxs)(`label`,{className:`field`,children:[`Notiz (optional)`,(0,v.jsx)(`input`,{placeholder:`z. B. Auflage 8, Kapitel 1–12`,value:I,onChange:e=>pe(e.target.value)})]})]}),(0,v.jsxs)(`label`,{className:`upload`,children:[(0,v.jsx)(`input`,{type:`file`,multiple:!0,disabled:z||!!j,onChange:e=>{_e(e.target.files),e.target.value=``}}),(0,v.jsx)(`span`,{children:`Dateien auswählen – beliebig viele, beliebig groß`})]}),(0,v.jsx)(`p`,{className:`muted`,children:`Tipp: Während des Uploads die App offen lassen. Bei einem Abbruch einfach dieselben Dateien erneut wählen: Fertiges wird übersprungen, bereits gesendete Teile nicht noch einmal übertragen.`}),L.length>0&&(0,v.jsxs)(v.Fragment,{children:[(0,v.jsxs)(`div`,{className:`ablage__gesamt`,children:[(0,v.jsx)(`div`,{className:`ablage__balken`,children:(0,v.jsx)(`span`,{style:{width:`${Q?$/Q*100:0}%`}})}),(0,v.jsxs)(`span`,{className:`muted`,children:[l($),` von `,l(Q)]})]}),(0,v.jsx)(`ul`,{className:`ablage__liste`,children:L.map(e=>(0,v.jsx)(se,{a:e},e.id))}),(0,v.jsxs)(`div`,{className:`row`,children:[z&&(0,v.jsx)(`button`,{className:`danger small`,onClick:()=>V.current?.abort(),children:`Abbrechen`}),!z&&ye&&(0,v.jsx)(`button`,{className:`small`,onClick:ve,children:`Fehlgeschlagene erneut versuchen`}),!z&&(0,v.jsx)(`button`,{className:`small`,onClick:()=>{H.current=[],R([])},children:`Liste leeren`})]})]})]}),j&&(0,v.jsx)(`p`,{className:`note`,role:`status`,children:j}),ue.map((e,t)=>(0,v.jsxs)(`div`,{className:e.error||e.archiveError?`note warn`:`note ok`,children:[(0,v.jsx)(`strong`,{children:e.name}),(0,v.jsx)(`div`,{children:e.error??`${e.report?.pages??0} Seiten eingelesen. Themenzuordnung steht unter Dokumente bereit.`}),e.documentId&&(0,v.jsxs)(`div`,{className:`row`,children:[(0,v.jsx)(`a`,{href:`#/material/zusammenfassen?dokument=${encodeURIComponent(e.documentId)}`,children:`Wichtigste Inhalte zusammenfassen`}),(0,v.jsx)(`a`,{href:`#/material/dokumente`,children:`Themen prüfen`})]})]},t)),K&&(0,v.jsxs)(`div`,{className:`card`,children:[(0,v.jsxs)(`div`,{className:`row`,style:{marginTop:0},children:[(0,v.jsxs)(`h3`,{children:[`Im Repo (`,D.length,`)`]}),G.length>0&&(0,v.jsxs)(`button`,{type:`button`,className:`small`,disabled:z||!!j,onClick:()=>void he(),children:[`Neue Dateien einlesen (`,G.length,`)`]}),(0,v.jsx)(`button`,{className:`small`,onClick:async()=>{try{O(await g(e))}catch(e){E(y(e))}},children:`Aktualisieren`})]}),D.length===0&&(0,v.jsx)(`p`,{className:`muted`,children:`Noch nichts hochgeladen.`}),(0,v.jsx)(`ul`,{className:`ablage__liste`,children:D.map(t=>(0,v.jsxs)(`li`,{children:[(0,v.jsx)(`div`,{className:`ablage__name`,children:t.manifest?.name??t.ordner}),(0,v.jsxs)(`div`,{className:`muted`,children:[(0,v.jsx)(`code`,{children:t.ordner}),t.manifest&&` · ${l(t.manifest.groesse)} · ${t.manifest.teile.length} Teil${t.manifest.teile.length===1?``:`e`}`,t.manifest?.kategorie&&` · ${t.manifest.kategorie}`]}),P.some(n=>n.repository?.owner===e.owner&&n.repository?.repo===e.repo&&n.repository?.ordner===t.ordner)&&(0,v.jsx)(`span`,{className:`badge`,children:`Als Dokument verfügbar`}),t.manifest&&u.test(t.manifest.name)&&(0,v.jsx)(`button`,{type:`button`,className:`small`,disabled:z||!!j,onClick:()=>void me(t),children:`Als Dokument einlesen / Themen abgleichen`})]},t.ordner))}),(0,v.jsx)(`p`,{className:`muted`,children:`Bereits hochgeladene Dateien kannst du direkt als Dokument einlesen und anschließend zusammenfassen. Die Originale bleiben im privaten Repo; Text und Lernstand liegen auf diesem Gerät.`})]})]})}var x={pruefen:`prüft Teil`,hochladen:`sendet Teil`,speichern:`speichert`,fertig:`fertig`,uebersprungen:`schon vorhanden`};function se({a:e}){let t=e.fortschritt,n=e.status===`fertig`||e.status===`uebersprungen`?1:t?t.bytes/Math.max(1,e.datei.size):0,r;switch(e.status){case`wartet`:r=`wartet · ${o(e.datei.size)} Teil${o(e.datei.size)===1?``:`e`}`;break;case`laeuft`:r=t?t.phase===`pruefen`||t.phase===`hochladen`?`${x[t.phase]} ${t.teil+1} von ${t.teile}`:x[t.phase]:`startet`;break;case`fertig`:r=`✓ hochgeladen nach ${e.ordner}`;break;case`uebersprungen`:r=`✓ war schon da (${e.ordner})`;break;case`abgebrochen`:r=`abgebrochen`;break;default:r=`⚠ ${e.fehler}`}return(0,v.jsxs)(`li`,{className:`ablage__auftrag ablage__auftrag--${e.status}`,children:[(0,v.jsxs)(`div`,{className:`ablage__name`,children:[e.datei.name,` `,(0,v.jsx)(`span`,{className:`muted`,children:l(e.datei.size)})]}),(0,v.jsx)(`div`,{className:`ablage__balken`,children:(0,v.jsx)(`span`,{style:{width:`${n*100}%`}})}),(0,v.jsx)(`div`,{className:`muted`,children:r})]})}export{b as default};
