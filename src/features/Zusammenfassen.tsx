@@ -14,6 +14,9 @@ import { FragenAnsicht } from './zusammenfasser/ui/FragenAnsicht';
 import { VergleichsAnsicht } from './zusammenfasser/ui/VergleichsAnsicht';
 import { logActivity } from '../core/activity';
 import { topicKnowledge } from './lernplan/store';
+import { Field, useFormFeedback } from '../ui/form/Field';
+import { PageHeading } from '../ui/PageHeading';
+import { Icon } from '../ui/icons';
 
 type Modus = TextModus | 'pruefung' | 'vergleich';
 
@@ -149,95 +152,80 @@ export function Zusammenfassen() {
       summary.qa?.ampel === 'rot' ? 'critical' : summary.qa?.ampel === 'gelb' ? 'warning' : 'info');
   });
 
-  const bereit = !busy && selected.size > 0 && (modus !== 'arbeitsauftrag' || !!aufgaben?.length) && (modus !== 'vergleich' || selected.size >= 2);
+  const feedback = useFormFeedback({
+    sources: selected.size === 0 ? 'Wähle mindestens ein Dokument als Quelle aus.' : modus === 'vergleich' && selected.size < 2 ? 'Wähle mindestens zwei Dokumente, damit ihre Inhalte verglichen werden können.' : '',
+    assignment: modus === 'arbeitsauftrag' && !aufgaben?.length ? 'Lass die Aufgaben erkennen und prüfe die Aufgabenliste, bevor du die Bearbeitung startest.' : '',
+  });
+  const hasKey = !!getApiKey();
 
   return (
-    <section className="page">
-      <h2>Zusammenfassen</h2>
-      <div className="card">
-        <div className="modi" role="group" aria-label="Modus">
-          {MODI.map((m) => <button key={m.id} className="small" aria-pressed={modus === m.id} onClick={() => { setModus(m.id); setError(''); }}>{m.label}</button>)}
-        </div>
-        <p className="muted">{info.text}</p>
-
-        <h3>Quellen</h3>
-        {docs.length === 0 && <p>Zuerst unter „Dokumente“ Material hochladen.</p>}
-        {docs.map((d) => (
-          <label key={d.id} className="check">
-            <input type="checkbox" checked={selected.has(d.id)} onChange={() => toggle(d.id)} /> {d.title}
-          </label>
-        ))}
-
-        <label className="field">
-          <span>Thema {modus === 'vergleich' ? '' : '(optional)'}</span>
-          <input className="wide" list="zf-themen" value={thema} onChange={(e) => setThema(e.target.value)} placeholder="z. B. Dekubitusprophylaxe" />
-          <datalist id="zf-themen">{pflegeModule.topics.map((t) => <option key={t.id} value={t.name} />)}</datalist>
-          {topic && modus === 'lernen' && verwandteThemen(topic.id).length > 0 && <span className="muted">Verknüpft mit: {verwandteThemen(topic.id).join(', ')}</span>}
-        </label>
-
-        {modus === 'lernen' && (
-          <>
-            <label className="field"><span>Mein Wissensstand</span>
-              <select value={wissen} onChange={(e) => { setWissen(e.target.value as MasteryStatus); setWissenAusPlan(false); }}>{WISSEN.map((w) => <option key={w.id} value={w.id}>{w.label}</option>)}</select>
-              {wissenAusPlan && <span className="muted">aus deinem Lernplan übernommen</span>}
-            </label>
-            <label className="field"><span>Was verwechsle ich oft? (optional, eine Zeile je Punkt)</span>
-              <textarea className="wide" rows={2} value={fehler} onChange={(e) => setFehler(e.target.value)} />
-            </label>
-          </>
-        )}
-
-        {modus === 'arbeitsauftrag' && (
-          <div className="schritt">
-            <h3>1. Arbeitsblatt</h3>
-            <label className="field"><span>Arbeitsblatt aus deinen Dokumenten</span>
-              <select value={blattDoc} onChange={(e) => { setBlattDoc(e.target.value); setAufgaben(null); }}>
-                <option value="">Text selbst einfügen</option>
-                {docs.map((d) => <option key={d.id} value={d.id}>{d.title}</option>)}
-              </select>
-            </label>
-            {!blattDoc && <textarea className="wide" rows={5} value={blattText} onChange={(e) => { setBlattText(e.target.value); setAufgaben(null); }} placeholder="Aufgabentext hier einfügen" />}
-            <div className="row">
-              <span className="muted">{aufgaben ? `${aufgaben.length} Aufgaben erkannt. Bitte prüfen und korrigieren.` : 'Claude liest die Aufgaben aus, bearbeitet sie aber noch nicht.'}</span>
-              <button disabled={!!busy || (!blattDoc && !blattText.trim())} onClick={aufgabenErkennen}>{aufgaben ? 'Neu erkennen' : 'Aufgaben erkennen'}</button>
-            </div>
-            {hinweise.length > 0 && <div className="note">{hinweise.map((h, i) => <div key={i}>{h}</div>)}</div>}
-            {aufgaben && <><h3>2. Aufgaben bestätigen</h3><AufgabenEditor aufgaben={aufgaben} onChange={setAufgaben} modul={pflegeModule} /></>}
+    <section className="page summary-workspace">
+      <PageHeading eyebrow="Material verstehen" title="Aus Quellen wird Lernstoff."
+        description="Wähle dein Ziel, lege die Quellen fest und passe das Ergebnis an deinen Lernbedarf an." />
+      {!hasKey && <div className="note">Für die Erstellung benötigst du deinen Claude-API-Schlüssel. <a href="#/einstellungen">KI-Unterstützung einrichten</a></div>}
+      <form className="card form-card" noValidate aria-busy={!!busy} onSubmit={(e) => { e.preventDefault(); if (feedback.validate(e.currentTarget) && !busy) run(); }}>
+        <p className="required-note">Mit <span className="required-mark">*</span> markierte Angaben sind erforderlich.</p>
+        <fieldset className="form-section" disabled={!!busy}>
+          <legend><span className="summary-stage-label">01</span>Was möchtest du erstellen?</legend>
+          <p className="form-section__description">Jeder Modus hat eigene Regeln. Ergänzungen werden klar von deinen Originalquellen getrennt.</p>
+          <div className="modi" role="group" aria-label="Arbeitsmodus">
+            {MODI.map((m) => <button key={m.id} type="button" aria-pressed={modus === m.id} onClick={() => { setModus(m.id); setError(''); }}>
+              <Icon name={m.id === 'pruefung' ? 'timer' : m.id === 'vergleich' ? 'layers' : m.id === 'arbeitsauftrag' ? 'clipboard' : m.id === 'lernen' ? 'book' : 'form'} size={20} />
+              <span><strong>{m.label}</strong><small>{m.text}</small></span>
+            </button>)}
           </div>
-        )}
-
-        {modus === 'pruefung' && (
-          <>
-            <div className="row" style={{ justifyContent: 'flex-start' }}>
-              <label className="field"><span>Prüfung</span><input value={pruefName} onChange={(e) => setPruefName(e.target.value)} placeholder="z. B. Klausur LF 4" /></label>
-              <label className="field"><span>Datum</span><input type="date" value={pruefDatum} onChange={(e) => setPruefDatum(e.target.value)} /></label>
-              <label className="field"><span>Fragen</span><input type="number" min={3} max={20} value={anzahl} onChange={(e) => setAnzahl(Math.min(20, Math.max(3, Number(e.target.value) || 8)))} style={{ width: '5em' }} /></label>
-            </div>
-            <label className="field"><span>Lernziele oder Hinweise der Lehrkraft (optional)</span>
-              <textarea className="wide" rows={2} value={lernziele} onChange={(e) => setLernziele(e.target.value)} />
-            </label>
-          </>
-        )}
-
-        <div className="row">
-          {(modus === 'originalgetreu' || modus === 'lernen') ? (
-            <select value={length} onChange={(e) => setLength(e.target.value as SummaryLength)} aria-label="Länge">
-              <option value="kurz">kurz</option><option value="mittel">mittel</option><option value="ausfuehrlich">ausführlich</option>
-            </select>
-          ) : <span />}
-          <button className="primary" disabled={!bereit} onClick={run}>
-            {busy || (modus === 'pruefung' ? 'Fragen erstellen' : modus === 'vergleich' ? 'Vergleichen' : modus === 'arbeitsauftrag' ? '3. Bearbeiten' : 'Zusammenfassen')}
-          </button>
-        </div>
-        {(modus === 'originalgetreu' || modus === 'lernen' || modus === 'arbeitsauftrag') && (
-          <label className="check">
-            <input type="checkbox" checked={kiPruefer} onChange={(e) => setKiPruefer(e.target.checked)} />
-            <span>KI-Prüfer und automatische Korrektur <span className="muted">(liest jede Aussage gegen die Quelle, ein zusätzlicher Aufruf, bei Fehlern eine Korrekturrunde)</span></span>
-          </label>
-        )}
-        {modus === 'vergleich' && selected.size === 1 && <div className="note">Bitte mindestens zwei Dokumente auswählen.</div>}
-        {error && <div className="note warn">{error}</div>}
-      </div>
+        </fieldset>
+        <fieldset className="form-section" disabled={!!busy} onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) feedback.touch('sources'); }} aria-describedby={feedback.error('sources') ? 'zf-sources-error' : 'zf-sources-hint'}>
+          <legend><span className="summary-stage-label">02</span>Welche Quellen gehören dazu? <span className="required-mark" aria-hidden="true">*</span></legend>
+          <p id="zf-sources-hint" className="form-section__description">{modus === 'vergleich' ? 'Wähle mindestens zwei Dokumente zum Vergleichen.' : 'Wähle die Dokumente, auf denen das Ergebnis beruhen soll.'} {selected.size > 0 && `${selected.size} ausgewählt.`}</p>
+          {docs.length === 0 ? <div className="import-empty"><Icon name="folder" size={30} /><h3>Deine Quellen fehlen noch.</h3><p className="muted">Importiere zuerst ein Skript, Arbeitsblatt oder Lehrbuchauszug.</p><a className="button-link" href="#/material/import">Material importieren</a></div>
+            : <div className="choice-list summary-sources">{docs.map((d) => <label key={d.id} className="check"><input type="checkbox" name="sources" checked={selected.has(d.id)} onChange={() => toggle(d.id)} /><span>{d.title}</span><small className="muted">{d.kind.toUpperCase()}</small></label>)}</div>}
+          {feedback.error('sources') && <p id="zf-sources-error" className="field-error" aria-live="polite">{feedback.error('sources')}</p>}
+        </fieldset>
+        <fieldset className="form-section" disabled={!!busy}>
+          <legend><span className="summary-stage-label">03</span>Das Ergebnis auf dich abstimmen</legend>
+          <p className="form-section__description">Die Voreinstellungen passen für den Einstieg. Weitere Angaben sind optional.</p>
+          <Field label="Thema" name="topic" hint="Optional. Wähle ein Katalogthema, um das Ergebnis mit deinem Lernstand zu verbinden.">
+            {(props) => <input {...props} list="zf-themen" value={thema} onChange={(e) => setThema(e.target.value)} placeholder="z. B. Dekubitusprophylaxe" />}
+          </Field>
+          <datalist id="zf-themen">{pflegeModule.topics.map((t) => <option key={t.id} value={t.name} />)}</datalist>
+          {topic && modus === 'lernen' && verwandteThemen(topic.id).length > 0 && <p className="muted">Verknüpft mit: {verwandteThemen(topic.id).join(', ')}</p>}
+          {modus === 'lernen' && <>
+            <Field label="Mein Wissensstand" name="knowledge" hint={wissenAusPlan ? 'Aus deinem Lernplan übernommen. Du kannst die Auswahl für diese Zusammenfassung anpassen.' : 'Die Erklärungstiefe richtet sich nach deiner Auswahl.'}>
+              {(props) => <select {...props} value={wissen} onChange={(e) => { setWissen(e.target.value as MasteryStatus); setWissenAusPlan(false); }}>{WISSEN.map((w) => <option key={w.id} value={w.id}>{w.label}</option>)}</select>}
+            </Field>
+            <Field label="Was verwechsle ich oft?" name="mistakes" hint="Optional. Eine Unsicherheit pro Zeile hilft, die Erklärung gezielt anzupassen.">
+              {(props) => <textarea {...props} rows={3} value={fehler} onChange={(e) => setFehler(e.target.value)} placeholder="z. B. Unterschied zwischen Dekubitus und Intertrigo" />}
+            </Field>
+          </>}
+          {modus === 'arbeitsauftrag' && <div className="schritt">
+            <Field label="Arbeitsblatt" name="worksheet" hint="Wähle ein importiertes Arbeitsblatt oder füge den Aufgabentext selbst ein.">
+              {(props) => <select {...props} value={blattDoc} onChange={(e) => { setBlattDoc(e.target.value); setAufgaben(null); }}><option value="">Text selbst einfügen</option>{docs.map((d) => <option key={d.id} value={d.id}>{d.title}</option>)}</select>}
+            </Field>
+            {!blattDoc && <Field label="Aufgabentext" name="assignment" error={feedback.error('assignment')}>
+              {(props) => <textarea {...props} rows={5} value={blattText} onChange={(e) => { setBlattText(e.target.value); setAufgaben(null); }} placeholder="Füge hier die Aufgaben und gegebenenfalls den Falltext ein." />}
+            </Field>}
+            <button type="button" disabled={!!busy || (!blattDoc && !blattText.trim())} onClick={aufgabenErkennen}>{aufgaben ? 'Aufgaben neu erkennen' : 'Aufgaben erkennen'}</button>
+            <p className="field-hint">{aufgaben ? `${aufgaben.length} Aufgaben erkannt. Prüfe und korrigiere die Liste vor der Bearbeitung.` : 'Zuerst werden die Aufgaben gelesen. Die Bearbeitung startest du anschließend selbst.'}</p>
+            {blattDoc && feedback.error('assignment') && <p className="field-error" aria-live="polite">{feedback.error('assignment')}</p>}
+            {hinweise.length > 0 && <div className="note">{hinweise.map((h, i) => <div key={i}>{h}</div>)}</div>}
+            {aufgaben && <><h3>Erkannte Aufgaben prüfen</h3><AufgabenEditor aufgaben={aufgaben} onChange={setAufgaben} modul={pflegeModule} /></>}
+          </div>}
+          {modus === 'pruefung' && <>
+            <Field label="Name der Prüfung" name="examName" hint="Optional. Ohne Namen heißt dein Fragensatz „Übungsprüfung“.">{(props) => <input {...props} value={pruefName} onChange={(e) => setPruefName(e.target.value)} placeholder="z. B. Klausur LF 4" />}</Field>
+            <Field label="Prüfungstermin" name="examDate" hint="Optional. Der Termin wird beim Fragensatz hinterlegt.">{(props) => <input {...props} type="date" value={pruefDatum} onChange={(e) => setPruefDatum(e.target.value)} />}</Field>
+            <Field label="Anzahl der Fragen" name="questionCount" hint="Zwischen 3 und 20 Fragen. Für den Einstieg sind 8 Fragen vorausgewählt.">{(props) => <input {...props} type="number" min={3} max={20} value={anzahl} onChange={(e) => setAnzahl(Math.min(20, Math.max(3, Number(e.target.value) || 8)))} />}</Field>
+            <Field label="Lernziele oder Hinweise der Lehrkraft" name="objectives" hint="Optional. Zum Beispiel vorgegebene Schwerpunkte oder Prüfungsinhalte.">{(props) => <textarea {...props} rows={3} value={lernziele} onChange={(e) => setLernziele(e.target.value)} />}</Field>
+          </>}
+          {(modus === 'originalgetreu' || modus === 'lernen') && <Field label="Umfang der Zusammenfassung" name="length" hint="Mittel bietet einen ausgewogenen Überblick mit den wichtigsten Details.">
+            {(props) => <select {...props} value={length} onChange={(e) => setLength(e.target.value as SummaryLength)}><option value="kurz">Kurz · die Kernaussagen</option><option value="mittel">Mittel · ein guter Überblick</option><option value="ausfuehrlich">Ausführlich · mit mehr Details</option></select>}
+          </Field>}
+          {(modus === 'originalgetreu' || modus === 'lernen' || modus === 'arbeitsauftrag') && <label className="check"><input type="checkbox" checked={kiPruefer} onChange={(e) => setKiPruefer(e.target.checked)} /><span><strong>KI-Prüfer aktivieren</strong><br /><span className="muted">Liest Aussagen gegen die Quelle. Ein zusätzlicher Aufruf und bei Bedarf eine Korrekturrunde.</span></span></label>}
+        </fieldset>
+        <div className="form-actions"><p>{selected.size ? `${selected.size} ${selected.size === 1 ? 'Quelle ausgewählt' : 'Quellen ausgewählt'} · ${info.label}` : 'Wähle deine Quellen, um mit der Erstellung zu starten.'}</p><button className="primary" type="submit" disabled={!!busy || !hasKey}>{busy ? 'Wird erstellt …' : modus === 'pruefung' ? 'Fragen erstellen' : modus === 'vergleich' ? 'Quellen vergleichen' : modus === 'arbeitsauftrag' ? 'Aufgaben bearbeiten' : 'Zusammenfassung erstellen'}</button></div>
+        {busy && <p className="note" role="status" aria-live="polite">{busy}</p>}
+        {error && <div className="note warn" role="alert">{error}</div>}
+      </form>
 
       {current && current.mode === 'pruefung' && <FragenAnsicht key={current.id} satz={current as FragenSatz} chunkMap={chunkMap} titles={titles} />}
       {current && current.mode === 'vergleich' && <VergleichsAnsicht key={current.id} ergebnis={current as VergleichsErgebnis} chunkMap={chunkMap} titles={titles} />}

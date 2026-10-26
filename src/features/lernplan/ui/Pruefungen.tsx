@@ -2,11 +2,12 @@ import { useMemo, useState } from 'react';
 import type { Exam } from '../../../core/types';
 import { notify } from '../../../ui/shell/notifications';
 import { navigate, useRoute } from '../../../ui/shell/router';
-import { daysBetween } from '../dates';
+import { addDays, daysBetween } from '../dates';
 import type { ExamForecast } from '../forecast';
 import { deleteExam, saveExam } from '../store';
 import { dauer, inTagen, kurzDatum, langDatum, STATUS_LABEL } from './format';
 import type { PlanCtx } from './Lernplan';
+import { Field, useFormFeedback } from '../../../ui/form/Field';
 
 const GEWICHTE = [
   { w: 1, label: 'Klausur oder Test' },
@@ -28,7 +29,13 @@ function ExamForm({ ctx, exam, onDone }: { ctx: PlanCtx; exam?: Exam; onDone: ()
   })).filter((g) => g.alle.length), [ctx]);
   const minuten = [...auswahl].reduce((sum, id) => sum + (ctx.topics.get(id)?.estimatedMinutes ?? ctx.settings.defaultEstimatedMinutes), 0);
   const wochenThemen = ctx.data.board.filter((b) => b.column === 'woche' || b.column === 'arbeit').map((b) => b.topicId).filter((id) => ctx.topics.has(id));
-  const fehler = !name.trim() ? 'Bitte einen Namen eintragen.' : !date ? 'Bitte ein Datum wählen.' : date <= ctx.data.today && !exam ? 'Das Datum muss in der Zukunft liegen.' : !auswahl.size ? 'Bitte mindestens ein Thema auswählen.' : '';
+  const errors = {
+    name: !name.trim() ? 'Gib deiner Prüfung einen Namen, zum Beispiel „Klausur Anatomie“.' : '',
+    date: !date ? 'Wähle den Tag deiner Prüfung.' : date <= ctx.data.today && !exam ? 'Wähle ein Datum ab morgen, damit dein Lernstoff bis dahin verteilt werden kann.' : '',
+    topics: !auswahl.size ? 'Wähle mindestens ein Thema oder ein ganzes Fach für diese Prüfung aus.' : '',
+  };
+  const feedback = useFormFeedback(errors);
+  const [saving, setSaving] = useState(false);
 
   const toggle = (ids: string[], an: boolean) => setAuswahl((cur) => {
     const n = new Set(cur);
@@ -36,9 +43,10 @@ function ExamForm({ ctx, exam, onDone }: { ctx: PlanCtx; exam?: Exam; onDone: ()
     return n;
   });
 
-  const speichern = async (e: React.FormEvent) => {
+  const speichern = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (fehler) return;
+    if (saving || !feedback.validate(e.currentTarget)) return;
+    setSaving(true);
     const topicIds = [...auswahl];
     const subjectIds = [...new Set(topicIds.map((id) => ctx.topics.get(id)?.subjectId).filter((x): x is string => !!x))];
     try {
@@ -47,25 +55,33 @@ function ExamForm({ ctx, exam, onDone }: { ctx: PlanCtx; exam?: Exam; onDone: ()
       onDone();
     } catch (err) {
       notify('critical', 'Prüfung nicht gespeichert', err instanceof Error ? err.message : String(err));
+    } finally {
+      setSaving(false);
     }
   };
 
   return (
-    <form className="card pruefung-form" onSubmit={speichern}>
+    <form className="card pruefung-form" onSubmit={speichern} noValidate aria-busy={saving}>
       <h3>{exam ? 'Prüfung bearbeiten' : 'Neue Prüfung'}</h3>
+      <p className="form-section__description">Lege zuerst den Termin fest und wähle dann den Stoff. Dein Lernplan verteilt die Einheiten automatisch.</p>
+      <p className="required-note">Mit <span className="required-mark">*</span> markierte Felder sind erforderlich.</p>
       <div className="pruefung-form__zeile">
-        <label className="field">Name<input value={name} onChange={(e) => setName(e.target.value)} placeholder="z. B. Klausur Anatomie" autoFocus={!exam} /></label>
-        <label className="field">Datum<input type="date" value={date} min={exam ? undefined : ctx.data.today} onChange={(e) => setDate(e.target.value)} /></label>
-        <label className="field">Gewicht
-          <select value={gewicht} onChange={(e) => setGewicht(Number(e.target.value))}>
+        <Field label="Name der Prüfung" name="name" required error={feedback.error('name')}>
+          {(props) => <input {...props} value={name} onBlur={() => feedback.touch('name')} onChange={(e) => setName(e.target.value)} placeholder="z. B. Klausur Anatomie" />}
+        </Field>
+        <Field label="Prüfungstermin" name="date" required error={feedback.error('date')} hint="Der Plan berücksichtigt die Zeit bis zu diesem Termin.">
+          {(props) => <input {...props} type="date" value={date} min={exam ? undefined : addDays(ctx.data.today, 1)} onBlur={() => feedback.touch('date')} onChange={(e) => setDate(e.target.value)} />}
+        </Field>
+        <Field label="Art der Prüfung" name="weight" hint="Wichtigere Prüfungen erhalten bei der Planung mehr Gewicht.">
+          {(props) => <select {...props} value={gewicht} onChange={(e) => setGewicht(Number(e.target.value))}>
             {GEWICHTE.map((g) => <option key={g.w} value={g.w}>{g.label}</option>)}
-          </select>
-        </label>
+          </select>}
+        </Field>
       </div>
-      <fieldset className="themenwahl">
-        <legend>Themen <span className="muted">({auswahl.size} gewählt, ca. {dauer(minuten)} Erstlernzeit)</span></legend>
+      <fieldset className="themenwahl" onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) feedback.touch('topics'); }} aria-describedby={feedback.error('topics') ? 'exam-topics-error' : undefined}>
+        <legend>Themen <span className="required-mark" aria-hidden="true">*</span> <span className="muted">({auswahl.size} gewählt, ca. {dauer(minuten)} Erstlernzeit)</span></legend>
         <div className="themenwahl__werkzeuge">
-          <input type="search" value={suche} onChange={(e) => setSuche(e.target.value)} placeholder="Themen suchen" aria-label="Themen suchen" />
+          <input type="search" name="topics" value={suche} onChange={(e) => setSuche(e.target.value)} placeholder="Themen suchen" aria-label="Themen suchen" />
           {wochenThemen.length > 0 && <button type="button" className="small" onClick={() => toggle(wochenThemen, true)}>Themen von „Diese Woche“ ({wochenThemen.length})</button>}
           {auswahl.size > 0 && <button type="button" className="small ghost" onClick={() => setAuswahl(new Set())}>Auswahl leeren</button>}
         </div>
@@ -98,10 +114,10 @@ function ExamForm({ ctx, exam, onDone }: { ctx: PlanCtx; exam?: Exam; onDone: ()
           );
         })}
       </fieldset>
-      {fehler && (name || date || auswahl.size) ? <p className="field-error">{fehler}</p> : null}
-      <div className="row">
+      {feedback.error('topics') && <p id="exam-topics-error" className="field-error" aria-live="polite">{feedback.error('topics')}</p>}
+      <div className="form-actions">
         <button type="button" className="ghost" onClick={onDone}>Abbrechen</button>
-        <button type="submit" className="primary" disabled={!!fehler}>Speichern</button>
+        <button type="submit" className="primary" disabled={saving}>{saving ? 'Wird gespeichert …' : exam ? 'Änderungen speichern' : 'Prüfung eintragen'}</button>
       </div>
     </form>
   );

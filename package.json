@@ -11,6 +11,7 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview --host",
     "test": "vitest run",
+    "test:ui": "node scripts/check-ui.mjs",
     "typecheck": "tsc -b --noEmit"
   },
   "dependencies": {
@@ -24,6 +25,7 @@
     "tesseract.js": "^7.0.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@napi-rs/canvas": "^1.0.13",
     "@tesseract.js-data/deu": "^1.0.0",
     "@types/node": "^22.20.5",
@@ -31,6 +33,7 @@
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^6.1.2",
     "fake-indexeddb": "^6.0.0",
+    "playwright": "^1.64.1",
     "typescript": "^5.9.0",
     "vite": "^8.3.5",
     "vite-plugin-pwa": "^2.0.0",
