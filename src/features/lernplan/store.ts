@@ -7,6 +7,7 @@ import { moveTopics, type BoardEntry } from '../../core/board';
 import type { Exam, Topic } from '../../core/types';
 import { dayKey } from '../../ui/lib/time';
 import { computeProgress } from './progress';
+import { evidenceRating } from './fsrs';
 import { availableMinutes } from './scheduler';
 import {
   DEFAULT_SETTINGS,
@@ -93,7 +94,7 @@ export interface PlannerData {
 export function assembleInput(d: PlannerData): PlannerInput {
   const settings = resolveSettings({ settings: d.config.settings });
   const studied = new Map<string, number>();
-  for (const l of d.studyLogs) studied.set(l.topicId, (studied.get(l.topicId) ?? 0) + l.minutes);
+  for (const l of d.studyLogs.filter((l) => l.date <= d.today)) studied.set(l.topicId, (studied.get(l.topicId) ?? 0) + l.minutes);
   const byId = new Map(d.topics.map((t) => [t.id, t]));
 
   const synthetic: StudyLog[] = [];
@@ -175,6 +176,7 @@ export async function deleteExam(exam: Exam) {
 
 /** Lernzeit erfassen und das Board nachziehen (In Arbeit bzw. Erarbeitet). */
 export async function logStudy(topic: Topic, minutes: number, date = heute()) {
+  if (!Number.isFinite(minutes) || minutes <= 0) throw new Error('Lernzeit muss eine positive, endliche Minutenzahl sein.');
   const cfg = await loadConfig();
   const settings = resolveSettings({ settings: cfg.settings });
   await db.studyLogs.add({ topicId: topic.id, date, minutes, at: new Date().toISOString() });
@@ -187,6 +189,10 @@ export async function logStudy(topic: Topic, minutes: number, date = heute()) {
 
 /** Abfrageergebnis speichern. Selbsteinschätzungen werden gespeichert, zählen aber nicht als Nachweis. */
 export async function logReview(topic: Topic, source: EvidenceSource, result: { rating?: Rating; scorePercent?: number }, date = heute(), trainer?: string) {
+  if (evidenceRating({ topicId: topic.id, date, source: 'quiz', ...result }) === undefined
+    || (result.scorePercent !== undefined && (!Number.isFinite(result.scorePercent) || result.scorePercent < 0 || result.scorePercent > 100))) {
+    throw new Error('Abfrage braucht eine gültige Bewertung oder 0 bis 100 Prozent.');
+  }
   await db.reviewLogs.add({ topicId: topic.id, date, source, ...result, at: new Date().toISOString(), ...(trainer ? { trainer } : {}) });
   const was = result.rating ? RATING_LABEL[result.rating] : `${result.scorePercent} %`;
   await logActivity({

@@ -5,12 +5,14 @@ import { Heute } from './Heute';
 import { Woche } from './Woche';
 import { Pruefungen } from './Pruefungen';
 import { Zeit } from './Zeit';
+import { Wissensstand } from './Wissensstand';
 import { PageHeading } from '../../../ui/PageHeading';
 
 export type { PlanCtx } from './usePlan';
 
 const ANSICHTEN = [
   { id: 'heute', label: 'Heute' },
+  { id: 'wissensstand', label: 'Wissensstand' },
   { id: 'woche', label: 'Woche' },
   { id: 'pruefungen', label: 'Prüfungen' },
   { id: 'zeit', label: 'Lernzeit' },
@@ -50,6 +52,7 @@ export default function Lernplan() {
       {ctx && (
         <div id="plan-panel" role="tabpanel" aria-labelledby={`plan-tab-${ansicht}`} tabIndex={0}>
           {ansicht === 'heute' && <Heute ctx={ctx} />}
+          {ansicht === 'wissensstand' && <Wissensstand ctx={ctx} />}
           {ansicht === 'woche' && <Woche ctx={ctx} />}
           {ansicht === 'pruefungen' && <Pruefungen ctx={ctx} />}
           {ansicht === 'zeit' && <Zeit ctx={ctx} />}
@@ -66,6 +69,7 @@ export function OhnePruefung() {
       <h3>Noch keine Prüfung eingetragen</h3>
       <p>Der Plan verteilt den Stoff rückwärts vom Prüfungstermin. Trag zuerst eine Klausur oder Prüfung mit ihren Themen ein.</p>
       <button type="button" className="primary" onClick={() => navigate('/lernen/plan?ansicht=pruefungen&neu=1')}>Prüfung eintragen</button>
+      <button type="button" className="ghost" onClick={() => navigate('/lernen/plan?ansicht=wissensstand')}>Wissensstand ohne Prüfung prüfen</button>
     </div>
   );
 }

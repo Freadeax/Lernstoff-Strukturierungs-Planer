@@ -13,6 +13,11 @@
 
 .heute__kopf, .woche__kopf { display: flex; flex-direction: column; gap: var(--space-2); }
 .heute__kopf p, .woche__kopf p { margin: 0; }
+.wissensstand__filter { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2); }
+.wissensstand__filter .field { margin: 0; min-width: 0; }
+.wissensstand__filter input, .wissensstand__filter select { width: 100%; min-width: 0; }
+.wissensstand .block__thema, .wissensstand .block p { overflow-wrap: anywhere; }
+@container content (min-width: 640px) { .wissensstand__filter { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 /* Blöcke für heute: eine Spalte am Handy, zwei auf dem iPad quer und am Rechner */
 .bloecke { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); grid-template-columns: minmax(0, 1fr); }

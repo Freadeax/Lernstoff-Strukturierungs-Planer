@@ -115,8 +115,10 @@ export function ratingFromScore(scorePercent: number): Rating {
 /** Bewertung eines Logs oder `undefined`, wenn es kein Wissensnachweis ist. */
 export function evidenceRating(log: ReviewLog): Rating | undefined {
   if (log.source === 'selbsteinschaetzung') return undefined;
-  if (log.rating !== undefined) return log.rating;
-  if (log.scorePercent !== undefined) return ratingFromScore(log.scorePercent);
+  if (log.rating !== undefined)
+    return Number.isInteger(log.rating) && log.rating >= 1 && log.rating <= 4 ? log.rating : undefined;
+  if (log.scorePercent !== undefined && Number.isFinite(log.scorePercent) && log.scorePercent >= 0 && log.scorePercent <= 100)
+    return ratingFromScore(log.scorePercent);
   return undefined;
 }
 

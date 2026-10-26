@@ -31,7 +31,7 @@ export interface ThemenErgebnis { topicId: string; scorePercent: number; anzahl:
 export function proThema(treffer: Treffer[], minAnzahl = 1): ThemenErgebnis[] {
   const sum = new Map<string, { p: number; max: number; n: number }>();
   for (const t of treffer) {
-    if (t.max <= 0) continue;
+    if (!Number.isFinite(t.max) || !Number.isFinite(t.punkte) || t.max <= 0) continue;
     for (const id of new Set(t.topicIds)) {
       const s = sum.get(id) ?? { p: 0, max: 0, n: 0 };
       sum.set(id, { p: s.p + Math.max(0, Math.min(t.punkte, t.max)), max: s.max + t.max, n: s.n + 1 });
@@ -52,10 +52,12 @@ export interface Uebernahme { topicId: string; name: string; scorePercent: numbe
 export function planeUebernahme(ergebnisse: ThemenErgebnis[], topics: Topic[], heuteSchon: Set<string>): Uebernahme[] {
   const leaves = new Map(leafTopics(topics).map((t) => [t.id, t]));
   const alle = new Map(topics.map((t) => [t.id, t]));
+  const gesehen = new Set(heuteSchon);
   return ergebnisse.map((e) => {
     const t = leaves.get(e.topicId);
     const name = alle.get(e.topicId)?.name ?? e.topicId;
-    const status: UebernahmeStatus = !t ? 'kein_thema' : heuteSchon.has(e.topicId) ? 'heute_schon' : 'gespeichert';
+    const status: UebernahmeStatus = !t ? 'kein_thema' : gesehen.has(e.topicId) ? 'heute_schon' : 'gespeichert';
+    if (t) gesehen.add(e.topicId);
     return { ...e, name, status };
   });
 }
@@ -63,15 +65,21 @@ export function planeUebernahme(ergebnisse: ThemenErgebnis[], topics: Topic[], h
 /** Speichert Trainer-Ergebnisse als Abfragen im Lernplan und sagt, was mit jedem Thema passiert ist. */
 export async function inLernplan(trainer: TrainerId, ergebnisse: ThemenErgebnis[], topics: Topic[] = pflegeModule.topics, date = heute()): Promise<Uebernahme[]> {
   if (!ergebnisse.length) return [];
-  const ids = ergebnisse.map((e) => e.topicId);
-  const vorhanden = await db.reviewLogs.where('topicId').anyOf(ids).filter((l) => l.date === date && l.trainer === trainer).toArray();
-  const plan = planeUebernahme(ergebnisse, topics, new Set(vorhanden.map((l) => l.topicId)));
-  const byId = new Map(topics.map((t) => [t.id, t]));
-  for (const u of plan) {
-    if (u.status !== 'gespeichert') continue;
-    await logReview(byId.get(u.topicId)!, 'trainer', { scorePercent: u.scorePercent }, date, trainer);
+  if (ergebnisse.some((e) => !Number.isFinite(e.scorePercent) || e.scorePercent < 0 || e.scorePercent > 100 || !Number.isInteger(e.anzahl) || e.anzahl < 1)) {
+    throw new Error('Trainer-Ergebnisse brauchen 0 bis 100 Prozent und mindestens eine bewertete Aufgabe.');
   }
-  return plan;
+  // Lesen und Schreiben gemeinsam sperren: auch zwei Tabs dürfen nur einen Erstversuch speichern.
+  return db.transaction('rw', db.reviewLogs, db.activity, async () => {
+    const ids = ergebnisse.map((e) => e.topicId);
+    const vorhanden = await db.reviewLogs.where('topicId').anyOf(ids).filter((l) => l.date === date && l.trainer === trainer).toArray();
+    const plan = planeUebernahme(ergebnisse, topics, new Set(vorhanden.map((l) => l.topicId)));
+    const byId = new Map(topics.map((t) => [t.id, t]));
+    for (const u of plan) {
+      if (u.status !== 'gespeichert') continue;
+      await logReview(byId.get(u.topicId)!, 'trainer', { scorePercent: u.scorePercent }, date, trainer);
+    }
+    return plan;
+  });
 }
 
 // ---------------------------------------------------------------- Passende Übung zu einem Thema

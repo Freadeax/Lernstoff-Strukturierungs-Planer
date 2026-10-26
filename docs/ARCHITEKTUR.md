@@ -25,6 +25,6 @@ Ausführliche Fassung mit Diagramm: https://claude.ai/artifact/HrsJYuzKtmhcm4WAB
 4. Code prüft: Zahlen, Einheiten, Fachbegriffe stimmen mit der Quelle überein.
 5. Unbelegtes, Unleserliches und Widersprüche werden sichtbar gekennzeichnet.
 
-## Hosting fürs iPhone (später)
+## Hosting für Handy und iPad
 
-Eine PWA braucht HTTPS für Offline-Betrieb auf dem iPhone. Optionen ohne GitHub Actions: Netlify oder Cloudflare Pages (bauen selbst), oder `dist/` manuell auf einen `gh-pages`-Branch legen.
+Die PWA wird unter https://freadeax.github.io/Lernstoff-Strukturierungs-Planer/ über HTTPS veröffentlicht. `.github/workflows/pages.yml` baut nach jedem Push auf `main` ein Pages-Artefakt und veröffentlicht es. Ein separater `gh-pages`-Branch ist nicht nötig. Tests und Browserprüfungen laufen vor dem Push lokal; nach dem Deployment wird die veröffentlichte Seite geprüft.

@@ -50,6 +50,8 @@ GitHub Pages zeigt die App unter https://freadeax.github.io/Lernstoff-Strukturie
 
 Vor jedem Push: `npm test`, `npm run build` und bei Änderungen an der Oberfläche `npm run test:ui` gegen den laufenden lokalen Server ausführen. Für Materialimport und Themenzuordnung zusätzlich `npm run test:material` verwenden (`UI_BASE_URL` auf den Server setzen).
 
+Unter **Lernplan → Wissensstand** stehen alle lernbaren Themen mit Abfragen, Statusbegründung und nächster Fälligkeit – auch ohne Prüfungstermin. Suche, Fach- und Statusfilter zeigen gezielt bearbeitete, unsichere oder fällige Themen. Passende Trainer lassen sich direkt öffnen; eigene Themen aus importierten Materialien sind ebenfalls enthalten. Die Browserprüfung `npm run test:wissen` prüft diesen Ablauf und die Einstiege in die Lernmodule bei 390, 820 und 1440 Pixeln.
+
 Die Prüfung und Übernahme der bisherigen Branches ist in [docs/BRANCH-KONSOLIDIERUNG.md](docs/BRANCH-KONSOLIDIERUNG.md) dokumentiert. `main` ist die gemeinsame Grundlage für die weitere Entwicklung; vorhandene Funktionen und private Material-Originale bleiben erhalten.
 
 ## Befehle

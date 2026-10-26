@@ -13,15 +13,20 @@ import { KartenHinweis } from '../../karteikarten/ui/KartenHinweis';
 const QUELLEN: EvidenceSource[] = ['karteikarten', 'quiz', 'offene_frage', 'pruefungssimulation', 'selbsteinschaetzung'];
 
 async function sicher<T>(fn: () => Promise<T>, ok: string) {
-  try { await fn(); notify('info', ok); } catch (e) { notify('critical', 'Nicht gespeichert', e instanceof Error ? e.message : String(e)); }
+  try { await fn(); notify('info', ok); return true; } catch (e) { notify('critical', 'Nicht gespeichert', e instanceof Error ? e.message : String(e)); return false; }
 }
 
 /** Ergebnis einer Abfrage erfassen: Art der Abfrage, dann Bewertung oder Prozent richtig. */
 export function AbfrageForm({ topic, onDone }: { topic: Topic; onDone: () => void }) {
   const [quelle, setQuelle] = useState<EvidenceSource>('karteikarten');
   const [prozent, setProzent] = useState('');
-  const speichere = (r: { rating?: Rating; scorePercent?: number }) =>
-    sicher(() => logReview(topic, quelle, r), 'Abfrage gespeichert, Plan neu berechnet').then(onDone);
+  const [speichert, setSpeichert] = useState(false);
+  const speichere = async (r: { rating?: Rating; scorePercent?: number }) => {
+    if (speichert) return;
+    setSpeichert(true);
+    if (await sicher(() => logReview(topic, quelle, r), 'Abfrage gespeichert, Plan neu berechnet')) onDone();
+    setSpeichert(false);
+  };
   const p = Number(prozent.replace(',', '.'));
   return (
     <div className="abfrage">
@@ -35,12 +40,12 @@ export function AbfrageForm({ topic, onDone }: { topic: Topic; onDone: () => voi
       <p className="abfrage__frage">Wie lief es?</p>
       <div className="abfrage__bewertung">
         {([1, 2, 3, 4] as Rating[]).map((r) => (
-          <button key={r} type="button" className={`bew bew--${r}`} onClick={() => speichere({ rating: r })}>{RATING_LABEL[r]}</button>
+          <button key={r} type="button" disabled={speichert} className={`bew bew--${r}`} onClick={() => speichere({ rating: r })}>{RATING_LABEL[r]}</button>
         ))}
       </div>
       <form className="abfrage__prozent" onSubmit={(e) => { e.preventDefault(); if (p >= 0 && p <= 100 && prozent) speichere({ scorePercent: Math.round(p) }); }}>
         <label>oder Anteil richtig <input inputMode="numeric" value={prozent} onChange={(e) => setProzent(e.target.value)} placeholder="z. B. 80" size={4} aria-label="Prozent richtig" /> %</label>
-        <button type="submit" className="small" disabled={!prozent || !(p >= 0 && p <= 100)}>Speichern</button>
+        <button type="submit" className="small" disabled={speichert || !prozent || !(p >= 0 && p <= 100)}>Speichern</button>
         <button type="button" className="small ghost" onClick={onDone}>Abbrechen</button>
       </form>
     </div>
@@ -51,9 +56,9 @@ function LernzeitForm({ topic, vorschlag, onDone }: { topic: Topic; vorschlag: n
   const [min, setMin] = useState(String(vorschlag));
   const n = Math.round(Number(min));
   return (
-    <form className="abfrage__prozent" onSubmit={(e) => { e.preventDefault(); if (n > 0) sicher(() => logStudy(topic, n), `${n} Min. Lernzeit gespeichert`).then(onDone); }}>
+    <form className="abfrage__prozent" onSubmit={(e) => { e.preventDefault(); if (Number.isFinite(n) && n > 0) sicher(() => logStudy(topic, n), `${n} Min. Lernzeit gespeichert`).then((ok) => { if (ok) onDone(); }); }}>
       <label>Tatsächlich gelernt <input inputMode="numeric" value={min} onChange={(e) => setMin(e.target.value)} size={4} aria-label="Minuten" /> Min.</label>
-      <button type="submit" className="small primary" disabled={!(n > 0)}>Speichern</button>
+      <button type="submit" className="small primary" disabled={!Number.isFinite(n) || !(n > 0)}>Speichern</button>
       <button type="button" className="small ghost" onClick={onDone}>Abbrechen</button>
     </form>
   );

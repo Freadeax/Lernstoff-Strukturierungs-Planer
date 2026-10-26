@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   FSRS5_DEFAULT_WEIGHTS,
+  evidenceRating,
   initState,
   nextIntervalDays,
   ratingFromScore,
@@ -37,6 +38,17 @@ describe('FSRS-5', () => {
 
   it('übersetzt Testergebnisse in Bewertungen', () => {
     expect([30, 55, 80, 95].map(ratingFromScore)).toEqual([1, 2, 3, 4]);
+  });
+
+  it('wertet ungültige Prozentwerte und Bewertungen nicht als Erfolg', () => {
+    const log = { topicId: 't', date: '2026-10-26', source: 'quiz' as const };
+    for (const scorePercent of [NaN, Infinity, -1, 101]) {
+      expect(evidenceRating({ ...log, scorePercent })).toBeUndefined();
+      expect(replay([{ ...log, scorePercent }])).toBeUndefined();
+    }
+    expect(evidenceRating({ ...log, rating: 0 as 1 })).toBeUndefined();
+    expect(evidenceRating({ ...log, rating: 2.5 as 1 })).toBeUndefined();
+    expect(evidenceRating({ ...log, scorePercent: 0 })).toBe(1);
   });
 
   it('ignoriert Selbsteinschätzungen beim Nachspielen', () => {

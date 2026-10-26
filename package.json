@@ -13,7 +13,8 @@
     "test": "vitest run",
     "test:ui": "node scripts/check-ui.mjs",
     "typecheck": "tsc -b --noEmit",
-    "test:material": "node scripts/check-material.mjs"
+    "test:material": "node scripts/check-material.mjs",
+    "test:wissen": "node scripts/check-wissensstand.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.2.0",

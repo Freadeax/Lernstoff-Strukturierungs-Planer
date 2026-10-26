@@ -40,6 +40,14 @@ describe('Planer-Eingabe aus Datenbank und Board', () => {
     expect(input.relevance).toEqual({ 'a.lunge': 'hoch' });
   });
 
+  it('lässt zukünftige Lernzeit die Erarbeitung auf dem Board heute nicht verdrängen', () => {
+    const input = assembleInput(base({
+      studyLogs: [{ topicId: 'a.herz', date: '2026-11-01', minutes: 90, at: '2026-11-01T08:00:00Z' }],
+      board: [{ topicId: 'a.herz', column: 'erarbeitet', order: 1, updatedAt: '2026-10-25T08:00:00Z' }],
+    }));
+    expect(computeProgress(topics[1]!, input.studyLogs, input.reviewLogs, TODAY, DEFAULT_SETTINGS).remainingStudyMinutes).toBe(0);
+  });
+
   it('zieht heute bereits Gelerntes von der heutigen Zeit ab', () => {
     const studyLogs = [{ topicId: 'a.herz', date: TODAY, minutes: 45, at: `${TODAY}T08:00:00Z` }];
     const input = assembleInput(base({ studyLogs }));
@@ -56,6 +64,14 @@ describe('Planer-Eingabe aus Datenbank und Board', () => {
 
 describe('Lernplan in der lokalen Datenbank', () => {
   beforeEach(() => deleteAll(db));
+
+  it('speichert keine ungültige Lernzeit oder Abfrage', async () => {
+    for (const minutes of [NaN, Infinity, -1, 0]) await expect(logStudy(topics[1]!, minutes, TODAY)).rejects.toThrow();
+    for (const scorePercent of [NaN, Infinity, -1, 101]) await expect(logReview(topics[1]!, 'quiz', { scorePercent }, TODAY)).rejects.toThrow();
+    await expect(logReview(topics[1]!, 'quiz', {}, TODAY)).rejects.toThrow();
+    expect(await db.studyLogs.count()).toBe(0);
+    expect(await db.reviewLogs.count()).toBe(0);
+  });
 
   it('speichert Prüfung, Lernzeit und Abfrage und zieht das Board nach', async () => {
     await saveExam({ id: 'k', name: 'Klausur', date: '2026-11-09', subjectIds: ['s'], topicIds: ['a.herz', 'a.lunge'] }, 2);

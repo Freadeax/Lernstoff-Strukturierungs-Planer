@@ -55,7 +55,7 @@ export function computeProgress(
   const tests = ownLogs
     .map((log) => ({ log, rating: evidenceRating(log) }))
     .filter((t): t is { log: ReviewLog; rating: Rating } => t.rating !== undefined)
-    .sort((a, b) => (a.log.date < b.log.date ? -1 : 1));
+    .sort((a, b) => a.log.date.localeCompare(b.log.date));
   const base = { topicId: topic.id, studiedMinutes, remainingStudyMinutes, testCount: tests.length };
 
   if (tests.length === 0) {

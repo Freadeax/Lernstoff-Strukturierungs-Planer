@@ -26,6 +26,14 @@ describe('Trainer-Ergebnisse je Thema', () => {
     expect(proThema([{ topicIds: ['a.herz', 'a.herz'], punkte: 140, max: 100 }])).toEqual([{ topicId: 'a.herz', scorePercent: 100, anzahl: 1 }]);
   });
 
+  it('ignoriert unvollständig oder ungültig bewertete Aufgaben', () => {
+    expect(proThema([
+      { topicIds: ['a.herz'], punkte: NaN, max: 1 },
+      { topicIds: ['a.herz'], punkte: 1, max: Infinity },
+      { topicIds: ['a.herz'], punkte: 1, max: 0 },
+    ])).toEqual([]);
+  });
+
   it('übernimmt nur lernbare Themen und bei Wiederholung am selben Tag nur den ersten Versuch', () => {
     const plan = planeUebernahme([
       { topicId: 'a', scorePercent: 80, anzahl: 3 },
@@ -38,6 +46,29 @@ describe('Trainer-Ergebnisse je Thema', () => {
 
 describe('Trainer-Ergebnisse in der Datenbank', () => {
   beforeEach(async () => { await deleteAll(); });
+
+  it('speichert bei gleichzeitigen Übernahmen nur den ersten Versuch', async () => {
+    const result = [{ topicId: 'a.herz', scorePercent: 40, anzahl: 3 }];
+    const uebernahmen = await Promise.all([inLernplan('rechnen', result, topics, TODAY), inLernplan('rechnen', result, topics, TODAY)]);
+    expect(uebernahmen.flat().map((u) => u.status).sort()).toEqual(['gespeichert', 'heute_schon']);
+    expect(await db.reviewLogs.count()).toBe(1);
+    expect(await db.activity.count()).toBe(1);
+  });
+
+  it('übernimmt doppelte Themen innerhalb einer Übergabe nur einmal', async () => {
+    const first = { topicId: 'a.herz', scorePercent: 40, anzahl: 3 };
+    const r = await inLernplan('rechnen', [first, { ...first, scorePercent: 100 }], topics, TODAY);
+    expect(r.map((u) => u.status)).toEqual(['gespeichert', 'heute_schon']);
+    expect((await db.reviewLogs.toArray()).map((l) => l.scorePercent)).toEqual([40]);
+  });
+
+  it('lehnt ungültige Übernahmen vollständig ab', async () => {
+    await expect(inLernplan('rechnen', [
+      { topicId: 'a.herz', scorePercent: 80, anzahl: 3 },
+      { topicId: 'a.lunge', scorePercent: NaN, anzahl: 3 },
+    ], topics, TODAY)).rejects.toThrow();
+    expect(await db.reviewLogs.count()).toBe(0);
+  });
 
   it('speichert Abfragen mit Herkunft, die als Wissensnachweis zählen', async () => {
     const r = await inLernplan('rechnen', [{ topicId: 'a.herz', scorePercent: 90, anzahl: 5 }], topics, TODAY);

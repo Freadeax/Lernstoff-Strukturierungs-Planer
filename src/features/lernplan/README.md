@@ -93,11 +93,12 @@ Bewusst **keine Bestehenswahrscheinlichkeit**. Je Prüfung:
 
 ## Oberfläche (`#/lernen/plan`)
 
-`ui/` enthält die Seite **Lernplan** mit vier Ansichten (`?ansicht=heute|woche|pruefungen|zeit`):
+`ui/` enthält die Seite **Lernplan** mit fünf Ansichten (`?ansicht=heute|wissensstand|woche|pruefungen|zeit`):
 
 | Ansicht | Inhalt |
 |---|---|
 | Heute | Blöcke des Tages. Erarbeiten: „Erledigt“ oder „Andere Dauer“ speichert Lernzeit. Abfragen: Art der Abfrage (Karteikarten, Quiz, offene Fragen, Prüfungssimulation, nur eingeschätzt) und Ergebnis (Vergessen bis Leicht oder Prozent richtig). Außerdem fällige Wiederholungen ohne Platz im Tag, „Heute erledigt“ und Nachtragen außerhalb des Plans. |
+| Wissensstand | Alle lernbaren Katalog- und eigenen Themen ohne notwendigen Prüfungstermin. Suche, Fach- und Statusfilter, fällige Themen zuerst, Zahl echter Abfragen, Statusbegründung und nächste Abfrage. Direkte Trainer-Einstiege sowie manuelle Ergebniserfassung; jeweils 20 Themen mit Nachladen. |
 | Woche | Sieben Tage ab heute mit Auslastung, blätterbar bis zur letzten Prüfung. Erarbeitungsthemen der Woche lassen sich mit einem Tipp aufs Board unter „Diese Woche“ legen. |
 | Prüfungen | Prüfung mit Datum, Gewicht und Themen (ganzes Fach, einzelne Themen, Suche, Übernahme von „Diese Woche“). Je Prüfung die vorsichtige Prognose aus `forecast.ts`. |
 | Lernzeit | Minuten je Wochentag, Ausnahmen (Ausfall oder andere Zeit, mit Notiz), Blocklänge, Abfragedauer, Puffer. |
@@ -113,6 +114,12 @@ Gespeichert werden nur Fakten: `studyLogs`, `reviewLogs`, `exams` und die Einste
 - Was heute schon gelernt oder abgefragt wurde, wird von der heutigen Zeit abgezogen, damit der Tag nach einem erledigten Block nicht neu aufgefüllt wird.
 - Erfasste Lernzeit schiebt das Thema auf dem Board nach „In Arbeit“ bzw. „Erarbeitet“.
 - Alles landet im Aktivitätsprotokoll (Art `lernplan`).
+
+### Sichere Ergebnisübernahme
+
+`trainer.ts` übernimmt je Trainer, Thema und Tag nur den ersten Versuch. Lesen, Prüfen und Schreiben laufen in einer IndexedDB-Transaktion; gleichzeitige Übernahmen aus mehreren Tabs und doppelte Themen in einer Übergabe erzeugen keine zusätzlichen Nachweise. Eine Übergabe mit ungültigen Ergebnissen wird vor dem Speichern vollständig abgelehnt. Ungültige oder nicht endliche Prozentwerte zählen auch beim Nachspielen bestehender Daten nicht als Nachweis. Lernzeit muss positiv und endlich sein. Fehlgeschlagene manuelle Speicherungen lassen die Eingabe geöffnet.
+
+Browserprüfung: `npm run test:wissen` gegen `UI_BASE_URL` (Standard `http://127.0.0.1:5180/`). Sie nutzt neue Browserkontexte mit synthetischen Daten; persönliche Browserdaten und echte KI-Aufrufe werden nicht benötigt.
 
 ## Offene Punkte
 
