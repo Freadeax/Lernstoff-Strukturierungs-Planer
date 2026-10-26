@@ -1,3 +1,4 @@
+import { ladeThemen } from '../../../core/topics';
 import { useMemo } from 'react';
 import type { BoardColumn } from '../../../core/board';
 import type { Exam, Subject, Topic } from '../../../core/types';
@@ -27,8 +28,7 @@ export interface PlanCtx {
 export function usePlan(): { ctx?: PlanCtx; error?: Error; retry: () => void } {
   const moduleId = useStore(session, (s) => s.moduleId);
   const mod = getModule(moduleId);
-  const topicsAll = mod?.topics ?? [];
-  const { state, retry } = useWidgetData({ deps: [moduleId], load: () => loadPlannerData(topicsAll, heute()) });
+  const { state, retry } = useWidgetData({ deps: [moduleId], load: async () => loadPlannerData(await ladeThemen(moduleId), heute()) });
   const data = state.status === 'ideal' || state.status === 'partial' ? state.data : undefined;
   const ctx = useMemo(() => {
     if (!data) return undefined;

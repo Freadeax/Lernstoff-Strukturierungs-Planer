@@ -1,3 +1,4 @@
+import { ladeThemen } from '../../core/topics';
 import { useMemo, useState } from 'react';
 import { db } from '../../core/db';
 import { BOARD_COLUMNS, COLUMN_LABEL, moveTopics, type BoardColumn } from '../../core/board';
@@ -164,9 +165,10 @@ export async function loadThemen(moduleId: string): Promise<ThemenData> {
   const stand = new Map(board.map((b) => [b.topicId, b.column]));
   const docCount = new Map<string, number>();
   docs.forEach((d) => d.topicIds.forEach((t) => docCount.set(t, (docCount.get(t) ?? 0) + 1)));
-  const byId = new Map(mod.topics.map((t) => [t.id, t]));
+  const topics = await ladeThemen(moduleId);
+  const byId = new Map(topics.map((t) => [t.id, t]));
   const subj = new Map(mod.subjects.map((s) => [s.id, s]));
-  const rows = mod.topics.filter((t) => t.parentId).map((t): ThemaRow => ({
+  const rows = topics.filter((t) => t.parentId || t.id.startsWith('thema.eigen.')).map((t): ThemaRow => ({
     id: t.id, name: t.name, bereich: byId.get(t.parentId!)?.name ?? '', fachId: t.subjectId,
     fach: subj.get(t.subjectId)?.code ?? subj.get(t.subjectId)?.name ?? '', schwierigkeit: t.difficulty, minuten: t.estimatedMinutes,
     voraussetzungen: t.prerequisites.length, dokumente: docCount.get(t.id) ?? 0, stand: stand.get(t.id) ?? 'pool',

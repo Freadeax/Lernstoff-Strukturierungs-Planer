@@ -1,4 +1,7 @@
+import { ladeZiel } from './ablage/ablage';
 import { useEffect, useState } from 'react';
+import { liveQuery } from 'dexie';
+import { ThemenZuordnung } from './dokumente/ThemenZuordnung';
 import { db, deleteDocument } from '../core/db';
 import type { Document, SourceChunk } from '../core/types';
 import { logActivity } from '../core/activity';
@@ -13,6 +16,7 @@ const subjects = modules.flatMap((m) => m.subjects);
 export function Dokumente() {
   const [docs, setDocs] = useState<Document[]>([]);
   const [subjectId, setSubjectId] = useState(subjects[0]?.id ?? '');
+  const [archive, setArchive] = useState(() => !!ladeZiel().token);
   const [handwritten, setHandwritten] = useState(false);
   const [busy, setBusy] = useState('');
   const [reports, setReports] = useState<ImportErgebnis[]>([]);
@@ -20,15 +24,17 @@ export function Dokumente() {
   const [chunks, setChunks] = useState<SourceChunk[]>([]);
 
   const reload = async () => setDocs(await db.documents.orderBy('importedAt').reverse().toArray().catch(() => db.documents.toArray()));
-  useEffect(() => { reload(); }, []);
+  useEffect(() => { const sub = liveQuery(async () => (await db.documents.toArray()).sort((a, b) => b.importedAt.localeCompare(a.importedAt))).subscribe(setDocs); return () => sub.unsubscribe(); }, []);
   useEffect(() => {
-    if (open) db.chunks.where('documentId').equals(open).sortBy('page').then(setChunks);
+    let active = true; setChunks([]);
+    if (open) db.chunks.where('documentId').equals(open).sortBy('page').then((rows) => { if (active) setChunks(rows); });
+    return () => { active = false; };
   }, [open]);
 
   async function onFiles(files: FileList | null) {
     if (!files?.length) return;
     try {
-      setReports(await importiereDateien(Array.from(files), { subjectId, handwritten, onProgress: (name) => setBusy(`Lese ${name} …`) }));
+      setReports(await importiereDateien(Array.from(files), { subjectId, handwritten, archive, onProgress: (name) => setBusy(`Lese ${name} …`) }));
     } finally {
       setBusy('');
       reload();
@@ -61,18 +67,21 @@ export function Dokumente() {
           <input type="checkbox" disabled={!!busy} checked={handwritten} onChange={(e) => setHandwritten(e.target.checked)} />
           <span><strong>Handschrift erkennen</strong><br />Bilder werden dafür an Claude gesendet. Verwende keine Patientendaten.</span>
         </label>
+        <label className="check"><input type="checkbox" checked={archive} disabled={!!busy} onChange={(e) => setArchive(e.target.checked)} /><span>Originale zusätzlich im privaten Material-Repo speichern · <a href="#/material/ablage">Verbindung verwalten</a></span></label>
         <label className="upload">
           <input type="file" multiple accept={ACCEPT}
             disabled={!!busy || !subjectId} onChange={(e) => { onFiles(e.target.files); e.target.value = ''; }} />
           <Icon name="upload" size={28} />
           <strong>{busy || 'Dateien auswählen und importieren'}</strong>
-          <small>PDF, Word, PowerPoint, Text oder Foto</small>
+          <small>PDF, Word, PowerPoint, Text, Foto oder ZIP</small>
         </label>
         {busy && <p className="note" role="status" aria-live="polite">{busy}</p>}
-        {reports.map((r) => (
-          <div key={r.name} className={r.error ? 'note warn' : 'note'}>
+        {reports.map((r, i) => (
+          <div key={`${r.name}-${i}`} className={r.error || r.archiveError ? 'note warn' : 'note'}>
             <strong>{r.name}</strong>
             {r.error && <div>{r.error}</div>}
+            {r.archive && <div>{r.archive}</div>}
+            {r.archiveError && <div role="alert">{r.archiveError}</div>}
             {r.report && (
               <div>
                 {r.report.pages} Seiten{r.report.ocrPages ? `, davon ${r.report.ocrPages} per Texterkennung` : ''}
@@ -93,8 +102,10 @@ export function Dokumente() {
             <button className="link" aria-expanded={open === d.id} aria-controls={`document-${d.id}`} onClick={() => setOpen(open === d.id ? null : d.id)}>
               <strong>{d.title}</strong> <span className="muted">{d.kind.toUpperCase()}</span>
             </button>
+            <a className="button-link" href={`#/material/zusammenfassen?dokument=${encodeURIComponent(d.id)}`}>Wichtigste Inhalte zusammenfassen</a>
             <button className="danger small" onClick={() => remove(d.id)}>Löschen</button>
           </div>
+          <ThemenZuordnung document={d} />
           {open === d.id && (
             <div id={`document-${d.id}`} className="chunks">
               {chunks.map((c) => (

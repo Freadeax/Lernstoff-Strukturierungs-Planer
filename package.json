@@ -12,6 +12,7 @@
     "preview": "vite preview --host",
     "test": "vitest run",
     "test:ui": "node scripts/check-ui.mjs",
+    "test:material": "node scripts/check-material.mjs",
     "typecheck": "tsc -b --noEmit"
   },
   "dependencies": {

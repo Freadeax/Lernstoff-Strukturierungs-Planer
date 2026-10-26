@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { ladeThemen } from '../../core/topics';
 import { db } from '../../core/db';
 import { BOARD_COLUMNS, COLUMN_LABEL, moveTopics, type BoardColumn } from '../../core/board';
 import { Widget } from '../../ui/widget/Widget';
@@ -278,7 +279,7 @@ export async function loadBoard(moduleId: string): Promise<BoardData> {
   const mod = getModule(moduleId);
   const entries = await db.board.toArray();
   const subj = new Map(mod?.subjects.map((s) => [s.id, s]) ?? []);
-  const cards = (mod?.topics ?? []).filter((t) => t.parentId).map((t) => ({
+  const cards = (await ladeThemen(moduleId)).filter((t) => t.parentId || t.id.startsWith('thema.eigen.')).map((t) => ({
     id: t.id, name: t.name, fachId: t.subjectId, fach: subj.get(t.subjectId)?.code ?? subj.get(t.subjectId)?.name ?? '',
     difficulty: t.difficulty, minutes: t.estimatedMinutes,
   }));

@@ -1,7 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
+import { liveQuery } from 'dexie';
+import { db } from '../../core/db';
+import { modules } from '../../modules/registry';
+import { importiereDateien, SUPPORTED, type ImportErgebnis } from '../dokumente/importiere';
+import type { Document } from '../../core/types';
 import skript from './abholen.py?raw';
 import {
-  AblageFehler, formatGroesse, ladeHoch, ladeZiel, listeDateien, parseRepo, pruefeRepo, readmeText, richteEin,
+  AblageFehler, ladeOriginal, formatGroesse, ladeHoch, ladeZiel, listeDateien, parseRepo, pruefeRepo, readmeText, richteEin,
   speichereZiel, teilAnzahl, type AblageZiel, type Eintrag, type Fortschritt, type RepoInfo,
 } from './ablage';
 import './ablage.css';
@@ -24,6 +29,11 @@ export default function Ablage() {
   const [verbinden, setVerbinden] = useState('');
   const [fehler, setFehler] = useState('');
   const [liste, setListe] = useState<Eintrag[]>([]);
+  const [subjectId, setSubjectId] = useState(modules[0]?.subjects[0]?.id ?? '');
+  const [verarbeiten, setVerarbeiten] = useState(true);
+  const [importBusy, setImportBusy] = useState('');
+  const [reports, setReports] = useState<ImportErgebnis[]>([]);
+  const [documents, setDocuments] = useState<Document[]>([]);
   const [kategorie, setKategorie] = useState('');
   const [notiz, setNotiz] = useState('');
   const [auftraege, setAuftraege] = useState<Auftrag[]>([]);
@@ -31,6 +41,31 @@ export default function Ablage() {
   const abbruch = useRef<AbortController | null>(null);
   const warteschlange = useRef<Auftrag[]>([]);
   const laeuftRef = useRef(false);
+
+  useEffect(() => { const sub = liveQuery(() => db.documents.toArray()).subscribe(setDocuments); return () => sub.unsubscribe(); }, []);
+
+  async function importiereOriginal(file: File, ordner: string) {
+    const results = await importiereDateien([file], { subjectId, handwritten: false, archive: false, repository: { owner: ziel.owner, repo: ziel.repo, ordner }, onProgress: (name) => setImportBusy(`Verarbeite ${name} …`) });
+    setReports((r) => [...r, ...results]);
+  }
+
+  async function ausRepo(e: Eintrag) {
+    setImportBusy(`Lade ${e.manifest?.name ?? e.ordner} …`); setFehler('');
+    try { await importiereOriginal(await ladeOriginal(ziel, e), e.ordner); }
+    catch (error) { setFehler(text(error)); }
+    finally { setImportBusy(''); }
+  }
+
+  const neueDateien = liste.filter((e) => e.manifest && SUPPORTED.test(e.manifest.name) && !documents.some((d) => d.repository?.owner === ziel.owner && d.repository?.repo === ziel.repo && d.repository?.ordner === e.ordner));
+  async function neueEinlesen() {
+    setImportBusy('Neue Quellen werden eingelesen …');
+    try {
+      for (const e of neueDateien) {
+        try { setImportBusy(`Lade ${e.manifest!.name} …`); await importiereOriginal(await ladeOriginal(ziel, e), e.ordner); }
+        catch (error) { setReports((r) => [...r, { name: e.manifest!.name, error: text(error) }]); }
+      }
+    } finally { setImportBusy(''); }
+  }
 
   const verbunden = !!info?.privat;
   const feedback = useFormFeedback({
@@ -109,6 +144,9 @@ export default function Ablage() {
           aendere(id, { status: r.uebersprungen ? 'uebersprungen' : 'fertig', ordner: r.ordner });
           if (!r.uebersprungen) vorhanden = [...vorhanden.filter((e) => e.ordner !== r.ordner), { ordner: r.ordner, manifest: r.manifest }];
           setListe(vorhanden);
+          if (verarbeiten && SUPPORTED.test(a.datei.name)) {
+            try { await importiereOriginal(a.datei, r.ordner); } finally { setImportBusy(''); }
+          }
         } catch (e) {
           if (ctrl.signal.aborted) { aendere(id, { status: 'abgebrochen' }); break; }
           aendere(id, { status: 'fehler', fehler: text(e) });
@@ -176,7 +214,9 @@ export default function Ablage() {
 
       {verbunden && (
         <div className="card">
-          <h3>Hochladen</h3>
+          <h3>Hochladen und als Lernquelle einlesen</h3>
+          <label className="field">Fach für Dokumente und Themen<select value={subjectId} disabled={laeuft || !!importBusy} onChange={(e) => setSubjectId(e.target.value)}>{modules.flatMap((m) => m.subjects).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
+          <label className="check"><input type="checkbox" checked={verarbeiten} disabled={laeuft || !!importBusy} onChange={(e) => setVerarbeiten(e.target.checked)} /><span>Nach dem Upload Text einlesen und Themen abgleichen (PDF, Office, Text, Fotos und ZIP)</span></label>
           <div className="ablage__felder">
             <label className="field">Kategorie (optional)
               <input placeholder="z. B. Pflege Heute, Anatomie" value={kategorie} onChange={(e) => setKategorie(e.target.value)} />
@@ -186,7 +226,7 @@ export default function Ablage() {
             </label>
           </div>
           <label className="upload">
-            <input type="file" multiple onChange={(e) => { hinzufuegen(e.target.files); e.target.value = ''; }} />
+            <input type="file" multiple disabled={laeuft || !!importBusy} onChange={(e) => { hinzufuegen(e.target.files); e.target.value = ''; }} />
             <span>Dateien auswählen – beliebig viele, beliebig groß</span>
           </label>
           <p className="muted">Tipp: Während des Uploads die App offen lassen. Bei einem Abbruch einfach dieselben Dateien erneut wählen: Fertiges wird übersprungen, bereits gesendete Teile nicht noch einmal übertragen.</p>
@@ -210,10 +250,13 @@ export default function Ablage() {
         </div>
       )}
 
+      {importBusy && <p className="note" role="status">{importBusy}</p>}
+      {reports.map((r, i) => <div className={r.error || r.archiveError ? 'note warn' : 'note ok'} key={i}><strong>{r.name}</strong><div>{r.error ?? `${r.report?.pages ?? 0} Seiten eingelesen. Themenzuordnung steht unter Dokumente bereit.`}</div>{r.documentId && <div className="row"><a href={`#/material/zusammenfassen?dokument=${encodeURIComponent(r.documentId)}`}>Wichtigste Inhalte zusammenfassen</a><a href="#/material/dokumente">Themen prüfen</a></div>}</div>)}
       {verbunden && (
         <div className="card">
           <div className="row" style={{ marginTop: 0 }}>
             <h3>Im Repo ({liste.length})</h3>
+            {neueDateien.length > 0 && <button type="button" className="small" disabled={laeuft || !!importBusy} onClick={() => void neueEinlesen()}>Neue Dateien einlesen ({neueDateien.length})</button>}
             <button className="small" onClick={async () => { try { setListe(await listeDateien(ziel)); } catch (e) { setFehler(text(e)); } }}>Aktualisieren</button>
           </div>
           {liste.length === 0 && <p className="muted">Noch nichts hochgeladen.</p>}
@@ -226,10 +269,12 @@ export default function Ablage() {
                   {e.manifest && ` · ${formatGroesse(e.manifest.groesse)} · ${e.manifest.teile.length} Teil${e.manifest.teile.length === 1 ? '' : 'e'}`}
                   {e.manifest?.kategorie && ` · ${e.manifest.kategorie}`}
                 </div>
+                {documents.some((d) => d.repository?.owner === ziel.owner && d.repository?.repo === ziel.repo && d.repository?.ordner === e.ordner) && <span className="badge">Als Dokument verfügbar</span>}
+                {e.manifest && SUPPORTED.test(e.manifest.name) && <button type="button" className="small" disabled={laeuft || !!importBusy} onClick={() => void ausRepo(e)}>Als Dokument einlesen / Themen abgleichen</button>}
               </li>
             ))}
           </ul>
-          <p className="muted">Claude findet die Dateien unter diesem Ordnernamen. Sag im Thread einfach z. B. „Lies das Buch <code>{liste[0]?.ordner ?? 'pflege-heute'}</code> aus der Material-Ablage“.</p>
+          <p className="muted">Bereits hochgeladene Dateien kannst du direkt als Dokument einlesen und anschließend zusammenfassen. Die Originale bleiben im privaten Repo; Text und Lernstand liegen auf diesem Gerät.</p>
         </div>
       )}
     </section>
