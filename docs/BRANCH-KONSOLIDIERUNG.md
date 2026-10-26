@@ -57,6 +57,6 @@ Stand: 26. Oktober 2026. Ausgangspunkt: `4a9a1b1401e6dc16db034c7c4330eeacbc91524
 - `npm run build`: TypeScript und Produktionsbuild erfolgreich, PWA generiert. Vite meldet weiterhin große JavaScript-Bundles als Optimierungshinweis.
 - `npm run test:ui`: alle geprüften Desktop-/Handy-Abläufe erfolgreich; keine Laufzeitfehler und keine automatisiert erkannten WCAG-Verstöße auf den geprüften Seiten.
 - `npm run test:material`: Browserimport, Themenpool, Zusammenfasser-Verlinkung, privater Repo-Abruf und Assistent-Sicherung bei 390, 820 und 1280 Pixeln bestanden. GitHub-Schreibzugriffe dabei ausschließlich simuliert.
-- Parallel auf main fertiggestellter Material-Stand ab0f06 regulär nachgezogen; zusätzliche Kapitelhierarchie-Prüfung und Sammelimport neuer Repo-Dateien erhalten. Der Sammelimport wurde im iPad-Ablauf geprüft.
+- Parallel auf main fertiggestellter Material-Stand fab0f06 regulär nachgezogen; zusätzliche Kapitelhierarchie-Prüfung und Sammelimport neuer Repo-Dateien erhalten. Der Sammelimport wurde im iPad-Ablauf geprüft.
 - Zusätzliche QR-Prüfung bei 390, 820 und 1440 Pixeln: Fall anlegen, Code anzeigen, SVG-Inhalt prüfen, Escape schließen; ohne Überlauf oder Laufzeitfehler.
 - Browserprüfungen mit installiertem Chrome in neuen, isolierten Browserkontexten.
