@@ -11,3 +11,4 @@ alwaysApply: true
 - Fertige Änderungen prüfen, auf GitHub `main` integrieren und pushen. Bei Änderungen an der App auch die vorhandene GitHub-Pages-Veröffentlichung aktualisieren und prüfen: Nutzung erfolgt überwiegend auf Handy und iPad.
 - Material-Originale bleiben im privaten Material-Repo. Keine Originale, Zugangsdaten oder privaten Inhalte im öffentlichen Planer oder dessen Pages-Build veröffentlichen.
 - Änderungen am Materialformat zwischen App, Material-README und Abholskript abstimmen; bestehende Uploads und Prüfsummen kompatibel halten.
+- Nur main als dauerhaften Branch führen. Vor jedem Push aktuelle Remote-Änderungen integrieren; die Website wird automatisch direkt aus main veröffentlicht.

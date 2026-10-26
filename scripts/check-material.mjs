@@ -61,7 +61,7 @@ try {
     });
     await page.evaluate(() => localStorage.setItem('lernstoff.ablage', JSON.stringify({ owner: 'test', repo: 'material', token: 'test-only' })));
     await go('/material/ablage');
-    await page.getByRole('button', { name: 'Als Dokument einlesen / Themen abgleichen' }).click();
+    await page.getByRole('button', { name: width === 820 ? 'Neue Dateien einlesen (1)' : 'Als Dokument einlesen / Themen abgleichen' }).click();
     await page.getByRole('link', { name: 'Wichtigste Inhalte zusammenfassen' }).waitFor();
     await page.getByText('Als Dokument verfügbar', { exact: true }).waitFor();
     assert.equal(writes, 0, 'Repo-Datei wurde erneut hochgeladen');
@@ -80,4 +80,3 @@ try {
     await context.close();
   }
 } finally { await browser.close(); }
-
