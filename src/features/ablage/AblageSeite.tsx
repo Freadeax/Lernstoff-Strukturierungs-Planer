@@ -5,6 +5,8 @@ import {
   speichereZiel, teilAnzahl, type AblageZiel, type Eintrag, type Fortschritt, type RepoInfo,
 } from './ablage';
 import './ablage.css';
+import { Field, useFormFeedback } from '../../ui/form/Field';
+import { PageHeading } from '../../ui/PageHeading';
 
 type Status = 'wartet' | 'laeuft' | 'fertig' | 'uebersprungen' | 'fehler' | 'abgebrochen';
 interface Auftrag { id: number; datei: File; status: Status; fortschritt?: Fortschritt; fehler?: string; ordner?: string }
@@ -31,6 +33,10 @@ export default function Ablage() {
   const laeuftRef = useRef(false);
 
   const verbunden = !!info?.privat;
+  const feedback = useFormFeedback({
+    repo: !parseRepo(repoEingabe) ? 'Gib das Repository als „Name/Repository“ oder als vollständige GitHub-Adresse ein.' : '',
+    token: !ziel.token.trim() ? 'Füge einen GitHub-Token mit „Contents: Read and write“ für dieses private Repository ein.' : '',
+  });
 
   async function verbindeMit(z: AblageZiel) {
     setFehler(''); setVerbinden('Prüfe Zugriff …');
@@ -128,10 +134,8 @@ export default function Ablage() {
 
   return (
     <section className="page ablage">
-      <div className="page__head">
-        <h2>Große Dateien</h2>
-        <p className="muted">Bücher und Skripte beliebiger Größe in dein privates GitHub-Repo laden, damit Claude sie lesen kann. Große Dateien werden automatisch in Teile zerlegt.</p>
-      </div>
+      <PageHeading eyebrow="Deine Materialablage" title="Auch große Quellen haben ihren Platz."
+        description="Lege Bücher und Skripte in deinem privaten GitHub-Repository ab. Große Dateien werden automatisch in Teile zerlegt." />
 
       <div className="card">
         <h3>Verbindung</h3>
@@ -141,18 +145,19 @@ export default function Ablage() {
             <div className="row"><span className="muted">Token liegt nur auf diesem Gerät.</span><button className="small" onClick={trennen}>Trennen</button></div>
           </>
         ) : (
-          <>
-            <label className="field">Privates Repo
-              <input className="wide" autoCapitalize="off" autoCorrect="off" spellCheck={false} placeholder="Freadeax/lernstoff-material"
-                value={repoEingabe} onChange={(e) => setRepoEingabe(e.target.value)} />
-            </label>
-            <label className="field">Fine-grained Token (nur dieses Repo, „Contents: Read and write“)
-              <input className="wide" type="password" autoComplete="off" placeholder="github_pat_…"
-                value={ziel.token} onChange={(e) => setZiel({ ...ziel, token: e.target.value })} />
-            </label>
+          <form className="form-stack" noValidate onSubmit={(e) => { e.preventDefault(); if (feedback.validate(e.currentTarget)) speichern(); }}>
+            <p className="required-note">Mit <span className="required-mark">*</span> markierte Felder sind erforderlich.</p>
+            <Field label="Privates GitHub-Repository" name="repo" required hint="Das Repository muss privat sein. Beispiel: Freadeax/lernstoff-Material-." error={feedback.error('repo')}>
+              {(props) => <input {...props} disabled={!!verbinden} autoCapitalize="off" autoCorrect="off" spellCheck={false} placeholder="Name/Repository"
+                value={repoEingabe} onBlur={() => feedback.touch('repo')} onChange={(e) => setRepoEingabe(e.target.value)} />}
+            </Field>
+            <Field label="GitHub-Zugriffstoken" name="token" required hint="Verwende einen Fine-grained Token nur für dieses Repository mit „Contents: Read and write“. Er bleibt auf diesem Gerät." error={feedback.error('token')}>
+              {(props) => <input {...props} disabled={!!verbinden} type="password" autoComplete="off" autoCapitalize="none" spellCheck={false} placeholder="github_pat_…"
+                value={ziel.token} onBlur={() => feedback.touch('token')} onChange={(e) => setZiel({ ...ziel, token: e.target.value })} />}
+            </Field>
             <div className="row">
-              <button className="primary" disabled={!!verbinden} onClick={speichern}>Verbinden</button>
-              {verbinden && <span className="muted">{verbinden}</span>}
+              <button type="submit" className="primary" disabled={!!verbinden}>Repository verbinden</button>
+              {verbinden && <span className="muted" role="status">{verbinden}</span>}
             </div>
             <details className="ablage__hilfe">
               <summary>So richtest du es ein (einmalig, ca. 3 Minuten)</summary>
@@ -164,9 +169,9 @@ export default function Ablage() {
                 <li>Damit Claude die Dateien abholen kann, das Repo in den Projekteinstellungen unter Repositories hinzufügen.</li>
               </ol>
             </details>
-          </>
+          </form>
         )}
-        {fehler && <div className="note warn">{fehler}</div>}
+        {fehler && <div className="note warn" role="alert">{fehler}</div>}
       </div>
 
       {verbunden && (

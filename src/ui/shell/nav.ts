@@ -24,7 +24,12 @@ export const NAV: NavItem[] = [
       { id: 'themen', label: 'Themen', path: '/lernen/themen', icon: 'table', tab: true },
       { id: 'landkarte', label: 'Themen-Landkarte', path: '/lernen/landkarte', icon: 'map' },
       { id: 'board', label: 'Lernstand', path: '/lernen/board', icon: 'board', tab: true },
-      { id: 'karten', label: 'Karteikarten', path: '/lernen/karten', icon: 'cards' },
+      { id: 'karten', label: 'Karteikarten', path: '/lernen/karten', icon: 'cards', tab: true },
+      { id: 'faecher', label: 'Fächer', path: '/lernen/faecher', icon: 'layers' },
+    ],
+  },
+  {
+    id: 'ueben', label: 'Üben & anwenden', icon: 'clipboard', children: [
       { id: 'rechnen', label: 'Rechentrainer', path: '/lernen/rechnen', icon: 'calc' },
       { id: 'fall', label: 'Fallsimulator', path: '/lernen/fall', icon: 'user' },
       { id: 'duell', label: 'Fachbegriff-Duell', path: '/lernen/duell', icon: 'duell' },
@@ -36,7 +41,6 @@ export const NAV: NavItem[] = [
       { id: 'klasse', label: 'Klassenmodus', path: '/lernen/klasse', icon: 'klasse' },
       { id: 'assessment', label: 'Assessments', path: '/lernen/assessment', icon: 'gauge' },
       { id: 'uebergabe', label: 'Übergabe-Trainer', path: '/lernen/uebergabe', icon: 'chat' },
-      { id: 'faecher', label: 'Fächer', path: '/lernen/faecher', icon: 'layers' },
     ],
   },
   {

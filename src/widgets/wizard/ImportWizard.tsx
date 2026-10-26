@@ -13,6 +13,7 @@ import { session } from '../../ui/shell/session';
 import { notify } from '../../ui/shell/notifications';
 import { getModule } from '../../modules/registry';
 import { ACCEPT, SUPPORTED, importiereDateien, type ImportErgebnis } from '../../features/dokumente/importiere';
+import { Field } from '../../ui/form/Field';
 
 const STEPS = ['Fach und Art', 'Dateien', 'Prüfen und importieren', 'Ergebnis'] as const;
 const DRAFT_KEY = 'lernstoff.importDraft';
@@ -122,21 +123,25 @@ function WizardBody({ data, partial }: { data: WizardData; partial: boolean }) {
         })}
       </ol>
 
+      <div className="wizard-progress"><span>Schritt {step + 1} von {STEPS.length}</span><progress max={STEPS.length} value={step + 1} aria-label={`Importschritt ${step + 1} von ${STEPS.length}`} /></div>
+
       <div className="wizard__panel">
-        <h4 ref={headRef} tabIndex={-1} className="wizard__title">Schritt {step + 1}: {STEPS[step]}</h4>
+        <h4 ref={headRef} tabIndex={-1} className="wizard__title">{STEPS[step]}</h4>
 
         {step === 0 && (
           <>
-            <label className="field">Fach
-              <select value={subjectId} onChange={(e) => setSubjectId(e.target.value)} aria-invalid={touched.has(0) && !subjectId}
-                aria-describedby={touched.has(0) && errors[0]!.length ? errId : undefined}>
+            <p className="form-section__description">Wähle, wohin dein Material gehört. Gedruckter Text wird direkt auf deinem Gerät erkannt.</p>
+            <p className="required-note">Mit <span className="required-mark">*</span> markierte Felder sind erforderlich.</p>
+            <Field label="Fach für dein Material" name="subjectId" required hint="Dein zuletzt gewähltes Fach wird als Entwurf gespeichert."
+              error={touched.has(0) && !subjectId ? 'Wähle ein Fach, damit du dein Material später wiederfindest.' : undefined}>
+              {(props) => <select {...props} value={subjectId} onBlur={() => setTouched((t) => new Set(t).add(0))} onChange={(e) => setSubjectId(e.target.value)}>
                 <option value="">Bitte wählen</option>
                 {data.subjects.map((s) => <option key={s.id} value={s.id}>{s.code ? `${s.code} · ` : ''}{s.name}</option>)}
-              </select>
-            </label>
+              </select>}
+            </Field>
             <label className="check">
               <input type="checkbox" checked={handwritten} onChange={(e) => setHandwritten(e.target.checked)} />
-              <span>Handschrift: Bilder werden zur Texterkennung an Claude gesendet. Keine Patientendaten!</span>
+              <span><strong>Handschrift erkennen</strong><br />Nur aktivieren, wenn dein Material handschriftliche Notizen enthält. Die Bilder werden dafür an Claude gesendet. Verwende keine Patientendaten.</span>
             </label>
             {handwritten && !data.hasKey && <p className="note warn">Ohne API-Schlüssel geht Handschrift nicht. <button type="button" className="link" onClick={() => navigate('/einstellungen')}>Zu den Einstellungen</button></p>}
           </>
@@ -144,10 +149,12 @@ function WizardBody({ data, partial }: { data: WizardData; partial: boolean }) {
 
         {step === 1 && (
           <>
+            <p className="form-section__description">Wähle eine oder mehrere Dateien. Im nächsten Schritt prüfst du deine Auswahl, bevor der Import startet.</p>
             <label className="upload">
-              <input type="file" multiple accept={ACCEPT} onChange={(e) => { const picked = Array.from(e.target.files ?? []); setFiles((f) => [...f, ...picked]); e.target.value = ''; }} />
+              <input type="file" multiple accept={ACCEPT} aria-describedby={touched.has(1) && errors[1]!.length ? errId : undefined} aria-invalid={touched.has(1) && !!errors[1]!.length} onBlur={() => setTouched((t) => new Set(t).add(1))} onChange={(e) => { const picked = Array.from(e.target.files ?? []); setFiles((f) => [...f, ...picked]); setTouched((t) => new Set(t).add(1)); e.target.value = ''; }} />
               <Icon name="upload" size={28} />
-              <span>Dateien auswählen: PDF, Word, PowerPoint, Text oder Foto</span>
+              <strong>Dateien auswählen <span className="required-mark" aria-hidden="true">*</span></strong>
+              <small>PDF, Word, PowerPoint, TXT, Markdown oder Foto (PNG, JPEG, WebP)</small>
             </label>
             {files.length > 0 && (
               <ul className="filelist" role="list">

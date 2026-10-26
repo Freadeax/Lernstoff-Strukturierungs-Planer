@@ -8,6 +8,7 @@ import { NotificationCenter, Toaster } from './NotificationCenter';
 import { Sidebar, TabBar } from './Sidebar';
 import { navigate, useRoute } from './router';
 import { session, setWorkspace, type Theme } from './session';
+import { flatNav, NAV } from './nav';
 
 function WorkspaceSwitcher() {
   const moduleId = useStore(session, (s) => s.moduleId);
@@ -38,15 +39,18 @@ function ProfileMenu() {
 
 function Header() {
   const drawer = useStore(session, (s) => s.drawerOpen);
+  const { path } = useRoute();
+  const current = flatNav(NAV).find((item) => item.path === path)?.label ?? 'Lernarbeitsplatz';
   return (
-    <header className="shell__header">
+    <header className="shell__header" inert={drawer}>
       <button type="button" className="icon ghost shell__menu-btn" aria-label="Navigation öffnen" aria-controls="sidebar"
         aria-expanded={drawer} onClick={() => session.set({ drawerOpen: !drawer })}>
         <Icon name="menu" />
       </button>
-      <WorkspaceSwitcher />
+      <div className="header-context"><span>Lernarbeitsplatz</span><Icon name="chevronRight" size={14} /><strong>{current}</strong></div>
       <div className="shell__search"><Omnibar /></div>
       <div className="shell__actions">
+        <WorkspaceSwitcher />
         <NotificationCenter />
         <ProfileMenu />
       </div>
@@ -57,11 +61,13 @@ function Header() {
 /** App-Rahmen: Seitenleiste, Kopf, Inhalt, untere Leiste (Handy), Toasts. */
 export function Shell({ children }: { children: ReactNode }) {
   const collapsed = useStore(session, (s) => s.sidebarCollapsed);
+  const drawer = useStore(session, (s) => s.drawerOpen);
   const { path } = useRoute();
   const main = useRef<HTMLElement>(null);
   // Nach Seitenwechsel Fokus auf den Inhalt (Screenreader) und nach oben scrollen.
   const first = useRef(true);
   useEffect(() => {
+    document.title = `${flatNav(NAV).find((item) => item.path === path)?.label ?? 'Lernarbeitsplatz'} · Lernstoff`;
     if (first.current) { first.current = false; return; }
     main.current?.focus({ preventScroll: true });
     window.scrollTo({ top: 0 });
@@ -72,7 +78,7 @@ export function Shell({ children }: { children: ReactNode }) {
       <a className="skip-link" href="#main" onClick={(e) => { e.preventDefault(); main.current?.focus(); }}>Zum Inhalt springen</a>
       <Sidebar />
       <Header />
-      <main id="main" ref={main} className="shell__main" tabIndex={-1}>
+      <main id="main" ref={main} className="shell__main" tabIndex={-1} inert={drawer}>
         <div className="content">{children}</div>
       </main>
       <TabBar />

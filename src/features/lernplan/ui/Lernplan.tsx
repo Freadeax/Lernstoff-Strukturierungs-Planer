@@ -5,6 +5,7 @@ import { Heute } from './Heute';
 import { Woche } from './Woche';
 import { Pruefungen } from './Pruefungen';
 import { Zeit } from './Zeit';
+import { PageHeading } from '../../../ui/PageHeading';
 
 export type { PlanCtx } from './usePlan';
 
@@ -25,13 +26,20 @@ export default function Lernplan() {
 
   return (
     <section className="page lernplan">
-      <div className="page__head">
-        <h2>Lernplan</h2>
-        <p className="muted">Wird bei jedem Öffnen aus deinem Ist-Stand neu berechnet: Lernzeit, echte Abfragen und verfügbare Zeit.</p>
-      </div>
+      <PageHeading eyebrow="Schritt für Schritt" title="Dein Plan. Passend zu deinem Alltag."
+        description="Prüfungstermine, verfügbare Zeit und echte Abfragen bestimmen deine nächsten Lerneinheiten." />
       <div className="pills lernplan__tabs" role="tablist" aria-label="Ansicht">
         {ANSICHTEN.map((a) => (
-          <button key={a.id} type="button" role="tab" className="pill" aria-selected={ansicht === a.id} aria-pressed={ansicht === a.id}
+          <button key={a.id} id={`plan-tab-${a.id}`} type="button" role="tab" className="pill" aria-selected={ansicht === a.id} aria-controls="plan-panel" tabIndex={ansicht === a.id ? 0 : -1}
+            onKeyDown={(e) => {
+              const index = ANSICHTEN.findIndex((v) => v.id === a.id);
+              const target = e.key === 'ArrowRight' ? (index + 1) % ANSICHTEN.length : e.key === 'ArrowLeft' ? (index + ANSICHTEN.length - 1) % ANSICHTEN.length : e.key === 'Home' ? 0 : e.key === 'End' ? ANSICHTEN.length - 1 : -1;
+              if (target < 0) return;
+              e.preventDefault();
+              const next = ANSICHTEN[target]!;
+              navigate(next.id === 'heute' ? '/lernen/plan' : `/lernen/plan?ansicht=${next.id}`);
+              document.getElementById(`plan-tab-${next.id}`)?.focus();
+            }}
             onClick={() => navigate(a.id === 'heute' ? '/lernen/plan' : `/lernen/plan?ansicht=${a.id}`)}>
             {a.label}{a.id === 'pruefungen' && upcoming.length ? ` (${upcoming.length})` : ''}
           </button>
@@ -40,7 +48,7 @@ export default function Lernplan() {
       {error && <p className="note warn">Lernplan konnte nicht geladen werden: {error.message} <button type="button" className="small" onClick={retry}>Erneut versuchen</button></p>}
       {!ctx && !error && <p className="muted">Lädt …</p>}
       {ctx && (
-        <div role="tabpanel">
+        <div id="plan-panel" role="tabpanel" aria-labelledby={`plan-tab-${ansicht}`} tabIndex={0}>
           {ansicht === 'heute' && <Heute ctx={ctx} />}
           {ansicht === 'woche' && <Woche ctx={ctx} />}
           {ansicht === 'pruefungen' && <Pruefungen ctx={ctx} />}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Icon } from '../icons';
 import { useStore } from '../lib/store';
 import { isActive, useRoute } from './router';
@@ -15,7 +15,8 @@ function NavTree({ items, level, path, collapsed }: { items: NavItem[]; level: n
 
 function NavEntry({ item, level, path, collapsed }: { item: NavItem; level: number; path: string; collapsed: boolean }) {
   const containsActive = !!item.children?.some((c) => c.path && isActive(c.path, path));
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(item.id !== 'ueben' || containsActive);
+  useEffect(() => { if (containsActive) setOpen(true); }, [containsActive]);
   const close = () => session.set({ drawerOpen: false });
 
   if (item.children?.length) {
@@ -38,7 +39,7 @@ function NavEntry({ item, level, path, collapsed }: { item: NavItem; level: numb
   return (
     <li>
       <a className={`nav__item${active ? ' nav__item--active' : ''}`} href={`#${item.path}`} aria-current={active ? 'page' : undefined}
-        onClick={close} title={collapsed ? item.label : undefined}>
+        onClick={close} aria-label={collapsed ? item.label : undefined} title={collapsed ? item.label : undefined}>
         {item.icon && <Icon name={item.icon} />}
         <span className="nav__label">{item.label}</span>
       </a>
@@ -52,19 +53,44 @@ export function Sidebar() {
   const collapsed = useStore(session, (s) => s.sidebarCollapsed);
   const drawer = useStore(session, (s) => s.drawerOpen);
   const items = visibleNav(NAV, roles);
+  const aside = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (!drawer) return;
+    const previous = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    aside.current?.querySelector<HTMLElement>('.sidebar__close')?.focus();
+    const trap = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { session.set({ drawerOpen: false }); return; }
+      if (e.key !== 'Tab') return;
+      const nodes = [...(aside.current?.querySelectorAll<HTMLElement>('a[href], button:not(:disabled)') ?? [])].filter((el) => el.getClientRects().length);
+      const first = nodes[0], last = nodes[nodes.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last?.focus(); }
+      if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first?.focus(); }
+    };
+    document.addEventListener('keydown', trap);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', trap);
+      if (previous instanceof HTMLElement) previous.focus({ preventScroll: true });
+    };
+  }, [drawer]);
   return (
     <>
       {drawer && <div className="shell__scrim" onClick={() => session.set({ drawerOpen: false })} aria-hidden="true" />}
-      <aside id="sidebar" className={`shell__sidebar${drawer ? ' is-open' : ''}`} aria-label="Hauptnavigation"
+      <aside ref={aside} id="sidebar" className={`shell__sidebar${drawer ? ' is-open' : ''}`} aria-label="Hauptnavigation" role={drawer ? 'dialog' : undefined} aria-modal={drawer || undefined}
         onKeyDown={(e) => { if (e.key === 'Escape' && drawer) session.set({ drawerOpen: false }); }}>
         <div className="sidebar__brand">
-          <img src="./icon.svg" alt="" width={28} height={28} />
-          <span className="nav__label">Lernstoff-Planer</span>
+          <span className="brand-mark" aria-hidden="true"><Icon name="book" size={23} /></span>
+          <span className="nav__label brand-wordmark">Lernstoff<span>Dein Lernarbeitsplatz</span></span>
+          <button type="button" className="icon ghost sidebar__close" aria-label="Navigation schließen" onClick={() => session.set({ drawerOpen: false })}><Icon name="close" /></button>
         </div>
         <nav className="sidebar__nav" aria-label="Bereiche">
           <NavTree items={items} level={1} path={path} collapsed={collapsed && !drawer} />
         </nav>
-        <button type="button" className="ghost sidebar__collapse" aria-expanded={!collapsed} aria-controls="sidebar"
+        <a className="sidebar__import" href="#/material/import" aria-label="Material hinzufügen" onClick={() => session.set({ drawerOpen: false })}><Icon name="plus" size={18} /><span className="nav__label">Material hinzufügen</span></a>
+        <div className="sidebar__local"><span aria-hidden="true" /> <span className="nav__label">Deine Lerndaten bleiben bei dir</span></div>
+        <button type="button" className="ghost sidebar__collapse" aria-label={collapsed ? 'Seitenleiste ausklappen' : 'Seitenleiste einklappen'} aria-expanded={!collapsed} aria-controls="sidebar"
           onClick={() => session.set({ sidebarCollapsed: !collapsed })}>
           <Icon name="sidebar" />
           <span className="nav__label">{collapsed ? 'Ausklappen' : 'Einklappen'}</span>
@@ -77,10 +103,11 @@ export function Sidebar() {
 export function TabBar() {
   const { path } = useRoute();
   const roles = useStore(session, (s) => s.roles);
+  const drawer = useStore(session, (s) => s.drawerOpen);
   const flat = (items: NavItem[]): NavItem[] => items.flatMap((i) => [...(i.tab ? [i] : []), ...flat(i.children ?? [])]);
-  const tabs = flat(visibleNav(NAV, roles));
+  const tabs = flat(visibleNav(NAV, roles)).filter((t) => ['uebersicht', 'plan', 'karten', 'dokumente'].includes(t.id));
   return (
-    <nav className="shell__tabbar" aria-label="Schnellzugriff">
+    <nav className="shell__tabbar" aria-label="Schnellzugriff" inert={drawer}>
       {tabs.map((t) => {
         const active = t.path === '/' ? path === '/' : isActive(t.path!, path);
         return (
@@ -90,7 +117,7 @@ export function TabBar() {
           </a>
         );
       })}
-      <button type="button" className="tab" aria-label="Alle Bereiche" aria-controls="sidebar" aria-expanded={false}
+      <button type="button" className="tab" aria-label="Alle Bereiche" aria-controls="sidebar" aria-expanded={drawer}
         onClick={() => session.set({ drawerOpen: true })}>
         <Icon name="menu" size={22} /><span>Mehr</span>
       </button>

@@ -5,6 +5,7 @@ import { saveConfig, WEEKDAYS } from '../store';
 import type { Availability } from '../types';
 import { dauer, kurzDatum } from './format';
 import type { PlanCtx } from './Lernplan';
+import { Field, useFormFeedback } from '../../../ui/form/Field';
 
 // Montag zuerst, wie im deutschen Kalender
 const REIHENFOLGE = [1, 2, 3, 4, 5, 6, 0];
@@ -27,10 +28,15 @@ function Ausnahmen({ ctx }: { ctx: PlanCtx }) {
   const notes = cfg.exceptionNotes ?? {};
   const kommend = Object.keys(ex).filter((d) => d >= today).sort();
   const n = Math.max(0, Math.round(Number(min) || 0));
+  const feedback = useFormFeedback({
+    from: !von ? 'Wähle den ersten Tag der Ausnahme.' : von < today ? 'Wähle heute oder einen späteren Tag.' : '',
+    to: !bis ? 'Wähle den letzten Tag der Ausnahme.' : bis < von ? 'Das Enddatum darf nicht vor dem Startdatum liegen.' : '',
+    minutes: !min.trim() || !Number.isInteger(Number(min)) || Number(min) < 0 || Number(min) > 1440 ? 'Gib eine ganze Zahl zwischen 0 und 1440 Minuten ein. 0 bedeutet keine Lernzeit.' : '',
+  });
 
-  const hinzufuegen = (e: React.FormEvent) => {
+  const hinzufuegen = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!von || bis < von) return;
+    if (!feedback.validate(e.currentTarget)) return;
     const tage = eachDay(von, addDays(bis, 1));
     const exceptions = { ...ex };
     const exceptionNotes = { ...notes };
@@ -49,12 +55,13 @@ function Ausnahmen({ ctx }: { ctx: PlanCtx }) {
     <div className="card">
       <h3>Ausnahmen</h3>
       <p className="muted">Krank, Spätdienst, Urlaub oder ein freier Tag mit mehr Zeit. Verpasste Blöcke landen automatisch wieder im Plan.</p>
-      <form className="ausnahme-form" onSubmit={hinzufuegen}>
-        <label className="field">Von<input type="date" value={von} min={today} onChange={(e) => { setVon(e.target.value); if (bis < e.target.value) setBis(e.target.value); }} /></label>
-        <label className="field">Bis<input type="date" value={bis} min={von} onChange={(e) => setBis(e.target.value)} /></label>
-        <label className="field">Minuten pro Tag<input inputMode="numeric" value={min} onChange={(e) => setMin(e.target.value)} size={4} /></label>
-        <label className="field">Notiz<input value={notiz} onChange={(e) => setNotiz(e.target.value)} placeholder="z. B. krank" /></label>
-        <button type="submit" disabled={!von || bis < von}>{n === 0 ? 'Als Ausfall eintragen' : 'Übernehmen'}</button>
+      <form className="ausnahme-form" onSubmit={hinzufuegen} noValidate>
+        <p className="required-note">Mit <span className="required-mark">*</span> markierte Felder sind erforderlich.</p>
+        <Field label="Von" name="from" required error={feedback.error('from')}>{(props) => <input {...props} type="date" value={von} min={today} onBlur={() => feedback.touch('from')} onChange={(e) => { setVon(e.target.value); if (bis < e.target.value) setBis(e.target.value); }} />}</Field>
+        <Field label="Bis einschließlich" name="to" required error={feedback.error('to')}>{(props) => <input {...props} type="date" value={bis} min={von} onBlur={() => feedback.touch('to')} onChange={(e) => setBis(e.target.value)} />}</Field>
+        <Field label="Lernzeit pro Tag in Minuten" name="minutes" required hint="0 Minuten bedeutet: An diesen Tagen hast du frei vom Lernen." error={feedback.error('minutes')}>{(props) => <input {...props} type="number" min={0} max={1440} step={1} inputMode="numeric" value={min} onBlur={() => feedback.touch('minutes')} onChange={(e) => setMin(e.target.value)} />}</Field>
+        <Field label="Notiz" name="note" hint="Optional. Zum Beispiel Schichtdienst, Urlaub oder krank.">{(props) => <input {...props} value={notiz} onChange={(e) => setNotiz(e.target.value)} placeholder="z. B. Spätdienst" />}</Field>
+        <button type="submit">{n === 0 ? 'Als Ausfall eintragen' : 'Lernzeit übernehmen'}</button>
       </form>
       {kommend.length > 0 && (
         <ul className="erledigt">
@@ -76,9 +83,11 @@ export function Zeit({ ctx }: { ctx: PlanCtx }) {
   const summe = woche.reduce((s, x) => s + (Math.round(Number(x)) || 0), 0);
   const geaendert = woche.some((x, i) => (Math.round(Number(x)) || 0) !== cfg.availability.minutesByWeekday[i]);
   const s = ctx.settings;
+  const feedback = useFormFeedback(Object.fromEntries(woche.map((value, i) => [`day-${i}`, !value.trim() || !Number.isInteger(Number(value)) || Number(value) < 0 || Number(value) > 1440 ? 'Gib eine ganze Zahl zwischen 0 und 1440 Minuten ein. Für einen freien Tag trage 0 ein.' : ''])));
 
-  const wocheSpeichern = (e: React.FormEvent) => {
+  const wocheSpeichern = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!feedback.validate(e.currentTarget)) return;
     const minutesByWeekday = woche.map((x) => Math.max(0, Math.round(Number(x)) || 0)) as Availability['minutesByWeekday'];
     speichere(() => saveConfig({ availability: { ...cfg.availability, minutesByWeekday } }), 'Wochenzeit gespeichert, Plan neu berechnet');
   };
@@ -86,15 +95,14 @@ export function Zeit({ ctx }: { ctx: PlanCtx }) {
 
   return (
     <div className="stack-2">
-      <form className="card" onSubmit={wocheSpeichern}>
+      <form className="card" onSubmit={wocheSpeichern} noValidate>
         <h3>Lernzeit pro Woche</h3>
         <p className="muted">Wie viele Minuten du an einem normalen Tag lernen kannst. Davon bleiben {Math.round(s.bufferRatio * 100)} % als Puffer frei.</p>
         <div className="wochentage">
           {REIHENFOLGE.map((i) => (
-            <label key={i} className="field">
-              {WEEKDAYS[i]}
-              <input inputMode="numeric" value={woche[i]} onChange={(e) => setWoche((w) => w.map((x, j) => (j === i ? e.target.value : x)))} aria-label={`${WEEKDAYS[i]}, Minuten`} />
-            </label>
+            <Field key={i} label={`${WEEKDAYS[i]} · Minuten`} name={`day-${i}`} required error={feedback.error(`day-${i}`)}>
+              {(props) => <input {...props} type="number" min={0} max={1440} step={1} inputMode="numeric" value={woche[i]} onBlur={() => feedback.touch(`day-${i}`)} onChange={(e) => setWoche((w) => w.map((x, j) => (j === i ? e.target.value : x)))} />}
+            </Field>
           ))}
         </div>
         <div className="row">

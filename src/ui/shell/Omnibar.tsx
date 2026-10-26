@@ -64,7 +64,7 @@ export function Omnibar() {
 
   return (
     <>
-      <button type="button" className="omnibar__trigger" onClick={open} aria-haspopup="dialog" aria-keyshortcuts="Control+K Meta+K">
+      <button type="button" className="omnibar__trigger" onClick={open} aria-label="Lernstoff durchsuchen" aria-haspopup="dialog" aria-keyshortcuts="Control+K Meta+K">
         <Icon name="search" size={18} />
         <span className="omnibar__placeholder">Suchen</span>
         <kbd className="omnibar__kbd">{mac ? '⌘' : 'Strg'} K</kbd>
@@ -74,7 +74,7 @@ export function Omnibar() {
         <div className="omnibar__box">
           <div className="omnibar__field">
             <Icon name="search" />
-            <input ref={input} type="search" role="combobox" aria-expanded={hits.length > 0} aria-controls={listId}
+            <input ref={input} type="search" role="combobox" aria-label="Thema, Fach, Fachbegriff oder Seite suchen" aria-expanded={hits.length > 0} aria-controls={listId}
               aria-autocomplete="list" aria-activedescendant={current ? `${listId}-${active}` : undefined}
               placeholder="Thema, Fach, Fachbegriff oder Seite" value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={onKey}
               autoComplete="off" autoCorrect="off" spellCheck={false} enterKeyHint="go" />
