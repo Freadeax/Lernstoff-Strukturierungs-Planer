@@ -8,7 +8,7 @@ import { Lehrkraft } from './Lehrkraft';
 import { arbeitZu, eigeneFaelle, erhalteneFaelle, merkeErhalten, speichereEigenen, abgabenZu, vergiss } from './speicher';
 import { fristText } from './teilen';
 import { ART_LABEL, type KlassenFall } from './typen';
-import { leererFall, VORLAGEN } from './vorlagen';
+import { leererFall, VORLAGE_GRUPPEN, VORLAGEN } from './vorlagen';
 
 // Routen: /lernen/klasse (Start), …/neu (Editor), …/lehrkraft?id|d (Übersicht eines verteilten Falls),
 // …/fall?d|id (Bearbeiten für die Klasse). „d“ = gepackter Fall aus dem Link.
@@ -127,12 +127,11 @@ function Start() {
             <span>Oder aus einer Vorlage (mit Lösung und Checkliste)</span>
             <select value={vorlage} onChange={(e) => setVorlage(e.target.value)}>
               <option value="">Vorlage wählen …</option>
-              <optgroup label="SIS">
-                {VORLAGEN.filter((v) => v.art === 'sis').map((v) => <option key={v.id} value={v.id}>{v.titel}</option>)}
-              </optgroup>
-              <optgroup label="Pflegeplanung">
-                {VORLAGEN.filter((v) => v.art === 'pflegeplanung').map((v) => <option key={v.id} value={v.id}>{v.titel}</option>)}
-              </optgroup>
+              {VORLAGE_GRUPPEN.map((g) => (
+                <optgroup key={g.art} label={g.label}>
+                  {VORLAGEN.filter((v) => v.art === g.art).map((v) => <option key={v.id} value={v.id}>{v.titel}</option>)}
+                </optgroup>
+              ))}
             </select>
           </label>
           <button type="button" disabled={!vorlage} onClick={() => navigate(`/lernen/klasse/neu?vorlage=${encodeURIComponent(vorlage)}`)}>Vorlage anpassen</button>

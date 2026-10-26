@@ -63,3 +63,9 @@
 
 .klasse__datei { position: relative; overflow: hidden; cursor: pointer; }
 .klasse__datei input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+/* QR-Code im Vollbild: immer schwarz auf weiß, auch im dunklen Modus */
+.klasse__qr { position: fixed; inset: 0; z-index: 100; background: #fff; color: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-3); padding: var(--space-4); }
+.klasse__qr svg { flex-shrink: 0; }
+.klasse__qr-titel { margin: 0; font-size: var(--text-lg); font-weight: var(--weight-bold); text-align: center; }
+.klasse__qr-hinweis { margin: 0; font-size: var(--text-sm); }

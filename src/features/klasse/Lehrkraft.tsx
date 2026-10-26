@@ -3,6 +3,7 @@ import { navigate } from '../../ui/shell/router';
 import { notify } from '../../ui/shell/notifications';
 import { gesamtQuote, pruefeAntwort } from './auswertung';
 import { FallAnsicht } from './FallAnsicht';
+import { qrPfad, QrVollbild } from './qr';
 import { fallLink, leseAbgaben } from './kodierung';
 import { abgabenZu, entferneAbgabe, loescheEigenen, nimmAbgabenAuf } from './speicher';
 import { appBasis, dateiname, datumText, fristText, kopiere, speichereDatei, teile } from './teilen';
@@ -16,6 +17,8 @@ export function Lehrkraft({ fall }: { fall: KlassenFall }) {
   const [meldung, setMeldung] = useState<{ art: 'ok' | 'warn'; text: string } | null>(null);
   const [aufgabeId, setAufgabeId] = useState<string>('alle');
   const [zeigeFall, setZeigeFall] = useState(false);
+  const [zeigeQr, setZeigeQr] = useState(false);
+  const qrMoeglich = useMemo(() => !!links && !!qrPfad(links.klasse), [links]);
 
   useEffect(() => {
     let aktiv = true;
@@ -82,8 +85,11 @@ export function Lehrkraft({ fall }: { fall: KlassenFall }) {
         <div className="row klasse__knoepfe">
           <button type="button" className="primary" disabled={!links} onClick={() => links && teile({ title: fall.titel, text: einladung, url: links.klasse }, 'Link')}>Link an die Klasse teilen …</button>
           <button type="button" disabled={!links} onClick={() => links && kopiere(links.klasse, 'Link')}>Link kopieren</button>
+          <button type="button" disabled={!qrMoeglich} onClick={() => setZeigeQr(true)}>QR-Code zeigen</button>
           {links && <a className="button-link" href={links.klasse} target="_blank" rel="noopener">So sieht es die Klasse</a>}
         </div>
+        {links && !qrMoeglich && <p className="muted">Für einen QR-Code ist der Link zu lang. {fall.loesung === 'nach-abgabe' && hatLoesung(fall) ? 'Mit „Lösung nicht zeigen“ wird er deutlich kürzer.' : 'Den Fall kürzen oder den Link teilen.'}</p>}
+        {zeigeQr && links && <QrVollbild text={links.klasse} titel={fall.titel} onClose={() => setZeigeQr(false)} />}
         {links && <p className="muted">Länge des Links: {links.klasse.length.toLocaleString('de-DE')} Zeichen{links.klasse.length > 6000 ? '. Sehr lang: Wenn ein Programm ihn abschneidet, den Fall kürzen.' : '.'} {fall.loesung === 'nie' && hatLoesung(fall) ? 'Ohne Lösung.' : hatLoesung(fall) ? 'Mit Lösung (erscheint nach der Abgabe).' : ''}</p>}
         <details className="klasse__block">
           <summary>Mehr</summary>
