@@ -29,7 +29,7 @@ const VORLAGEN: Array<{ id: string; label: string; e: Partial<Einstellungen>; hi
   { id: 'klausur', label: 'Klausur', e: { anzahl: 25, minuten: null, kb: [], afb: [] }, hinweis: '25 Fragen, Zeit nach Umfang' },
   ...(STAATLICH?.durationMinutes ? [{
     id: 'staatlich', label: 'Probe Staatsprüfung', e: { anzahl: 40, minuten: STAATLICH.durationMinutes, kb: [], afb: [], quellen: ['glossar', 'rechnen', 'material'] as Quelle[] },
-    hinweis: `Eine Aufsichtsarbeit: ${STAATLICH.durationMinutes} Minuten, fragen hier alle Kompetenzbereiche ab. Jede echte Aufsichtsarbeit hat eigene Schwerpunkte (§ 14 PflAPrV). Die echte Prüfung ist fallbezogen und frei formuliert, nimm dafür Fragen aus deinem Material dazu.`,
+    hinweis: `Eine Aufsichtsarbeit: ${STAATLICH.durationMinutes} Minuten. Hier kommen Fragen aus allen Kompetenzbereichen, jede echte Aufsichtsarbeit hat eigene Schwerpunkte (§ 14 PflAPrV). Die echte Prüfung ist fallbezogen und frei formuliert, nimm dafür Fragen aus deinem Material dazu.`,
   }] : []),
 ];
 const ANZAHLEN = [10, 20, 30, 40];
