@@ -124,9 +124,11 @@ const LABEL: Record<string, string> = {
   studyLogs: 'erfasste Lernzeiten', reviewLogs: 'Abfrageergebnisse im Lernplan', karten: 'eigene Karteikarten',
   kartenStand: 'Karteikarten mit Lernstand', kartenLogs: 'Karteikarten-Antworten', activity: 'Einträge im Verlauf',
   pipelineRuns: 'protokollierte Zusammenfasser-Läufe',
+  skripte: 'Skripte (Lernzusammenfassungen)',
 };
 const LOKAL_LABEL: Record<string, string> = {
   'lernstoff.mindmaps': 'Mindmaps', 'lernstoff.fall.archiv': 'abgeschlossene Fälle', 'lernstoff.simulation.verlauf': 'Prüfungssimulationen',
+  'lernstoff.skript.lesestand': 'Lesestand im Skript',
   'lernstoff.praxis.archiv': 'abgeschlossene Praxisfälle',
 };
 

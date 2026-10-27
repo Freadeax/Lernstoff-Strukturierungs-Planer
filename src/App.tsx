@@ -33,6 +33,7 @@ const Landkarte = lazy(() => import('./features/landkarte/Landkarte'));
 const Klassenmodus = lazy(() => import('./features/klasse/Klassenmodus'));
 const Datensicherung = lazy(() => import('./features/sicherung/Datensicherung'));
 const Karteikarten = lazy(() => import('./features/karteikarten/ui/Karteikarten'));
+const Skript = lazy(() => import('./features/skript/ui/Skript'));
 
 function Page({ title, intro, children }: { title: string; intro?: string; children: React.ReactNode }) {
   return (
@@ -53,6 +54,7 @@ function View() {
     case '/lernen/themen': return <Page title="Themen" intro="Alle Themen des Fachmoduls. Arbeitsstand direkt in der Tabelle ändern oder mehrere auswählen."><WidgetGrid widgets={[WIDGETS.themen]} allowHide={false} /></Page>;
     case '/lernen/landkarte': return <Landkarte />;
     case '/lernen/board': return <Page title="Lernstand"><WidgetGrid widgets={[WIDGETS.board]} allowHide={false} /></Page>;
+    case '/lernen/skript': return <Skript />;
     case '/lernen/karten': return <Karteikarten />;
     case '/lernen/rechnen': return <Rechentrainer />;
     case '/lernen/fehler': return <Fehlerheft />;
