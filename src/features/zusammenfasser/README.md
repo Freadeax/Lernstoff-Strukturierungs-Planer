@@ -11,3 +11,5 @@ Spezifikation: `docs/ZUSAMMENFASSER.md`.
 - `aufgaben.ts`: Aufgaben aus dem Arbeitsblatt lesen [2]; `pruefung.ts`: Prüfungsfragen und Antwortbewertung; `vergleich.ts`: Vergleichsmodus.
 - `belege.ts`: Belege aus JSON-Antworten (chunkId + Zitat) per Code prüfen.
 - `ui/`: Anzeige je Modus, eingebunden in `../Zusammenfassen.tsx`.
+- `grosseQuellen.ts`: große Quellen in Teilen zusammenfassen, Ergebnisse und Läufe verbinden.
+- `ki.ts` enthält auch `Protokoll`: sammelt jeden Aufruf eines Laufs für den `PipelineRun` (Tabelle `pipelineRuns`).

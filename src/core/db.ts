@@ -3,6 +3,7 @@ import type { Document, Exam, SourceChunk, Subject, Summary, Topic } from './typ
 import type { Fingerprint } from '../features/dokumente/import/types';
 import type { ActivityEntry } from './activity';
 import type { BoardEntry } from './board';
+import type { PipelineRun } from '../features/zusammenfasser/typen';
 import type { PlannerConfig, StoredReviewLog, StoredStudyLog } from '../features/lernplan/store';
 import type { Karte, KartenConfig, KartenLog, KartenStand } from '../features/karteikarten/typen';
 
@@ -20,6 +21,7 @@ export class LernstoffDB extends Dexie {
   fingerprints!: EntityTable<Fingerprint, 'documentId'>;
   paragraphs!: EntityTable<ParagraphText, 'hash'>;
   activity!: EntityTable<ActivityEntry, 'id'>;
+  pipelineRuns!: EntityTable<PipelineRun, 'id'>;
   board!: EntityTable<BoardEntry, 'topicId'>;
   studyLogs!: EntityTable<StoredStudyLog, 'id'>;
   reviewLogs!: EntityTable<StoredReviewLog, 'id'>;
@@ -74,6 +76,10 @@ export class LernstoffDB extends Dexie {
       kartenStand: 'cardId, due',
       kartenLogs: '++id, cardId, date',
       kartenConfig: 'id',
+    });
+    // v6: Zusammenfasser-Läufe (PipelineRun) zum Nachvollziehen: Prompt-Versionen, Modell, Rohantworten, Befunde, Tokens.
+    this.version(6).stores({
+      pipelineRuns: 'id, startedAt, ergebnisSummaryId',
     });
   }
 }

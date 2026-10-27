@@ -12,7 +12,7 @@ import { SCHRITT_TEXT, type TextModus } from './zusammenfasser/pipeline';
 import { erkenneAufgaben } from './zusammenfasser/aufgaben';
 import { erstelleFragen } from './zusammenfasser/pruefung';
 import { vergleiche } from './zusammenfasser/vergleich';
-import type { Aufgabe, FragenSatz, VergleichsErgebnis } from './zusammenfasser/typen';
+import type { Aufgabe, FragenSatz, PipelineRun, VergleichsErgebnis } from './zusammenfasser/typen';
 import { SummaryAnsicht, MODUS_TEXT } from './zusammenfasser/ui/SummaryAnsicht';
 import { AufgabenEditor } from './zusammenfasser/ui/AufgabenEditor';
 import { FragenAnsicht } from './zusammenfasser/ui/FragenAnsicht';
@@ -23,13 +23,17 @@ import { Field, useFormFeedback } from '../ui/form/Field';
 import { PageHeading } from '../ui/PageHeading';
 import { Icon } from '../ui/icons';
 
-type Modus = TextModus | 'pruefung' | 'vergleich';
+type Modus = Exclude<TextModus, 'lernziele'> | 'pruefung' | 'vergleich';
+
+// Prüfungsmodus speichert Fragensätze und Lernzielübersichten (beide mode 'pruefung'); unterschieden wird am Inhalt.
+const istFragenSatz = (s: Summary): s is FragenSatz => Array.isArray((s as FragenSatz).fragen);
+const istVergleich = (s: Summary): s is VergleichsErgebnis => s.mode === 'vergleich' && Array.isArray((s as VergleichsErgebnis).zeilen);
 
 const MODI: Array<{ id: Modus; label: string; text: string }> = [
   { id: 'originalgetreu', label: 'Originalgetreu', text: 'Nur Inhalte aus den gewählten Quellen. Jede Aussage wird gegen den Originaltext geprüft.' },
   { id: 'lernen', label: 'Lernen', text: 'Belegter Kerninhalt plus Erklärungen, Beispiele und Eselsbrücken, sichtbar als Lernhilfe markiert und vom KI-Prüfer gegengelesen.' },
   { id: 'arbeitsauftrag', label: 'Arbeitsauftrag', text: 'Aufgaben aus dem Arbeitsblatt erkennen, bestätigen und dann mit Belegen bearbeiten. Anzahl und Bestandteile werden per Code geprüft.' },
-  { id: 'pruefung', label: 'Prüfung', text: 'Prüfungsfragen mit Musterlösung aus deinem Material. Fragen ohne gültigen Beleg werden verworfen.' },
+  { id: 'pruefung', label: 'Prüfung', text: 'Prüfungsfragen mit Musterlösung und eine Lernzielübersicht aus deinem Material. Fragen ohne gültigen Beleg werden verworfen.' },
   { id: 'vergleich', label: 'Vergleich', text: 'Was sagen zwei oder mehr Quellen zum selben Thema? Übereinstimmungen, Ergänzungen und Widersprüche, jeweils mit Belegen.' },
 ];
 const WISSEN: Array<{ id: MasteryStatus; label: string }> = [
@@ -68,6 +72,8 @@ export function Zusammenfassen() {
   const [pruefDatum, setPruefDatum] = useState('');
   const [anzahl, setAnzahl] = useState(8);
   const [lernziele, setLernziele] = useState('');
+  const [mitFragen, setMitFragen] = useState(true);
+  const [mitUebersicht, setMitUebersicht] = useState(false);
 
   const [busy, setBusy] = useState('');
   const [error, setError] = useState('');
@@ -118,8 +124,9 @@ export function Zusammenfassen() {
     return { auswahl, chunks };
   }
 
-  async function speichere(summary: Summary, titel: string, detail?: string, severity: 'info' | 'warning' | 'critical' = 'info') {
+  async function speichere(summary: Summary, run: PipelineRun, titel: string, detail?: string, severity: 'info' | 'warning' | 'critical' = 'info') {
     await db.summaries.add(summary);
+    await db.pipelineRuns.add(run).catch(() => {});   // Protokoll darf das Ergebnis nie verhindern
     await logActivity({ kind: 'zusammenfassung', ref: summary.id, severity, title: titel, detail,
       subjectIds: [...new Set(docs.filter((d) => summary.sourceDocumentIds.includes(d.id)).flatMap((d) => d.subjectIds))] });
     setCurrent(summary);
@@ -139,30 +146,43 @@ export function Zusammenfassen() {
     const { auswahl, chunks } = await quellen();
     const topicIds = topic ? [topic.id] : [];
     if (modus === 'pruefung') {
-      setBusy('Fragen werden erstellt und Belege geprüft … (1–3 Min.)');
-      const satz = await erstelleFragen({ apiKey, modul: pflegeModule, docs: auswahl, chunks, name: pruefName, datum: pruefDatum, lernziele: [thema, lernziele].filter(Boolean).join('\n'), anzahl, schwacheThemen: '', topicIds });
-      await speichere(satz, `Prüfungsfragen: ${satz.pruefungName}`, `${satz.fragen.length} Fragen`);
+      const ziele = [thema, lernziele].filter(Boolean).join('\n');
+      if (mitUebersicht) {
+        const { summary, run } = await fasseGrosseQuellenZusammen({
+          apiKey, modul: pflegeModule, length, docs: auswahl, chunks, modus: 'lernziele', thema, topicIds, kiPruefer,
+          pruefung: { name: pruefName, datum: pruefDatum, lernziele: ziele }, onSchritt: (s) => setBusy(`Lernzielübersicht: ${SCHRITT_TEXT[s]}`),
+        }, setBusy);
+        await speichere(summary, run, `Lernzielübersicht: ${pruefName || 'Übungsprüfung'}`,
+          summary.qa ? `${summary.qa.statistik.belegt} von ${summary.qa.statistik.claims} Aussagen belegt` : undefined,
+          summary.qa?.ampel === 'rot' ? 'critical' : summary.qa?.ampel === 'gelb' ? 'warning' : 'info');
+      }
+      if (mitFragen) {
+        setBusy(kiPruefer ? 'Fragen werden erstellt, Belege und Antwortoptionen geprüft … (2–4 Min.)' : 'Fragen werden erstellt und Belege geprüft … (1–3 Min.)');
+        const { satz, run } = await erstelleFragen({ apiKey, modul: pflegeModule, docs: auswahl, chunks, name: pruefName, datum: pruefDatum, lernziele: ziele, anzahl, schwacheThemen: '', topicIds, kiPruefer });
+        await speichere(satz, run, `Prüfungsfragen: ${satz.pruefungName}`, `${satz.fragen.length} Fragen`);
+      }
       return;
     }
     if (modus === 'vergleich') {
-      const erg = await vergleiche({ apiKey, modul: pflegeModule, docs: auswahl, chunks, thema, topicIds, onSchritt: setBusy });
-      await speichere(erg, `Vergleich: ${erg.thema}`, `${erg.zeilen.length} Unterthemen`);
+      const { ergebnis: erg, run } = await vergleiche({ apiKey, modul: pflegeModule, docs: auswahl, chunks, thema, topicIds, onSchritt: setBusy });
+      await speichere(erg, run, `Vergleich: ${erg.thema}`, `${erg.zeilen.length} Unterthemen`);
       return;
     }
-    const { summary } = await fasseGrosseQuellenZusammen({
+    const { summary, run } = await fasseGrosseQuellenZusammen({
       apiKey, modul: pflegeModule, length, docs: auswahl, chunks, modus, thema, topicIds, kiPruefer,
       verwandteThemen: topic ? verwandteThemen(topic.id) : undefined,
       wissensstand: { status: wissen, haeufigeFehler: fehler.split('\n').map((s) => s.trim()).filter(Boolean) },
       aufgaben: aufgaben ?? undefined, blattText: blattDoc ? undefined : blattText || undefined,
       onSchritt: (s) => setBusy(SCHRITT_TEXT[s]),
     }, setBusy);
-    await speichere(summary, `${MODUS_TEXT[modus]}: ${thema || auswahl.map((d) => d.title).join(', ')}`,
+    await speichere(summary, run, `${MODUS_TEXT[modus]}: ${thema || auswahl.map((d) => d.title).join(', ')}`,
       summary.qa ? `${summary.qa.statistik.belegt} von ${summary.qa.statistik.claims} Aussagen belegt` : undefined,
       summary.qa?.ampel === 'rot' ? 'critical' : summary.qa?.ampel === 'gelb' ? 'warning' : 'info');
   });
 
   const feedback = useFormFeedback({
     sources: selected.size === 0 ? 'Wähle mindestens ein Dokument als Quelle aus.' : modus === 'vergleich' && selected.size < 2 ? 'Wähle mindestens zwei Dokumente, damit ihre Inhalte verglichen werden können.' : '',
+    output: modus === 'pruefung' && !mitFragen && !mitUebersicht ? 'Wähle mindestens eines: Fragen oder Lernzielübersicht.' : '',
     assignment: modus === 'arbeitsauftrag' && !aufgaben?.length ? 'Lass die Aufgaben erkennen und prüfe die Aufgabenliste, bevor du die Bearbeitung startest.' : '',
   });
   const hasKey = !!getApiKey();
@@ -225,20 +245,27 @@ export function Zusammenfassen() {
             <Field label="Prüfungstermin" name="examDate" hint="Optional. Der Termin wird beim Fragensatz hinterlegt.">{(props) => <input {...props} type="date" value={pruefDatum} onChange={(e) => setPruefDatum(e.target.value)} />}</Field>
             <Field label="Anzahl der Fragen" name="questionCount" hint="Zwischen 3 und 20 Fragen. Für den Einstieg sind 8 Fragen vorausgewählt.">{(props) => <input {...props} type="number" min={3} max={20} value={anzahl} onChange={(e) => setAnzahl(Math.min(20, Math.max(3, Number(e.target.value) || 8)))} />}</Field>
             <Field label="Lernziele oder Hinweise der Lehrkraft" name="objectives" hint="Optional. Zum Beispiel vorgegebene Schwerpunkte oder Prüfungsinhalte.">{(props) => <textarea {...props} rows={3} value={lernziele} onChange={(e) => setLernziele(e.target.value)} />}</Field>
+            <div className="choice-list">
+              <label className="check"><input type="checkbox" checked={mitFragen} onChange={(e) => setMitFragen(e.target.checked)} /><span><strong>Prüfungsfragen</strong><br /><span className="muted">Offene, Multiple-Choice- und Fallfragen mit Musterlösung.</span></span></label>
+              <label className="check"><input type="checkbox" checked={mitUebersicht} onChange={(e) => setMitUebersicht(e.target.checked)} /><span><strong>Lernzielübersicht</strong><br /><span className="muted">Der Stoff nach Lernzielen geordnet, jede Aussage mit Beleg. Prüfungsrelevanz nur, wenn dein Material sie nennt.</span></span></label>
+            </div>
+            {feedback.error('output') && <p className="field-error" aria-live="polite">{feedback.error('output')}</p>}
           </>}
-          {(modus === 'originalgetreu' || modus === 'lernen') && <Field label="Umfang der Zusammenfassung" name="length" hint="Mittel bietet einen ausgewogenen Überblick mit den wichtigsten Details.">
+          {(modus === 'originalgetreu' || modus === 'lernen' || (modus === 'pruefung' && mitUebersicht)) && <Field label="Umfang der Zusammenfassung" name="length" hint="Mittel bietet einen ausgewogenen Überblick mit den wichtigsten Details.">
             {(props) => <select {...props} value={length} onChange={(e) => setLength(e.target.value as SummaryLength)}><option value="kurz">Kurz · die Kernaussagen</option><option value="mittel">Mittel · ein guter Überblick</option><option value="ausfuehrlich">Ausführlich · mit mehr Details</option></select>}
           </Field>}
-          {(modus === 'originalgetreu' || modus === 'lernen' || modus === 'arbeitsauftrag') && <label className="check"><input type="checkbox" checked={kiPruefer} onChange={(e) => setKiPruefer(e.target.checked)} /><span><strong>KI-Prüfer aktivieren</strong><br /><span className="muted">Liest Aussagen gegen die Quelle. Ein zusätzlicher Aufruf und bei Bedarf eine Korrekturrunde.</span></span></label>}
+          {modus !== 'vergleich' && <label className="check"><input type="checkbox" checked={kiPruefer} onChange={(e) => setKiPruefer(e.target.checked)} /><span><strong>KI-Prüfer aktivieren</strong><br /><span className="muted">{modus === 'pruefung' && !mitUebersicht
+            ? 'Prüft Musterlösungen und ob jede Antwortoption eindeutig richtig oder falsch ist. Ein zusätzlicher Aufruf.'
+            : 'Liest Aussagen gegen die Quelle. Ein zusätzlicher Aufruf und bei Bedarf eine Korrekturrunde.'}</span></span></label>}
         </fieldset>
-        <div className="form-actions"><p>{selected.size ? `${selected.size} ${selected.size === 1 ? 'Quelle ausgewählt' : 'Quellen ausgewählt'} · ${info.label}` : 'Wähle deine Quellen, um mit der Erstellung zu starten.'}</p><button className="primary" type="submit" disabled={!!busy || !hasKey}>{busy ? 'Wird erstellt …' : modus === 'pruefung' ? 'Fragen erstellen' : modus === 'vergleich' ? 'Quellen vergleichen' : modus === 'arbeitsauftrag' ? 'Aufgaben bearbeiten' : 'Zusammenfassung erstellen'}</button></div>
+        <div className="form-actions"><p>{selected.size ? `${selected.size} ${selected.size === 1 ? 'Quelle ausgewählt' : 'Quellen ausgewählt'} · ${info.label}` : 'Wähle deine Quellen, um mit der Erstellung zu starten.'}</p><button className="primary" type="submit" disabled={!!busy || !hasKey}>{busy ? 'Wird erstellt …' : modus === 'pruefung' ? (mitFragen ? (mitUebersicht ? 'Fragen und Übersicht erstellen' : 'Fragen erstellen') : 'Lernzielübersicht erstellen') : modus === 'vergleich' ? 'Quellen vergleichen' : modus === 'arbeitsauftrag' ? 'Aufgaben bearbeiten' : 'Zusammenfassung erstellen'}</button></div>
         {busy && <p className="note" role="status" aria-live="polite">{busy}</p>}
         {error && <div className="note warn" role="alert">{error}</div>}
       </form>
 
-      {current && current.mode === 'pruefung' && <FragenAnsicht key={current.id} satz={current as FragenSatz} chunkMap={chunkMap} titles={titles} />}
-      {current && current.mode === 'vergleich' && <VergleichsAnsicht key={current.id} ergebnis={current as VergleichsErgebnis} chunkMap={chunkMap} titles={titles} />}
-      {current && current.mode !== 'pruefung' && current.mode !== 'vergleich' && (
+      {current && istFragenSatz(current) && <FragenAnsicht key={current.id} satz={current} chunkMap={chunkMap} titles={titles} />}
+      {current && istVergleich(current) && <VergleichsAnsicht key={current.id} ergebnis={current} chunkMap={chunkMap} titles={titles} />}
+      {current && !istFragenSatz(current) && !istVergleich(current) && (
         <div className="card"><SummaryAnsicht key={current.id} summary={current} chunkMap={chunkMap} titles={titles} /></div>
       )}
 
@@ -248,7 +275,7 @@ export function Zusammenfassen() {
           {summaries.map((s) => (
             <button key={s.id} className="link block" onClick={() => setCurrent(s)}>
               {new Date(s.createdAt).toLocaleString('de-DE')} · {MODUS_TEXT[s.mode] ?? s.mode}
-              {s.mode === 'pruefung' ? ` · ${(s as FragenSatz).pruefungName}` : s.mode === 'vergleich' ? ` · ${(s as VergleichsErgebnis).thema}` : ` · ${s.length}`}
+              {istFragenSatz(s) ? ` · Fragen · ${s.pruefungName}` : istVergleich(s) ? ` · ${s.thema}` : s.mode === 'pruefung' ? ` · Lernzielübersicht · ${s.length}` : ` · ${s.length}`}
               {' · '}{s.sourceDocumentIds.map((id) => titles.get(id) ?? '?').join(', ')}
               {s.qa ? ` · ${s.qa.ampel === 'gruen' ? 'grün' : s.qa.ampel}` : ''}
               {s.needsReview ? ' · bitte prüfen' : ''}
