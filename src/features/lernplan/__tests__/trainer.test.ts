@@ -95,7 +95,7 @@ describe('Trainer-Ergebnisse in der Datenbank', () => {
 describe('Passende Übung zu einem Thema', () => {
   it('schickt Arzneimittel in die Prüfungsrunde des Rechentrainers mit den passenden Aufgabentypen', () => {
     const u = uebungenFuer('thema.ph.medikamente');
-    expect(u[0]).toMatchObject({ trainer: 'rechnen', path: '/lernen/rechnen?modus=pruefung&typen=einheiten,dosis,mgkg,prozent' });
+    expect(u[0]).toMatchObject({ trainer: 'rechnen', path: '/lernen/rechnen?modus=pruefung&typen=einheiten,dosis,mgkg,prozent,insulin' });
   });
 
   it('kennt Übergabe, Fallsimulator und Duell', () => {
