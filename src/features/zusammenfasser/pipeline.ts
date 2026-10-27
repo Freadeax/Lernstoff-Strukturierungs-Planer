@@ -6,17 +6,20 @@ import type { CatalogModule } from '../../modules/catalog-types';
 import { ampel, pruefeAlles, type AufgabeSoll, type PruefBefund } from '../qualitaet/deterministisch';
 import { zerlegeAntwort, type ApiTextBlock, type ZerlegtClaim } from './zerlegen';
 import { kiPruefung } from './pruefer';
-import { ohneKommentare, rufe, textAus, type KiNachricht } from './ki';
-import type { Aufgabe } from './typen';
+import { ohneKommentare, Protokoll, rufe, textAus, type KiNachricht } from './ki';
+import type { Aufgabe, PipelineRun } from './typen';
 import basisPrompt from './prompts/00-basis.md?raw';
 import originalgetreuPrompt from './prompts/01-originalgetreu.md?raw';
 import lernPrompt from './prompts/02-lernmodus.md?raw';
 import auftragPrompt from './prompts/03-arbeitsauftrag.md?raw';
+import lernzielPrompt from './prompts/07-lernzieluebersicht.md?raw';
 import reparaturPrompt from './prompts/30-reparatur.md?raw';
+import prueferPrompt from './prompts/20-pruefer.md?raw';
 
 export { MODEL } from './ki';
 
-export type TextModus = 'originalgetreu' | 'lernen' | 'arbeitsauftrag';
+/** 'lernziele' = Lernzielübersicht im Prüfungsmodus; wird als Summary mit mode 'pruefung' gespeichert. */
+export type TextModus = 'originalgetreu' | 'lernen' | 'arbeitsauftrag' | 'lernziele';
 
 export interface Wissensstand { status: MasteryStatus; haeufigeFehler: string[] }
 
@@ -26,7 +29,8 @@ export interface ModusOptionen {
   verwandteThemen?: string[];      // Lernmodus: Namen echter Themen aus dem Katalog
   wissensstand?: Wissensstand;     // Lernmodus
   aufgaben?: Aufgabe[];            // Arbeitsauftrag, nach Bestätigung
-  blattText?: string;              // Arbeitsauftrag: eingefügter Text des Arbeitsblatts (Fallangaben), falls nicht als Dokument importiert
+  blattText?: string;
+  pruefung?: { name: string; datum: string; lernziele: string };   // Lernzielübersicht              // Arbeitsauftrag: eingefügter Text des Arbeitsblatts (Fallangaben), falls nicht als Dokument importiert
 }
 
 const AFB = ['', 'I', 'II', 'III'];
@@ -58,6 +62,12 @@ function modusAnweisung(modul: CatalogModule, length: SummaryLength, o: ModusOpt
         .replace('{{aufgabenformate}}', aufgabenformateText(modul, aufgaben))
         .replaceAll('{{nr}}', '<nr>');
     }
+    case 'lernziele':
+      return ohneKommentare(lernzielPrompt)
+        .replaceAll('{{length}}', length)
+        .replace('{{exam.name}}', o.pruefung?.name || 'Übungsprüfung')
+        .replace('{{exam.date}}', o.pruefung?.datum || '(ohne Datum)')
+        .replace('{{lernziele}}', o.pruefung?.lernziele || '(keine angegeben)');
     default:
       return ohneKommentare(originalgetreuPrompt).replaceAll('{{length}}', length);
   }
@@ -70,6 +80,7 @@ export function systemPrompt(modul: CatalogModule, length: SummaryLength, o: Mod
 export function nutzerText(length: SummaryLength, o: ModusOptionen & { thema: string }): string {
   switch (o.modus ?? 'originalgetreu') {
     case 'lernen': return `Erkläre und fasse die Quellen zum Thema „${o.thema}“ für das Lernen zusammen. Länge: ${length}.`;
+    case 'lernziele': return `Ordne den Lernstoff zum Thema „${o.thema}“ nach den Lernzielen der Prüfung. Länge: ${length}.`;
     case 'arbeitsauftrag': return `${o.blattText ? `<arbeitsblatt>\n${o.blattText}\n</arbeitsblatt>\n\n` : ''}Bearbeite den Arbeitsauftrag mit den Aufgaben oben anhand der Quellen.`;
     default: return `Fasse die Quellen zum Thema „${o.thema}“ zusammen. Länge: ${length}.`;
   }
@@ -148,7 +159,7 @@ export function befundeListe(befunde: PruefBefund[], claims: ZerlegtClaim[]): st
   }).join('\n');
 }
 
-export interface ZusammenfassungsErgebnis { summary: Summary; antwortText: string }
+export interface ZusammenfassungsErgebnis { summary: Summary; antwortText: string; run: PipelineRun }
 
 export type Schritt = 'generierung' | 'pruefung-code' | 'pruefung-ki' | 'reparatur' | 'fertig';
 export const SCHRITT_TEXT: Record<Schritt, string> = {
@@ -164,6 +175,14 @@ export async function fasseZusammen(opts: ModusOptionen & {
 }): Promise<ZusammenfassungsErgebnis> {
   const { apiKey, modul, length, docs, chunks } = opts;
   const modus = opts.modus ?? 'originalgetreu';
+  // Die Lernzielübersicht ist so streng gebunden wie der originalgetreue Modus (Q1c blockt, keine Ergänzungen).
+  const pruefModus = modus === 'lernziele' ? 'originalgetreu' : modus;
+  const protokoll = new Protokoll().prompts({
+    '00-basis': basisPrompt,
+    [{ originalgetreu: '01-originalgetreu', lernen: '02-lernmodus', arbeitsauftrag: '03-arbeitsauftrag', lernziele: '07-lernzieluebersicht' }[modus]]:
+      { originalgetreu: originalgetreuPrompt, lernen: lernPrompt, arbeitsauftrag: auftragPrompt, lernziele: lernzielPrompt }[modus],
+    ...(opts.kiPruefer !== false ? { '20-pruefer': prueferPrompt } : {}),
+  });
   if (!chunks.length) throw new Error('Die ausgewählten Dokumente enthalten keinen Text.');
   if (modus === 'arbeitsauftrag' && !opts.aufgaben?.length) throw new Error('Bitte zuerst die Aufgaben erfassen und bestätigen.');
   const melde = opts.onSchritt ?? (() => {});
@@ -176,17 +195,17 @@ export async function fasseZusammen(opts: ModusOptionen & {
 
   const auswerten = async (messages: KiNachricht[]) => {
     melde(messages.length > 1 ? 'reparatur' : 'generierung');
-    const response = await rufe(apiKey, { system, messages, effort: 'high' });
+    const response = await rufe(apiKey, { system, messages, effort: 'high', protokoll, schritt: messages.length > 1 ? 'reparatur' : 'generierung' });
     const textBloecke = response.content.filter((b) => b.type === 'text') as unknown as ApiTextBlock[];
     const antwortText = textAus(response);
     melde('pruefung-code');
     const claims = zerlegeAntwort(textBloecke, blockZuChunk, chunkMap);
     const befunde = pruefeAlles(claims, {
-      modus, chunks: chunkMap, erlaubteDokumente: new Set(docs.map((d) => d.id)), glossar: modul.glossary, aufgaben: soll, antwortText,
+      modus: pruefModus, chunks: chunkMap, erlaubteDokumente: new Set(docs.map((d) => d.id)), glossar: modul.glossary, aufgaben: soll, antwortText,
     });
     if (opts.kiPruefer !== false) {
       melde('pruefung-ki');
-      const ki = await kiPruefung({ apiKey, modul, modus, docs, chunks, claims, antwortText, aufgaben: opts.aufgaben });
+      const ki = await kiPruefung({ apiKey, modul, modus: pruefModus, protokoll, docs, chunks, claims, antwortText, aufgaben: opts.aufgaben });
       befunde.push(...ki.befunde);
     }
     return { claims, befunde, antwortText };
@@ -197,6 +216,7 @@ export async function fasseZusammen(opts: ModusOptionen & {
   if (lauf.befunde.some((b) => b.schwere === 'blocker')) {
     // Gate [7]: genau eine Reparaturrunde, gleiche Dokumente aus dem Cache, danach erneut prüfen.
     reparaturVersucht = true;
+    protokoll.prompts({ '30-reparatur': reparaturPrompt });
     const anweisung = ohneKommentare(reparaturPrompt).replace('{{befunde_liste}}', befundeListe(lauf.befunde, lauf.claims));
     const vorher = lauf;
     try {
@@ -213,8 +233,13 @@ export async function fasseZusammen(opts: ModusOptionen & {
     status: statusFuer(c, lauf.befunde), isSupplementary: c.kind === 'ergaenzung' || c.kind === 'lernhilfe',
   }));
   const befunde: Befund[] = lauf.befunde.map((b, i) => ({ id: `b${i + 1}`, ...b }));
+  const summaryId = crypto.randomUUID();
+  const run = protokoll.alsRun({
+    mode: modus === 'lernziele' ? 'pruefung' : modus, length, topicIds: opts.topicIds ?? [], documentIds: docs.map((d) => d.id),
+    chunkIds: chunks.map((c) => c.id), aufgaben: opts.aufgaben,
+  }, befunde, summaryId);
   const summary: Summary = {
-    id: crypto.randomUUID(), mode: modus, length, topicIds: opts.topicIds ?? [], sourceDocumentIds: docs.map((d) => d.id),
+    id: summaryId, mode: modus === 'lernziele' ? 'pruefung' : modus, length, pipelineRunId: run.id, topicIds: opts.topicIds ?? [], sourceDocumentIds: docs.map((d) => d.id),
     claims, blocks, rootBlockIds: blocks.map((b) => b.id), createdAt: new Date().toISOString(), needsReview: false,
     qa: {
       befunde, ampel: ampel(lauf.befunde), reparaturVersucht,
@@ -227,6 +252,6 @@ export async function fasseZusammen(opts: ModusOptionen & {
       },
     },
   };
-  return { summary, antwortText: lauf.antwortText };
+  return { summary, antwortText: lauf.antwortText, run };
 }
 

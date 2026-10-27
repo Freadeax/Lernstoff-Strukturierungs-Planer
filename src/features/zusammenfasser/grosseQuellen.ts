@@ -1,5 +1,6 @@
 import type { SourceChunk, Summary } from '../../core/types';
-import { fasseZusammen, SCHRITT_TEXT } from './pipeline';
+import { fasseZusammen, SCHRITT_TEXT, type ZusammenfassungsErgebnis } from './pipeline';
+import type { PipelineRun } from './typen';
 
 /** Jedes Quellstück wird berücksichtigt, ohne ein komplettes Buch in eine Anfrage zu pressen. */
 export function teileQuellen(chunks: SourceChunk[], limit = 45000): SourceChunk[][] {
@@ -36,16 +37,35 @@ export function verbindeZusammenfassungen(teile: Summary[]): Summary {
   return s;
 }
 
-export async function fasseGrosseQuellenZusammen(opts: Parameters<typeof fasseZusammen>[0], onProgress: (text: string) => void) {
+/** Läufe der Teile zu einem PipelineRun verbinden: Schritte mit „Teil n“ benannt, Tokens addiert. */
+export function verbindeLaeufe(laeufe: PipelineRun[], summaryId: string): PipelineRun {
+  const r: PipelineRun = {
+    ...laeufe[0]!, id: crypto.randomUUID(), ergebnisSummaryId: summaryId, modelle: {}, rohantworten: [], befunde: [],
+    eingabe: { ...laeufe[0]!.eingabe, documentIds: [...new Set(laeufe.flatMap((l) => l.eingabe.documentIds))], chunkIds: laeufe.flatMap((l) => l.eingabe.chunkIds) },
+    kosten: { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0 },
+  };
+  laeufe.forEach((l, i) => {
+    for (const [k, v] of Object.entries(l.modelle)) r.modelle[`Teil ${i + 1}: ${k}`] = v;
+    r.rohantworten.push(...l.rohantworten.map((a) => ({ ...(a as object), teil: i + 1 })));
+    r.befunde.push(...l.befunde.map((b) => ({ ...b, id: `teil${i + 1}.${b.id}`, claimId: b.claimId ? `teil${i + 1}.${b.claimId}` : undefined })));
+    for (const k of ['inputTokens', 'outputTokens', 'cacheReadTokens'] as const) r.kosten![k] += l.kosten?.[k] ?? 0;
+  });
+  return r;
+}
+
+export async function fasseGrosseQuellenZusammen(opts: Parameters<typeof fasseZusammen>[0], onProgress: (text: string) => void): Promise<ZusammenfassungsErgebnis> {
   const teile = teileQuellen(opts.chunks);
   if (teile.length <= 1 || opts.modus === 'arbeitsauftrag') return fasseZusammen(opts);
   const summaries: Summary[] = [];
   const texte: string[] = [];
+  const laeufe: PipelineRun[] = [];
   for (const [i, chunks] of teile.entries()) {
     const ids = new Set(chunks.map((c) => c.documentId));
     const r = await fasseZusammen({ ...opts, docs: opts.docs.filter((d) => ids.has(d.id)), chunks,
       onSchritt: (s) => onProgress(`Teil ${i + 1} von ${teile.length}: ${SCHRITT_TEXT[s]}`) });
-    summaries.push(r.summary); texte.push(r.antwortText);
+    summaries.push(r.summary); texte.push(r.antwortText); laeufe.push(r.run);
   }
-  return { summary: verbindeZusammenfassungen(summaries), antwortText: texte.join('\n\n') };
+  const summary = verbindeZusammenfassungen(summaries);
+  const run = verbindeLaeufe(laeufe, summary.id);
+  return { summary: { ...summary, pipelineRunId: run.id }, antwortText: texte.join('\n\n'), run };
 }
