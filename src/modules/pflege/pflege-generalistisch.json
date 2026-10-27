@@ -14508,6 +14508,1220 @@
       "pruefstatus": "ungeprueft"
     }
   ],
+  "diseaseProfiles": [
+    {
+      "id": "kh.herzinsuffizienz",
+      "name": "Herzinsuffizienz",
+      "synonyms": [
+        "Herzschwäche"
+      ],
+      "definition": "Das Herz kann nicht mehr genug Blut auswerfen, um den Körper bedarfsgerecht zu versorgen. Das Blut staut sich vor der geschwächten Herzhälfte zurück.",
+      "formen": [
+        "Linksherzinsuffizienz: Rückstau in den Lungenkreislauf",
+        "Rechtsherzinsuffizienz: Rückstau in den Körperkreislauf",
+        "Akut oder chronisch"
+      ],
+      "ursachen": [
+        "Links, akut: Herzinfarkt, hypertensive Krise, Herzrhythmusstörungen",
+        "Links, chronisch: arterielle Hypertonie, KHK, Herzklappenfehler links",
+        "Rechts, akut: Lungenembolie (Druckanstieg im Lungenkreislauf)",
+        "Rechts, chronisch: Linksherzinsuffizienz (häufigste Ursache), Herzklappenfehler rechts, Lungenerkrankungen wie COPD, Emphysem oder Fibrose"
+      ],
+      "symptome": [
+        "Links: Dyspnoe und Orthopnoe, schnelle Erschöpfung bei Belastung, Herzrhythmusstörungen",
+        "Links: feuchte Rasselgeräusche als Hinweis auf ein Lungenödem",
+        "Rechts: Ödeme an Knöcheln und Unterschenkeln, Anasarka, Stauungsekzem mit Gefahr von Wundheilungsstörungen",
+        "Rechts: Hepatomegalie, Aszites, Appetitlosigkeit durch Stau in den Magenvenen",
+        "Beide: eingeschränkte Belastbarkeit, Schwäche, Müdigkeit, Nykturie"
+      ],
+      "komplikationen": [
+        "Kardiale Dekompensation mit Lungenödem (Atemnot, Rasselgeräusche, schaumiges Sputum): Notfall",
+        "Herzrhythmusstörungen, plötzlicher Herztod",
+        "Thrombose und Embolie durch verlangsamten Blutfluss"
+      ],
+      "diagnostik": [
+        "Einteilung nach NYHA I–IV: I ohne Beschwerden bei normaler Belastung, II Beschwerden bei stärkerer Belastung, III schon bei leichter Belastung, IV in Ruhe",
+        "Echokardiografie (Pumpfunktion, Ejektionsfraktion), EKG, Röntgen-Thorax",
+        "Labor: BNP bzw. NT-proBNP, Elektrolyte, Nierenwerte"
+      ],
+      "therapie": [
+        "Grunderkrankung behandeln (z. B. Blutdruck einstellen, KHK behandeln)",
+        "Medikamente nach ärztlicher Anordnung: ACE-Hemmer oder Sartane, Betablocker, Diuretika, Aldosteronantagonisten, SGLT2-Hemmer",
+        "Bei Dekompensation: Diuretika i. v., Sauerstoff, Oberkörperhochlagerung"
+      ],
+      "pflege": [
+        "Belastungsgrenze mit dem Arzt festlegen; vor und nach jeder Maßnahme nach dem Befinden fragen, Vitalzeichen messen, beobachten",
+        "Maßnahme abbrechen, wenn der Puls stark steigt, Atemnot auftritt oder der Patient über Schmerzen oder Unwohlsein klagt",
+        "Körperpflege in der Akutphase eventuell ganz übernehmen, dann stufenweise steigern; kein zu warmes Duschen, keine Vollbäder, Sitzgelegenheit in der Dusche",
+        "Mobilisation bei akuter Herzinsuffizienz nach ärztlicher Anordnung früh und nach Stufenplan; bei chronischer zu regelmäßigen Spaziergängen anregen",
+        "Verordnete Trinkmengenbegrenzung einhalten, bei Dekompensation Ein- und Ausfuhr bilanzieren, Gewicht regelmäßig kontrollieren",
+        "In der Akutphase leicht verdauliche, nicht blähende Kost; für regelmäßigen Stuhlgang sorgen",
+        "Puls und Blutdruck bei akuter Erkrankung mehrmals täglich und bei Belastung messen, Puls eine volle Minute auszählen",
+        "Auf Ödeme achten, bei Linksherzinsuffizienz auf Zeichen eines Lungenödems, auch auf die seelische Verfassung"
+      ],
+      "beratung": [
+        "Medikamente regelmäßig einnehmen und ihre Nebenwirkungen kennen",
+        "Zeichen einer Dekompensation kennen: weniger belastbar, nachts Atemnot, mehr Ödeme",
+        "Risikofaktoren abbauen: Rauchen, Übergewicht, fettreiche Ernährung, Bewegungsmangel, Bluthochdruck",
+        "Mehrere kleine Mahlzeiten, Herzsportgruppe, Hausnotruf"
+      ],
+      "prophylaxen": [
+        {
+          "topicId": "thema.pro.thrombose",
+          "grund": "Bei Bettruhe kreisende und wippende Fußbewegungen"
+        },
+        {
+          "topicId": "thema.pro.pneumonie",
+          "grund": "Nicht abklopfen, weil das Rhythmusstörungen auslösen kann"
+        },
+        {
+          "topicId": "thema.pro.obstipation",
+          "grund": "In der Akutphase für regelmäßigen Stuhlgang sorgen"
+        },
+        {
+          "topicId": "thema.pro.dekubitus",
+          "grund": "Eingeschränkte Mobilität durch Herzinsuffizienz und Ödeme, gespannte, glänzende Haut"
+        }
+      ],
+      "merksatz": "Links staut in die Lunge, rechts staut in den Körper.",
+      "drugIds": [
+        "arz.furosemid",
+        "arz.hydrochlorothiazid",
+        "arz.spironolacton",
+        "arz.ramipril",
+        "arz.candesartan",
+        "arz.metoprolol",
+        "arz.digitoxin",
+        "arz.empagliflozin"
+      ],
+      "assessmentIds": [
+        "as.braden",
+        "as.news"
+      ],
+      "referenceIds": [
+        "es.dekubitus"
+      ],
+      "topicIds": [
+        "thema.kl.herz.insuffizienz"
+      ],
+      "belege": [
+        {
+          "abschnitt": "formen",
+          "quelle": "LEB 5 Mitschrift",
+          "seiten": "S. 2"
+        },
+        {
+          "abschnitt": "ursachen",
+          "quelle": "LEB 5 Mitschrift",
+          "seiten": "S. 2"
+        },
+        {
+          "abschnitt": "symptome",
+          "quelle": "LEB 5 Mitschrift",
+          "seiten": "S. 2–3"
+        },
+        {
+          "abschnitt": "symptome",
+          "quelle": "I care Herz (Lungenödem)",
+          "seiten": "S. 2"
+        },
+        {
+          "abschnitt": "pflege",
+          "quelle": "I care Herz",
+          "seiten": "S. 1–2"
+        },
+        {
+          "abschnitt": "pflege",
+          "quelle": "ENP (stufenweise Körperpflege)",
+          "seiten": "S. 90"
+        },
+        {
+          "abschnitt": "beratung",
+          "quelle": "I care Herz",
+          "seiten": "S. 3"
+        },
+        {
+          "abschnitt": "prophylaxen",
+          "quelle": "I care Herz",
+          "seiten": "S. 1"
+        },
+        {
+          "abschnitt": "prophylaxen",
+          "quelle": "LEB 5 Mitschrift (Dekubitusrisiko)",
+          "seiten": "S. 3"
+        }
+      ],
+      "pruefstatus": "ungeprueft"
+    },
+    {
+      "id": "kh.hypertonie",
+      "name": "Arterielle Hypertonie",
+      "synonyms": [
+        "Bluthochdruck"
+      ],
+      "definition": "Dauerhaft erhöhter Blutdruck in den Arterien, in der Praxismessung ab 140/90 mmHg. Bleibt lange ohne Beschwerden und schädigt dabei Gefäße, Herz, Gehirn, Nieren und Augen.",
+      "formen": [
+        "Primäre (essenzielle) Hypertonie ohne fassbare Ursache, etwa 90 %",
+        "Sekundäre Hypertonie als Folge einer anderen Erkrankung, z. B. der Niere oder der Hormondrüsen"
+      ],
+      "ursachen": [
+        "Primär: Zusammenspiel aus Veranlagung und Lebensstil",
+        "Sekundär: Nierenerkrankungen, Nierenarterienstenose, Hyperaldosteronismus, Schilddrüsenüberfunktion, Schlafapnoe, Medikamente (z. B. NSAR, Kortison)"
+      ],
+      "risikofaktoren": [
+        "Übergewicht",
+        "Bewegungsmangel",
+        "Salzreiche Ernährung",
+        "Alkohol, Rauchen",
+        "Stress",
+        "Höheres Alter, familiäre Belastung",
+        "Diabetes mellitus"
+      ],
+      "symptome": [
+        "Oft lange keine Beschwerden",
+        "Morgendlicher Kopfschmerz, Schwindel, Ohrensausen, Nasenbluten, Herzklopfen",
+        "Hypertensive Krise: sehr hoher Blutdruck mit Kopfschmerz, Sehstörungen, Brustschmerz, Atemnot oder neurologischen Ausfällen"
+      ],
+      "komplikationen": [
+        "Schlaganfall",
+        "KHK und Herzinfarkt",
+        "Herzinsuffizienz",
+        "Niereninsuffizienz",
+        "Netzhautschäden",
+        "pAVK"
+      ],
+      "diagnostik": [
+        "Wiederholte Blutdruckmessung an beiden Armen, Langzeitmessung über 24 Stunden, Selbstmessung zu Hause",
+        "Suche nach Organschäden und Ursachen: EKG, Labor (Nierenwerte, Elektrolyte, Blutzucker, Blutfette), Urin"
+      ],
+      "therapie": [
+        "Lebensstil ändern: Gewicht senken, Bewegung, weniger Salz und Alkohol, Rauchstopp",
+        "Medikamente nach ärztlicher Anordnung: ACE-Hemmer oder Sartane, Kalziumantagonisten, Thiaziddiuretika, bei Bedarf Betablocker"
+      ],
+      "pflege": [
+        "Blutdruck korrekt messen: in Ruhe nach einigen Minuten Sitzen, passende Manschette, auf Herzhöhe, immer am selben Arm; dokumentieren",
+        "Zu Beginn einer Therapie oder nach Dosisänderung auf Schwindel und Blutdruckabfall beim Aufstehen achten (Sturzgefahr)",
+        "Warnzeichen einer hypertensiven Krise oder eines Schlaganfalls erkennen und sofort melden",
+        "Medikamenteneinnahme überwachen, Nebenwirkungen beobachten (z. B. Reizhusten, Knöchelödeme)"
+      ],
+      "beratung": [
+        "Blutdruck selbst messen und ein Blutdrucktagebuch führen",
+        "Medikamente regelmäßig nehmen, auch ohne Beschwerden, nicht eigenmächtig absetzen",
+        "Lebensstil: salzarme Kost, Bewegung, Gewichtsreduktion, Rauchstopp, wenig Alkohol"
+      ],
+      "prophylaxen": [
+        {
+          "topicId": "thema.pro.sturz",
+          "grund": "Blutdruckabfall beim Aufstehen unter Blutdrucksenkern"
+        }
+      ],
+      "merksatz": "Hoher Druck tut lange nicht weh, aber er schadet jeden Tag.",
+      "drugIds": [
+        "arz.ramipril",
+        "arz.candesartan",
+        "arz.amlodipin",
+        "arz.hydrochlorothiazid",
+        "arz.metoprolol"
+      ],
+      "assessmentIds": [
+        "as.tug"
+      ],
+      "topicIds": [
+        "thema.kl.herz.hypertonie",
+        "thema.beo.vitalzeichen"
+      ],
+      "pruefstatus": "ungeprueft"
+    },
+    {
+      "id": "kh.herzinfarkt",
+      "name": "KHK und Herzinfarkt",
+      "synonyms": [
+        "Myokardinfarkt",
+        "Koronare Herzkrankheit",
+        "Akutes Koronarsyndrom"
+      ],
+      "definition": "Bei der koronaren Herzkrankheit (KHK) sind die Herzkranzgefäße durch Arteriosklerose verengt. Beim Herzinfarkt verschließt sich ein Gefäß, und Herzmuskelgewebe stirbt ab.",
+      "formen": [
+        "Stabile Angina pectoris: Brustschmerz bei Belastung, bessert sich in Ruhe oder mit Nitrat",
+        "Akutes Koronarsyndrom: instabile Angina pectoris und Herzinfarkt (NSTEMI, STEMI)"
+      ],
+      "ursachen": [
+        "Arteriosklerose der Herzkranzgefäße",
+        "Infarkt: Plaque reißt auf, ein Gerinnsel verschließt das Gefäß"
+      ],
+      "risikofaktoren": [
+        "Rauchen",
+        "Arterielle Hypertonie",
+        "Diabetes mellitus",
+        "Hohe Blutfette (LDL)",
+        "Übergewicht, Bewegungsmangel",
+        "Höheres Alter, männliches Geschlecht, familiäre Belastung"
+      ],
+      "symptome": [
+        "Starker, drückender oder brennender Brustschmerz, oft mit Ausstrahlung in linken Arm, Hals, Kiefer, Oberbauch oder Rücken, länger als 20 Minuten, bessert sich nicht mit Nitrat",
+        "Engegefühl, Atemnot, Todesangst, kalter Schweiß, Übelkeit, Blässe",
+        "Bei Frauen, älteren Menschen und Menschen mit Diabetes oft untypisch: nur Atemnot, Übelkeit, Oberbauchschmerz, Schwäche"
+      ],
+      "komplikationen": [
+        "Herzrhythmusstörungen bis Kammerflimmern",
+        "Kardiogener Schock",
+        "Akute Herzinsuffizienz",
+        "Erneuter Infarkt"
+      ],
+      "diagnostik": [
+        "12-Kanal-EKG so schnell wie möglich",
+        "Labor: Troponin",
+        "Herzkatheter (Koronarangiografie)"
+      ],
+      "therapie": [
+        "Notruf 112, Herzkatheter mit Aufdehnung und Stent so schnell wie möglich („Time is muscle“)",
+        "Medikamente nach ärztlicher Anordnung: Plättchenhemmer, Antikoagulation, Nitrat, Schmerzmittel, Betablocker, Statin, ACE-Hemmer",
+        "Danach Rehabilitation und Lebensstiländerung"
+      ],
+      "pflege": [
+        "Bei Verdacht: Notruf, Oberkörper hoch lagern, beengende Kleidung öffnen, nicht allein lassen, beruhigen, keine körperliche Anstrengung",
+        "Vitalzeichen und Bewusstsein engmaschig überwachen, Monitor nach Anordnung, Reanimationsbereitschaft",
+        "Nach Herzkatheter: Punktionsstelle und Druckverband auf Blutung kontrollieren, Durchblutung der Extremität prüfen, Bettruhe nach Anordnung",
+        "Mobilisation nach ärztlichem Stufenplan, Belastung beobachten (Puls, Blutdruck, Atemnot, Brustschmerz)",
+        "Stuhlgang ohne starkes Pressen ermöglichen"
+      ],
+      "beratung": [
+        "Plättchenhemmer nicht eigenmächtig absetzen (Stentthrombose)",
+        "Notfallzeichen kennen und sofort 112 rufen",
+        "Risikofaktoren abbauen: Rauchstopp, Bewegung, Ernährung, Blutdruck, Blutzucker"
+      ],
+      "prophylaxen": [
+        {
+          "topicId": "thema.pro.obstipation",
+          "grund": "Pressen beim Stuhlgang belastet das Herz"
+        },
+        {
+          "topicId": "thema.pro.thrombose",
+          "grund": "Bettruhe nach Infarkt oder Katheter"
+        }
+      ],
+      "merksatz": "Brustschmerz über 20 Minuten: 112, nicht abwarten.",
+      "drugIds": [
+        "arz.acetylsalicylsaeure",
+        "arz.clopidogrel",
+        "arz.glyceroltrinitrat",
+        "arz.metoprolol",
+        "arz.simvastatin",
+        "arz.ramipril",
+        "arz.heparin",
+        "arz.morphin"
+      ],
+      "assessmentIds": [
+        "as.nrs",
+        "as.news"
+      ],
+      "topicIds": [
+        "thema.kl.herz.khk",
+        "thema.beo.notfall"
+      ],
+      "pruefstatus": "ungeprueft"
+    },
+    {
+      "id": "kh.tvt",
+      "name": "Tiefe Beinvenenthrombose",
+      "synonyms": [
+        "TVT",
+        "Phlebothrombose"
+      ],
+      "definition": "Ein Blutgerinnsel verschließt eine tiefe Vene ganz oder teilweise, meist in Bein oder Becken. Die gefährlichste Komplikation ist die Lungenembolie.",
+      "ursachen": [
+        "Virchow-Trias: verlangsamter Blutfluss, Schaden an der Gefäßwand, erhöhte Gerinnungsneigung"
+      ],
+      "risikofaktoren": [
+        "Immobilität, Bettruhe, Gips, lange Reisen",
+        "Operationen und Verletzungen",
+        "Höheres Alter, frühere Thrombose",
+        "Krebs",
+        "Herzinsuffizienz",
+        "Exsikkose",
+        "Schwangerschaft, Pille, Hormontherapie",
+        "Übergewicht"
+      ],
+      "symptome": [
+        "Meist einseitige Schwellung und Umfangszunahme des Beins",
+        "Schwere- und Spannungsgefühl, Schmerz in Wade, Kniekehle oder Fußsohle",
+        "Überwärmung, bläulich-rote Verfärbung, glänzende Haut",
+        "Oft wenige oder keine Zeichen, besonders bei bettlägerigen Menschen"
+      ],
+      "komplikationen": [
+        "Lungenembolie: plötzliche Atemnot, Brustschmerz, Herzrasen, Husten: Notfall",
+        "Postthrombotisches Syndrom"
+      ],
+      "diagnostik": [
+        "Kompressionssonografie",
+        "D-Dimere im Blut"
+      ],
+      "therapie": [
+        "Antikoagulation nach ärztlicher Anordnung, meist für mindestens 3 Monate",
+        "Kompressionstherapie",
+        "Bei wirksamer Antikoagulation meist keine strenge Bettruhe, ärztliche Anordnung beachten"
+      ],
+      "pflege": [
+        "Kompression korrekt anlegen (Strumpf oder Verband), morgens vor dem Aufstehen",
+        "Mobilisation nach Anordnung fördern",
+        "Auf Zeichen der Lungenembolie achten und sofort melden",
+        "Unter Antikoagulation auf Blutungen achten (Zahnfleisch, Urin, Stuhl, Hämatome)",
+        "Haut unter der Kompression kontrollieren, auf ausreichende Trinkmenge achten"
+      ],
+      "beratung": [
+        "Antikoagulanzien regelmäßig nehmen, Blutungszeichen kennen",
+        "Kompressionsstrumpf tragen, Bewegung im Alltag (Venenpumpe)",
+        "Lange Sitzen vermeiden, ausreichend trinken"
+      ],
+      "prophylaxen": [
+        {
+          "topicId": "thema.pro.thrombose",
+          "grund": "MKS sind Therapie bei Venenleiden, ärztlich verordnet, und wirken nur, wenn der Mensch mobil ist. MTPS sind für immobile Menschen gedacht."
+        }
+      ],
+      "merksatz": "Virchow: langsam, verletzt, verdickt.",
+      "drugIds": [
+        "arz.heparin",
+        "arz.enoxaparin",
+        "arz.apixaban",
+        "arz.phenprocoumon"
+      ],
+      "topicIds": [
+        "thema.kl.herz.pavk",
+        "thema.pro.thrombose"
+      ],
+      "belege": [
+        {
+          "abschnitt": "prophylaxen",
+          "quelle": "CE 02 Thrombose, Anlage 3",
+          "seiten": "S. 1"
+        }
+      ],
+      "pruefstatus": "ungeprueft"
+    },
+    {
+      "id": "kh.copd",
+      "name": "COPD",
+      "synonyms": [
+        "Chronisch obstruktive Lungenerkrankung"
+      ],
+      "definition": "Dauerhafte, fortschreitende Verengung der Atemwege mit chronischer Bronchitis und oft Lungenemphysem. Die Verengung bildet sich auch mit Medikamenten nicht vollständig zurück.",
+      "ursachen": [
+        "Vor allem Rauchen, auch Passivrauchen",
+        "Feinstaub und Schadstoffe am Arbeitsplatz",
+        "Selten angeborener Alpha-1-Antitrypsin-Mangel"
+      ],
+      "symptome": [
+        "AHA-Symptome: Auswurf, Husten, Atemnot (zuerst bei Belastung)",
+        "Verlängerte Ausatmung, Giemen, Lippenbremse",
+        "Im Verlauf Fassthorax, Zyanose, Trommelschlägelfinger, Gewichtsverlust"
+      ],
+      "komplikationen": [
+        "Akute Exazerbation, oft durch Infekte: mehr Atemnot, mehr und verfärbter Auswurf",
+        "Respiratorische Insuffizienz",
+        "Rechtsherzbelastung (Cor pulmonale)",
+        "Pneumonie"
+      ],
+      "diagnostik": [
+        "Lungenfunktion (Spirometrie)",
+        "Blutgasanalyse, Sauerstoffsättigung",
+        "Röntgen-Thorax"
+      ],
+      "therapie": [
+        "Rauchstopp als wichtigste Maßnahme",
+        "Inhalative Bronchodilatatoren, bei häufigen Exazerbationen inhalatives Kortison",
+        "Atemphysiotherapie, Lungensport, Impfungen",
+        "Sauerstofflangzeittherapie nach ärztlicher Anordnung"
+      ],
+      "pflege": [
+        "Atmung, Sättigung, Hautfarbe und Auswurf beobachten",
+        "Atemerleichternde Positionen: Kutschersitz, Torwartstellung, Oberkörperhochlagerung",
+        "Lippenbremse und Atemtechniken anleiten",
+        "Inhalationstechnik prüfen und üben",
+        "Sauerstoff nur nach Anordnung und in der verordneten Menge geben; hohe Gaben können bei manchen Betroffenen den Atemantrieb dämpfen",
+        "Sekret lösen: ausreichend trinken, Inhalation, Hustentechnik",
+        "Belastung dosieren, Pausen einplanen, kleine Mahlzeiten"
+      ],
+      "beratung": [
+        "Rauchstopp unterstützen",
+        "Inhalationstechnik und Notfallspray, Mund nach Kortisonspray ausspülen",
+        "Infekte früh erkennen, Impfungen (Grippe, Pneumokokken)"
+      ],
+      "prophylaxen": [
+        {
+          "topicId": "thema.pro.pneumonie",
+          "grund": "Sekretstau und häufige Infekte"
+        },
+        {
+          "topicId": "thema.pro.soor",
+          "grund": "Inhalatives Kortison begünstigt Mundsoor"
+        },
+        {
+          "topicId": "thema.pro.dehydratation",
+          "grund": "Atemnot beim Essen und Trinken, Gewichtsverlust"
+        }
+      ],
+      "merksatz": "AHA: Auswurf, Husten, Atemnot.",
+      "drugIds": [
+        "arz.salbutamol",
+        "arz.tiotropium",
+        "arz.budesonid",
+        "arz.prednisolon"
+      ],
+      "assessmentIds": [
+        "as.news",
+        "as.mna"
+      ],
+      "topicIds": [
+        "thema.kl.atmung"
+      ],
+      "pruefstatus": "ungeprueft"
+    },
+    {
+      "id": "kh.pneumonie",
+      "name": "Pneumonie",
+      "synonyms": [
+        "Lungenentzündung"
+      ],
+      "definition": "Entzündung des Lungengewebes, meist durch Bakterien oder Viren. Bei alten und immobilen Menschen eine häufige und gefährliche Erkrankung.",
+      "formen": [
+        "Ambulant erworben oder im Krankenhaus erworben (nosokomial)",
+        "Aspirationspneumonie nach Verschlucken",
+        "Hypostatische Pneumonie bei Immobilität und flacher Atmung"
+      ],
+      "ursachen": [
+        "Bakterien (z. B. Pneumokokken), Viren",
+        "Aspiration von Speichel, Nahrung oder Mageninhalt"
+      ],
+      "risikofaktoren": [
+        "Hohes Alter",
+        "Immobilität und Bettlägerigkeit",
+        "Schluckstörungen (z. B. nach Schlaganfall, bei Demenz oder Parkinson)",
+        "COPD, Herzinsuffizienz",
+        "Schwaches Immunsystem",
+        "Flache Atmung bei Schmerzen nach Operationen"
+      ],
+      "symptome": [
+        "Fieber, Schüttelfrost, Husten mit Auswurf",
+        "Atemnot, schnelle Atmung, atemabhängiger Brustschmerz",
+        "Bei alten Menschen oft untypisch: kein Fieber, dafür Verwirrtheit, Schwäche, Sturz, Trinkschwäche"
+      ],
+      "komplikationen": [
+        "Sepsis",
+        "Respiratorische Insuffizienz",
+        "Pleuraerguss",
+        "Delir"
+      ],
+      "diagnostik": [
+        "Abhören, Röntgen-Thorax",
+        "Labor: Entzündungswerte (CRP, Leukozyten)",
+        "Sauerstoffsättigung, Atemfrequenz"
+      ],
+      "therapie": [
+        "Antibiotika nach ärztlicher Anordnung",
+        "Sauerstoff nach Anordnung",
+        "Ausreichend Flüssigkeit, fiebersenkende Mittel"
+      ],
+      "pflege": [
+        "Vitalzeichen mit Atemfrequenz, Sättigung, Temperatur und Bewusstsein beobachten, Verschlechterung früh melden",
+        "Oberkörperhochlagerung, atemunterstützende Positionen, Atemübungen",
+        "Sekret lösen: Flüssigkeit, Inhalation, Abhusten unterstützen",
+        "Fiebersenkende Maßnahmen nach Anordnung, Flüssigkeitsbilanz",
+        "Früh mobilisieren, soweit möglich",
+        "Hygiene: Händedesinfektion, Abwurf von Taschentüchern"
+      ],
+      "beratung": [
+        "Antibiotika vollständig nach Plan einnehmen",
+        "Impfungen (Pneumokokken, Grippe)"
+      ],
+      "prophylaxen": [
+        {
+          "topicId": "thema.pro.pneumonie",
+          "grund": "Atemvertiefung, Mobilisation und Sekretmanagement verhindern Rückfälle"
+        },
+        {
+          "topicId": "thema.pro.aspiration",
+          "grund": "Bei Schluckstörungen Ursache der Pneumonie"
+        },
+        {
+          "topicId": "thema.pro.dehydratation",
+          "grund": "Fieber und schnelle Atmung erhöhen den Flüssigkeitsbedarf"
+        },
+        {
+          "topicId": "thema.pro.soor",
+          "grund": "Gute Mundpflege senkt die Keimlast im Mund"
+        }
+      ],
+      "merksatz": "Alter Mensch plötzlich verwirrt: auch an Pneumonie denken.",
+      "drugIds": [
+        "arz.amoxicillin",
+        "arz.paracetamol"
+      ],
+      "assessmentIds": [
+        "as.news"
+      ],
+      "topicIds": [
+        "thema.kl.atmung",
+        "thema.pro.pneumonie"
+      ],
+      "pruefstatus": "ungeprueft"
+    },
+    {
+      "id": "kh.diabetes-typ2",
+      "name": "Diabetes mellitus Typ 2",
+      "synonyms": [
+        "Zuckerkrankheit"
+      ],
+      "definition": "Chronisch erhöhter Blutzucker, weil die Körperzellen schlechter auf Insulin ansprechen (Insulinresistenz) und die Bauchspeicheldrüse auf Dauer nicht genug Insulin bildet.",
+      "formen": [
+        "Typ 1: absoluter Insulinmangel durch Autoimmunzerstörung der Betazellen, meist in jungen Jahren",
+        "Typ 2: Insulinresistenz und relativer Insulinmangel, etwa 90 % der Fälle",
+        "Gestationsdiabetes in der Schwangerschaft"
+      ],
+      "ursachen": [
+        "Insulinresistenz durch Übergewicht und Bewegungsmangel",
+        "Erbliche Veranlagung"
+      ],
+      "risikofaktoren": [
+        "Übergewicht, besonders Bauchfett",
+        "Bewegungsmangel",
+        "Familiäre Belastung",
+        "Höheres Alter",
+        "Bluthochdruck, Fettstoffwechselstörung"
+      ],
+      "symptome": [
+        "Lange ohne Beschwerden",
+        "Durst, häufiges Wasserlassen, Müdigkeit, Infektanfälligkeit, schlecht heilende Wunden, Juckreiz"
+      ],
+      "komplikationen": [
+        "Hypoglykämie unter Insulin oder Sulfonylharnstoffen: Zittern, Schwitzen, Heißhunger, Unruhe bis Bewusstlosigkeit",
+        "Hyperglykämie bis hyperosmolares Koma: Durst, Polyurie, Exsikkose, Bewusstseinsstörung",
+        "Spätfolgen: Makroangiopathie (Herzinfarkt, Schlaganfall, pAVK), Retinopathie, Nephropathie, Neuropathie",
+        "Diabetisches Fußsyndrom"
+      ],
+      "diagnostik": [
+        "Nüchternblutzucker, HbA1c",
+        "Oraler Glukosetoleranztest"
+      ],
+      "therapie": [
+        "Basis: Ernährung, Bewegung, Gewichtsreduktion, Schulung",
+        "Medikamente nach ärztlicher Anordnung: Metformin, SGLT2-Hemmer und andere orale Antidiabetika, bei Bedarf Insulin"
+      ],
+      "pflege": [
+        "Blutzucker nach Anordnung messen und dokumentieren, Zeichen von Hypo- und Hyperglykämie erkennen",
+        "Bei Hypoglykämie: Blutzucker messen, bei Bewusstsein schnell wirksame Kohlenhydrate (z. B. Traubenzucker, Saft), Arzt informieren; bei Bewusstlosigkeit nichts in den Mund, Notruf",
+        "Insulin richtig lagern und spritzen, Spritzstellen wechseln (Lipohypertrophie vermeiden)",
+        "Füße täglich inspizieren: Druckstellen, Verletzungen, Pilz; sorgfältige Fußpflege, passende Schuhe",
+        "Haut- und Wundbeobachtung, Infektzeichen",
+        "Mahlzeiten und Insulingabe aufeinander abstimmen"
+      ],
+      "beratung": [
+        "Blutzuckerselbstkontrolle, Hypoglykämie erkennen und behandeln, Traubenzucker dabeihaben",
+        "Fußpflege, nicht barfuß laufen, Schuhe vor dem Anziehen prüfen",
+        "Bewegung und ausgewogene Ernährung, regelmäßige Kontrollen (Augen, Nieren, Füße)"
+      ],
+      "prophylaxen": [
+        {
+          "topicId": "thema.pro.dekubitus",
+          "grund": "Neuropathie: Druckstellen an Füßen werden nicht gespürt"
+        },
+        {
+          "topicId": "thema.pro.intertrigo",
+          "grund": "Erhöhte Infektanfälligkeit der Haut in Hautfalten"
+        },
+        {
+          "topicId": "thema.pro.zystitis",
+          "grund": "Zucker im Urin begünstigt Harnwegsinfekte"
+        },
+        {
+          "topicId": "thema.pro.dehydratation",
+          "grund": "Hoher Blutzucker führt zu Flüssigkeitsverlust über die Niere"
+        }
+      ],
+      "merksatz": "Hypo: kalt, nass, Zittern, Hunger. Erst Zucker, dann fragen.",
+      "drugIds": [
+        "arz.metformin",
+        "arz.empagliflozin",
+        "arz.normalinsulin",
+        "arz.insulinglargin"
+      ],
+      "assessmentIds": [
+        "as.bmi"
+      ],
+      "topicIds": [
+        "thema.kl.diabetes"
+      ],
+      "pruefstatus": "ungeprueft"
+    },
+    {
+      "id": "kh.exsikkose",
+      "name": "Exsikkose (Dehydratation)",
+      "synonyms": [
+        "Austrocknung",
+        "Dehydratation"
+      ],
+      "definition": "Wasserdefizit durch eine negative Flüssigkeitsbilanz. Es betrifft zuerst den Extrazellularraum, je nach Natrium und Osmolarität auch Gefäß- und Zellraum.",
+      "formen": [
+        "Hypo-, iso- oder hyperton nach dem Natriumwert (normal 132–145 mmol/l)",
+        "Leicht, mittelschwer, schwer nach Gewichtsverlust (Erwachsene unter 3 %, 4–8 %, über 8 %)"
+      ],
+      "ursachen": [
+        "Zu wenig Zufuhr oder zu viel Verlust, oft beides zusammen",
+        "Verluste durch Erbrechen, Durchfall, Schwitzen, große Wunden, Blutverlust, vermehrte Urinausscheidung"
+      ],
+      "risikofaktoren": [
+        "Ältere Menschen: geringerer Wasseranteil, wenig Durstgefühl, schwächere Nieren, Diuretika, Diabetes",
+        "Angst vor ungewolltem Harnverlust",
+        "Desorientierung und Demenz, Immobilität, psychiatrische Erkrankungen",
+        "Dysphagie, Adipositas, Alkohol",
+        "Säuglinge, Kinder und alte Menschen sind besonders gefährdet"
+      ],
+      "symptome": [
+        "Durst (fehlt im Alter oft), trockene Mundschleimhaut, fehlender Speichelsee unter der Zunge, trockene, belegte, rissige Zunge",
+        "Raue Stimme, Sprechstörungen",
+        "Schneller, später schwacher Puls",
+        "Verminderte Urinmenge bis Oligurie oder Anurie",
+        "Eingesunkene Augen, verminderte Tränen",
+        "Zunehmende Lethargie und Verwirrtheit",
+        "Stehende Hautfalte ist bei alten Menschen kein sicheres Zeichen"
+      ],
+      "komplikationen": [
+        "Verwirrtheit und Delir",
+        "Stürze",
+        "Thrombose",
+        "Obstipation",
+        "Nierenversagen"
+      ],
+      "diagnostik": [
+        "Blutuntersuchung: Natrium, Osmolarität, Kreatinin",
+        "Urin (spezifisches Gewicht), Gewicht, Vitalzeichen, Bewusstsein"
+      ],
+      "therapie": [
+        "Infusion mit NaCl 0,9 %, später Glukose-Elektrolyt-Lösung, i. v. oder s. c.; bei Herzerkrankungen auf Überwässerung achten",
+        "Oral: Salz-Zucker-Lösung"
+      ],
+      "pflege": [
+        "Bedarf bestimmen, Faustregel 30–40 ml je kg Körpergewicht; der Bedarf steigt bei Hitze, Fieber, Erbrechen und Durchfall",
+        "Lieblingsgetränke anbieten und bei jedem Kontakt zum Trinken animieren",
+        "Getränke in Reichweite, passendes Trinkgefäß, nicht bis zum Rand füllen, eventuell Strohhalm",
+        "Flüssigkeitsreiche Kost anbieten",
+        "Toilettengang ermöglichen und dabei die Intimsphäre wahren",
+        "Bezugspersonen einbeziehen",
+        "Reicht das Trinken nicht, s. c.-Infusionen nach Anordnung",
+        "Ein- und Ausfuhrprotokoll führen"
+      ],
+      "prophylaxen": [
+        {
+          "topicId": "thema.pro.dehydratation",
+          "grund": "Kernmaßnahme: Bedarf bestimmen, Zufuhr sichern, Bilanz führen"
+        },
+        {
+          "topicId": "thema.pro.thrombose",
+          "grund": "Eingedicktes Blut gerinnt leichter"
+        },
+        {
+          "topicId": "thema.pro.obstipation",
+          "grund": "Zu wenig Flüssigkeit verhärtet den Stuhl"
+        },
+        {
+          "topicId": "thema.pro.delir",
+          "grund": "Flüssigkeitsmangel löst bei alten Menschen oft Verwirrtheit aus"
+        }
+      ],
+      "merksatz": "Im Alter fehlt der Durst, nicht der Bedarf.",
+      "drugIds": [
+        "arz.furosemid",
+        "arz.hydrochlorothiazid"
+      ],
+      "assessmentIds": [
+        "as.mna"
+      ],
+      "referenceIds": [
+        "es.ernaehrung"
+      ],
+      "topicIds": [
+        "thema.pro.dehydratation"
+      ],
+      "belege": [
+        {
+          "abschnitt": "definition",
+          "quelle": "CE 08 Exsikkose, Anlage 2",
+          "seiten": "S. 1–3"
+        },
+        {
+          "abschnitt": "formen",
+          "quelle": "CE 08 Exsikkose, Anlage 2",
+          "seiten": "S. 1–3"
+        },
+        {
+          "abschnitt": "ursachen",
+          "quelle": "CE 08 Exsikkose, Anlage 2",
+          "seiten": "S. 2"
+        },
+        {
+          "abschnitt": "risikofaktoren",
+          "quelle": "CE 08 Exsikkose, Anlage 2",
+          "seiten": "S. 1–2"
+        },
+        {
+          "abschnitt": "symptome",
+          "quelle": "CE 08 Exsikkose, Anlage 2",
+          "seiten": "S. 3"
+        },
+        {
+          "abschnitt": "diagnostik",
+          "quelle": "CE 08 Exsikkose, Anlage 2 und Übersichtstabelle",
+          "seiten": "S. 1"
+        },
+        {
+          "abschnitt": "therapie",
+          "quelle": "CE 08 Exsikkose, Anlage 2 und Übersichtstabelle",
+          "seiten": "S. 3"
+        },
+        {
+          "abschnitt": "pflege",
+          "quelle": "CE 08 Exsikkose, Anlage 2 und Übersichtstabelle",
+          "seiten": "S. 4"
+        }
+      ],
+      "pruefstatus": "ungeprueft"
+    },
+    {
+      "id": "kh.schlaganfall",
+      "name": "Schlaganfall",
+      "synonyms": [
+        "Apoplex",
+        "Hirninfarkt",
+        "Insult"
+      ],
+      "definition": "Plötzliche Durchblutungsstörung oder Blutung im Gehirn. Nervenzellen sterben ab, es kommt zu neurologischen Ausfällen.",
+      "formen": [
+        "Ischämischer Schlaganfall (Hirninfarkt) durch Gefäßverschluss, etwa 80–85 %",
+        "Hämorrhagischer Schlaganfall durch Hirnblutung",
+        "TIA: Ausfälle bilden sich vollständig zurück, Warnzeichen für einen Schlaganfall"
+      ],
+      "ursachen": [
+        "Arteriosklerose der Hirngefäße",
+        "Embolie aus dem Herzen, z. B. bei Vorhofflimmern",
+        "Hirnblutung, z. B. bei hohem Blutdruck"
+      ],
+      "risikofaktoren": [
+        "Arterielle Hypertonie",
+        "Vorhofflimmern",
+        "Diabetes mellitus",
+        "Rauchen",
+        "Hohe Blutfette",
+        "Bewegungsmangel, Übergewicht",
+        "Höheres Alter"
+      ],
+      "symptome": [
+        "FAST: Face (hängender Mundwinkel), Arms (Arm sinkt ab), Speech (verwaschene Sprache), Time (sofort 112)",
+        "Halbseitenlähmung (Hemiparese) und Gefühlsstörung der Gegenseite",
+        "Sprachstörung (Aphasie), Sprechstörung (Dysarthrie), Schluckstörung (Dysphagie)",
+        "Sehstörung, Neglect (eine Körper- oder Raumhälfte wird nicht beachtet), Schwindel, Bewusstseinsstörung"
+      ],
+      "komplikationen": [
+        "Aspirationspneumonie",
+        "Stürze",
+        "Dekubitus, Kontrakturen, Spastik",
+        "Thrombose",
+        "Depression"
+      ],
+      "diagnostik": [
+        "CT oder MRT des Kopfes sofort (Blutung ausschließen)",
+        "Neurologische Untersuchung, Bewusstsein (GCS)",
+        "Ursachensuche: EKG, Ultraschall der Halsgefäße"
+      ],
+      "therapie": [
+        "Stroke Unit, Lyse oder Thrombektomie im Zeitfenster („Time is brain“)",
+        "Sekundärprophylaxe nach ärztlicher Anordnung: Plättchenhemmer oder Antikoagulation, Statin, Blutdruckeinstellung",
+        "Frühe Rehabilitation: Physio-, Ergo- und Logopädie"
+      ],
+      "pflege": [
+        "Bei Verdacht sofort Notruf, Zeitpunkt des Beginns festhalten, nichts essen oder trinken lassen",
+        "Vitalzeichen, Bewusstsein, Pupillen und neurologische Ausfälle engmaschig beobachten",
+        "Vor dem ersten Essen und Trinken Schluckfähigkeit prüfen (Schluckscreening), Kostform anpassen, aufrecht sitzend essen",
+        "Therapeutisch aktivierende Pflege, z. B. nach Bobath: von der betroffenen Seite ansprechen und anfassen, betroffene Seite einbeziehen",
+        "Lagerung und Positionierung, die Spastik und Schmerzen in der Schulter vermeidet",
+        "Kommunikation bei Aphasie: kurze Sätze, Ja-Nein-Fragen, Zeit lassen, Hilfsmittel"
+      ],
+      "beratung": [
+        "Risikofaktoren behandeln, Medikamente regelmäßig nehmen",
+        "Warnzeichen (FAST) kennen, auch bei Angehörigen",
+        "Hilfsmittel und Unterstützung im Alltag, Angehörige anleiten"
+      ],
+      "prophylaxen": [
+        {
+          "topicId": "thema.pro.aspiration",
+          "grund": "Schluckstörungen sind häufig, Gefahr der Aspirationspneumonie"
+        },
+        {
+          "topicId": "thema.pro.sturz",
+          "grund": "Lähmung, Gleichgewichtsstörung, Neglect"
+        },
+        {
+          "topicId": "thema.pro.kontraktur",
+          "grund": "Lähmung und Spastik"
+        },
+        {
+          "topicId": "thema.pro.dekubitus",
+          "grund": "Eingeschränkte Bewegung und Wahrnehmung"
+        },
+        {
+          "topicId": "thema.pro.thrombose",
+          "grund": "Gelähmtes Bein, Immobilität"
+        },
+        {
+          "topicId": "thema.pro.pneumonie",
+          "grund": "Immobilität und Aspiration"
+        }
+      ],
+      "merksatz": "FAST: Gesicht, Arme, Sprache, Zeit.",
+      "drugIds": [
+        "arz.acetylsalicylsaeure",
+        "arz.clopidogrel",
+        "arz.apixaban",
+        "arz.simvastatin",
+        "arz.ramipril"
+      ],
+      "assessmentIds": [
+        "as.gcs",
+        "as.barthel",
+        "as.braden",
+        "as.tug"
+      ],
+      "referenceIds": [
+        "es.mobilitaet",
+        "es.sturz"
+      ],
+      "topicIds": [
+        "thema.kl.neuro.schlaganfall"
+      ],
+      "pruefstatus": "ungeprueft"
+    },
+    {
+      "id": "kh.demenz",
+      "name": "Demenz (Alzheimer-Typ)",
+      "synonyms": [
+        "Alzheimer-Demenz",
+        "Morbus Alzheimer"
+      ],
+      "definition": "Lang anhaltende, ausgeprägte Funktionsstörung des Gehirns mit zunehmenden kognitiven Einschränkungen. Sie beeinträchtigt die Fähigkeit, den Tag zu strukturieren, den Alltag zu bewältigen und an der Gesellschaft teilzuhaben.",
+      "formen": [
+        "Degenerativ: Alzheimer, Lewy-Körperchen, Parkinson-Demenz, frontotemporal",
+        "Vaskulär: Multi-Infarkt-Demenz, Morbus Binswanger",
+        "Mischformen und sekundäre Demenzen"
+      ],
+      "ursachen": [
+        "Alzheimer: Nervenzellen gehen durch Eiweißablagerungen (Beta-Amyloid-Plaques, Tau-Fibrillen) zugrunde, zu wenig Acetylcholin",
+        "Vaskulär: viele kleine Durchblutungsstörungen im Gehirn"
+      ],
+      "risikofaktoren": [
+        "Bewegungsmangel",
+        "Kopfverletzungen",
+        "Alkohol",
+        "Feinstaub",
+        "Geringe Bildung",
+        "Übergewicht",
+        "Bluthochdruck",
+        "Schwerhörigkeit",
+        "Rauchen",
+        "Diabetes",
+        "Depression",
+        "Wenig soziale Kontakte"
+      ],
+      "symptome": [
+        "Kognitiv: Gedächtnis, Merkfähigkeit, Sprache und Orientierung beeinträchtigt, Objekt- und Gesichtererkennung gestört, Handlungsabläufe gestört",
+        "Verhalten und Psyche: Apathie, Depression, Angst, Halluzinationen, Rufen und Schreien, Unruhe, Wandering, Aggression",
+        "Körperlich: Schlafstörung, gestörter Tag-Nacht-Rhythmus, Gangapraxie"
+      ],
+      "komplikationen": [
+        "Delir bei Infekten, Exsikkose oder Medikamenten",
+        "Stürze",
+        "Mangelernährung und Exsikkose",
+        "Aspiration im Spätstadium"
+      ],
+      "diagnostik": [
+        "Mini-Mental-Status-Test (MMST): prüft Orientierung, Merkfähigkeit, Aufmerksamkeit und Rechnen, Erinnerung und Sprache, höchstens 30 Punkte",
+        "Uhrentest: mehr als 3 Fehlerpunkte sprechen für eine Hirnleistungsstörung"
+      ],
+      "therapie": [
+        "Cholinesterase-Hemmer (Donepezil, Galantamin, Rivastigmin) oder der Glutamat-Antagonist Memantin nach ärztlicher Anordnung",
+        "Nichtmedikamentös: Ergo-, Physio- und Verhaltenstherapie, Logopädie, Gedächtnistraining, Musik-, Kunst- und Erinnerungstherapie, je nach Stadium"
+      ],
+      "pflege": [
+        "Personzentrierte Haltung: die Person steht im Mittelpunkt, nicht die Diagnose; Beziehungsbedarfe erheben und eine Verstehenshypothese bilden",
+        "Biografiearbeit: Vorlieben, Rituale und Gewohnheiten kennen und nutzen",
+        "Orientierung fördern: mit Nachnamen begrüßen, Tageszeit nennen, Kalender, Schilder und Bilder, eigene Gegenstände",
+        "Bei Hinlauftendenz nicht mit der Realität konfrontieren; freiheitsentziehende Maßnahmen nur als allerletztes Mittel",
+        "Kommunikation: Augenkontakt, kurze Sätze, geschlossene Fragen, keine Ironie, Brille und Hörgerät",
+        "Validation: Gefühle wahrnehmen und spiegeln, nicht korrigieren, keine Warum-Fragen",
+        "Herausforderndes Verhalten kann ein Hinweis auf Schmerzen sein: wenn keine Selbstauskunft möglich ist, mit BESD einschätzen"
+      ],
+      "beratung": [
+        "Angehörige stärken und einbeziehen",
+        "Technische Hilfen: Herdsicherung, Erinnerungsfunktionen, Hausnotruf"
+      ],
+      "prophylaxen": [
+        {
+          "topicId": "thema.pro.sturz",
+          "grund": "Gangunsicherheit, Unruhe, gestörter Tag-Nacht-Rhythmus"
+        },
+        {
+          "topicId": "thema.pro.dehydratation",
+          "grund": "Durst und Hunger werden nicht geäußert, Essen wird nicht erkannt"
+        },
+        {
+          "topicId": "thema.pro.delir",
+          "grund": "Demenz ist der stärkste Risikofaktor für ein Delir"
+        },
+        {
+          "topicId": "thema.pro.deprivation",
+          "grund": "Rückzug und fehlende Reize verstärken den Abbau"
+        }
+      ],
+      "merksatz": "Der emotionale Zugang ist der Königsweg.",
+      "drugIds": [
+        "arz.melperon",
+        "arz.haloperidol",
+        "arz.citalopram"
+      ],
+      "assessmentIds": [
+        "as.mmst",
+        "as.besd",
+        "as.barthel",
+        "as.mna"
+      ],
+      "referenceIds": [
+        "es.demenz",
+        "es.schmerz"
+      ],
+      "topicIds": [
+        "thema.kl.demenz"
+      ],
+      "belege": [
+        {
+          "abschnitt": "definition",
+          "quelle": "ENP",
+          "seiten": "S. 977"
+        },
+        {
+          "abschnitt": "formen",
+          "quelle": "ENP",
+          "seiten": "S. 978"
+        },
+        {
+          "abschnitt": "risikofaktoren",
+          "quelle": "CE 09 Demenz",
+          "seiten": "S. 25"
+        },
+        {
+          "abschnitt": "symptome",
+          "quelle": "ENP",
+          "seiten": "S. 977–978"
+        },
+        {
+          "abschnitt": "diagnostik",
+          "quelle": "CE 09 Demenz",
+          "seiten": "S. 29–33"
+        },
+        {
+          "abschnitt": "therapie",
+          "quelle": "CE 09 Demenz",
+          "seiten": "S. 26–27"
+        },
+        {
+          "abschnitt": "pflege",
+          "quelle": "CE 09 Demenz",
+          "seiten": "S. 18–21, 47–64, 85–92, 112–114"
+        },
+        {
+          "abschnitt": "pflege",
+          "quelle": "CE 05 Schmerzmanagement (BESD)",
+          "seiten": "S. 22–28"
+        },
+        {
+          "abschnitt": "beratung",
+          "quelle": "CE 09 Demenz",
+          "seiten": "S. 17, 117–118"
+        }
+      ],
+      "pruefstatus": "ungeprueft"
+    },
+    {
+      "id": "kh.parkinson",
+      "name": "Morbus Parkinson",
+      "synonyms": [
+        "Parkinson-Krankheit"
+      ],
+      "definition": "Fortschreitende Erkrankung, bei der Nervenzellen in der Substantia nigra zugrunde gehen. Es fehlt Dopamin, die Bewegungssteuerung ist gestört.",
+      "ursachen": [
+        "Untergang dopaminbildender Nervenzellen, Ursache meist unbekannt (idiopathisch)",
+        "Sekundär z. B. durch Medikamente wie Neuroleptika"
+      ],
+      "symptome": [
+        "Hauptsymptome: Bradykinese bzw. Akinese (verlangsamte, verarmte Bewegung), Rigor (Muskelsteifheit), Ruhetremor, posturale Instabilität",
+        "Kleinschrittiger Gang, Freezing, gebeugte Haltung, fehlendes Mitschwingen der Arme",
+        "Maskengesicht, leise, monotone Sprache, kleine Schrift",
+        "Schluckstörung, Speichelfluss, Obstipation, Blutdruckabfall beim Aufstehen, Depression, Schlafstörung"
+      ],
+      "komplikationen": [
+        "Stürze",
+        "Aspirationspneumonie",
+        "Akinetische Krise (z. B. nach abruptem Absetzen der Medikamente): Notfall",
+        "Wirkschwankungen (On-Off) unter Levodopa",
+        "Demenz im Verlauf"
+      ],
+      "diagnostik": [
+        "Klinische Untersuchung, Ansprechen auf Levodopa",
+        "Bildgebung zum Ausschluss anderer Ursachen"
+      ],
+      "therapie": [
+        "Levodopa und andere Parkinson-Medikamente nach ärztlicher Anordnung, pünktlich nach Zeitplan",
+        "Physio-, Ergo- und Logopädie"
+      ],
+      "pflege": [
+        "Medikamente minutengenau nach Plan geben; Levodopa mit Abstand zu eiweißreichen Mahlzeiten",
+        "Bewegung im On, Ruhe und Hilfe im Off einplanen; Zeit lassen, nicht drängen",
+        "Bei Freezing: rhythmische Hilfen (Zählen, Takt, Linien am Boden), Gewichtsverlagerung",
+        "Schluckfähigkeit beobachten, aufrecht essen, Kost anpassen",
+        "Sturzrisiko einschätzen, Umgebung sichern, langsam aufstehen",
+        "Selbstständigkeit mit Hilfsmitteln erhalten (z. B. dickere Griffe, Kleidung mit Klettverschluss)"
+      ],
+      "beratung": [
+        "Medikamente nie eigenmächtig absetzen, Einnahmezeiten einhalten",
+        "Bewegung und Training im Alltag, Selbsthilfegruppen"
+      ],
+      "prophylaxen": [
+        {
+          "topicId": "thema.pro.sturz",
+          "grund": "Gangstörung, Freezing, Blutdruckabfall"
+        },
+        {
+          "topicId": "thema.pro.aspiration",
+          "grund": "Schluckstörung"
+        },
+        {
+          "topicId": "thema.pro.obstipation",
+          "grund": "Verlangsamte Darmbewegung, Medikamente"
+        },
+        {
+          "topicId": "thema.pro.kontraktur",
+          "grund": "Rigor und gebeugte Haltung"
+        }
+      ],
+      "merksatz": "Rigor, Tremor, Akinese, posturale Instabilität.",
+      "drugIds": [
+        "arz.levodopa",
+        "arz.macrogol"
+      ],
+      "assessmentIds": [
+        "as.tug",
+        "as.barthel"
+      ],
+      "referenceIds": [
+        "es.sturz",
+        "es.mobilitaet"
+      ],
+      "topicIds": [
+        "thema.kl.neuro.parkinson"
+      ],
+      "pruefstatus": "ungeprueft"
+    },
+    {
+      "id": "kh.dekubitus",
+      "name": "Dekubitus",
+      "synonyms": [
+        "Druckgeschwür",
+        "Druckverletzung"
+      ],
+      "definition": "Lokal begrenzte Schädigung der Haut und des darunterliegenden Gewebes, meist über Knochenvorsprüngen, durch Druck oder Druck in Verbindung mit Scherkräften.",
+      "formen": [
+        "Kategorie 1: nicht wegdrückbare Rötung bei intakter Haut",
+        "Kategorie 2: Teilverlust der Haut, flache Wunde oder Blase",
+        "Kategorie 3: Verlust der Haut bis ins Unterhautfettgewebe",
+        "Kategorie 4: vollständiger Gewebeverlust mit freiliegendem Knochen, Sehne oder Muskel"
+      ],
+      "ursachen": [
+        "Druck über längere Zeit, der die Durchblutung unterbricht",
+        "Scher- und Reibungskräfte, z. B. beim Herunterrutschen im Bett"
+      ],
+      "risikofaktoren": [
+        "Eingeschränkte Mobilität und Bettlägerigkeit",
+        "Gestörte Wahrnehmung (Lähmung, Bewusstseinsstörung, Neuropathie)",
+        "Feuchtigkeit durch Inkontinenz oder Schwitzen",
+        "Mangelernährung und Exsikkose",
+        "Durchblutungsstörungen, Ödeme",
+        "Hohes Alter"
+      ],
+      "symptome": [
+        "Typische Stellen: Kreuzbein, Fersen, Sitzbeinhöcker, großer Rollhügel, Hinterkopf, Ohren",
+        "Rötung, die sich nicht wegdrücken lässt (Fingertest)",
+        "Blase, offene Wunde, Nekrose je nach Kategorie"
+      ],
+      "komplikationen": [
+        "Wundinfektion bis Sepsis",
+        "Schmerzen",
+        "Osteomyelitis"
+      ],
+      "diagnostik": [
+        "Initiales Screening, bei Risiko strukturierte Einschätzung (z. B. Braden-Skala) und klinische Beurteilung",
+        "Fingertest: Rötung mit dem Finger eindrücken; bleibt sie rot, liegt Kategorie 1 vor",
+        "Wunddokumentation mit Lage, Größe, Kategorie, Wundgrund, Fotos"
+      ],
+      "therapie": [
+        "Konsequente Druckentlastung der Wunde",
+        "Phasengerechte Wundversorgung nach ärztlicher Anordnung und Wundexperten",
+        "Schmerzbehandlung, Ernährung verbessern"
+      ],
+      "pflege": [
+        "Bewegungsförderung: Eigenbewegung unterstützen, individueller Bewegungsplan mit Positionswechseln",
+        "Mikrolagerungen, 30-Grad-Seitenlage, Fersen frei lagern",
+        "Druckverteilende Hilfsmittel wie Weichlagerungsmatratzen nach Bedarf, regelmäßig prüfen, ob sie noch nötig sind",
+        "Haut täglich inspizieren, besonders an gefährdeten Stellen",
+        "Hautpflege, Haut trocken halten, schonende Inkontinenzversorgung",
+        "Ernährung und Trinkmenge sichern",
+        "Beim Hochrutschen und Transfer Scherkräfte vermeiden (kinästhetisch arbeiten)"
+      ],
+      "beratung": [
+        "Betroffene und Angehörige zu Bewegung, Positionswechseln und Hautbeobachtung anleiten"
+      ],
+      "prophylaxen": [
+        {
+          "topicId": "thema.pro.dekubitus",
+          "grund": "Kern der Vorbeugung und Behandlung"
+        },
+        {
+          "topicId": "thema.pro.dehydratation",
+          "grund": "Ernährung und Flüssigkeit für die Gewebeheilung"
+        },
+        {
+          "topicId": "thema.pro.kontraktur",
+          "grund": "Gleiche Ursache: Immobilität"
+        }
+      ],
+      "merksatz": "Druck mal Zeit: Bewegung ist die beste Prophylaxe.",
+      "drugIds": [
+        "arz.paracetamol",
+        "arz.metamizol"
+      ],
+      "assessmentIds": [
+        "as.braden",
+        "as.norton",
+        "as.mna",
+        "as.nrs"
+      ],
+      "referenceIds": [
+        "es.dekubitus",
+        "es.wunden"
+      ],
+      "topicIds": [
+        "thema.pro.dekubitus",
+        "thema.ph.wunde"
+      ],
+      "pruefstatus": "ungeprueft"
+    }
+  ],
   "id": "pflege-generalistisch",
   "name": "Generalistische Pflegeausbildung (Pflegefachfrau/Pflegefachmann)",
   "version": "0.1.0",
