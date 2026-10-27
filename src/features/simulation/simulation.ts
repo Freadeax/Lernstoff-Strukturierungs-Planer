@@ -20,11 +20,8 @@ export const QUELLEN: { id: Quelle; label: string; hinweis: string }[] = [
 export const QUELLE_LABEL = Object.fromEntries(QUELLEN.map((q) => [q.id, q.label])) as Record<Quelle, string>;
 export const AFB_LABEL: Record<Afb, string> = { 1: 'AFB I · Reproduktion', 2: 'AFB II · Transfer', 3: 'AFB III · Reflexion' };
 
-/** Rechentypen gehören zu Arzneimitteln bzw. Infusionen; beide Themen hängen an Kompetenzbereich III.2. */
-export const RECHEN_THEMA: Record<AufgabenTyp, ID> = {
-  einheiten: 'thema.ph.medikamente', dosis: 'thema.ph.medikamente', mgkg: 'thema.ph.medikamente', prozent: 'thema.ph.medikamente',
-  perfusor: 'thema.ph.medikamente', laufrate: 'thema.ph.injektion', tropfen: 'thema.ph.injektion', laufzeit: 'thema.ph.injektion',
-};
+/** Thema je Rechentyp, wie im Rechentrainer und im Lernplan (eine Quelle für alle). */
+export const RECHEN_THEMA = Object.fromEntries(TYPEN.map((t) => [t.typ, t.thema])) as Record<AufgabenTyp, ID>;
 
 const GLOSSAR_OPERATOR: Record<FrageArt, string> = { definition: 'benennen', abkuerzung: 'benennen', begriff: 'definieren' };
 

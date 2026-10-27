@@ -9,6 +9,8 @@ import { ladeStatistik, quote, schwaechen, zaehle, type Statistik } from './stat
 import { proThema } from '../lernplan/trainer';
 import { useRoute } from '../../ui/shell/router';
 import { LernplanHinweis, useLernplanUebernahme } from '../lernplan/ui/LernplanHinweis';
+import { notiereFehler } from '../fehlerheft/fehlerheft';
+import { ausRechentrainer } from '../fehlerheft/quellen';
 
 type Modus = 'training' | 'pruefung';
 const PRUEFUNG_LAENGE = 10;
@@ -92,6 +94,7 @@ export default function Rechentrainer() {
     const b = bewerte(aufgabe, eingabe);
     if (b === 'leer') { setBewertung(b); return; }
     setStat((s) => zaehle(s, aufgabe.typ, ok(b)));
+    if (!ok(b)) notiereFehler([ausRechentrainer(aufgabe, eingabe)]);
     if (modus === 'pruefung') {
       setRunde((r) => [...r, { aufgabe, eingabe, bewertung: b }]);
       neu();
@@ -237,6 +240,7 @@ export default function Rechentrainer() {
               );
             })}
           </dl>
+          <p className="muted">Falsche Antworten landen im <a href="#/lernen/fehler">Fehlerheft</a> und kommen dort als Zwillingsaufgabe mit neuen Zahlen wieder.</p>
           <p className="muted">Prozentwerte: deine Trefferquote auf diesem Gerät. Maßgeblich sind immer ärztliche Anordnung, Fachinformation und Hausstandard.</p>
         </aside>
       </div>

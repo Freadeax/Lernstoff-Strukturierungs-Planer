@@ -1,8 +1,10 @@
-// Rechentrainer: Aufgaben zum pflegerischen Rechnen (Einheiten, Dosis, Infusion, Perfusor).
+// Rechentrainer: Aufgaben zum pflegerischen Rechnen (Einheiten, Dosis, Infusion, Perfusor,
+// Insulin, Flüssigkeitsbilanz, BMI, Sauerstoffvorrat).
 // Alle Werte sind fiktive Übungswerte und keine Dosierungsempfehlung. Aufgaben werden aus einem
 // Startwert erzeugt (seed), damit sie reproduzierbar und testbar sind.
 
-export type AufgabenTyp = 'einheiten' | 'dosis' | 'mgkg' | 'prozent' | 'laufrate' | 'tropfen' | 'laufzeit' | 'perfusor';
+export type AufgabenTyp = 'einheiten' | 'dosis' | 'mgkg' | 'prozent' | 'laufrate' | 'tropfen' | 'laufzeit' | 'perfusor'
+  | 'insulin' | 'bilanz' | 'bmi' | 'sauerstoff';
 export type Stufe = 1 | 2 | 3;
 
 export interface Aufgabe {
@@ -21,6 +23,9 @@ export interface TypInfo { typ: AufgabenTyp; label: string; formel: string; merk
 
 const ARZNEI = 'thema.ph.medikamente';
 const INFUSION = 'thema.ph.injektion';
+const FLUESSIGKEIT = 'thema.pro.dehydratation';
+const ERNAEHRUNG = 'thema.ph.ernaehrung';
+const ATMUNG = 'thema.kl.atmung';
 
 export const TYPEN: TypInfo[] = [
   { typ: 'einheiten', label: 'Einheiten', formel: '1 g = 1000 mg · 1 mg = 1000 µg · 1 l = 1000 ml', merke: 'Eine Stufe größer: durch 1000. Eine Stufe kleiner: mal 1000.', thema: ARZNEI },
@@ -31,6 +36,10 @@ export const TYPEN: TypInfo[] = [
   { typ: 'tropfen', label: 'Tropfgeschwindigkeit', formel: 'Tropfen/min = ml × Tropfenfaktor ÷ Minuten', merke: 'Standardbesteck 20 Tropfen/ml: Tropfen/min = ml/h ÷ 3. Mikrotropf 60 Tropfen/ml: Tropfen/min = ml/h.', thema: INFUSION },
   { typ: 'laufzeit', label: 'Laufzeit', formel: 'Minuten = Volumen (ml) ÷ Laufrate (ml/h) × 60', thema: INFUSION },
   { typ: 'perfusor', label: 'Perfusor', formel: 'ml/h = Dosis pro Stunde ÷ Konzentration der Spritze', merke: 'µg/kg/min → mg/h: × kg × 60 ÷ 1000.', thema: INFUSION },
+  { typ: 'insulin', label: 'Insulin', formel: 'ml = IE ÷ Konzentration (IE/ml) · U-100 = 100 IE/ml', merke: 'Auf dem Pen oder der Ampulle steht die Konzentration. Bei U-100 sind 10 IE = 0,1 ml.', thema: ARZNEI },
+  { typ: 'bilanz', label: 'Flüssigkeitsbilanz', formel: 'Bilanz = Einfuhr gesamt − Ausfuhr gesamt', merke: 'Positiv: mehr aufgenommen als ausgeschieden. Negativ: mehr ausgeschieden. Erst alle Einfuhren, dann alle Ausfuhren addieren.', thema: FLUESSIGKEIT },
+  { typ: 'bmi', label: 'BMI', formel: 'BMI = Gewicht (kg) ÷ (Größe in m)²', merke: 'Zentimeter erst in Meter umrechnen: 172 cm = 1,72 m. Dann die Größe mit sich selbst malnehmen.', thema: ERNAEHRUNG },
+  { typ: 'sauerstoff', label: 'Sauerstoffvorrat', formel: 'Liter = Flaschenvolumen (l) × Druck (bar) · Minuten = Liter ÷ Flow (l/min)', merke: 'Bei einer Reserve nur den Druck über der Reserve nutzen: (Druck − Reserve) × Volumen.', thema: ATMUNG },
 ];
 
 export const TYP_LABEL = Object.fromEntries(TYPEN.map((t) => [t.typ, t.label])) as Record<AufgabenTyp, string>;
@@ -282,7 +291,111 @@ const perfusor: Gen = (r, stufe) => {
   };
 };
 
-const GEN: Record<AufgabenTyp, Gen> = { einheiten, dosis, mgkg, prozent, laufrate, tropfen, laufzeit, perfusor };
+
+const insulin: Gen = (r, stufe) => {
+  if (stufe === 1) {
+    const ie = r.pick([4, 6, 8, 10, 12, 16, 20, 24, 30]);
+    const l = runde(ie / 100, 3);
+    return {
+      frage: `Für Herrn B. sind ${ie} IE Insulin angeordnet. Das Insulin hat die Konzentration U-100 (100 IE/ml). Wie viele ml sind das?`,
+      einheit: 'ml', loesung: l, toleranz: 0,
+      schritte: ['U-100 bedeutet 100 IE in 1 ml.', `${ie} IE ÷ 100 IE/ml = ${zahl(l)} ml`],
+    };
+  }
+  if (stufe === 2) {
+    const ml = r.pick([0.06, 0.08, 0.12, 0.14, 0.18, 0.22, 0.28, 0.35]);
+    const l = runde(ml * 100, 0);
+    return {
+      frage: `In einer U-100-Insulinspritze sind ${zahl(ml)} ml aufgezogen. Wie viele IE sind das?`,
+      einheit: 'IE', loesung: l, toleranz: 0,
+      schritte: ['U-100: 1 ml enthält 100 IE.', `${zahl(ml)} ml × 100 IE/ml = ${zahl(l)} IE`],
+    };
+  }
+  const gesamt = r.pick([50, 100]);
+  const spritze = 50;
+  const ieH = r.pick([0.5, 1, 1.5, 2, 2.5, 3, 4, 5, 6]);
+  const konz = gesamt / spritze;
+  const l = runde(ieH / konz, 2);
+  return {
+    frage: `Im Perfusor sind ${gesamt} IE Normalinsulin in ${spritze} ml NaCl 0,9 %. Angeordnet sind ${zahl(ieH)} IE/h. Welche Laufrate stellst du ein? (auf 2 Nachkommastellen)`,
+    einheit: 'ml/h', loesung: l, toleranz: 0.01,
+    schritte: [`Konzentration: ${gesamt} IE ÷ ${spritze} ml = ${zahl(konz)} IE/ml`, `${zahl(ieH)} IE/h ÷ ${zahl(konz)} IE/ml = ${zahl(l)} ml/h`],
+  };
+};
+
+/** „300 + 500 = 800“, bei nur einem Wert einfach „300“. */
+const summe = (xs: number[]) => (xs.length > 1 ? `${xs.map(zahl).join(' + ')} = ${zahl(xs.reduce((a, b) => a + b, 0))}` : zahl(xs[0] ?? 0));
+
+const bilanz: Gen = (r, stufe) => {
+  const ein: [string, number][] = [['Getränke', r.int(800, 1600, 50)]];
+  const aus: [string, number][] = [['Urin', r.int(700, 1800, 50)]];
+  if (stufe >= 2) {
+    ein.push([r.pick(['Infusion', 'Sondenkost', 'Suppe und Joghurt']), r.int(250, 1000, 50)]);
+    aus.push([r.pick(['Erbrochenes', 'Wunddrainage', 'Magensonde (Ablauf)', 'flüssiger Stuhl']), r.int(100, 450, 25)]);
+  }
+  if (stufe === 3) {
+    // Schätzwerte stehen in der Aufgabe, damit nichts als allgemeingültige Norm erscheint
+    ein.push(['Oxidationswasser (Schätzwert laut Station)', 300]);
+    aus.push(['Perspiratio insensibilis (Schätzwert laut Station)', r.pick([500, 600, 800])]);
+  }
+  const se = ein.reduce((s, [, v]) => s + v, 0);
+  const sa = aus.reduce((s, [, v]) => s + v, 0);
+  if (se === sa) aus[0]![1] += 50;
+  const sa2 = aus.reduce((s, [, v]) => s + v, 0);
+  const b = se - sa2;
+  const liste = (xs: [string, number][]) => xs.map(([n, v]) => `${n} ${zahl(v)} ml`).join(', ');
+  return {
+    frage: `24-Stunden-Bilanz von Frau K. Einfuhr: ${liste(ein)}. Ausfuhr: ${liste(aus)}. Wie groß ist die Bilanz? Gib den Betrag in ml an, ob sie positiv oder negativ ist, steht im Lösungsweg.`,
+    einheit: 'ml', loesung: Math.abs(b), toleranz: 0,
+    schritte: [
+      `Einfuhr: ${summe(ein.map(([, v]) => v))} ml`,
+      `Ausfuhr: ${summe(aus.map(([, v]) => v))} ml`,
+      `${zahl(se)} ml − ${zahl(sa2)} ml = ${b > 0 ? '+' : '−'}${zahl(Math.abs(b))} ml: ${b > 0 ? 'positive Bilanz (mehr aufgenommen als ausgeschieden)' : 'negative Bilanz (mehr ausgeschieden als aufgenommen)'}`,
+    ],
+  };
+};
+
+const bmi: Gen = (r, stufe) => {
+  const cm = stufe === 1 ? r.pick([150, 160, 170, 180, 190, 200]) : r.int(148, 198);
+  const kg = stufe === 1 ? r.int(45, 110, 5) : stufe === 2 ? r.int(42, 120) : runde(r.int(400, 1300) / 10, 1);
+  const m = cm / 100;
+  const l = runde(kg / (m * m), 1);
+  const angabe = stufe === 3 ? `${zahl(kg)} kg` : `${kg} kg`;
+  return {
+    frage: `Eine Bewohnerin ist ${cm} cm groß und wiegt ${angabe}. Berechne den BMI. (auf 1 Nachkommastelle)`,
+    einheit: 'kg/m²', loesung: l, toleranz: 0.1,
+    schritte: [`${cm} cm = ${zahl(m)} m`, `${zahl(m)} m × ${zahl(m)} m = ${zahl(runde(m * m, 4))} m²`, `${zahl(kg)} kg ÷ ${zahl(runde(m * m, 4))} m² = ${zahl(l)} kg/m²`],
+  };
+};
+
+const sauerstoff: Gen = (r, stufe) => {
+  const vol = r.pick([2, 5, 10]);
+  const bar = r.pick(stufe === 1 ? [200, 150, 100] : [200, 180, 150, 120, 90, 60]);
+  const liter = vol * bar;
+  if (stufe === 1) {
+    return {
+      frage: `Eine ${vol}-Liter-Sauerstoffflasche zeigt ${bar} bar. Wie viele Liter Sauerstoff sind noch darin?`,
+      einheit: 'l', loesung: liter, toleranz: 0,
+      schritte: [`${vol} l × ${bar} bar = ${zahl(liter)} l`],
+    };
+  }
+  const flow = r.pick([1, 2, 3, 4, 5, 6, 8]);
+  const reserve = stufe === 3 ? r.pick([20, 30, 50]) : 0;
+  const nutzbar = vol * (bar - reserve);
+  const l = Math.floor(nutzbar / flow);
+  const transport = stufe === 3 ? ` Für den Transport plant die Station ${reserve} bar Reserve ein, die nicht verbraucht werden sollen.` : '';
+  return {
+    frage: `Eine ${vol}-Liter-Flasche zeigt ${bar} bar, angeordnet sind ${flow} l/min Sauerstoff.${transport} Für wie viele volle Minuten reicht der Vorrat?`,
+    einheit: 'min', loesung: l, toleranz: 0,
+    schritte: [
+      ...(reserve ? [`Nutzbarer Druck: ${bar} bar − ${reserve} bar = ${bar - reserve} bar`] : []),
+      `Vorrat: ${vol} l × ${bar - reserve} bar = ${zahl(nutzbar)} l`,
+      `${zahl(nutzbar)} l ÷ ${flow} l/min = ${zahl(runde(nutzbar / flow, 2))} min, also ${zahl(l)} volle Minuten`,
+    ],
+  };
+};
+
+const GEN: Record<AufgabenTyp, Gen> = { einheiten, dosis, mgkg, prozent, laufrate, tropfen, laufzeit, perfusor, insulin, bilanz, bmi, sauerstoff };
 
 export function erzeuge(typ: AufgabenTyp, stufe: Stufe, seed: number): Aufgabe {
   return { id: `${typ}:${stufe}:${seed}`, typ, stufe, ...GEN[typ](rng(seed), stufe) };

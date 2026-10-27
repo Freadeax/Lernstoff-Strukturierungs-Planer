@@ -525,7 +525,7 @@
 .wizard { display: flex; flex-direction: column; gap: var(--space-3); }
 .stepper { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-1); counter-reset: step; }
 .stepper__btn {
-  width: 100%; flex-direction: column; gap: var(--space-1); min-height: calc(var(--control-h) + var(--space-3)); padding: var(--space-1);
+  position: relative; width: 100%; flex-direction: column; gap: var(--space-1); min-height: calc(var(--control-h) + var(--space-3)); padding: var(--space-1);
   border-color: var(--color-border); font-size: var(--text-xs); border-radius: var(--radius-md);
 }
 .stepper__num {
@@ -539,7 +539,8 @@
 .is-invalid .stepper__btn { border-color: var(--color-danger); }
 .is-invalid .stepper__num { background: var(--color-danger); color: #fff; }
 .stepper__btn:disabled { opacity: 0.7; }
-@container widget (max-width: 420px) { .stepper__label { display: none; } .stepper__btn { min-height: var(--control-h); } }
+/* Schmal: Beschriftung nur visuell ausblenden, sonst haben die Schritt-Knöpfe keinen Namen (WCAG 4.1.2). */
+@container widget (max-width: 420px) { .stepper__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; } .stepper__btn { min-height: var(--control-h); } }
 .wizard__panel { display: flex; flex-direction: column; gap: var(--space-2); }
 .wizard__title { margin: 0; font-size: var(--text-md); outline: none; }
 .wizard__nav { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; }

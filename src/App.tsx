@@ -6,15 +6,17 @@ import { PageBoundary } from './ui/shell/PageBoundary';
 import { WidgetGrid } from './ui/widget/Dashboard';
 import { WIDGETS } from './widgets/registry';
 import { Dashboard } from './features/Dashboard';
-import { Dokumente } from './features/Dokumente';
-import { Zusammenfassen } from './features/Zusammenfassen';
 import { Faecher } from './features/Faecher';
 import { Einstellungen } from './features/Einstellungen';
 import { PageHeading } from './ui/PageHeading';
 
+// Import (PDF, OCR, ZIP) und Zusammenfasser (Claude-SDK) sind groß: erst laden, wenn die Seite geöffnet wird.
+const Dokumente = lazy(() => import('./features/Dokumente').then((m) => ({ default: m.Dokumente })));
+const Zusammenfassen = lazy(() => import('./features/Zusammenfassen').then((m) => ({ default: m.Zusammenfassen })));
 const Designsystem = lazy(() => import('./features/Designsystem'));
 const Ablage = lazy(() => import('./features/ablage/AblageSeite'));
 const Rechentrainer = lazy(() => import('./features/rechnen/Rechentrainer'));
+const Fehlerheft = lazy(() => import('./features/fehlerheft/FehlerheftSeite'));
 const Fallsimulator = lazy(() => import('./features/fall/Fallsimulator'));
 const Praxissimulator = lazy(() => import('./features/praxis/Praxissimulator'));
 const Duell = lazy(() => import('./features/duell/DuellSeite'));
@@ -22,6 +24,7 @@ const SisTrainer = lazy(() => import('./features/sis/SisTrainer'));
 const Berichttrainer = lazy(() => import('./features/bericht/Berichttrainer'));
 const Mindmaps = lazy(() => import('./features/mindmap/Mindmaps'));
 const AssessmentTrainer = lazy(() => import('./features/assessment/AssessmentTrainer'));
+const Krankheitsbilder = lazy(() => import('./features/krankheitsbilder/Krankheitsbilder'));
 const Uebergabetrainer = lazy(() => import('./features/uebergabe/Uebergabetrainer'));
 const Simulation = lazy(() => import('./features/simulation/SimulationSeite'));
 const Pflegeplanung = lazy(() => import('./features/pflegeplanung/Pflegeplanung'));
@@ -30,6 +33,7 @@ const Landkarte = lazy(() => import('./features/landkarte/Landkarte'));
 const Klassenmodus = lazy(() => import('./features/klasse/Klassenmodus'));
 const Datensicherung = lazy(() => import('./features/sicherung/Datensicherung'));
 const Karteikarten = lazy(() => import('./features/karteikarten/ui/Karteikarten'));
+const Skript = lazy(() => import('./features/skript/ui/Skript'));
 
 function Page({ title, intro, children }: { title: string; intro?: string; children: React.ReactNode }) {
   return (
@@ -50,8 +54,10 @@ function View() {
     case '/lernen/themen': return <Page title="Themen" intro="Alle Themen des Fachmoduls. Arbeitsstand direkt in der Tabelle ändern oder mehrere auswählen."><WidgetGrid widgets={[WIDGETS.themen]} allowHide={false} /></Page>;
     case '/lernen/landkarte': return <Landkarte />;
     case '/lernen/board': return <Page title="Lernstand"><WidgetGrid widgets={[WIDGETS.board]} allowHide={false} /></Page>;
+    case '/lernen/skript': return <Skript />;
     case '/lernen/karten': return <Karteikarten />;
     case '/lernen/rechnen': return <Rechentrainer />;
+    case '/lernen/fehler': return <Fehlerheft />;
     case '/lernen/fall': return <Fallsimulator />;
     case '/lernen/praxis': return <Praxissimulator />;
     case '/lernen/duell': return <Duell />;
@@ -60,6 +66,7 @@ function View() {
     case '/lernen/sis': return <SisTrainer />;
     case '/lernen/bericht': return <Berichttrainer />;
     case '/lernen/mindmap': return <Mindmaps />;
+    case '/lernen/krankheitsbilder': return <Krankheitsbilder />;
     case '/lernen/assessment': return <AssessmentTrainer />;
     case '/lernen/uebergabe': return <Uebergabetrainer />;
     case '/lernen/faecher': return <Faecher />;

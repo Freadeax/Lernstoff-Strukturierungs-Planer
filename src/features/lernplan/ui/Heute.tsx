@@ -9,6 +9,7 @@ import { uebungenFuer } from '../trainer';
 import { blockTitel, bloecke, dauer, langDatum, STATUS_LABEL } from './format';
 import { OhnePruefung, type PlanCtx } from './Lernplan';
 import { KartenHinweis } from '../../karteikarten/ui/KartenHinweis';
+import { SkriptKnopf } from '../../skript/ui/SkriptKnopf';
 
 const QUELLEN: EvidenceSource[] = ['karteikarten', 'quiz', 'offene_frage', 'pruefungssimulation', 'selbsteinschaetzung'];
 
@@ -87,6 +88,7 @@ function BlockKarte({ block, ctx }: { block: PlanBlock; ctx: PlanCtx }) {
           {block.kind === 'erarbeiten' ? <>
             <button type="button" className="primary small" onClick={() => sicher(() => logStudy(topic, block.minutes), `${block.minutes} Min. Lernzeit gespeichert`)}>Erledigt</button>
             <button type="button" className="small" onClick={() => setOffen('zeit')}>Andere Dauer</button>
+            <SkriptKnopf topicId={topic.id} />
           </> : (
             <>
               <button type="button" className="primary small" onClick={() => navigate(`/lernen/karten?thema=${encodeURIComponent(topic.id)}`)}>Mit Karteikarten abfragen</button>

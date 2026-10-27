@@ -1,5 +1,7 @@
 import { storage } from '../../ui/lib/store';
 import { useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import { notiereFehler } from '../fehlerheft/fehlerheft';
+import { ausDuell } from '../fehlerheft/quellen';
 import './duell.css';
 import { logActivity } from '../../core/activity';
 import { modules } from '../../modules/registry';
@@ -284,6 +286,7 @@ export default function Duell() {
   const beende = (zuege: Zug[]) => {
     setFragen(null); setLetzte(zuege);
     if (e.lernplan !== null && fragen && zuege.length === fragen.length) lernplan.uebernimm(proThema(trefferVon(zuege, e.lernplan), MIN_PRO_THEMA));
+    notiereFehler(duellFehler(zuege, e.lernplan));
   };
   const toggle = <T,>(xs: T[], x: T) => (xs.includes(x) ? xs.filter((y) => y !== x) : [...xs, x]);
   const [pa, pb] = letzte ? stand(letzte) : [0, 0];
@@ -397,8 +400,17 @@ export default function Duell() {
       {fragen && (
         <Arena key={runde} e={e} fragen={fragen}
           onEnde={beende}
-          onRevanche={(zuege) => { if (e.lernplan !== null) void inLernplan('duell', proThema(trefferVon(zuege, e.lernplan), MIN_PRO_THEMA)).catch(() => {}); starte(); }} />
+          onRevanche={(zuege) => { notiereFehler(duellFehler(zuege, e.lernplan)); if (e.lernplan !== null) void inLernplan('duell', proThema(trefferVon(zuege, e.lernplan), MIN_PRO_THEMA)).catch(() => {}); starte(); }} />
       )}
     </section>
   );
+}
+
+/** Fehler fürs Fehlerheft: von der Person, die im Lernplan zählt, sonst von allen, die danebenlagen. */
+function duellFehler(zuege: Zug[], wer: 0 | 1 | null) {
+  return zuege.flatMap((z) => {
+    const falsch = ([0, 1] as const).filter((s) => (wer === null || s === wer) && z.antworten[s]?.wahl !== z.frage.richtig);
+    if (!falsch.length) return [];
+    return [ausDuell(z.frage, z.antworten[falsch[0]!]?.wahl ?? null)];
+  });
 }

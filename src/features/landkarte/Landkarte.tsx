@@ -16,6 +16,7 @@ import {
 } from './layout';
 import { usePanZoom, type View } from './usePanZoom';
 import { heute, topicKnowledge } from '../lernplan/store';
+import { SkriptKnopf } from '../skript/ui/SkriptKnopf';
 import { STATUS_LABEL } from '../lernplan/ui/format';
 
 const DIFF = ['', 'sehr leicht', 'leicht', 'mittel', 'schwer', 'sehr schwer'];
@@ -198,6 +199,7 @@ function Details({ id, topics, preds, succs, stand, rankOf, subjects, onSelect, 
       <button type="button" className="karte__mehr" onClick={() => navigate(`/lernen/themen?thema=${encodeURIComponent(id)}`)}>
         In der Themen-Tabelle zeigen
       </button>
+      <SkriptKnopf topicId={id} className="karte__mehr" />
     </aside>
   );
 }

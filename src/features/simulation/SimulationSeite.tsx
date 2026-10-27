@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
+import { notiereFehler } from '../fehlerheft/fehlerheft';
+import { ausSimulation } from '../fehlerheft/quellen';
 import './simulation.css';
 import { db } from '../../core/db';
 import { logActivity } from '../../core/activity';
@@ -29,7 +31,7 @@ const VORLAGEN: Array<{ id: string; label: string; e: Partial<Einstellungen>; hi
   { id: 'klausur', label: 'Klausur', e: { anzahl: 25, minuten: null, kb: [], afb: [] }, hinweis: '25 Fragen, Zeit nach Umfang' },
   ...(STAATLICH?.durationMinutes ? [{
     id: 'staatlich', label: 'Probe Staatsprüfung', e: { anzahl: 40, minuten: STAATLICH.durationMinutes, kb: [], afb: [], quellen: ['glossar', 'rechnen', 'material'] as Quelle[] },
-    hinweis: `Eine Aufsichtsarbeit: ${STAATLICH.durationMinutes} Minuten, alle Kompetenzbereiche. Die echte Prüfung ist fallbezogen und frei formuliert, nimm dafür Fragen aus deinem Material dazu.`,
+    hinweis: `Eine Aufsichtsarbeit: ${STAATLICH.durationMinutes} Minuten. Hier kommen Fragen aus allen Kompetenzbereichen, jede echte Aufsichtsarbeit hat eigene Schwerpunkte (§ 14 PflAPrV). Die echte Prüfung ist fallbezogen und frei formuliert, nimm dafür Fragen aus deinem Material dazu.`,
   }] : []),
 ];
 const ANZAHLEN = [10, 20, 30, 40];
@@ -483,6 +485,8 @@ export default function Simulation() {
     const fertig: Lauf = { ...lauf, abgegeben: jetzt, automatisch, wertungen };
     setLauf(fertig);
     const a = auswerten(K, fertig.fragen, wertungen);
+    notiereFehler(lauf.fragen.filter((f) => wertungen[f.id]?.art === 'auto' && wertungen[f.id]?.richtig === false)
+      .flatMap((f) => ausSimulation(f, lauf.antworten[f.id]) ?? []));
     setVerlauf(ergaenzeVerlauf({
       id: lauf.id, titel: lauf.titel, at: new Date(jetzt).toISOString(), minuten: Math.round((lauf.deadline - lauf.start) / 60_000),
       gebraucht: Math.round((jetzt - lauf.start) / 60_000), fragen: lauf.fragen.length, punkte: a.punkte, max: a.max, prozent: Math.round(a.prozent), schwach: a.schwach,

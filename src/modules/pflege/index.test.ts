@@ -66,6 +66,24 @@ describe('Pflege-Fachmodul', () => {
     expect(new Set(handel).size).toBe(handel.length);
   });
 
+  it('belegt geprüfte Angaben mit einer Fundstelle', () => {
+    // Was als geprüft gilt, muss sich nachprüfen lassen: eigene URL oder Verweis auf eine geprüfte Norm
+    const refs = new Map((m.references ?? []).map((r) => [r.id, r]));
+    const belegt = (referenceIds?: string[]) =>
+      (referenceIds ?? []).some((id) => refs.get(id)?.pruefstatus === 'geprueft' && refs.get(id)?.url);
+    expect((m.references ?? []).filter((r) => r.pruefstatus === 'geprueft' && !r.url?.startsWith('https://')).map((r) => r.id)).toEqual([]);
+    expect((m.examFormats ?? []).filter((e) => e.pruefstatus === 'geprueft' && !belegt(e.referenceIds)).map((e) => e.id)).toEqual([]);
+    expect((m.frameworks ?? []).filter((f) => f.pruefstatus === 'geprueft' && !belegt(f.referenceIds)).map((f) => f.id)).toEqual([]);
+  });
+
+  it('ordnet jede Aufsichtsarbeit eigenen Kompetenzschwerpunkten zu', () => {
+    const schriftlich = m.examFormats?.find((e) => e.id === 'pruefung.staatlich.schriftlich');
+    expect(schriftlich?.teile).toHaveLength(schriftlich?.count ?? 0);
+    const missing = (schriftlich?.teile ?? []).flatMap((t) => (t.competencyIds ?? []).filter((c) => !ids.has(c)));
+    expect(missing).toEqual([]);
+    expect(schriftlich?.teile?.every((t) => t.competencyIds?.length)).toBe(true);
+  });
+
   it('kennzeichnet Katalogdefinitionen als ergänzendes Wissen', () => {
     expect(m.glossary.every((g) => g.origin === 'katalog' || g.citation)).toBe(true);
   });

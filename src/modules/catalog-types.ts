@@ -71,7 +71,10 @@ export interface ExamFormat {
   taskFormatIds?: ID[];
   referenceIds?: ID[];
   pruefstatus?: Pruefstatus;
+  teile?: ExamFormatPart[];   // z. B. die drei Aufsichtsarbeiten mit eigenem Kompetenzbezug
 }
+
+export interface ExamFormatPart { code: string; name: string; durationMinutes?: number; competencyIds?: ID[]; details?: string; }
 
 /** Quelle eines Steckbriefs (öffentlich erreichbar, damit man nachprüfen kann). */
 export interface SourceLink { title: string; url: string; }
@@ -98,6 +101,45 @@ export interface DrugProfile {
   pruefstatus?: Pruefstatus;
 }
 
+/** Abschnitte eines Krankheitsbild-Steckbriefs, auf die sich ein Beleg beziehen kann. */
+export type DiseaseSection =
+  | 'definition' | 'formen' | 'ursachen' | 'risikofaktoren' | 'symptome' | 'komplikationen'
+  | 'diagnostik' | 'therapie' | 'pflege' | 'beratung' | 'prophylaxen';
+
+/** Beleg aus dem eigenen Unterrichtsmaterial: ein Abschnitt stammt vollständig aus dieser Quelle. */
+export interface DiseaseEvidence { abschnitt: DiseaseSection; quelle: string; seiten: string; }
+
+export interface DiseaseProphylaxis { topicId: ID; grund: string; }
+
+/**
+ * Krankheitsbild-Steckbrief. Abschnitte mit Eintrag in `belege` sind vollständig aus dem
+ * Unterrichtsmaterial belegt, alle anderen sind Katalogwissen und gelten als ungeprüft.
+ * drugIds, assessmentIds und topicIds sind Verknüpfungen (Katalogzuordnung), keine Belege.
+ */
+export interface DiseaseProfile {
+  id: ID;
+  name: string;
+  synonyms?: string[];
+  definition: string;
+  formen?: string[];
+  ursachen: string[];
+  risikofaktoren?: string[];
+  symptome: string[];
+  komplikationen?: string[];
+  diagnostik?: string[];
+  therapie?: string[];
+  pflege: string[];
+  beratung?: string[];
+  prophylaxen?: DiseaseProphylaxis[];
+  merksatz?: string;
+  drugIds?: ID[];
+  assessmentIds?: ID[];
+  referenceIds?: ID[];
+  topicIds: ID[];
+  belege?: DiseaseEvidence[];
+  pruefstatus?: Pruefstatus;
+}
+
 export interface CatalogModule extends DomainModule {
   sprache?: string;
   stand?: string;
@@ -111,4 +153,5 @@ export interface CatalogModule extends DomainModule {
   operators?: Operator[];
   examFormats?: ExamFormat[];
   drugProfiles?: DrugProfile[];
+  diseaseProfiles?: DiseaseProfile[];
 }

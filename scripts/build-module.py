@@ -17,7 +17,7 @@ REPO = Path(__file__).resolve().parent.parent
 ROOT = Path(sys.argv[1]) if len(sys.argv) > 1 else REPO / "src" / "modules" / "pflege"
 SCHEMA = REPO / "src" / "modules" / "schema" / "domain-module.schema.json"
 LISTS = ["subjects", "topics", "glossary", "taskFormats", "checkRules",
-         "frameworks", "references", "operators", "examFormats", "drugProfiles"]
+         "frameworks", "references", "operators", "examFormats", "drugProfiles", "diseaseProfiles"]
 
 
 def load_sources():
@@ -108,6 +108,19 @@ def check_references(module):
     for d in module["drugProfiles"]:
         for r in d["topicIds"]:
             expect(d["id"], r, {"topics"})
+    for k in module["diseaseProfiles"]:
+        for r in k["topicIds"]:
+            expect(k["id"], r, {"topics"})
+        for p in k.get("prophylaxen", []):
+            expect(k["id"], p["topicId"], {"topics"})
+        for r in k.get("drugIds", []):
+            expect(k["id"], r, {"drugProfiles"})
+        for r in k.get("assessmentIds", []) + k.get("referenceIds", []):
+            expect(k["id"], r, {"references"})
+        # Ein Beleg gilt für einen ganzen Abschnitt; den Abschnitt muss es dann auch geben.
+        for b in k.get("belege", []):
+            if b["abschnitt"] not in k:
+                errors.append(f"{k['id']}: Beleg für fehlenden Abschnitt {b['abschnitt']}")
     for e in module["examFormats"]:
         for r in e.get("competencyIds", []):
             expect(e["id"], r, {"framework-item"})
@@ -115,6 +128,9 @@ def check_references(module):
             expect(e["id"], r, {"taskFormats"})
         for r in e.get("referenceIds", []):
             expect(e["id"], r, {"references"})
+        for part in e.get("teile", []):
+            for r in part.get("competencyIds", []):
+                expect(f'{e["id"]}/{part["code"]}', r, {"framework-item"})
 
     # Ein Kind darf nicht Voraussetzung seines eigenen Elternthemas sein und umgekehrt;
     # Zyklen im Graphen aus parentId + prerequisites würden die Lernplanung blockieren.
