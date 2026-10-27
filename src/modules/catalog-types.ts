@@ -71,7 +71,10 @@ export interface ExamFormat {
   taskFormatIds?: ID[];
   referenceIds?: ID[];
   pruefstatus?: Pruefstatus;
+  teile?: ExamFormatPart[];   // z. B. die drei Aufsichtsarbeiten mit eigenem Kompetenzbezug
 }
+
+export interface ExamFormatPart { code: string; name: string; durationMinutes?: number; competencyIds?: ID[]; details?: string; }
 
 /** Quelle eines Steckbriefs (öffentlich erreichbar, damit man nachprüfen kann). */
 export interface SourceLink { title: string; url: string; }
