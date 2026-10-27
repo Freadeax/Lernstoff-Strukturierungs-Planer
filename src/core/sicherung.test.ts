@@ -117,6 +117,17 @@ describe('Datensicherung', () => {
     expect(fuehreWertZusammen('lokal', 'fremd')).toBe('lokal');
     expect(fuehreWertZusammen(undefined, 'fremd')).toBe('fremd');
   });
+
+  it('mischt laufende Sitzungen zweier Geräte nicht', () => {
+    const hier = { id: 'a', time: 120, vitals: { pulse: 90 }, commands: [{ id: 'local:1' }] };
+    const dort = { id: 'b', time: 900, vitals: { pulse: 130 }, commands: [{ id: 'local:1' }, { id: 'local:2' }] };
+    expect(fuehreWertZusammen(hier, dort)).toBe(hier);
+    // gleicher Durchlauf: der mit dem neueren Zeitstempel gewinnt als Ganzes, sonst bleibt der vorhandene
+    const alt = { id: 'f', begonnen: '2026-10-27T08:00:00Z', schritt: 2 };
+    const neu = { id: 'f', begonnen: '2026-10-27T09:00:00Z', schritt: 5 };
+    expect(fuehreWertZusammen(alt, neu)).toBe(neu);
+    expect(fuehreWertZusammen({ ...hier, id: 'b' }, dort)).toEqual({ ...hier, id: 'b' });
+  });
 });
 
 describe('Erinnerung an die Sicherung', () => {
