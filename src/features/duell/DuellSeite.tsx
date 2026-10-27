@@ -1,3 +1,4 @@
+import { storage } from '../../ui/lib/store';
 import { useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import './duell.css';
 import { logActivity } from '../../core/activity';
@@ -31,10 +32,10 @@ const STANDARD: Einstellungen = {
 const MIN_PRO_THEMA = 2;
 
 function lade(): Einstellungen {
-  try { return { ...STANDARD, ...JSON.parse(localStorage.getItem(SPEICHER) ?? '{}') }; } catch { return STANDARD; }
+  return { ...STANDARD, ...storage.read<Partial<Einstellungen>>(SPEICHER, {}) };
 }
 function speichere(e: Einstellungen) {
-  try { localStorage.setItem(SPEICHER, JSON.stringify(e)); } catch { /* privates Fenster */ }
+  storage.write(SPEICHER, e);
 }
 
 const neuerSeed = () => Math.floor(Math.random() * 2 ** 31);

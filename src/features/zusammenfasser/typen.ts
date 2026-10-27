@@ -91,7 +91,8 @@ export interface FragenSatz extends Summary {
   mode: 'pruefung';
   pruefungName: string;
   fragen: Pruefungsfrage[];
-  verworfen: number;                    // Fragen ohne gültigen Beleg
+  verworfen: number;                    // Fragen ohne gültigen Beleg oder vom KI-Prüfer abgelehnt
+  verworfenGruende?: string[];
 }
 
 export interface VergleichsErgebnis extends Summary {

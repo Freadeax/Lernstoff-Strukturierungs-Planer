@@ -1,4 +1,4 @@
-import { createStore, storage } from '../../ui/lib/store';
+import { createStore, istObjekt, storage } from '../../ui/lib/store';
 import { addDays, dayKey, daysBetween, DEFAULT_TZ } from '../../ui/lib/time';
 
 // Globale Filter (Zeitraum, Zeitzone, Fach). Module, die davon abhängen, abonnieren nur
@@ -22,7 +22,8 @@ export function defaultFilter(now = new Date(), timeZone = DEFAULT_TZ): GlobalFi
 }
 
 function initial(): GlobalFilter {
-  const saved = storage.read<GlobalFilter | null>(KEY, null) ?? storage.read<GlobalFilter | null>(KEY, null, 'session');
+  const passt = (v: unknown) => istObjekt(v) && typeof v.from === 'string' && typeof v.to === 'string';
+  const saved = storage.read<GlobalFilter | null>(KEY, null, 'local', passt) ?? storage.read<GlobalFilter | null>(KEY, null, 'session', passt);
   return saved ? { ...defaultFilter(), ...saved, previous: undefined } : defaultFilter();
 }
 

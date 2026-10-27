@@ -22,8 +22,8 @@ const saved = storage.read<Partial<SessionState>>(KEY, {});
 export const session = createStore<SessionState>({
   roles: ['lernende'],
   moduleId: saved.moduleId && modules.some((m) => m.id === saved.moduleId) ? saved.moduleId : modules[0]?.id ?? '',
-  theme: saved.theme ?? 'system',
-  sidebarCollapsed: saved.sidebarCollapsed ?? false,
+  theme: saved.theme === 'hell' || saved.theme === 'dunkel' ? saved.theme : 'system',
+  sidebarCollapsed: saved.sidebarCollapsed === true,
   drawerOpen: false,
 }, (s) => {
   storage.write(KEY, { moduleId: s.moduleId, theme: s.theme, sidebarCollapsed: s.sidebarCollapsed });

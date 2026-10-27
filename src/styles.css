@@ -148,3 +148,6 @@ mark { background: var(--color-highlight); color: inherit; }
 .frage .option.falsch { background: var(--color-danger-soft); border-radius: var(--radius-xs); }
 .frage details { margin-top: var(--space-2); }
 .frage details summary { cursor: pointer; }
+.zusammen__titel { margin-top: var(--space-4); }
+.zusammen section { margin-bottom: var(--space-2); }
+.lauf-info summary { font-size: var(--text-sm); }

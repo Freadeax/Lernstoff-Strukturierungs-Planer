@@ -1,4 +1,5 @@
 // Trefferquote je Aufgabentyp. Nur auf diesem Gerät (localStorage), reine Übungsstatistik.
+import { storage } from '../../ui/lib/store';
 import type { AufgabenTyp } from './aufgaben';
 
 const KEY = 'lernstoff.rechnen.statistik';
@@ -6,13 +7,13 @@ const KEY = 'lernstoff.rechnen.statistik';
 export type Statistik = Partial<Record<AufgabenTyp, { richtig: number; gesamt: number }>>;
 
 export function ladeStatistik(): Statistik {
-  try { return JSON.parse(localStorage.getItem(KEY) ?? '{}') as Statistik; } catch { return {}; }
+  return storage.read<Statistik>(KEY, {});
 }
 
 export function zaehle(stat: Statistik, typ: AufgabenTyp, richtig: boolean): Statistik {
   const alt = stat[typ] ?? { richtig: 0, gesamt: 0 };
   const neu = { ...stat, [typ]: { richtig: alt.richtig + (richtig ? 1 : 0), gesamt: alt.gesamt + 1 } };
-  try { localStorage.setItem(KEY, JSON.stringify(neu)); } catch { /* privater Modus */ }
+  storage.write(KEY, neu);
   return neu;
 }
 

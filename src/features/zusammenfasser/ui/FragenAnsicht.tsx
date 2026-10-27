@@ -10,6 +10,7 @@ import { belegStelle } from '../belege';
 import { bewerteAntwort, bewerteMc, type AntwortBewertung } from '../pruefung';
 import type { BelegJson, FragenSatz, Pruefungsfrage } from '../typen';
 import { Belegstelle } from './Belegstelle';
+import { LaufInfo } from './LaufInfo';
 
 const TYP = { offen: 'Offene Frage', mc_einfach: 'Multiple Choice (eine richtig)', mc_mehrfach: 'Multiple Choice (mehrere richtig)', fall: 'Fallfrage' };
 const FEHLERART = { begriff: 'Fachbegriff', zahl: 'Zahl/Einheit', ablauf: 'Ablauf', begruendung: 'Begründung', operator: 'Operator', inhalt: 'Inhalt' };
@@ -110,9 +111,16 @@ export function FragenAnsicht({ satz, chunkMap, titles }: { satz: FragenSatz; ch
       <div className="card">
         <h3>{satz.pruefungName}</h3>
         <p className="muted">
-          {satz.fragen.length} Fragen, jede mit geprüftem Beleg aus deinem Material{satz.verworfen ? ` (${satz.verworfen} ohne gültigen Beleg verworfen)` : ''}.
+          {satz.fragen.length} Fragen, jede mit geprüftem Beleg aus deinem Material{satz.verworfen ? ` (${satz.verworfen} verworfen, weil Beleg oder Prüfung nicht bestanden)` : ''}.
           {beantwortet > 0 && ` Bisher ${summe.p} von ${summe.max} Punkten in ${beantwortet} Fragen.`}
         </p>
+        {satz.verworfenGruende && satz.verworfenGruende.length > 0 && (
+          <details className="befunde-alle">
+            <summary>Warum wurden Fragen verworfen?</summary>
+            <ul className="befunde">{satz.verworfenGruende.map((g, i) => <li key={i}>{g}</li>)}</ul>
+          </details>
+        )}
+        <LaufInfo runId={satz.pipelineRunId} />
       </div>
       {satz.fragen.map((f, i) => <Frage key={f.id} f={f} nr={i + 1} chunkMap={chunkMap} titles={titles} onErgebnis={(p, max) => ergebnis(f.id, p, max)} />)}
     </>
