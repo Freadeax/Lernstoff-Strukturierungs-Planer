@@ -3,7 +3,7 @@ import { pflegeModule as m } from '../../modules/pflege';
 import { leafTopics } from '../lernplan/store';
 import { proThema, uebungenFuer } from '../lernplan/trainer';
 import { FAELLE } from './faelle';
-import { ABSCHNITTE, belegeFuer, belegQuote, bewerteAufgabe, bewerteFall, faelleZuThema, passtZurSuche } from './bewertung';
+import { ABSCHNITTE, belegeFuer, belegQuote, bewerteAufgabe, bewerteFall, faelleZuThema, mischung, passtZurSuche } from './bewertung';
 
 const profile = m.diseaseProfiles ?? [];
 const profil = new Map(profile.map((p) => [p.id, p]));
@@ -101,7 +101,19 @@ describe('Fallaufgaben', () => {
 
   it('erscheinen als Übung zum Thema im Lernplan', () => {
     expect(faelleZuThema('thema.kl.herz.insuffizienz', FAELLE, m).map((f) => f.id)).toEqual(['hi-sommer', 'hi-brandt']);
+    // Nur eine Aufgabe je Fall zur Aspirationsprophylaxe: zählt dort nie, also auch nicht empfehlen
+    expect(faelleZuThema('thema.pro.aspiration', FAELLE, m)).toEqual([]);
+    expect(uebungenFuer('thema.pro.aspiration').some((x) => x.trainer === 'krankheitsbilder')).toBe(false);
     const u = uebungenFuer('thema.kl.neuro.schlaganfall').find((x) => x.trainer === 'krankheitsbilder');
     expect(u?.path).toBe('/lernen/krankheitsbilder?ansicht=faelle&thema=thema.kl.neuro.schlaganfall');
+  });
+
+  it('mischt die Antwortoptionen als Permutation der Original-Indizes', () => {
+    let n = 0;
+    const folge = [0.9, 0.1, 0.5, 0.3];
+    const r = mischung(5, () => folge[n++ % folge.length]);
+    expect([...r].sort()).toEqual([0, 1, 2, 3, 4]);
+    expect(r).not.toEqual([0, 1, 2, 3, 4]);
+    expect(mischung(1)).toEqual([0]);
   });
 });

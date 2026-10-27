@@ -8,12 +8,10 @@ import { proThema } from '../lernplan/trainer';
 import { LernplanHinweis, useLernplanUebernahme } from '../lernplan/ui/LernplanHinweis';
 import { FAELLE, type Fallaufgabe } from './faelle';
 import {
-  ABSCHNITTE, ASSESSMENT_GRUPPE, belegeFuer, belegQuote, bewerteFall, faelleZuThema, passtZurSuche, vollstaendig,
+  ABSCHNITTE, ASSESSMENT_GRUPPE, belegeFuer, belegQuote, bewerteFall, faelleZuThema, MIN_PRO_THEMA, mischung, passtZurSuche, vollstaendig,
   type Antworten, type FallErgebnis,
 } from './bewertung';
 
-/** Ab so vielen bewerteten Punkten je Thema zählt ein Fall im Lernplan (wie im Assessment-Rechner). */
-const MIN_PRO_THEMA = 3;
 const ERLEDIGT_KEY = 'lernstoff.krankheitsbilder.erledigt';
 
 type Ansicht = 'steckbriefe' | 'faelle';
@@ -246,6 +244,8 @@ function Fall({ fall, onFertig, onZurueck, onWeiter }: {
   const [ergebnis, setErgebnis] = useState<FallErgebnis | null>(null);
   const lernplan = useLernplanUebernahme('krankheitsbilder');
   const bereit = vollstaendig(fall, antworten);
+  // Einmal je Fallaufruf mischen; Antworten bleiben Original-Indizes
+  const reihenfolge = useMemo(() => Object.fromEntries(fall.aufgaben.map((a) => [a.id, mischung(a.optionen.length)])), [fall]);
 
   function waehle(aufgabeId: string, idx: number, mehrfach: boolean) {
     setAntworten((a) => {
@@ -285,7 +285,8 @@ function Fall({ fall, onFertig, onZurueck, onWeiter }: {
               <legend>{n + 1}. {a.frage}</legend>
               <p className="muted kb__klein">{mehrfach ? 'Alle zutreffenden Antworten wählen.' : 'Eine Antwort wählen.'}</p>
               <div className="kb__optionen" role={mehrfach ? 'group' : 'radiogroup'} aria-label={a.frage}>
-                {a.optionen.map((o, i) => {
+                {reihenfolge[a.id].map((i) => {
+                  const o = a.optionen[i];
                   const an = gewaehlt.includes(i);
                   const status = ergebnis ? (o.richtig ? ' is-loesung' : an ? ' is-fehler' : '') : '';
                   return (

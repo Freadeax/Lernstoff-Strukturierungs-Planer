@@ -84,13 +84,34 @@ export const ASSESSMENT_GRUPPE: Record<string, string> = {
   'as.braden': 'braden', 'as.barthel': 'barthel', 'as.nrs': 'schmerz', 'as.besd': 'schmerz', 'as.mna': 'mna',
 };
 
-/** Fallaufgaben, die ein Lernplan-Thema abfragen (über Krankheitsbild oder Zusatzthema). */
+/** Mindestzahl Aufgaben je Thema, ab der ein Fall im Lernplan zählt (wie im Assessment-Rechner). */
+export const MIN_PRO_THEMA = 3;
+
+/**
+ * Fallaufgaben, die ein Lernplan-Thema wirklich abfragen: über das Krankheitsbild (alle Aufgaben)
+ * oder mit mindestens MIN_PRO_THEMA Aufgaben zum Zusatzthema. Sonst würde der Lernplan einen Fall
+ * empfehlen, der für dieses Thema nie gespeichert wird.
+ */
 export function faelleZuThema(topicId: string, faelle: Fallaufgabe[], modul: Pick<CatalogModule, 'diseaseProfiles'>): Fallaufgabe[] {
   const profile = new Map((modul.diseaseProfiles ?? []).map((p) => [p.id, p]));
   return faelle.filter((f) => {
-    const p = profile.get(f.krankheitId);
-    return p?.topicIds.includes(topicId) || f.aufgaben.some((a) => a.extraTopicIds?.includes(topicId));
+    const themen = profile.get(f.krankheitId)?.topicIds ?? [];
+    return f.aufgaben.filter((a) => aufgabenThemen(a, { topicIds: themen }).includes(topicId)).length >= MIN_PRO_THEMA;
   });
+}
+
+/**
+ * Zufällige Reihenfolge der Antwortoptionen (Fisher-Yates) als Liste der Original-Indizes.
+ * Die Antworten bleiben Original-Indizes, nur die Anzeige wird gemischt, damit die richtige
+ * Antwort nicht immer an derselben Stelle steht.
+ */
+export function mischung(anzahl: number, zufall: () => number = Math.random): number[] {
+  const out = Array.from({ length: anzahl }, (_, i) => i);
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(zufall() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
 }
 
 /** Suche über Name, Synonyme, Symptome und Ursachen; ohne Umlaut- und Großschreibungsunterschiede. */
