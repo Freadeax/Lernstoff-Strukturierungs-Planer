@@ -24,7 +24,7 @@ export function Rueckseite({ karte, titles }: { karte: Karte; titles: Map<ID, st
       {karte.liste && <ul className="karte__liste">{karte.liste.map((x, i) => <li key={i}>{x}</li>)}</ul>}
       {!!karte.belege?.length && (
         <p className="karte__belege muted">
-          Quelle: {karte.belege.map((b) => `${titles.get(b.documentId) ?? 'Dokument'}, S. ${b.printedPage ?? b.page}`).filter((x, i, a) => a.indexOf(x) === i).join(' · ')}
+          Quelle: {karte.belege.map((b) => (b.documentId.startsWith('skript:') ? `${titles.get(b.documentId) ?? 'Skript'} [${b.printedPage}]` : `${titles.get(b.documentId) ?? 'Dokument'}, S. ${b.printedPage ?? b.page}`)).filter((x, i, a) => a.indexOf(x) === i).join(' · ')}
         </p>
       )}
       {!!karte.quellen?.length && (

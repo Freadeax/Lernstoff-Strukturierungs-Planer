@@ -29,6 +29,7 @@ const Landkarte = lazy(() => import('./features/landkarte/Landkarte'));
 const Klassenmodus = lazy(() => import('./features/klasse/Klassenmodus'));
 const Datensicherung = lazy(() => import('./features/sicherung/Datensicherung'));
 const Karteikarten = lazy(() => import('./features/karteikarten/ui/Karteikarten'));
+const Skript = lazy(() => import('./features/skript/ui/Skript'));
 
 function Page({ title, intro, children }: { title: string; intro?: string; children: React.ReactNode }) {
   return (
@@ -49,6 +50,7 @@ function View() {
     case '/lernen/themen': return <Page title="Themen" intro="Alle Themen des Fachmoduls. Arbeitsstand direkt in der Tabelle ändern oder mehrere auswählen."><WidgetGrid widgets={[WIDGETS.themen]} allowHide={false} /></Page>;
     case '/lernen/landkarte': return <Suspense fallback={<p className="muted">Lädt …</p>}><Landkarte /></Suspense>;
     case '/lernen/board': return <Page title="Lernstand"><WidgetGrid widgets={[WIDGETS.board]} allowHide={false} /></Page>;
+    case '/lernen/skript': return <Suspense fallback={<p className="muted">Lädt …</p>}><Skript /></Suspense>;
     case '/lernen/karten': return <Suspense fallback={<p className="muted">Lädt …</p>}><Karteikarten /></Suspense>;
     case '/lernen/rechnen': return <Suspense fallback={<p className="muted">Lädt …</p>}><Rechentrainer /></Suspense>;
     case '/lernen/fall': return <Suspense fallback={<p className="muted">Lädt …</p>}><Fallsimulator /></Suspense>;

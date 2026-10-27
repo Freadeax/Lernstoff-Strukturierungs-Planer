@@ -12,6 +12,7 @@ import type { Karte } from '../typen';
 import { Sitzung } from './Sitzung';
 import { alleThemen, blaetter, modul, type KartenCtx } from './kontext';
 import { Steckbriefe } from './Steckbriefe';
+import { skriptDokId } from '../../skript/karten';
 import { Eigene, Stapel, Statistik } from './Verwalten';
 
 type Ansicht = 'lernen' | 'steckbriefe' | 'stapel' | 'eigene' | 'statistik';
@@ -78,8 +79,9 @@ export default function Karteikarten() {
   const neuLaden = useCallback(async () => {
     try {
       const heute = heuteTag();
-      const [daten, summaries, docs] = await Promise.all([ladeKartenDaten(modul, heute), db.summaries.toArray(), db.documents.toArray()]);
-      setCtx({ daten, heute, summaries: summaries.sort((a, b) => b.createdAt.localeCompare(a.createdAt)), titles: new Map(docs.map((d) => [d.id, d.title])), neuLaden });
+      const [daten, summaries, docs, skripte] = await Promise.all([ladeKartenDaten(modul, heute), db.summaries.toArray(), db.documents.toArray(), db.skripte.toArray()]);
+      const titles = new Map([...docs.map((d) => [d.id, d.title] as const), ...skripte.map((s) => [skriptDokId(s.id), `${s.gruppe} · ${s.titel}`] as const)]);
+      setCtx({ daten, heute, summaries: summaries.sort((a, b) => b.createdAt.localeCompare(a.createdAt)), titles, neuLaden });
     } catch (e) { setFehler(e instanceof Error ? e.message : String(e)); }
   }, []);
   useEffect(() => {

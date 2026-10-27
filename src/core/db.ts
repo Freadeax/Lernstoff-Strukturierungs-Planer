@@ -5,6 +5,7 @@ import type { ActivityEntry } from './activity';
 import type { BoardEntry } from './board';
 import type { PlannerConfig, StoredReviewLog, StoredStudyLog } from '../features/lernplan/store';
 import type { Karte, KartenConfig, KartenLog, KartenStand } from '../features/karteikarten/typen';
+import type { Skript } from '../features/skript/typen';
 
 /** Absatztext zu einem Absatz-Hash, für die Anzeige entfallener Absätze beim Versionsvergleich. */
 export interface ParagraphText { hash: string; text: string; }
@@ -28,6 +29,7 @@ export class LernstoffDB extends Dexie {
   kartenStand!: EntityTable<KartenStand, 'cardId'>;
   kartenLogs!: EntityTable<KartenLog, 'id'>;
   kartenConfig!: EntityTable<KartenConfig, 'id'>;
+  skripte!: EntityTable<Skript, 'id'>;
 
   constructor(name = 'lernstoff-planer') {
     super(name);
@@ -74,6 +76,11 @@ export class LernstoffDB extends Dexie {
       kartenStand: 'cardId, due',
       kartenLogs: '++id, cardId, date',
       kartenConfig: 'id',
+    });
+    // v6: Skript (belegte Lernzusammenfassungen zum Lesen). Inhalte kommen nur vom Gerät
+    // (privates Material-Repo oder Datei), nie aus dem App-Bundle.
+    this.version(6).stores({
+      skripte: 'id, gruppe, *topicIds',
     });
   }
 }
