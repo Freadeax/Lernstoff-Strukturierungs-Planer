@@ -17,6 +17,8 @@ export interface Abschnitt {
   nummer?: string;     // „1“, „2.3“ aus „## 1 · …“
   markdown: string;    // Inhalt ohne Überschriftzeile
   belege: SkriptBeleg[];
+  /** Belege direkt in der ##-Überschrift; gelten für alle Punkte ohne eigenen Beleg. */
+  kopfBelege?: SkriptBeleg[];
   /** Enthält Stellen, die nicht durch Material belegt sind (⚠). */
   luecken: number;
   woerter: number;

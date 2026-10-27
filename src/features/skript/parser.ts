@@ -133,7 +133,7 @@ function leseQuellen(einleitung: string): { quellen: SkriptQuelle[]; text: strin
       inListe = true;
       continue;
     }
-    // Überschrift der Quellenliste („**Quellen** (Seite = PDF-Seite):“) zählt mit zur Liste
+    // Überschrift der Quellenliste („**Quellen** (Seite = PDF-Seite):“) entfällt, die Liste wird eigens gezeigt
     if (/^\s*\*\*Quellen?\b/.test(zeile) && !q.length) { inListe = true; continue; }
     if (inListe && /^\s+\S/.test(zeile) && quellen.length) { quellen[quellen.length - 1]!.text += ` ${zeile.trim()}`; continue; }
     inListe = false;
@@ -171,6 +171,7 @@ export function parseSkript(datei: string, markdown: string, o: ParseOptionen): 
     return {
       id: `a${i + 1}`, titel: u.titel, ...(u.nummer ? { nummer: u.nummer } : {}), markdown: md,
       belege: eindeutig([...u.belege, ...findeBelege(md, bekannte)]),
+      ...(u.belege.length ? { kopfBelege: u.belege } : {}),
       luecken: lueckenIn(md) + lueckenIn(b.kopf!), woerter: woerter(md),
     };
   });

@@ -136,9 +136,10 @@ export function markiereGelesen(skriptId: string, abschnittId: string, gelesen: 
   return alle;
 }
 
-export function merkeZuletzt(skriptId: string, abschnittId: string) {
+export function merkeZuletzt(skriptId: string, abschnittId: string): Record<string, Lesestand> {
   const alle = ladeLesestaende();
   const st = alle[skriptId] ?? { gelesen: [], geaendert: '' };
   alle[skriptId] = { ...st, zuletzt: abschnittId, geaendert: new Date().toISOString() };
   speichereLesestaende(alle);
+  return alle;
 }

@@ -70,7 +70,7 @@ export function definitionen(markdown: string, bekannte?: Set<string>): Array<{ 
 /** Kartenvorschläge zu einem Abschnitt: Kernaussagen in Gruppen und Definitionskarten. */
 export function kartenAusAbschnitt(skript: Skript, abschnitt: Abschnitt, subjectIds: ID[] = []): Karte[] {
   const bekannte = new Set(skript.quellen.map((q) => q.kuerzel));
-  const kopf = findeBelege(abschnitt.titel, bekannte);
+  const kopf = abschnitt.kopfBelege ?? [];
   const basis = { quelle: 'zusammenfassung' as const, topicIds: skript.topicIds, subjectIds, ref: `skript:${skript.id}` };
   const titel = `${skript.titel} › ${abschnitt.titel}`;
   const ps = punkte(abschnitt.markdown, bekannte, kopf).filter((p) => p.belege.length);

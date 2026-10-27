@@ -6,7 +6,7 @@ import { definitionen, kartenAusAbschnitt, punkte } from './karten';
 import { findeBelege, gruppenRang, leseBelegKlammer, parseSkript, skriptId, teileTitel } from './parser';
 import { begriffe, klartext, markiere, suche } from './suche';
 import { schlageThemenVor } from './themen';
-import { holeAusRepo, markiereGelesen, ladeLesestaende, uebernehmeDateien } from './store';
+import { holeAusRepo, markiereGelesen, merkeZuletzt, ladeLesestaende, uebernehmeDateien } from './store';
 import { bloecke } from './ui/Markdown';
 
 // Erfundene Beispiel-Zusammenfassung im Format der echten Lernzusammenfassungen (keine Originalinhalte).
@@ -122,6 +122,13 @@ describe('Karteikarten aus Abschnitten', () => {
     expect(ps.find((p) => p.unterpunkt)?.belege).toEqual([{ kuerzel: 'D', stelle: 'S. 21' }]);
     expect(ps[0]!.gruppe).toBe('P2 · Verstehenshypothese');
   });
+  it('übernimmt Belege aus der ##-Überschrift für Punkte ohne eigenen Beleg', () => {
+    const fall = s.abschnitte[0]!;
+    expect(fall.kopfBelege).toEqual([{ kuerzel: 'D', stelle: 'S. 1–2' }]);
+    const karten = kartenAusAbschnitt(s, fall);
+    expect(karten).toHaveLength(1);
+    expect(karten[0]!.belege![0]).toMatchObject({ printedPage: 'D, S. 1–2' });
+  });
   it('baut Kernaussagen- und Definitionskarten mit Belegen', () => {
     const karten = kartenAusAbschnitt(s, a, ['fach.x']);
     const kern = karten.find((k) => k.art === 'Abschnitt → Kernaussagen')!;
@@ -184,5 +191,6 @@ describe('Speichern und Import', () => {
     markiereGelesen('a', 'a2', true);
     markiereGelesen('a', 'a1', false);
     expect(ladeLesestaende().a!.gelesen).toEqual(['a2']);
+    expect(merkeZuletzt('a', 'a3').a).toMatchObject({ gelesen: ['a2'], zuletzt: 'a3' });
   });
 });

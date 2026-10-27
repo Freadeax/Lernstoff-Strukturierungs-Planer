@@ -191,7 +191,9 @@ function useLesezeit(key: string) {
 
 function Lernzeit({ skript, sekunden, gesamtSek }: { skript: SkriptT; sekunden: number; gesamtSek: number }) {
   const themen = skript.topicIds.map((id) => topics.get(id)).filter((t): t is Topic => !!t && blaetter.includes(t));
-  const [thema, setThema] = useState(themen[0]?.id ?? '');
+  const [wahl, setWahl] = useState('');
+  // Zuordnung kann sich im Leser ändern: nur ein noch zugeordnetes Thema gilt, sonst das erste
+  const thema = themen.some((t) => t.id === wahl) ? wahl : themen[0]?.id ?? '';
   const [min, setMin] = useState('');
   const vorschlag = Math.max(1, Math.round((gesamtSek || sekunden) / 60));
   if (!themen.length) return <p className="muted">Ordne oben ein Thema zu, dann kannst du die Lesezeit in den Lernplan übernehmen.</p>;
@@ -208,7 +210,7 @@ function Lernzeit({ skript, sekunden, gesamtSek }: { skript: SkriptT; sekunden: 
         <input inputMode="numeric" value={min} placeholder={String(vorschlag)} onChange={(e) => setMin(e.target.value)} size={3} aria-label="Minuten" /> Min.
       </label>
       {themen.length > 1 && (
-        <select value={thema} onChange={(e) => setThema(e.target.value)} aria-label="Für Thema">
+        <select value={thema} onChange={(e) => setWahl(e.target.value)} aria-label="Für Thema">
           {themen.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
         </select>
       )}
@@ -229,7 +231,7 @@ function Leser({ skript, aId, q, staende, onNeu, setStaende }: {
   const [gesamtSek, setGesamtSek] = useState(0);
   const sek = useLesezeit(`${skript.id}:${a?.id}`);
   const oben = useRef<HTMLDivElement>(null);
-  useEffect(() => { if (a) merkeZuletzt(skript.id, a.id); setBeleg(null); oben.current?.scrollIntoView({ block: 'start' }); }, [skript.id, a?.id]);
+  useEffect(() => { if (a) setStaende(merkeZuletzt(skript.id, a.id)); setBeleg(null); oben.current?.scrollIntoView({ block: 'start' }); }, [skript.id, a?.id]);
   useEffect(() => { setGesamtSek(0); }, [skript.id]);
   useEffect(() => { if (sek) setGesamtSek((g) => g + 5); }, [sek]);
 
