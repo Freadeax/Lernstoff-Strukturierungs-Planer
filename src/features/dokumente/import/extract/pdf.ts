@@ -29,6 +29,8 @@ export interface PdfExtracted extends Extracted {
 }
 
 export async function extractPdf(bytes: Uint8Array, opts: PdfExtractOptions = {}): Promise<PdfExtracted> {
+  // Worker erst beim ersten PDF einrichten, damit pdf.js (≈1 MB) nicht im Start-Bundle landet.
+  if (typeof window !== 'undefined') await import('./pdf-worker');
   // pdf.js übernimmt den Puffer; Kopie, damit der Aufrufer die Bytes weiter nutzen kann (Hash, Speicherung).
   const task = pdfjs.getDocument({ data: bytes.slice(), useSystemFonts: true });
   const doc = await task.promise;
