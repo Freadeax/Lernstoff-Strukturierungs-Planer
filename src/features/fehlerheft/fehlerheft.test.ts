@@ -4,7 +4,9 @@ import { pflegeModule } from '../../modules/pflege';
 import { erzeugeRunde, karten } from '../duell/duell';
 import { katalog, rechenFragen } from '../simulation/simulation';
 import { auswahlRichtig, faellig, MAX_EINTRAEGE, merke, mischeAuswahl, nachThema, ueberblick, wiederholt, type NeuerFehler } from './fehlerheft';
-import { ausDuell, ausRechentrainer, ausSimulation } from './quellen';
+import { ausDuell, ausKrankheitsbild, ausRechentrainer, ausSimulation } from './quellen';
+import { FAELLE } from '../krankheitsbilder/faelle';
+import { bewerteAufgabe } from '../krankheitsbilder/bewertung';
 
 const tag = (t: string) => new Date(`${t}T10:00:00`);
 const rechenFehler = (seed = 1): NeuerFehler => ausRechentrainer(erzeuge('mgkg', 2, seed), '7');
@@ -104,5 +106,19 @@ describe('Quellen', () => {
     expect(n.id).toMatch(/^rechnen:[a-z]+:2$/);
     expect(n.wiederholung.art).toBe('rechnen');
     expect(n.quelle).toBe('simulation');
+  });
+
+  it('Krankheitsbild-Fälle: Wiederholung hat dieselbe Lösung wie die Fallauswertung', () => {
+    for (const fall of FAELLE) {
+      for (const a of fall.aufgaben) {
+        const n = ausKrankheitsbild(fall, a, [], { name: 'X', topicIds: ['thema.x'] });
+        expect(n.id).toBe(`kh:${fall.id}:${a.id}`);
+        expect(n.topicIds).toContain('thema.x');
+        const w = n.wiederholung;
+        if (w.art !== 'auswahl') throw new Error('Auswahl erwartet');
+        expect(auswahlRichtig(w, w.richtig)).toBe(bewerteAufgabe(a, w.richtig).richtig);
+        expect(bewerteAufgabe(a, w.richtig).richtig).toBe(true);
+      }
+    }
   });
 });
