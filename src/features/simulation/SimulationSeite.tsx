@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
+import { notiereFehler } from '../fehlerheft/fehlerheft';
+import { ausSimulation } from '../fehlerheft/quellen';
 import './simulation.css';
 import { db } from '../../core/db';
 import { logActivity } from '../../core/activity';
@@ -483,6 +485,8 @@ export default function Simulation() {
     const fertig: Lauf = { ...lauf, abgegeben: jetzt, automatisch, wertungen };
     setLauf(fertig);
     const a = auswerten(K, fertig.fragen, wertungen);
+    notiereFehler(lauf.fragen.filter((f) => wertungen[f.id]?.art === 'auto' && wertungen[f.id]?.richtig === false)
+      .flatMap((f) => ausSimulation(f, lauf.antworten[f.id]) ?? []));
     setVerlauf(ergaenzeVerlauf({
       id: lauf.id, titel: lauf.titel, at: new Date(jetzt).toISOString(), minuten: Math.round((lauf.deadline - lauf.start) / 60_000),
       gebraucht: Math.round((jetzt - lauf.start) / 60_000), fragen: lauf.fragen.length, punkte: a.punkte, max: a.max, prozent: Math.round(a.prozent), schwach: a.schwach,

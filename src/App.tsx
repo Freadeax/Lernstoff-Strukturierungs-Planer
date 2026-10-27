@@ -16,6 +16,7 @@ const Zusammenfassen = lazy(() => import('./features/Zusammenfassen').then((m) =
 const Designsystem = lazy(() => import('./features/Designsystem'));
 const Ablage = lazy(() => import('./features/ablage/AblageSeite'));
 const Rechentrainer = lazy(() => import('./features/rechnen/Rechentrainer'));
+const Fehlerheft = lazy(() => import('./features/fehlerheft/FehlerheftSeite'));
 const Fallsimulator = lazy(() => import('./features/fall/Fallsimulator'));
 const Praxissimulator = lazy(() => import('./features/praxis/Praxissimulator'));
 const Duell = lazy(() => import('./features/duell/DuellSeite'));
@@ -54,6 +55,7 @@ function View() {
     case '/lernen/board': return <Page title="Lernstand"><WidgetGrid widgets={[WIDGETS.board]} allowHide={false} /></Page>;
     case '/lernen/karten': return <Karteikarten />;
     case '/lernen/rechnen': return <Rechentrainer />;
+    case '/lernen/fehler': return <Fehlerheft />;
     case '/lernen/fall': return <Fallsimulator />;
     case '/lernen/praxis': return <Praxissimulator />;
     case '/lernen/duell': return <Duell />;

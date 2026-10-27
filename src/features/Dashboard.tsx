@@ -9,6 +9,7 @@ import { Icon, type IconName } from '../ui/icons';
 import { PageHeading } from '../ui/PageHeading';
 import { HeuteKarte } from './lernplan/ui/HeuteKarte';
 import { SicherungsHinweis } from './sicherung/SicherungsHinweis';
+import { FehlerheftHinweis } from './fehlerheft/FehlerheftHinweis';
 
 function ErsteSchritte() {
   const [counts, setCounts] = useState<{ docs: number; summaries: number } | null>(null);
@@ -48,6 +49,7 @@ export function Dashboard() {
         description="Dein Lernstoff, deine nächsten Schritte und Raum für Fortschritt."
         action={<a className="button-link primary" href="#/material/import"><Icon name="plus" size={18} /> Material hinzufügen</a>} />
       <HeuteKarte />
+      <FehlerheftHinweis />
       <ErsteSchritte />
       <section aria-labelledby="tools-title" className="tools-section">
         <div className="section-heading"><div><p className="eyebrow">Vom Verstehen zum Anwenden</p><h2 id="tools-title">Wie möchtest du lernen?</h2></div><a className="text-link" href="#/lernen/faecher">Alle Fächer <Icon name="chevronRight" size={16} /></a></div>
