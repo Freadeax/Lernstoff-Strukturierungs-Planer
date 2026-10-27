@@ -21,7 +21,8 @@
     "references": { "type": "array", "items": { "$ref": "#/$defs/reference" } },
     "operators": { "type": "array", "items": { "$ref": "#/$defs/operator" } },
     "examFormats": { "type": "array", "items": { "$ref": "#/$defs/examFormat" } },
-    "drugProfiles": { "type": "array", "items": { "$ref": "#/$defs/drugProfile" } }
+    "drugProfiles": { "type": "array", "items": { "$ref": "#/$defs/drugProfile" } },
+    "diseaseProfiles": { "type": "array", "items": { "$ref": "#/$defs/diseaseProfile" } }
   },
   "additionalProperties": false,
   "$defs": {
@@ -193,6 +194,54 @@
       },
       "additionalProperties": false
     },
+    "diseaseSection": { "enum": ["definition", "formen", "ursachen", "risikofaktoren", "symptome", "komplikationen", "diagnostik", "therapie", "pflege", "beratung", "prophylaxen"] },
+    "diseaseProfile": {
+      "type": "object",
+      "required": ["id", "name", "definition", "ursachen", "symptome", "pflege", "topicIds"],
+      "description": "Krankheitsbild-Steckbrief. Abschnitte mit Beleg stammen vollständig aus dem Unterrichtsmaterial, der Rest ist ungeprüftes Katalogwissen.",
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "type": "string", "minLength": 1 },
+        "synonyms": { "type": "array", "items": { "type": "string" } },
+        "definition": { "type": "string", "minLength": 1 },
+        "formen": { "$ref": "#/$defs/textList" },
+        "ursachen": { "$ref": "#/$defs/textList" },
+        "risikofaktoren": { "$ref": "#/$defs/textList" },
+        "symptome": { "$ref": "#/$defs/textList" },
+        "komplikationen": { "$ref": "#/$defs/textList" },
+        "diagnostik": { "$ref": "#/$defs/textList" },
+        "therapie": { "$ref": "#/$defs/textList" },
+        "pflege": { "$ref": "#/$defs/textList" },
+        "beratung": { "$ref": "#/$defs/textList" },
+        "prophylaxen": {
+          "type": "array", "minItems": 1,
+          "items": {
+            "type": "object", "required": ["topicId", "grund"],
+            "properties": { "topicId": { "$ref": "#/$defs/id" }, "grund": { "type": "string", "minLength": 1 } },
+            "additionalProperties": false
+          }
+        },
+        "merksatz": { "type": "string" },
+        "drugIds": { "$ref": "#/$defs/idList" },
+        "assessmentIds": { "$ref": "#/$defs/idList" },
+        "referenceIds": { "$ref": "#/$defs/idList" },
+        "topicIds": { "$ref": "#/$defs/idList", "minItems": 1 },
+        "belege": {
+          "type": "array",
+          "items": {
+            "type": "object", "required": ["abschnitt", "quelle", "seiten"],
+            "properties": {
+              "abschnitt": { "$ref": "#/$defs/diseaseSection" },
+              "quelle": { "type": "string", "minLength": 1 },
+              "seiten": { "type": "string", "minLength": 1 }
+            },
+            "additionalProperties": false
+          }
+        },
+        "pruefstatus": { "$ref": "#/$defs/pruefstatus" }
+      },
+      "additionalProperties": false
+    },
     "textList": { "type": "array", "items": { "type": "string", "minLength": 1 }, "minItems": 1 },
 
     "operator": {
@@ -220,7 +269,23 @@
         "competencyIds": { "$ref": "#/$defs/idList" },
         "taskFormatIds": { "$ref": "#/$defs/idList" },
         "referenceIds": { "$ref": "#/$defs/idList" },
-        "pruefstatus": { "$ref": "#/$defs/pruefstatus" }
+        "pruefstatus": { "$ref": "#/$defs/pruefstatus" },
+        "teile": {
+          "type": "array",
+          "description": "Bestandteile eines Prüfungsteils, z. B. einzelne Aufsichtsarbeiten mit eigenem Kompetenzbezug.",
+          "items": {
+            "type": "object",
+            "required": ["code", "name"],
+            "properties": {
+              "code": { "type": "string" },
+              "name": { "type": "string" },
+              "durationMinutes": { "type": "integer", "minimum": 1 },
+              "competencyIds": { "$ref": "#/$defs/idList" },
+              "details": { "type": "string" }
+            },
+            "additionalProperties": false
+          }
+        }
       },
       "additionalProperties": false
     }

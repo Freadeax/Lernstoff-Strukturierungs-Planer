@@ -129,6 +129,7 @@ const LABEL: Record<string, string> = {
 const LOKAL_LABEL: Record<string, string> = {
   'lernstoff.mindmaps': 'Mindmaps', 'lernstoff.fall.archiv': 'abgeschlossene Fälle', 'lernstoff.simulation.verlauf': 'Prüfungssimulationen',
   'lernstoff.skript.lesestand': 'Lesestand im Skript',
+  'lernstoff.praxis.archiv': 'abgeschlossene Praxisfälle',
 };
 
 /** Liest eine Sicherungsdatei. Wirft mit verständlicher Meldung, wenn sie nicht passt. */
@@ -205,6 +206,9 @@ export function fuehreWertZusammen(lokal: unknown, fremd: unknown): unknown {
     return [...lokal, ...fremd.filter((x) => !gesehen.has(signatur(x)))];
   }
   if (istObjekt(lokal) && istObjekt(fremd)) {
+    // Laufende Sitzungen (Fall, Prüfungssimulation, Praxissimulator) sind ein Ganzes: Felder zweier
+    // Durchläufe zu mischen (Maximum der Zahlen, vereinigte Befehle) ergäbe einen Stand, den es nie gab.
+    if (typeof lokal.id === 'string' && typeof fremd.id === 'string') return lokal.id === fremd.id ? neuerer(lokal, fremd) : lokal;
     const out: Record<string, unknown> = { ...lokal };
     for (const [k, v] of Object.entries(fremd)) {
       if (!(k in out)) out[k] = v;

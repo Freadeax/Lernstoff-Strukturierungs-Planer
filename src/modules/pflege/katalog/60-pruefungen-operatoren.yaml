@@ -23,7 +23,9 @@ operators:
 
 # Prüfungsformate = Vorlagen für Exam-Objekte. Der Nutzer legt konkrete Prüfungen
 # (Exam: name, date, subjectIds, topicIds) an und wählt dabei ein Format.
-# Angaben zur staatlichen Prüfung: pruefstatus ungeprueft, gegen PflAPrV prüfen.
+# Zwischenprüfung und staatliche Prüfung geprüft am 2026-10-25 gegen §§ 7, 14-16 PflAPrV.
+# "teile" zerlegt einen Prüfungsteil in seine Bestandteile mit eigenem Kompetenzbezug,
+# damit der Planer z. B. für jede Aufsichtsarbeit die passenden Themen ziehen kann.
 examFormats:
   - id: pruefung.klausur
     name: Schulische Klausur / Leistungsnachweis
@@ -34,34 +36,54 @@ examFormats:
     name: Zwischenprüfung (Ende des 2. Ausbildungsdrittels)
     kind: gemischt
     referenceIds: [norm.pflaprv]
-    pruefstatus: ungeprueft
-    details: Ermittelt den Ausbildungsstand; Form legen die Länder fest. Kein Bestehen-/Nichtbestehen-Effekt auf die Fortsetzung der Ausbildung.
+    pruefstatus: geprueft
+    details: "Ermittelt den Ausbildungsstand zum Ende des zweiten Ausbildungsdrittels anhand der Kompetenzen aus Anlage 1 für das erste und zweite Drittel (§ 7 PflAPrV). Die Ausbildung wird unabhängig vom Ergebnis fortgesetzt; ist das Ausbildungsziel gefährdet, prüfen Träger und Schule mit der auszubildenden Person geeignete Maßnahmen. Das Nähere regeln die Länder."
 
   - id: pruefung.staatlich.schriftlich
     name: Staatliche Prüfung – schriftlicher Teil
     kind: schriftlich
     referenceIds: [norm.pflaprv]
-    pruefstatus: ungeprueft
+    pruefstatus: geprueft
     durationMinutes: 120
     count: 3
     competencyIds: [kb.I, kb.II, kb.III, kb.IV, kb.V]
     taskFormatIds: [format.fallbearbeitung]
-    details: Drei Aufsichtsarbeiten zu je 120 Minuten, fallbezogen, an drei aufeinanderfolgenden Werktagen. Zuordnung der Kompetenzbereiche je Arbeit aus § 14 PflAPrV übernehmen.
+    details: "Drei fallbezogene Aufsichtsarbeiten zu je 120 Minuten, in der Regel an drei aufeinanderfolgenden Werktagen (§ 14 PflAPrV). Die Fallsituationen unterscheiden sich über die drei Arbeiten, z. B. nach Altersstufe, sozialem und kulturellem Umfeld und Versorgungsbereich."
+    teile:
+      - code: "1"
+        name: Pflegeprozessgestaltung in akuten und dauerhaften Pflegesituationen
+        competencyIds: [kb.I.1, kb.II.1, kb.I.5, kb.I.6, kb.IV]
+        details: "Interaktion und Beziehungsgestaltung, lebensweltliche Aspekte, Unterstützung bei der Lebensgestaltung, Autonomieerhalt und Entwicklungsförderung; ausgewählte Kontextbedingungen aus Kompetenzbereich IV einbeziehen."
+      - code: "2"
+        name: Pflegeprozessgestaltung bei gesundheitlichen Problemlagen
+        competencyIds: [kb.I.2, kb.II.2, kb.V.1]
+        details: "Gesundheitsförderung, Prävention und Beratung; Handlungsentscheidungen mit pflegewissenschaftlichem Begründungswissen belegen."
+      - code: "3"
+        name: Pflegeprozesssteuerung in kritischen und krisenhaften Situationen
+        competencyIds: [kb.I.3, kb.I.4, kb.III.2, kb.II.3]
+        details: "Krisenbewältigung, eigenständige Durchführung ärztlicher Anordnungen und ethische Entscheidungsprozesse."
 
   - id: pruefung.staatlich.muendlich
     name: Staatliche Prüfung – mündlicher Teil
     kind: muendlich
     referenceIds: [norm.pflaprv]
-    pruefstatus: ungeprueft
+    pruefstatus: geprueft
+    durationMinutes: 45
     competencyIds: [kb.III, kb.IV, kb.V]
     taskFormatIds: [format.fallbearbeitung]
-    details: Komplexe Aufgabenstellung zu einer Fallsituation; Prüfungsdauer und Vorbereitungszeit aus § 15 PflAPrV übernehmen.
+    details: "Komplexe Fallsituation aus einem anderen Versorgungskontext und mit einer anderen Altersstufe als im praktischen Teil (§ 15 PflAPrV). Schwerpunkt: eigene Berufsrolle, berufliches Selbstverständnis und Einfluss von Team-, Einrichtungs- und gesellschaftlichen Kontextbedingungen. Einzeln oder zu zweit, mindestens 30 und höchstens 45 Minuten je Person, angemessene Vorbereitungszeit unter Aufsicht; zwei Fachprüfende."
 
   - id: pruefung.staatlich.praktisch
     name: Staatliche Prüfung – praktischer Teil
     kind: praktisch
     referenceIds: [norm.pflaprv]
-    pruefstatus: ungeprueft
+    pruefstatus: geprueft
+    durationMinutes: 240
     competencyIds: [kb.I, kb.II, kb.III, kb.IV, kb.V]
     taskFormatIds: [format.pflegeplanung, format.sis, format.sbar]
-    details: Pflege von mindestens zwei Menschen im Vertiefungseinsatz; schriftliche oder mündliche Ausarbeitung des Pflegeplans (Vorbereitungsteil), Fallvorstellung, Durchführung und Reflexion. Zeiten aus § 16 PflAPrV übernehmen.
+    details: "Selbständige, umfassende und prozessorientierte Pflege von mindestens zwei Menschen, davon einer mit erhöhtem Pflegebedarf, in realen und komplexen Pflegesituationen; die Aufgabe berücksichtigt den Versorgungsbereich des Vertiefungseinsatzes (§ 16 PflAPrV). Ohne Vorbereitungsteil höchstens 240 Minuten einschließlich Reflexionsgespräch, organisatorische Unterbrechung von höchstens einem Werktag möglich. Wesentlich sind die vorbehaltenen Tätigkeiten nach § 4 PflBG."
+    teile:
+      - { code: V, name: "Vorbereitungsteil: schriftlicher oder elektronischer Pflegeplan", details: "Angemessene Vorbereitungszeit unter Aufsicht." }
+      - { code: F, name: Fallvorstellung, durationMinutes: 20, details: "Höchstens 20 Minuten." }
+      - { code: D, name: Durchführung der geplanten und situativ erforderlichen Pflegemaßnahmen }
+      - { code: R, name: Reflexionsgespräch, durationMinutes: 20, details: "Höchstens 20 Minuten." }

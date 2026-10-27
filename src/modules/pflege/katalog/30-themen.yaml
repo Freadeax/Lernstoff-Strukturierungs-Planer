@@ -68,7 +68,7 @@ topics:
   # ================= Pflegerische Maßnahmen und Interventionen =================
   - { id: thema.ph, subjectId: fach.pflegehandeln, name: "Pflegerische Maßnahmen und Interventionen", difficulty: 2, competencyIds: [kb.I.1] }
   - { id: thema.ph.hygiene,    parentId: thema.ph, name: "Hygiene (Händedesinfektion, Standardhygiene, Isolierung)", difficulty: 2, estimatedMinutes: 90, referenceIds: [norm.ifsg], competencyIds: [kb.III.2, ce.01, ce.05] }
-  - { id: thema.ph.koerperpflege, parentId: thema.ph, name: "Körperpflege und Unterstützung bei der Selbstversorgung", difficulty: 1, estimatedMinutes: 60, prerequisites: [thema.ap.haut], competencyIds: [ce.02B] }
+  - { id: thema.ph.koerperpflege, parentId: thema.ph, name: "Körperpflege und Unterstützung bei der Selbstversorgung", difficulty: 1, estimatedMinutes: 60, prerequisites: [thema.ap.haut], competencyIds: [ce.02B], referenceIds: [es.hautintegritaet] }
   - { id: thema.ph.mobilisation,  parentId: thema.ph, name: "Mobilisation, Lagerung und Kinästhetik", difficulty: 2, estimatedMinutes: 90, prerequisites: [thema.ap.bewegung], referenceIds: [es.mobilitaet], competencyIds: [ce.02A] }
   - { id: thema.ph.ernaehrung,    parentId: thema.ph, name: "Ernährung, Flüssigkeitszufuhr und Sondenernährung", difficulty: 2, estimatedMinutes: 75, prerequisites: [thema.ap.verdauung], referenceIds: [es.ernaehrung], competencyIds: [kb.I.2] }
   - { id: thema.ph.ausscheidung,  parentId: thema.ph, name: "Ausscheidung, Kontinenzförderung und Katheterismus", difficulty: 2, estimatedMinutes: 75, prerequisites: [thema.ap.niere], referenceIds: [es.kontinenz], competencyIds: [kb.III.2] }
@@ -88,7 +88,7 @@ topics:
   - { id: thema.pro.kontraktur,  parentId: thema.pro, name: "Kontrakturenprophylaxe", difficulty: 2, estimatedMinutes: 45, prerequisites: [thema.ap.bewegung] }
   - { id: thema.pro.aspiration,  parentId: thema.pro, name: "Aspirationsprophylaxe", difficulty: 2, estimatedMinutes: 45, tags: [Dysphagie] }
   - { id: thema.pro.obstipation, parentId: thema.pro, name: "Obstipationsprophylaxe", difficulty: 1, estimatedMinutes: 30 }
-  - { id: thema.pro.intertrigo,  parentId: thema.pro, name: "Intertrigoprophylaxe", difficulty: 1, estimatedMinutes: 30 }
+  - { id: thema.pro.intertrigo,  parentId: thema.pro, name: "Intertrigoprophylaxe", difficulty: 1, estimatedMinutes: 30, referenceIds: [es.hautintegritaet] }
   - { id: thema.pro.soor,        parentId: thema.pro, name: "Soor- und Parotitisprophylaxe", difficulty: 1, estimatedMinutes: 30, referenceIds: [es.mundgesundheit] }
   - { id: thema.pro.dehydratation, parentId: thema.pro, name: "Dehydratations- und Mangelernährungsprophylaxe", difficulty: 2, estimatedMinutes: 45, referenceIds: [es.ernaehrung, as.mna] }
   - { id: thema.pro.zystitis,    parentId: thema.pro, name: "Zystitisprophylaxe", difficulty: 1, estimatedMinutes: 30 }
@@ -133,7 +133,7 @@ topics:
   # ================= Qualität, Expertenstandards, Pflegewissenschaft =================
   - { id: thema.qw, subjectId: fach.qualitaet, name: "Qualität, Expertenstandards und Pflegewissenschaft", difficulty: 3, competencyIds: [kb.IV.1, kb.V.1] }
   - { id: thema.qw.qm,           parentId: thema.qw, name: "Qualitätsmanagement (Struktur-, Prozess-, Ergebnisqualität, PDCA)", difficulty: 3, estimatedMinutes: 60, competencyIds: [kb.IV.1] }
-  - { id: thema.qw.expertenstandards, parentId: thema.qw, name: "Expertenstandards des DNQP (Aufbau und Anwendung)", difficulty: 3, estimatedMinutes: 60, prerequisites: [thema.qw.qm], referenceIds: [es.dekubitus, es.sturz, es.schmerz, es.entlassung, es.kontinenz, es.wunden, es.ernaehrung, es.demenz, es.mobilitaet, es.mundgesundheit, norm.sgb11] }
+  - { id: thema.qw.expertenstandards, parentId: thema.qw, name: "Expertenstandards des DNQP (Aufbau und Anwendung)", difficulty: 3, estimatedMinutes: 60, prerequisites: [thema.qw.qm], referenceIds: [es.dekubitus, es.sturz, es.schmerz, es.entlassung, es.kontinenz, es.wunden, es.ernaehrung, es.demenz, es.mobilitaet, es.mundgesundheit, es.hautintegritaet, norm.sgb11] }
   - { id: thema.qw.ebn,          parentId: thema.qw, name: "Evidence-based Nursing und Studien lesen", difficulty: 4, estimatedMinutes: 90, competencyIds: [kb.V.1] }
 
   # ================= Praxisfälle und Fallbearbeitung =================

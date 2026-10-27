@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { DrugProfile } from '../../../modules/catalog-types';
-import { navigate } from '../../../ui/shell/router';
+import { navigate, useRoute } from '../../../ui/shell/router';
 import { normalisiere, wirkstoffName } from '../erzeugen';
 import { alleThemen, modul, type KartenCtx } from './kontext';
 
@@ -51,7 +51,9 @@ function Steckbrief({ d, gelernt, karten }: { d: DrugProfile; gelernt: number; k
 
 /** Nachschlagen: alle Medikamenten-Steckbriefe mit Suche, Lernstand je Wirkstoff und Start einer Sitzung. */
 export function Steckbriefe({ ctx }: { ctx: KartenCtx }) {
-  const [suche, setSuche] = useState('');
+  // ?q= kommt z. B. aus einem Krankheitsbild-Steckbrief, der auf einen Wirkstoff verlinkt
+  const { params } = useRoute();
+  const [suche, setSuche] = useState(params.get('q') ?? '');
   const profile = modul.drugProfiles ?? [];
   const stand = useMemo(() => {
     const m = new Map<string, { karten: number; gelernt: number }>();
