@@ -40,6 +40,7 @@ export const NAV: NavItem[] = [
       { id: 'bericht', label: 'Pflegebericht-Trainer', path: '/lernen/bericht', icon: 'pen' },
       { id: 'mindmap', label: 'Mindmaps', path: '/lernen/mindmap', icon: 'mindmap' },
       { id: 'klasse', label: 'Klassenmodus', path: '/lernen/klasse', icon: 'klasse' },
+      { id: 'krankheitsbilder', label: 'Krankheitsbilder', path: '/lernen/krankheitsbilder', icon: 'pulse' },
       { id: 'assessment', label: 'Assessments', path: '/lernen/assessment', icon: 'gauge' },
       { id: 'uebergabe', label: 'Übergabe-Trainer', path: '/lernen/uebergabe', icon: 'chat' },
     ],

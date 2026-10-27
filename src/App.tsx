@@ -21,6 +21,7 @@ const SisTrainer = lazy(() => import('./features/sis/SisTrainer'));
 const Berichttrainer = lazy(() => import('./features/bericht/Berichttrainer'));
 const Mindmaps = lazy(() => import('./features/mindmap/Mindmaps'));
 const AssessmentTrainer = lazy(() => import('./features/assessment/AssessmentTrainer'));
+const Krankheitsbilder = lazy(() => import('./features/krankheitsbilder/Krankheitsbilder'));
 const Uebergabetrainer = lazy(() => import('./features/uebergabe/Uebergabetrainer'));
 const Simulation = lazy(() => import('./features/simulation/SimulationSeite'));
 const Pflegeplanung = lazy(() => import('./features/pflegeplanung/Pflegeplanung'));
@@ -59,6 +60,7 @@ function View() {
     case '/lernen/sis': return <Suspense fallback={<p className="muted">Lädt …</p>}><SisTrainer /></Suspense>;
     case '/lernen/bericht': return <Suspense fallback={<p className="muted">Lädt …</p>}><Berichttrainer /></Suspense>;
     case '/lernen/mindmap': return <Suspense fallback={<p className="muted">Lädt …</p>}><Mindmaps /></Suspense>;
+    case '/lernen/krankheitsbilder': return <Suspense fallback={<p className="muted">Lädt …</p>}><Krankheitsbilder /></Suspense>;
     case '/lernen/assessment': return <Suspense fallback={<p className="muted">Lädt …</p>}><AssessmentTrainer /></Suspense>;
     case '/lernen/uebergabe': return <Suspense fallback={<p className="muted">Lädt …</p>}><Uebergabetrainer /></Suspense>;
     case '/lernen/faecher': return <Faecher />;
