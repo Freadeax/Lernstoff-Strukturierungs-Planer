@@ -5,7 +5,7 @@ Import von PDF, Word, PowerPoint, Bildern und Scans mit Seitenzuordnung. Ausgabe
 ```ts
 import { importFile } from './import/pipeline';
 import { createTesseractEngine } from './import/ocr/tesseract';
-import './import/extract/pdf-worker'; // nur im Browser, einmal beim Start
+// pdf.js-Worker richtet extractPdf im Browser beim ersten PDF selbst ein (import/extract/pdf-worker.ts).
 
 const ocr = await createTesseractEngine({ langPath: '/tessdata' });
 const result = await importFile({ name: file.name, bytes: new Uint8Array(await file.arrayBuffer()), lastModified: file.lastModified }, { ocr, existing });
