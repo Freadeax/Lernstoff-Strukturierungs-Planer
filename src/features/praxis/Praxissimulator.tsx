@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { PageHeading } from '../../ui/PageHeading';
 import { SCENARIOS, CATEGORIES, RESOURCES } from './catalog';
-import { CHECKS, clock, debrief, dispatch, replay, SOURCES, start } from './engine';
+import { CHECKS, clinicalDebrief, clock, debrief, dispatch, replay, SOURCES, start } from './engine';
+import { News2Badge, VitalKurve } from './VitalKurve';
 import { archive, download, parseScenario, readArchive, readSession, saveSession } from './storage';
 import { xapiDraft } from './tracking';
 import { SETTINGS, type Category, type Command, type Medication, type Scenario, type Session, type Vital } from './types';
@@ -13,7 +14,7 @@ const VITALS: { key: Vital; label: string; unit: string }[] = [
   { key: 'resp', label: 'Atemfrequenz', unit: '/min' }, { key: 'temp', label: 'Temperatur', unit: '°C' },
   { key: 'glucose', label: 'Blutzucker', unit: 'mg/dl' }, { key: 'pain', label: 'Schmerz', unit: 'NRS' },
 ];
-const PANELS = ['Patientenzimmer', 'Patientenakte', 'Medikation', 'Dokumentation', 'Verlauf'] as const;
+const PANELS = ['Patientenzimmer', 'Vitalkurve', 'Patientenakte', 'Medikation', 'Dokumentation', 'Verlauf'] as const;
 type Panel = typeof PANELS[number];
 const format = (value: number | undefined, key: Vital) => value === undefined ? '—' : new Intl.NumberFormat('de-DE', { maximumFractionDigits: key === 'temp' ? 1 : 0 }).format(value);
 
@@ -86,9 +87,36 @@ function Documentation({ send }: { send: (c: Command) => void }) {
 function Timeline({ s }: { s: Session }) {
   const [all, setAll] = useState(false);
   const events = [...s.events].reverse();
-  return <><ol className="praxis-timeline">{(all ? events : events.slice(0, 30)).map(e => <li key={e.id} className={e.kind === 'warning' ? 'is-warning' : ''}>
+  return <><ol className="praxis-timeline">{(all ? events : events.slice(0, 30)).map(e => <li key={e.id} className={e.kind === 'warning' ? 'is-warning' : e.kind === 'story' ? 'is-story' : ''}>
     <time>{clock(e.at)}</time><div><strong>{e.title}</strong>{e.detail && <p>{e.detail}</p>}</div>
   </li>)}</ol>{events.length > 30 && <button onClick={() => setAll(!all)}>{all ? 'Nur letzte 30 Einträge' : `Alle ${events.length} Einträge anzeigen`}</button>}</>;
+}
+
+const ESCALATION: Record<ReturnType<typeof clinicalDebrief>['escalation'], string> = {
+  'kein Auslöser gemessen': 'Keine Messung hat einen NEWS2-Auslöser gezeigt. Wurde oft genug gemessen?',
+  'nicht eskaliert': 'Ein auffälliger NEWS2 wurde gemessen, aber kein qualifiziertes Team hinzugezogen.',
+  vorausschauend: 'Hilfe war schon organisiert, bevor der erste auffällige NEWS2 gemessen wurde.',
+  zeitnah: 'Nach dem ersten auffälligen NEWS2 hast du innerhalb von zehn Minuten eskaliert.',
+  verspätet: 'Zwischen auffälligem NEWS2 und Hilfe lagen mehr als zehn Minuten.',
+};
+
+/** Klinischer Rückblick: Ausgang, Eskalation, Komplikationen, Fehlhandlungen, Lernimpulse. */
+function Klinik({ s }: { s: Session }) {
+  const k = clinicalDebrief(s);
+  return <section className="praxis-klinik" aria-label="Klinischer Verlauf">
+    <h3>Klinischer Verlauf</h3>
+    <p className={`praxis-outcome ${k.final.unstable ? 'is-warning' : 'is-stable'}`}><strong>{k.final.unstable ? 'Lage bei Abschluss nicht stabil' : 'Lage bei Abschluss stabil'}</strong>{k.final.text}{k.activeComplications.length > 0 && ` Noch aktiv: ${k.activeComplications.join(', ')}.`}</p>
+    <div className="praxis-klinik__grid">
+      <div><span className="eyebrow">Eskalation</span><strong>{k.escalation}{k.escalationMinutes ? ` · nach ${k.escalationMinutes} min` : ''}</strong><p>{ESCALATION[k.escalation]} Höchster gemessener NEWS2: {k.maxNews2}, bei Abschluss (Modellwerte): {k.final.news2}.</p></div>
+      <div><span className="eyebrow">Komplikationen</span><strong>{k.complications.length} eingetreten · {k.prevented.length} verhindert</strong>
+        <ul>{k.complications.map(c => <li key={c.id}>△ {c.title}</li>)}{k.prevented.map(c => <li key={c.id}>✓ {c.prevented ?? c.title}</li>)}</ul></div>
+      <div><span className="eyebrow">Fehlhandlungen</span><strong>{k.harms.length ? `${k.harms.length} mit Folgen` : 'keine'}</strong>
+        <ul>{k.harms.map(h => <li key={`${h.id}-${h.at}`}>{clock(h.at)} · {h.text}</li>)}</ul></div>
+    </div>
+    {(s.chart?.length ?? 0) > 0 && <><h4>NEWS2 und Vitalwerte im Verlauf</h4><VitalKurve chart={s.chart!} /></>}
+    {s.scenario.teaching?.length ? <><h4>Merksätze zu diesem Fall</h4><ul>{s.scenario.teaching.map(t => <li key={t}>{t}</li>)}</ul></> : null}
+    <p className="muted">NEWS2: {SOURCES.news2.title}. Verlauf und Komplikationen sind didaktische Modellregeln, keine validierte Physiologie.</p>
+  </section>;
 }
 
 function Editor({ onStart }: { onStart: (s: Scenario) => void }) {
@@ -152,11 +180,12 @@ export default function Praxissimulator() {
       <div className="praxis-scenarios">{SCENARIOS.filter(x => setting === 'alle' || x.setting === setting).map((scenario, index) => <article className="card praxis-scenario" key={scenario.id}>
         <div className="praxis-scenario__top"><span className="badge">{SETTINGS[scenario.setting]}</span><span className="muted" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span></div>
         <h3>{scenario.title}</h3><p>{scenario.situation}</p><small>{scenario.focus} · {scenario.id === 'nachtwache' ? 'Technischer Referenzfall' : 'Szenariovorschau'} · fachlich ungeprüft</small>
+        {scenario.storyline?.length ? <small className="praxis-scenario__story">Verlauf mit {scenario.storyline.length} möglichen Ereignissen · Entscheidungen haben Folgen</small> : null}
         <button className="primary" onClick={() => begin(scenario)}>Schicht übernehmen</button>
       </article>)}</div>
       <Editor onStart={begin} />
       {readArchive().length > 0 && <details className="card"><summary>Abgeschlossene Übungen auf diesem Gerät</summary><ul>{readArchive().map(previous => <li key={previous.id}><button onClick={() => { setSession(previous); archivedRef.current = previous.id; }}>{previous.scenario.title} · {clock(previous.time)}</button></li>)}</ul><p className="muted">Die letzten zehn Abschlüsse bleiben im lokalen Archiv. Sie sind auch in der allgemeinen Datensicherung enthalten.</p></details>}
-      <details className="card"><summary>Funktionsumfang und nächste Ausbauschritte</summary><p>Enthalten: neun Lehrszenarien, Einzelpatient-Verlauf, verzögerte Diagnostik, strukturierte Gespräche, Untersuchungsbefunde als Text, Pflegehandlungen, eine Furosemid-Rechenübung, SBAR, Dokumentation, Ereignisverlauf und JSON-Werkstatt.</p><p>Noch ausstehend: fachlich validierte Dosis- und Interaktionsmodelle, Fehlerfolgen bis zum Kreislaufstillstand, echte EKG-/Bilddaten, DICOM, Audios, formale MTS-/ESI-Triage, mehrere gleichzeitige Patienten, VR, Konten, serverseitiges RBAC, verschlüsselte mandantenfähige Speicherung und xAPI-/SCORM-Anbindung.</p><p>Der <a href="#/lernen/fall">Text-Fallsimulator</a> bleibt ein separates Angebot.</p></details>
+      <details className="card"><summary>Funktionsumfang und nächste Ausbauschritte</summary><p>Enthalten: {SCENARIOS.length} Lehrszenarien mit klinischem Verlauf (Komplikationen, Angehörige, Visite, Telefonate), Fehlhandlungen mit Folgen, NEWS2-Verlaufskurve mit Bewusstsein und Sauerstoff, Einzelpatient-Verlauf, verzögerte Diagnostik, strukturierte Gespräche, Untersuchungsbefunde als Text, Pflegehandlungen, eine Furosemid-Rechenübung, SBAR, Dokumentation, Ereignisverlauf und JSON-Werkstatt.</p><p>Noch ausstehend: fachlich validierte Dosis- und Interaktionsmodelle, Kreislaufstillstand und Reanimation, echte EKG-/Bilddaten, DICOM, Audios, formale MTS-/ESI-Triage, mehrere gleichzeitige Patienten, VR, Konten, serverseitiges RBAC, verschlüsselte mandantenfähige Speicherung und xAPI-/SCORM-Anbindung.</p><p>Der <a href="#/lernen/fall">Text-Fallsimulator</a> bleibt ein separates Angebot.</p></details>
     </>}
     {s && <>
       <header className="praxis-sessionhead"><div><span className="eyebrow">{SETTINGS[s.scenario.setting]} · Ausbildungsjahr {s.level}</span><h2 ref={headingRef} tabIndex={-1}>{s.scenario.title}</h2><p>{s.scenario.patient}, {s.scenario.age} Jahre · {s.scenario.weight} kg</p><small>Modell {s.scenario.model.version} · fachlich ungeprüft · Seed {s.seed}</small></div><div className="praxis-clock"><span>Simulationszeit</span><strong>{clock(s.time)}</strong><span>{active ? running ? 'Uhr läuft' : 'Uhr pausiert' : 'Fall beendet'}</span></div></header>
@@ -169,13 +198,15 @@ export default function Praxissimulator() {
         <p className="muted praxis-clockhint">Handlungen verbrauchen auch bei pausierter Uhr ihre angezeigte Simulationszeit. Beim Verlassen der Seite pausiert die Uhr. Tageswechsel erst nach Versorgung, SBAR und Abschluss offener Aufträge.</p>
         <section className="praxis-monitor" aria-label="Vitalparameter"><div className="praxis-monitor__heading"><strong>{s.monitoring ? 'Kontinuierliches Monitoring' : s.measuredAt === null ? 'Noch keine Messung' : `Letzte Messung · ${clock(s.measuredAt)}`}</strong><span>SpO₂: LOINC 59408-5 · keine Alarmgrenzen für die pädiatrische Bewertung</span></div>
           <dl>{VITALS.map(v => <div key={v.key}><dt>{v.label}</dt><dd>{format(s.measured[v.key], v.key)}<small>{v.unit}</small></dd></div>)}</dl>
+          <News2Badge point={s.chart?.at(-1)} />
         </section>
-        <div className={`praxis-feedback ${last?.kind === 'warning' ? 'is-warning' : ''}`} role="status" aria-live="polite" aria-atomic="true"><strong>{last?.title}</strong><p>{last?.detail}</p></div>
+        <div className={`praxis-feedback ${last?.kind === 'warning' ? 'is-warning' : last?.kind === 'story' ? 'is-story' : ''}`} role="status" aria-live="polite" aria-atomic="true"><strong>{last?.title}</strong><p>{last?.detail}</p></div>
         {s.pending.length > 0 && <details className="praxis-pending"><summary>{s.pending.length} offene Aufträge / Wirkungen</summary><ul>{s.pending.map(p => <li key={p.id}>{p.title} · fällig bei {clock(p.due)} (noch {Math.max(0, Math.ceil((p.due - s.time) / 60))} min)</li>)}</ul></details>}
         <nav className="praxis-panels" aria-label="Arbeitsbereich">{PANELS.map(p => <button key={p} aria-pressed={panel === p} onClick={() => setPanel(p)}>{p}</button>)}</nav>
         <div className="praxis-workspace">
           <section className="card praxis-main" aria-label={panel}>
             {panel === 'Patientenzimmer' && <><Room s={s} send={send} /><h3>Was tust du als Nächstes?</h3><div className="praxis-categories" role="group" aria-label="Maßnahmenkategorie">{Object.entries(CATEGORIES).filter(([k]) => k !== 'geraete' || RESOURCES[s.scenario.setting].devices).map(([k, label]) => <button key={k} aria-pressed={category === k} onClick={() => setCategory(k as Category)}>{label}</button>)}</div><div className="praxis-actions">{s.scenario.actions.filter(a => a.category === category).map(a => <button key={a.id} disabled={s.done.includes(a.id) && !a.repeatable} onClick={() => send({ type: 'action', id: a.id })}><span>{a.label}</span><small>{a.seconds < 60 ? `${a.seconds} s` : `${a.seconds / 60} min`}{a.delay ? ` · Befund +${a.delay / 60} min` : ''}{a.requires ? ' · Freigabe erforderlich' : ''}{s.done.includes(a.id) ? ' · durchgeführt' : ''}</small></button>)}{!s.scenario.actions.some(a => a.category === category) && <p>In dieser Einrichtung ist dafür kein Werkzeug hinterlegt.</p>}</div></>}
+            {panel === 'Vitalkurve' && <><h3>Verlauf der Messungen</h3><p className="muted">Jede Messung, Nachkontrolle und Monitor-Minute. NEWS2 rechnet die App selbst (Skala 1, Bewusstsein nach ACVPU, Sauerstoff zählt mit 2 Punkten). Lokale Eskalationsregeln gehen vor.</p><VitalKurve chart={s.chart ?? []} /></>}
             {panel === 'Patientenakte' && <><h3>Aufnahme und Übergabe</h3><dl className="praxis-record">{[['S · Situation', s.scenario.situation], ['B · Hintergrund', s.scenario.background], ['A · Einschätzung aus der Übergabe', s.scenario.assessment], ['R · Empfehlung', s.scenario.recommendation], ['Allergien', s.scenario.allergies.join(', ') || 'Keine dokumentiert – aktiv erfragen'], ['Organfunktion', s.scenario.renal], ['Umgebung', s.scenario.environment]].map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl><h3>Befunde und Anordnungen</h3>{s.events.filter(e => e.kind === 'result').length ? s.events.filter(e => e.kind === 'result').map(e => <div key={e.id} className="praxis-result"><strong>{clock(e.at)} · {e.title}</strong><p>{e.detail}</p></div>) : <p>Noch keine Ergebnisse eingegangen.</p>}</>}
             {panel === 'Medikation' && (s.scenario.medications.length ? s.scenario.medications.map(m => <MedicationForm key={m.id} med={m} s={s} send={send} />) : <><h3>Medikationsschrank</h3><p>Für diesen Fall ist keine Arzneimittelgabe modelliert. Die Übung „Atemnot in der Nacht“ enthält eine vollständige Dosis- und Applikationsprüfung.</p><p>Es werden keine unbelegten Dosierungen aus Gewicht oder Nierenfunktion erzeugt.</p></>)}
             {panel === 'Dokumentation' && <Documentation send={send} />}
@@ -185,6 +216,7 @@ export default function Praxissimulator() {
         </div>
       </> : <div className="card praxis-debrief"><span className="eyebrow">Debriefing</span><h3>Deine Entscheidungen im Rückblick</h3><p>{debrief(s).filter(c => c.met).length} von {s.scenario.criteria.length} Szenariokriterien erfüllt · {s.events.filter(e => e.kind === 'warning').length} Warnungen · {s.pending.length} offene Aufträge bei Abschluss.</p><p className="muted">Die Auswertung prüft ausgeführte Handlungen und Zeitpunkte. Sie ist kein Kompetenznachweis. Freitexte und klinische Angemessenheit müssen mit einer Lehrperson reflektiert werden.</p>
         <ul className="praxis-criteria">{debrief(s).map(c => <li key={c.flag}><strong>{c.met ? '✓ Erfüllt' : c.late ? '△ Verspätet' : '○ Offen'} · {c.label}</strong>{c.at !== undefined && <span>{clock(c.at)}</span>}<p>{c.why}</p>{SOURCES[c.source].url ? <a href={SOURCES[c.source].url} target="_blank" rel="noreferrer">{SOURCES[c.source].title}</a> : <small>{SOURCES[c.source].title}</small>}</li>)}</ul>
+        <Klinik s={s} />
         <h3>Zur gemeinsamen Reflexion</h3><p>Welche Veränderung hat deine Entscheidung ausgelöst? Welche Informationen haben gefehlt? Welche Maßnahme würdest du beim nächsten Durchlauf früher oder anders ausführen?</p><details><summary>Vollständige Timeline und Warnungen</summary><Timeline s={s} /></details><div className="row"><button onClick={() => { download(`praxis-${s.scenario.id}-verlauf.json`, s); }}>Verlauf exportieren</button><button onClick={() => download(`praxis-${s.scenario.id}-xapi-entwurf.json`, xapiDraft(s))}>xAPI-Entwurf exportieren</button><button onClick={() => { const result = replay(s); setError(JSON.stringify(result) === JSON.stringify(s) ? 'Replay geprüft: Zustand und Verlauf stimmen vollständig überein.' : 'Replay weicht ab. Bitte Verlauf für die technische Prüfung sichern.'); }}>Replay prüfen</button><button onClick={() => begin(s.scenario)}>Diesen Fall wiederholen</button><button className="primary" onClick={() => { setSession(null); setRunning(false); }}>Zur Fallauswahl</button></div><p className="muted">Der xAPI-Entwurf enthält eine zufällige Sitzungskennung, Ereignistypen und Simulationszeit, keine Berichtstexte. Eine LRS-Verbindung und geprüfte LMS-Konformität sind noch nicht vorhanden.</p>
       </div>}
     </>}

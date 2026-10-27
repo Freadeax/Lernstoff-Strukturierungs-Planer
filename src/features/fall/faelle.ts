@@ -87,6 +87,38 @@ export const SZENARIEN: Szenario[] = [
     verborgen: 'Sterbephase mit Unruhe, Mundtrockenheit und Rasselatmung. Die Tochter will „alles tun lassen“, die Patientenverfügung lehnt Krankenhauseinweisung ab. Gute Lösung: Symptomlinderung, Mundpflege, Gespräch, Hausarzt/Palliativdienst, Wille der Bewohnerin.',
     topicIds: ['thema.ph.palliativ', 'thema.re.betreuung', 'thema.kom.ethik', 'thema.ph.mund'],
   },
+  {
+    id: 'sepsis',
+    titel: 'Gestern war sie noch klar',
+    setting: 'krankenhaus',
+    kurz: 'Frau H., 81 Jahre, internistische Station, gestern mit Harnwegsinfekt und Blasenkatheter aufgenommen. Beim Frühdienst-Rundgang weiß sie nicht, wo sie ist.',
+    verborgen: 'Beginnende Urosepsis. Phase 1: neue Verwirrtheit, Fieber 38,7 °C, AF 23, Puls 108, RR 104/60, wenig trüber Urin (NEWS2 hoch, vor allem wegen der neuen Verwirrtheit). Phase 2 nach etwa 3 Zügen ohne ärztliche Eskalation: RR fällt unter 90, Knie marmoriert, sie reagiert nur noch auf Ansprache. Gute Lösung: vollständige Vitalzeichen, neue Verwirrtheit als Warnzeichen benennen, sofort ärztlich eskalieren (SBAR), Bilanz und Ausscheidung stündlich. Blutkulturen, Laktat, Infusion und Antibiotika ordnet das ärztliche Team an. Unterwegs ruft der Sohn an.',
+    topicIds: ['thema.kl.infektion', 'thema.pro.zystitis', 'thema.beo.bewusstsein', 'thema.beo.vitalzeichen', 'thema.pp.uebergabe'],
+  },
+  {
+    id: 'nachblutung',
+    titel: 'Der Verband wird rot',
+    setting: 'krankenhaus',
+    kurz: 'Herr W., 58 Jahre, Unfallchirurgie, heute Mittag Knie-TEP. Am Abend klingelt er: Ihm ist übel und er friert.',
+    verborgen: 'Postoperative Nachblutung. Phase 1: Puls 104, RR 112/70, blass, unruhig, Verband durchgefärbt, Drainage 150 ml in der letzten Stunde. Puls steigt vor dem Blutdruckabfall. Phase 2 ohne Information des Arztes: Puls über 120, RR unter 95, kaltschweißig (Schockindex über 1). Mobilisation an die Bettkante führt zum Kollaps. Ein Bedarfs-Schmerzmittel „zum Schlafen“ verdeckt die Warnzeichen. Gute Lösung: Drainage und Verband mit Uhrzeit markieren, engmaschig messen, flach lagern bei Schockzeichen, Arzt sofort informieren, nüchtern lassen. Die Ehefrau ruft an; Auskunft nur mit seiner Zustimmung.',
+    topicIds: ['thema.ph.periop', 'thema.ph.wunde', 'thema.beo.notfall', 'thema.beo.vitalzeichen'],
+  },
+  {
+    id: 'copd',
+    titel: 'Luft holen fällt schwer',
+    setting: 'ambulant',
+    kurz: 'Herr P., 72 Jahre, zu Hause, bekannte COPD mit Heimsauerstoff nach Verordnung. Seine Frau hat den Pflegedienst angerufen, weil er seit gestern mehr hustet.',
+    verborgen: 'Infektexazerbation einer COPD: grünliches Sputum, AF 26, SpO2 87 % unter verordnetem Sauerstoff, Lippenbremse hilft. Die Ehefrau hat den Sauerstoff „zur Sicherheit“ deutlich höher gedreht; er wird schläfrig (Gefahr der CO2-Retention). Gute Lösung: Atemerleichternde Position, Lippenbremse anleiten, Sauerstoff nur nach Verordnung, Bewusstsein beobachten, Hausarzt oder bei Verschlechterung Notruf, Notfallplan und Inhalationstechnik prüfen, Ehefrau beraten. Verschlechtert sich die Wachheit, ist das ein Notfall.',
+    topicIds: ['thema.kl.atmung', 'thema.pro.pneumonie', 'thema.kom.beratung', 'thema.fa.ambulant'],
+  },
+  {
+    id: 'sturz-nacht',
+    titel: 'Gefunden neben dem Bett',
+    setting: 'langzeit',
+    kurz: 'Frau D., 86 Jahre, Pflegeheim, Vorhofflimmern mit Blutverdünner. Bei der Nachtrunde um 3 Uhr liegt sie neben ihrem Bett.',
+    verborgen: 'Sturz mit kleiner Platzwunde an der Stirn, zunächst wach und orientiert, will sofort wieder ins Bett. Wegen des Blutverdünners droht eine Hirnblutung: Wird die Bewusstseinslage nicht in festen Abständen kontrolliert, wird sie nach etwa 3 bis 5 Zügen zunehmend schläfrig, die Pupillen werden ungleich, sie erbricht. Gute Lösung: nicht hochziehen, Verletzungen prüfen, Vitalzeichen und Bewusstsein, Arzt bzw. Notruf wegen Blutverdünner, engmaschige neurologische Kontrolle, Sturzprotokoll, Ursachen (Toilettengang, Licht, Schuhe) klären, Angehörige am Morgen informieren.',
+    topicIds: ['thema.pro.sturz', 'thema.kl.geriatrie', 'thema.beo.bewusstsein', 'thema.fa.langzeit'],
+  },
 ];
 
 /** Themen, aus denen sich ein freier Fall erzeugen lässt: Krankheitslehre, Prophylaxen, Pflegehandeln, Fallarbeit. */

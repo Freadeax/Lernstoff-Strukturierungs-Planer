@@ -1,5 +1,6 @@
 import type { Scenario, Session } from './types';
-import { SETTINGS } from './types';
+import { SETTINGS, STORY_KINDS } from './types';
+import { AVPU } from './news2';
 
 const KEYS = ['pulse', 'sys', 'dia', 'spo2', 'resp', 'temp', 'glucose', 'pain'];
 const text = (v: unknown): v is string => typeof v === 'string' && v.length <= 5000;
@@ -8,6 +9,7 @@ const number = (v: unknown): v is number => typeof v === 'number' && Number.isFi
 const positive = (v: unknown) => number(v) && v >= 0 && v <= 86400;
 const strings = (v: unknown): v is string[] => Array.isArray(v) && v.length <= 100 && v.every(text);
 const deltas = (v: unknown) => object(v) && Object.entries(v).every(([k, n]) => KEYS.includes(k) && number(n) && Math.abs(n) <= 500);
+const avpu = (v: unknown) => (AVPU as readonly unknown[]).includes(v);
 const categories = ['gespraech', 'untersuchung', 'pflege', 'diagnostik', 'kommunikation', 'geraete'];
 
 /** JSON editor boundary: reject executable content, invalid references and unbounded values. */
@@ -29,8 +31,22 @@ export function parseScenario(json: string): Scenario {
   const identifier = (v: unknown): v is string => typeof v === 'string' && /^[a-z][a-z0-9_-]{0,59}$/.test(v) && !['constructor', 'prototype', '__proto__', 'toString', 'hasOwnProperty', 'valueOf'].includes(v);
   for (const a of d.actions) {
     if (!object(a) || !identifier(a.id) || ids.has(a.id) || !text(a.label) || !text(a.result) || !categories.includes(String(a.category)) || !positive(a.seconds) || (a.delay !== undefined && !positive(a.delay)) || (a.effect !== undefined && !deltas(a.effect)) || (a.flag !== undefined && !identifier(a.flag)) || (a.requires !== undefined && !identifier(a.requires)) || (a.repeatable !== undefined && typeof a.repeatable !== 'boolean') || (a.loinc !== undefined && !text(a.loinc))) throw new Error('Aktion ungültig oder Kennung doppelt.');
+    if ((a.harm !== undefined && (!text(a.harm) || !a.harm.trim())) || (a.avpu !== undefined && !avpu(a.avpu)) || (a.oxygen !== undefined && typeof a.oxygen !== 'boolean')) throw new Error('Aktion: Folge, Bewusstsein oder Sauerstoffangabe ungültig.');
     ids.add(a.id); if (a.flag) flags.add(a.flag as string);
   }
+  if (d.initialOxygen !== undefined && typeof d.initialOxygen !== 'boolean') throw new Error('Sauerstoff-Startwert ungültig.');
+  if (d.initialAvpu !== undefined && !avpu(d.initialAvpu)) throw new Error('Start-Bewusstseinslage ungültig (A, C, V, P oder U).');
+  if (d.teaching !== undefined && (!strings(d.teaching) || d.teaching.length > 12)) throw new Error('Lernimpulse ungültig.');
+  if (d.outcome !== undefined && (!object(d.outcome) || !text(d.outcome.stable) || !text(d.outcome.unstable))) throw new Error('Fallausgang ungültig.');
+  if (d.storyline !== undefined && (!Array.isArray(d.storyline) || d.storyline.length > 40)) throw new Error('Fallverlauf ungültig oder zu lang.');
+  const storyIds = new Set<string>();
+  for (const e of (d.storyline ?? []) as unknown[]) {
+    if (!object(e) || !identifier(e.id) || storyIds.has(e.id) || !positive(e.at) || (e.at as number) < 1 || !Object.hasOwn(STORY_KINDS, String(e.kind)) || !text(e.title) || !e.title.trim() || !text(e.detail) || (e.effect !== undefined && !deltas(e.effect)) || (e.avpu !== undefined && !avpu(e.avpu)) || (e.flag !== undefined && !identifier(e.flag)) || (e.prevented !== undefined && !text(e.prevented))) throw new Error('Verlaufsereignis ungültig oder Kennung doppelt.');
+    if (e.drift !== undefined && (!deltas(e.drift) || !Array.isArray(e.stoppedBy) || !e.stoppedBy.length || !e.stoppedBy.every(identifier))) throw new Error('Verlaufsereignis: anhaltende Verschlechterung braucht stoppedBy.');
+    if ((e.unless !== undefined && (!Array.isArray(e.unless) || !e.unless.every(identifier))) || (e.when !== undefined && !identifier(e.when))) throw new Error('Verlaufsereignis: Bedingung ungültig.');
+    storyIds.add(e.id); if (e.flag) flags.add(e.flag as string);
+  }
+  for (const e of (d.storyline ?? []) as Record<string, unknown>[]) if ([...((e.unless as string[]) ?? []), ...((e.stoppedBy as string[]) ?? []), ...(e.when ? [e.when as string] : [])].some(f => !flags.has(f))) throw new Error('Verlaufsereignis verweist auf unbekannte Handlung.');
   const medIds = new Set();
   for (const m of d.medications) {
     if (!object(m) || !identifier(m.id) || medIds.has(m.id) || !['name', 'atc', 'unit', 'route', 'equipment', 'result'].every(k => text(m[k]) && !!m[k]) || !positive(m.dose) || (m.dose as number) === 0 || !positive(m.concentration) || (m.concentration as number) === 0 || !positive(m.duration) || !positive(m.onset) || !deltas(m.effect) || !deltas(m.targets)) throw new Error('Medikationsmodell ungültig.');
@@ -38,7 +54,7 @@ export function parseScenario(json: string): Scenario {
   }
   for (const c of d.criteria) if (!object(c) || !identifier(c.flag) || !flags.has(c.flag) || (c.after !== undefined && (!identifier(c.after) || !flags.has(c.after))) || !text(c.label) || !text(c.why) || !['abcde', 'sbar', 'scenario', 'drug'].includes(String(c.source)) || (c.before !== undefined && !positive(c.before))) throw new Error('Bewertungskriterium ungültig.');
   if (d.actions.some(a => a.requires && !flags.has(a.requires)) || d.stabilizers.some(f => !flags.has(f))) throw new Error('Voraussetzung oder Stabilisierungsregel verweist auf unbekannte Aktion.');
-  const reachable = new Set(['documented', 'sbar']);
+  const reachable = new Set(['documented', 'sbar', ...((d.storyline ?? []) as Record<string, unknown>[]).flatMap(e => e.flag ? [e.flag as string] : [])]);
   for (let i = 0; i <= d.actions.length; i++) for (const a of d.actions) if (!a.requires || reachable.has(a.requires)) { if (a.flag) reachable.add(a.flag); }
   if (d.actions.some(a => a.requires && !reachable.has(a.requires))) throw new Error('Unerreichbare Aktion: zyklische oder nicht erfüllbare Voraussetzungen.');
   if (new Set(d.criteria.map(c => c.flag)).size !== d.criteria.length) throw new Error('Bewertungskriterium doppelt.');
@@ -64,6 +80,8 @@ export function readSession(): { session: Session | null; error: string } {
     if (s.version !== 1 || !text(s.id) || ![1, 2, 3].includes(s.level) || !(number(s.time) && s.time <= 31536000 && s.time >= 0) || !['active', 'finished'].includes(s.phase) || !Array.isArray(s.events) || !Array.isArray(s.pending) || !strings(s.done) || !object(s.flags) || !deltas(s.vitals) || !object(s.measured) || typeof s.monitoring !== 'boolean' || !number(s.deterioration) || !number(s.snapshotRemainder) || !number(s.seed) || !number(s.rng) || !Array.isArray(s.commands)) throw new Error();
     s.scenario = parseScenario(JSON.stringify(s.scenario));
     if (!s.pending.every(p => object(p) && text(p.id) && number(p.due) && text(p.title) && text(p.result) && (p.effect === undefined || deltas(p.effect))) || !s.events.every(e => object(e) && number(e.id) && number(e.at) && text(e.title) && text(e.detail)) || !Object.values(s.flags).every(number)) throw new Error();
+    // Klinische Felder sind optional (ältere Stände); wenn vorhanden, muss ihre Form stimmen.
+    if ((s.chart !== undefined && (!Array.isArray(s.chart) || s.chart.length > 300 || !s.chart.every(p => object(p) && number(p.at) && deltas(p.vitals) && avpu(p.avpu) && typeof p.oxygen === 'boolean'))) || (s.avpu !== undefined && !avpu(s.avpu)) || (s.oxygen !== undefined && typeof s.oxygen !== 'boolean') || (s.story !== undefined && (!object(s.story) || !Object.values(s.story).every(v => ['fired', 'prevented', 'skipped'].includes(v)))) || (s.drifts !== undefined && (!Array.isArray(s.drifts) || !s.drifts.every(d => object(d) && text(d.id) && deltas(d.drift) && strings(d.stoppedBy)))) || (s.harms !== undefined && (!Array.isArray(s.harms) || !s.harms.every(h => object(h) && number(h.at) && text(h.id) && text(h.text))))) throw new Error();
     if (!s.commands.every(c => object(c) && text(c.id) && object(c.command) && ['advance', 'action', 'medication', 'sbar', 'note', 'finish'].includes(String(c.command.type))) || new Set(s.commands.map(c => c.id)).size !== s.commands.length) throw new Error();
     return { session: s, error: '' };
   } catch { return { session: null, error: 'Gespeicherter Übungsstand konnte nicht gelesen werden. Er bleibt für eine Datensicherung erhalten; ein neuer Fall überschreibt ihn.' }; }

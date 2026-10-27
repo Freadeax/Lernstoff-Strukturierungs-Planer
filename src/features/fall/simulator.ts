@@ -6,6 +6,7 @@ import type { CatalogModule } from '../../modules/catalog-types';
 import { SETTING_LABEL, type Stufe, type Szenario } from './faelle';
 import type { Treffer } from '../lernplan/trainer';
 import { istObjekt, storage } from '../../ui/lib/store';
+import { news2Punkte, type Avpu, type News2Risiko } from '../praxis/news2';
 
 export const MODEL = 'claude-opus-5-5';
 
@@ -160,6 +161,9 @@ REGELN FÜR JEDEN ZUG
 - Die Zeit läuft: "uhrzeit" im Format HH:MM, je nach Handlung 1 bis 30 Minuten weiter.
 - "vitalwerte": nur Werte eintragen, die bisher gemessen wurden oder ausdrücklich bekannt sind, sonst leerer String. Misst die Person etwas, trage den aktuellen Wert ein. Bereits gemessene Werte bleiben stehen, bis neu gemessen wird. Formate: rr "135/85", puls/af/spo2 als ganze Zahl, temp "38,4", bz in mg/dl, schmerz NRS 0-10, bewusstsein A/C/V/P/U, sauerstoff "ja"/"nein".
 - Der Verlauf hängt von den Entscheidungen ab: Sinnvolle Handlungen stabilisieren oder verbessern, Versäumnisse lassen den verborgenen Verlauf fortschreiten ("zustand").
+- Folgen wirken nach: Eine ungünstige Entscheidung zeigt ihre Wirkung oft erst 1 bis 3 Züge später, so wie im echten Dienst. Eine verhinderte Komplikation darf leise ausbleiben.
+- Die Station lebt: Etwa alle 2 bis 4 Züge passiert etwas, das zum Fall passt und Prioritäten verlangt: Angehörige rufen an oder stehen in der Tür, die Ärztin ruft zurück oder kommt zur Visite, das Labor meldet einen Wert, eine Kollegin braucht kurz Hilfe, eine andere Klingel geht. Beschreibe es in "situation" und biete passende Optionen an.
+- Bei kritischem Zustand reagiert das Team realistisch (Notfallteam, Rettungsdienst, Arzt übernimmt). Vor dem Ende fordert jemand eine kurze Übergabe (SBAR) von der lernenden Person ein.
 - "schritt": der Schritt des Pflegeprozesses (Fiechter/Meier), zu dem die letzte Handlung gehört.
 - "rueckmeldung": wertung und 1 bis 3 Sätze, WARUM, mit Bezug auf Pflegeprozess, Prophylaxen, Expertenstandards oder Beobachtungskriterien. Beim ersten Zug wertung "keine" und leerer Text. "gefaehrlich" nur bei echter Patientengefährdung.
 - "optionen": 3 bis 4 plausible nächste Handlungen in der Ich-Form, gemischt aus guten und weniger guten, nicht nach Qualität sortiert. Die Person darf auch frei formulieren.
@@ -265,7 +269,7 @@ export function fallTreffer(f: Fall): Treffer[] {
 
 // ---------- NEWS2 (per Code, nicht von der KI) ----------
 
-export interface News2 { punkte: number; risiko: 'niedrig' | 'niedrig-mittel' | 'mittel' | 'hoch'; fehlt: string[] }
+export interface News2 { punkte: number; risiko: News2Risiko; fehlt: string[] }
 
 const zahlAus = (s: string) => { const n = Number(s.replace(',', '.').replace(/[^\d.]/g, '')); return s.trim() && Number.isFinite(n) ? n : null; };
 
@@ -280,18 +284,16 @@ export function news2(v: Vitalwerte): News2 | null {
   ].filter((x): x is string => !!x);
   if (fehlt.length) return { punkte: 0, risiko: 'niedrig', fehlt };
 
-  const teil = [
-    af! <= 8 ? 3 : af! <= 11 ? 1 : af! <= 20 ? 0 : af! <= 24 ? 2 : 3,
-    spo2! <= 91 ? 3 : spo2! <= 93 ? 2 : spo2! <= 95 ? 1 : 0,
-    o2 === 'ja' ? 2 : 0,
-    sys! <= 90 ? 3 : sys! <= 100 ? 2 : sys! <= 110 ? 1 : sys! <= 219 ? 0 : 3,
-    puls! <= 40 ? 3 : puls! <= 50 ? 1 : puls! <= 90 ? 0 : puls! <= 110 ? 1 : puls! <= 130 ? 2 : 3,
-    bew === 'A' ? 0 : 3,
-    temp! <= 35 ? 3 : temp! <= 36 ? 1 : temp! <= 38 ? 0 : temp! <= 39 ? 1 : 2,
-  ];
-  const punkte = teil.reduce((a, b) => a + b, 0);
-  const risiko = punkte >= 7 ? 'hoch' : punkte >= 5 ? 'mittel' : teil.includes(3) ? 'niedrig-mittel' : 'niedrig';
+  const { punkte, risiko } = news2Punkte({ af: af!, spo2: spo2!, sauerstoff: o2 === 'ja', sys: sys!, puls: puls!, avpu: bew as Avpu, temp: temp! });
   return { punkte, risiko, fehlt: [] };
+}
+
+/** NEWS2 über alle Züge mit vollständigen Werten, für die Verlaufsanzeige. */
+export function news2Verlauf(f: Fall): Array<{ runde: number; uhrzeit: string; punkte: number; risiko: News2Risiko }> {
+  return f.runden.flatMap((r, runde) => {
+    const n = news2(r.zug.vitalwerte);
+    return n && !n.fehlt.length ? [{ runde, uhrzeit: r.zug.uhrzeit, punkte: n.punkte, risiko: n.risiko }] : [];
+  });
 }
 
 // ---------- Speicher (nur dieses Gerät) ----------

@@ -15,7 +15,7 @@ try {
     const page = await context.newPage(); page.on('pageerror', e => errors.push(e.message));
     await page.goto(base + '#/lernen/praxis', { waitUntil: 'networkidle' });
     await page.getByRole('heading', { name: 'Praxissimulator', exact: true }).waitFor();
-    assert.equal(await page.getByRole('button', { name: 'Schicht übernehmen', exact: true }).count(), 9);
+    assert.equal(await page.getByRole('button', { name: 'Schicht übernehmen', exact: true }).count(), 12);
     const audit = async name => {
       await page.waitForTimeout(350); // Wait for the shared theme/button color transitions to settle.
       assert(!(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)), `${name} overflow @${width}`);
@@ -24,7 +24,7 @@ try {
     };
     await audit('Fallauswahl'); await page.screenshot({ path: path.join(output, `auswahl-${width}.png`), fullPage: true });
     await page.getByLabel('Einrichtung').selectOption('station');
-    await page.getByRole('button', { name: 'Schicht übernehmen', exact: true }).click();
+    await page.locator('.praxis-scenario', { hasText: 'Atemnot in der Nacht' }).getByRole('button', { name: 'Schicht übernehmen', exact: true }).click();
     assert(await page.getByText('Noch keine Messung', { exact: true }).isVisible());
     await page.getByRole('button', { name: 'Messgerät verwenden', exact: true }).click();
     assert(await page.getByText('Letzte Messung · 00:01:00', { exact: true }).isVisible());
@@ -32,6 +32,11 @@ try {
     await page.getByRole('button', { name: 'Team & Übergabe', exact: true }).click();
     await page.getByRole('button', { name: /Ärztliche Rücksprache und Anordnung/ }).click();
     await page.getByRole('button', { name: '+5 Minuten', exact: true }).click();
+    assert(await page.locator('.praxis-news2 strong').first().textContent().then(t => /NEWS2 \d+/.test(t ?? '')));
+    await page.getByRole('button', { name: 'Vitalkurve', exact: true }).click();
+    assert(await page.getByRole('heading', { name: 'Verlauf der Messungen' }).isVisible());
+    await audit('Vitalkurve');
+    await page.getByRole('button', { name: 'Patientenzimmer', exact: true }).click();
     await audit('Patientenzimmer'); await page.screenshot({ path: path.join(output, `zimmer-${width}.png`), fullPage: true });
     await page.getByRole('button', { name: 'Medikation', exact: true }).click();
     await page.getByLabel('Dosis (mg)', { exact: true }).fill('40');
@@ -62,6 +67,7 @@ try {
     assert.equal(requests.length, 0, 'Engine arbeitet ohne Netzwerk'); await page.unroute('**/*');
     await page.getByRole('button', { name: 'Fall abschließen', exact: true }).click();
     assert(await page.getByRole('heading', { name: 'Deine Entscheidungen im Rückblick' }).isVisible());
+    assert(await page.getByRole('heading', { name: 'Klinischer Verlauf' }).isVisible());
     await page.getByRole('button', { name: 'Replay prüfen', exact: true }).click();
     assert(await page.getByText('Replay geprüft: Zustand und Verlauf stimmen vollständig überein.', { exact: true }).isVisible());
     await audit('Debriefing'); await page.screenshot({ path: path.join(output, `debrief-${width}.png`), fullPage: true });
