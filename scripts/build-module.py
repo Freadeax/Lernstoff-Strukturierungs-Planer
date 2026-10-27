@@ -115,6 +115,9 @@ def check_references(module):
             expect(e["id"], r, {"taskFormats"})
         for r in e.get("referenceIds", []):
             expect(e["id"], r, {"references"})
+        for part in e.get("teile", []):
+            for r in part.get("competencyIds", []):
+                expect(f'{e["id"]}/{part["code"]}', r, {"framework-item"})
 
     # Ein Kind darf nicht Voraussetzung seines eigenen Elternthemas sein und umgekehrt;
     # Zyklen im Graphen aus parentId + prerequisites würden die Lernplanung blockieren.

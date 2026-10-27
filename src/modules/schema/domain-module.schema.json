@@ -220,7 +220,23 @@
         "competencyIds": { "$ref": "#/$defs/idList" },
         "taskFormatIds": { "$ref": "#/$defs/idList" },
         "referenceIds": { "$ref": "#/$defs/idList" },
-        "pruefstatus": { "$ref": "#/$defs/pruefstatus" }
+        "pruefstatus": { "$ref": "#/$defs/pruefstatus" },
+        "teile": {
+          "type": "array",
+          "description": "Bestandteile eines Prüfungsteils, z. B. einzelne Aufsichtsarbeiten mit eigenem Kompetenzbezug.",
+          "items": {
+            "type": "object",
+            "required": ["code", "name"],
+            "properties": {
+              "code": { "type": "string" },
+              "name": { "type": "string" },
+              "durationMinutes": { "type": "integer", "minimum": 1 },
+              "competencyIds": { "$ref": "#/$defs/idList" },
+              "details": { "type": "string" }
+            },
+            "additionalProperties": false
+          }
+        }
       },
       "additionalProperties": false
     }
