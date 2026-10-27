@@ -1,3 +1,4 @@
+import { storage } from '../../ui/lib/store';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import './sis.css';
 import { logActivity } from '../../core/activity';
@@ -21,12 +22,8 @@ interface Entwurf { felder: Felder; matrix: Matrix }
 const ENTWURF_KEY = 'lernstoff.sis.entwuerfe';
 const BESTE_KEY = 'lernstoff.sis.beste';
 
-function lese<T>(key: string, fallback: T): T {
-  try { return (JSON.parse(localStorage.getItem(key) ?? 'null') as T) ?? fallback; } catch { return fallback; }
-}
-function schreibe(key: string, wert: unknown) {
-  try { localStorage.setItem(key, JSON.stringify(wert)); } catch { /* privater Modus */ }
-}
+const lese = <T,>(key: string, fallback: T) => storage.read<T>(key, fallback);
+const schreibe = (key: string, wert: unknown) => { storage.write(key, wert); };
 function ladeEntwurf(id: string): Entwurf {
   const e = lese<Record<string, Partial<Entwurf>>>(ENTWURF_KEY, {})[id];
   // Ältere oder beschädigte Entwürfe auffüllen statt abzustürzen

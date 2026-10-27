@@ -1,6 +1,7 @@
 // Laufende Simulation und Verlauf liegen in localStorage: klein, nur auf diesem Gerät, und eine laufende
 // Prüfung übersteht so ein Neuladen oder das Wegwischen der App auf dem iPhone. Keine neue DB-Tabelle nötig.
 import type { Antwort, Auswahl, SimFrage, Wertung } from './simulation';
+import { istObjekt, storage } from '../../ui/lib/store';
 
 const LAUFEND = 'lernstoff.simulation.laufend';
 const VERLAUF = 'lernstoff.simulation.verlauf';
@@ -27,17 +28,20 @@ export interface VerlaufEintrag {
   fragen: number; punkte: number; max: number; prozent: number; schwach: string[];
 }
 
-function lies<T>(key: string, fallback: T): T {
-  try { const s = localStorage.getItem(key); return s ? (JSON.parse(s) as T) : fallback; } catch { return fallback; }
-}
-function schreib(key: string, wert: unknown) {
-  try { if (wert === null) localStorage.removeItem(key); else localStorage.setItem(key, JSON.stringify(wert)); } catch { /* privates Fenster oder voll */ }
-}
+const lies = <T,>(key: string, fallback: T, gueltig?: (v: unknown) => boolean) => storage.read<T>(key, fallback, 'local', gueltig);
+// Privates Fenster oder voller Speicher: die Simulation läuft ohne Speichern weiter.
+const schreib = (key: string, wert: unknown) => { storage.write(key, wert); };
 
-export const ladeLauf = () => lies<Lauf | null>(LAUFEND, null);
+/** Laufende Simulation mit der Form, die die Oberfläche braucht. Kaputte Stände gelten als „kein Lauf“. */
+export const istLauf = (v: unknown): boolean =>
+  istObjekt(v) && typeof v.id === 'string' && Array.isArray(v.fragen) && v.fragen.every(istObjekt) && istObjekt(v.antworten)
+  && Array.isArray(v.markiert) && typeof v.i === 'number' && typeof v.deadline === 'number' && istObjekt(v.auswahl);
+const istVerlauf = (v: unknown) => istObjekt(v) && typeof v.id === 'string' && typeof v.prozent === 'number' && Array.isArray(v.schwach);
+
+export const ladeLauf = () => lies<Lauf | null>(LAUFEND, null, istLauf);
 export const speichereLauf = (l: Lauf | null) => schreib(LAUFEND, l);
 
-export const ladeVerlauf = () => lies<VerlaufEintrag[]>(VERLAUF, []);
+export const ladeVerlauf = () => storage.list<VerlaufEintrag>(VERLAUF, istVerlauf);
 export function ergaenzeVerlauf(e: VerlaufEintrag): VerlaufEintrag[] {
   const neu = [e, ...ladeVerlauf().filter((x) => x.id !== e.id)].slice(0, 30);
   schreib(VERLAUF, neu);

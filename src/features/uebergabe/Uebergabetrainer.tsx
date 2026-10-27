@@ -1,3 +1,4 @@
+import { storage } from '../../ui/lib/store';
 import { useMemo, useRef, useState } from 'react';
 import './uebergabe.css';
 import { logActivity } from '../../core/activity';
@@ -16,12 +17,12 @@ const LEER: Felder = { S: '', B: '', A: '', R: '' };
 const BESTE_KEY = 'lernstoff.uebergabe.beste';
 
 function ladeBeste(): Record<string, number> {
-  try { return JSON.parse(localStorage.getItem(BESTE_KEY) ?? '{}') as Record<string, number>; } catch { return {}; }
+  return storage.read<Record<string, number>>(BESTE_KEY, {});
 }
 function merkeBeste(fallId: string, prozent: number): Record<string, number> {
   const alt = ladeBeste();
   const neu = { ...alt, [fallId]: Math.max(alt[fallId] ?? 0, prozent) };
-  try { localStorage.setItem(BESTE_KEY, JSON.stringify(neu)); } catch { /* privater Modus */ }
+  storage.write(BESTE_KEY, neu);
   return neu;
 }
 

@@ -5,6 +5,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import type { CatalogModule } from '../../modules/catalog-types';
 import { SETTING_LABEL, type Stufe, type Szenario } from './faelle';
 import type { Treffer } from '../lernplan/trainer';
+import { istObjekt, storage } from '../../ui/lib/store';
 
 export const MODEL = 'claude-opus-5-5';
 
@@ -299,19 +300,15 @@ const AKTUELL = 'lernstoff.fall.aktuell';
 const ARCHIV = 'lernstoff.fall.archiv';
 const ARCHIV_MAX = 20;
 
-function lies<T>(key: string, ersatz: T): T {
-  try { const s = localStorage.getItem(key); return s ? (JSON.parse(s) as T) : ersatz; } catch { return ersatz; }
-}
-function schreib(key: string, wert: unknown) {
-  try {
-    if (wert === null) localStorage.removeItem(key);
-    else localStorage.setItem(key, JSON.stringify(wert));
-  } catch { /* voller Speicher oder privater Modus: Fall läuft trotzdem weiter */ }
-}
+/** Gespeicherter Fall mit der Form, die die Oberfläche braucht. Ältere oder kaputte Stände fallen weg. */
+export const istFall = (v: unknown): boolean =>
+  istObjekt(v) && typeof v.id === 'string' && istObjekt(v.szenario) && Array.isArray(v.runden) && v.runden.every(istObjekt);
+// Voller Speicher oder privater Modus: der Fall läuft trotzdem weiter.
+const schreib = (key: string, wert: unknown) => { storage.write(key, wert); };
 
-export const ladeAktuell = () => lies<Fall | null>(AKTUELL, null);
+export const ladeAktuell = () => storage.read<Fall | null>(AKTUELL, null, 'local', istFall);
 export const speichereAktuell = (f: Fall | null) => schreib(AKTUELL, f);
-export const ladeArchiv = () => lies<Fall[]>(ARCHIV, []);
+export const ladeArchiv = () => storage.list<Fall>(ARCHIV, istFall);
 export function archiviere(f: Fall) {
   schreib(ARCHIV, [f, ...ladeArchiv().filter((x) => x.id !== f.id)].slice(0, ARCHIV_MAX));
 }
