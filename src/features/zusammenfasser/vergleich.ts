@@ -3,9 +3,9 @@
 // Belege prüft der Code; eine Zeile, deren Aussagen nicht alle belegt sind, wird verworfen.
 import type { Document, SourceChunk } from '../../core/types';
 import type { CatalogModule } from '../../modules/catalog-types';
-import { abschnitteAlsText, ohneKommentare, rufeJson } from './ki';
+import { abschnitteAlsText, ohneKommentare, Protokoll, rufeJson } from './ki';
 import { belegGueltig } from './belege';
-import type { BelegJson, VergleichsErgebnis, VergleichsZeile } from './typen';
+import type { BelegJson, PipelineRun, VergleichsArt, VergleichsErgebnis, VergleichsZeile } from './typen';
 import basisPrompt from './prompts/00-basis.md?raw';
 import vergleichPrompt from './prompts/06-vergleich.md?raw';
 
@@ -82,11 +82,39 @@ export function filtereZeilen(zeilen: VergleichsZeile[], docs: Document[], chunk
   return { zeilen: ok, verworfen: zeilen.length - ok.length };
 }
 
+/** Ein Abschnitt der zusammengeführten Fassung: Übereinstimmendes einmal, jeder Unterschied je Quelle sichtbar. */
+export interface ZusammenAbschnitt {
+  unterthema: string;
+  art: VergleichsArt;
+  erlaeuterung: string;
+  /** übereinstimmend oder ergänzend: eine Aussage, belegt in allen genannten Quellen */
+  einheitlich?: { aussage: string; quellen: Array<{ documentId: string; belege: BelegJson[] }> };
+  /** abweichend, widersprüchlich, Definition unterschiedlich: jede Quelle mit ihrer eigenen Aussage */
+  jeQuelle?: Array<{ documentId: string; aussage: string; belege: BelegJson[] }>;
+}
+
+/**
+ * Zusammengeführte Fassung (docs/ZUSAMMENFASSER.md, 5.5, Schritt 3) rein aus den geprüften Vergleichszeilen,
+ * ohne weiteren KI-Aufruf: Nichts kommt hinzu, was nicht schon belegt in der Matrix steht.
+ * Reihenfolge: Übereinstimmendes, dann Ergänzungen, dann Unterschiede.
+ */
+export function zusammenfuehren(zeilen: VergleichsZeile[]): ZusammenAbschnitt[] {
+  const rang: Record<VergleichsArt, number> = { uebereinstimmend: 0, ergaenzend: 1, abweichend: 2, definition_unterschiedlich: 3, widerspruechlich: 4 };
+  return [...zeilen].sort((a, b) => rang[a.art] - rang[b.art]).map((z) => {
+    const mit = z.jeQuelle.filter((q): q is typeof q & { aussage: string } => !!q.aussage);
+    const basis = { unterthema: z.unterthema, art: z.art, erlaeuterung: z.erlaeuterung };
+    return z.art === 'uebereinstimmend' || z.art === 'ergaenzend'
+      ? { ...basis, einheitlich: { aussage: mit[0]?.aussage ?? '', quellen: mit.map((q) => ({ documentId: q.documentId, belege: q.belege })) } }
+      : { ...basis, jeQuelle: mit.map((q) => ({ documentId: q.documentId, aussage: q.aussage, belege: q.belege })) };
+  });
+}
+
 const metadaten = (docs: Document[]) => docs.map((d) => `${d.title}: Version ${d.version}, importiert ${d.importedAt.slice(0, 10)}`).join('; ');
 
-export async function vergleiche(opts: { apiKey: string; modul: CatalogModule; docs: Document[]; chunks: SourceChunk[]; thema: string; topicIds?: string[]; onSchritt?: (t: string) => void }): Promise<VergleichsErgebnis> {
+export async function vergleiche(opts: { apiKey: string; modul: CatalogModule; docs: Document[]; chunks: SourceChunk[]; thema: string; topicIds?: string[]; onSchritt?: (t: string) => void }): Promise<{ ergebnis: VergleichsErgebnis; run: PipelineRun }> {
   if (opts.docs.length < 2) throw new Error('Für einen Vergleich bitte mindestens zwei Dokumente auswählen.');
   const chunkMap = new Map(opts.chunks.map((c) => [c.id, c]));
+  const protokoll = new Protokoll().prompts({ '00-basis': basisPrompt, '06-vergleich': vergleichPrompt });
   const thema = opts.thema || opts.docs.map((d) => d.title).join(' / ');
   const basis = ohneKommentare(basisPrompt).replaceAll('{{fachmodul.name}}', opts.modul.name);
 
@@ -95,7 +123,7 @@ export async function vergleiche(opts: { apiKey: string; modul: CatalogModule; d
     system: basis.replace('{{modus_anweisung}}', `## Modus: Vergleich, Schritt 1 (Aussagen je Quelle)
 
 Sammle für jedes Dokument getrennt die fachlichen Aussagen zum Thema „${thema}“, kurz und wie im originalgetreuen Modus: nur, was im Dokument steht, Fachbegriffe, Zahlen und Definitionen wörtlich. Die Abschnitte stehen als \`<abschnitt id="…">\` in \`<dokument id="…">\`. Gib zu jeder Aussage unter \`belege\` die \`chunkId\` und ein **wörtliches** Zitat aus einem Abschnitt **desselben** Dokuments an. Vermische keine Dokumente. Gib für jedes Dokument einen Eintrag mit seiner \`documentId\`, auch wenn es nichts zum Thema enthält (dann leere Liste).`),
-    schema: AUSSAGEN_SCHEMA, effort: 'high', maxTokens: 32000,
+    schema: AUSSAGEN_SCHEMA, effort: 'high', maxTokens: 32000, protokoll, schritt: 'aussagen-je-quelle',
     messages: [{ role: 'user', content: `${abschnitteAlsText(opts.docs, opts.chunks)}\n\nSammle die Aussagen je Quelle als JSON.` }],
   });
   const aussagen = filtereAussagen(roh.quellen ?? [], opts.docs, chunkMap);
@@ -109,12 +137,16 @@ Sammle für jedes Dokument getrennt die fachlichen Aussagen zum Thema „${thema
     .replace('{{dokument_metadaten}}', metadaten(opts.docs));
   const abgleich = await rufeJson<{ zeilen: VergleichsZeile[] }>(opts.apiKey, {
     system: basis.replace('{{modus_anweisung}}', modus),
-    schema: VERGLEICH_SCHEMA, effort: 'high', maxTokens: 32000,
+    schema: VERGLEICH_SCHEMA, effort: 'high', maxTokens: 32000, protokoll, schritt: 'abgleich',
     messages: [{ role: 'user', content: 'Gleiche die Aussagen ab und gib die Vergleichszeilen als JSON aus.' }],
   });
   const { zeilen, verworfen } = filtereZeilen(abgleich.zeilen ?? [], opts.docs, chunkMap);
-  return {
-    id: crypto.randomUUID(), mode: 'vergleich', length: 'kurz', topicIds: opts.topicIds ?? [], sourceDocumentIds: opts.docs.map((d) => d.id),
+  const id = crypto.randomUUID();
+  const run = protokoll.alsRun({ mode: 'vergleich', topicIds: opts.topicIds ?? [], documentIds: opts.docs.map((d) => d.id), chunkIds: opts.chunks.map((c) => c.id) },
+    verworfen ? [{ id: 'b1', pruefung: 'Vergleich', schwere: 'warnung', meldung: `${verworfen} Vergleichszeilen ohne vollständige Belege verworfen.` }] : [], id);
+  const ergebnis: VergleichsErgebnis = {
+    id, mode: 'vergleich', length: 'kurz', topicIds: opts.topicIds ?? [], sourceDocumentIds: opts.docs.map((d) => d.id), pipelineRunId: run.id,
     claims: [], createdAt: new Date().toISOString(), needsReview: false, thema, zeilen, verworfen,
   };
+  return { ergebnis, run };
 }

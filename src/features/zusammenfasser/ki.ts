@@ -1,7 +1,8 @@
 // Gemeinsame KI-Aufrufe des Zusammenfassers: Client, Streaming mit finalMessage, stop_reason-Prüfung,
 // strukturierte Ausgabe. Einstellungen laut docs/ZUSAMMENFASSER.md, Abschnitt 2 („KI-Aufrufe und Einstellungen“).
 import Anthropic from '@anthropic-ai/sdk';
-import type { Document, SourceChunk } from '../../core/types';
+import type { Befund, Document, SourceChunk } from '../../core/types';
+import type { PipelineRun } from './typen';
 
 export const MODEL = 'claude-opus-5-5';
 export type Effort = 'low' | 'medium' | 'high';
@@ -12,11 +13,53 @@ export function client(apiKey: string) {
   return new Anthropic({ apiKey, dangerouslyAllowBrowser: true });
 }
 
-export interface KiAntwort { content: Array<{ type: string; text?: string; citations?: unknown[] }>; stop_reason: string | null; usage?: unknown }
+export interface KiAntwort {
+  content: Array<{ type: string; text?: string; citations?: unknown[] }>; stop_reason: string | null; model?: string;
+  usage?: { input_tokens?: number; output_tokens?: number; cache_read_input_tokens?: number; cache_creation_input_tokens?: number };
+}
+
+/** Versionsangabe aus dem Kopf einer Prompt-Datei, z. B. „0.1“. */
+export const promptVersion = (raw: string) => /version\s+([\d.]+)/.exec(raw)?.[1] ?? '?';
+
+/**
+ * Sammelt alle Aufrufe eines Laufs für den PipelineRun (docs/ZUSAMMENFASSER.md, Abschnitt 2 und 6.6):
+ * welche Prompt-Version, welches Modell, was kam zurück, wie viele Tokens.
+ */
+export class Protokoll {
+  readonly startedAt = new Date().toISOString();
+  readonly promptVersionen: Record<string, string> = {};
+  readonly modelle: Record<string, { model: string; effort: string }> = {};
+  readonly rohantworten: Array<{ schritt: string; stop_reason: string | null; text: string }> = [];
+  readonly kosten = { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0 };
+
+  prompts(dateien: Record<string, string>) {
+    for (const [name, raw] of Object.entries(dateien)) this.promptVersionen[name] = promptVersion(raw);
+    return this;
+  }
+
+  erfasse(schritt: string, effort: string, r: KiAntwort) {
+    // derselbe Schritt kann mehrfach laufen (Reparatur, Nachforderung): Nummer anhängen
+    let name = schritt;
+    for (let i = 2; this.modelle[name]; i++) name = `${schritt} ${i}`;
+    this.modelle[name] = { model: r.model ?? MODEL, effort };
+    this.rohantworten.push({ schritt: name, stop_reason: r.stop_reason, text: textAus(r) });
+    this.kosten.inputTokens += (r.usage?.input_tokens ?? 0) + (r.usage?.cache_creation_input_tokens ?? 0);
+    this.kosten.outputTokens += r.usage?.output_tokens ?? 0;
+    this.kosten.cacheReadTokens += r.usage?.cache_read_input_tokens ?? 0;
+  }
+
+  alsRun(eingabe: PipelineRun['eingabe'], befunde: Befund[], ergebnisSummaryId?: string): PipelineRun {
+    return {
+      id: crypto.randomUUID(), startedAt: this.startedAt, eingabe, promptVersionen: { ...this.promptVersionen },
+      modelle: { ...this.modelle }, rohantworten: [...this.rohantworten], befunde, ergebnisSummaryId, kosten: { ...this.kosten },
+    };
+  }
+}
 
 /** Ein Aufruf mit Streaming. Liefert die fertige Nachricht, wirft bei Ablehnung oder Abbruch. */
 export async function rufe(apiKey: string, opts: {
   system: string; messages: KiNachricht[]; effort?: Effort; schema?: object; maxTokens?: number;
+  protokoll?: Protokoll; schritt?: string;
 }): Promise<KiAntwort> {
   const response = await client(apiKey).beta.messages.stream({
     model: MODEL,
@@ -27,6 +70,7 @@ export async function rufe(apiKey: string, opts: {
     system: opts.system,
     messages: opts.messages,
   } as unknown as Anthropic.Beta.MessageCreateParamsStreaming).finalMessage() as unknown as KiAntwort;
+  opts.protokoll?.erfasse(opts.schritt ?? 'aufruf', opts.effort ?? 'high', response);
   if (response.stop_reason === 'refusal') throw new Error('Die KI hat die Anfrage abgelehnt.');
   if (response.stop_reason === 'max_tokens') throw new Error('Die Antwort wurde abgeschnitten. Bitte weniger Material oder eine kürzere Fassung wählen.');
   return response;
@@ -42,7 +86,7 @@ export function leseJson<T>(text: string): T {
   return JSON.parse(text.slice(start, ende + 1)) as T;
 }
 
-export async function rufeJson<T>(apiKey: string, opts: { system: string; messages: KiNachricht[]; schema: object; effort?: Effort; maxTokens?: number }): Promise<T> {
+export async function rufeJson<T>(apiKey: string, opts: { system: string; messages: KiNachricht[]; schema: object; effort?: Effort; maxTokens?: number; protokoll?: Protokoll; schritt?: string }): Promise<T> {
   return leseJson<T>(textAus(await rufe(apiKey, opts)));
 }
 

@@ -194,3 +194,19 @@ describe('Speichern und Import', () => {
     expect(merkeZuletzt('a', 'a3').a).toMatchObject({ gelesen: ['a2'], zuletzt: 'a3' });
   });
 });
+
+describe('Datenbank-Version 7', () => {
+  it('legt die Tabelle skripte auch auf Geräten an, die schon Version 6 haben', async () => {
+    const name = 'skript-v6-upgrade';
+    const { default: Dexie } = await import('dexie');
+    const alt = new Dexie(name);
+    alt.version(6).stores({ pipelineRuns: 'id, startedAt, ergebnisSummaryId' });
+    await alt.table('pipelineRuns').add({ id: 'r1', startedAt: '2026-10-27T10:00:00Z' });
+    alt.close();
+    const db = new LernstoffDB(name);
+    await db.skripte.put(parseSkript('a.md', BEISPIEL, { herkunft: 'datei' }));
+    expect(await db.skripte.count()).toBe(1);
+    expect(await db.pipelineRuns.count()).toBe(1);
+    expect(db.verno).toBe(7);
+  });
+});

@@ -1,3 +1,4 @@
+import { storage } from '../../ui/lib/store';
 import { useEffect, useMemo, useState } from 'react';
 import './assessment.css';
 import { logActivity } from '../../core/activity';
@@ -18,10 +19,10 @@ const ERLEDIGT_KEY = 'lernstoff.assessment.erledigt';
 
 type Erledigt = Record<string, { datum: string; prozent: number }>;
 function ladeErledigt(): Erledigt {
-  try { return (JSON.parse(localStorage.getItem(ERLEDIGT_KEY) ?? 'null') as Erledigt) ?? {}; } catch { return {}; }
+  return storage.read<Erledigt>(ERLEDIGT_KEY, {});
 }
 function speichereErledigt(e: Erledigt) {
-  try { localStorage.setItem(ERLEDIGT_KEY, JSON.stringify(e)); } catch { /* privater Modus */ }
+  storage.write(ERLEDIGT_KEY, e);
 }
 
 const istGruppe = (g: string | null): g is Gruppe => GRUPPEN.some((x) => x.id === g);

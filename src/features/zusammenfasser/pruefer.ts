@@ -4,7 +4,7 @@
 import type { Document, SourceChunk, SummaryMode } from '../../core/types';
 import type { CatalogModule } from '../../modules/catalog-types';
 import type { PruefBefund, PruefClaim } from '../qualitaet/deterministisch';
-import { ohneKommentare, rufeJson } from './ki';
+import { ohneKommentare, rufeJson, type Protokoll } from './ki';
 import prueferPrompt from './prompts/20-pruefer.md?raw';
 
 export interface PrueferUrteil {
@@ -135,7 +135,7 @@ export function prueferSystem(modul: CatalogModule): string {
 
 export async function kiPruefung(opts: {
   apiKey: string; modul: CatalogModule; modus: SummaryMode; docs: Document[]; chunks: SourceChunk[];
-  claims: PruefClaim[]; antwortText: string;
+  claims: PruefClaim[]; antwortText: string; protokoll?: Protokoll;
   aufgaben?: Array<{ nr: string; wortlaut: string; operatoren: string[]; bestandteile: string[] }>;
 }): Promise<{ befunde: PruefBefund[]; antwort: PrueferAntwort }> {
   const titel = new Map(opts.docs.map((d) => [d.id, d.title]));
@@ -145,7 +145,7 @@ export async function kiPruefung(opts: {
   const antwort = await rufeJson<PrueferAntwort>(opts.apiKey, {
     system: prueferSystem(opts.modul),
     schema: PRUEFER_SCHEMA,
-    effort: 'high',
+    effort: 'high', protokoll: opts.protokoll, schritt: 'ki-pruefer',
     messages: [{ role: 'user', content: [...prueferDokumente(opts.docs, opts.chunks), { type: 'text', text: prueferAnweisung(opts.claims, titel, aufgaben) }] }],
   });
   return { befunde: befundeAusUrteilen(antwort, opts.claims, opts.modus), antwort };

@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from 'react';
 import type { Claim, SourceChunk, Summary, SummaryBlock } from '../../../core/types';
 import { Belegstelle } from './Belegstelle';
+import { LaufInfo } from './LaufInfo';
 
 const AMPEL = { gruen: 'Alle Aussagen belegt', gelb: 'Mit Hinweisen, bitte prüfen', rot: 'Nicht verlässlich: unbelegte, falsch zitierte oder sinnverschobene Aussagen' };
 const STATUS_TEXT: Record<string, string> = {
@@ -112,6 +113,7 @@ export function SummaryAnsicht({ summary, chunkMap, titles }: { summary: Summary
           </ul>
         </details>
       )}
+      <LaufInfo runId={summary.pipelineRunId} />
     </>
   );
 }

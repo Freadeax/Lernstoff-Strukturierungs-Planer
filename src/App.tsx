@@ -1,7 +1,8 @@
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, useEffect } from 'react';
 import { Shell } from './ui/shell/Shell';
 import { navigate, useRoute } from './ui/shell/router';
 import { REDIRECTS } from './ui/shell/nav';
+import { PageBoundary } from './ui/shell/PageBoundary';
 import { WidgetGrid } from './ui/widget/Dashboard';
 import { WIDGETS } from './widgets/registry';
 import { Dashboard } from './features/Dashboard';
@@ -43,34 +44,34 @@ function Page({ title, intro, children }: { title: string; intro?: string; child
 function View() {
   const { path } = useRoute();
   useEffect(() => { if (REDIRECTS[path]) navigate(REDIRECTS[path]!); }, [path]);
-  if (path === '/lernen/klasse' || path.startsWith('/lernen/klasse/')) return <Suspense fallback={<p className="muted">Lädt …</p>}><Klassenmodus /></Suspense>;
+  if (path === '/lernen/klasse' || path.startsWith('/lernen/klasse/')) return <Klassenmodus />;
   switch (path) {
     case '/': return <Dashboard />;
-    case '/lernen/plan': return <Suspense fallback={<p className="muted">Lädt …</p>}><Lernplan /></Suspense>;
+    case '/lernen/plan': return <Lernplan />;
     case '/lernen/themen': return <Page title="Themen" intro="Alle Themen des Fachmoduls. Arbeitsstand direkt in der Tabelle ändern oder mehrere auswählen."><WidgetGrid widgets={[WIDGETS.themen]} allowHide={false} /></Page>;
-    case '/lernen/landkarte': return <Suspense fallback={<p className="muted">Lädt …</p>}><Landkarte /></Suspense>;
+    case '/lernen/landkarte': return <Landkarte />;
     case '/lernen/board': return <Page title="Lernstand"><WidgetGrid widgets={[WIDGETS.board]} allowHide={false} /></Page>;
-    case '/lernen/skript': return <Suspense fallback={<p className="muted">Lädt …</p>}><Skript /></Suspense>;
-    case '/lernen/karten': return <Suspense fallback={<p className="muted">Lädt …</p>}><Karteikarten /></Suspense>;
-    case '/lernen/rechnen': return <Suspense fallback={<p className="muted">Lädt …</p>}><Rechentrainer /></Suspense>;
-    case '/lernen/fall': return <Suspense fallback={<p className="muted">Lädt …</p>}><Fallsimulator /></Suspense>;
-    case '/lernen/praxis': return <Suspense fallback={<p className="muted">Lädt …</p>}><Praxissimulator /></Suspense>;
-    case '/lernen/duell': return <Suspense fallback={<p className="muted">Lädt …</p>}><Duell /></Suspense>;
-    case '/lernen/simulation': return <Suspense fallback={<p className="muted">Lädt …</p>}><Simulation /></Suspense>;
-    case '/lernen/pflegeplanung': return <Suspense fallback={<p className="muted">Lädt …</p>}><Pflegeplanung /></Suspense>;
-    case '/lernen/sis': return <Suspense fallback={<p className="muted">Lädt …</p>}><SisTrainer /></Suspense>;
-    case '/lernen/bericht': return <Suspense fallback={<p className="muted">Lädt …</p>}><Berichttrainer /></Suspense>;
-    case '/lernen/mindmap': return <Suspense fallback={<p className="muted">Lädt …</p>}><Mindmaps /></Suspense>;
-    case '/lernen/assessment': return <Suspense fallback={<p className="muted">Lädt …</p>}><AssessmentTrainer /></Suspense>;
-    case '/lernen/uebergabe': return <Suspense fallback={<p className="muted">Lädt …</p>}><Uebergabetrainer /></Suspense>;
+    case '/lernen/skript': return <Skript />;
+    case '/lernen/karten': return <Karteikarten />;
+    case '/lernen/rechnen': return <Rechentrainer />;
+    case '/lernen/fall': return <Fallsimulator />;
+    case '/lernen/praxis': return <Praxissimulator />;
+    case '/lernen/duell': return <Duell />;
+    case '/lernen/simulation': return <Simulation />;
+    case '/lernen/pflegeplanung': return <Pflegeplanung />;
+    case '/lernen/sis': return <SisTrainer />;
+    case '/lernen/bericht': return <Berichttrainer />;
+    case '/lernen/mindmap': return <Mindmaps />;
+    case '/lernen/assessment': return <AssessmentTrainer />;
+    case '/lernen/uebergabe': return <Uebergabetrainer />;
     case '/lernen/faecher': return <Faecher />;
     case '/material/dokumente': return <Dokumente />;
     case '/material/import': return <Page title="Dein Material. Bereit zum Lernen." intro="In vier Schritten von der Datei zur nachvollziehbaren Lernquelle."><WidgetGrid widgets={[WIDGETS.wizard]} allowHide={false} /></Page>;
-    case '/material/ablage': return <Suspense fallback={<p className="muted">Lädt …</p>}><Ablage /></Suspense>;
+    case '/material/ablage': return <Ablage />;
     case '/material/zusammenfassen': return <Zusammenfassen />;
     case '/einstellungen': return <Einstellungen />;
-    case '/system/sicherung': return <Suspense fallback={<p className="muted">Lädt …</p>}><Datensicherung /></Suspense>;
-    case '/system/design': return <Suspense fallback={<p className="muted">Lädt …</p>}><Designsystem /></Suspense>;
+    case '/system/sicherung': return <Datensicherung />;
+    case '/system/design': return <Designsystem />;
     default:
       return (
         <Page title="Seite nicht gefunden">
@@ -82,5 +83,6 @@ function View() {
 }
 
 export function App() {
-  return <Shell><View /></Shell>;
+  const { path } = useRoute();
+  return <Shell><PageBoundary path={path}><View /></PageBoundary></Shell>;
 }

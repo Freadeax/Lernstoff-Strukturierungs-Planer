@@ -5,7 +5,7 @@ import { notify } from '../shell/notifications';
 
 // Ausgeblendete Module je Seite, dauerhaft auf dem Gerät.
 const KEY = 'lernstoff.hidden';
-const hidden = createStore<{ ids: string[] }>({ ids: storage.read<string[]>(KEY, []) }, (s) => storage.write(KEY, s.ids));
+const hidden = createStore<{ ids: string[] }>({ ids: storage.list<string>(KEY, (v) => typeof v === 'string') }, (s) => storage.write(KEY, s.ids));
 
 /** Fehler eines Moduls landen als Mitteilung, ohne andere Module zu stören. */
 export const defaultLifecycle: WidgetLifecycle = {

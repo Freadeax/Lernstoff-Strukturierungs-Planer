@@ -1,3 +1,4 @@
+import { storage } from '../../ui/lib/store';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import './pflegeplanung.css';
 import { logActivity } from '../../core/activity';
@@ -22,12 +23,8 @@ const ENTWURF_KEY = 'lernstoff.pflegeplanung.entwuerfe';
 const BESTE_KEY = 'lernstoff.pflegeplanung.beste';
 const EIGEN = 'eigen';
 
-function lese<T>(key: string, fallback: T): T {
-  try { return (JSON.parse(localStorage.getItem(key) ?? 'null') as T) ?? fallback; } catch { return fallback; }
-}
-function schreibe(key: string, wert: unknown) {
-  try { localStorage.setItem(key, JSON.stringify(wert)); } catch { /* privater Modus */ }
-}
+const lese = <T,>(key: string, fallback: T) => storage.read<T>(key, fallback);
+const schreibe = (key: string, wert: unknown) => { storage.write(key, wert); };
 const ladeEntwurf = (id: string): Entwurf | undefined => lese<Record<string, Entwurf>>(ENTWURF_KEY, {})[id];
 function speichereEntwurf(id: string, e: Entwurf | null) {
   const alle = lese<Record<string, Entwurf>>(ENTWURF_KEY, {});

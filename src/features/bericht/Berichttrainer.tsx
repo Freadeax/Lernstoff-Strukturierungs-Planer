@@ -1,3 +1,4 @@
+import { storage } from '../../ui/lib/store';
 import { useEffect, useRef, useState } from 'react';
 import './bericht.css';
 import { logActivity } from '../../core/activity';
@@ -15,12 +16,8 @@ const BESTE_KEY = 'lernstoff.bericht.beste';
 /** Ab so vielen Wörtern zählt ein Eintrag als Abfrage im Lernplan. */
 const MIN_WOERTER_LERNPLAN = 15;
 
-function lese<T>(key: string, fallback: T): T {
-  try { return (JSON.parse(localStorage.getItem(key) ?? 'null') as T) ?? fallback; } catch { return fallback; }
-}
-function schreibe(key: string, wert: unknown) {
-  try { localStorage.setItem(key, JSON.stringify(wert)); } catch { /* privater Modus */ }
-}
+const lese = <T,>(key: string, fallback: T) => storage.read<T>(key, fallback);
+const schreibe = (key: string, wert: unknown) => { storage.write(key, wert); };
 const ladeEntwurf = (id: string) => {
   const e = lese<Record<string, unknown>>(ENTWURF_KEY, {})[id];
   return typeof e === 'string' ? e : '';
