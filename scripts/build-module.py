@@ -2,6 +2,8 @@
 """Baut ein Fachmodul aus <modulordner>/katalog/*.yaml zu <modulordner>/<id>.json und prüft es.
 
 Aufruf:  python3 scripts/build-module.py src/modules/pflege
+         python3 scripts/build-module.py src/modules/pflege --pruefen   (schreibt nichts, Exit 1 wenn das
+         eingecheckte JSON nicht zu den YAML-Dateien passt)
 Abhängigkeiten: pip install pyyaml jsonschema
 Prüft:   JSON Schema, eindeutige IDs, alle Verweise, Zyklen in parentId/prerequisites.
 Exit-Code 1 bei Fehlern, damit das Skript in CI laufen kann.
@@ -14,7 +16,9 @@ import yaml
 from jsonschema import Draft202012Validator
 
 REPO = Path(__file__).resolve().parent.parent
-ROOT = Path(sys.argv[1]) if len(sys.argv) > 1 else REPO / "src" / "modules" / "pflege"
+ARGS = [a for a in sys.argv[1:] if not a.startswith("--")]
+PRUEFEN = "--pruefen" in sys.argv[1:]
+ROOT = (Path(ARGS[0]) if ARGS else REPO / "src" / "modules" / "pflege").resolve()
 SCHEMA = REPO / "src" / "modules" / "schema" / "domain-module.schema.json"
 LISTS = ["subjects", "topics", "glossary", "taskFormats", "checkRules",
          "frameworks", "references", "operators", "examFormats", "drugProfiles", "diseaseProfiles"]
@@ -165,7 +169,14 @@ def main():
         sys.exit(1)
 
     out = ROOT / f"{module['id']}.json"
-    out.write_text(json.dumps(module, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    text = json.dumps(module, ensure_ascii=False, indent=2) + "\n"
+    if PRUEFEN:
+        if not out.exists() or out.read_text(encoding="utf-8") != text:
+            print(f"{out.relative_to(REPO)} passt nicht zu katalog/*.yaml – bitte neu bauen und einchecken.")
+            sys.exit(1)
+        print(f"OK: {out.relative_to(REPO)} passt zu den YAML-Dateien.")
+        return
+    out.write_text(text, encoding="utf-8")
     minutes = sum(t.get("estimatedMinutes", 0) for t in module["topics"])
     print(f"OK: {out.relative_to(REPO)}")
     for key in LISTS:

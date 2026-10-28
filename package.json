@@ -15,7 +15,11 @@
     "typecheck": "tsc -b --noEmit",
     "test:material": "node scripts/check-material.mjs",
     "test:wissen": "node scripts/check-wissensstand.mjs",
-    "test:praxis": "node scripts/check-praxis.mjs"
+    "test:praxis": "node scripts/check-praxis.mjs",
+    "check": "node scripts/check-alle.mjs",
+    "check:schnell": "node scripts/check-alle.mjs --schnell",
+    "check:bundle": "node scripts/check-bundle.mjs",
+    "check:katalog": "python3 scripts/build-module.py src/modules/pflege --pruefen"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.2.0",
