@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { pflegeModule } from '../../modules/pflege';
 import { fallThemen, SZENARIEN, szenarioAusThema } from './faelle';
 import {
-  ABSCHLUSS_SCHEMA, fallTreffer, nachrichten, neuerFall, news2, parseAbschluss, parseZug, SCHRITT_THEMA, SCHRITTE, START_TEXT, systemPrompt, ZUG_SCHEMA,
+  ABSCHLUSS_SCHEMA, fallTreffer, nachrichten, neuerFall, news2, news2Verlauf, parseAbschluss, parseZug, SCHRITT_THEMA, SCHRITTE, START_TEXT, systemPrompt, ZUG_SCHEMA,
   type Vitalwerte, type Zug,
 } from './simulator';
 
@@ -141,3 +141,18 @@ describe('NEWS2', () => {
     expect(news2(v({ rr: '220/100' }))!.punkte).toBe(3);
   });
 });
+
+describe('NEWS2-Verlauf', () => {
+  it('listet nur Züge mit vollständigen Werten', () => {
+    const f = neuerFall(SZENARIEN.find((s) => s.id === 'sepsis')!, 2);
+    const voll = { rr: '104/60', puls: '108', af: '23', spo2: '94', sauerstoff: 'nein', temp: '38,7', bz: '', schmerz: '3', bewusstsein: 'C' };
+    const zug = (vitalwerte: typeof voll, uhrzeit: string) => ({ uhrzeit, situation: 'x', vitalwerte, zustand: 'stabil' as const, schritt: 'informationssammlung' as const, rueckmeldung: { wertung: 'keine' as const, text: '' }, optionen: [], beendet: false });
+    f.runden.push({ zug: zug({ ...voll, rr: '' }, '06:00') }, { eingabe: 'messen', zug: zug(voll, '06:05') }, { eingabe: 'warten', zug: zug({ ...voll, rr: '88/50' }, '06:20') });
+    expect(news2Verlauf(f).map((p) => [p.uhrzeit, p.punkte])).toEqual([['06:05', 9], ['06:20', 11]]);
+  });
+  it('fordert lebendige Ereignisse und verzögerte Folgen im Prompt', () => {
+    const p = systemPrompt(SZENARIEN[0]!, 2, pflegeModule);
+    expect(p).toContain('Folgen wirken nach'); expect(p).toContain('Die Station lebt'); expect(p).toContain('SBAR');
+  });
+});
+

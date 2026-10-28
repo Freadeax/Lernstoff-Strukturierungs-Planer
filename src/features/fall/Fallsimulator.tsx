@@ -11,7 +11,7 @@ import {
   type Setting, type Stufe, type Szenario,
 } from './faelle';
 import {
-  archiviere, fallTreffer, ladeAktuell, ladeArchiv, neuerFall, news2, NOTE_LABEL, SCHRITT_BEWERTUNG_LABEL, SCHRITT_LABEL, SCHRITTE,
+  archiviere, fallTreffer, ladeAktuell, ladeArchiv, neuerFall, news2, news2Verlauf, NOTE_LABEL, SCHRITT_BEWERTUNG_LABEL, SCHRITT_LABEL, SCHRITTE,
   speichereAktuell, spieleZug, werteAus, WERTUNG_LABEL, ZUSTAND_LABEL,
   type Fall, type Vitalwerte, type Wertung,
 } from './simulator';
@@ -132,6 +132,7 @@ function Kurve({ fall }: { fall: Fall }) {
   const letzter = fall.runden.at(-1)?.zug;
   const v = letzter?.vitalwerte;
   const score = v ? news2(v) : null;
+  const verlauf = news2Verlauf(fall);
   const bearbeitet = new Set(fall.runden.filter((r) => r.eingabe !== undefined).map((r) => r.zug.schritt));
   return (
     <aside className="card fall__kurve" aria-label="Patientenkurve">
@@ -151,6 +152,14 @@ function Kurve({ fall }: { fall: Fall }) {
       {score && (score.fehlt.length
         ? <p className="muted fall__news">NEWS2: es fehlen {score.fehlt.join(', ')}.</p>
         : <p className={`fall__news fall__news--${score.risiko}`}>NEWS2: <strong>{score.punkte}</strong> Punkte, Risiko {score.risiko}</p>)}
+      {verlauf.length > 1 && (
+        <div className="fall__trend">
+          <span>NEWS2-Verlauf</span>
+          <ol aria-label="NEWS2 je Zug">
+            {verlauf.map((p) => <li key={p.runde} className={`fall__news--${p.risiko}`} style={{ height: `${Math.max(12, Math.min(100, p.punkte / 12 * 100))}%` }} title={`${p.uhrzeit} Uhr: ${p.punkte}`}><span className="fall__sr">{p.uhrzeit} Uhr: </span>{p.punkte}</li>)}
+          </ol>
+        </div>
+      )}
 
       <h3 className="fall__prozess-titel">Pflegeprozess</h3>
       <ol className="fall__prozess">

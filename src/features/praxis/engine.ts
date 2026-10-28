@@ -1,4 +1,5 @@
-import type { Command, Event, Session, Scenario, Vitals, Vital } from './types';
+import { STORY_KINDS, type Avpu, type Command, type Event, type Session, type Scenario, type Vitals, type Vital } from './types';
+import { AVPU, news2Punkte, NEWS2_QUELLE } from './news2';
 import { correctVolume, decimalEqual } from './quantity';
 
 export const SOURCES = {
@@ -6,6 +7,7 @@ export const SOURCES = {
   sbar: { title: 'AHRQ · TeamSTEPPS', url: 'https://www.ahrq.gov/teamstepps-program/resources/modules/index.html' },
   drug: { title: 'Furosemid · Fachinformation (emc)', url: 'https://www.medicines.org.uk/emc/product/14419/smpc' },
   scenario: { title: 'Didaktische Szenarioregel · kein Leitlinienstandard', url: '' },
+  news2: NEWS2_QUELLE,
 };
 const BOUNDS: Record<Vital, [number, number]> = { pulse: [30, 180], sys: [60, 220], dia: [30, 130], spo2: [70, 100], resp: [6, 45], temp: [34, 41], glucose: [30, 500], pain: [0, 10] };
 const effect = (v: Vitals, delta: Partial<Vitals>, factor = 1): Vitals => Object.fromEntries(Object.entries(v).map(([k, n]) => {
@@ -23,9 +25,52 @@ export function start(scenario: Scenario, level: 1 | 2 | 3 = 1, seed = 2026): Se
     deterioration: 0, critical: false, snapshotRemainder: 0,
     seed: seed >>> 0, rng: seed >>> 0, commands: [],
     events: [{ id: 1, at: 0, kind: 'state', title: 'Übernahme', detail: scenario.situation }],
+    avpu: scenario.initialAvpu ?? 'A', oxygen: scenario.initialOxygen ?? false, chart: [], story: {}, drifts: [], harms: [],
   };
 }
-function observe(s: Session) { s.measured = { ...s.vitals }; s.measuredAt = s.time; }
+/** Ältere Spielstände ohne klinische Felder bekommen neutrale Startwerte. */
+function clinical(s: Session) {
+  s.avpu ??= s.scenario.initialAvpu ?? 'A'; s.oxygen ??= s.scenario.initialOxygen ?? false; s.chart ??= []; s.story ??= {}; s.drifts ??= []; s.harms ??= [];
+  return s as Session & Required<Pick<Session, 'avpu' | 'oxygen' | 'chart' | 'story' | 'drifts' | 'harms'>>;
+}
+const worse = (a: Avpu, b: Avpu) => AVPU.indexOf(a) >= AVPU.indexOf(b) ? a : b;
+/** Bewusstseinslage aus Fallverlauf und Physiologie: schwere Hypoxie, Schock oder Hypoglykämie trüben ein. */
+export function consciousness(s: Session): Avpu {
+  const v = s.vitals;
+  const physiological: Avpu = v.spo2 < 80 || v.sys < 70 || v.glucose < 35 ? 'P' : v.spo2 < 85 || v.sys < 80 || v.glucose < 45 ? 'V' : 'A';
+  return worse(s.avpu ?? 'A', physiological);
+}
+export const storyTime = (at: number, level: 1 | 2 | 3) => Math.round(at * [1, 1.5, 1, 0.75][level]);
+const round = (v: Vitals): Vitals => Object.fromEntries(Object.entries(v).map(([k, n]) => [k, k === 'temp' ? Math.round(n * 10) / 10 : Math.round(n)])) as Vitals;
+function chart(s: Session) {
+  const c = clinical(s);
+  c.chart.push({ at: s.time, vitals: round(s.vitals), avpu: consciousness(s), oxygen: c.oxygen });
+  if (c.chart.length > 300) c.chart.splice(0, c.chart.length - 300);
+}
+function observe(s: Session, record = true) { s.measured = { ...s.vitals }; s.measuredAt = s.time; if (record) chart(s); }
+export function news2Of(p: { vitals: Vitals; avpu: Avpu; oxygen: boolean }) {
+  return news2Punkte({ af: p.vitals.resp, spo2: p.vitals.spo2, sauerstoff: p.oxygen, sys: p.vitals.sys, puls: p.vitals.pulse, avpu: p.avpu, temp: p.vitals.temp });
+}
+function story(s: Session) {
+  const c = clinical(s);
+  for (const e of s.scenario.storyline ?? []) {
+    if (c.story[e.id]) continue;
+    // Mit `when` zählt `at` ab dem auslösenden Flag, sonst ab Fallbeginn.
+    if (e.when !== undefined && s.flags[e.when] === undefined) continue;
+    if (s.time < (e.when !== undefined ? s.flags[e.when] : 0) + storyTime(e.at, s.level)) continue;
+    if (e.unless?.some(f => s.flags[f] !== undefined)) { c.story[e.id] = 'prevented'; continue; }
+    c.story[e.id] = 'fired';
+    if (e.effect) s.vitals = effect(s.vitals, e.effect);
+    if (e.avpu) c.avpu = e.avpu;
+    if (e.flag) s.flags[e.flag] ??= s.time;
+    if (e.drift && e.stoppedBy?.length) c.drifts.push({ id: e.id, drift: e.drift, stoppedBy: e.stoppedBy });
+    add(s, 'story', `${STORY_KINDS[e.kind]}: ${e.title}`, e.detail);
+  }
+  for (const d of [...c.drifts]) {
+    if (d.stoppedBy.some(f => s.flags[f] !== undefined)) { c.drifts.splice(c.drifts.indexOf(d), 1); continue; }
+    s.vitals = effect(s.vitals, d.drift, 1 / 60);
+  }
+}
 
 // A fixed one-second step makes the result independent of timer/UI batching.
 function advance(s: Session, seconds: number) {
@@ -39,6 +84,7 @@ function advance(s: Session, seconds: number) {
     const factor = supported ? 0 : [0, 0.6, 1, 1.4][s.level];
     s.vitals = effect(s.vitals, s.scenario.drift, factor / 60);
     s.deterioration += factor / 60;
+    story(s);
     const ready = s.pending.filter(p => p.due <= s.time);
     s.pending = s.pending.filter(p => p.due > s.time);
     for (const p of ready) {
@@ -54,12 +100,12 @@ function advance(s: Session, seconds: number) {
       if (p.flag) s.flags[p.flag] = s.time;
       add(s, 'result', p.title, p.result);
     }
-    const critical = s.vitals.spo2 < 85 || s.vitals.sys < 80 || s.vitals.pulse > 150 || s.vitals.glucose < 40;
+    const critical = s.vitals.spo2 < 85 || s.vitals.sys < 80 || s.vitals.pulse > 150 || s.vitals.glucose < 40 || ['P', 'U'].includes(consciousness(s));
     if (critical && !s.critical) add(s, 'warning', 'Kritische Veränderung', 'Erneut beurteilen und frühzeitig Unterstützung organisieren.');
     s.critical = critical;
-    if (s.monitoring) observe(s);
+    if (s.monitoring) observe(s, false);
     // Keep a bounded visible timeline instead of recording every render or timer tick.
-    if (++s.snapshotRemainder >= 60) { s.snapshotRemainder = 0; if (s.monitoring) add(s, 'state', 'Monitorverlauf', `Puls ${Math.round(s.vitals.pulse)}/min · SpO₂ ${Math.round(s.vitals.spo2)} % · AF ${Math.round(s.vitals.resp)}/min`); }
+    if (++s.snapshotRemainder >= 60) { s.snapshotRemainder = 0; if (s.monitoring) chart(s); if (s.monitoring) add(s, 'state', 'Monitorverlauf', `Puls ${Math.round(s.vitals.pulse)}/min · SpO₂ ${Math.round(s.vitals.spo2)} % · AF ${Math.round(s.vitals.resp)}/min`); }
   }
 }
 export const CHECKS = ['Patient identifiziert', 'Wirkstoff und Allergien geprüft', 'Dosis und Konzentration geprüft', 'Applikationsweg geprüft', 'Zeitpunkt und Anordnung geprüft', 'Dokumentation vorbereitet', 'Aufklärung und Einwilligung geklärt', 'Wirkungskontrolle geplant'];
@@ -67,7 +113,7 @@ export const CHECKS = ['Patient identifiziert', 'Wirkstoff und Allergien geprüf
 /** Sole command boundary. Engine and data have no React, network or storage dependencies. */
 function execute(previous: Session, command: Command): Session {
   if (previous.phase !== 'active') return previous;
-  const s = structuredClone(previous);
+  const s = clinical(structuredClone(previous));
   if (command.type === 'advance') { advance(s, Number.isFinite(command.seconds) ? command.seconds : 0); return s; }
   if (command.type === 'finish') { s.phase = 'finished'; add(s, 'state', 'Debriefing begonnen'); return s; }
   if (command.type === 'note') {
@@ -85,8 +131,13 @@ function execute(previous: Session, command: Command): Session {
     if (action.requires && s.flags[action.requires] === undefined) { add(s, 'warning', 'Freigabe fehlt', 'Zuerst ärztliche Anordnung bzw. angezeigte Voraussetzung einholen.'); return s; }
     advance(s, action.seconds);
     if (!s.done.includes(action.id)) s.done.push(action.id);
-    add(s, 'action', action.label, action.delay ? `Ergebnis in ${action.delay / 60} Simulationsminuten.` : action.result);
-    if (action.delay) s.pending.push({ id: action.id, title: action.label, result: action.result, due: s.time + action.delay, effect: action.effect, flag: action.flag, sample: { ...s.vitals }, requestedBy: s.events.at(-1)?.id });
+    // Eine vorab strukturierte SBAR-Übergabe verkürzt im Modell die Zeit bis zur ärztlichen Entscheidung.
+    const delay = action.id === 'orders' && action.delay && s.flags.sbar !== undefined ? Math.ceil(action.delay / 2) : action.delay;
+    add(s, 'action', action.label, delay ? `Ergebnis in ${Math.ceil(delay / 60)} Simulationsminuten.${delay !== action.delay ? ' Deine SBAR-Übergabe liegt bereits vor; die Rückmeldung kommt schneller.' : ''}` : action.result);
+    if (action.harm) { s.harms.push({ at: s.time, id: action.id, text: action.harm }); add(s, 'warning', `Folge: ${action.label}`, action.harm); }
+    if (action.avpu) s.avpu = action.avpu;
+    if (action.oxygen !== undefined) s.oxygen = action.oxygen;
+    if (delay) s.pending.push({ id: action.id, title: action.label, result: action.result, due: s.time + delay, effect: action.effect, flag: action.flag, sample: { ...s.vitals }, requestedBy: s.events.at(-1)?.id });
     else { s.vitals = effect(s.vitals, action.effect ?? {}); if (action.flag) { if (action.repeatable || s.flags[action.flag] === undefined) s.flags[action.flag] = s.time; } }
     if (action.id === 'vitals' || action.id === 'reassess') observe(s);
     if (action.id === 'reassess' && s.flags.medication_effect !== undefined) s.flags.medication_reviewed = s.time;
@@ -135,4 +186,34 @@ export function replay(session: Session): Session {
 }
 export function debrief(s: Session) {
   return s.scenario.criteria.map(c => ({ ...c, at: s.flags[c.flag], met: s.flags[c.flag] !== undefined && (c.before === undefined || s.flags[c.flag] <= c.before) && (c.after === undefined || s.flags[c.after] !== undefined && s.flags[c.flag] >= s.flags[c.after]), late: s.flags[c.flag] !== undefined && c.before !== undefined && s.flags[c.flag] > c.before }));
+}
+
+/** Klinische Auswertung: Verlauf, verhinderte Komplikationen, Fehlhandlungen und Eskalationszeit. */
+export function clinicalDebrief(s: Session) {
+  const c = clinical(structuredClone(s));
+  const events = s.scenario.storyline ?? [];
+  const fired = events.filter(e => c.story[e.id] === 'fired');
+  const complications = fired.filter(e => e.kind === 'komplikation');
+  const prevented = events.filter(e => c.story[e.id] === 'prevented' && e.kind === 'komplikation');
+  const scores = c.chart.map(p => ({ at: p.at, ...news2Of(p) }));
+  const alarm = scores.find(p => p.punkte >= 5 || p.teil.includes(3));
+  // Notruf (z. B. 112 im Heim) zählt ebenso als Eskalation wie das Hinzuziehen des Teams.
+  const help = [s.flags.help, s.flags.ems].filter((t): t is number => t !== undefined).sort((a, b) => a - b)[0];
+  const escalation = !alarm ? 'kein Auslöser gemessen' as const
+    : help === undefined ? 'nicht eskaliert' as const
+    : help <= alarm.at ? 'vorausschauend' as const
+    : help - alarm.at <= 600 ? 'zeitnah' as const : 'verspätet' as const;
+  // Instabil: kritische Werte, laufende Komplikation, oder ungebremster Grundverlauf.
+  const supported = s.scenario.stabilizers.some(f => s.flags[f] !== undefined);
+  const drifting = !supported && Object.values(s.scenario.drift).some(n => n !== 0);
+  const now = news2Of({ vitals: s.vitals, avpu: consciousness(s), oxygen: c.oxygen }).punkte;
+  const unresolved = complications.filter(e => e.resolvedBy?.length && !e.resolvedBy.some(f => s.flags[f] !== undefined));
+  const unstable = s.critical || c.drifts.length > 0 || unresolved.length > 0 || drifting || ['P', 'U'].includes(consciousness(s));
+  return {
+    complications, prevented, harms: c.harms, scores, alarm, escalation,
+    escalationMinutes: alarm && help !== undefined && help > alarm.at ? Math.ceil((help - alarm.at) / 60) : 0,
+    maxNews2: scores.reduce((m, p) => Math.max(m, p.punkte), 0),
+    final: { unstable, avpu: consciousness(s), news2: now, text: unstable ? s.scenario.outcome?.unstable ?? 'Bei Fallabschluss ist die Lage nicht stabil. Wer übernimmt jetzt, und was wurde übergeben?' : s.scenario.outcome?.stable ?? 'Bei Fallabschluss ist die Lage im Modell stabil.' },
+    activeComplications: [...c.drifts.map(d => events.find(e => e.id === d.id)?.title ?? d.id), ...unresolved.map(e => e.title)],
+  };
 }
