@@ -1,10 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { db } from '../../../core/db';
 import type { ID, SourceChunk, Summary } from '../../../core/types';
 import { notify } from '../../../ui/shell/notifications';
 import { navigate } from '../../../ui/shell/router';
 import { formatDay } from '../../../ui/lib/time';
-import { modulKarten, vorschlaege } from '../erzeugen';
+import { luecken, lueckenOhneMarken, modulKarten, vorschlaege } from '../erzeugen';
 import { abruf, istGefestigt, prognose, trefferquote } from '../planung';
 import { loescheKarte, setzeAus, speichereConfig, speichereKarte, uebernehme } from '../store';
 import { QUELLE_LABEL, type Karte, type KartenConfig, type Richtung } from '../typen';
@@ -177,26 +177,65 @@ export function Stapel({ ctx }: { ctx: KartenCtx }) {
 // ---------------------------------------------------------------- Eigene Karten
 
 function KartenForm({ ctx, karte, onDone }: { ctx: KartenCtx; karte?: Karte; onDone: () => void }) {
+  const [art, setArt] = useState<'frage' | 'luecken'>(karte?.luecken ? 'luecken' : 'frage');
   const [vorne, setVorne] = useState(karte?.vorne ?? '');
   const [hinten, setHinten] = useState(karte?.hinten ?? karte?.liste?.join('\n') ?? '');
   const [thema, setThema] = useState(karte?.topicIds[0] ?? '');
-  const ok = vorne.trim() && hinten.trim();
+  const textRef = useRef<HTMLTextAreaElement>(null);
+  const anzahl = art === 'luecken' ? luecken(vorne).length : 0;
+  const ok = art === 'luecken' ? anzahl > 0 : !!(vorne.trim() && hinten.trim());
   function speichern(e: React.FormEvent) {
     e.preventDefault();
     if (!ok) return;
     const topicIds = thema ? [thema] : [];
-    const liste = karte?.liste && !karte.hinten ? hinten.split('\n').map((x) => x.trim()).filter(Boolean) : undefined;
+    const liste = art === 'frage' && karte?.liste && !karte.hinten ? hinten.split('\n').map((x) => x.trim()).filter(Boolean) : undefined;
+    const inhalt: Partial<Karte> = art === 'luecken'
+      ? { vorne: vorne.trim(), hinten: '', liste: undefined, luecken: true, art: 'Lückentext' }
+      : { vorne: vorne.trim(), hinten: liste ? '' : hinten.trim(), liste, luecken: undefined, art: karte?.art === 'Lückentext' ? 'Eigene Karte' : (karte?.art ?? 'Eigene Karte') };
     const k: Karte = karte
-      ? { ...karte, vorne: vorne.trim(), hinten: liste ? '' : hinten.trim(), liste, topicIds, subjectIds: fachVon(topicIds) }
-      : { id: `eigen:${crypto.randomUUID()}`, quelle: 'eigen', art: 'Eigene Karte', vorne: vorne.trim(), hinten: hinten.trim(), topicIds, subjectIds: fachVon(topicIds) };
-    void sicher(() => speichereKarte(k), karte ? 'Karte geändert' : 'Karte angelegt', ctx).then(() => {
+      ? { ...karte, ...inhalt, topicIds, subjectIds: fachVon(topicIds) }
+      : { id: `eigen:${crypto.randomUUID()}`, quelle: 'eigen', art: 'Eigene Karte', vorne: '', hinten: '', ...inhalt, topicIds, subjectIds: fachVon(topicIds) };
+    void sicher(() => speichereKarte(k), karte ? 'Karte geändert' : (art === 'luecken' ? `Lückentext mit ${anzahl} ${anzahl === 1 ? 'Lücke' : 'Lücken'} angelegt` : 'Karte angelegt'), ctx).then(() => {
       if (karte) onDone(); else { setVorne(''); setHinten(''); }
     });
   }
+  /** Markierten Text zur Lücke machen: auf dem iPhone sind eckige Klammern mühsam zu tippen. */
+  function markiere() {
+    const el = textRef.current;
+    if (!el) return;
+    const { selectionStart: a, selectionEnd: b } = el;
+    const wahl = vorne.slice(a, b).trim();
+    if (!wahl) return;
+    const neu = `${vorne.slice(0, a)}[[${wahl}]]${vorne.slice(b)}`;
+    setVorne(neu);
+    requestAnimationFrame(() => { el.focus(); const p = a + wahl.length + 4; el.setSelectionRange(p, p); });
+  }
   return (
     <form className="karten__form" onSubmit={speichern}>
-      <label className="field">Vorderseite (Frage)<textarea rows={2} value={vorne} onChange={(e) => setVorne(e.target.value)} placeholder="z. B. Nenne vier Dekubitus-Prädilektionsstellen in Rückenlage." /></label>
-      <label className="field">Rückseite (Antwort)<textarea rows={3} value={hinten} onChange={(e) => setHinten(e.target.value)} placeholder="z. B. Hinterkopf, Schulterblätter, Kreuzbein, Fersen" /></label>
+      {!karte?.ref && (
+        <div className="pills" role="group" aria-label="Kartenart">
+          <button type="button" className="pill" aria-pressed={art === 'frage'} onClick={() => setArt('frage')}>Frage und Antwort</button>
+          <button type="button" className="pill" aria-pressed={art === 'luecken'} onClick={() => setArt('luecken')}>Lückentext</button>
+        </div>
+      )}
+      {art === 'frage' ? (
+        <>
+          <label className="field">Vorderseite (Frage)<textarea rows={2} value={vorne} onChange={(e) => setVorne(e.target.value)} placeholder="z. B. Nenne vier Dekubitus-Prädilektionsstellen in Rückenlage." /></label>
+          <label className="field">Rückseite (Antwort)<textarea rows={3} value={hinten} onChange={(e) => setHinten(e.target.value)} placeholder="z. B. Hinterkopf, Schulterblätter, Kreuzbein, Fersen" /></label>
+        </>
+      ) : (
+        <>
+          <label className="field">Text mit Lücken
+            <textarea ref={textRef} rows={4} value={vorne} onChange={(e) => setVorne(e.target.value)}
+              placeholder="z. B. Beim [[Fingertest]] drückt man auf eine Rötung. Bleibt sie bestehen, liegt ein Dekubitus [[Kategorie 1]] vor." />
+          </label>
+          <div className="row">
+            <button type="button" className="small" onMouseDown={(e) => e.preventDefault()} onClick={markiere}>Markierung zur Lücke machen</button>
+            <span className="muted">{anzahl ? `${anzahl} ${anzahl === 1 ? 'Lücke' : 'Lücken'}, je Lücke eine Karte` : 'Wort markieren und tippen, oder [[Wort]] schreiben. Weitere richtige Antworten mit |, z. B. [[Dekubitus|Druckgeschwür]].'}</span>
+          </div>
+          {anzahl > 0 && <p className="muted karten__vorschau-text">{lueckenOhneMarken(vorne)}</p>}
+        </>
+      )}
       <label className="field">Thema (für den Lernplan)
         <select value={thema} onChange={(e) => setThema(e.target.value)}>
           <option value="">ohne Thema</option>
@@ -207,7 +246,7 @@ function KartenForm({ ctx, karte, onDone }: { ctx: KartenCtx; karte?: Karte; onD
         </select>
       </label>
       <div className="row">
-        <button type="submit" className="primary small" disabled={!ok}>{karte ? 'Speichern' : 'Karte anlegen'}</button>
+        <button type="submit" className="primary small" disabled={!ok}>{karte ? 'Speichern' : (art === 'luecken' ? 'Lückentext anlegen' : 'Karte anlegen')}</button>
         {karte && <button type="button" className="small ghost" onClick={onDone}>Abbrechen</button>}
       </div>
     </form>
@@ -238,8 +277,8 @@ export function Eigene({ ctx }: { ctx: KartenCtx }) {
             <li key={k.id}>
               {bearbeite === k.id ? <KartenForm ctx={ctx} karte={k} onDone={() => setBearbeite(null)} /> : (
                 <>
-                  <div className="karte__vorne-klein">{k.vorne}</div>
-                  <div className="muted">{QUELLE_LABEL[k.quelle]}{k.topicIds[0] ? ` · ${alleThemen.get(k.topicIds[0])?.name ?? ''}` : ''}{ctx.daten.staende.get(k.id)?.reps ? ` · nächste Abfrage ${formatDay(ctx.daten.staende.get(k.id)!.due)}` : ' · neu'}</div>
+                  <div className="karte__vorne-klein">{k.luecken ? lueckenOhneMarken(k.vorne) : k.vorne}</div>
+                  <div className="muted">{k.luecken ? `Lückentext · ${luecken(k.vorne).length} Lücken` : QUELLE_LABEL[k.quelle]}{k.topicIds[0] ? ` · ${alleThemen.get(k.topicIds[0])?.name ?? ''}` : ''}{ctx.daten.staende.get(k.id)?.reps ? ` · nächste Abfrage ${formatDay(ctx.daten.staende.get(k.id)!.due)}` : ' · neu'}</div>
                   <div className="row">
                     <button type="button" className="small" onClick={() => setBearbeite(k.id)}>Bearbeiten</button>
                     <button type="button" className="small ghost" onClick={() => { if (confirm('Karte und ihren Lernstand löschen?')) void sicher(() => loescheKarte(k.id), 'Karte gelöscht', ctx); }}>Löschen</button>
@@ -326,7 +365,7 @@ export function Statistik({ ctx }: { ctx: KartenCtx }) {
               const k = nachId.get(s.cardId)!;
               return (
                 <li key={s.cardId}>
-                  <div className="karte__vorne-klein">{k.vorne}</div>
+                  <div className="karte__vorne-klein">{k.luecken ? lueckenOhneMarken(k.vorne) : k.vorne}</div>
                   <div className="muted">{s.lapses}× vergessen · nächste Abfrage {formatDay(s.due)}</div>
                   <details><summary className="muted">Rückseite</summary><Rueckseite karte={k} titles={ctx.titles} /></details>
                 </li>

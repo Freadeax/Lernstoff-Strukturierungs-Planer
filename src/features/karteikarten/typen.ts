@@ -27,7 +27,7 @@ export interface Karte {
    * Stabile ID, damit der Lernstand beim Neuaufbau aus dem Katalog erhalten bleibt:
    * gl:<glossarId>, glr:<glossarId> (rückwärts), gla:<glossarId> (Abkürzung),
    * kat:<referenz-, format- oder operatorId>, arz:<steckbriefId>:<teil>, kh:<krankheitsbildId>:<abschnitt>, sum:<summaryId>:<blockId>[:teil], def:<summaryId>:<claimId>,
-   * pf:<fragensatzId>:<frageId>, eigen:<uuid>.
+   * pf:<fragensatzId>:<frageId>, eigen:<uuid>, eigen:<uuid>:l<n> (je Lücke eines Lückentexts).
    */
   id: ID;
   quelle: KartenQuelle;
@@ -47,6 +47,11 @@ export interface Karte {
   quellen?: KartenLink[];
   /** Katalogangabe noch nicht gegen Lehrbuch oder Fachinformation geprüft. */
   ungeprueft?: boolean;
+  /**
+   * Lückentext: `vorne` enthält Lücken in doppelten eckigen Klammern, z. B. „Der [[Fingertest]] prüft …“.
+   * Gespeichert wird eine Karte, abgefragt wird je Lücke eine eigene (ID <karte>:l<n>, siehe lueckenKarten).
+   */
+  luecken?: boolean;
   /** Fundstelle im Unterrichtsmaterial als Text, z. B. „LEB 5/I, S. 4–6“ (Krankheitsbilder). */
   belegText?: string;
   /** Woraus die Karte entstanden ist (Summary-ID, Glossar-ID …). */

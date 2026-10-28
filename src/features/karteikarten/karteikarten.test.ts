@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import type { Summary } from '../../core/types';
 import { pflegeModule } from '../../modules/pflege';
 import { ratingFromScore } from '../lernplan/fsrs';
-import { ausFragenSatz, ausGlossar, ausKatalog, ausKrankheitsbildern, ausSteckbriefen, ausZusammenfassung, definitionsBegriff, modulKarten, pruefeEingabe, wirkstoffAntworten } from './erzeugen';
+import { ausFragenSatz, ausGlossar, ausKatalog, ausKrankheitsbildern, ausSteckbriefen, ausZusammenfassung, definitionsBegriff, luecken, lueckenKarten, lueckenOhneMarken, modulKarten, pruefeEingabe, wirkstoffAntworten } from './erzeugen';
 import {
   bewerte, einstreuen, ergebnisseJeThema, prognose, stelleSitzungZusammen, vorschau, wiedereinreihen,
 } from './planung';
@@ -305,5 +305,36 @@ describe('Sitzung über das Menü verlassen', () => {
     expect(logs).toHaveLength(vorher + 1);
     expect(logs.at(-1)).toMatchObject({ source: 'karteikarten', date: '2026-10-23' });
     expect(await schliesseOffeneSitzungAb(topics)).toBeNull();
+  });
+});
+
+describe('Lückentext-Karten', () => {
+  const basis: Karte = {
+    id: 'eigen:abc', quelle: 'eigen', art: 'Lückentext', hinten: '', luecken: true, topicIds: [], subjectIds: [],
+    vorne: 'Beim [[Fingertest]] bleibt die Rötung bei einem [[Dekubitus|Druckgeschwür]] der Kategorie [[1]] bestehen.',
+  };
+
+  it('liest Lücken und Alternativen', () => {
+    expect(luecken(basis.vorne)).toEqual([
+      { antwort: 'Fingertest', alternativen: [] },
+      { antwort: 'Dekubitus', alternativen: ['Druckgeschwür'] },
+      { antwort: '1', alternativen: [] },
+    ]);
+    expect(lueckenOhneMarken(basis.vorne)).toBe('Beim Fingertest bleibt die Rötung bei einem Dekubitus der Kategorie 1 bestehen.');
+    expect(luecken('ohne Lücke, [[ ]] leer')).toEqual([]);
+  });
+
+  it('macht je Lücke eine Eingabekarte, die anderen bleiben ausgefüllt', () => {
+    const ks = lueckenKarten(basis);
+    expect(ks.map((k) => k.id)).toEqual(['eigen:abc:l1', 'eigen:abc:l2', 'eigen:abc:l3']);
+    expect(ks[1]!.vorne).toBe('Beim Fingertest bleibt die Rötung bei einem [ … ] der Kategorie 1 bestehen.');
+    expect(ks.every((k) => k.eingabe && !k.luecken && k.ref === 'eigen:abc')).toBe(true);
+    expect(pruefeEingabe('druckgeschwür', ks[1]!)).toBe('richtig');
+    expect(pruefeEingabe('Fingertest', ks[0]!)).toBe('richtig');
+  });
+
+  it('lässt normale Karten unverändert', () => {
+    const k: Karte = { ...basis, luecken: undefined, vorne: 'Frage [[x]]', hinten: 'Antwort' };
+    expect(lueckenKarten(k)).toEqual([k]);
   });
 });
