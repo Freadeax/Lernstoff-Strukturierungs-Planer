@@ -20,7 +20,7 @@ import { FAELLE as KRANKHEITSFAELLE } from '../krankheitsbilder/faelle';
 import { faelleZuThema } from '../krankheitsbilder/bewertung';
 import { heute, leafTopics, logReview, TRAINER_NAME } from './store';
 
-export type TrainerId = 'rechnen' | 'duell' | 'fall' | 'uebergabe' | 'pflegeplanung' | 'sis' | 'mindmap' | 'bericht' | 'assessment' | 'krankheitsbilder';
+export type TrainerId = 'rechnen' | 'duell' | 'fall' | 'uebergabe' | 'pflegeplanung' | 'sis' | 'mindmap' | 'bericht' | 'assessment' | 'krankheitsbilder' | 'selbsttest';
 
 export const TRAINER_LABEL = TRAINER_NAME as Record<TrainerId, string>;
 
