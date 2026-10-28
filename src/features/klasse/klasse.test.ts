@@ -125,7 +125,14 @@ describe('Checkliste', () => {
       const f = v.baue();
       expect(f.aufgaben.every((a) => a.frage.includes('\nA) ') && /^Richtig: [A-J]/.test(a.erwartung ?? '')), v.id).toBe(true);
     }
+    // Gemischt, aber stabil: nicht immer A richtig, und zweimal gebaut gleich
+    const loesungen = kh.flatMap((v) => v.baue().aufgaben.map((a) => a.erwartung!.slice(0, 12)));
+    expect(loesungen.filter((l) => l.startsWith('Richtig: A.')).length).toBeLessThan(loesungen.length / 2);
+    expect(kh[0]!.baue().aufgaben).toEqual(kh[0]!.baue().aufgaben);
     const gcs = as.find((v) => v.id === 'as:gcs-schroeder')!.baue();
+    expect(gcs.material[0]!.text).toContain('Greift gezielt zum Ort des Schmerzreizes');
+    const demir = as.find((v) => v.id === 'as:mna-demir')!.baue();
+    expect(demir.material[0]!.text).toContain('in den letzten 3 Monaten');
     expect(gcs.aufgaben.map((a) => a.id)).toEqual(['augen', 'verbal', 'motorik', 'einstufung']);
     expect(gcs.aufgaben[2]!.erwartung).toMatch(/^5 Punkte\./);
     expect(gcs.aufgaben[3]!.erwartung).toMatch(/^9 Punkte/);

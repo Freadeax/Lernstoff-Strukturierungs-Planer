@@ -3,6 +3,7 @@ import { FAELLE as PLAN_FAELLE, SETTING_LABEL as PLAN_SETTING, type PlanFall } f
 import { allgemeinePunkte, ANLASS_LABEL, FAELLE as UEBERGABE_FAELLE, TEIL_HILFE, TEIL_LABEL, type Fall as UebergabeFall } from '../uebergabe/faelle';
 import { BEREICH_LABEL, BERICHT_FAELLE, type BerichtFall } from '../bericht/faelle';
 import { FAELLE as KH_FAELLE, type Fallaufgabe } from '../krankheitsbilder/faelle';
+import { mischung } from '../krankheitsbilder/bewertung';
 import { pflegeModule } from '../../modules/pflege';
 import { INSTRUMENTE } from '../assessment/instrumente';
 import { VIGNETTEN, type Vignette } from '../assessment/vignetten';
@@ -109,9 +110,20 @@ export function ausBericht(f: BerichtFall): KlassenFall {
 
 const BUCHSTABEN = 'ABCDEFGHIJ';
 
+/** Fester Zufall je Text: dieselbe Vorlage mischt immer gleich, die Lösungsbuchstaben bleiben stabil. */
+function zufallAus(text: string): () => number {
+  let h = 2166136261;
+  for (let i = 0; i < text.length; i++) h = Math.imul(h ^ text.charCodeAt(i), 16777619);
+  return () => {
+    h = Math.imul(h ^ (h >>> 15), 2246822507) ^ Math.imul(h ^ (h >>> 13), 3266489909);
+    return ((h ^= h >>> 16) >>> 0) / 4294967296;
+  };
+}
+
 /**
  * Krankheitsbild-Fall: Die Auswahlaufgaben werden zu Aufgaben mit Buchstaben-Antwort, damit sie auch
- * ohne App auf Papier oder im Chat funktionieren. Die Lösung nennt Buchstaben und Erklärung.
+ * ohne App auf Papier oder im Chat funktionieren. Die Optionen werden gemischt (im Trainer stehen die
+ * richtigen oft vorn), die Lösung nennt Buchstaben und Erklärung.
  */
 export function ausKrankheitsbild(f: Fallaufgabe): KlassenFall {
   const profil = pflegeModule.diseaseProfiles?.find((p) => p.id === f.krankheitId);
@@ -119,23 +131,37 @@ export function ausKrankheitsbild(f: Fallaufgabe): KlassenFall {
     ...basis(), art: 'krankheitsbild', titel: `${profil?.name ?? 'Krankheitsbild'}: ${f.titel}`,
     situation: `${f.setting}.\n\n${f.text.join('\n\n')}`,
     material: [],
-    aufgaben: f.aufgaben.map((a) => ({
-      id: a.id,
-      frage: `${a.frage}\n${a.optionen.map((o, i) => `${BUCHSTABEN[i]}) ${o.text}`).join('\n')}`,
-      hinweis: `${a.art === 'mehrfach' ? 'Alle zutreffenden Buchstaben angeben' : 'Einen Buchstaben angeben'} und kurz begründen.`,
-      erwartung: `Richtig: ${a.optionen.flatMap((o, i) => (o.richtig ? [BUCHSTABEN[i]] : [])).join(', ')}. ${a.erklaerung}`,
-    })),
+    aufgaben: f.aufgaben.map((a) => {
+      const optionen = mischung(a.optionen.length, zufallAus(`${f.id}:${a.id}`)).map((i) => a.optionen[i]!);
+      return {
+        id: a.id,
+        frage: `${a.frage}\n${optionen.map((o, i) => `${BUCHSTABEN[i]}) ${o.text}`).join('\n')}`,
+        hinweis: `${a.art === 'mehrfach' ? 'Alle zutreffenden Buchstaben angeben' : 'Einen Buchstaben angeben'} und kurz begründen.`,
+        erwartung: `Richtig: ${optionen.flatMap((o, i) => (o.richtig ? [BUCHSTABEN[i]] : [])).join(', ')}. ${a.erklaerung}`,
+      };
+    }),
   };
 }
 
-/** Assessment-Fallvignette: je Bereich Punkte mit Begründung, am Ende Summe und Einstufung. */
+/**
+ * Assessment-Fallvignette: je Bereich Punkte mit Begründung, am Ende Summe und Einstufung.
+ * Der vollständige Bewertungsbogen (Leitfragen und Stufentexte) steht als Material dabei,
+ * weil die Einstufung oft an diesen Details hängt.
+ */
 export function ausAssessment(v: Vignette): KlassenFall {
   const instr = INSTRUMENTE[v.instrument];
   const items = loesungsItems(v);
+  const bogen = items.map((item) => [
+    `${item.label}${item.frage ? ` (${item.frage})` : ''}`,
+    ...item.stufen.map((st) => `  ${st.punkte} = ${st.kurz}${st.text ? `: ${st.text}` : ''}`),
+  ].join('\n')).join('\n\n');
   return {
     ...basis(), art: 'assessment', titel: `${instr.kurz}: ${v.titel}`,
     situation: `${v.setting}.\n\n${v.text.join('\n\n')}\n\nSchätze die Person mit der ${instr.name} ein. ${instr.richtung}`,
-    material: [],
+    material: [
+      { titel: `Bewertungsbogen ${instr.kurz}`, text: bogen },
+      ...(instr.hinweise.length ? [{ titel: 'Hinweise zum Instrument', text: liste(instr.hinweise) }] : []),
+    ],
     aufgaben: [
       ...items.map((item) => ({
         id: item.id.toLowerCase(),
