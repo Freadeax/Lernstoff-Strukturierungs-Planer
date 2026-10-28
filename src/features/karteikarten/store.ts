@@ -6,7 +6,7 @@ import type { ID, Topic } from '../../core/types';
 import type { CatalogModule } from '../../modules/catalog-types';
 import { heute, logReview } from '../lernplan/store';
 import type { Rating } from '../lernplan/types';
-import { modulKarten } from './erzeugen';
+import { lueckenKarten, modulKarten } from './erzeugen';
 import { bewerte, ergebnisseJeThema, stelleSitzungZusammen, type ThemenErgebnis } from './planung';
 import { STANDARD_CONFIG, type Karte, type KartenConfig, type KartenLog, type KartenStand } from './typen';
 
@@ -38,7 +38,7 @@ export async function ladeKartenDaten(modul: CatalogModule, tag = heute()): Prom
   ]);
   const ausModul = modulKarten(modul, config);
   return {
-    config, modul: ausModul, gespeichert, alle: [...gespeichert, ...ausModul],
+    config, modul: ausModul, gespeichert, alle: [...gespeichert.flatMap(lueckenKarten), ...ausModul],
     staende: new Map(staende.map((s) => [s.cardId, s])), logs,
   };
 }
@@ -87,6 +87,8 @@ export async function loescheKarte(id: ID) {
   await db.transaction('rw', [db.karten, db.kartenStand], async () => {
     await db.karten.delete(id);
     await db.kartenStand.delete(id);
+    // Lückentext: Lernstand jeder einzelnen Lücke
+    await db.kartenStand.where('cardId').startsWith(`${id}:l`).delete();
   });
 }
 

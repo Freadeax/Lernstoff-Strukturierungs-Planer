@@ -179,6 +179,46 @@ export function modulKarten(modul: CatalogModule, config: Pick<KartenConfig, 'fa
   return alle.filter((k) => !k.subjectIds.length || k.subjectIds.some((s) => f.has(s)));
 }
 
+// ---------------------------------------------------------------- Lückentext
+
+const LUECKE = /\[\[([^\[\]]+?)\]\]/g;
+
+/** Inhalt einer Lücke: Antwort und weitere richtige Antworten („[[Antwort|Alternative]]“). */
+function lese(inhalt: string): { antwort: string; alternativen: string[] } {
+  const [antwort = '', ...alternativen] = inhalt.split('|').map((x) => x.trim()).filter(Boolean);
+  return { antwort, alternativen };
+}
+
+/** Die Lücken eines Lückentexts in ihrer Reihenfolge. Leere Lücken („[[ ]]“) zählen nicht. */
+export function luecken(text: string): { antwort: string; alternativen: string[] }[] {
+  return [...text.matchAll(LUECKE)].map((m) => lese(m[1]!)).filter((l) => l.antwort);
+}
+
+/** Text ohne Klammern, so wie er vollständig gelesen wird. */
+export function lueckenOhneMarken(text: string): string {
+  return text.replace(LUECKE, (_, inhalt: string) => lese(inhalt).antwort);
+}
+
+/**
+ * Ein gespeicherter Lückentext wird zu einer Karte je Lücke: Diese Lücke ist offen, die anderen sind
+ * ausgefüllt. Die Antwort wird eingetippt. Andere Karten kommen unverändert zurück.
+ */
+export function lueckenKarten(k: Karte): Karte[] {
+  if (!k.luecken) return [k];
+  return luecken(k.vorne).map((l, i) => {
+    let j = 0;
+    const vorne = k.vorne.replace(LUECKE, (_, inhalt: string) => {
+      const teil = lese(inhalt);
+      if (!teil.antwort) return '';
+      return j++ === i ? '[ … ]' : teil.antwort;
+    });
+    return {
+      ...k, id: `${k.id}:l${i + 1}`, art: 'Lückentext', vorne, hinten: l.antwort, alternativen: l.alternativen,
+      eingabe: true, luecken: undefined, ref: k.id,
+    };
+  });
+}
+
 // ---------------------------------------------------------------- eigenes Material
 
 const MAX_PUNKTE = 5;
