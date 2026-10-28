@@ -20,18 +20,20 @@ const ANSICHTEN: { id: Ansicht; label: string }[] = [
   { id: 'lernen', label: 'Lernen' }, { id: 'steckbriefe', label: 'Medikamente' }, { id: 'stapel', label: 'Stapel' }, { id: 'eigene', label: 'Eigene Karten' }, { id: 'statistik', label: 'Statistik' },
 ];
 
-function Start({ ctx, thema, onStart }: { ctx: KartenCtx; thema?: ID; onStart: (s: SitzungsPlan, titel?: string) => void }) {
+function Start({ ctx, thema, krankheit, onStart }: { ctx: KartenCtx; thema?: ID; krankheit?: ID; onStart: (s: SitzungsPlan, titel?: string) => void }) {
   const { daten, heute } = ctx;
   const themen = thema ? [thema, ...modul.topics.filter((t) => t.parentId === thema).map((t) => t.id)] : undefined;
-  const opts = { heute, config: daten.config, neueHeuteSchon: neueHeute(daten.staende.values(), heute), themen };
-  const plan = useMemo(() => stelleSitzungZusammen(daten.alle, daten.staende, opts), [daten, heute, thema]);
+  const profil = krankheit ? modul.diseaseProfiles?.find((p) => p.id === krankheit) : undefined;
+  const opts = { heute, config: daten.config, neueHeuteSchon: neueHeute(daten.staende.values(), heute), themen, ref: profil?.id };
+  const plan = useMemo(() => stelleSitzungZusammen(daten.alle, daten.staende, opts), [daten, heute, thema, profil]);
   const vorziehen = useMemo(() => (plan.karten.length ? null : stelleSitzungZusammen(daten.alle, daten.staende, { ...opts, vorziehen: true })), [plan]);
-  const themaName = thema ? alleThemen.get(thema)?.name : undefined;
+  const themaName = profil?.name ?? (thema ? alleThemen.get(thema)?.name : undefined);
+  const gezielt = !!thema || !!profil;
   const gelernt = [...daten.staende.values()].filter((s) => s.reps > 0).length;
 
   return (
     <div className="stack-2">
-      {thema && (
+      {gezielt && (
         <div className="note">
           Nur Karten zu <strong>{themaName ?? thema}</strong>. <button type="button" className="link" onClick={() => navigate('/lernen/karten')}>Alle Themen</button>
         </div>
@@ -39,7 +41,7 @@ function Start({ ctx, thema, onStart }: { ctx: KartenCtx; thema?: ID; onStart: (
       <div className="card karten__start">
         <div className="karten__zahlen">
           <div><strong>{plan.faellig}</strong><span className="muted">fällig</span></div>
-          <div><strong>{plan.neu}</strong><span className="muted">neu{thema ? '' : ` (max. ${daten.config.neueProTag}/Tag)`}</span></div>
+          <div><strong>{plan.neu}</strong><span className="muted">neu{gezielt ? '' : ` (max. ${daten.config.neueProTag}/Tag)`}</span></div>
           <div><strong>{daten.alle.length}</strong><span className="muted">Karten aktiv</span></div>
         </div>
         {plan.karten.length > 0 ? (
@@ -54,7 +56,7 @@ function Start({ ctx, thema, onStart }: { ctx: KartenCtx; thema?: ID; onStart: (
                 Trotzdem {vorziehen.karten.length} Karten vorziehen
               </button>
             )}
-            {!thema && daten.config.neueProTag > 0 && <p className="muted">Mehr neue Karten pro Tag stellst du unter „Stapel“ ein.</p>}
+            {!gezielt && daten.config.neueProTag > 0 && <p className="muted">Mehr neue Karten pro Tag stellst du unter „Stapel“ ein.</p>}
           </>
         )}
       </div>
@@ -72,6 +74,7 @@ export default function Karteikarten() {
   const { params } = useRoute();
   const ansicht = (ANSICHTEN.find((a) => a.id === params.get('ansicht'))?.id ?? 'lernen') as Ansicht;
   const thema = params.get('thema') ?? undefined;
+  const krankheit = params.get('krankheit') ?? undefined;
   const [ctx, setCtx] = useState<KartenCtx | null>(null);
   const [fehler, setFehler] = useState<string | null>(null);
   const [sitzung, setSitzung] = useState<{ karten: Karte[]; titel?: string } | null>(null);
@@ -93,7 +96,7 @@ export default function Karteikarten() {
   }, [neuLaden]);
   // Menü oder Zurück-Taste während einer Sitzung: Sitzung verlassen. Antworten sind schon gespeichert,
   // das Ergebnis meldet die Sitzung beim Verlassen selbst an den Lernplan.
-  useEffect(() => { setSitzung(null); void neuLaden(); }, [ansicht, thema]);
+  useEffect(() => { setSitzung(null); void neuLaden(); }, [ansicht, thema, krankheit]);
 
   const wechsel = (a: Ansicht) => navigate(`/lernen/karten${a === 'lernen' ? (thema ? `?thema=${encodeURIComponent(thema)}` : '') : `?ansicht=${a}`}`);
 
@@ -101,7 +104,7 @@ export default function Karteikarten() {
     <section className="page karten">
       <div className="page__head">
         <h2>Karteikarten</h2>
-        <p className="muted">Fachbegriffe, Katalogwissen, Medikamenten-Steckbriefe und deine eigenen Zusammenfassungen mit Wiederholung im richtigen Abstand. Funktioniert offline, alles bleibt auf diesem Gerät.</p>
+        <p className="muted">Fachbegriffe, Katalogwissen, Medikamenten- und Krankheitsbild-Steckbriefe und deine eigenen Zusammenfassungen mit Wiederholung im richtigen Abstand. Funktioniert offline, alles bleibt auf diesem Gerät.</p>
       </div>
       {!sitzung && (
         <div className="pills karten__tabs" role="tablist" aria-label="Ansicht">
@@ -114,7 +117,7 @@ export default function Karteikarten() {
         <Sitzung karten={sitzung.karten} titel={sitzung.titel} staende={ctx.daten.staende} retention={ctx.daten.config.retention} heute={ctx.heute}
           topics={blaetter} titles={ctx.titles} onEnde={() => { setSitzung(null); void neuLaden(); }} />
       )}
-      {ctx && !sitzung && ansicht === 'lernen' && <Start ctx={ctx} thema={thema} onStart={(s, titel) => setSitzung({ karten: s.karten, titel })} />}
+      {ctx && !sitzung && ansicht === 'lernen' && <Start ctx={ctx} thema={thema} krankheit={krankheit} onStart={(s, titel) => setSitzung({ karten: s.karten, titel })} />}
       {ctx && !sitzung && ansicht === 'steckbriefe' && <Steckbriefe ctx={ctx} />}
       {ctx && !sitzung && ansicht === 'stapel' && <Stapel ctx={ctx} />}
       {ctx && !sitzung && ansicht === 'eigene' && <Eigene ctx={ctx} />}

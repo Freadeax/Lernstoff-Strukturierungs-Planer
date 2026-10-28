@@ -197,6 +197,9 @@ function Steckbrief({ p }: { p: DiseaseProfile }) {
         {!!p.synonyms?.length && <p className="muted">{p.synonyms.join(' · ')}</p>}
         {ABSCHNITTE.map((a) => <Abschnitt key={a.id} p={p} id={a.id} label={a.label} />)}
         {p.merksatz && <p className="note">Merksatz: {p.merksatz}</p>}
+        <div className="row">
+          <button type="button" className="primary small" onClick={() => navigate(`/lernen/karten?krankheit=${encodeURIComponent(p.id)}`)}>Mit Karteikarten lernen</button>
+        </div>
       </article>
       <Verknuepfungen p={p} />
     </div>

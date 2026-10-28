@@ -37,6 +37,11 @@ export function Rueckseite({ karte, titles }: { karte: Karte; titles: Map<ID, st
           {karte.ungeprueft ? 'Noch ungeprüft. ' : ''}Lernhilfe, keine Dosierungsanweisung: Es gelten ärztliche Anordnung, Fachinformation und dein Unterrichtsmaterial.
         </p>
       )}
+      {karte.quelle === 'krankheitsbild' && (
+        <p className="karte__belege muted">
+          {karte.belegText ? `Aus deinem Unterrichtsmaterial belegt: ${karte.belegText}.` : 'Katalogwissen, noch nicht gegen dein Unterrichtsmaterial geprüft.'}
+        </p>
+      )}
       {karte.quelle === 'glossar' || karte.quelle === 'katalog'
         ? <p className="karte__belege muted">Katalogwissen des Fachmoduls. Bei Abweichungen gilt dein Unterrichtsmaterial.</p>
         : null}
