@@ -33,6 +33,8 @@ export type StoryEvent = {
   effect?: Partial<Vitals>; avpu?: Avpu; flag?: string;
   /** Zusätzliche Verschlechterung pro Minute, bis eines der Flags aus stoppedBy gesetzt wird. */
   drift?: Partial<Vitals>; stoppedBy?: string[];
+  /** Folge bleibt bis zu einer dieser Handlungen offen (z. B. Sturzversorgung) und gilt sonst im Debriefing als ungelöst. */
+  resolvedBy?: string[];
   /** Was im Debriefing steht, wenn das Ereignis verhindert wurde. */
   prevented?: string;
 };

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { PageHeading } from '../../ui/PageHeading';
 import { SCENARIOS, CATEGORIES, RESOURCES } from './catalog';
-import { CHECKS, clinicalDebrief, clock, debrief, dispatch, replay, SOURCES, start } from './engine';
+import { CHECKS, clinicalDebrief, clock, consciousness, debrief, dispatch, replay, SOURCES, start } from './engine';
 import { News2Badge, VitalKurve } from './VitalKurve';
 import { archive, download, parseScenario, readArchive, readSession, saveSession } from './storage';
 import { xapiDraft } from './tracking';
@@ -198,7 +198,7 @@ export default function Praxissimulator() {
         <p className="muted praxis-clockhint">Handlungen verbrauchen auch bei pausierter Uhr ihre angezeigte Simulationszeit. Beim Verlassen der Seite pausiert die Uhr. Tageswechsel erst nach Versorgung, SBAR und Abschluss offener Aufträge.</p>
         <section className="praxis-monitor" aria-label="Vitalparameter"><div className="praxis-monitor__heading"><strong>{s.monitoring ? 'Kontinuierliches Monitoring' : s.measuredAt === null ? 'Noch keine Messung' : `Letzte Messung · ${clock(s.measuredAt)}`}</strong><span>SpO₂: LOINC 59408-5 · keine Alarmgrenzen für die pädiatrische Bewertung</span></div>
           <dl>{VITALS.map(v => <div key={v.key}><dt>{v.label}</dt><dd>{format(s.measured[v.key], v.key)}<small>{v.unit}</small></dd></div>)}</dl>
-          <News2Badge point={s.chart?.at(-1)} />
+          <News2Badge point={s.monitoring && s.measuredAt !== null ? { at: s.measuredAt, vitals: s.vitals, avpu: consciousness(s), oxygen: s.oxygen ?? false } : s.chart?.at(-1)} />
         </section>
         <div className={`praxis-feedback ${last?.kind === 'warning' ? 'is-warning' : last?.kind === 'story' ? 'is-story' : ''}`} role="status" aria-live="polite" aria-atomic="true"><strong>{last?.title}</strong><p>{last?.detail}</p></div>
         {s.pending.length > 0 && <details className="praxis-pending"><summary>{s.pending.length} offene Aufträge / Wirkungen</summary><ul>{s.pending.map(p => <li key={p.id}>{p.title} · fällig bei {clock(p.due)} (noch {Math.max(0, Math.ceil((p.due - s.time) / 60))} min)</li>)}</ul></details>}

@@ -43,10 +43,10 @@ export function parseScenario(json: string): Scenario {
   for (const e of (d.storyline ?? []) as unknown[]) {
     if (!object(e) || !identifier(e.id) || storyIds.has(e.id) || !positive(e.at) || (e.at as number) < 1 || !Object.hasOwn(STORY_KINDS, String(e.kind)) || !text(e.title) || !e.title.trim() || !text(e.detail) || (e.effect !== undefined && !deltas(e.effect)) || (e.avpu !== undefined && !avpu(e.avpu)) || (e.flag !== undefined && !identifier(e.flag)) || (e.prevented !== undefined && !text(e.prevented))) throw new Error('Verlaufsereignis ungültig oder Kennung doppelt.');
     if (e.drift !== undefined && (!deltas(e.drift) || !Array.isArray(e.stoppedBy) || !e.stoppedBy.length || !e.stoppedBy.every(identifier))) throw new Error('Verlaufsereignis: anhaltende Verschlechterung braucht stoppedBy.');
-    if ((e.unless !== undefined && (!Array.isArray(e.unless) || !e.unless.every(identifier))) || (e.when !== undefined && !identifier(e.when))) throw new Error('Verlaufsereignis: Bedingung ungültig.');
+    if ((e.resolvedBy !== undefined && (!Array.isArray(e.resolvedBy) || !e.resolvedBy.length || !e.resolvedBy.every(identifier))) || (e.unless !== undefined && (!Array.isArray(e.unless) || !e.unless.every(identifier))) || (e.when !== undefined && !identifier(e.when))) throw new Error('Verlaufsereignis: Bedingung ungültig.');
     storyIds.add(e.id); if (e.flag) flags.add(e.flag as string);
   }
-  for (const e of (d.storyline ?? []) as Record<string, unknown>[]) if ([...((e.unless as string[]) ?? []), ...((e.stoppedBy as string[]) ?? []), ...(e.when ? [e.when as string] : [])].some(f => !flags.has(f))) throw new Error('Verlaufsereignis verweist auf unbekannte Handlung.');
+  for (const e of (d.storyline ?? []) as Record<string, unknown>[]) if ([...((e.unless as string[]) ?? []), ...((e.stoppedBy as string[]) ?? []), ...((e.resolvedBy as string[]) ?? []), ...(e.when ? [e.when as string] : [])].some(f => !flags.has(f))) throw new Error('Verlaufsereignis verweist auf unbekannte Handlung.');
   const medIds = new Set();
   for (const m of d.medications) {
     if (!object(m) || !identifier(m.id) || medIds.has(m.id) || !['name', 'atc', 'unit', 'route', 'equipment', 'result'].every(k => text(m[k]) && !!m[k]) || !positive(m.dose) || (m.dose as number) === 0 || !positive(m.concentration) || (m.concentration as number) === 0 || !positive(m.duration) || !positive(m.onset) || !deltas(m.effect) || !deltas(m.targets)) throw new Error('Medikationsmodell ungültig.');

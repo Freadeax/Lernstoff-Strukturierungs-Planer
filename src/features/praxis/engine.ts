@@ -54,8 +54,10 @@ export function news2Of(p: { vitals: Vitals; avpu: Avpu; oxygen: boolean }) {
 function story(s: Session) {
   const c = clinical(s);
   for (const e of s.scenario.storyline ?? []) {
-    if (c.story[e.id] || s.time < storyTime(e.at, s.level)) continue;
+    if (c.story[e.id]) continue;
+    // Mit `when` zählt `at` ab dem auslösenden Flag, sonst ab Fallbeginn.
     if (e.when !== undefined && s.flags[e.when] === undefined) continue;
+    if (s.time < (e.when !== undefined ? s.flags[e.when] : 0) + storyTime(e.at, s.level)) continue;
     if (e.unless?.some(f => s.flags[f] !== undefined)) { c.story[e.id] = 'prevented'; continue; }
     c.story[e.id] = 'fired';
     if (e.effect) s.vitals = effect(s.vitals, e.effect);
@@ -195,7 +197,8 @@ export function clinicalDebrief(s: Session) {
   const prevented = events.filter(e => c.story[e.id] === 'prevented' && e.kind === 'komplikation');
   const scores = c.chart.map(p => ({ at: p.at, ...news2Of(p) }));
   const alarm = scores.find(p => p.punkte >= 5 || p.teil.includes(3));
-  const help = s.flags.help;
+  // Notruf (z. B. 112 im Heim) zählt ebenso als Eskalation wie das Hinzuziehen des Teams.
+  const help = [s.flags.help, s.flags.ems].filter((t): t is number => t !== undefined).sort((a, b) => a - b)[0];
   const escalation = !alarm ? 'kein Auslöser gemessen' as const
     : help === undefined ? 'nicht eskaliert' as const
     : help <= alarm.at ? 'vorausschauend' as const
@@ -204,12 +207,13 @@ export function clinicalDebrief(s: Session) {
   const supported = s.scenario.stabilizers.some(f => s.flags[f] !== undefined);
   const drifting = !supported && Object.values(s.scenario.drift).some(n => n !== 0);
   const now = news2Of({ vitals: s.vitals, avpu: consciousness(s), oxygen: c.oxygen }).punkte;
-  const unstable = s.critical || c.drifts.length > 0 || drifting || ['P', 'U'].includes(consciousness(s));
+  const unresolved = complications.filter(e => e.resolvedBy?.length && !e.resolvedBy.some(f => s.flags[f] !== undefined));
+  const unstable = s.critical || c.drifts.length > 0 || unresolved.length > 0 || drifting || ['P', 'U'].includes(consciousness(s));
   return {
     complications, prevented, harms: c.harms, scores, alarm, escalation,
     escalationMinutes: alarm && help !== undefined && help > alarm.at ? Math.ceil((help - alarm.at) / 60) : 0,
     maxNews2: scores.reduce((m, p) => Math.max(m, p.punkte), 0),
     final: { unstable, avpu: consciousness(s), news2: now, text: unstable ? s.scenario.outcome?.unstable ?? 'Bei Fallabschluss ist die Lage nicht stabil. Wer übernimmt jetzt, und was wurde übergeben?' : s.scenario.outcome?.stable ?? 'Bei Fallabschluss ist die Lage im Modell stabil.' },
-    activeComplications: c.drifts.map(d => events.find(e => e.id === d.id)?.title ?? d.id),
+    activeComplications: [...c.drifts.map(d => events.find(e => e.id === d.id)?.title ?? d.id), ...unresolved.map(e => e.title)],
   };
 }

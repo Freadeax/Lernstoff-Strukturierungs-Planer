@@ -46,6 +46,29 @@ describe('Praxissimulator – klinischer Verlauf', () => {
     expect(clinicalDebrief(behandelt).final.unstable).toBe(false);
   });
 
+  it('rechnet Folgeereignisse ab der auslösenden Handlung', () => {
+    const scenario = byId('pflegeheim');
+    let s = act(wait(start(scenario, 2), 2400), 'care');
+    s = wait(s, 60); expect(s.story?.rebound).toBeUndefined();
+    s = wait(s, 2400); expect(s.story?.rebound).toBe('fired');
+    const mitMahlzeit = wait(act(act(wait(start(scenario, 2), 2400), 'care'), 'meal'), 2500);
+    expect(mitMahlzeit.story?.rebound).toBe('prevented');
+  });
+
+  it('zählt den Notruf als Eskalation', () => {
+    const scenario = byId('schlaganfall');
+    const s = act(act(wait(start(scenario, 2), 1200), 'vitals'), 'ems');
+    expect(clinicalDebrief(s).escalation).toBe('zeitnah');
+  });
+
+  it('meldet eine unversorgte Sturzfolge als nicht stabil', () => {
+    const scenario = byId('reha');
+    const gestuerzt = wait(act(start(scenario, 2), 'alone'), 60);
+    expect(gestuerzt.story?.sturz).toBe('fired');
+    expect(clinicalDebrief(gestuerzt).final.unstable).toBe(true);
+    expect(clinicalDebrief(act(gestuerzt, 'fall_care')).final.unstable).toBe(false);
+  });
+
   it('verschiebt Ereignisse nach Ausbildungsstufe', () => {
     expect(storyTime(600, 1)).toBe(900); expect(storyTime(600, 2)).toBe(600); expect(storyTime(600, 3)).toBe(450);
   });
