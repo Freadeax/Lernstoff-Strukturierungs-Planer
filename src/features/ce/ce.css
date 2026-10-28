@@ -21,10 +21,79 @@
 .ce__status { font-size: var(--text-xs, 0.75rem); color: var(--color-text-muted); }
 .ce__thema-inhalt { padding: 0 var(--space-3) var(--space-3); display: flex; flex-direction: column; gap: var(--space-2); }
 .ce__thema-inhalt > p { margin: 0; }
-.ce__links { display: grid; grid-template-columns: max-content 1fr; gap: var(--space-2) var(--space-3); margin: 0; align-items: start; }
-.ce__links dt { font-size: var(--text-sm); color: var(--color-text-muted); padding-top: 6px; }
-.ce__links dd { margin: 0; display: flex; flex-wrap: wrap; gap: var(--space-1); }
+
+/* Lernpfad: Karte oben, Schritte je Thema, Punkte in der Themenzeile */
+.ce__termin { margin: 0; font-size: var(--text-sm); font-weight: 600; color: var(--color-primary); }
+.ce__pfadstand { margin: 0; font-size: var(--text-sm); }
+.ce-pfad { display: flex; flex-direction: column; gap: var(--space-3); border-left: 4px solid var(--color-primary); }
+.ce-pfad h2 { margin: 0; font-size: var(--text-lg, 1.125rem); }
+.ce-pfad p { margin: 0; }
+.ce-pfad__kopf { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: var(--space-2); }
+.ce-pfad__zahl { display: flex; flex-direction: column; align-items: flex-end; }
+.ce-pfad__zahl strong { font-size: 1.5rem; line-height: 1.1; color: var(--color-primary); }
+.ce-pfad__zahl span { font-size: var(--text-sm); }
+.ce-pfad__balken { height: 8px; border-radius: var(--radius-pill, 999px); background: var(--color-surface-sunken); overflow: hidden; }
+.ce-pfad__balken > span { display: block; height: 100%; background: var(--color-primary); border-radius: inherit; transition: width .3s ease; }
+.ce-pfad__weiter { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2); padding: var(--space-3); border-radius: var(--radius-md, 8px); background: var(--color-primary-soft); }
+.ce-pfad__weiter > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1 1 200px; }
+.ce-pfad__weiter strong { overflow-wrap: anywhere; }
+.ce-pfad__label { font-size: var(--text-xs, 0.75rem); text-transform: uppercase; letter-spacing: .04em; color: var(--color-primary); font-weight: 600; }
+.ce-pfad__aktionen { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); font-size: var(--text-sm); }
+
+.pfad-punkte { display: inline-flex; gap: 3px; }
+.pfad-punkte__p { width: 8px; height: 8px; border-radius: 50%; background: var(--color-surface-sunken); border: 1px solid var(--color-border); }
+.pfad-punkte__p--erledigt { background: var(--color-success); border-color: var(--color-success); }
+.pfad-punkte__p--teilweise { background: var(--color-warning-soft); border-color: var(--color-warning); }
+.pfad-punkte__p--entfaellt { opacity: .35; border-style: dashed; }
+
+.pfad { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-1); }
+.pfad__schritt { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; align-items: center; gap: var(--space-2); padding: var(--space-1) 0; position: relative; }
+.pfad__schritt + .pfad__schritt::before { content: ''; position: absolute; left: 13px; top: -6px; height: 10px; border-left: 2px solid var(--color-border); }
+.pfad__marke { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: var(--text-sm); font-weight: 600; border: 2px solid var(--color-border); background: var(--color-surface); color: var(--color-text-muted); }
+.pfad__schritt--erledigt .pfad__marke { background: var(--color-success); border-color: var(--color-success); color: #fff; }
+.pfad__schritt--teilweise .pfad__marke { border-color: var(--color-warning); color: var(--color-warning); }
+.pfad__schritt--weiter .pfad__marke { border-color: var(--color-primary); color: var(--color-primary); box-shadow: 0 0 0 3px var(--color-primary-soft); }
+.pfad__schritt--entfaellt strong { color: var(--color-text-muted); font-weight: 500; }
+.pfad__schritt--entfaellt .pfad__marke { border-style: dashed; }
+.pfad__text { display: flex; flex-direction: column; min-width: 0; font-size: var(--text-sm); }
+.pfad__text .muted { overflow-wrap: anywhere; }
+.pfad__haken { display: flex; align-items: center; gap: var(--space-1); min-height: 32px; }
+.ce__ueben { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1); font-size: var(--text-sm); }
+
+/* Prüfungstermin und Woche */
+.ce-termin { display: flex; flex-direction: column; gap: var(--space-2); }
+.ce-termin p { margin: 0; }
+.ce-termin__form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-2) var(--space-3); }
+.ce-termin__form .field { margin: 0; flex: 1 1 160px; font-size: var(--text-sm); }
+.ce-termin__form .form-actions { margin: 0; }
+.ce-termin__kopf { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-2); }
+.ce-termin__kopf > div:first-child { display: flex; flex-direction: column; }
+.ce-termin__knoepfe { display: flex; gap: var(--space-1); }
+.ce-woche { display: flex; flex-direction: column; gap: var(--space-2); }
+.ce-woche h3, .ce-woche p { margin: 0; }
+.ce-woche h3 { font-size: var(--text-md, 1rem); }
+.ce-woche__tage { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.ce-woche__tage > li { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); gap: var(--space-2); align-items: start; }
+.ce-woche__tage ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-1); }
+.ce-woche__tag { font-size: var(--text-sm); font-weight: 600; padding-top: var(--space-1); }
+
+/* Selbsttest */
+.ce-test__start { flex-wrap: wrap; }
+.ce-test__ergebnis { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-1); }
+.ce-test__ergebnis li { display: flex; justify-content: space-between; gap: var(--space-2); padding: var(--space-1) 0; border-bottom: 1px solid var(--color-border); }
+.ce-test__prozent { font-weight: 600; white-space: nowrap; color: var(--color-success); }
+.ce-test__prozent--schwach { color: var(--color-warning); }
+.ce-test__antworten { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); width: 100%; }
+.ce-test__antwort { min-height: 48px; }
+.ce-test__antwort--nicht { border-color: var(--color-danger); }
+.ce-test__antwort--teilweise { border-color: var(--color-warning); }
+.ce-test__antwort--gewusst { border-color: var(--color-success); }
+
 @media (max-width: 480px) {
-  .ce__links { grid-template-columns: 1fr; gap: var(--space-1); }
-  .ce__links dt { padding-top: var(--space-1); }
+  .ce-woche__tage > li { grid-template-columns: 1fr; gap: var(--space-1); }
+  .pfad__schritt { grid-template-columns: 28px minmax(0, 1fr); }
+  .pfad__schritt > button { grid-column: 2; justify-self: start; }
+  .ce-pfad__weiter > button { width: 100%; }
+  .ce-pfad__kopf { flex-direction: column; }
+  .ce-pfad__zahl { flex-direction: row; align-items: baseline; gap: var(--space-2); }
 }

@@ -130,6 +130,7 @@ const LOKAL_LABEL: Record<string, string> = {
   'lernstoff.mindmaps': 'Mindmaps', 'lernstoff.fall.archiv': 'abgeschlossene Fälle', 'lernstoff.simulation.verlauf': 'Prüfungssimulationen',
   'lernstoff.skript.lesestand': 'Lesestand im Skript',
   'lernstoff.praxis.archiv': 'abgeschlossene Praxisfälle',
+  'lernstoff.lernpfad': 'abgehakte Schritte im CE-Lernpfad',
 };
 
 /** Liest eine Sicherungsdatei. Wirft mit verständlicher Meldung, wenn sie nicht passt. */
