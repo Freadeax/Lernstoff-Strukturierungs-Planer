@@ -20,6 +20,8 @@ describe('Instrumente', () => {
     expect(minMax(INSTRUMENTE.nrs)).toEqual({ min: 0, max: 10 });
     expect(minMax(INSTRUMENTE.besd)).toEqual({ min: 0, max: 10 });
     expect(minMax(INSTRUMENTE.mna)).toEqual({ min: 0, max: 14 });
+    expect(minMax(INSTRUMENTE.norton)).toEqual({ min: 9, max: 36 });
+    expect(minMax(INSTRUMENTE.gcs)).toEqual({ min: 3, max: 15 });
   });
 
   it('tauscht beim MNA den BMI gegen den Wadenumfang', () => {
@@ -36,6 +38,10 @@ describe('Instrumente', () => {
     expect(kategorie(INSTRUMENTE.besd, 2)?.id).toBe('wahrscheinlich');
     expect(kategorie(INSTRUMENTE.mna, 11)?.id).toBe('risiko');
     expect(kategorie(INSTRUMENTE.barthel, 85)?.id).toBe('selbst');
+    expect(kategorie(INSTRUMENTE.norton, 25)?.id).toBe('risiko');
+    expect(kategorie(INSTRUMENTE.norton, 26)?.id).toBe('kein');
+    expect(kategorie(INSTRUMENTE.gcs, 8)?.id).toBe('schwer');
+    expect(kategorie(INSTRUMENTE.gcs, 14)?.id).toBe('leicht');
   });
 
   it('rechnet den BMI', () => {
@@ -120,5 +126,10 @@ describe('Lernplan-Kopplung', () => {
     expect(uebungenFuer('thema.beo.bewusstsein').find((u) => u.trainer === 'assessment')?.path).toContain('gruppe=schmerz');
     expect(uebungenFuer('thema.pro.dehydratation').find((u) => u.trainer === 'assessment')?.path).toContain('gruppe=mna');
     expect(uebungenFuer('thema.kl.diabetes').some((u) => u.trainer === 'assessment')).toBe(false);
+    // Mehrere passende Instrumente: jedes bekommt einen eigenen Link
+    expect(uebungenFuer('thema.beo.bewusstsein').filter((u) => u.trainer === 'assessment').map((u) => u.path)).toEqual([
+      '/lernen/assessment?gruppe=schmerz&modus=faelle', '/lernen/assessment?gruppe=gcs&modus=faelle',
+    ]);
+    expect(uebungenFuer('thema.pro.dekubitus').filter((u) => u.trainer === 'assessment')).toHaveLength(2);
   });
 });

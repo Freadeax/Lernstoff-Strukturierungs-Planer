@@ -1,5 +1,5 @@
 // Fehlerheft: falsch beantwortete Aufgaben aus Rechentrainer, Fachbegriff-Duell,
-// Prüfungssimulation und Krankheitsbild-Fällen an einer Stelle sammeln und gezielt wiederholen.
+// Prüfungssimulation, Krankheitsbild-Fällen und Assessment-Fallvignetten an einer Stelle sammeln und gezielt wiederholen.
 // Oben reine Funktionen (testbar), unten das Speichern (localStorage, wird mitgesichert).
 //
 // Regeln:
@@ -14,10 +14,10 @@ import type { ID } from '../../core/types';
 import type { AufgabenTyp, Stufe } from '../rechnen/aufgaben';
 import { istObjekt, storage } from '../../ui/lib/store';
 
-export type FehlerQuelle = 'rechnen' | 'duell' | 'simulation' | 'krankheitsbilder';
+export type FehlerQuelle = 'rechnen' | 'duell' | 'simulation' | 'krankheitsbilder' | 'assessment';
 
 export const QUELLE_LABEL: Record<FehlerQuelle, string> = {
-  rechnen: 'Rechentrainer', duell: 'Fachbegriff-Duell', simulation: 'Prüfungssimulation', krankheitsbilder: 'Krankheitsbilder',
+  rechnen: 'Rechentrainer', duell: 'Fachbegriff-Duell', simulation: 'Prüfungssimulation', krankheitsbilder: 'Krankheitsbilder', assessment: 'Assessments',
 };
 
 /** Wie ein Eintrag wiederholt wird. */
@@ -109,7 +109,7 @@ export interface Ueberblick { offen: number; faellig: number; heuteNeu: number; 
 export function ueberblick(liste: Fehler[], jetzt = new Date()): Ueberblick {
   const t = tag(jetzt);
   const offen = liste.filter(istOffen);
-  const nachQuelle: Record<FehlerQuelle, number> = { rechnen: 0, duell: 0, simulation: 0, krankheitsbilder: 0 };
+  const nachQuelle: Record<FehlerQuelle, number> = { rechnen: 0, duell: 0, simulation: 0, krankheitsbilder: 0, assessment: 0 };
   for (const f of offen) nachQuelle[f.quelle] = (nachQuelle[f.quelle] ?? 0) + 1;
   return {
     offen: offen.length,

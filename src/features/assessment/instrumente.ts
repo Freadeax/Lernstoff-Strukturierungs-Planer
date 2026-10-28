@@ -1,10 +1,11 @@
-// Assessment-Instrumente als Daten: Braden, Barthel (Hamburger Einstufungsmanual), NRS, BESD, MNA-SF.
+// Assessment-Instrumente als Daten: Braden, Norton (erweitert), Barthel (Hamburger Einstufungsmanual),
+// NRS, BESD, MNA-SF und Glasgow Coma Scale.
 // Oben die Instrumente, unten reine Rechenfunktionen (testbar, ohne React).
 //
 // Die Stufentexte sind gekürzte Lehrbuchfassungen zum Üben. Grenzwerte unterscheiden sich je nach
 // Lehrbuch und Einrichtung; maßgeblich sind das Original-Formular und der Hausstandard.
 
-export type InstrumentId = 'braden' | 'barthel' | 'nrs' | 'besd' | 'mna';
+export type InstrumentId = 'braden' | 'norton' | 'barthel' | 'nrs' | 'besd' | 'mna' | 'gcs';
 
 export interface Stufe { punkte: number; kurz: string; text?: string }
 
@@ -87,6 +88,55 @@ const BRADEN: Instrument = {
   hinweise: [
     'Die Skala ergänzt die fachliche Einschätzung (Hautinspektion, Mobilität), sie ersetzt sie nicht.',
     'Die Grenzwerte unterscheiden sich je nach Lehrbuch und Einrichtung. Hier: ≤ 18 Risiko, ≤ 12 hohes Risiko.',
+  ],
+};
+
+const NORTON: Instrument = {
+  id: 'norton', name: 'Norton-Skala (erweitert nach Bienstein)', kurz: 'Norton',
+  zweck: 'Einschätzung des Dekubitusrisikos in neun Bereichen, ältere Alternative zur Braden-Skala.',
+  richtung: 'Je niedriger die Summe, desto höher das Risiko (9 bis 36 Punkte).',
+  topicIds: ['thema.pro.dekubitus'],
+  items: [
+    { id: 'kooperation', label: 'Bereitschaft zur Kooperation', frage: 'Wie motiviert ist die Person, bei der Prophylaxe mitzumachen?', stufen: [
+      { punkte: 1, kurz: 'Keine' }, { punkte: 2, kurz: 'Teilweise' }, { punkte: 3, kurz: 'Wenig' }, { punkte: 4, kurz: 'Voll' },
+    ] },
+    { id: 'alter', label: 'Alter', stufen: [
+      { punkte: 1, kurz: 'Über 60 Jahre' }, { punkte: 2, kurz: 'Unter 60 Jahre' }, { punkte: 3, kurz: 'Unter 30 Jahre' }, { punkte: 4, kurz: 'Unter 10 Jahre' },
+    ] },
+    { id: 'haut', label: 'Hautzustand', stufen: [
+      { punkte: 1, kurz: 'Wunden, Allergie, Risse' }, { punkte: 2, kurz: 'Feucht' }, { punkte: 3, kurz: 'Schuppig, trocken' }, { punkte: 4, kurz: 'In Ordnung' },
+    ] },
+    { id: 'zusatz', label: 'Zusatzerkrankungen', stufen: [
+      { punkte: 1, kurz: 'Arterielle Verschlusskrankheit' },
+      { punkte: 2, kurz: 'MS, Karzinom, Adipositas', text: 'Multiple Sklerose, Krebserkrankung, erhöhter Hämatokrit, Adipositas.' },
+      { punkte: 3, kurz: 'Abwehrschwäche, Fieber, Diabetes', text: 'Abwehrschwäche, Fieber, Diabetes mellitus, Anämie.' },
+      { punkte: 4, kurz: 'Keine' },
+    ] },
+    { id: 'koerper', label: 'Körperlicher Zustand', stufen: [
+      { punkte: 1, kurz: 'Sehr schlecht' }, { punkte: 2, kurz: 'Schlecht' }, { punkte: 3, kurz: 'Leidlich' }, { punkte: 4, kurz: 'Gut' },
+    ] },
+    { id: 'geist', label: 'Geistiger Zustand', stufen: [
+      { punkte: 1, kurz: 'Stuporös', text: 'Kaum erweckbar, reagiert nur auf starke Reize.' },
+      { punkte: 2, kurz: 'Verwirrt' }, { punkte: 3, kurz: 'Apathisch' }, { punkte: 4, kurz: 'Klar' },
+    ] },
+    { id: 'aktivitaet', label: 'Aktivität', stufen: [
+      { punkte: 1, kurz: 'Bettlägerig' }, { punkte: 2, kurz: 'Rollstuhlbedürftig' }, { punkte: 3, kurz: 'Geht mit Hilfe' }, { punkte: 4, kurz: 'Geht ohne Hilfe' },
+    ] },
+    { id: 'beweglichkeit', label: 'Beweglichkeit', frage: 'Kann die Person ihre Lage im Bett selbst verändern?', stufen: [
+      { punkte: 1, kurz: 'Voll eingeschränkt' }, { punkte: 2, kurz: 'Sehr eingeschränkt' }, { punkte: 3, kurz: 'Kaum eingeschränkt' }, { punkte: 4, kurz: 'Voll beweglich' },
+    ] },
+    { id: 'inkontinenz', label: 'Inkontinenz', stufen: [
+      { punkte: 1, kurz: 'Urin und Stuhl' }, { punkte: 2, kurz: 'Meistens Urin' }, { punkte: 3, kurz: 'Manchmal' }, { punkte: 4, kurz: 'Keine' },
+    ] },
+  ],
+  kategorien: [
+    { id: 'hoch', label: 'Hohes Risiko', min: 9, max: 18, ton: 'danger', hinweis: 'Bewegungsplan mit festen Positionswechseln, druckverteilende Hilfsmittel, Haut bei jedem Positionswechsel kontrollieren.' },
+    { id: 'risiko', label: 'Dekubitusgefahr', min: 19, max: 25, ton: 'warn', hinweis: 'Eigenbewegung fördern, Positionswechsel planen, Haut regelmäßig inspizieren.' },
+    { id: 'kein', label: 'Kein erhöhtes Risiko', min: 26, max: 36, ton: 'ok', hinweis: 'Bei Veränderungen erneut einschätzen. Klinischer Blick bleibt wichtig.' },
+  ],
+  hinweise: [
+    'Nach der erweiterten Norton-Skala besteht ab 25 Punkten und weniger Dekubitusgefahr. Die Grenze für „hohes Risiko“ (hier ≤ 18) ist eine verbreitete Orientierung, keine feste Norm.',
+    'Das Alter gibt über 60 Jahren schon einen Risikopunkt, auch wenn sonst alles in Ordnung ist. Viele Einrichtungen nutzen deshalb inzwischen die Braden-Skala.',
   ],
 };
 
@@ -263,7 +313,47 @@ const MNA: Instrument = {
   ],
 };
 
-export const INSTRUMENTE: Record<InstrumentId, Instrument> = { braden: BRADEN, barthel: BARTHEL, nrs: NRS, besd: BESD, mna: MNA };
+const GCS: Instrument = {
+  id: 'gcs', name: 'Glasgow Coma Scale (GCS)', kurz: 'GCS',
+  zweck: 'Einschätzung der Bewusstseinslage über Augenöffnen, verbale Reaktion und Motorik. Es zählt jeweils die beste Reaktion.',
+  richtung: 'Je niedriger die Summe, desto tiefer die Bewusstseinsstörung (3 bis 15 Punkte).',
+  topicIds: ['thema.beo.bewusstsein', 'thema.beo.notfall', 'thema.kl.neuro.schlaganfall'],
+  items: [
+    { id: 'augen', label: 'Augenöffnen', stufen: [
+      { punkte: 1, kurz: 'Keine Reaktion' },
+      { punkte: 2, kurz: 'Auf Schmerzreiz' },
+      { punkte: 3, kurz: 'Auf Ansprache', text: 'Öffnet die Augen erst, wenn man sie anspricht oder laut ruft.' },
+      { punkte: 4, kurz: 'Spontan' },
+    ] },
+    { id: 'verbal', label: 'Verbale Reaktion', stufen: [
+      { punkte: 1, kurz: 'Keine Reaktion' },
+      { punkte: 2, kurz: 'Unverständliche Laute', text: 'Stöhnen oder Brummen, keine Wörter.' },
+      { punkte: 3, kurz: 'Inadäquate Wörter', text: 'Einzelne Wörter ohne Zusammenhang, kein Gespräch möglich.' },
+      { punkte: 4, kurz: 'Verwirrt', text: 'Spricht in Sätzen, aber zeitlich, örtlich oder zur Situation desorientiert.' },
+      { punkte: 5, kurz: 'Orientiert', text: 'Kennt Name, Ort, Zeit und Situation.' },
+    ] },
+    { id: 'motorik', label: 'Motorische Reaktion', stufen: [
+      { punkte: 1, kurz: 'Keine Reaktion' },
+      { punkte: 2, kurz: 'Strecksynergismen', text: 'Streckt Arme und Beine auf Schmerzreiz (Strecken).' },
+      { punkte: 3, kurz: 'Beugesynergismen', text: 'Beugt die Arme abnorm auf Schmerzreiz.' },
+      { punkte: 4, kurz: 'Ungezielte Abwehr', text: 'Zieht die Extremität auf Schmerzreiz zurück, ohne den Reiz zu lokalisieren.' },
+      { punkte: 5, kurz: 'Gezielte Abwehr', text: 'Greift gezielt zum Ort des Schmerzreizes und wehrt ihn ab.' },
+      { punkte: 6, kurz: 'Befolgt Aufforderungen', text: 'Führt Aufforderungen aus, z. B. „Drücken Sie meine Hand“.' },
+    ] },
+  ],
+  kategorien: [
+    { id: 'schwer', label: 'Schwere Bewusstseinsstörung', min: 3, max: 8, ton: 'danger', hinweis: 'Notfall: Notruf bzw. Notfallteam, Atemweg sichern (Schutzreflexe oft beeinträchtigt), stabile Seitenlage, Vitalzeichen engmaschig.' },
+    { id: 'mittel', label: 'Mittelschwere Bewusstseinsstörung', min: 9, max: 12, ton: 'danger', hinweis: 'Sofort ärztlich abklären, nicht allein lassen, Vitalzeichen und Blutzucker kontrollieren.' },
+    { id: 'leicht', label: 'Leichte Bewusstseinsstörung', min: 13, max: 14, ton: 'warn', hinweis: 'Ursache klären (z. B. Blutzucker, Fieber, Medikamente), ärztlich informieren und Verlauf engmaschig erneut einschätzen.' },
+    { id: 'klar', label: 'Bewusstseinsklar', min: 15, max: 15, ton: 'ok', hinweis: 'Bei Veränderungen erneut einschätzen.' },
+  ],
+  hinweise: [
+    'Immer die beste Reaktion werten, bei Seitenunterschied die bessere Seite. Den Verlauf (z. B. von 14 auf 11) zu erkennen ist wichtiger als der Einzelwert.',
+    'Bei Intubation, Aphasie oder Schwellung der Augen ist ein Teilbereich nicht beurteilbar. Dann die drei Teilwerte einzeln dokumentieren (z. B. A3 V– M6).',
+  ],
+};
+
+export const INSTRUMENTE: Record<InstrumentId, Instrument> = { braden: BRADEN, norton: NORTON, barthel: BARTHEL, nrs: NRS, besd: BESD, mna: MNA, gcs: GCS };
 
 // ---------------------------------------------------------------- Rechnen
 
