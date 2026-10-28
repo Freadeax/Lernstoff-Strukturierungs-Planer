@@ -5,10 +5,15 @@
 import { TYPEN, TYP_LABEL, zahl, type Aufgabe, type AufgabenTyp, type Stufe } from '../rechnen/aufgaben';
 import type { Frage as DuellFrage } from '../duell/duell';
 import type { Antwort as SimAntwort, SimFrage } from '../simulation/simulation';
+import type { Aufgabe as FallAufgabe, Fallaufgabe } from '../krankheitsbilder/faelle';
+import { ABSCHNITTE, aufgabenThemen } from '../krankheitsbilder/bewertung';
 import type { NeuerFehler } from './fehlerheft';
 
 const STUFE_LABEL: Record<Stufe, string> = { 1: 'Einstieg', 2: 'Station', 3: 'Profi' };
 const THEMA = Object.fromEntries(TYPEN.map((t) => [t.typ, t.thema])) as Record<AufgabenTyp, string>;
+
+/** Erste Zeile einer Frage, gekürzt: unterscheidet Einträge aus demselben Fall. */
+const kurz = (s: string, n = 60) => (s.length > n ? `${s.slice(0, n).replace(/\s+\S*$/, '')} …` : s);
 
 const rechenId = (typ: AufgabenTyp, stufe: Stufe) => `rechnen:${typ}:${stufe}`;
 const begriffId = (fragenId: string) => `begriff:${fragenId}`;
@@ -59,5 +64,20 @@ export function ausSimulation(f: SimFrage, a: SimAntwort | undefined): NeuerFehl
       ...(f.begruendungen ?? []).map((b, i) => (b ? `${f.optionen[i]}: ${b}` : '')).filter(Boolean),
     ],
     wiederholung: { art: 'auswahl', optionen: f.optionen, richtig: f.richtig, mehrfach: f.mehrfach },
+  };
+}
+
+/** Krankheitsbild-Fall: eine falsch gelöste Teilaufgabe, mit kurzem Fallbezug statt des ganzen Falltexts. */
+export function ausKrankheitsbild(fall: Fallaufgabe, a: FallAufgabe, gewaehlt: number[], profil: { name: string; topicIds: string[] } | undefined): NeuerFehler {
+  const richtig = a.optionen.flatMap((o, i) => (o.richtig ? [i] : []));
+  const abschnitt = ABSCHNITTE.find((x) => x.id === a.abschnitt)?.label ?? a.abschnitt;
+  return {
+    id: `kh:${fall.id}:${a.id}`, quelle: 'krankheitsbilder', topicIds: aufgabenThemen(a, profil),
+    titel: `${profil?.name ?? fall.titel} · ${kurz(a.frage)}`,
+    frage: `${fall.text[0] ?? fall.titel} ${a.frage}`.trim(),
+    deineAntwort: gewaehlt.length ? gewaehlt.map((i) => a.optionen[i]?.text ?? '').join(' · ') : 'keine Antwort',
+    loesung: richtig.map((i) => a.optionen[i]!.text).join(' · '),
+    erklaerung: [a.erklaerung, `Nachlesen im Steckbrief: ${abschnitt}`],
+    wiederholung: { art: 'auswahl', optionen: a.optionen.map((o) => o.text), richtig, mehrfach: a.art === 'mehrfach' },
   };
 }

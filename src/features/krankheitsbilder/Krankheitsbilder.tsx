@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react';
+import { notiereFehler } from '../fehlerheft/fehlerheft';
+import { ausKrankheitsbild } from '../fehlerheft/quellen';
 import './krankheitsbilder.css';
 import { logActivity } from '../../core/activity';
 import type { DiseaseProfile, DiseaseSection } from '../../modules/catalog-types';
@@ -258,6 +260,7 @@ function Fall({ fall, onFertig, onZurueck, onWeiter }: {
   function auswerten() {
     const e = bewerteFall(fall, antworten, p);
     setErgebnis(e);
+    notiereFehler(e.zeilen.filter((z) => !z.richtig).map((z) => ausKrankheitsbild(fall, z.aufgabe, z.gewaehlt, p)));
     onFertig(fall, e);
     lernplan.uebernimm(proThema(e.treffer, MIN_PRO_THEMA));
   }

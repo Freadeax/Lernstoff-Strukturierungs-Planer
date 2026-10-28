@@ -29,6 +29,8 @@ function baue(f: Fehler): Aufgabe2 {
 function trainerLink(f: Fehler): { label: string; path: string } | null {
   const w = f.wiederholung;
   if (w.art === 'rechnen') return { label: 'Im Rechentrainer üben', path: `/lernen/rechnen?typen=${w.typ}` };
+  // kh:<fallId>:<aufgabeId>
+  if (f.quelle === 'krankheitsbilder') return { label: 'Fall noch einmal bearbeiten', path: `/lernen/krankheitsbilder?fall=${encodeURIComponent(f.id.split(':')[1] ?? '')}` };
   const u = f.topicIds.flatMap((t) => uebungenFuer(t)).find((x) => x.trainer !== 'mindmap');
   return u ? { label: u.label, path: u.path } : null;
 }
@@ -219,7 +221,7 @@ export default function FehlerheftSeite() {
       <div className="page__head">
         <h2>Fehlerheft</h2>
         <p className="muted">
-          Falsche Antworten aus Rechentrainer, Fachbegriff-Duell und Prüfungssimulation landen automatisch hier.
+          Falsche Antworten aus Rechentrainer, Fachbegriff-Duell, Prüfungssimulation und Krankheitsbild-Fällen landen automatisch hier.
           Ein Fehler gilt als behoben, wenn du ihn an {BEHOBEN_NACH} verschiedenen Tagen richtig löst. Heute gemachte Fehler kommen ab morgen dran,
           damit du nicht nur die eben gesehene Lösung wiederholst. Das Fehlerheft zählt nicht als Abfrage im Lernplan.
         </p>
@@ -240,7 +242,7 @@ export default function FehlerheftSeite() {
           {liste.length === 0 ? (
             <p className="muted">
               Noch keine Fehler gesammelt. Übe im <a href="#/lernen/rechnen">Rechentrainer</a>, im <a href="#/lernen/duell">Fachbegriff-Duell</a> oder
-              in der <a href="#/lernen/simulation">Prüfungssimulation</a>: was danebengeht, steht danach hier.
+              in der <a href="#/lernen/simulation">Prüfungssimulation</a> oder mit den <a href="#/lernen/krankheitsbilder">Krankheitsbild-Fällen</a>: was danebengeht, steht danach hier.
             </p>
           ) : (
             <>
