@@ -47,17 +47,16 @@ export default function Lernplan() {
           </button>
         ))}
       </div>
-      {error && <p className="note warn">Lernplan konnte nicht geladen werden: {error.message} <button type="button" className="small" onClick={retry}>Erneut versuchen</button></p>}
-      {!ctx && !error && <p className="muted">Lädt …</p>}
-      {ctx && (
-        <div id="plan-panel" role="tabpanel" aria-labelledby={`plan-tab-${ansicht}`} tabIndex={0}>
-          {ansicht === 'heute' && <Heute ctx={ctx} />}
-          {ansicht === 'wissensstand' && <Wissensstand ctx={ctx} />}
-          {ansicht === 'woche' && <Woche ctx={ctx} />}
-          {ansicht === 'pruefungen' && <Pruefungen ctx={ctx} />}
-          {ansicht === 'zeit' && <Zeit ctx={ctx} />}
-        </div>
-      )}
+      {/* Das Panel steht immer im DOM: die Tabs verweisen per aria-controls darauf, auch während des Ladens. */}
+      <div id="plan-panel" role="tabpanel" aria-labelledby={`plan-tab-${ansicht}`} aria-busy={!ctx && !error} tabIndex={0}>
+        {error && <p className="note warn">Lernplan konnte nicht geladen werden: {error.message} <button type="button" className="small" onClick={retry}>Erneut versuchen</button></p>}
+        {!ctx && !error && <p className="muted">Lädt …</p>}
+        {ctx && ansicht === 'heute' && <Heute ctx={ctx} />}
+        {ctx && ansicht === 'wissensstand' && <Wissensstand ctx={ctx} />}
+        {ctx && ansicht === 'woche' && <Woche ctx={ctx} />}
+        {ctx && ansicht === 'pruefungen' && <Pruefungen ctx={ctx} />}
+        {ctx && ansicht === 'zeit' && <Zeit ctx={ctx} />}
+      </div>
     </section>
   );
 }
