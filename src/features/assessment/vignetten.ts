@@ -3,13 +3,15 @@
 
 import type { InstrumentId } from './instrumente';
 
-export type Gruppe = 'braden' | 'barthel' | 'schmerz' | 'mna';
+export type Gruppe = 'braden' | 'norton' | 'barthel' | 'schmerz' | 'mna' | 'gcs';
 
 export const GRUPPEN: { id: Gruppe; label: string; instrumente: InstrumentId[] }[] = [
   { id: 'braden', label: 'Braden', instrumente: ['braden'] },
+  { id: 'norton', label: 'Norton', instrumente: ['norton'] },
   { id: 'barthel', label: 'Barthel', instrumente: ['barthel'] },
   { id: 'schmerz', label: 'Schmerz (NRS/BESD)', instrumente: ['nrs', 'besd'] },
   { id: 'mna', label: 'MNA-SF', instrumente: ['mna'] },
+  { id: 'gcs', label: 'GCS', instrumente: ['gcs'] },
 ];
 
 export interface Vignette {
@@ -117,6 +119,53 @@ export const VIGNETTEN: Vignette[] = [
     fazit: '7 Punkte, sehr hohes Risiko. In der Palliativsituation stehen Wohlbefinden und Schmerzfreiheit vor der Dekubitusvermeidung: Lagerung nach Wunsch, Weichlagerung, Hautpflege.',
   },
 
+  // ------------------------------------------------------------ Norton
+  {
+    id: 'no-wagner', gruppe: 'norton', instrument: 'norton', titel: 'Frau Wagner, 79 Jahre', setting: 'Stationäre Langzeitpflege',
+    text: [
+      'Frau Wagner ist nach einer Oberschenkelhalsfraktur vor drei Wochen ins Pflegeheim gezogen. Sie macht bei allen Übungen gern mit und fragt von sich aus, wann sie sich umsetzen soll.',
+      'Ihre Haut ist an Unterschenkeln und Rücken trocken und schuppig, aber intakt. Sie hat einen Diabetes mellitus Typ 2.',
+      'Ihr Allgemeinzustand ist leidlich: Sie ermüdet schnell, isst aber ausreichend. Sie ist zeitlich, örtlich und zur Person orientiert.',
+      'Laufen kann sie noch nicht, sie wird im Rollstuhl in den Speiseraum gefahren. Im Bett dreht sie sich mit dem Bettgalgen selbst, nur das operierte Bein bewegt sie vorsichtig.',
+      'Sie trägt eine Vorlage, die tagsüber und nachts meistens nass ist. Stuhl hält sie.',
+    ],
+    loesung: { kooperation: 4, alter: 1, haut: 3, zusatz: 3, koerper: 3, geist: 4, aktivitaet: 2, beweglichkeit: 3, inkontinenz: 2 },
+    begruendung: {
+      kooperation: 'Macht gern mit und fragt selbst nach: voll.',
+      alter: '79 Jahre: über 60.',
+      haut: 'Trocken und schuppig, intakt: 3.',
+      zusatz: 'Diabetes mellitus: 3.',
+      koerper: 'Ermüdet schnell, isst ausreichend: leidlich.',
+      geist: 'Voll orientiert: klar.',
+      aktivitaet: 'Wird im Rollstuhl gefahren: rollstuhlbedürftig.',
+      beweglichkeit: 'Dreht sich selbst, schont nur ein Bein: kaum eingeschränkt.',
+      inkontinenz: 'Vorlage meistens nass, Stuhl kontinent: meistens Urin.',
+    },
+    fazit: '25 Punkte, Dekubitusgefahr, genau an der Grenze. Ihre Motivation ist eine starke Ressource: Eigenbewegung im Bett anleiten, Inkontinenzversorgung verbessern und Hautpflege, Mobilisation mit der Physiotherapie steigern.',
+  },
+  {
+    id: 'no-becker', gruppe: 'norton', instrument: 'norton', titel: 'Herr Becker, 66 Jahre', setting: 'Krankenhaus, Onkologie',
+    text: [
+      'Herr Becker hat ein fortgeschrittenes Lungenkarzinom und bekommt seit einer Woche eine Chemotherapie. Er wirkt antriebslos und teilnahmslos, antwortet aber richtig, wenn man ihn fragt.',
+      'Bei der Lagerung macht er mit, wenn es ihm gut geht. An schlechten Tagen lehnt er Positionswechsel ab.',
+      'Er hat starken Nachtschweiß, die Haut am Rücken ist morgens feucht. Sein Allgemeinzustand ist schlecht, er hat in einem Monat 6 kg abgenommen.',
+      'Er verlässt das Bett zurzeit nicht. Im Bett kann er sich nur mit viel Hilfe auf die Seite drehen.',
+      'Etwa einmal am Tag schafft er es nicht rechtzeitig zur Urinflasche.',
+    ],
+    loesung: { kooperation: 2, alter: 1, haut: 2, zusatz: 2, koerper: 2, geist: 3, aktivitaet: 1, beweglichkeit: 2, inkontinenz: 3 },
+    begruendung: {
+      kooperation: 'Macht nur an guten Tagen mit: teilweise.',
+      alter: '66 Jahre: über 60.',
+      haut: 'Durch Nachtschweiß feucht: 2.',
+      zusatz: 'Krebserkrankung: 2.',
+      koerper: 'Schlechter Allgemeinzustand mit Gewichtsverlust: schlecht.',
+      geist: 'Antriebslos und teilnahmslos, aber orientiert: apathisch.',
+      aktivitaet: 'Verlässt das Bett nicht: bettlägerig.',
+      beweglichkeit: 'Dreht sich nur mit viel Hilfe: sehr eingeschränkt.',
+      inkontinenz: 'Gelegentlich Urin daneben: manchmal.',
+    },
+    fazit: '18 Punkte, hohes Risiko. Bewegungsplan, der seine guten und schlechten Tage berücksichtigt, druckverteilende Matratze, Hautpflege und Wäschewechsel bei Nachtschweiß, Ernährung mit Ernährungsberatung abstimmen.',
+  },
   // ------------------------------------------------------------ Barthel
   {
     id: 'ba-schmitt', gruppe: 'barthel', instrument: 'barthel', titel: 'Frau Schmitt, 79 Jahre', setting: 'Geriatrische Reha nach Oberschenkelhalsfraktur',
@@ -322,5 +371,54 @@ export const VIGNETTEN: Vignette[] = [
     },
     koerper: { kg: 92, cm: 178 },
     fazit: '12 Punkte, normaler Ernährungszustand, obwohl die OP bei D zwei Punkte kostet. Screening bei Veränderungen wiederholen.',
+  },
+  // ------------------------------------------------------------ GCS
+  {
+    id: 'gcs-lange', gruppe: 'gcs', instrument: 'gcs', titel: 'Frau Lange, 81 Jahre', setting: 'Stationäre Langzeitpflege, Frühdienst',
+    text: [
+      'Frau Lange hat einen insulinpflichtigen Diabetes. Beim Wecken um 7 Uhr liegt sie mit geschlossenen Augen im Bett. Erst als du sie mit Namen ansprichst, öffnet sie die Augen.',
+      'Sie spricht in ganzen Sätzen, meint aber, sie sei zu Hause und müsse gleich zur Arbeit.',
+      'Als du sie bittest, deine Hand zu drücken, tut sie das mit beiden Händen kräftig.',
+      'Sie ist blass und kaltschweißig.',
+    ],
+    loesung: { augen: 3, verbal: 4, motorik: 6 },
+    begruendung: {
+      augen: 'Öffnet die Augen erst auf Ansprache: 3.',
+      verbal: 'Spricht in Sätzen, ist aber desorientiert: verwirrt, 4.',
+      motorik: 'Drückt auf Aufforderung die Hand: befolgt Aufforderungen, 6.',
+    },
+    fazit: '13 Punkte, leichte Bewusstseinsstörung. Bei Diabetes, Blässe und Kaltschweißigkeit sofort Blutzucker messen, Hypoglykämie nach Standard behandeln, ärztlich informieren und die GCS nach der Behandlung erneut erheben.',
+  },
+  {
+    id: 'gcs-schroeder', gruppe: 'gcs', instrument: 'gcs', titel: 'Herr Schröder, 74 Jahre', setting: 'Krankenhaus, Innere Medizin, Nachtdienst',
+    text: [
+      'Herr Schröder nimmt einen Gerinnungshemmer. Am Abend ist er im Bad gestürzt und hat sich den Kopf angeschlagen, um 22 Uhr war er noch wach und orientiert.',
+      'Bei der Kontrolle um 2 Uhr reagiert er nicht auf Ansprache. Erst als du ihn am Trapezmuskel kneifst, öffnet er kurz die Augen.',
+      'Er stöhnt dabei, sagt aber kein Wort.',
+      'Mit der rechten Hand greift er gezielt nach deiner Hand und schiebt sie weg. Aufforderungen befolgt er nicht.',
+    ],
+    loesung: { augen: 2, verbal: 2, motorik: 5 },
+    begruendung: {
+      augen: 'Öffnet die Augen nur auf Schmerzreiz: 2.',
+      verbal: 'Stöhnt, keine Wörter: unverständliche Laute, 2.',
+      motorik: 'Greift gezielt zum Ort des Schmerzreizes und wehrt ab: gezielte Abwehr, 5.',
+    },
+    fazit: '9 Punkte, mittelschwere Bewusstseinsstörung, gefallen von 15 vor vier Stunden. Unter Gerinnungshemmung an eine Hirnblutung denken: sofort ärztlich informieren, nicht allein lassen, Vitalzeichen und Pupillen kontrollieren, Atemweg im Blick behalten.',
+  },
+  {
+    id: 'gcs-krause', gruppe: 'gcs', instrument: 'gcs', titel: 'Frau Krause, 68 Jahre', setting: 'Ambulante Pflege, Hausbesuch',
+    text: [
+      'Beim Hausbesuch findest du Frau Krause auf dem Sofa. Sie hält die Augen geschlossen und öffnet sie weder auf lautes Ansprechen noch auf einen kräftigen Schmerzreiz.',
+      'Sie gibt keinen Laut von sich.',
+      'Auf den Schmerzreiz beugt sie beide Arme abnorm an den Körper heran.',
+      'Sie atmet schnarchend.',
+    ],
+    loesung: { augen: 1, verbal: 1, motorik: 3 },
+    begruendung: {
+      augen: 'Kein Augenöffnen, auch nicht auf Schmerzreiz: 1.',
+      verbal: 'Kein Laut: 1.',
+      motorik: 'Abnormes Beugen der Arme auf Schmerzreiz: Beugesynergismen, 3.',
+    },
+    fazit: '5 Punkte, schwere Bewusstseinsstörung. Notruf 112, Atemweg freimachen und Atmung prüfen, bei vorhandener Atmung stabile Seitenlage, bis zum Eintreffen des Rettungsdienstes bei ihr bleiben und Atmung fortlaufend kontrollieren.',
   },
 ];

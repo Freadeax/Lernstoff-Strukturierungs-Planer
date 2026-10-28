@@ -11,6 +11,8 @@ import {
 } from './instrumente';
 import { GRUPPEN, VIGNETTEN, type Gruppe, type Vignette } from './vignetten';
 import { bewerteVignette, type VignettenErgebnis } from './bewertung';
+import { notiereFehler } from '../fehlerheft/fehlerheft';
+import { ausAssessment } from '../fehlerheft/quellen';
 
 type Modus = 'rechner' | 'faelle';
 /** Ab so vielen bewerteten Punkten (Items + Einstufung + ggf. Instrument) zählt ein Fall im Lernplan. */
@@ -236,6 +238,7 @@ function Fall({ v, onFertig, onZurueck, onWeiter }: {
     const e = bewerteVignette(v, { werte: Object.fromEntries(items.map((i) => [i.id, werte[i.id]])), kategorie: eigeneKat, instrument: gewaehlt });
     setErgebnis(e);
     onFertig(v, e);
+    notiereFehler(ausAssessment(v, e, eigeneKat));
     lernplan.uebernimm(proThema(e.treffer, MIN_PRO_THEMA));
   }
 
@@ -311,9 +314,10 @@ function Fall({ v, onFertig, onZurueck, onWeiter }: {
 export default function AssessmentTrainer() {
   const { params } = useRoute();
   const gruppeParam = params.get('gruppe');
-  const gruppe: Gruppe = istGruppe(gruppeParam) ? gruppeParam : 'braden';
-  const modus: Modus = params.get('modus') === 'faelle' || params.get('fall') ? 'faelle' : 'rechner';
   const fall = VIGNETTEN.find((v) => v.id === params.get('fall'));
+  // Links aus dem Fehlerheft nennen nur den Fall, die Gruppe ergibt sich daraus
+  const gruppe: Gruppe = fall?.gruppe ?? (istGruppe(gruppeParam) ? gruppeParam : 'braden');
+  const modus: Modus = params.get('modus') === 'faelle' || params.get('fall') ? 'faelle' : 'rechner';
   const [schmerzInstrument, setSchmerzInstrument] = useState<InstrumentId>('nrs');
   const [erledigt, setErledigt] = useState<Erledigt>(ladeErledigt);
 
@@ -344,7 +348,7 @@ export default function AssessmentTrainer() {
     <section className="page as">
       <div className="page__head">
         <h2>Assessment-Rechner</h2>
-        <p className="muted">Braden, Barthel, NRS, BESD und MNA-SF ausrechnen oder an Fallvignetten üben. Funktioniert offline. Fallvignetten zählen im Lernplan als Abfrage, der freie Rechner nicht. Übungswerkzeug, kein Ersatz für das Formular deiner Einrichtung.</p>
+        <p className="muted">Braden, Norton, Barthel, NRS, BESD, MNA-SF und Glasgow Coma Scale ausrechnen oder an Fallvignetten üben. Funktioniert offline. Fallvignetten zählen im Lernplan als Abfrage, der freie Rechner nicht. Übungswerkzeug, kein Ersatz für das Formular deiner Einrichtung.</p>
       </div>
 
       <div className="card as__einstellungen">

@@ -108,8 +108,9 @@ export function uebungenFuer(topicId: string, modul: CatalogModule = pflegeModul
   if (topicId === UEBERGABE_THEMA) out.push({ trainer: 'uebergabe', label: 'Übergabe-Trainer', path: '/lernen/uebergabe' });
   if (topicId === SIS_THEMA) out.push({ trainer: 'sis', label: 'SIS-Trainer', path: '/lernen/sis' });
   if (topicId === BERICHT_THEMA) out.push({ trainer: 'bericht', label: 'Pflegebericht-Trainer', path: '/lernen/bericht' });
-  const assessment = GRUPPEN.find((g) => g.instrumente.some((i) => INSTRUMENTE[i].topicIds.includes(topicId)));
-  if (assessment) out.push({ trainer: 'assessment', label: `Assessment üben (${assessment.label})`, path: `/lernen/assessment?gruppe=${assessment.id}&modus=faelle` });
+  for (const g of GRUPPEN.filter((x) => x.instrumente.some((i) => INSTRUMENTE[i].topicIds.includes(topicId)))) {
+    out.push({ trainer: 'assessment', label: `Assessment üben (${g.label})`, path: `/lernen/assessment?gruppe=${g.id}&modus=faelle` });
+  }
   if (faelleZuThema(topicId, KRANKHEITSFAELLE, modul).length) {
     out.push({ trainer: 'krankheitsbilder', label: 'Fallaufgaben Krankheitsbilder', path: `/lernen/krankheitsbilder?ansicht=faelle&thema=${encodeURIComponent(topicId)}` });
   }

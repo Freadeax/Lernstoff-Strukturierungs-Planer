@@ -7,6 +7,9 @@ import type { Frage as DuellFrage } from '../duell/duell';
 import type { Antwort as SimAntwort, SimFrage } from '../simulation/simulation';
 import type { Aufgabe as FallAufgabe, Fallaufgabe } from '../krankheitsbilder/faelle';
 import { ABSCHNITTE, aufgabenThemen } from '../krankheitsbilder/bewertung';
+import { INSTRUMENTE } from '../assessment/instrumente';
+import type { Vignette } from '../assessment/vignetten';
+import type { VignettenErgebnis } from '../assessment/bewertung';
 import type { NeuerFehler } from './fehlerheft';
 
 const STUFE_LABEL: Record<Stufe, string> = { 1: 'Einstieg', 2: 'Station', 3: 'Profi' };
@@ -80,4 +83,42 @@ export function ausKrankheitsbild(fall: Fallaufgabe, a: FallAufgabe, gewaehlt: n
     erklaerung: [a.erklaerung, `Nachlesen im Steckbrief: ${abschnitt}`],
     wiederholung: { art: 'auswahl', optionen: a.optionen.map((o) => o.text), richtig, mehrfach: a.art === 'mehrfach' },
   };
+}
+
+/**
+ * Assessment-Fallvignette: je falsch eingeschätztem Bereich ein Eintrag, dazu die Einstufung.
+ * Wiederholt wird als Auswahl der Stufen, mit dem ganzen Falltext, weil die Hinweise verteilt stehen.
+ */
+export function ausAssessment(v: Vignette, e: VignettenErgebnis, eigeneKategorie: string | null): NeuerFehler[] {
+  const instr = INSTRUMENTE[v.instrument];
+  const topicIds = v.topicIds ?? instr.topicIds;
+  const fall = `${v.titel} (${v.setting}): ${v.text.join(' ')}`;
+  const stufe = (p: number, kurz: string) => `${p} · ${kurz}`;
+  const items: NeuerFehler[] = e.zeilen.filter((z) => !z.richtig).map((z) => {
+    const optionen = z.item.stufen.map((s) => stufe(s.punkte, s.kurz));
+    const ist = z.item.stufen.find((s) => s.punkte === z.ist);
+    return {
+      id: `as:${v.id}:${z.item.id}`, quelle: 'assessment', topicIds,
+      titel: `${instr.kurz} · ${v.titel} · ${z.item.label}`,
+      frage: `${fall} Wie viele Punkte gibt es bei „${z.item.label}“?`,
+      deineAntwort: ist ? stufe(ist.punkte, ist.kurz) : 'keine Antwort',
+      loesung: optionen[z.item.stufen.findIndex((s) => s.punkte === z.soll)] ?? String(z.soll),
+      erklaerung: [z.begruendung],
+      wiederholung: { art: 'auswahl', optionen, richtig: [z.item.stufen.findIndex((s) => s.punkte === z.soll)], mehrfach: false },
+    };
+  });
+  if (!e.kategorieRichtig && e.kategorieSoll) {
+    const optionen = instr.kategorien.map((k) => `${k.label} (${k.min === k.max ? k.min : `${k.min}–${k.max}`})`);
+    const eigene = instr.kategorien.findIndex((k) => k.id === eigeneKategorie);
+    items.push({
+      id: `as:${v.id}:einstufung`, quelle: 'assessment', topicIds,
+      titel: `${instr.kurz} · ${v.titel} · Einstufung`,
+      frage: `${v.titel}: Die ${instr.kurz} ergibt ${e.summeSoll} Punkte. Wie wird das eingestuft?`,
+      deineAntwort: eigene >= 0 ? optionen[eigene]! : 'keine Antwort',
+      loesung: optionen[instr.kategorien.indexOf(e.kategorieSoll)]!,
+      erklaerung: [v.fazit, instr.richtung],
+      wiederholung: { art: 'auswahl', optionen, richtig: [instr.kategorien.indexOf(e.kategorieSoll)], mehrfach: false },
+    });
+  }
+  return items;
 }

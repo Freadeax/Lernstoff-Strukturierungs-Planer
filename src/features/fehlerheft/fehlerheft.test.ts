@@ -4,7 +4,9 @@ import { pflegeModule } from '../../modules/pflege';
 import { erzeugeRunde, karten } from '../duell/duell';
 import { katalog, rechenFragen } from '../simulation/simulation';
 import { auswahlRichtig, faellig, MAX_EINTRAEGE, merke, mischeAuswahl, nachThema, ueberblick, wiederholt, type NeuerFehler } from './fehlerheft';
-import { ausDuell, ausKrankheitsbild, ausRechentrainer, ausSimulation } from './quellen';
+import { ausAssessment, ausDuell, ausKrankheitsbild, ausRechentrainer, ausSimulation } from './quellen';
+import { VIGNETTEN } from '../assessment/vignetten';
+import { bewerteVignette } from '../assessment/bewertung';
 import { FAELLE } from '../krankheitsbilder/faelle';
 import { bewerteAufgabe } from '../krankheitsbilder/bewertung';
 
@@ -120,5 +122,21 @@ describe('Quellen', () => {
         expect(bewerteAufgabe(a, w.richtig).richtig).toBe(true);
       }
     }
+  });
+
+  it('legt für Assessment-Fälle je falschem Bereich und falscher Einstufung einen Eintrag an', () => {
+    const v = VIGNETTEN.find((x) => x.id === 'gcs-schroeder')!;
+    const e = bewerteVignette(v, { werte: { ...v.loesung, motorik: 4 }, kategorie: 'leicht' });
+    const n = ausAssessment(v, e, 'leicht');
+    expect(n.map((x) => x.id)).toEqual(['as:gcs-schroeder:motorik', 'as:gcs-schroeder:einstufung']);
+    expect(n[0]!.deineAntwort).toBe('4 · Ungezielte Abwehr');
+    expect(n[0]!.loesung).toBe('5 · Gezielte Abwehr');
+    expect(n[1]!.loesung).toMatch(/^Mittelschwere/);
+    for (const x of n) {
+      const w = x.wiederholung;
+      if (w.art !== 'auswahl') throw new Error('Auswahl erwartet');
+      expect(w.optionen[w.richtig[0]!]).toBe(x.loesung);
+    }
+    expect(ausAssessment(v, bewerteVignette(v, { werte: v.loesung, kategorie: 'mittel' }), 'mittel')).toEqual([]);
   });
 });
