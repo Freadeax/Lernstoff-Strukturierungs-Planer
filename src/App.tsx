@@ -34,6 +34,7 @@ const Klassenmodus = lazy(() => import('./features/klasse/Klassenmodus'));
 const Datensicherung = lazy(() => import('./features/sicherung/Datensicherung'));
 const Karteikarten = lazy(() => import('./features/karteikarten/ui/Karteikarten'));
 const Skript = lazy(() => import('./features/skript/ui/Skript'));
+const CeSeite = lazy(() => import('./features/ce/CeSeite'));
 
 function Page({ title, intro, children }: { title: string; intro?: string; children: React.ReactNode }) {
   return (
@@ -52,6 +53,7 @@ function View() {
     case '/': return <Dashboard />;
     case '/lernen/plan': return <Lernplan />;
     case '/lernen/themen': return <Page title="Themen" intro="Alle Themen des Fachmoduls. Arbeitsstand direkt in der Tabelle ändern oder mehrere auswählen."><WidgetGrid widgets={[WIDGETS.themen]} allowHide={false} /></Page>;
+    case '/lernen/ce': return <CeSeite />;
     case '/lernen/landkarte': return <Landkarte />;
     case '/lernen/board': return <Page title="Lernstand"><WidgetGrid widgets={[WIDGETS.board]} allowHide={false} /></Page>;
     case '/lernen/skript': return <Skript />;
