@@ -60,6 +60,8 @@ export interface SitzungsOptionen {
   neueHeuteSchon: number;
   /** Nur Karten dieser Themen (z. B. aus dem Lernplan aufgerufen). */
   themen?: ID[];
+  /** Nur Karten mit dieser Herkunft, z. B. ein Krankheitsbild-Steckbrief (Karte.ref). Gilt wie der Themenmodus ohne Tageslimit. */
+  ref?: ID;
   /** Auch noch nicht fällige Karten nehmen, wenn sonst nichts da ist (vorgezogene Wiederholung). */
   vorziehen?: boolean;
 }
@@ -73,7 +75,8 @@ export interface Sitzung { karten: Karte[]; faellig: number; neu: number; vorgez
  */
 export function stelleSitzungZusammen(alle: Karte[], staende: Map<ID, KartenStand>, o: SitzungsOptionen): Sitzung {
   const themen = o.themen?.length ? new Set(o.themen) : undefined;
-  const pool = themen ? alle.filter((k) => k.topicIds.some((t) => themen.has(t))) : alle;
+  const gezielt = !!themen || !!o.ref;
+  const pool = alle.filter((k) => (!themen || k.topicIds.some((t) => themen.has(t))) && (!o.ref || k.ref === o.ref));
   const faellig: { k: Karte; r: number }[] = [];
   const neu: Karte[] = [];
   const spaeter: { k: Karte; due: string }[] = [];
@@ -87,7 +90,7 @@ export function stelleSitzungZusammen(alle: Karte[], staende: Map<ID, KartenStan
   faellig.sort((a, b) => a.r - b.r);
   const max = Math.max(1, o.config.sitzungsGroesse);
   // Im Themenmodus gilt das Tageslimit nicht: wer gezielt ein Thema übt, will alle Karten sehen.
-  const neuErlaubt = themen ? max : Math.max(0, o.config.neueProTag - o.neueHeuteSchon);
+  const neuErlaubt = gezielt ? max : Math.max(0, o.config.neueProTag - o.neueHeuteSchon);
   const alt = faellig.slice(0, max).map((x) => x.k);
   const frisch = neu.slice(0, Math.min(neuErlaubt, max - alt.length));
   const karten = einstreuen(alt, frisch);

@@ -3,7 +3,7 @@
 // gespeichert). Karten aus Zusammenfassungen und Prüfungsfragen übernimmt man bewusst und speichert sie.
 
 import type { Claim, DomainModule, ID, SourceChunk, Summary } from '../../core/types';
-import type { CatalogGlossaryEntry, CatalogModule, DrugProfile, Reference } from '../../modules/catalog-types';
+import type { CatalogGlossaryEntry, CatalogModule, DiseaseSection, DrugProfile, Reference } from '../../modules/catalog-types';
 import { maskiere } from '../duell/duell';
 import type { FragenSatz } from '../zusammenfasser/typen';
 import type { Karte, KartenBeleg, KartenConfig, Richtung } from './typen';
@@ -126,11 +126,53 @@ export function ausSteckbriefen(modul: Pick<CatalogModule, 'topics'> & Partial<P
   return out;
 }
 
+/**
+ * Krankheitsbild-Steckbriefe: je Abschnitt eine Karte (Definition, Ursachen, Symptome, Komplikationen,
+ * Therapie, Pflege, Beratung, Prophylaxen). Belegte Abschnitte tragen die Fundstelle im Unterrichtsmaterial,
+ * alle anderen gelten als ungeprüft, genau wie im Steckbrief selbst.
+ */
+export function ausKrankheitsbildern(modul: Pick<CatalogModule, 'topics'> & Partial<Pick<CatalogModule, 'diseaseProfiles'>>): Karte[] {
+  const faecher = fachVon(modul);
+  const themaName = new Map(modul.topics.map((t) => [t.id, t.name]));
+  const out: Karte[] = [];
+  for (const p of modul.diseaseProfiles ?? []) {
+    const karte = (abschnitt: DiseaseSection, vorne: string, rest: Partial<Karte>) => {
+      const belege = (p.belege ?? []).filter((b) => b.abschnitt === abschnitt);
+      out.push({
+        id: `kh:${p.id}:${abschnitt}`, quelle: 'krankheitsbild', art: `Krankheitsbild → ${KH_ART[abschnitt]}`, vorne, hinten: '',
+        topicIds: p.topicIds, subjectIds: faecher(p.topicIds), ref: p.id,
+        ungeprueft: !belege.length, belegText: belege.length ? belege.map((b) => `${b.quelle}, S. ${b.seiten}`).join(' · ') : undefined,
+        ...rest,
+      });
+    };
+    const n = p.name;
+    karte('definition', `Was versteht man unter ${n}?`, { hinten: p.definition });
+    if (p.ursachen.length) karte('ursachen', `Welche Ursachen hat ${n}?`, { liste: p.ursachen });
+    karte('symptome', `Woran erkennst du ${n}? Nenne typische Symptome.`, { liste: p.symptome });
+    if (p.komplikationen?.length) karte('komplikationen', `${n}: Welche Komplikationen und Warnzeichen musst du kennen?`, { liste: p.komplikationen });
+    if (p.therapie?.length) karte('therapie', `Wie wird ${n} behandelt?`, { liste: p.therapie });
+    karte('pflege', `${n}: Worauf achtest du in der Pflege?`, { liste: p.pflege, hinten: p.merksatz ?? '' });
+    if (p.beratung?.length) karte('beratung', `${n}: Wozu berätst und schulst du?`, { liste: p.beratung });
+    if (p.prophylaxen?.length) {
+      karte('prophylaxen', `Welche Prophylaxen sind bei ${n} besonders wichtig?`, {
+        liste: p.prophylaxen.map((x) => `${themaName.get(x.topicId) ?? x.topicId}: ${x.grund}`),
+      });
+    }
+  }
+  return out;
+}
+
+const KH_ART: Partial<Record<DiseaseSection, string>> = {
+  definition: 'Definition', ursachen: 'Ursachen', symptome: 'Symptome', komplikationen: 'Komplikationen',
+  therapie: 'Therapie', pflege: 'Pflege', beratung: 'Beratung', prophylaxen: 'Prophylaxen',
+};
+
 /** Aktive Karten aus dem Fachmodul nach den Stapel-Einstellungen. Karten ohne Fach (Operatoren) gelten für alle. */
-export function modulKarten(modul: CatalogModule, config: Pick<KartenConfig, 'faecher' | 'richtungen' | 'katalog'> & Partial<Pick<KartenConfig, 'arzneimittel'>>): Karte[] {
+export function modulKarten(modul: CatalogModule, config: Pick<KartenConfig, 'faecher' | 'richtungen' | 'katalog'> & Partial<Pick<KartenConfig, 'arzneimittel' | 'krankheitsbilder'>>): Karte[] {
   const alle = [
     ...ausGlossar(modul, config.richtungen), ...(config.katalog ? ausKatalog(modul) : []),
     ...(config.arzneimittel !== false ? ausSteckbriefen(modul) : []),
+    ...(config.krankheitsbilder !== false ? ausKrankheitsbildern(modul) : []),
   ];
   if (!config.faecher.length) return alle;
   const f = new Set(config.faecher);

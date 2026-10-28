@@ -91,7 +91,7 @@ export function Stapel({ ctx }: { ctx: KartenCtx }) {
     const m = new Map<ID, number>();
     for (const k of alle) for (const s of k.subjectIds) m.set(s, (m.get(s) ?? 0) + 1);
     return m;
-  }, [config.richtungen, config.katalog, config.arzneimittel]);
+  }, [config.richtungen, config.katalog, config.arzneimittel, config.krankheitsbilder]);
   const setze = (patch: Partial<Omit<KartenConfig, 'id'>>) => sicher(() => speichereConfig(patch), 'Stapel gespeichert', ctx);
   const toggleFach = (id: ID) => {
     const aktiv = config.faecher.length ? config.faecher : [];
@@ -107,7 +107,7 @@ export function Stapel({ ctx }: { ctx: KartenCtx }) {
     <div className="stack-2">
       <div className="card">
         <h3>Fächer aus dem Fachmodul</h3>
-        <p className="muted">{ctx.daten.modul.length} Karten aus Glossar{config.katalog ? ', Themenkatalog' : ''}{config.arzneimittel ? ', Medikamenten-Steckbriefen' : ''} aktiv. Ohne Auswahl sind alle Fächer dabei.</p>
+        <p className="muted">{ctx.daten.modul.length} Karten aus Glossar{config.katalog ? ', Themenkatalog' : ''}{config.arzneimittel ? ', Medikamenten-Steckbriefen' : ''}{config.krankheitsbilder ? ', Krankheitsbildern' : ''} aktiv. Ohne Auswahl sind alle Fächer dabei.</p>
         <div className="pills" role="group" aria-label="Fächer">
           <button type="button" className="pill" aria-pressed={!config.faecher.length} onClick={() => setze({ faecher: [] })}>Alle Fächer</button>
           {modul.subjects.filter((s) => proFach.get(s.id)).map((s) => (
@@ -134,6 +134,10 @@ export function Stapel({ ctx }: { ctx: KartenCtx }) {
           <li>
             <label><input type="checkbox" checked={config.arzneimittel} onChange={() => setze({ arzneimittel: !config.arzneimittel })} /> Medikamenten-Steckbriefe</label>
             <span className="muted">{modul.drugProfiles?.length ?? 0} häufige Wirkstoffe: Gruppe und Wirkung, Anwendung, Nebenwirkungen, Pflegerelevanz, Antidot, Handelsname. Mit Quellenangabe.</span>
+          </li>
+          <li>
+            <label><input type="checkbox" checked={config.krankheitsbilder} onChange={() => setze({ krankheitsbilder: !config.krankheitsbilder })} /> Krankheitsbilder</label>
+            <span className="muted">{modul.diseaseProfiles?.length ?? 0} Steckbriefe: Definition, Ursachen, Symptome, Komplikationen, Therapie, Pflege, Beratung, Prophylaxen. Belegte Abschnitte mit Fundstelle im Unterrichtsmaterial.</span>
           </li>
         </ul>
       </div>

@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import type { Summary } from '../../core/types';
 import { pflegeModule } from '../../modules/pflege';
 import { ratingFromScore } from '../lernplan/fsrs';
-import { ausFragenSatz, ausGlossar, ausKatalog, ausSteckbriefen, ausZusammenfassung, definitionsBegriff, modulKarten, pruefeEingabe, wirkstoffAntworten } from './erzeugen';
+import { ausFragenSatz, ausGlossar, ausKatalog, ausKrankheitsbildern, ausSteckbriefen, ausZusammenfassung, definitionsBegriff, modulKarten, pruefeEingabe, wirkstoffAntworten } from './erzeugen';
 import {
   bewerte, einstreuen, ergebnisseJeThema, prognose, stelleSitzungZusammen, vorschau, wiedereinreihen,
 } from './planung';
@@ -188,6 +188,41 @@ describe('Medikamenten-Steckbriefe', () => {
     const basis = { faecher: [], richtungen: ['vorwaerts' as const], katalog: false };
     expect(modulKarten(pflegeModule, { ...basis, arzneimittel: false }).some((x) => x.quelle === 'arzneimittel')).toBe(false);
     expect(modulKarten(pflegeModule, basis).filter((x) => x.quelle === 'arzneimittel')).toHaveLength(k.length);
+  });
+});
+
+describe('Krankheitsbild-Steckbriefe', () => {
+  const k = ausKrankheitsbildern(pflegeModule);
+  const profile = pflegeModule.diseaseProfiles ?? [];
+
+  it('baut je Krankheitsbild mindestens Definition, Symptome und Pflege mit stabilen IDs', () => {
+    expect(profile.length).toBeGreaterThan(0);
+    for (const p of profile) {
+      const ids = k.filter((x) => x.ref === p.id).map((x) => x.id);
+      for (const teil of ['definition', 'symptome', 'pflege']) expect(ids, p.id).toContain(`kh:${p.id}:${teil}`);
+    }
+    expect(new Set(k.map((x) => x.id)).size).toBe(k.length);
+    expect(k.every((x) => x.vorne && (x.hinten || x.liste?.length) && x.subjectIds.length)).toBe(true);
+  });
+
+  it('übernimmt den Belegstatus je Abschnitt aus dem Steckbrief', () => {
+    for (const x of k) {
+      const p = profile.find((y) => y.id === x.ref)!;
+      const belegt = (p.belege ?? []).some((b) => `kh:${p.id}:${b.abschnitt}` === x.id);
+      expect(x.ungeprueft, x.id).toBe(!belegt);
+      expect(!!x.belegText, x.id).toBe(belegt);
+    }
+    expect(k.some((x) => x.belegText) && k.some((x) => x.ungeprueft)).toBe(true);
+  });
+
+  it('lässt sich im Stapel abschalten und gezielt je Krankheitsbild lernen', () => {
+    const basis = { faecher: [], richtungen: ['vorwaerts' as const], katalog: false };
+    expect(modulKarten(pflegeModule, { ...basis, krankheitsbilder: false }).some((x) => x.quelle === 'krankheitsbild')).toBe(false);
+    expect(modulKarten(pflegeModule, basis).filter((x) => x.quelle === 'krankheitsbild')).toHaveLength(k.length);
+    const ref = profile[0]!.id;
+    const s = stelleSitzungZusammen(k, new Map(), { heute: '2026-10-28', config: { neueProTag: 1, sitzungsGroesse: 40 }, neueHeuteSchon: 1, ref });
+    expect(s.karten.length).toBe(k.filter((x) => x.ref === ref).length);
+    expect(s.karten.every((x) => x.ref === ref)).toBe(true);
   });
 });
 
