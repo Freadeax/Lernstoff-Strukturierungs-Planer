@@ -56,7 +56,8 @@ try {
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Wissensstand: Überlauf');
     await page.getByLabel('Themen suchen', { exact: true }).fill('Arzneimittel');
     await page.getByRole('button', { name: 'Prüfungsrunde im Rechentrainer', exact: true }).click();
-    await page.waitForURL('**#' + '/lernen/rechnen?modus=pruefung&typen=einheiten,dosis,mgkg,prozent');
+    // Weitere Rechenarten (z. B. insulin) dürfen hinzukommen; geprüft wird der Sprung in die Prüfungsrunde.
+    await page.waitForURL(/#\/lernen\/rechnen\?modus=pruefung&typen=einheiten,dosis,mgkg,prozent(,|$)/);
     for (const route of routes) {
       await go('/lernen/' + route);
       assert(await page.locator('main').isVisible());
