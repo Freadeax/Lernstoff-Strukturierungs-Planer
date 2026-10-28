@@ -35,6 +35,7 @@ const Datensicherung = lazy(() => import('./features/sicherung/Datensicherung'))
 const Karteikarten = lazy(() => import('./features/karteikarten/ui/Karteikarten'));
 const Skript = lazy(() => import('./features/skript/ui/Skript'));
 const CeSeite = lazy(() => import('./features/ce/CeSeite'));
+const Examen = lazy(() => import('./features/examen/ExamenSeite'));
 
 function Page({ title, intro, children }: { title: string; intro?: string; children: React.ReactNode }) {
   return (
@@ -64,6 +65,7 @@ function View() {
     case '/lernen/praxis': return <Praxissimulator />;
     case '/lernen/duell': return <Duell />;
     case '/lernen/simulation': return <Simulation />;
+    case '/lernen/examen': return <Examen />;
     case '/lernen/pflegeplanung': return <Pflegeplanung />;
     case '/lernen/sis': return <SisTrainer />;
     case '/lernen/bericht': return <Berichttrainer />;
