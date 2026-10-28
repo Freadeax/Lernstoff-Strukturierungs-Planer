@@ -116,6 +116,28 @@ describe('Checkliste', () => {
     }
   });
 
+  it('übernimmt Krankheitsbild- und Assessment-Fälle mit Lösung', () => {
+    const kh = VORLAGEN.filter((v) => v.art === 'krankheitsbild');
+    const as = VORLAGEN.filter((v) => v.art === 'assessment');
+    expect(kh.length).toBeGreaterThan(5);
+    expect(as.length).toBeGreaterThan(10);
+    for (const v of kh) {
+      const f = v.baue();
+      expect(f.aufgaben.every((a) => a.frage.includes('\nA) ') && /^Richtig: [A-J]/.test(a.erwartung ?? '')), v.id).toBe(true);
+    }
+    // Gemischt, aber stabil: nicht immer A richtig, und zweimal gebaut gleich
+    const loesungen = kh.flatMap((v) => v.baue().aufgaben.map((a) => a.erwartung!.slice(0, 12)));
+    expect(loesungen.filter((l) => l.startsWith('Richtig: A.')).length).toBeLessThan(loesungen.length / 2);
+    expect(kh[0]!.baue().aufgaben).toEqual(kh[0]!.baue().aufgaben);
+    const gcs = as.find((v) => v.id === 'as:gcs-schroeder')!.baue();
+    expect(gcs.material[0]!.text).toContain('Greift gezielt zum Ort des Schmerzreizes');
+    const demir = as.find((v) => v.id === 'as:mna-demir')!.baue();
+    expect(demir.material[0]!.text).toContain('in den letzten 3 Monaten');
+    expect(gcs.aufgaben.map((a) => a.id)).toEqual(['augen', 'verbal', 'motorik', 'einstufung']);
+    expect(gcs.aufgaben[2]!.erwartung).toMatch(/^5 Punkte\./);
+    expect(gcs.aufgaben[3]!.erwartung).toMatch(/^9 Punkte/);
+  });
+
   it('alle Vorlagen sind gültige Fälle mit eindeutigen Aufgaben-IDs', async () => {
     for (const v of [...VORLAGEN.map((x) => x.baue()), { ...leererFall(), titel: 'x', aufgaben: [{ id: 'q', frage: 'f' }] }]) {
       expect(new Set(v.aufgaben.map((a) => a.id)).size).toBe(v.aufgaben.length);

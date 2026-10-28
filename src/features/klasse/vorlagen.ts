@@ -2,6 +2,12 @@ import { FELDER, feldHilfe, feldLabel, RISIKEN, RISIKO_LABEL, SETTING_LABEL as S
 import { FAELLE as PLAN_FAELLE, SETTING_LABEL as PLAN_SETTING, type PlanFall } from '../pflegeplanung/faelle';
 import { allgemeinePunkte, ANLASS_LABEL, FAELLE as UEBERGABE_FAELLE, TEIL_HILFE, TEIL_LABEL, type Fall as UebergabeFall } from '../uebergabe/faelle';
 import { BEREICH_LABEL, BERICHT_FAELLE, type BerichtFall } from '../bericht/faelle';
+import { FAELLE as KH_FAELLE, type Fallaufgabe } from '../krankheitsbilder/faelle';
+import { mischung } from '../krankheitsbilder/bewertung';
+import { pflegeModule } from '../../modules/pflege';
+import { INSTRUMENTE } from '../assessment/instrumente';
+import { VIGNETTEN, type Vignette } from '../assessment/vignetten';
+import { loesungsItems } from '../assessment/bewertung';
 import { neueId, type Aufgabe, type FallArt, type KlassenFall } from './typen';
 
 // Vorlagen aus den bestehenden Trainern. Die Kernpunkte der Trainer werden übernommen,
@@ -102,9 +108,81 @@ export function ausBericht(f: BerichtFall): KlassenFall {
   };
 }
 
+const BUCHSTABEN = 'ABCDEFGHIJ';
+
+/** Fester Zufall je Text: dieselbe Vorlage mischt immer gleich, die Lösungsbuchstaben bleiben stabil. */
+function zufallAus(text: string): () => number {
+  let h = 2166136261;
+  for (let i = 0; i < text.length; i++) h = Math.imul(h ^ text.charCodeAt(i), 16777619);
+  return () => {
+    h = Math.imul(h ^ (h >>> 15), 2246822507) ^ Math.imul(h ^ (h >>> 13), 3266489909);
+    return ((h ^= h >>> 16) >>> 0) / 4294967296;
+  };
+}
+
+/**
+ * Krankheitsbild-Fall: Die Auswahlaufgaben werden zu Aufgaben mit Buchstaben-Antwort, damit sie auch
+ * ohne App auf Papier oder im Chat funktionieren. Die Optionen werden gemischt (im Trainer stehen die
+ * richtigen oft vorn), die Lösung nennt Buchstaben und Erklärung.
+ */
+export function ausKrankheitsbild(f: Fallaufgabe): KlassenFall {
+  const profil = pflegeModule.diseaseProfiles?.find((p) => p.id === f.krankheitId);
+  return {
+    ...basis(), art: 'krankheitsbild', titel: `${profil?.name ?? 'Krankheitsbild'}: ${f.titel}`,
+    situation: `${f.setting}.\n\n${f.text.join('\n\n')}`,
+    material: [],
+    aufgaben: f.aufgaben.map((a) => {
+      const optionen = mischung(a.optionen.length, zufallAus(`${f.id}:${a.id}`)).map((i) => a.optionen[i]!);
+      return {
+        id: a.id,
+        frage: `${a.frage}\n${optionen.map((o, i) => `${BUCHSTABEN[i]}) ${o.text}`).join('\n')}`,
+        hinweis: `${a.art === 'mehrfach' ? 'Alle zutreffenden Buchstaben angeben' : 'Einen Buchstaben angeben'} und kurz begründen.`,
+        erwartung: `Richtig: ${optionen.flatMap((o, i) => (o.richtig ? [BUCHSTABEN[i]] : [])).join(', ')}. ${a.erklaerung}`,
+      };
+    }),
+  };
+}
+
+/**
+ * Assessment-Fallvignette: je Bereich Punkte mit Begründung, am Ende Summe und Einstufung.
+ * Der vollständige Bewertungsbogen (Leitfragen und Stufentexte) steht als Material dabei,
+ * weil die Einstufung oft an diesen Details hängt.
+ */
+export function ausAssessment(v: Vignette): KlassenFall {
+  const instr = INSTRUMENTE[v.instrument];
+  const items = loesungsItems(v);
+  const bogen = items.map((item) => [
+    `${item.label}${item.frage ? ` (${item.frage})` : ''}`,
+    ...item.stufen.map((st) => `  ${st.punkte} = ${st.kurz}${st.text ? `: ${st.text}` : ''}`),
+  ].join('\n')).join('\n\n');
+  return {
+    ...basis(), art: 'assessment', titel: `${instr.kurz}: ${v.titel}`,
+    situation: `${v.setting}.\n\n${v.text.join('\n\n')}\n\nSchätze die Person mit der ${instr.name} ein. ${instr.richtung}`,
+    material: [
+      { titel: `Bewertungsbogen ${instr.kurz}`, text: bogen },
+      ...(instr.hinweise.length ? [{ titel: 'Hinweise zum Instrument', text: liste(instr.hinweise) }] : []),
+    ],
+    aufgaben: [
+      ...items.map((item) => ({
+        id: item.id.toLowerCase(),
+        frage: `${item.label}: Wie viele Punkte gibst du und warum?`,
+        hinweis: item.stufen.map((st) => `${st.punkte} = ${st.kurz}`).join(' · '),
+        erwartung: `${v.loesung[item.id]} Punkte. ${v.begruendung[item.id] ?? ''}`.trim(),
+      })),
+      {
+        id: 'einstufung',
+        frage: 'Summe und Einstufung: Wie viele Punkte ergeben sich, wie stufst du das ein und was folgt daraus für die Pflege?',
+        hinweis: instr.kategorien.map((k) => `${k.min === k.max ? k.min : `${k.min}–${k.max}`}: ${k.label}`).join(' · '),
+        erwartung: v.fazit,
+      },
+    ],
+  };
+}
+
 export const VORLAGE_GRUPPEN: { art: Vorlage['art']; label: string }[] = [
   { art: 'sis', label: 'SIS' }, { art: 'pflegeplanung', label: 'Pflegeplanung' },
   { art: 'uebergabe', label: 'Übergabe (SBAR)' }, { art: 'bericht', label: 'Pflegebericht' },
+  { art: 'krankheitsbild', label: 'Krankheitsbild-Fälle' }, { art: 'assessment', label: 'Assessments' },
 ];
 
 export const VORLAGEN: Vorlage[] = [
@@ -112,6 +190,11 @@ export const VORLAGEN: Vorlage[] = [
   ...PLAN_FAELLE.map((f): Vorlage => ({ id: `pp:${f.id}`, art: 'pflegeplanung', titel: f.titel, untertitel: `Pflegeplanung · ${PLAN_SETTING[f.setting]}`, baue: () => ausPflegeplanung(f) })),
   ...UEBERGABE_FAELLE.map((f): Vorlage => ({ id: `sbar:${f.id}`, art: 'uebergabe', titel: f.titel, untertitel: `Übergabe · ${ANLASS_LABEL[f.anlass]}`, baue: () => ausUebergabe(f) })),
   ...BERICHT_FAELLE.map((f): Vorlage => ({ id: `ber:${f.id}`, art: 'bericht', titel: f.titel, untertitel: `Pflegebericht · ${BEREICH_LABEL[f.bereich]}`, baue: () => ausBericht(f) })),
+  ...KH_FAELLE.map((f): Vorlage => {
+    const name = pflegeModule.diseaseProfiles?.find((p) => p.id === f.krankheitId)?.name ?? '';
+    return { id: `kh:${f.id}`, art: 'krankheitsbild', titel: `${name}: ${f.titel}`, untertitel: `Krankheitsbild · ${f.setting}`, baue: () => ausKrankheitsbild(f) };
+  }),
+  ...VIGNETTEN.map((v): Vorlage => ({ id: `as:${v.id}`, art: 'assessment', titel: `${INSTRUMENTE[v.instrument].kurz}: ${v.titel}`, untertitel: `Assessment · ${v.setting}`, baue: () => ausAssessment(v) })),
 ];
 
 export function leererFall(): KlassenFall {
