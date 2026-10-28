@@ -24,7 +24,7 @@
 .klasse__aufgaben { display: flex; flex-direction: column; gap: var(--space-3); }
 .klasse__feld { display: flex; flex-direction: column; gap: var(--space-1); }
 .klasse__feld textarea, .klasse__editor textarea, .klasse__einfuegen { width: 100%; resize: vertical; font-size: var(--text-md); line-height: var(--leading-normal); }
-.klasse__frage { display: flex; align-items: flex-start; gap: var(--space-1); font-weight: var(--weight-medium); }
+.klasse__frage { display: flex; align-items: flex-start; gap: var(--space-1); font-weight: var(--weight-medium); white-space: pre-line; }
 .klasse__nr {
   display: inline-flex; align-items: center; justify-content: center; min-width: 1.6em; height: 1.6em; padding: 0 var(--space-1);
   border-radius: var(--radius-sm); background: var(--color-primary); color: var(--color-on-primary);
@@ -69,3 +69,4 @@
 .klasse__qr svg { flex-shrink: 0; }
 .klasse__qr-titel { margin: 0; font-size: var(--text-lg); font-weight: var(--weight-bold); text-align: center; }
 .klasse__qr-hinweis { margin: 0; font-size: var(--text-sm); }
+.klasse__vergleich h4 { white-space: pre-line; }
