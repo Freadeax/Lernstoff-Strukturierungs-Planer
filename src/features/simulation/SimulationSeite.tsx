@@ -58,7 +58,10 @@ function Einrichten({ onStart, saetze, exams, verlauf }: { onStart: (l: Lauf) =>
   const { params } = useRoute();
   const [e, setE] = useState<Einstellungen>(() => {
     const x = ladeEinstellungen(STANDARD);
-    return params.get('pruefung') ? { ...x, pruefungId: params.get('pruefung')! } : x;
+    // ?kb=kb.III,kb.IV: aus dem Schwächen-Radar direkt eine Probeprüfung zu diesen Bereichen.
+    const kb = (params.get('kb') ?? '').split(',').filter((id) => KB.some((b) => b.id === id));
+    const mitKb = kb.length ? { ...x, kb } : x;
+    return params.get('pruefung') ? { ...mitKb, pruefungId: params.get('pruefung')! } : mitKb;
   });
   const [satzIds, setSatzIds] = useState<string[]>([]);
   const [seed] = useState(neuerSeed);
