@@ -15720,6 +15720,394 @@
         "thema.ph.wunde"
       ],
       "pruefstatus": "ungeprueft"
+    },
+    {
+      "id": "kh.hwi",
+      "name": "Harnwegsinfektion",
+      "synonyms": [
+        "Harnwegsinfekt",
+        "HWI",
+        "Zystitis",
+        "Blasenentzündung",
+        "Pyelonephritis"
+      ],
+      "definition": "Entzündung der ableitenden Harnwege durch Krankheitserreger, meist Bakterien aus dem eigenen Darm, die über die Harnröhre aufsteigen. Untere Harnwegsinfektion = Blasenentzündung (Zystitis), obere = Nierenbeckenentzündung (Pyelonephritis).",
+      "formen": [
+        "Unkompliziert: Zystitis bei sonst gesunden, nicht schwangeren Frauen",
+        "Kompliziert: bei Männern, Schwangeren, Diabetes, Abflussstörungen oder Blasenkatheter",
+        "Katheterassoziierte Harnwegsinfektion: häufigste Krankenhausinfektion"
+      ],
+      "ursachen": [
+        "Meist Escherichia coli aus der Darmflora",
+        "Aufsteigende Infektion über die Harnröhre"
+      ],
+      "risikofaktoren": [
+        "Weibliches Geschlecht (kurze Harnröhre)",
+        "Blasendauerkatheter und Einmalkatheterismus",
+        "Restharn, z. B. bei Prostatavergrößerung, Blasenentleerungsstörung oder Immobilität",
+        "Geringe Trinkmenge, Inkontinenz und feuchte Vorlagen",
+        "Diabetes mellitus, geschwächtes Immunsystem, hohes Alter",
+        "Intimpflege von hinten nach vorn"
+      ],
+      "symptome": [
+        "Brennen und Schmerzen beim Wasserlassen (Dysurie)",
+        "Häufiger Harndrang mit kleinen Mengen (Pollakisurie), Unterbauchschmerzen",
+        "Trüber, übel riechender, manchmal blutiger Urin",
+        "Pyelonephritis: Fieber, Schüttelfrost, Flankenschmerz, deutliches Krankheitsgefühl",
+        "Bei alten Menschen oft untypisch: neue Verwirrtheit, neue Inkontinenz, Sturz, Schwäche"
+      ],
+      "komplikationen": [
+        "Aufsteigende Infektion zur Pyelonephritis",
+        "Urosepsis: Notfall",
+        "Delir bei alten Menschen"
+      ],
+      "diagnostik": [
+        "Urinteststreifen: Leukozyten, Nitrit, Blut",
+        "Urinkultur aus Mittelstrahlurin, bei Katheter aus der Punktionsstelle des Ableitungssystems, nie aus dem Beutel",
+        "Bei Fieber: Entzündungswerte, ggf. Blutkulturen und Ultraschall der Nieren"
+      ],
+      "therapie": [
+        "Antibiotika nach ärztlicher Anordnung und Antibiogramm",
+        "Reichlich trinken, sofern keine Trinkmengenbegrenzung besteht",
+        "Schmerzmittel nach Anordnung"
+      ],
+      "pflege": [
+        "Trinkmenge beobachten und fördern, bei Bedarf Ein- und Ausfuhr dokumentieren",
+        "Vitalzeichen und Temperatur kontrollieren, Fieber, Flankenschmerz und Verwirrtheit sofort melden",
+        "Urin beobachten: Menge, Farbe, Geruch, Beimengungen",
+        "Intimpflege von vorn nach hinten, Vorlagen rechtzeitig wechseln",
+        "Bei Blasenkatheter: Notwendigkeit täglich ärztlich prüfen lassen, geschlossenes System nicht diskonnektieren, Beutel immer unter Blasenniveau und ohne Bodenkontakt",
+        "Urinprobe korrekt gewinnen und rasch ins Labor bringen oder kühlen"
+      ],
+      "beratung": [
+        "Viel trinken und Blase regelmäßig vollständig entleeren",
+        "Intimhygiene von vorn nach hinten, nach dem Geschlechtsverkehr Wasser lassen",
+        "Antibiotika vollständig nach Plan einnehmen"
+      ],
+      "prophylaxen": [
+        {
+          "topicId": "thema.pro.zystitis",
+          "grund": "Trinken, Hygiene und Katheterpflege verhindern neue Infektionen"
+        },
+        {
+          "topicId": "thema.pro.dehydratation",
+          "grund": "Fieber erhöht den Bedarf, eine zu geringe Trinkmenge fördert die Infektion"
+        },
+        {
+          "topicId": "thema.pro.delir",
+          "grund": "Harnwegsinfekte sind eine häufige Delir-Ursache im Alter"
+        }
+      ],
+      "merksatz": "Alter Mensch plötzlich verwirrt oder neu inkontinent: auch an einen Harnwegsinfekt denken.",
+      "drugIds": [
+        "arz.paracetamol"
+      ],
+      "assessmentIds": [
+        "as.news"
+      ],
+      "referenceIds": [
+        "es.kontinenz"
+      ],
+      "topicIds": [
+        "thema.kl.niere",
+        "thema.pro.zystitis"
+      ],
+      "pruefstatus": "ungeprueft"
+    },
+    {
+      "id": "kh.sepsis",
+      "name": "Sepsis",
+      "synonyms": [
+        "Blutvergiftung",
+        "Urosepsis",
+        "septischer Schock"
+      ],
+      "definition": "Lebensbedrohliche Organfunktionsstörung durch eine fehlgesteuerte Reaktion des Körpers auf eine Infektion. Ein zeitkritischer Notfall: Jede Stunde Verzögerung der Behandlung verschlechtert die Überlebenschance.",
+      "formen": [
+        "Sepsis: Infektion mit Organfunktionsstörung",
+        "Septischer Schock: Kreislaufversagen, das trotz Flüssigkeitsgabe Medikamente zur Blutdruckstabilisierung braucht"
+      ],
+      "ursachen": [
+        "Ausgangspunkt meist Lunge (Pneumonie), Harnwege (Urosepsis), Bauchraum, Haut und Wunden",
+        "Venenverweilkanülen, zentrale Katheter und Blasenkatheter als Eintrittspforten"
+      ],
+      "risikofaktoren": [
+        "Hohes Alter, Säuglinge",
+        "Chronische Erkrankungen wie Diabetes, COPD, Krebs, Niereninsuffizienz",
+        "Geschwächtes Immunsystem, z. B. unter Chemotherapie oder Kortison",
+        "Liegende Katheter, frische Operationen und Wunden"
+      ],
+      "symptome": [
+        "Schnelle Atmung, Atemnot",
+        "Schneller Puls, niedriger Blutdruck",
+        "Neue Verwirrtheit, Schläfrigkeit oder Unruhe",
+        "Fieber oder Untertemperatur, Schüttelfrost",
+        "Kalte, marmorierte Haut, verlängerte Rekapillarisierungszeit, wenig Urin",
+        "Starkes Krankheitsgefühl: „Ich fühle mich so krank wie noch nie“"
+      ],
+      "komplikationen": [
+        "Septischer Schock",
+        "Multiorganversagen (Niere, Lunge, Gerinnung)",
+        "Langzeitfolgen nach Sepsis: Muskelschwäche, Gedächtnisstörungen, Erschöpfung"
+      ],
+      "diagnostik": [
+        "Früherkennung mit NEWS2 oder qSOFA (Atemfrequenz ab 22/min, systolischer Blutdruck bis 100 mmHg, veränderter Bewusstseinszustand: ab 2 Kriterien Verdacht)",
+        "Blutkulturen vor Beginn der Antibiotika, Laktat, Entzündungswerte",
+        "Suche nach dem Infektionsherd"
+      ],
+      "therapie": [
+        "Antibiotika möglichst innerhalb der ersten Stunde nach ärztlicher Anordnung",
+        "Flüssigkeit i. v., Sauerstoff nach Anordnung",
+        "Herdsanierung (z. B. Katheter wechseln, Abszess eröffnen)",
+        "Bei Schock Intensivtherapie mit kreislaufstützenden Medikamenten"
+      ],
+      "pflege": [
+        "Bei Verdacht sofort ärztlich informieren bzw. Notfallteam rufen, nicht bis zur nächsten Visite warten",
+        "Vitalzeichen engmaschig: Atemfrequenz, Sättigung, Blutdruck, Puls, Bewusstsein, Temperatur; NEWS2 berechnen und Verlauf dokumentieren",
+        "Ausfuhr überwachen, bei Bedarf Bilanz und stündliche Urinmenge",
+        "Blutkulturen und Laborproben vorbereiten, Zugänge sichern",
+        "Eintrittspforten beobachten: Einstichstellen, Wunden, Katheter",
+        "Händehygiene und aseptischer Umgang mit Zugängen und Kathetern"
+      ],
+      "beratung": [
+        "Angehörige über Warnzeichen informieren",
+        "Impfungen (Pneumokokken, Grippe) senken das Risiko",
+        "Nach der Entlassung Folgen wie Erschöpfung ernst nehmen und Reha nutzen"
+      ],
+      "prophylaxen": [
+        {
+          "topicId": "thema.pro.pneumonie",
+          "grund": "Pneumonie ist der häufigste Ausgangspunkt"
+        },
+        {
+          "topicId": "thema.pro.zystitis",
+          "grund": "Harnwegsinfekte können zur Urosepsis führen"
+        },
+        {
+          "topicId": "thema.pro.dekubitus",
+          "grund": "Schlechte Durchblutung im Schock gefährdet die Haut"
+        }
+      ],
+      "merksatz": "Sepsis ist ein Notfall wie Herzinfarkt und Schlaganfall: Zeit ist Leben.",
+      "drugIds": [
+        "arz.amoxicillin",
+        "arz.paracetamol"
+      ],
+      "assessmentIds": [
+        "as.news",
+        "as.gcs"
+      ],
+      "topicIds": [
+        "thema.kl.infektion"
+      ],
+      "pruefstatus": "ungeprueft"
+    },
+    {
+      "id": "kh.delir",
+      "name": "Delir",
+      "synonyms": [
+        "akuter Verwirrtheitszustand",
+        "Durchgangssyndrom"
+      ],
+      "definition": "Akut auftretende Störung von Aufmerksamkeit, Bewusstsein und Denken, die im Tagesverlauf schwankt. Ein Delir hat immer eine körperliche Ursache und ist ein medizinischer Notfall, keine normale Alterserscheinung.",
+      "formen": [
+        "Hyperaktiv: unruhig, nestelt, will weglaufen, wehrt sich, Halluzinationen",
+        "Hypoaktiv: still, schläfrig, zurückgezogen; wird am häufigsten übersehen",
+        "Gemischt: Wechsel zwischen beiden Formen"
+      ],
+      "ursachen": [
+        "Infektionen (Harnwegsinfekt, Pneumonie)",
+        "Flüssigkeitsmangel, Elektrolytstörungen, Unterzuckerung",
+        "Medikamente, z. B. Benzodiazepine, Opioide, anticholinerg wirkende Mittel",
+        "Operationen und Narkose, Schmerzen",
+        "Harnverhalt, Obstipation, Sauerstoffmangel",
+        "Alkohol- oder Medikamentenentzug"
+      ],
+      "risikofaktoren": [
+        "Hohes Alter, Demenz",
+        "Seh- und Hörminderung",
+        "Mehrere Medikamente",
+        "Schwere Erkrankung, Gebrechlichkeit",
+        "Fremde Umgebung, Schlafmangel, Fixierung, Blasenkatheter"
+      ],
+      "symptome": [
+        "Plötzlicher Beginn innerhalb von Stunden bis Tagen",
+        "Aufmerksamkeitsstörung: kann einem Gespräch nicht folgen",
+        "Desorientierung, Gedächtnisstörung, verworrenes Denken",
+        "Schwankender Verlauf, oft nachts schlechter, gestörter Tag-Nacht-Rhythmus",
+        "Unruhe oder Antriebsarmut, Angst, Halluzinationen"
+      ],
+      "komplikationen": [
+        "Stürze, Verletzungen, Herausziehen von Zugängen",
+        "Längerer Krankenhausaufenthalt, Pflegebedürftigkeit",
+        "Höhere Sterblichkeit",
+        "Bleibende kognitive Einbußen"
+      ],
+      "diagnostik": [
+        "Screening, z. B. mit 4AT oder CAM (Confusion Assessment Method)",
+        "Abgrenzung zur Demenz: Delir beginnt akut und schwankt, Demenz entwickelt sich schleichend",
+        "Ursachensuche: Vitalzeichen, Blutzucker, Urin, Labor, Medikamentenliste, Ausscheidung"
+      ],
+      "therapie": [
+        "Ursache behandeln",
+        "Auslösende Medikamente nach ärztlicher Prüfung absetzen",
+        "Medikamente gegen Unruhe nur nach ärztlicher Anordnung und so kurz wie möglich"
+      ],
+      "pflege": [
+        "Veränderung sofort melden und beschreiben: seit wann, wie, im Vergleich zu vorher",
+        "Orientierung geben: Uhr, Kalender, Tageslicht, sich mit Namen vorstellen, kurze klare Sätze",
+        "Brille und Hörgerät aufsetzen, vertraute Gegenstände, möglichst gleiche Pflegepersonen",
+        "Angehörige einbeziehen, Besuche ermöglichen",
+        "Tag-Nacht-Rhythmus fördern: tagsüber aktivieren, nachts Ruhe und gedämpftes Licht",
+        "Trinken, Ausscheidung und Schmerzen beobachten, früh mobilisieren",
+        "Freiheitsentziehende Maßnahmen vermeiden; Sturzrisiko anders reduzieren"
+      ],
+      "beratung": [
+        "Angehörige über Ursachen und Verlauf aufklären: Der Mensch ist nicht „verrückt geworden“",
+        "Vor geplanten Operationen auf Delirrisiko hinweisen, Brille und Hörgerät mitbringen"
+      ],
+      "prophylaxen": [
+        {
+          "topicId": "thema.pro.delir",
+          "grund": "Viele Delirien lassen sich durch Orientierung, Trinken, Mobilisation und Schlaf verhindern"
+        },
+        {
+          "topicId": "thema.pro.dehydratation",
+          "grund": "Flüssigkeitsmangel ist ein häufiger Auslöser"
+        },
+        {
+          "topicId": "thema.pro.sturz",
+          "grund": "Unruhe und Desorientierung erhöhen das Sturzrisiko"
+        },
+        {
+          "topicId": "thema.pro.obstipation",
+          "grund": "Obstipation und Harnverhalt können ein Delir auslösen"
+        }
+      ],
+      "merksatz": "Delir: plötzlich, schwankend, unaufmerksam. Immer nach der Ursache suchen.",
+      "drugIds": [
+        "arz.haloperidol",
+        "arz.melperon",
+        "arz.lorazepam"
+      ],
+      "assessmentIds": [
+        "as.mmst",
+        "as.gcs"
+      ],
+      "referenceIds": [
+        "es.demenz",
+        "es.sturz"
+      ],
+      "topicIds": [
+        "thema.kl.demenz",
+        "thema.pro.delir"
+      ],
+      "pruefstatus": "ungeprueft"
+    },
+    {
+      "id": "kh.femurfraktur",
+      "name": "Proximale Femurfraktur",
+      "synonyms": [
+        "Oberschenkelhalsfraktur",
+        "Schenkelhalsfraktur",
+        "hüftnahe Fraktur",
+        "pertrochantäre Fraktur"
+      ],
+      "definition": "Bruch des Oberschenkelknochens nahe dem Hüftgelenk, meist am Schenkelhals oder zwischen den Rollhügeln. Typische Verletzung alter Menschen nach einem Sturz, oft bei Osteoporose.",
+      "formen": [
+        "Schenkelhalsfraktur: Bruch innerhalb oder nahe der Gelenkkapsel",
+        "Pertrochantäre Fraktur: Bruch im Bereich der Rollhügel"
+      ],
+      "ursachen": [
+        "Sturz auf die Hüfte, meist aus dem Stand",
+        "Verminderte Knochendichte (Osteoporose)"
+      ],
+      "risikofaktoren": [
+        "Hohes Alter, Osteoporose",
+        "Sturzrisiko: Gangunsicherheit, Schwindel, Sehminderung, Demenz",
+        "Sturzfördernde Medikamente, z. B. Schlafmittel und Blutdrucksenker",
+        "Untergewicht, Bewegungsmangel"
+      ],
+      "symptome": [
+        "Schmerzen in der Leiste oder Hüfte, Bein kann nicht belastet werden",
+        "Bein verkürzt und nach außen gedreht",
+        "Bluterguss, Schwellung",
+        "Bei eingestauchter Fraktur manchmal noch gehfähig: Schmerz nach Sturz immer abklären lassen"
+      ],
+      "komplikationen": [
+        "Blutverlust, Kreislaufprobleme",
+        "Thrombose, Lungenembolie, Pneumonie, Dekubitus durch Immobilität",
+        "Delir nach Sturz und Operation",
+        "Nach Endoprothese: Luxation, Wundinfektion",
+        "Hüftkopfnekrose nach gelenkerhaltender Operation",
+        "Verlust der Selbstständigkeit, erneute Stürze"
+      ],
+      "diagnostik": [
+        "Röntgen von Becken und Hüfte, ggf. CT",
+        "Labor und Gerinnung zur OP-Vorbereitung"
+      ],
+      "therapie": [
+        "Meist zeitnahe Operation (möglichst innerhalb von 24 Stunden)",
+        "Endoprothese (Hemi- oder Totalendoprothese) oder Osteosynthese mit Nagel oder Schrauben",
+        "Schmerztherapie, Thromboseprophylaxe und Osteoporosebehandlung nach Anordnung",
+        "Alterstraumatologische Frührehabilitation"
+      ],
+      "pflege": [
+        "Schmerz regelmäßig einschätzen (NRS oder BESD) und Schmerzmittel nach Anordnung rechtzeitig vor der Mobilisation geben",
+        "Frühmobilisation ab dem ersten Tag nach der OP nach ärztlicher Anordnung und Belastungsvorgabe, mit Physiotherapie",
+        "Bewegungseinschränkungen nach Vorgabe der Operateurin einhalten (Luxationsprophylaxe bei Endoprothese)",
+        "Wunde, Verband und Drainage beobachten, Durchblutung, Motorik und Sensibilität des Beins kontrollieren",
+        "Vitalzeichen, Ausscheidung und Bewusstsein beobachten (Blutverlust, Delir)",
+        "Sturzursachen klären und sichere Umgebung schaffen"
+      ],
+      "beratung": [
+        "Gehhilfen sicher nutzen, Bewegungseinschränkungen im Alltag umsetzen",
+        "Wohnung sturzsicher machen, Hüftprotektoren erwägen",
+        "Osteoporose behandeln: Bewegung, Kalzium und Vitamin D nach ärztlicher Anordnung"
+      ],
+      "prophylaxen": [
+        {
+          "topicId": "thema.pro.thrombose",
+          "grund": "Immobilität und Operation an der unteren Extremität"
+        },
+        {
+          "topicId": "thema.pro.sturz",
+          "grund": "Der nächste Sturz ist das größte Risiko"
+        },
+        {
+          "topicId": "thema.pro.dekubitus",
+          "grund": "Schmerzbedingte Immobilität, Fersen und Kreuzbein gefährdet"
+        },
+        {
+          "topicId": "thema.pro.pneumonie",
+          "grund": "Bettlägerigkeit und flache Atmung"
+        },
+        {
+          "topicId": "thema.pro.delir",
+          "grund": "Häufige Komplikation nach Sturz und Operation"
+        }
+      ],
+      "merksatz": "Sturz, Leistenschmerz, Bein kurz und außenrotiert: an eine Schenkelhalsfraktur denken.",
+      "drugIds": [
+        "arz.metamizol",
+        "arz.enoxaparin",
+        "arz.alendronsaeure"
+      ],
+      "assessmentIds": [
+        "as.nrs",
+        "as.besd",
+        "as.tug",
+        "as.braden"
+      ],
+      "referenceIds": [
+        "es.sturz",
+        "es.mobilitaet",
+        "es.schmerz"
+      ],
+      "topicIds": [
+        "thema.kl.bewegung"
+      ],
+      "pruefstatus": "ungeprueft"
     }
   ],
   "id": "pflege-generalistisch",

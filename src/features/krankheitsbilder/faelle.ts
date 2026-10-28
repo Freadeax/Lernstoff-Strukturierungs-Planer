@@ -548,4 +548,171 @@ export const FAELLE: Fallaufgabe[] = [
       },
     ],
   },
+  // ---------------------------------------------------------------- Harnwegsinfektion
+  {
+    id: 'hwi-fuchs', krankheitId: 'kh.hwi', titel: 'Frau Fuchs, 86 Jahre', setting: 'Stationäre Langzeitpflege',
+    text: [
+      'Frau Fuchs ist sonst gut orientiert und kontinent. Seit gestern Abend findet sie ihr Zimmer nicht mehr, nestelt an der Bettdecke und hat zweimal eingenässt.',
+      'Der Urin in der Vorlage ist trüb und riecht stark. Sie geht ständig zur Toilette, es kommen jeweils nur kleine Mengen. Laut Trinkprotokoll hat sie gestern nur 700 ml getrunken.',
+      'Temperatur 37,9 °C, Puls 98/min, Blutdruck 125/70 mmHg, Atemfrequenz 18/min.',
+    ],
+    aufgaben: [
+      {
+        id: 'symptome', art: 'mehrfach', abschnitt: 'symptome',
+        frage: 'Welche Beobachtungen passen zu einer Harnwegsinfektion?',
+        optionen: [r('Trüber, stark riechender Urin'), r('Häufiger Harndrang mit kleinen Mengen'), r('Neue Verwirrtheit und neue Inkontinenz'), f('Blutdruck 125/70 mmHg'), f('Sonst gut orientiert')],
+        erklaerung: 'Trüber, übel riechender Urin und Pollakisurie sind typisch. Bei alten Menschen zeigt sich ein Harnwegsinfekt oft untypisch mit neuer Verwirrtheit oder Inkontinenz.',
+      },
+      {
+        id: 'risiko', art: 'einfach', abschnitt: 'risikofaktoren',
+        frage: 'Welcher Risikofaktor steht im Fall?',
+        optionen: [r('Geringe Trinkmenge'), f('Blasendauerkatheter'), f('Männliches Geschlecht'), f('Intimpflege von vorn nach hinten')],
+        erklaerung: '700 ml sind deutlich zu wenig. Eine geringe Trinkmenge fördert die Infektion. Intimpflege von vorn nach hinten ist richtig und kein Risiko.',
+      },
+      {
+        id: 'urin', art: 'einfach', abschnitt: 'diagnostik',
+        frage: 'Die Ärztin möchte eine Urinkultur. Wie gewinnst du die Probe bei Frau Fuchs?',
+        optionen: [r('Als Mittelstrahlurin nach Intimpflege in ein steriles Gefäß'), f('Aus der nassen Vorlage auspressen'), f('Den ersten Strahl am Morgen auffangen')],
+        erklaerung: 'Für die Urinkultur wird Mittelstrahlurin nach Reinigung gewonnen und rasch ins Labor gebracht oder gekühlt. Urin aus der Vorlage ist verunreinigt.',
+      },
+      {
+        id: 'warnzeichen', art: 'mehrfach', abschnitt: 'komplikationen',
+        frage: 'Welche Zeichen musst du sofort melden, weil sie auf eine Komplikation hinweisen?',
+        optionen: [r('Schüttelfrost und steigendes Fieber'), r('Flankenschmerzen'), r('Atemfrequenz über 22/min und fallender Blutdruck'), f('Sie möchte Tee statt Wasser trinken')],
+        erklaerung: 'Fieber, Schüttelfrost und Flankenschmerz sprechen für eine Pyelonephritis. Schnelle Atmung und niedriger Blutdruck können eine Urosepsis anzeigen: Notfall.',
+      },
+      {
+        id: 'delir', art: 'einfach', abschnitt: 'prophylaxen', extraTopicIds: ['thema.pro.delir'],
+        frage: 'Wie ordnest du die plötzliche Verwirrtheit ein?',
+        optionen: [r('Wahrscheinlich ein Delir mit dem Harnwegsinfekt als Ursache: ärztlich abklären lassen'), f('Beginnende Demenz, die man beobachten kann'), f('Normale Alterserscheinung am Abend')],
+        erklaerung: 'Plötzlich auftretende Verwirrtheit ist ein Delir, bis das Gegenteil bewiesen ist. Harnwegsinfekte sind eine häufige Ursache im Alter.',
+      },
+    ],
+  },
+
+  // ---------------------------------------------------------------- Sepsis
+  {
+    id: 'sep-wolf', krankheitId: 'kh.sepsis', titel: 'Herr Wolf, 72 Jahre', setting: 'Krankenhaus, Urologie, Spätdienst',
+    text: [
+      'Herr Wolf hat seit fünf Tagen einen Blasendauerkatheter. Im Frühdienst war er wach und hat Zeitung gelesen.',
+      'Um 18 Uhr wirkt er schläfrig und antwortet verlangsamt. Er sagt: „Mir geht es so schlecht wie noch nie.“ Seine Hände sind kalt, die Knie marmoriert.',
+      'Atemfrequenz 26/min, SpO2 93 % ohne Sauerstoff, Blutdruck 95/55 mmHg, Puls 118/min, Temperatur 38,9 °C. Im Urinbeutel sind seit dem Mittag 150 ml.',
+    ],
+    aufgaben: [
+      {
+        id: 'qsofa', art: 'mehrfach', abschnitt: 'diagnostik',
+        frage: 'Welche qSOFA-Kriterien erfüllt Herr Wolf?',
+        optionen: [r('Atemfrequenz ab 22/min'), r('Systolischer Blutdruck bis 100 mmHg'), r('Veränderter Bewusstseinszustand'), f('Temperatur über 38 °C'), f('Puls über 100/min')],
+        erklaerung: 'qSOFA prüft Atemfrequenz ab 22/min, systolischen Blutdruck bis 100 mmHg und veränderten Bewusstseinszustand. Alle drei sind erfüllt, ab 2 besteht Sepsisverdacht. Fieber und Puls gehören nicht zu qSOFA, fließen aber in den NEWS2 ein.',
+      },
+      {
+        id: 'handeln', art: 'einfach', abschnitt: 'pflege',
+        frage: 'Was tust du als Erstes?',
+        optionen: [r('Sofort ärztlich informieren bzw. Notfallteam rufen und bei ihm bleiben'), f('Fiebersenkendes Mittel aus dem Bedarf geben und in einer Stunde erneut messen'), f('In der Übergabe an den Nachtdienst weitergeben')],
+        erklaerung: 'Sepsis ist ein zeitkritischer Notfall. Bei Verdacht sofort ärztlich informieren oder das Notfallteam rufen, nicht bis zur Visite warten.',
+      },
+      {
+        id: 'quelle', art: 'einfach', abschnitt: 'ursachen',
+        frage: 'Wo liegt der Ausgangspunkt der Sepsis am wahrscheinlichsten?',
+        optionen: [r('Harnwege über den Blasenkatheter (Urosepsis)'), f('Lunge'), f('Haut an den Knien')],
+        erklaerung: 'Ein liegender Blasenkatheter ist eine Eintrittspforte. Die Marmorierung der Knie ist ein Zeichen schlechter Durchblutung, keine Infektionsquelle.',
+      },
+      {
+        id: 'zeichen', art: 'mehrfach', abschnitt: 'symptome',
+        frage: 'Welche Beobachtungen zeigen eine gestörte Organdurchblutung?',
+        optionen: [r('Kalte Hände und marmorierte Haut'), r('Wenig Urin seit dem Mittag'), r('Neue Schläfrigkeit'), f('Zeitung lesen im Frühdienst')],
+        erklaerung: 'Kalte, marmorierte Haut, wenig Urin und Bewusstseinsveränderung zeigen, dass Organe schlecht durchblutet werden. Das unterscheidet die Sepsis von einer einfachen Infektion.',
+      },
+      {
+        id: 'blutkultur', art: 'einfach', abschnitt: 'diagnostik',
+        frage: 'Die Ärztin ordnet Blutkulturen und Antibiotika an. In welcher Reihenfolge?',
+        optionen: [r('Erst Blutkulturen abnehmen, dann sofort die Antibiotika geben'), f('Erst Antibiotika, Blutkulturen am nächsten Morgen'), f('Antibiotika erst, wenn das Ergebnis der Blutkultur da ist')],
+        erklaerung: 'Blutkulturen vor Beginn der Antibiotika, damit der Erreger nachweisbar bleibt. Die Antibiotika aber nicht verzögern: möglichst innerhalb der ersten Stunde.',
+      },
+    ],
+  },
+
+  // ---------------------------------------------------------------- Delir
+  {
+    id: 'del-kaiser', krankheitId: 'kh.delir', titel: 'Frau Kaiser, 83 Jahre', setting: 'Krankenhaus, Unfallchirurgie, Nachtdienst',
+    text: [
+      'Frau Kaiser wurde gestern an der Hüfte operiert. Laut Tochter lebt sie allein, kocht selbst und macht jeden Tag Kreuzworträtsel. Ihre Brille und das Hörgerät liegen noch in der Tasche.',
+      'Um 2 Uhr versucht sie, über das Bettgitter zu klettern, und ruft, sie müsse die Kinder von der Schule abholen. Am Abend war sie noch ruhig und hat sich normal unterhalten.',
+      'Sie hat seit der OP 400 ml getrunken und noch nicht Wasser gelassen. Ihr Schlafmittel von zu Hause wurde ihr am Abend gegeben.',
+    ],
+    aufgaben: [
+      {
+        id: 'abgrenzung', art: 'einfach', abschnitt: 'diagnostik',
+        frage: 'Was spricht bei Frau Kaiser für ein Delir und gegen eine Demenz?',
+        optionen: [r('Der plötzliche Beginn und der schwankende Verlauf'), f('Ihr hohes Alter'), f('Dass sie nachts unruhig ist')],
+        erklaerung: 'Ein Delir beginnt akut und schwankt im Tagesverlauf. Eine Demenz entwickelt sich schleichend. Vor der OP war Frau Kaiser selbstständig und geistig fit.',
+      },
+      {
+        id: 'ursachen', art: 'mehrfach', abschnitt: 'ursachen',
+        frage: 'Welche möglichen Auslöser findest du im Fall?',
+        optionen: [r('Operation und Narkose'), r('Zu geringe Trinkmenge'), r('Möglicher Harnverhalt'), r('Schlafmittel'), f('Kreuzworträtsel')],
+        erklaerung: 'OP, Flüssigkeitsmangel, Harnverhalt und Medikamente wie Schlafmittel sind typische Delir-Auslöser. Kreuzworträtsel sind eine Ressource.',
+      },
+      {
+        id: 'form', art: 'einfach', abschnitt: 'formen',
+        frage: 'Welche Form des Delirs liegt vor?',
+        optionen: [r('Hyperaktives Delir'), f('Hypoaktives Delir'), f('Kein Delir, sondern Heimweh')],
+        erklaerung: 'Unruhe, Klettern und Halluzinationen sprechen für die hyperaktive Form. Die hypoaktive Form ist still und wird leicht übersehen.',
+      },
+      {
+        id: 'massnahmen', art: 'mehrfach', abschnitt: 'pflege',
+        frage: 'Welche Maßnahmen helfen Frau Kaiser jetzt?',
+        optionen: [r('Brille und Hörgerät aufsetzen, sich mit Namen vorstellen, ruhig in kurzen Sätzen sprechen'), r('Ärztlich informieren, Blase und Trinkmenge prüfen lassen'), r('Licht gedämpft lassen, eine Uhr in Sichtweite stellen'), f('Sie fixieren, damit sie nicht aus dem Bett fällt'), f('Ihr erklären, dass ihre Kinder längst erwachsen sind, bis sie es einsieht')],
+        erklaerung: 'Orientierungshilfen, Seh- und Hörhilfen und Ursachensuche helfen. Fixierung verschlimmert ein Delir und ist zu vermeiden. Streiten über die Realität verstärkt die Angst.',
+      },
+      {
+        id: 'sturz', art: 'einfach', abschnitt: 'prophylaxen', extraTopicIds: ['thema.pro.sturz'],
+        frage: 'Wie verringerst du das Sturzrisiko ohne freiheitsentziehende Maßnahme?',
+        optionen: [r('Niedrigbett, Sensormatte und häufige Besuche, Tochter einbeziehen'), f('Bettgitter auf beiden Seiten hochstellen'), f('Ein zusätzliches Schlafmittel geben')],
+        erklaerung: 'Bettgitter erhöhen die Fallhöhe, wenn jemand darüberklettert, und sind freiheitsentziehend. Zusätzliche Schlafmittel können das Delir verstärken.',
+      },
+    ],
+  },
+
+  // ---------------------------------------------------------------- Proximale Femurfraktur
+  {
+    id: 'fem-scholz', krankheitId: 'kh.femurfraktur', titel: 'Herr Scholz, 81 Jahre', setting: 'Ambulante Pflege, Hausbesuch',
+    text: [
+      'Herr Scholz liegt im Flur auf dem Boden, als du zum Hausbesuch kommst. Er ist auf dem Teppich ausgerutscht und auf die rechte Seite gefallen.',
+      'Er klagt über starke Schmerzen in der rechten Leiste, NRS 8. Das rechte Bein ist kürzer als das linke und nach außen gedreht. Aufstehen kann er nicht.',
+      'Herr Scholz hat eine Osteoporose und nimmt abends ein Schlafmittel. Er ist wach und orientiert.',
+    ],
+    aufgaben: [
+      {
+        id: 'verdacht', art: 'einfach', abschnitt: 'symptome',
+        frage: 'Woran denkst du zuerst?',
+        optionen: [r('Proximale Femurfraktur'), f('Prellung der Hüfte'), f('Muskelzerrung in der Leiste')],
+        erklaerung: 'Sturz, Leistenschmerz, nicht belastbares, verkürztes und außenrotiertes Bein sind die typischen Zeichen einer hüftnahen Fraktur.',
+      },
+      {
+        id: 'erstes', art: 'einfach', abschnitt: 'therapie',
+        frage: 'Was tust du?',
+        optionen: [r('Notruf 112, Bein nicht bewegen, Lage polstern, warm halten und bei ihm bleiben'), f('Ihm mit einer zweiten Person aufhelfen und ihn ins Bett bringen'), f('Hausärztin anrufen und einen Termin für morgen vereinbaren')],
+        erklaerung: 'Bei Verdacht auf Fraktur nicht aufhelfen. Notruf, Bein in der vorgefundenen Lage polstern, Wärmeerhalt und Beobachtung. Operiert wird meist zeitnah.',
+      },
+      {
+        id: 'risiko', art: 'mehrfach', abschnitt: 'risikofaktoren',
+        frage: 'Welche Risikofaktoren für den Sturz und die Fraktur findest du?',
+        optionen: [r('Osteoporose'), r('Schlafmittel'), r('Rutschiger Teppich'), f('Er ist orientiert')],
+        erklaerung: 'Osteoporose macht den Knochen brüchig, Schlafmittel und Stolperfallen erhöhen das Sturzrisiko.',
+      },
+      {
+        id: 'postop', art: 'mehrfach', abschnitt: 'komplikationen',
+        frage: 'Nach der Operation: Auf welche Komplikationen achtest du besonders?',
+        optionen: [r('Thrombose und Lungenembolie'), r('Delir'), r('Dekubitus an Fersen und Kreuzbein'), r('Pneumonie'), f('Hypertensive Krise durch die Narkose')],
+        erklaerung: 'Immobilität, OP und hohes Alter machen Thrombose, Pneumonie, Dekubitus und Delir zu den wichtigsten Komplikationen.',
+      },
+      {
+        id: 'mobil', art: 'einfach', abschnitt: 'pflege',
+        frage: 'Wann und wie beginnt die Mobilisation nach der OP?',
+        optionen: [r('Früh, meist ab dem ersten Tag nach Anordnung, nach Schmerzmittelgabe und mit Physiotherapie'), f('Erst nach zwei Wochen Bettruhe, damit der Knochen heilt'), f('Sobald er keine Schmerzen mehr hat')],
+        erklaerung: 'Frühmobilisation nach ärztlicher Belastungsvorgabe verhindert Komplikationen. Schmerzmittel rechtzeitig vorher geben, Bewegungseinschränkungen der Operateurin einhalten.',
+      },
+    ],
+  },
 ];
