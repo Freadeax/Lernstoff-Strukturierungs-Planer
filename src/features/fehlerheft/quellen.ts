@@ -100,7 +100,7 @@ export function ausAssessment(v: Vignette, e: VignettenErgebnis, eigeneKategorie
     return {
       id: `as:${v.id}:${z.item.id}`, quelle: 'assessment', topicIds,
       titel: `${instr.kurz} · ${v.titel} · ${z.item.label}`,
-      frage: `${fall} Wie viele Punkte gibt es bei „${z.item.label}“?`,
+      frage: instr.ohneSumme ? `${fall} Welche Stufe trifft bei „${z.item.label}“ zu?` : `${fall} Wie viele Punkte gibt es bei „${z.item.label}“?`,
       deineAntwort: ist ? stufe(ist.punkte, ist.kurz) : 'keine Antwort',
       loesung: optionen[z.item.stufen.findIndex((s) => s.punkte === z.soll)] ?? String(z.soll),
       erklaerung: [z.begruendung],
@@ -113,7 +113,7 @@ export function ausAssessment(v: Vignette, e: VignettenErgebnis, eigeneKategorie
     items.push({
       id: `as:${v.id}:einstufung`, quelle: 'assessment', topicIds,
       titel: `${instr.kurz} · ${v.titel} · Einstufung`,
-      frage: `${v.titel}: Die ${instr.kurz} ergibt ${e.summeSoll} Punkte. Wie wird das eingestuft?`,
+      frage: instr.ohneSumme ? `${fall} Wie wird das Ergebnis im ${instr.kurz} eingestuft?` : `${v.titel}: Die ${instr.kurz} ergibt ${e.summeSoll} Punkte. Wie wird das eingestuft?`,
       deineAntwort: eigene >= 0 ? optionen[eigene]! : 'keine Antwort',
       loesung: optionen[instr.kategorien.indexOf(e.kategorieSoll)]!,
       erklaerung: [v.fazit, instr.richtung],

@@ -1,11 +1,11 @@
 // Assessment-Instrumente als Daten: Braden, Norton (erweitert), Barthel (Hamburger Einstufungsmanual),
-// NRS, BESD, MNA-SF und Glasgow Coma Scale.
+// NRS, BESD, MNA-SF, Glasgow Coma Scale sowie Tinetti-Test und Timed Up and Go (Sturzrisiko).
 // Oben die Instrumente, unten reine Rechenfunktionen (testbar, ohne React).
 //
 // Die Stufentexte sind gekürzte Lehrbuchfassungen zum Üben. Grenzwerte unterscheiden sich je nach
 // Lehrbuch und Einrichtung; maßgeblich sind das Original-Formular und der Hausstandard.
 
-export type InstrumentId = 'braden' | 'norton' | 'barthel' | 'nrs' | 'besd' | 'mna' | 'gcs';
+export type InstrumentId = 'braden' | 'norton' | 'barthel' | 'nrs' | 'besd' | 'mna' | 'gcs' | 'tinetti' | 'tug';
 
 export interface Stufe { punkte: number; kurz: string; text?: string }
 
@@ -34,6 +34,8 @@ export interface Instrument {
   items: Item[];
   kategorien: Kategorie[];
   hinweise: string[];
+  /** Keine Punktesumme, sondern eine gemessene Stufe (TUG: Zeit). Die Oberfläche zeigt dann keine Summe. */
+  ohneSumme?: boolean;
 }
 
 const BRADEN: Instrument = {
@@ -353,7 +355,74 @@ const GCS: Instrument = {
   ],
 };
 
-export const INSTRUMENTE: Record<InstrumentId, Instrument> = { braden: BRADEN, norton: NORTON, barthel: BARTHEL, nrs: NRS, besd: BESD, mna: MNA, gcs: GCS };
+const j = (kurz: string, text?: string) => ({ kurz, text });
+const stufen = (...xs: { kurz: string; text?: string }[]): Stufe[] => xs.map((x, i) => ({ punkte: i, ...x }));
+
+const TINETTI: Instrument = {
+  id: 'tinetti', name: 'Tinetti-Test (Mobilitätstest nach Tinetti, POMA)', kurz: 'Tinetti',
+  zweck: 'Beobachtung von Gleichgewicht (bis 16 Punkte) und Gang (bis 12 Punkte), um das Sturzrisiko einzuschätzen. Die Person sitzt zu Beginn auf einem Stuhl ohne Armlehnen und geht dann mit ihrer üblichen Gehhilfe.',
+  richtung: 'Je niedriger die Summe, desto höher das Sturzrisiko (0 bis 28 Punkte).',
+  topicIds: ['thema.pro.sturz'],
+  items: [
+    { id: 'g1', label: 'G1 · Sitzbalance', stufen: stufen(j('Lehnt sich an oder rutscht im Stuhl'), j('Sicher, stabil')) },
+    { id: 'g2', label: 'G2 · Aufstehen vom Stuhl', stufen: stufen(j('Nicht möglich ohne Hilfe'), j('Möglich, braucht aber die Arme'), j('Möglich ohne Benutzen der Arme')) },
+    { id: 'g3', label: 'G3 · Versuche aufzustehen', stufen: stufen(j('Nicht möglich ohne Hilfe'), j('Mehr als ein Versuch nötig'), j('Gelingt beim ersten Versuch')) },
+    { id: 'g4', label: 'G4 · Balance in den ersten 5 Sekunden', stufen: stufen(j('Unsicher', 'Taumelt, bewegt die Füße, schwankt deutlich.'), j('Sicher mit Hilfsmittel', 'Hält sich am Rollator, Stock oder an Möbeln fest.'), j('Sicher ohne Hilfsmittel')) },
+    { id: 'g5', label: 'G5 · Stehbalance', stufen: stufen(j('Unsicher'), j('Sicher, aber breitbeinig oder mit Hilfsmittel'), j('Sicher mit schmaler Standfläche ohne Hilfsmittel')) },
+    { id: 'g6', label: 'G6 · Stoß gegen die Brust', frage: 'Dreimal leicht gegen das Brustbein stoßen, Füße stehen eng.', stufen: stufen(j('Würde ohne Hilfe fallen'), j('Muss Füße bewegen, hält sich fest, kommt aber ins Gleichgewicht'), j('Steht sicher')) },
+    { id: 'g7', label: 'G7 · Augen geschlossen', frage: 'Stehen mit eng stehenden Füßen und geschlossenen Augen.', stufen: stufen(j('Unsicher'), j('Sicher')) },
+    { id: 'g8a', label: 'G8a · Drehung um 360°: Schritte', stufen: stufen(j('Unregelmäßige, unterbrochene Schritte'), j('Regelmäßige, kontinuierliche Schritte')) },
+    { id: 'g8b', label: 'G8b · Drehung um 360°: Stabilität', stufen: stufen(j('Unsicher, hält sich fest'), j('Sicher')) },
+    { id: 'g9', label: 'G9 · Hinsetzen', stufen: stufen(j('Unsicher', 'Lässt sich fallen, schätzt die Distanz falsch ein.'), j('Benutzt die Arme oder setzt sich nicht flüssig'), j('Sicher, flüssige Bewegung')) },
+    { id: 'b1', label: 'B1 · Gangbeginn', frage: 'Unmittelbar nach der Aufforderung loszugehen.', stufen: stufen(j('Zögert, mehrere Versuche, stockender Beginn'), j('Beginnt ohne Zögern')) },
+    { id: 'b2', label: 'B2 · Schrittlänge rechts', stufen: stufen(j('Rechter Fuß überholt den linken nicht'), j('Rechter Fuß überholt den linken')) },
+    { id: 'b3', label: 'B3 · Schritthöhe rechts', stufen: stufen(j('Rechter Fuß schlurft, hebt nicht ganz ab'), j('Rechter Fuß hebt vollständig ab')) },
+    { id: 'b4', label: 'B4 · Schrittlänge links', stufen: stufen(j('Linker Fuß überholt den rechten nicht'), j('Linker Fuß überholt den rechten')) },
+    { id: 'b5', label: 'B5 · Schritthöhe links', stufen: stufen(j('Linker Fuß schlurft, hebt nicht ganz ab'), j('Linker Fuß hebt vollständig ab')) },
+    { id: 'b6', label: 'B6 · Schrittsymmetrie', stufen: stufen(j('Schritte rechts und links ungleich lang'), j('Schritte gleich lang')) },
+    { id: 'b7', label: 'B7 · Gangkontinuität', stufen: stufen(j('Bleibt stehen oder Schritte unterbrochen'), j('Kontinuierlich')) },
+    { id: 'b8', label: 'B8 · Wegabweichung', frage: 'Beobachtet über etwa 3 m entlang einer Linie.', stufen: stufen(j('Deutliche Abweichung'), j('Leichte Abweichung oder braucht ein Hilfsmittel'), j('Gerade, ohne Hilfsmittel')) },
+    { id: 'b9', label: 'B9 · Rumpfstabilität', stufen: stufen(j('Schwankt deutlich oder braucht Hilfsmittel'), j('Kein Schwanken, aber Knie oder Rücken gebeugt bzw. Arme abgespreizt'), j('Kein Schwanken, kein Hilfsmittel, normale Haltung')) },
+    { id: 'b10', label: 'B10 · Schrittbreite', stufen: stufen(j('Breitbeinig'), j('Füße berühren sich beim Gehen fast')) },
+  ],
+  kategorien: [
+    { id: 'hoch', label: 'Hohes Sturzrisiko', min: 0, max: 18, ton: 'danger', hinweis: 'Individuelle Sturzprophylaxe planen: Ursachen klären, Hilfsmittel prüfen, Kraft- und Balancetraining, Umgebung sichern, Medikamente ärztlich überprüfen lassen.' },
+    { id: 'erhoeht', label: 'Erhöhtes Sturzrisiko', min: 19, max: 23, ton: 'warn', hinweis: 'Gezielte Maßnahmen zur Sturzprophylaxe, Training von Kraft und Gleichgewicht, regelmäßig neu einschätzen.' },
+    { id: 'gering', label: 'Geringes Sturzrisiko', min: 24, max: 28, ton: 'ok', hinweis: 'Bei Veränderungen, z. B. nach Sturz, Krankheit oder neuen Medikamenten, erneut einschätzen.' },
+  ],
+  hinweise: [
+    'Grenzwerte sind eine verbreitete Orientierung (unter 19 hohes, 19 bis 23 erhöhtes Risiko). Der Expertenstandard Sturzprophylaxe empfiehlt keine bestimmte Skala: Entscheidend ist die fachliche Einschätzung der Risikofaktoren.',
+    'Mit der üblichen Gehhilfe testen und immer absichern. Bei Schwindel oder Schmerzen abbrechen.',
+  ],
+};
+
+const TUG: Instrument = {
+  id: 'tug', name: 'Timed Up and Go (TUG)', kurz: 'TUG',
+  zweck: 'Zeitmessung: Die Person steht von einem Stuhl mit Armlehnen auf, geht 3 m in normalem Tempo, dreht um, geht zurück und setzt sich wieder. Mit der üblichen Gehhilfe.',
+  richtung: 'Je länger die Zeit, desto stärker ist die Mobilität eingeschränkt und desto höher das Sturzrisiko.',
+  topicIds: ['thema.pro.sturz'],
+  ohneSumme: true,
+  items: [
+    { id: 'zeit', label: 'Gemessene Zeit', frage: 'Von „Los“ bis die Person wieder mit dem Rücken an der Lehne sitzt.', stufen: [
+      { punkte: 1, kurz: 'Unter 10 Sekunden' },
+      { punkte: 2, kurz: '10 bis 19 Sekunden' },
+      { punkte: 3, kurz: '20 bis 29 Sekunden' },
+      { punkte: 4, kurz: '30 Sekunden und mehr' },
+    ] },
+  ],
+  kategorien: [
+    { id: 'mobil', label: 'Alltagsmobilität uneingeschränkt', min: 1, max: 1, ton: 'ok', hinweis: 'Kein Hinweis auf eingeschränkte Mobilität. Andere Sturzrisikofaktoren trotzdem beachten.' },
+    { id: 'gering', label: 'Geringe Einschränkung', min: 2, max: 2, ton: 'mittel', hinweis: 'Meist noch selbstständig mobil. Bei älteren Menschen gelten schon Zeiten über etwa 12 bis 14 Sekunden als Hinweis auf erhöhtes Sturzrisiko: genauer einschätzen.' },
+    { id: 'abklaeren', label: 'Abklärungsbedürftige Einschränkung', min: 3, max: 3, ton: 'warn', hinweis: 'Deutliche Mobilitätseinschränkung, erhöhtes Sturzrisiko: Ursachen klären, Hilfsmittel und Training planen.' },
+    { id: 'ausgepraegt', label: 'Ausgeprägte Einschränkung', min: 4, max: 4, ton: 'danger', hinweis: 'Hohes Sturzrisiko, meist Hilfe beim Gehen nötig: Sturzprophylaxe umfassend planen, Transfers absichern.' },
+  ],
+  hinweise: [
+    'Die Einteilung (unter 10, 10 bis 19, 20 bis 29, ab 30 Sekunden) geht auf die Originalarbeit zurück. Für das Sturzrisiko älterer Menschen werden oft niedrigere Grenzen genannt.',
+    'Neben der Zeit zählt die Beobachtung: Unsicherheit beim Aufstehen, Schwanken beim Drehen, Festhalten an Möbeln.',
+  ],
+};
+
+export const INSTRUMENTE: Record<InstrumentId, Instrument> = { braden: BRADEN, norton: NORTON, barthel: BARTHEL, nrs: NRS, besd: BESD, mna: MNA, gcs: GCS, tinetti: TINETTI, tug: TUG };
 
 // ---------------------------------------------------------------- Rechnen
 

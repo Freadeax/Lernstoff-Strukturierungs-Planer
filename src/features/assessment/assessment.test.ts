@@ -22,6 +22,11 @@ describe('Instrumente', () => {
     expect(minMax(INSTRUMENTE.mna)).toEqual({ min: 0, max: 14 });
     expect(minMax(INSTRUMENTE.norton)).toEqual({ min: 9, max: 36 });
     expect(minMax(INSTRUMENTE.gcs)).toEqual({ min: 3, max: 15 });
+    expect(minMax(INSTRUMENTE.tinetti)).toEqual({ min: 0, max: 28 });
+    expect(minMax(INSTRUMENTE.tug)).toEqual({ min: 1, max: 4 });
+    // Tinetti: Gleichgewicht bis 16, Gang bis 12
+    const t = INSTRUMENTE.tinetti.items;
+    expect(t.filter((i) => i.id.startsWith('g')).reduce((s, i) => s + Math.max(...i.stufen.map((x) => x.punkte)), 0)).toBe(16);
   });
 
   it('tauscht beim MNA den BMI gegen den Wadenumfang', () => {
@@ -79,7 +84,8 @@ describe('Fallvignetten', () => {
       }
       const s = summe(items, v.loesung);
       // Das Fazit nennt die Summe zuerst, damit Text und Lösung nicht auseinanderlaufen
-      if (v.instrument !== 'nrs') expect(v.fazit).toMatch(new RegExp(`^${s} Punkt`));
+      if (v.instrument !== 'nrs' && !instr.ohneSumme) expect(v.fazit).toMatch(new RegExp(`^${s} Punkt`));
+      if (instr.ohneSumme) expect(v.fazit.startsWith(kategorie(instr, s)!.label), v.id).toBe(true);
       expect(kategorie(instr, s)).toBeDefined();
       if (v.gruppe === 'schmerz') expect(v.instrumentWahl).toBeTruthy();
       if (v.koerper) expect(bmiPunkte(bmi(v.koerper.kg, v.koerper.cm)!)).toBe(v.loesung.F1);
