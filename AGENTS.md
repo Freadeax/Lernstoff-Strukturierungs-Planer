@@ -7,3 +7,4 @@
 - Material-Originale bleiben im privaten Material-Repo. Keine Originale, Zugangsdaten oder privaten Inhalte im öffentlichen Planer oder dessen Pages-Build veröffentlichen.
 - Änderungen am Materialformat zwischen App, Material-README und Abholskript abstimmen; bestehende Uploads und Prüfsummen kompatibel halten.
 - Nur main als dauerhaften Branch führen. Vor jedem Push aktuelle Remote-Änderungen integrieren; die Website wird automatisch direkt aus main veröffentlicht.
+- Vor jedem Merge `npm run check` (alle Prüfungen lokal, ohne GitHub Actions). Datenbank-Versionen und neue Fachgebiete nach docs/ENTWICKLUNG.md; Arbeitszweige nach dem Merge sofort löschen.

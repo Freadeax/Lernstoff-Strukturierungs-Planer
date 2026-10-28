@@ -54,7 +54,7 @@ Architektur, vollständiges Anforderungsregister, tatsächlicher Funktionsumfang
 
 GitHub Pages zeigt die App unter https://freadeax.github.io/Lernstoff-Strukturierungs-Planer/. Nach einem Push auf `main` baut und veröffentlicht `.github/workflows/pages.yml` genau diesen Stand. Ein separater Veröffentlichungsbranch entfällt. Der Workflow lässt sich auch manuell über GitHub Actions starten.
 
-Vor jedem Push: `npm test`, `npm run build` und bei Änderungen an der Oberfläche `npm run test:ui` gegen den laufenden lokalen Server ausführen. Für Materialimport und Themenzuordnung zusätzlich `npm run test:material` verwenden (`UI_BASE_URL` auf den Server setzen).
+Vor jedem Push: `npm run check`. Der Befehl führt Typprüfung, Tests, Katalog-Abgleich, Build, Startgrößen-Budget und alle Browserprüfungen (`test:ui`, `test:material`, `test:wissen`, `test:praxis`) gegen den gebauten Stand aus und startet dafür selbst einen Server. Einzelne Browserprüfungen laufen weiterhin mit `UI_BASE_URL` gegen einen laufenden Server. Regeln für Datenbank-Versionen und neue Fachgebiete: [docs/ENTWICKLUNG.md](docs/ENTWICKLUNG.md).
 
 Unter **Lernplan → Wissensstand** stehen alle lernbaren Themen mit Abfragen, Statusbegründung und nächster Fälligkeit – auch ohne Prüfungstermin. Suche, Fach- und Statusfilter zeigen gezielt bearbeitete, unsichere oder fällige Themen. Passende Trainer lassen sich direkt öffnen; eigene Themen aus importierten Materialien sind ebenfalls enthalten. Die Browserprüfung `npm run test:wissen` prüft diesen Ablauf und die Einstiege in die Lernmodule bei 390, 820 und 1440 Pixeln.
 
@@ -68,6 +68,7 @@ Die Prüfung und Übernahme der bisherigen Branches ist in [docs/BRANCH-KONSOLID
 | `npm run build` | Produktionsbuild nach `dist/` |
 | `npm run preview` | Build lokal ansehen |
 | `npm test` | Tests ausführen |
+| `npm run check` | Alle Prüfungen vor dem Push (`check:schnell` ohne Browser) |
 
 ## Projektstruktur
 
