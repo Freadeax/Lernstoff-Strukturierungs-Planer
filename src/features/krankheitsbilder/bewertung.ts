@@ -81,7 +81,7 @@ export function belegQuote(p: DiseaseProfile): { belegt: number; gesamt: number 
 
 /** Assessments mit Übungsfällen im Assessment-Rechner: Katalog-ID → Gruppe dort. */
 export const ASSESSMENT_GRUPPE: Record<string, string> = {
-  'as.braden': 'braden', 'as.norton': 'norton', 'as.barthel': 'barthel', 'as.nrs': 'schmerz', 'as.besd': 'schmerz', 'as.mna': 'mna', 'as.gcs': 'gcs',
+  'as.braden': 'braden', 'as.norton': 'norton', 'as.barthel': 'barthel', 'as.nrs': 'schmerz', 'as.besd': 'schmerz', 'as.mna': 'mna', 'as.gcs': 'gcs', 'as.tug': 'sturz',
 };
 
 /** Mindestzahl Aufgaben je Thema, ab der ein Fall im Lernplan zählt (wie im Assessment-Rechner). */

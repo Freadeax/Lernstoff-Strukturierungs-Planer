@@ -3,7 +3,7 @@
 
 import type { InstrumentId } from './instrumente';
 
-export type Gruppe = 'braden' | 'norton' | 'barthel' | 'schmerz' | 'mna' | 'gcs';
+export type Gruppe = 'braden' | 'norton' | 'barthel' | 'schmerz' | 'mna' | 'gcs' | 'sturz';
 
 export const GRUPPEN: { id: Gruppe; label: string; instrumente: InstrumentId[] }[] = [
   { id: 'braden', label: 'Braden', instrumente: ['braden'] },
@@ -12,6 +12,7 @@ export const GRUPPEN: { id: Gruppe; label: string; instrumente: InstrumentId[] }
   { id: 'schmerz', label: 'Schmerz (NRS/BESD)', instrumente: ['nrs', 'besd'] },
   { id: 'mna', label: 'MNA-SF', instrumente: ['mna'] },
   { id: 'gcs', label: 'GCS', instrumente: ['gcs'] },
+  { id: 'sturz', label: 'Sturz (Tinetti/TUG)', instrumente: ['tinetti', 'tug'] },
 ];
 
 export interface Vignette {
@@ -420,5 +421,96 @@ export const VIGNETTEN: Vignette[] = [
       motorik: 'Abnormes Beugen der Arme auf Schmerzreiz: Beugesynergismen, 3.',
     },
     fazit: '5 Punkte, schwere Bewusstseinsstörung. Notruf 112, Atemweg freimachen und Atmung prüfen, bei vorhandener Atmung stabile Seitenlage, bis zum Eintreffen des Rettungsdienstes bei ihr bleiben und Atmung fortlaufend kontrollieren.',
+  },
+  // ------------------------------------------------------------ Sturz
+  {
+    id: 'ti-neumann', gruppe: 'sturz', instrument: 'tinetti', titel: 'Frau Neumann, 82 Jahre', setting: 'Stationäre Langzeitpflege, nach Knie-OP links',
+    text: [
+      'Du machst mit Frau Neumann den Tinetti-Test. Sie sitzt aufrecht und sicher auf dem Stuhl ohne Armlehnen. Zum Aufstehen drückt sie sich mit beiden Händen von den Oberschenkeln ab, schafft es aber beim ersten Versuch.',
+      'In den ersten Sekunden hält sie sich am Rollator fest. Danach steht sie sicher, aber nur mit dem Rollator. Beim leichten Stoß gegen das Brustbein macht sie einen Schritt zurück und hält sich fest, fängt sich aber.',
+      'Mit geschlossenen Augen schwankt sie und öffnet sie sofort wieder. Bei der Drehung um sich selbst macht sie viele kleine, stockende Schritte und hält sich dabei am Rollator fest. Beim Hinsetzen stützt sie sich mit den Händen auf der Sitzfläche ab und plumpst die letzten Zentimeter.',
+      'Nach der Aufforderung geht sie ohne Zögern los. Der rechte Fuß überholt den linken und hebt gut ab. Der linke Fuß kommt nur bis neben den rechten und schlurft über den Boden, die Schritte sind dadurch ungleich lang.',
+      'Sie geht ohne Pausen und gerade, stützt sich dabei aber deutlich auf den Rollator. Die Füße setzt sie weit auseinander.',
+    ],
+    loesung: { g1: 1, g2: 1, g3: 2, g4: 1, g5: 1, g6: 1, g7: 0, g8a: 0, g8b: 0, g9: 1, b1: 1, b2: 1, b3: 1, b4: 0, b5: 0, b6: 0, b7: 1, b8: 1, b9: 0, b10: 0 },
+    begruendung: {
+      g1: 'Sitzt aufrecht und sicher: 1.',
+      g2: 'Braucht die Arme zum Aufstehen: 1.',
+      g3: 'Gelingt beim ersten Versuch: 2.',
+      g4: 'Hält sich in den ersten Sekunden am Rollator fest: sicher mit Hilfsmittel, 1.',
+      g5: 'Steht sicher, aber nur mit Rollator: 1.',
+      g6: 'Macht einen Schritt und hält sich fest, fängt sich: 1.',
+      g7: 'Schwankt mit geschlossenen Augen: unsicher, 0.',
+      g8a: 'Kleine, stockende Schritte: 0.',
+      g8b: 'Hält sich bei der Drehung fest: 0.',
+      g9: 'Stützt sich ab und setzt sich nicht flüssig: 1.',
+      b1: 'Geht ohne Zögern los: 1.',
+      b2: 'Rechter Fuß überholt den linken: 1.',
+      b3: 'Rechter Fuß hebt gut ab: 1.',
+      b4: 'Linker Fuß kommt nur bis neben den rechten: 0.',
+      b5: 'Linker Fuß schlurft: 0.',
+      b6: 'Schritte ungleich lang: 0.',
+      b7: 'Geht ohne Pausen: 1.',
+      b8: 'Geht gerade, aber mit Hilfsmittel: 1.',
+      b9: 'Stützt sich deutlich auf den Rollator: Hilfsmittel nötig, 0.',
+      b10: 'Füße weit auseinander: breitbeinig, 0.',
+    },
+    fazit: '13 Punkte (Gleichgewicht 8, Gang 5), hohes Sturzrisiko. Rollator immer in Reichweite, Transfers und Drehungen begleiten, Gangschule und Krafttraining für das linke Bein mit der Physiotherapie, Umgebung sichern und Schmerzen vor der Mobilisation behandeln.',
+  },
+  {
+    id: 'ti-albrecht', gruppe: 'sturz', instrument: 'tinetti', titel: 'Herr Albrecht, 74 Jahre', setting: 'Ambulante Pflege, nach einer Grippe',
+    text: [
+      'Herr Albrecht hatte vor zwei Wochen eine schwere Grippe. Er geht ohne Hilfsmittel. Beim Tinetti-Test sitzt er sicher, steht ohne die Arme beim ersten Versuch auf und steht von Anfang an sicher mit eng stehenden Füßen.',
+      'Beim leichten Stoß gegen das Brustbein macht er einen Ausfallschritt und greift nach der Tischkante, fängt sich aber. Mit geschlossenen Augen schwankt er deutlich.',
+      'Bei der Drehung um sich selbst setzt er die Schritte gleichmäßig, greift aber kurz zur Wand, weil ihm schwindelig wird. Er setzt sich sicher und flüssig hin.',
+      'Er geht ohne Zögern los. Beide Füße überholen jeweils den anderen und heben vollständig ab, die Schritte sind gleich lang und gleichmäßig. Er weicht leicht von der Linie ab.',
+      'Er schwankt nicht, geht aber mit leicht gebeugten Knien. Die Füße berühren sich beim Gehen fast.',
+    ],
+    loesung: { g1: 1, g2: 2, g3: 2, g4: 2, g5: 2, g6: 1, g7: 0, g8a: 1, g8b: 0, g9: 2, b1: 1, b2: 1, b3: 1, b4: 1, b5: 1, b6: 1, b7: 1, b8: 1, b9: 1, b10: 1 },
+    begruendung: {
+      g1: 'Sitzt sicher: 1.',
+      g2: 'Steht ohne die Arme auf: 2.',
+      g3: 'Erster Versuch: 2.',
+      g4: 'Von Anfang an sicher ohne Hilfsmittel: 2.',
+      g5: 'Sicher mit eng stehenden Füßen: 2.',
+      g6: 'Ausfallschritt und Festhalten, fängt sich: 1.',
+      g7: 'Schwankt deutlich: unsicher, 0.',
+      g8a: 'Gleichmäßige Schritte: 1.',
+      g8b: 'Greift zur Wand: unsicher, 0.',
+      g9: 'Sicher und flüssig: 2.',
+      b1: 'Ohne Zögern: 1.',
+      b2: 'Rechter Fuß überholt den linken: 1.',
+      b3: 'Hebt vollständig ab: 1.',
+      b4: 'Linker Fuß überholt den rechten: 1.',
+      b5: 'Hebt vollständig ab: 1.',
+      b6: 'Gleich lange Schritte: 1.',
+      b7: 'Gleichmäßig: 1.',
+      b8: 'Leichte Abweichung: 1.',
+      b9: 'Kein Schwanken, aber gebeugte Knie: 1.',
+      b10: 'Füße berühren sich fast: 1.',
+    },
+    fazit: '23 Punkte (Gleichgewicht 13, Gang 10), erhöhtes Sturzrisiko. Gleichgewicht und Reaktion sind die Schwachstelle: Schwindel ärztlich abklären, Gleichgewichtstraining, langsam aufstehen und drehen, nachts Licht, nach der Erholung erneut testen.',
+  },
+  {
+    id: 'tug-bauer', gruppe: 'sturz', instrument: 'tug', titel: 'Frau Bauer, 88 Jahre', setting: 'Stationäre Langzeitpflege',
+    text: [
+      'Du führst mit Frau Bauer den Timed Up and Go durch. Sie sitzt auf einem Stuhl mit Armlehnen, der Rollator steht vor ihr.',
+      'Sie braucht zwei Anläufe, um sich mit den Armen hochzudrücken. Sie geht langsam mit dem Rollator bis zur Markierung in 3 m Entfernung, dreht in vielen kleinen Schritten und geht zurück.',
+      'Die Stoppuhr zeigt 26 Sekunden, als sie wieder mit dem Rücken an der Lehne sitzt.',
+    ],
+    loesung: { zeit: 3 },
+    begruendung: { zeit: '26 Sekunden liegen zwischen 20 und 29 Sekunden.' },
+    fazit: 'Abklärungsbedürftige Einschränkung mit erhöhtem Sturzrisiko. Auch die Beobachtung zählt: zwei Anläufe beim Aufstehen und unsichere Drehung. Ursachen klären, Rollator anpassen, Transfers üben, Kraft- und Balancetraining.',
+  },
+  {
+    id: 'tug-kuehn', gruppe: 'sturz', instrument: 'tug', titel: 'Herr Kühn, 79 Jahre', setting: 'Ambulante Pflege, Erstbesuch',
+    text: [
+      'Herr Kühn lebt allein und geht ohne Hilfsmittel. Beim Erstbesuch machst du mit ihm den Timed Up and Go.',
+      'Er steht zügig ohne Abstützen auf, geht die 3 m, dreht sicher und setzt sich wieder.',
+      'Die Stoppuhr zeigt 14 Sekunden. Er erzählt, dass er im letzten halben Jahr zweimal im Badezimmer gestürzt ist.',
+    ],
+    loesung: { zeit: 2 },
+    begruendung: { zeit: '14 Sekunden liegen zwischen 10 und 19 Sekunden.' },
+    fazit: 'Geringe Einschränkung nach der Originaleinteilung. Für ältere Menschen sind 14 Sekunden aber schon ein Hinweis auf erhöhtes Sturzrisiko, und zwei Stürze im letzten halben Jahr sind selbst ein starker Risikofaktor: Sturzrisiko genauer einschätzen, Bad sichern (Haltegriffe, rutschfeste Matte), Hausnotruf besprechen.',
   },
 ];

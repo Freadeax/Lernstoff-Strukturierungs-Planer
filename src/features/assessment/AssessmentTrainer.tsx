@@ -27,6 +27,10 @@ function speichereErledigt(e: Erledigt) {
   storage.write(ERLEDIGT_KEY, e);
 }
 
+const SKALA_LABEL: Partial<Record<InstrumentId, string>> = {
+  nrs: 'NRS (Selbstauskunft)', besd: 'BESD (Demenz)', tinetti: 'Tinetti (Gleichgewicht und Gang)', tug: 'Timed Up and Go',
+};
+
 const istGruppe = (g: string | null): g is Gruppe => GRUPPEN.some((x) => x.id === g);
 
 // ---------------------------------------------------------------- Bausteine
@@ -143,7 +147,9 @@ function Rechner({ instrumentId }: { instrumentId: InstrumentId }) {
           ersatz={ersatz} setErsatz={setErsatz} bmiUebernehmen />
       </div>
       <aside className="card as__ergebnis" aria-live="polite">
-        <p className="as__summe"><strong>{punkte}</strong> <span className="muted">von {max} Punkten</span></p>
+        {instr.ohneSumme
+          ? <p className="as__summe"><span className="muted">Stufe</span> <strong>{fertig ? punkte : '–'}</strong></p>
+          : <p className="as__summe"><strong>{punkte}</strong> <span className="muted">von {max} Punkten</span></p>}
         {kat ? (
           <div className={`note as__note--${kat.ton}`}><strong>{kat.label}</strong><br />{kat.hinweis}</div>
         ) : (
@@ -200,13 +206,15 @@ function Auswertung({ v, ergebnis, eigeneKategorie, gewaehlt }: { v: Vignette; e
           {ergebnis.zeilen.map((z) => (
             <tr key={z.item.id} className={z.richtig ? 'is-ok' : 'is-falsch'}>
               <td>{z.item.label}<div className="muted">{z.begruendung}</div></td>
-              <td>{z.ist ?? '–'}</td>
-              <td>{z.soll}</td>
+              <td>{instr.ohneSumme ? (z.item.stufen.find((x) => x.punkte === z.ist)?.kurz ?? '–') : (z.ist ?? '–')}</td>
+              <td>{instr.ohneSumme ? z.item.stufen.find((x) => x.punkte === z.soll)?.kurz : z.soll}</td>
             </tr>
           ))}
-          <tr className="as__tabelle-summe">
-            <td>Summe</td><td>{ergebnis.summeIst}</td><td>{ergebnis.summeSoll}</td>
-          </tr>
+          {!instr.ohneSumme && (
+            <tr className="as__tabelle-summe">
+              <td>Summe</td><td>{ergebnis.summeIst}</td><td>{ergebnis.summeSoll}</td>
+            </tr>
+          )}
           <tr className={ergebnis.kategorieRichtig ? 'is-ok' : 'is-falsch'}>
             <td>Einstufung</td><td>{eigene?.label ?? '–'}</td><td>{ergebnis.kategorieSoll?.label}</td>
           </tr>
@@ -279,7 +287,7 @@ function Fall({ v, onFertig, onZurueck, onWeiter }: {
             <Formular instr={instr} werte={werte} setWert={(id, p) => setWerte((w) => ({ ...w, [id]: p }))}
               ersatz={ersatz} setErsatz={setErsatz} gesperrt={!!ergebnis} bmiUebernehmen={false} />
             <div className="as__einstufung">
-              <h4>Einstufung bei {summe(items, werte)} Punkten</h4>
+              <h4>{instr.ohneSumme ? 'Einstufung' : `Einstufung bei ${summe(items, werte)} Punkten`}</h4>
               <div className="pills" role="radiogroup" aria-label="Einstufung">
                 {instr.kategorien.map((k) => (
                   <button key={k.id} type="button" className="pill" aria-pressed={eigeneKat === k.id} disabled={!!ergebnis}
@@ -318,11 +326,11 @@ export default function AssessmentTrainer() {
   // Links aus dem Fehlerheft nennen nur den Fall, die Gruppe ergibt sich daraus
   const gruppe: Gruppe = fall?.gruppe ?? (istGruppe(gruppeParam) ? gruppeParam : 'braden');
   const modus: Modus = params.get('modus') === 'faelle' || params.get('fall') ? 'faelle' : 'rechner';
-  const [schmerzInstrument, setSchmerzInstrument] = useState<InstrumentId>('nrs');
+  const [rechnerWahl, setRechnerWahl] = useState<InstrumentId | null>(null);
   const [erledigt, setErledigt] = useState<Erledigt>(ladeErledigt);
 
   const gruppeInfo = GRUPPEN.find((g) => g.id === gruppe)!;
-  const rechnerInstrument = gruppe === 'schmerz' ? schmerzInstrument : gruppeInfo.instrumente[0];
+  const rechnerInstrument = rechnerWahl && gruppeInfo.instrumente.includes(rechnerWahl) ? rechnerWahl : gruppeInfo.instrumente[0];
   const faelleDerGruppe = useMemo(() => VIGNETTEN.filter((v) => v.gruppe === gruppe), [gruppe]);
 
   function gehe(p: { gruppe?: Gruppe; modus?: Modus; fall?: string }) {
@@ -348,7 +356,7 @@ export default function AssessmentTrainer() {
     <section className="page as">
       <div className="page__head">
         <h2>Assessment-Rechner</h2>
-        <p className="muted">Braden, Norton, Barthel, NRS, BESD, MNA-SF und Glasgow Coma Scale ausrechnen oder an Fallvignetten üben. Funktioniert offline. Fallvignetten zählen im Lernplan als Abfrage, der freie Rechner nicht. Übungswerkzeug, kein Ersatz für das Formular deiner Einrichtung.</p>
+        <p className="muted">Braden, Norton, Barthel, NRS, BESD, MNA-SF, Glasgow Coma Scale, Tinetti und Timed Up and Go ausrechnen oder an Fallvignetten üben. Funktioniert offline. Fallvignetten zählen im Lernplan als Abfrage, der freie Rechner nicht. Übungswerkzeug, kein Ersatz für das Formular deiner Einrichtung.</p>
       </div>
 
       <div className="card as__einstellungen">
@@ -369,13 +377,13 @@ export default function AssessmentTrainer() {
             </button>
           </div>
         </div>
-        {modus === 'rechner' && gruppe === 'schmerz' && (
+        {modus === 'rechner' && gruppeInfo.instrumente.length > 1 && (
           <div className="as__zeile">
             <span className="muted">Skala</span>
-            <div className="pills" role="group" aria-label="Schmerzskala">
+            <div className="pills" role="group" aria-label="Skala">
               {gruppeInfo.instrumente.map((id) => (
-                <button key={id} type="button" className="pill" aria-pressed={schmerzInstrument === id} onClick={() => setSchmerzInstrument(id)}>
-                  {id === 'nrs' ? 'NRS (Selbstauskunft)' : 'BESD (Demenz)'}
+                <button key={id} type="button" className="pill" aria-pressed={rechnerInstrument === id} onClick={() => setRechnerWahl(id)}>
+                  {SKALA_LABEL[id] ?? INSTRUMENTE[id].kurz}
                 </button>
               ))}
             </div>

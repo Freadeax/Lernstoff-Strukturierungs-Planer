@@ -165,13 +165,13 @@ export function ausAssessment(v: Vignette): KlassenFall {
     aufgaben: [
       ...items.map((item) => ({
         id: item.id.toLowerCase(),
-        frage: `${item.label}: Wie viele Punkte gibst du und warum?`,
+        frage: instr.ohneSumme ? `${item.label}: Welche Stufe trifft zu?` : `${item.label}: Wie viele Punkte gibst du und warum?`,
         hinweis: item.stufen.map((st) => `${st.punkte} = ${st.kurz}`).join(' · '),
-        erwartung: `${v.loesung[item.id]} Punkte. ${v.begruendung[item.id] ?? ''}`.trim(),
+        erwartung: `${instr.ohneSumme ? item.stufen.find((st) => st.punkte === v.loesung[item.id])?.kurz ?? '' : `${v.loesung[item.id]} Punkte`}. ${v.begruendung[item.id] ?? ''}`.trim(),
       })),
       {
         id: 'einstufung',
-        frage: 'Summe und Einstufung: Wie viele Punkte ergeben sich, wie stufst du das ein und was folgt daraus für die Pflege?',
+        frage: instr.ohneSumme ? 'Einstufung: Wie stufst du das Ergebnis ein und was folgt daraus für die Pflege?' : 'Summe und Einstufung: Wie viele Punkte ergeben sich, wie stufst du das ein und was folgt daraus für die Pflege?',
         hinweis: instr.kategorien.map((k) => `${k.min === k.max ? k.min : `${k.min}–${k.max}`}: ${k.label}`).join(' · '),
         erwartung: v.fazit,
       },
