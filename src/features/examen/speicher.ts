@@ -29,7 +29,7 @@ export const speichereTermine = (t: Termine) => storage.write(TERMINE, t);
 export const ladeCheckliste = (): Set<string> => new Set(storage.read<string[]>(CHECKLISTE, []).filter((x) => typeof x === 'string'));
 export const speichereCheckliste = (s: Set<string>) => storage.write(CHECKLISTE, [...s]);
 
-export interface MuendlichEintrag { id: string; at: string; fallId: string; titel: string; modus: string; prozent: number; sprechzeit: number; impulse: number }
+export interface MuendlichEintrag { id: string; at: string; fallId: string; titel: string; modus: string; prozent: number; sprechzeit: number; impulse: number; kiNote?: number }
 const istEintrag = (v: unknown) => istObjekt(v) && typeof v.id === 'string' && typeof v.at === 'string' && typeof v.prozent === 'number';
 
 export const ladeMuendlich = () => storage.list<MuendlichEintrag>(VERLAUF, istEintrag);

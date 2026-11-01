@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { logActivity } from '../../core/activity';
+import { getApiKey } from '../../core/settings';
 import { istObjekt, storage } from '../../ui/lib/store';
 import { navigate, useRoute } from '../../ui/shell/router';
 import { AFB_LABEL, operatorAfb } from '../simulation/simulation';
+import { useDiktat } from '../uebergabe/diktat';
+import { bewerteMuendlich, type KiMuendlich } from './claude';
 import { useExamensModul } from './modul';
 import {
   ALLGEMEINE_IMPULSE, ALTER_LABEL, faelleAusKrankheitsbildern, impulseFuer, mmss, MUENDLICHE_FAELLE, nameAusTitel, VERSORGUNG_LABEL, waehleFall, werteMuendlich,
@@ -37,6 +40,9 @@ interface Lauf {
   impulsAb?: number;
   i: number;
   checks: Record<string, ImpulsCheck>;
+  /** Festgehaltene Antworten je Impuls (getippt oder diktiert), nur für die KI-Rückmeldung. */
+  antworten?: Record<string, string>;
+  ki?: KiMuendlich;
 }
 
 const istLauf = (v: unknown) => istObjekt(v) && typeof v.id === 'string' && Array.isArray(v.impulse) && v.impulse.every(istObjekt) && typeof v.fallId === 'string' && istObjekt(v.checks) && typeof v.i === 'number';
@@ -194,7 +200,7 @@ function Einrichten({ termine, aendere, verlauf, onStart }: {
             {verlauf.slice(0, 8).map((v) => (
               <li key={v.id}>
                 <span>{v.titel} <span className="muted">· {MODI[v.modus as Modus]?.label ?? v.modus} · {new Date(v.at).toLocaleDateString('de-DE')}</span></span>
-                <span className="examen__quote">{v.prozent} % · {mmss(v.sprechzeit)}</span>
+                <span className="examen__quote">{v.prozent} %{v.kiNote ? ` · KI-Note ${v.kiNote}` : ''} · {mmss(v.sprechzeit)}</span>
               </li>
             ))}
           </ul>
@@ -215,6 +221,26 @@ function Durchlauf({ lauf, fall, setLauf, onFertig }: { lauf: Lauf; fall: Muendl
   const ergebnis = useMemo(() => werteMuendlich(lauf.impulse, lauf.checks), [lauf.impulse, lauf.checks]);
   const ueberschrift = useRef<HTMLHeadingElement>(null);
   useEffect(() => { ueberschrift.current?.focus(); }, [lauf.phase, lauf.i]);
+  const apiKey = getApiKey();
+  const [kiLaeuft, setKiLaeuft] = useState(false);
+  const [kiFehler, setKiFehler] = useState('');
+  // Diktat kann mehrere Stücke kurz hintereinander liefern: immer auf den neuesten Stand anhängen.
+  const aktuell = useRef(lauf);
+  aktuell.current = lauf;
+  const antworten = lauf.antworten ?? {};
+  const setzeAntwort = (id: string, text: string) => {
+    const neu = { ...aktuell.current, antworten: { ...(aktuell.current.antworten ?? {}), [id]: text }, ki: undefined };
+    aktuell.current = neu;
+    setLauf(neu);
+  };
+  const diktat = useDiktat((stueck) => {
+    const l = aktuell.current;
+    const ziel = l.impulse[l.i];
+    if (!ziel || !stueck) return;
+    const alt = l.antworten?.[ziel.id] ?? '';
+    setzeAntwort(ziel.id, alt && !/\s$/.test(alt) ? `${alt} ${stueck}` : alt + stueck);
+  });
+  const hatAntworten = lauf.impulse.some((x) => (antworten[x.id] ?? '').trim());
 
   const bucheImpulszeit = (l: Lauf): Record<string, ImpulsCheck> => {
     const aktuell = l.impulse[l.i];
@@ -224,20 +250,36 @@ function Durchlauf({ lauf, fall, setLauf, onFertig }: { lauf: Lauf; fall: Muendl
   };
   const beginneSprechen = () => { const t = Date.now(); set({ phase: 'sprechen', sprechenAb: t, impulsAb: t }); };
   const weiter = () => {
+    diktat.stop();
     const checks = bucheImpulszeit(lauf);
     if (lauf.i + 1 < lauf.impulse.length) set({ checks, i: lauf.i + 1, impulsAb: Date.now() });
     else { aufnahme.stopp(); set({ checks, phase: 'check', impulsAb: undefined }); }
   };
-  const abbrechen = () => { aufnahme.stopp(); setLauf(null); };
+  const abbrechen = () => { diktat.stop(); aufnahme.stopp(); setLauf(null); };
+  const fragClaude = async () => {
+    setKiLaeuft(true); setKiFehler('');
+    try {
+      const ki = await bewerteMuendlich({ apiKey, fall, impulse: lauf.impulse, antworten });
+      setLauf({ ...aktuell.current, ki });
+    } catch (err) { setKiFehler(err instanceof Error ? err.message : String(err)); }
+    finally { setKiLaeuft(false); }
+  };
+  /** Claudes Haken in den Selbstcheck übernehmen. Danach kann man weiter selbst an- und abhaken. */
+  const uebernimmKi = () => {
+    if (!lauf.ki) return;
+    const checks = { ...lauf.checks };
+    for (const k of lauf.ki.impulse) checks[k.id] = { sekunden: checks[k.id]?.sekunden ?? 0, erfuellt: [...k.erfuellt] };
+    set({ checks });
+  };
   const kreuze = (id: string, n: number) => {
     const alt = lauf.checks[id] ?? { erfuellt: [], sekunden: 0 };
     const erfuellt = alt.erfuellt.includes(n) ? alt.erfuellt.filter((x) => x !== n) : [...alt.erfuellt, n];
     set({ checks: { ...lauf.checks, [id]: { ...alt, erfuellt } } });
   };
   const abschliessen = () => {
-    const e: MuendlichEintrag = { id: lauf.id, at: new Date().toISOString(), fallId: fall.id, titel: fall.titel, modus: lauf.modus, prozent: ergebnis.prozent, sprechzeit: ergebnis.sprechzeit, impulse: lauf.impulse.length };
+    const e: MuendlichEintrag = { id: lauf.id, at: new Date().toISOString(), fallId: fall.id, titel: fall.titel, modus: lauf.modus, prozent: ergebnis.prozent, sprechzeit: ergebnis.sprechzeit, impulse: lauf.impulse.length, ...(lauf.ki ? { kiNote: lauf.ki.note } : {}) };
     onFertig(e);
-    void logActivity({ kind: 'uebung', severity: 'info', title: `${MODI[lauf.modus].label} geübt: ${fall.titel}`, detail: `${ergebnis.prozent} % der Stichpunkte (Selbstcheck), Sprechzeit ${mmss(ergebnis.sprechzeit)}` });
+    void logActivity({ kind: 'uebung', severity: 'info', title: `${MODI[lauf.modus].label} geübt: ${fall.titel}`, detail: `${ergebnis.prozent} % der Stichpunkte (Selbstcheck), Sprechzeit ${mmss(ergebnis.sprechzeit)}${lauf.ki ? `, KI-Note ${lauf.ki.note}` : ''}` });
     set({ phase: 'fertig' });
   };
 
@@ -290,12 +332,29 @@ function Durchlauf({ lauf, fall, setLauf, onFertig }: { lauf: Lauf; fall: Muendl
           <div className="examen__aufnahme">
             {aufnahme.laeuft
               ? <button type="button" className="small" onClick={aufnahme.stopp}>Aufnahme beenden</button>
-              : <button type="button" className="small ghost" onClick={() => void aufnahme.start()}>Antwort aufnehmen</button>}
+              : <button type="button" className="small ghost" disabled={diktat.aktiv} onClick={() => void aufnahme.start()}>Antwort aufnehmen</button>}
             {aufnahme.laeuft && <span className="examen__rec" role="status">Aufnahme läuft</span>}
             {aufnahme.fehler && <span className="muted examen__klein">{aufnahme.fehler}</span>}
             {aufnahme.url && !aufnahme.laeuft && <audio controls src={aufnahme.url} />}
           </div>
         )}
+        <details className="examen__antwort" open={!!antworten[imp.id]}>
+          <summary>Antwort festhalten (für die KI-Rückmeldung, freiwillig)</summary>
+          <label className="field">
+            <span className="visually-hidden">Deine Antwort auf diesen Impuls</span>
+            <textarea rows={5} value={antworten[imp.id] ?? ''} onChange={(e) => setzeAntwort(imp.id, e.target.value)}
+              placeholder="Stichpunkte nach dem Sprechen oder gleich diktieren" />
+          </label>
+          {diktat.zwischen && <p className="muted examen__klein" aria-live="polite">… {diktat.zwischen}</p>}
+          <div className="examen__aufnahme">
+            {diktat.moeglich && (diktat.aktiv
+              ? <button type="button" className="small" onClick={diktat.stop}>Diktat beenden</button>
+              : <button type="button" className="small ghost" disabled={aufnahme.laeuft} onClick={diktat.start}>Antwort diktieren</button>)}
+            {diktat.aktiv && <span className="examen__rec" role="status">Diktat läuft</span>}
+            {diktat.fehler && <span className="muted examen__klein">{diktat.fehler}</span>}
+            {!diktat.moeglich && <span className="muted examen__klein">Diktieren: ins Feld tippen und das Mikrofon der Tastatur nutzen.</span>}
+          </div>
+        </details>
         <div className="faecher__aktionen"><button type="button" className="primary" onClick={weiter}>{lauf.i + 1 < lauf.impulse.length ? 'Nächster Impuls' : 'Fertig gesprochen'}</button></div>
       </>)}
 
@@ -303,18 +362,45 @@ function Durchlauf({ lauf, fall, setLauf, onFertig }: { lauf: Lauf; fall: Muendl
         <h2 ref={ueberschrift} tabIndex={-1}>Selbstcheck: Was hast du gesagt?</h2>
         <p className="muted">Hake ehrlich ab, was in deiner Antwort vorkam. {aufnahme.url ? 'Hör dazu deine Aufnahme an.' : ''}</p>
         {aufnahme.url && <audio controls src={aufnahme.url} />}
-        {lauf.impulse.map((x) => (
-          <fieldset key={x.id} className="card examen__check">
-            <legend><span className="badge badge--demo">{x.kb.replace('kb.', '')}</span> {x.frage}</legend>
-            {x.stichpunkte.map((s, n) => (
-              <label key={n} className="check">
-                <input type="checkbox" checked={lauf.checks[x.id]?.erfuellt.includes(n) ?? false} onChange={() => kreuze(x.id, n)} />
-                <span>{s}</span>
-              </label>
-            ))}
-            <p className="muted examen__klein">Sprechzeit {mmss(lauf.checks[x.id]?.sekunden ?? 0)}</p>
-          </fieldset>
-        ))}
+        <div className="card examen__ki">
+          {!apiKey
+            ? <p className="muted examen__klein">Mit API-Schlüssel kann Claude deine festgehaltenen Antworten gegen die Stichpunkte lesen. <button type="button" className="link" onClick={() => navigate('/einstellungen')}>Zu den Einstellungen</button></p>
+            : !hatAntworten
+              ? <p className="muted examen__klein">Für eine Rückmeldung von Claude hältst du beim nächsten Mal deine Antworten fest (tippen oder diktieren).</p>
+              : <>
+                <div className="faecher__aktionen">
+                  <button type="button" className={lauf.ki ? 'ghost' : 'primary'} onClick={() => void fragClaude()} disabled={kiLaeuft}>{kiLaeuft ? 'Claude liest …' : lauf.ki ? 'Noch einmal bewerten' : 'Rückmeldung von Claude'}</button>
+                  {lauf.ki && <button type="button" className="primary" onClick={uebernimmKi}>Claudes Haken übernehmen</button>}
+                </div>
+                {!lauf.ki && !kiLaeuft && <p className="muted examen__klein">Gesendet werden nur der Übungsfall, die Impulse und deine festgehaltenen Antworten, keine Aufnahme.</p>}
+              </>}
+          {kiFehler && <div className="note warn" role="alert">{kiFehler}</div>}
+          {lauf.ki && <KiZusammenfassung ki={lauf.ki} />}
+        </div>
+        {lauf.impulse.map((x) => {
+          const k = lauf.ki?.impulse.find((y) => y.id === x.id);
+          const antwort = (antworten[x.id] ?? '').trim();
+          return (
+            <fieldset key={x.id} className="card examen__check">
+              <legend><span className="badge badge--demo">{x.kb.replace('kb.', '')}</span> {x.frage}</legend>
+              {antwort && <details className="examen__antwort-zu"><summary className="muted">Deine festgehaltene Antwort</summary><p className="examen__notizen">{antwort}</p></details>}
+              {x.stichpunkte.map((s, n) => (
+                <label key={n} className="check">
+                  <input type="checkbox" checked={lauf.checks[x.id]?.erfuellt.includes(n) ?? false} onChange={() => kreuze(x.id, n)} />
+                  <span>{s}{k?.erfuellt.includes(n) && <span className="tag examen__ki-tag">Claude: erkannt</span>}</span>
+                </label>
+              ))}
+              {k && (k.kommentar || k.bedenken.length > 0 || k.beispiel) && (
+                <div className="examen__ki-impuls">
+                  {k.kommentar && <p className="examen__klein">{k.kommentar}</p>}
+                  {k.bedenken.length > 0 && <div className="note warn"><strong>Bitte im Material prüfen</strong><ul>{k.bedenken.map((b) => <li key={b}>{b}</li>)}</ul></div>}
+                  {k.beispiel && <details><summary className="muted">So könnte der Kern klingen</summary><p className="examen__notizen">{k.beispiel}</p></details>}
+                </div>
+              )}
+              <p className="muted examen__klein">Sprechzeit {mmss(lauf.checks[x.id]?.sekunden ?? 0)}</p>
+            </fieldset>
+          );
+        })}
         <div className="faecher__aktionen"><button type="button" className="primary" onClick={abschliessen}>Auswerten</button></div>
       </>)}
 
@@ -326,6 +412,7 @@ function Durchlauf({ lauf, fall, setLauf, onFertig }: { lauf: Lauf; fall: Muendl
               <li key={kb}><span>{KB_KURZ[kb]}</span><span className="examen__quote">{ergebnis.proBereich[kb].erfuellt}/{ergebnis.proBereich[kb].moeglich}</span></li>
             ))}
             <li><span>Sprechzeit</span><span className="examen__quote">{mmss(ergebnis.sprechzeit)} von {lauf.sprechMinuten}:00</span></li>
+            {lauf.ki && <li><span>Einschätzung von Claude</span><span className="examen__quote">Note {lauf.ki.note}</span></li>}
           </ul>
           <p className="muted examen__klein">Selbsteinschätzung: zählt im Lernplan nicht als Wissensnachweis. Für echte Abfragen nutze Karteikarten, Fälle oder die Prüfungssimulation.</p>
         </div>
@@ -335,6 +422,17 @@ function Durchlauf({ lauf, fall, setLauf, onFertig }: { lauf: Lauf; fall: Muendl
           <button type="button" className="ghost" onClick={() => navigate(`/lernen/simulation?kb=${encodeURIComponent('kb.III,kb.IV,kb.V')}`)}>Probeprüfung III–V</button>
         </div>
       </>)}
+    </div>
+  );
+}
+
+function KiZusammenfassung({ ki }: { ki: KiMuendlich }) {
+  return (
+    <div className="examen__ki-gesamt" role="status">
+      <p><strong>Claude schätzt deine Antworten auf Note {ki.note}.</strong></p>
+      {ki.staerken.length > 0 && <div className="note ok"><strong>Gut gemacht</strong><ul>{ki.staerken.map((x) => <li key={x}>{x}</li>)}</ul></div>}
+      {ki.tipps.length > 0 && <div className="note"><strong>Für das nächste Mal</strong><ul>{ki.tipps.map((x) => <li key={x}>{x}</li>)}</ul></div>}
+      <p className="muted examen__klein">KI-Rückmeldung, kann sich irren. Die Haken unten setzt du selbst; mit „Claudes Haken übernehmen“ startest du von ihrem Vorschlag.</p>
     </div>
   );
 }
