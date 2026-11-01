@@ -20,9 +20,11 @@ import { FAELLE as KRANKHEITSFAELLE } from '../krankheitsbilder/faelle';
 import { faelleZuThema } from '../krankheitsbilder/bewertung';
 import { HYGIENE_THEMA } from '../hygiene/aufgaben';
 import { THEMA as ANATOMIE_THEMA } from '../anatomie/aufgaben';
+import { ES_THEMA } from '../expertenstandards/aufgaben';
+import { THEMEN as NORMWERT_THEMEN } from '../normwerte/aufgaben';
 import { heute, leafTopics, logReview, TRAINER_NAME } from './store';
 
-export type TrainerId = 'rechnen' | 'duell' | 'fall' | 'uebergabe' | 'pflegeplanung' | 'sis' | 'mindmap' | 'bericht' | 'assessment' | 'krankheitsbilder' | 'selbsttest' | 'hygiene' | 'anatomie';
+export type TrainerId = 'rechnen' | 'duell' | 'fall' | 'uebergabe' | 'pflegeplanung' | 'sis' | 'mindmap' | 'bericht' | 'assessment' | 'krankheitsbilder' | 'selbsttest' | 'hygiene' | 'anatomie' | 'expertenstandards' | 'normwerte';
 
 export const TRAINER_LABEL = TRAINER_NAME as Record<TrainerId, string>;
 
@@ -113,6 +115,9 @@ export function uebungenFuer(topicId: string, modul: CatalogModule = pflegeModul
   if (topicId === HYGIENE_THEMA) out.push({ trainer: 'hygiene', label: 'Hygiene-Trainer', path: '/lernen/hygiene' });
   const anatomie = Object.entries(ANATOMIE_THEMA).find(([, thema]) => thema === topicId);
   if (anatomie) out.push({ trainer: 'anatomie', label: 'Anatomie-Trainer', path: `/lernen/anatomie?bereich=${anatomie[0]}` });
+  if (topicId === ES_THEMA) out.push({ trainer: 'expertenstandards', label: 'Expertenstandards-Trainer', path: '/lernen/expertenstandards' });
+  const normBereich: Record<string, string> = { [NORMWERT_THEMEN.vital]: 'vital', [NORMWERT_THEMEN.diabetes]: 'labor', [NORMWERT_THEMEN.blut]: 'labor', [NORMWERT_THEMEN.niere]: 'labor', [NORMWERT_THEMEN.ausscheidung]: 'ausscheidung' };
+  if (normBereich[topicId]) out.push({ trainer: 'normwerte', label: 'Normwerte-Trainer', path: `/lernen/normwerte?bereich=${normBereich[topicId]}` });
   for (const g of GRUPPEN.filter((x) => x.instrumente.some((i) => INSTRUMENTE[i].topicIds.includes(topicId)))) {
     out.push({ trainer: 'assessment', label: `Assessment üben (${g.label})`, path: `/lernen/assessment?gruppe=${g.id}&modus=faelle` });
   }

@@ -3,6 +3,8 @@ import { alsFehler, alsTreffer, bewerte, mische, mischeOptionen, pruefeAufgaben,
 import { ALLE_AUFGABEN as HYGIENE, AUFGABEN as HYGIENE_BEREICHE, HYGIENE_THEMA } from '../hygiene/aufgaben';
 import { ALLE_AUFGABEN as ANATOMIE, AUFGABEN as ANATOMIE_BEREICHE, THEMA } from '../anatomie/aufgaben';
 import { FIGUREN } from '../anatomie/figuren';
+import { ALLE_AUFGABEN as STANDARDS, ES_THEMA } from '../expertenstandards/aufgaben';
+import { ALLE_AUFGABEN as NORMWERTE, THEMEN as NORM_THEMEN } from '../normwerte/aufgaben';
 import { modules } from '../../modules/registry';
 import { uebungenFuer } from '../lernplan/trainer';
 import { mischeAuswahl, auswahlRichtig } from '../fehlerheft/fehlerheft';
@@ -119,7 +121,7 @@ describe('Fehlerheft', () => {
   });
 
   it('erzeugt Wiederholungen, die das Fehlerheft lösen kann', () => {
-    for (const a of [...HYGIENE, ...ANATOMIE]) {
+    for (const a of [...HYGIENE, ...ANATOMIE, ...STANDARDS, ...NORMWERTE]) {
       const leer = a.art === 'auswahl' ? { art: 'auswahl' as const, wahl: [] } : a.art === 'reihenfolge' ? { art: 'reihenfolge' as const, folge: [...a.schritte].reverse() } : { art: 'beschriften' as const, zuordnung: {} };
       for (const f of alsFehler(a, leer, 'hygiene')) {
         const w = f.wiederholung;
@@ -160,6 +162,15 @@ describe('Inhalte', () => {
         if (m.nr < n.nr) expect(Math.hypot(m.x - n.x, m.y - n.y), `${a.id} ${m.nr}/${n.nr}`).toBeGreaterThanOrEqual(19);
       }
     }
+  });
+
+  it('Expertenstandards- und Normwerte-Aufgaben sind vollständig und gehören zu Katalogthemen', () => {
+    expect(pruefeAufgaben(STANDARDS, themen)).toEqual([]);
+    expect(pruefeAufgaben(NORMWERTE, themen)).toEqual([]);
+    expect(STANDARDS.every((a) => a.topicIds.includes(ES_THEMA))).toBe(true);
+    for (const t of Object.values(NORM_THEMEN)) expect(themen.has(t), t).toBe(true);
+    expect(uebungenFuer(ES_THEMA).map((u) => u.path)).toContain('/lernen/expertenstandards');
+    expect(uebungenFuer(NORM_THEMEN.vital).map((u) => u.path)).toContain('/lernen/normwerte?bereich=vital');
   });
 
   it('Lernplan verweist von den Themen auf die neuen Trainer', () => {
