@@ -135,6 +135,30 @@ export const SZENARIEN: Szenario[] = [
     verborgen: 'Lungenembolie aus einer Beinvenenthrombose links (Wade dicker, warm, druckschmerzhaft). Die Thromboseprophylaxe wurde gestern einmal ausgelassen, ohne Rücksprache. Tachypnoe, Tachykardie, SpO2 um 89 %, atemabhängiger Brustschmerz. Weitergehen oder Wadenmassage verschlechtern ihn. Ohne frühe ärztliche Eskalation Blutdruckabfall.',
     topicIds: ['thema.kl.herz.pavk', 'thema.pro.thrombose', 'thema.beo.notfall'],
   },
+  {
+    id: 'delir-nacht',
+    titel: 'Er will mitten in der Nacht nach Hause',
+    setting: 'krankenhaus',
+    kurz: 'Herr V., 84 Jahre, zweiter Tag nach Hüft-TEP. Um 2 Uhr sitzt er auf der Bettkante, zupft am Zugang und will „nach Hause zu den Kühen“.',
+    verborgen: 'Hyperaktives Delir durch Harnverhalt (Katheter gestern gezogen, keine Miktion seit 9 Stunden, Blasenscan etwa 850 ml), dazu Schmerz. Brille und Hörgerät liegen in der Schublade. Ein Kollege drängt auf Bettgitter und Fixierung: ohne Einwilligung oder richterliche Genehmigung unzulässig, Sturz über das Gitter droht. Sedierende Bedarfsmedikation ohne Ursachensuche macht es schlimmer. Ohne Ursachensuche wird er zunehmend agitiert. Nach Einmalkatheter (ärztliche Anordnung) beruhigt er sich deutlich.',
+    topicIds: ['thema.pro.delir', 'thema.re.fem', 'thema.ph.ausscheidung'],
+  },
+  {
+    id: 'asthma-kind',
+    titel: 'Das Spray hilft heute nicht',
+    setting: 'paediatrie',
+    kurz: 'Ben, 7 Jahre, Kinderstation, bekanntes Asthma, seit zwei Tagen erkältet. Nach dem Schulsport sitzt er vornübergebeugt im Bett und spricht nur in kurzen Sätzen.',
+    verborgen: 'Schwerer Asthmaanfall: heute schon viermal 2 Hübe Salbutamol ohne ausreichende Wirkung, SpO2 91 %, AF 34, Einziehungen, exspiratorisches Giemen. Flachlagerung oder Tütenatmung verschlechtern ihn. Ohne frühe ärztliche Therapie wird er nach etwa 15 Minuten erschöpft: leiser werdendes Giemen („stille Lunge“), schläfrig, Sättigung fällt. Die Sportlehrerin ruft an und möchte Details (Schweigepflicht).',
+    topicIds: ['thema.kl.atmung', 'thema.kl.paediatrie', 'thema.re.schweigepflicht'],
+  },
+  {
+    id: 'demenz-verfuegung',
+    titel: 'Frau K. isst seit gestern nichts',
+    setting: 'langzeit',
+    kurz: 'Frau K., 89 Jahre, Wohnbereich, fortgeschrittene Alzheimer-Demenz, spricht nur einzelne Worte. Beim Frühstück dreht sie den Kopf weg und atmet schneller.',
+    verborgen: 'Aspirationspneumonie bei bekannter Schluckstörung: Fieber 38,3 °C, AF 24, SpO2 92 %, Rasseln rechts basal, Schmerz nur über Beobachtung erkennbar (BESD 5). Patientenverfügung: keine Intensivtherapie, Krankenhaus nur zur besseren Linderung; Betreuer ist der Sohn. Füttern im Liegen führt zu erneuter Aspiration. Steißrötung noch wegdrückbar. Ohne hausärztliche Linderung zunehmende Atemnot.',
+    topicIds: ['thema.kl.demenz', 'thema.pro.pneumonie', 'thema.kom.ethik'],
+  },
 ];
 
 /** Themen, aus denen sich ein freier Fall erzeugen lässt: Krankheitslehre, Prophylaxen, Pflegehandeln, Fallarbeit. */

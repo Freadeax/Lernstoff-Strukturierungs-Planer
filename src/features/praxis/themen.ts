@@ -18,6 +18,9 @@ export const PRAXIS_THEMEN: Record<string, string[]> = {
   schlaganfall: ['thema.kl.neuro.schlaganfall', 'thema.beo.notfall', 'thema.pro.aspiration'],
   anaphylaxie: ['thema.beo.notfall', 'thema.ph.medikamente', 'thema.ph.injektion'],
   lungenembolie: ['thema.kl.herz.pavk', 'thema.pro.thrombose', 'thema.ph.periop'],
+  delir: ['thema.pro.delir', 'thema.re.fem', 'thema.ph.periop', 'thema.ph.ausscheidung'],
+  asthma: ['thema.kl.atmung', 'thema.kl.paediatrie', 'thema.re.schweigepflicht'],
+  demenz: ['thema.kl.demenz', 'thema.pro.pneumonie', 'thema.pro.dekubitus', 'thema.kom.ethik'],
 };
 
 /** Fälle, die ein Thema üben, in der Reihenfolge des Katalogs. */

@@ -37,6 +37,21 @@ export type StoryEvent = {
   resolvedBy?: string[];
   /** Was im Debriefing steht, wenn das Ereignis verhindert wurde. */
   prevented?: string;
+  /** Entscheidungsmoment: Die Uhr hält an, bis eine Option gewählt ist. Optionen setzen Flags und verzweigen so den Verlauf. */
+  choices?: Choice[];
+};
+/** Eine Option in einem Entscheidungsmoment. */
+export type Choice = {
+  id: string; label: string;
+  /** Was sofort passiert (im Verlauf sichtbar). */
+  result: string;
+  /** Begründung fürs Debriefing. */
+  why: string;
+  /** Fachlich beste Option (im Debriefing markiert). */
+  best?: boolean;
+  flag?: string; effect?: Partial<Vitals>; avpu?: Avpu; oxygen?: boolean; harm?: string;
+  /** Zeitbedarf in Sekunden (Standard 30). */
+  seconds?: number;
 };
 export type Medication = {
   id: string; name: string; atc: string; dose: number; unit: string; concentration: number; route: string;
@@ -70,8 +85,12 @@ export type Session = {
   story?: Record<string, 'fired' | 'prevented' | 'skipped'>;
   drifts?: { id: string; drift: Partial<Vitals>; stoppedBy: string[] }[];
   harms?: { at: number; id: string; text: string }[];
+  /** Offene Entscheidungsmomente (Ereignis-IDs) und getroffene Entscheidungen. */
+  open?: string[];
+  decisions?: { at: number; event: string; choice: string }[];
 };
 export type Command = { type: 'action'; id: string } | { type: 'advance'; seconds: number }
   | { type: 'note'; text: string } | { type: 'sbar'; fields: string[] }
   | { type: 'medication'; id: string; dose: number; volume: number; route: string; duration: number; equipment: string; checks: boolean[] }
+  | { type: 'choose'; event: string; choice: string }
   | { type: 'finish' };

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { SCENARIOS, RESOURCES } from './catalog';
-import { CHECKS, debrief, dispatch, replay, start } from './engine';
+import { CHECKS, debrief, replay, start } from './engine';
+import { dispatch } from './testhilfe';
 import { parseScenario } from './storage';
 import type { Command, Scenario, Session } from './types';
 import { xapiDraft } from './tracking';
@@ -111,7 +112,8 @@ describe('Praxissimulator – autonome Engine', () => {
     const scenario = SCENARIOS.find(x => x.setting === 'zna')!;
     let a = start(scenario, 2, 42); let b = { ...start(scenario, 2, 42), id: a.id };
     a = dispatch(a, { type: 'advance', seconds: 3600 });
-    for (let i = 0; i < 60; i++) b = dispatch(b, { type: 'advance', seconds: 60 });
+    // Entscheidungsmomente kosten selbst Zeit; deshalb in 60-s-Schritten bis zur gleichen Uhrzeit.
+    while (b.time < a.time) b = dispatch(b, { type: 'advance', seconds: Math.min(60, a.time - b.time) });
     expect(b).toEqual(a); expect(a.events.some(e => e.title === 'Hintergrundereignis')).toBe(true); expect(replay(a)).toEqual(a);
   });
   it('exportiert stabile Tracking-IDs ohne Berichtsinhalte oder KI-Daten', () => {

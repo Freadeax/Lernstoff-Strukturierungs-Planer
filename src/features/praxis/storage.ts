@@ -44,6 +44,15 @@ export function parseScenario(json: string): Scenario {
     if (!object(e) || !identifier(e.id) || storyIds.has(e.id) || !positive(e.at) || (e.at as number) < 1 || !Object.hasOwn(STORY_KINDS, String(e.kind)) || !text(e.title) || !e.title.trim() || !text(e.detail) || (e.effect !== undefined && !deltas(e.effect)) || (e.avpu !== undefined && !avpu(e.avpu)) || (e.flag !== undefined && !identifier(e.flag)) || (e.prevented !== undefined && !text(e.prevented))) throw new Error('Verlaufsereignis ungültig oder Kennung doppelt.');
     if (e.drift !== undefined && (!deltas(e.drift) || !Array.isArray(e.stoppedBy) || !e.stoppedBy.length || !e.stoppedBy.every(identifier))) throw new Error('Verlaufsereignis: anhaltende Verschlechterung braucht stoppedBy.');
     if ((e.resolvedBy !== undefined && (!Array.isArray(e.resolvedBy) || !e.resolvedBy.length || !e.resolvedBy.every(identifier))) || (e.unless !== undefined && (!Array.isArray(e.unless) || !e.unless.every(identifier))) || (e.when !== undefined && !identifier(e.when))) throw new Error('Verlaufsereignis: Bedingung ungültig.');
+    if (e.choices !== undefined) {
+      if (!Array.isArray(e.choices) || e.choices.length < 2 || e.choices.length > 4) throw new Error('Entscheidungsmoment braucht 2 bis 4 Optionen.');
+      const choiceIds = new Set<string>();
+      for (const c of e.choices as unknown[]) {
+        if (!object(c) || !identifier(c.id) || choiceIds.has(c.id) || !text(c.label) || !c.label.trim() || !text(c.result) || !text(c.why) || (c.best !== undefined && typeof c.best !== 'boolean') || (c.flag !== undefined && !identifier(c.flag)) || (c.effect !== undefined && !deltas(c.effect)) || (c.avpu !== undefined && !avpu(c.avpu)) || (c.oxygen !== undefined && typeof c.oxygen !== 'boolean') || (c.harm !== undefined && (!text(c.harm) || !c.harm.trim())) || (c.seconds !== undefined && (!positive(c.seconds) || (c.seconds as number) > 3600))) throw new Error('Option im Entscheidungsmoment ungültig oder Kennung doppelt.');
+        choiceIds.add(c.id); if (c.flag) flags.add(c.flag as string);
+      }
+      if (!(e.choices as Record<string, unknown>[]).some(c => c.best === true)) throw new Error('Entscheidungsmoment braucht mindestens eine beste Option.');
+    }
     storyIds.add(e.id); if (e.flag) flags.add(e.flag as string);
   }
   for (const e of (d.storyline ?? []) as Record<string, unknown>[]) if ([...((e.unless as string[]) ?? []), ...((e.stoppedBy as string[]) ?? []), ...((e.resolvedBy as string[]) ?? []), ...(e.when ? [e.when as string] : [])].some(f => !flags.has(f))) throw new Error('Verlaufsereignis verweist auf unbekannte Handlung.');
@@ -54,7 +63,7 @@ export function parseScenario(json: string): Scenario {
   }
   for (const c of d.criteria) if (!object(c) || !identifier(c.flag) || !flags.has(c.flag) || (c.after !== undefined && (!identifier(c.after) || !flags.has(c.after))) || !text(c.label) || !text(c.why) || !['abcde', 'sbar', 'scenario', 'drug'].includes(String(c.source)) || (c.before !== undefined && !positive(c.before))) throw new Error('Bewertungskriterium ungültig.');
   if (d.actions.some(a => a.requires && !flags.has(a.requires)) || d.stabilizers.some(f => !flags.has(f))) throw new Error('Voraussetzung oder Stabilisierungsregel verweist auf unbekannte Aktion.');
-  const reachable = new Set(['documented', 'sbar', ...((d.storyline ?? []) as Record<string, unknown>[]).flatMap(e => e.flag ? [e.flag as string] : [])]);
+  const reachable = new Set(['documented', 'sbar', ...((d.storyline ?? []) as Record<string, unknown>[]).flatMap(e => [...(e.flag ? [e.flag as string] : []), ...((e.choices as Record<string, unknown>[] | undefined) ?? []).flatMap(c => c.flag ? [c.flag as string] : [])])]);
   for (let i = 0; i <= d.actions.length; i++) for (const a of d.actions) if (!a.requires || reachable.has(a.requires)) { if (a.flag) reachable.add(a.flag); }
   if (d.actions.some(a => a.requires && !reachable.has(a.requires))) throw new Error('Unerreichbare Aktion: zyklische oder nicht erfüllbare Voraussetzungen.');
   if (new Set(d.criteria.map(c => c.flag)).size !== d.criteria.length) throw new Error('Bewertungskriterium doppelt.');
@@ -72,18 +81,22 @@ export function readArchive(): Session[] {
     });
   } catch { return []; }
 }
+/** Prüft einen gespeicherten Übungsstand (auch innerhalb einer Schicht). Wirft bei falscher Form. */
+export function pruefeSession(value: unknown): Session {
+  const s = value as Session;
+  if (!object(s) || s.version !== 1 || !text(s.id) || ![1, 2, 3].includes(s.level) || !(number(s.time) && s.time <= 31536000 && s.time >= 0) || !['active', 'finished'].includes(s.phase) || !Array.isArray(s.events) || !Array.isArray(s.pending) || !strings(s.done) || !object(s.flags) || !deltas(s.vitals) || !object(s.measured) || typeof s.monitoring !== 'boolean' || !number(s.deterioration) || !number(s.snapshotRemainder) || !number(s.seed) || !number(s.rng) || !Array.isArray(s.commands)) throw new Error();
+  s.scenario = parseScenario(JSON.stringify(s.scenario));
+  if (!s.pending.every(p => object(p) && text(p.id) && number(p.due) && text(p.title) && text(p.result) && (p.effect === undefined || deltas(p.effect))) || !s.events.every(e => object(e) && number(e.id) && number(e.at) && text(e.title) && text(e.detail)) || !Object.values(s.flags).every(number)) throw new Error();
+  // Klinische Felder sind optional (ältere Stände); wenn vorhanden, muss ihre Form stimmen.
+  if ((s.chart !== undefined && (!Array.isArray(s.chart) || s.chart.length > 300 || !s.chart.every(p => object(p) && number(p.at) && deltas(p.vitals) && avpu(p.avpu) && typeof p.oxygen === 'boolean'))) || (s.avpu !== undefined && !avpu(s.avpu)) || (s.oxygen !== undefined && typeof s.oxygen !== 'boolean') || (s.story !== undefined && (!object(s.story) || !Object.values(s.story).every(v => ['fired', 'prevented', 'skipped'].includes(v)))) || (s.drifts !== undefined && (!Array.isArray(s.drifts) || !s.drifts.every(d => object(d) && text(d.id) && deltas(d.drift) && strings(d.stoppedBy)))) || (s.harms !== undefined && (!Array.isArray(s.harms) || !s.harms.every(h => object(h) && number(h.at) && text(h.id) && text(h.text)))) || (s.open !== undefined && !strings(s.open)) || (s.decisions !== undefined && (!Array.isArray(s.decisions) || !s.decisions.every(x => object(x) && number(x.at) && text(x.event) && text(x.choice))))) throw new Error();
+  if (!s.commands.every(c => object(c) && text(c.id) && object(c.command) && ['advance', 'action', 'medication', 'sbar', 'note', 'choose', 'finish'].includes(String(c.command.type))) || new Set(s.commands.map(c => c.id)).size !== s.commands.length) throw new Error();
+  return s;
+}
 export function readSession(): { session: Session | null; error: string } {
   try {
     const raw = localStorage.getItem(CURRENT);
     if (!raw) return { session: null, error: '' };
-    const s = JSON.parse(raw) as Session;
-    if (s.version !== 1 || !text(s.id) || ![1, 2, 3].includes(s.level) || !(number(s.time) && s.time <= 31536000 && s.time >= 0) || !['active', 'finished'].includes(s.phase) || !Array.isArray(s.events) || !Array.isArray(s.pending) || !strings(s.done) || !object(s.flags) || !deltas(s.vitals) || !object(s.measured) || typeof s.monitoring !== 'boolean' || !number(s.deterioration) || !number(s.snapshotRemainder) || !number(s.seed) || !number(s.rng) || !Array.isArray(s.commands)) throw new Error();
-    s.scenario = parseScenario(JSON.stringify(s.scenario));
-    if (!s.pending.every(p => object(p) && text(p.id) && number(p.due) && text(p.title) && text(p.result) && (p.effect === undefined || deltas(p.effect))) || !s.events.every(e => object(e) && number(e.id) && number(e.at) && text(e.title) && text(e.detail)) || !Object.values(s.flags).every(number)) throw new Error();
-    // Klinische Felder sind optional (ältere Stände); wenn vorhanden, muss ihre Form stimmen.
-    if ((s.chart !== undefined && (!Array.isArray(s.chart) || s.chart.length > 300 || !s.chart.every(p => object(p) && number(p.at) && deltas(p.vitals) && avpu(p.avpu) && typeof p.oxygen === 'boolean'))) || (s.avpu !== undefined && !avpu(s.avpu)) || (s.oxygen !== undefined && typeof s.oxygen !== 'boolean') || (s.story !== undefined && (!object(s.story) || !Object.values(s.story).every(v => ['fired', 'prevented', 'skipped'].includes(v)))) || (s.drifts !== undefined && (!Array.isArray(s.drifts) || !s.drifts.every(d => object(d) && text(d.id) && deltas(d.drift) && strings(d.stoppedBy)))) || (s.harms !== undefined && (!Array.isArray(s.harms) || !s.harms.every(h => object(h) && number(h.at) && text(h.id) && text(h.text))))) throw new Error();
-    if (!s.commands.every(c => object(c) && text(c.id) && object(c.command) && ['advance', 'action', 'medication', 'sbar', 'note', 'finish'].includes(String(c.command.type))) || new Set(s.commands.map(c => c.id)).size !== s.commands.length) throw new Error();
-    return { session: s, error: '' };
+    return { session: pruefeSession(JSON.parse(raw)), error: '' };
   } catch { return { session: null, error: 'Gespeicherter Übungsstand konnte nicht gelesen werden. Er bleibt für eine Datensicherung erhalten; ein neuer Fall überschreibt ihn.' }; }
 }
 export function saveSession(s: Session | null) {
