@@ -3,14 +3,18 @@
 
 import type { Aufgabe, AuswahlAufgabe } from '../quiz/quiz';
 
-export type BereichId = 'herz' | 'atmung' | 'niere' | 'verdauung';
+export type BereichId = 'herz' | 'atmung' | 'niere' | 'verdauung' | 'bewegung' | 'nerven' | 'sinne' | 'haut';
 export interface Bereich { id: BereichId; label: string; kurz: string; wissen: string[] }
 
 export const THEMA: Record<BereichId, string> = {
   herz: 'thema.ap.herz', atmung: 'thema.ap.atmung', niere: 'thema.ap.niere', verdauung: 'thema.ap.verdauung',
+  bewegung: 'thema.ap.bewegung', nerven: 'thema.ap.nerven', sinne: 'thema.ap.nerven', haut: 'thema.ap.haut',
 };
 
-const TITEL: Record<BereichId, string> = { herz: 'Herz und Kreislauf', atmung: 'Atmung', niere: 'Niere und Harnwege', verdauung: 'Verdauung' };
+const TITEL: Record<BereichId, string> = {
+  herz: 'Herz und Kreislauf', atmung: 'Atmung', niere: 'Niere und Harnwege', verdauung: 'Verdauung',
+  bewegung: 'Bewegungsapparat', nerven: 'Nervensystem', sinne: 'Auge und Ohr', haut: 'Haut',
+};
 
 function frage(bereich: BereichId, id: string, f: string, optionen: string[], erklaerung: string[], richtig = [0], mehrfach = false): AuswahlAufgabe {
   return { id: `${bereich}.${id}`, art: 'auswahl', topicIds: [THEMA[bereich]], titel: TITEL[bereich], frage: f, optionen, richtig, mehrfach, erklaerung };
@@ -175,6 +179,168 @@ const verdauung: Aufgabe[] = [
     ['Die Säure macht aus Pepsinogen das eiweißspaltende Pepsin. Die Magenschleimhaut schützt sich mit Schleim.']),
 ];
 
+// ---------------------------------------------------------------- Bewegungsapparat
+
+const bewegung: Aufgabe[] = [
+  {
+    id: 'bewegung.beschriften', art: 'beschriften', figur: 'skelett', topicIds: [THEMA.bewegung], titel: 'Skelett beschriften',
+    frage: 'Beschrifte das Skelett. Die rechte Körperseite liegt in der Abbildung links.',
+    marken: [
+      { nr: 1, x: 110, y: 28, label: 'Schädel', hinweis: 'Knöcherne Kapsel, die das Gehirn schützt.' },
+      { nr: 2, x: 110, y: 66, label: 'Unterkiefer', hinweis: 'Einziger beweglicher Knochen des Kopfes.' },
+      { nr: 3, x: 80, y: 80, label: 'Schlüsselbein', hinweis: 'S-förmiger Knochen zwischen Brustbein und Schulterblatt, bricht häufig beim Sturz auf die Schulter.' },
+      { nr: 4, x: 110, y: 118, label: 'Brustbein (Sternum)', hinweis: 'Platter Knochen vorn in der Mitte des Brustkorbs, Druckpunkt bei der Herzdruckmassage.' },
+      { nr: 5, x: 146, y: 136, label: 'Rippen', hinweis: '12 Paare, bilden mit Brustbein und Brustwirbeln den Brustkorb.' },
+      { nr: 6, x: 110, y: 210, label: 'Wirbelsäule', hinweis: 'Achse des Körpers aus Wirbeln und Bandscheiben, umschließt das Rückenmark.' },
+      { nr: 7, x: 55, y: 126, label: 'Oberarmknochen (Humerus)', hinweis: 'Langer Knochen zwischen Schulter- und Ellenbogengelenk.' },
+      { nr: 8, x: 33, y: 210, label: 'Speiche (Radius)', hinweis: 'Unterarmknochen auf der Daumenseite.' },
+      { nr: 9, x: 56, y: 222, label: 'Elle (Ulna)', hinweis: 'Unterarmknochen auf der Kleinfingerseite.' },
+      { nr: 10, x: 84, y: 254, label: 'Becken', hinweis: 'Knochenring, der die Last des Rumpfes auf die Beine überträgt.' },
+      { nr: 11, x: 88, y: 306, label: 'Oberschenkelknochen (Femur)', hinweis: 'Längster Knochen des Körpers, sein Hals bricht bei älteren Menschen oft nach Stürzen.' },
+      { nr: 12, x: 93, y: 352, label: 'Kniescheibe (Patella)', hinweis: 'In die Sehne des vorderen Oberschenkelmuskels eingelagerter Knochen.' },
+      { nr: 13, x: 98, y: 410, label: 'Schienbein (Tibia)', hinweis: 'Kräftiger Unterschenkelknochen auf der Innenseite, vorn direkt unter der Haut tastbar.' },
+      { nr: 14, x: 76, y: 384, label: 'Wadenbein (Fibula)', hinweis: 'Schlanker Unterschenkelknochen auf der Außenseite.' },
+    ],
+    erklaerung: ['Speiche liegt am Daumen, Elle am kleinen Finger. Schienbein innen, Wadenbein außen.', 'Der Schenkelhals (Teil des Oberschenkelknochens) ist die typische Bruchstelle nach Stürzen im Alter.'],
+  },
+  {
+    id: 'bewegung.wirbelsaeule', art: 'reihenfolge', topicIds: [THEMA.bewegung], titel: 'Abschnitte der Wirbelsäule',
+    frage: 'Ordne die Abschnitte der Wirbelsäule von oben nach unten.',
+    schritte: ['Halswirbelsäule (7 Wirbel)', 'Brustwirbelsäule (12 Wirbel)', 'Lendenwirbelsäule (5 Wirbel)', 'Kreuzbein', 'Steißbein'],
+    erklaerung: ['7 Hals-, 12 Brust-, 5 Lendenwirbel. Kreuz- und Steißbein bestehen aus verschmolzenen Wirbeln.', 'Die Brustwirbel tragen die 12 Rippenpaare.'],
+  },
+  frage('bewegung', 'gelenke', 'Welches Gelenk ist ein Kugelgelenk?',
+    ['Schultergelenk', 'Ellenbogengelenk (Oberarm-Elle)', 'Fingermittelgelenk', 'Oberes Sprunggelenk'],
+    ['Kugelgelenke (Schulter, Hüfte) erlauben Bewegungen in alle Richtungen. Finger- und Sprunggelenke sind Scharniergelenke.', 'Das Schultergelenk ist sehr beweglich, aber wenig knöchern gesichert: Es renkt sich am häufigsten aus.']),
+  frage('bewegung', 'knochenanzahl', 'Wie viele Knochen hat das Skelett eines Erwachsenen ungefähr?',
+    ['Etwa 206', 'Etwa 106', 'Etwa 306', 'Etwa 56'],
+    ['Neugeborene haben mehr Knochen, einige verwachsen im Laufe der Entwicklung (z. B. am Schädel und Kreuzbein).']),
+  frage('bewegung', 'kontraktur', 'Was ist eine Kontraktur?',
+    ['Eine dauerhafte Bewegungseinschränkung eines Gelenks durch Verkürzung von Muskeln, Sehnen oder Kapsel', 'Ein Muskelkrampf, der nach wenigen Minuten vergeht', 'Ein Knochenbruch in Gelenknähe', 'Eine Entzündung der Gelenkinnenhaut'],
+    ['Kontrakturen entstehen vor allem durch Bewegungsmangel und Schonhaltungen. Vorbeugung: Bewegen, Mobilisieren, Lagern in wechselnden Positionen.']),
+  frage('bewegung', 'muskel', 'Wie arbeiten Beuger und Strecker an einem Gelenk zusammen?',
+    ['Als Gegenspieler: Zieht sich der eine zusammen, entspannt sich der andere', 'Beide ziehen sich immer gleichzeitig zusammen', 'Der Beuger arbeitet nur im Liegen', 'Strecker sind Sehnen, keine Muskeln'],
+    ['Agonist und Antagonist: Beim Beugen des Ellenbogens arbeitet der Bizeps, der Trizeps entspannt sich.']),
+];
+
+// ---------------------------------------------------------------- Nervensystem
+
+const nerven: Aufgabe[] = [
+  {
+    id: 'nerven.beschriften', art: 'beschriften', figur: 'gehirn', topicIds: [THEMA.nerven], titel: 'Gehirn beschriften',
+    frage: 'Beschrifte das Gehirn. Ansicht von links, die Stirn zeigt nach links.',
+    marken: [
+      { nr: 1, x: 84, y: 82, label: 'Stirnlappen', hinweis: 'Vorderster Großhirnlappen: Planen, Persönlichkeit, Bewegungssteuerung, motorisches Sprachzentrum.' },
+      { nr: 2, x: 202, y: 52, label: 'Scheitellappen', hinweis: 'Großhirnlappen hinter der Zentralfurche: Körperempfinden wie Berührung und Temperatur.' },
+      { nr: 3, x: 256, y: 100, label: 'Hinterhauptslappen', hinweis: 'Hinterster Großhirnlappen mit der Sehrinde.' },
+      { nr: 4, x: 132, y: 152, label: 'Schläfenlappen', hinweis: 'Großhirnlappen unterhalb der seitlichen Furche: Hören, Gedächtnis, Sprachverständnis.' },
+      { nr: 5, x: 240, y: 190, label: 'Kleinhirn', hinweis: 'Liegt hinten unten: Gleichgewicht, Koordination und Feinabstimmung von Bewegungen.' },
+      { nr: 6, x: 170, y: 184, label: 'Brücke (Pons)', hinweis: 'Vorgewölbter Teil des Hirnstamms, verbindet Großhirn und Kleinhirn.' },
+      { nr: 7, x: 174, y: 216, label: 'Verlängertes Mark (Medulla oblongata)', hinweis: 'Unterster Teil des Hirnstamms mit Atem- und Kreislaufzentrum.' },
+      { nr: 8, x: 173, y: 243, label: 'Rückenmark', hinweis: 'Setzt den Hirnstamm im Wirbelkanal fort und leitet Signale zwischen Gehirn und Körper.' },
+    ],
+    erklaerung: ['Die Zentralfurche trennt Stirn- und Scheitellappen, die seitliche Furche den Schläfenlappen.', 'Hirnstamm mit Atem- und Kreislaufzentrum: Schäden hier sind lebensbedrohlich.'],
+  },
+  {
+    id: 'nerven.reflex', art: 'reihenfolge', topicIds: [THEMA.nerven], titel: 'Reflexbogen',
+    frage: 'Bring den Ablauf eines Reflexes (z. B. Kniesehnenreflex) in die richtige Reihenfolge.',
+    schritte: ['Reiz trifft auf einen Rezeptor', 'Sensible (afferente) Nervenfaser leitet zum Rückenmark', 'Umschaltung im Rückenmark', 'Motorische (efferente) Nervenfaser leitet zum Muskel', 'Muskel zieht sich zusammen'],
+    erklaerung: ['Reflexe laufen über das Rückenmark, ohne dass das Gehirn erst entscheiden muss. Deshalb sind sie so schnell.', 'Afferent = zum zentralen Nervensystem hin, efferent = davon weg.'],
+  },
+  frage('nerven', 'zns', 'Was gehört zum zentralen Nervensystem (ZNS)?',
+    ['Gehirn und Rückenmark', 'Nur das Gehirn', 'Alle Nerven in Armen und Beinen', 'Sympathikus und Parasympathikus'],
+    ['Alles außerhalb von Gehirn und Rückenmark ist peripheres Nervensystem. Sympathikus und Parasympathikus bilden das vegetative Nervensystem.']),
+  frage('nerven', 'sympathikus', 'Was bewirkt der Sympathikus? Wähle alle zutreffenden.',
+    ['Herzfrequenz steigt', 'Pupillen werden weit', 'Bronchien weiten sich', 'Verdauung wird angeregt', 'Speichelfluss nimmt stark zu'],
+    ['Sympathikus = Kampf oder Flucht: Herz, Atmung und Muskeln bekommen Vorrang, die Verdauung wird gebremst.', 'Der Parasympathikus (Ruhe und Verdauung) wirkt entgegengesetzt.'],
+    [0, 1, 2], true),
+  frage('nerven', 'kreuzung', 'Eine Patientin hat einen Schlaganfall in der linken Großhirnhälfte. Welche Körperseite ist meist gelähmt?',
+    ['Die rechte', 'Die linke', 'Beide Beine', 'Keine, nur das Sprechen ist gestört'],
+    ['Die Bahnen für die Bewegung kreuzen im Hirnstamm auf die Gegenseite. Bei Rechtshändern liegt links auch das Sprachzentrum, deshalb oft zusätzlich eine Aphasie.']),
+  frage('nerven', 'kleinhirn', 'Ein Patient geht breitbeinig und schwankend, seine Bewegungen schießen über das Ziel hinaus. Welcher Hirnabschnitt ist am ehesten betroffen?',
+    ['Kleinhirn', 'Hinterhauptslappen', 'Schläfenlappen', 'Rückenmark im Lendenbereich'],
+    ['Das Kleinhirn stimmt Bewegungen fein ab. Typisch bei Störung: Gang- und Standunsicherheit (Ataxie), Zittern bei Zielbewegungen. Auch Alkohol wirkt hier.']),
+];
+
+// ---------------------------------------------------------------- Auge und Ohr
+
+const sinne: Aufgabe[] = [
+  {
+    id: 'sinne.auge', art: 'beschriften', figur: 'auge', topicIds: [THEMA.sinne], titel: 'Auge beschriften',
+    frage: 'Beschrifte das Auge im waagerechten Schnitt. Das Licht fällt von links ein.',
+    marken: [
+      { nr: 1, x: 89, y: 80, label: 'Hornhaut', hinweis: 'Durchsichtige, gewölbte Vorderwand, bricht das Licht am stärksten.' },
+      { nr: 2, x: 104, y: 110, label: 'Pupille', hinweis: 'Öffnung in der Mitte, wird bei Dunkelheit weit.' },
+      { nr: 3, x: 104, y: 139, label: 'Regenbogenhaut (Iris)', hinweis: 'Farbiger Ring, der die Lichtmenge regelt.' },
+      { nr: 4, x: 124, y: 90, label: 'Linse', hinweis: 'Elastischer Körper hinter der Pupille, ändert ihre Wölbung zum Scharfstellen.' },
+      { nr: 5, x: 128, y: 164, label: 'Ziliarkörper', hinweis: 'Ring mit Muskel, an dem die Linse aufgehängt ist.' },
+      { nr: 6, x: 175, y: 110, label: 'Glaskörper', hinweis: 'Gallertige Füllung des Augapfels.' },
+      { nr: 7, x: 170, y: 30, label: 'Lederhaut', hinweis: 'Feste, weiße Außenhülle des Augapfels.' },
+      { nr: 8, x: 226, y: 162, label: 'Netzhaut', hinweis: 'Innere Schicht mit Stäbchen und Zapfen, wandelt Licht in Nervensignale.' },
+      { nr: 9, x: 236, y: 76, label: 'Gelber Fleck (Makula)', hinweis: 'Stelle des schärfsten Sehens mit den meisten Zapfen.' },
+      { nr: 10, x: 284, y: 111, label: 'Sehnerv', hinweis: 'Leitet die Signale der Netzhaut zum Gehirn.' },
+    ],
+    erklaerung: ['Licht: Hornhaut, Pupille, Linse, Glaskörper, Netzhaut. Die Netzhaut leitet über den Sehnerv weiter.', 'Wo der Sehnerv austritt, gibt es keine Sinneszellen (blinder Fleck).'],
+  },
+  {
+    id: 'sinne.licht', art: 'reihenfolge', topicIds: [THEMA.sinne], titel: 'Weg des Lichts',
+    frage: 'Welchen Weg nimmt das Licht durch das Auge bis ins Gehirn?',
+    schritte: ['Hornhaut', 'Vordere Augenkammer', 'Pupille', 'Linse', 'Glaskörper', 'Netzhaut', 'Sehnerv'],
+    erklaerung: ['Hornhaut und Linse bündeln das Licht auf die Netzhaut. Eine getrübte Linse (Katarakt, grauer Star) macht das Bild unscharf und blass.'],
+  },
+  {
+    id: 'sinne.schall', art: 'reihenfolge', topicIds: [THEMA.sinne], titel: 'Weg des Schalls',
+    frage: 'Welchen Weg nimmt der Schall im Ohr?',
+    schritte: ['Ohrmuschel', 'Äußerer Gehörgang', 'Trommelfell', 'Hammer', 'Amboss', 'Steigbügel', 'Ovales Fenster', 'Hörschnecke', 'Hörnerv'],
+    erklaerung: ['Die drei Gehörknöchelchen im Mittelohr übertragen die Schwingung des Trommelfells auf das Innenohr.', 'Ein Ohrschmalzpfropf im äußeren Gehörgang ist eine häufige, leicht behebbare Ursache für Schwerhörigkeit im Alter.'],
+  },
+  frage('sinne', 'akkommodation', 'Wie stellt das Auge auf nahe Gegenstände scharf?',
+    ['Der Ziliarmuskel zieht sich zusammen, die Linse wird runder', 'Die Hornhaut wird flacher', 'Die Pupille wird weit', 'Der Augapfel wird länger'],
+    ['Mit dem Alter verliert die Linse ihre Elastizität: Altersweitsichtigkeit, Lesebrille ab etwa 45 Jahren.']),
+  frage('sinne', 'zapfen', 'Welche Sinneszellen der Netzhaut sind für das Farbensehen zuständig?',
+    ['Zapfen', 'Stäbchen', 'Haarzellen', 'Ganglienzellen'],
+    ['Zapfen: Farbe und scharfes Sehen bei Helligkeit, vor allem im gelben Fleck. Stäbchen: Hell-Dunkel-Sehen in der Dämmerung.']),
+  frage('sinne', 'glaukom', 'Was schädigt beim Glaukom (grüner Star) das Sehen?',
+    ['Meist ein erhöhter Augeninnendruck, der den Sehnerv schädigt', 'Eine Trübung der Linse', 'Eine Entzündung der Bindehaut', 'Ein Riss im Trommelfell'],
+    ['Ein akuter Glaukomanfall (harter Augapfel, starke Schmerzen, Übelkeit, rotes Auge) ist ein Notfall.']),
+];
+
+// ---------------------------------------------------------------- Haut
+
+const hautAufgaben: Aufgabe[] = [
+  {
+    id: 'haut.beschriften', art: 'beschriften', figur: 'haut', topicIds: [THEMA.haut], titel: 'Haut beschriften',
+    frage: 'Beschrifte den Querschnitt der Haut.',
+    marken: [
+      { nr: 1, x: 40, y: 38, label: 'Oberhaut (Epidermis)', hinweis: 'Äußerste Schicht aus verhornendem Plattenepithel, ohne Blutgefäße.' },
+      { nr: 2, x: 40, y: 78, label: 'Lederhaut (Dermis)', hinweis: 'Mittlere Schicht aus festem Bindegewebe mit Gefäßen, Nerven und Drüsen.' },
+      { nr: 3, x: 110, y: 168, label: 'Unterhaut (Subkutis)', hinweis: 'Tiefste Schicht mit Fettgewebe: Polster, Wärmeschutz und Energiespeicher.' },
+      { nr: 4, x: 112, y: 14, label: 'Haar', hinweis: 'Hornfaden, der aus der Haut herausragt.' },
+      { nr: 5, x: 104, y: 112, label: 'Haarwurzel', hinweis: 'Verdickter Teil in der Tiefe, aus dem das Haar wächst.' },
+      { nr: 6, x: 156, y: 78, label: 'Talgdrüse', hinweis: 'Mündet am Haar und fettet Haut und Haar ein.' },
+      { nr: 7, x: 244, y: 140, label: 'Schweißdrüse', hinweis: 'Knäuel in der Tiefe, Ausführungsgang zur Oberfläche: Kühlung durch Verdunstung.' },
+      { nr: 8, x: 186, y: 110, label: 'Blutgefäß', hinweis: 'Versorgt die Haut, weitet oder verengt sich zur Temperaturregelung.' },
+    ],
+    erklaerung: ['Drei Schichten: Oberhaut, Lederhaut, Unterhaut. Die Oberhaut wird aus der Lederhaut ernährt, sie hat selbst keine Gefäße.', 'Bei Dekubitus und Wunden sagt die betroffene Schicht viel über den Schweregrad aus.'],
+  },
+  frage('haut', 'funktionen', 'Welche Aufgaben hat die Haut? Wähle alle zutreffenden.',
+    ['Schutz vor Keimen, Austrocknung und UV-Licht', 'Temperaturregelung', 'Sinnesorgan für Druck, Schmerz und Temperatur', 'Bildung von Vitamin D mit Sonnenlicht', 'Bildung von Insulin'],
+    ['Insulin bildet die Bauchspeicheldrüse. Die Haut ist mit etwa 2 Quadratmetern das größte Organ.'],
+    [0, 1, 2, 3], true),
+  frage('haut', 'saeureschutz', 'Was ist der Säureschutzmantel der Haut?',
+    ['Ein leicht saurer Film (pH etwa 5,5) auf der Oberfläche, der Keime hemmt', 'Eine Hornschicht in der Unterhaut', 'Ein Schutzfilm aus Schweiß mit pH 9', 'Eine Creme, die man nach dem Waschen aufträgt'],
+    ['Häufiges Waschen mit alkalischer Seife stört ihn. Deshalb in der Körperpflege pH-hautneutrale Waschzusätze und sparsam.']),
+  frage('haut', 'dekubitus', 'Warum entsteht ein Dekubitus besonders über Knochenvorsprüngen wie Kreuzbein und Ferse?',
+    ['Dort liegt wenig Unterhautfett zwischen Haut und Knochen, Druck drückt die Gefäße zu', 'Dort hat die Haut besonders viele Schweißdrüsen', 'Dort ist die Oberhaut dicker', 'Dort fehlen die Haare'],
+    ['Druck über längere Zeit unterbricht die Durchblutung, das Gewebe stirbt ab. Entlastung und Bewegung sind die wichtigste Vorbeugung.']),
+  {
+    id: 'haut.schichten', art: 'reihenfolge', topicIds: [THEMA.haut], titel: 'Schichten der Haut',
+    frage: 'Ordne die Schichten von außen nach innen.',
+    schritte: ['Oberhaut', 'Lederhaut', 'Unterhaut', 'Muskelfaszie'],
+    erklaerung: ['Oberhaut und Lederhaut bilden zusammen die Cutis. Darunter liegt die Unterhaut (Subkutis), dann die Faszie des Muskels.'],
+  },
+];
+
 export const BEREICHE: Bereich[] = [
   {
     id: 'herz', label: 'Herz und Kreislauf', kurz: 'Herz beschriften, Weg des Blutes, Erregungsleitung',
@@ -208,7 +374,39 @@ export const BEREICHE: Bereich[] = [
       'Pankreas: Verdauungsenzyme sowie Insulin und Glukagon.',
     ],
   },
+  {
+    id: 'bewegung', label: 'Skelett und Bewegung', kurz: 'Skelett beschriften, Wirbelsäule, Gelenke',
+    wissen: [
+      'Speiche am Daumen, Elle am kleinen Finger. Schienbein innen, Wadenbein außen.',
+      'Wirbelsäule: 7 Hals-, 12 Brust-, 5 Lendenwirbel, Kreuzbein, Steißbein.',
+      'Kugelgelenke: Schulter und Hüfte. Scharniergelenke: Finger, oberes Sprunggelenk.',
+    ],
+  },
+  {
+    id: 'nerven', label: 'Nervensystem', kurz: 'Gehirn beschriften, Reflexbogen, Sympathikus',
+    wissen: [
+      'Großhirn: Stirn-, Scheitel-, Schläfen- und Hinterhauptslappen. Kleinhirn: Koordination. Hirnstamm: Atmung und Kreislauf.',
+      'Bewegungsbahnen kreuzen: Schlaganfall links, Lähmung rechts.',
+      'Reflex: Rezeptor, afferente Faser, Rückenmark, efferente Faser, Muskel.',
+    ],
+  },
+  {
+    id: 'sinne', label: 'Auge und Ohr', kurz: 'Auge beschriften, Weg des Lichts und des Schalls',
+    wissen: [
+      'Licht: Hornhaut, vordere Augenkammer, Pupille, Linse, Glaskörper, Netzhaut, Sehnerv.',
+      'Zapfen sehen Farbe (gelber Fleck), Stäbchen hell und dunkel.',
+      'Schall: Ohrmuschel, Gehörgang, Trommelfell, Hammer, Amboss, Steigbügel, Schnecke, Hörnerv.',
+    ],
+  },
+  {
+    id: 'haut', label: 'Haut', kurz: 'Schichten beschriften, Aufgaben der Haut',
+    wissen: [
+      'Oberhaut (ohne Gefäße), Lederhaut (Gefäße, Nerven, Drüsen), Unterhaut (Fett).',
+      'Aufgaben: Schutz, Temperatur, Sinnesorgan, Vitamin D.',
+      'Säureschutzmantel pH etwa 5,5.',
+    ],
+  },
 ];
 
-export const AUFGABEN: Record<BereichId, Aufgabe[]> = { herz, atmung, niere, verdauung };
+export const AUFGABEN: Record<BereichId, Aufgabe[]> = { herz, atmung, niere, verdauung, bewegung, nerven, sinne, haut: hautAufgaben };
 export const ALLE_AUFGABEN: Aufgabe[] = Object.values(AUFGABEN).flat();

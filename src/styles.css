@@ -38,14 +38,14 @@ button {
   -webkit-tap-highlight-color: transparent;
 }
 button svg { flex-shrink: 0; }
-button:hover:not(:disabled) { background: var(--color-surface-sunken); }
+@media (hover: hover) { button:hover:not(:disabled) { background: var(--color-surface-sunken); } }
 button:active:not(:disabled) { transform: scale(0.98); }
 button:disabled { opacity: 0.5; cursor: not-allowed; }
 button.active, button[aria-pressed='true'] { background: var(--color-primary-soft); border-color: var(--color-primary); color: var(--color-text); }
 button.primary { background: var(--color-primary); border-color: var(--color-primary); color: var(--color-on-primary); }
-button.primary:hover:not(:disabled) { background: var(--color-primary-hover); }
+@media (hover: hover) { button.primary:hover:not(:disabled) { background: var(--color-primary-hover); } }
 button.danger { border-color: var(--color-danger); color: var(--color-danger); }
-button.danger:hover:not(:disabled) { background: var(--color-danger-soft); }
+@media (hover: hover) { button.danger:hover:not(:disabled) { background: var(--color-danger-soft); } }
 button.ghost { border-color: transparent; background: transparent; }
 button.small { min-height: var(--control-h-sm); padding: 0 var(--space-2); font-size: var(--text-sm); }
 button.icon { padding: 0; width: var(--control-h); }
@@ -54,7 +54,7 @@ button.link {
   border: none; padding: 0; min-height: 0; background: none; text-align: left; color: var(--color-text);
   text-decoration: underline; text-underline-offset: 3px; display: inline;
 }
-button.link:hover:not(:disabled) { background: none; color: var(--color-primary); }
+@media (hover: hover) { button.link:hover:not(:disabled) { background: none; color: var(--color-primary); } }
 button.link.block { display: block; margin: var(--space-2) 0; }
 
 /* Formulare */
@@ -156,7 +156,7 @@ mark { background: var(--color-highlight); color: inherit; }
 @media (pointer: coarse) {
   /* Safari vergrößert die Seite beim Antippen von Feldern unter 16 px und bleibt dann vergrößert. */
   input:not([type='checkbox'], [type='radio'], [type='range'], [type='file'], [type='color']), select, textarea {
-    font-size: 16px !important;
+    font-size: max(16px, 1rem) !important;
   }
   /* Kein Doppeltipp-Zoom auf Bedienelementen (schnelles Tippen bei Karten, Rechnen, Duell). */
   a, button, input, select, textarea, label, summary, [role='button'], [role='tab'] { touch-action: manipulation; }

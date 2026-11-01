@@ -5,6 +5,7 @@ import { useDebounced } from '../lib/hooks';
 import { useStore } from '../lib/store';
 import { getModule } from '../../modules/registry';
 import { flatNav, NAV, visibleNav } from './nav';
+import { imFeld } from './Tastenkuerzel';
 import { navigate } from './router';
 import { session } from './session';
 
@@ -42,6 +43,7 @@ export function Omnibar() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); if (dialog.current?.open) close(); else open(); }
+      else if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey && !imFeld(e.target) && !document.querySelector('dialog[open]')) { e.preventDefault(); open(); }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -64,7 +66,7 @@ export function Omnibar() {
 
   return (
     <>
-      <button type="button" className="omnibar__trigger" onClick={open} aria-label="Lernstoff durchsuchen" aria-haspopup="dialog" aria-keyshortcuts="Control+K Meta+K">
+      <button type="button" className="omnibar__trigger" onClick={open} aria-label="Lernstoff durchsuchen" aria-haspopup="dialog" aria-keyshortcuts="Control+K Meta+K /">
         <Icon name="search" size={18} />
         <span className="omnibar__placeholder">Suchen</span>
         <kbd className="omnibar__kbd">{mac ? '⌘' : 'Strg'} K</kbd>

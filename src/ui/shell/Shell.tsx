@@ -9,7 +9,9 @@ import { Sidebar, TabBar } from './Sidebar';
 import { goBack, navigate, useRoute } from './router';
 import { notify } from './notifications';
 import { useOnline } from '../lib/online';
-import { session, setWorkspace, type Theme } from './session';
+import { useMenueGesten } from './gesten';
+import { kuerzelHilfe, Tastenkuerzel } from './Tastenkuerzel';
+import { SCHRIFTEN, session, setWorkspace, type Theme } from './session';
 import { flatNav, NAV } from './nav';
 
 function WorkspaceSwitcher() {
@@ -28,13 +30,16 @@ function WorkspaceSwitcher() {
 
 function ProfileMenu() {
   const theme = useStore(session, (s) => s.theme);
+  const schrift = useStore(session, (s) => s.schrift);
   const themes: Array<[Theme, string]> = [['system', 'wie System'], ['hell', 'hell'], ['dunkel', 'dunkel']];
   return (
     <Menu label="Profil und Darstellung" trigger={<Icon name="user" />} className="icon ghost"
       items={[
         { id: 'settings', label: 'Einstellungen', onSelect: () => navigate('/einstellungen') },
         ...themes.map(([t, l]) => ({ id: `theme-${t}`, label: `${t === theme ? '✓ ' : ''}Darstellung ${l}`, onSelect: () => setWorkspace({ theme: t }) })),
+        ...SCHRIFTEN.map(([g, l]) => ({ id: `schrift-${g}`, label: `${g === schrift ? '✓ ' : ''}Schrift ${l}`, onSelect: () => setWorkspace({ schrift: g }) })),
         { id: 'sicherung', label: 'Datensicherung (sichern, übertragen)', onSelect: () => navigate('/system/sicherung') },
+        { id: 'kuerzel', label: 'Tastenkürzel (?)', onSelect: () => kuerzelHilfe.set({ offen: true }) },
       ]} />
   );
 }
@@ -91,6 +96,7 @@ export function Shell({ children }: { children: ReactNode }) {
   const drawer = useStore(session, (s) => s.drawerOpen);
   const { path } = useRoute();
   const main = useRef<HTMLElement>(null);
+  useMenueGesten();
   // Nach Seitenwechsel Fokus auf den Inhalt (Screenreader) und nach oben scrollen.
   const first = useRef(true);
   useEffect(() => {
@@ -110,6 +116,7 @@ export function Shell({ children }: { children: ReactNode }) {
       </main>
       <TabBar />
       <Toaster />
+      <Tastenkuerzel />
     </div>
   );
 }
