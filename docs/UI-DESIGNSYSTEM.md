@@ -225,6 +225,16 @@ Dunkelmodus folgt dem System oder wird im Profilmenü gewählt (`data-theme`).
 - ARIA: `aria-expanded`/`aria-controls` (Navigation, Menüs, Filter), `aria-current` (Seite, Schritt), `aria-sort`, `aria-rowcount`/`aria-rowindex` (virtuelle Tabelle), `aria-describedby` (Untertitel, Feldfehler), `role="feed"` + `aria-live="polite"`, Ansagen beim Verschieben, versteckte Datentabellen hinter Diagrammen.
 - `prefers-reduced-motion` schaltet Animationen ab.
 
+## iPhone und iPad
+
+Regeln für Fingerbedienung stehen gesammelt am Ende von `src/styles.css` (`@media (pointer: coarse)`):
+
+- Eingabefelder haben mindestens 16 px Schrift, sonst zoomt Safari beim Antippen hinein. Module müssen dafür nichts tun.
+- Kein Doppeltipp-Zoom auf Bedienelementen (`touch-action: manipulation`), langes Drücken auf Schaltflächen markiert keinen Text.
+- Die untere Leiste blendet sich aus, solange ein Textfeld im Inhalt den Fokus hat.
+- Home-Bildschirm-Symbol als PNG (`public/apple-touch-icon.png`, iOS nimmt kein SVG), Manifest mit PNG- und maskierbarem Symbol. Statusleiste per `theme-color`, folgt auch der manuell gewählten Darstellung.
+- `npm run test:geraete` (Teil von `npm run check`) lädt jede Menüseite auf iPhone, iPad hoch und quer und prüft Überlauf, Laufzeitfehler, Feldschrift und die untere Leiste. Neue Seiten mit `path` in `nav.ts` sind automatisch dabei.
+
 ## Leistung
 
 - Code-Splitting: jedes Modul und die Designsystem-Seite sind eigene Chunks; Laden erst bei Sichtbarkeit (Intersection Observer, 300 px Vorlauf).
