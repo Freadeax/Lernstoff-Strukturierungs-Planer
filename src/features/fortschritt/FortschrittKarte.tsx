@@ -4,8 +4,6 @@ import { dauer } from '../lernplan/ui/format';
 import { useFortschritt } from './daten';
 import { serie, woche, wochenStart, wochenZiele } from './statistik';
 
-let geprueft = false;
-
 /** Kurzfassung auf der Startseite: Lernserie und Stand der Wochenziele. */
 export function FortschrittKarte() {
   const { daten, ziele } = useFortschritt();
@@ -16,10 +14,13 @@ export function FortschrittKarte() {
     return { s, zs };
   }, [daten, ziele]);
   useEffect(() => {
-    // Meilensteine und Serien-Erinnerung einmal je App-Start, nachgeladen, damit die Startseite schlank bleibt.
-    if (!daten || geprueft) return;
-    geprueft = true;
-    import('./hintergrund').then((m) => m.pruefeFortschritt(daten, ziele)).catch(() => undefined);
+    // Meilensteine und Serien-Erinnerung bei jeder Datenänderung und alle 15 Minuten (Nachmittag, Tageswechsel).
+    // Doppelte Meldungen verhindern die gespeicherten Merker. Nachgeladen, damit die Startseite schlank bleibt.
+    if (!daten) return;
+    const pruefe = () => { import('./hintergrund').then((m) => m.pruefeFortschritt(daten, ziele)).catch(() => undefined); };
+    pruefe();
+    const t = setInterval(pruefe, 15 * 60_000);
+    return () => clearInterval(t);
   }, [daten, ziele]);
   if (!werte) return null;
   const { s, zs } = werte;
