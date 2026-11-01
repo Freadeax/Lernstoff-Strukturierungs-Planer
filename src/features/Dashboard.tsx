@@ -11,6 +11,7 @@ import { HeuteKarte } from './lernplan/ui/HeuteKarte';
 import { SicherungsHinweis } from './sicherung/SicherungsHinweis';
 import { FehlerheftHinweis } from './fehlerheft/FehlerheftHinweis';
 import { ExamenHinweis } from './examen/ExamenHinweis';
+import { FortschrittKarte } from './fortschritt/FortschrittKarte';
 
 function ErsteSchritte() {
   const [counts, setCounts] = useState<{ docs: number; summaries: number } | null>(null);
@@ -51,6 +52,7 @@ export function Dashboard() {
         action={<a className="button-link primary" href="#/material/import"><Icon name="plus" size={18} /> Material hinzufügen</a>} />
       <HeuteKarte />
       <ExamenHinweis />
+      <FortschrittKarte />
       <FehlerheftHinweis />
       <ErsteSchritte />
       <section aria-labelledby="tools-title" className="tools-section">
