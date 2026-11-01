@@ -114,6 +114,10 @@
   :root { --control-h: 44px; --control-h-sm: 36px; }
 }
 
+/* Schriftgröße (Profilmenü): alle Schriftgrößen sind in rem und wachsen mit. */
+:root[data-schrift='gross'] { font-size: 112.5%; }
+:root[data-schrift='sehrgross'] { font-size: 125%; }
+
 /* Farben: dunkel (Systemeinstellung oder manuell über data-theme) */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {

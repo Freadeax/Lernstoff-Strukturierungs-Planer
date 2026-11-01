@@ -26,7 +26,7 @@
   display: flex; gap: var(--space-2); align-items: flex-start; cursor: pointer;
   padding: var(--space-2); border-radius: var(--radius-sm); border: 1px solid transparent; min-height: var(--control-h);
 }
-.as__stufe:hover { background: var(--color-surface-sunken); }
+@media (hover: hover) { .as__stufe:hover { background: var(--color-surface-sunken); } }
 .as__stufe.is-gewaehlt { background: var(--color-primary-soft); border-color: var(--color-primary); }
 .as__stufe input { position: absolute; opacity: 0; pointer-events: none; }
 .as__stufe:has(input:focus-visible) { outline: 2px solid var(--color-focus); outline-offset: 1px; }
@@ -69,7 +69,7 @@
 
 .as__faelle { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--space-2); grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); }
 .as__fallkarte { width: 100%; text-align: left; display: flex; flex-direction: column; gap: var(--space-1); align-items: flex-start; cursor: pointer; font: inherit; color: inherit; }
-.as__fallkarte:hover { border-color: var(--color-primary); }
+@media (hover: hover) { .as__fallkarte:hover { border-color: var(--color-primary); } }
 
 .as__kopf { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2); }
 .as__fall h3 { margin: 0; }

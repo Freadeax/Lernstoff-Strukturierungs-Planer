@@ -106,5 +106,5 @@
 @media (max-width: 480px) {
   .pp__daten > div { grid-template-columns: minmax(0, 1fr); gap: 0; }
   .pp__zweier { grid-template-columns: minmax(0, 1fr); }
-  .pp__steplabel { font-size: 10px; }
+  .pp__steplabel { font-size: 0.625rem; }
 }

@@ -17,6 +17,7 @@ const geraete = [
   { name: 'iPhone', viewport: { width: 390, height: 844 } },
   { name: 'iPad hoch', viewport: { width: 820, height: 1180 } },
   { name: 'iPad quer', viewport: { width: 1180, height: 820 } },
+  { name: 'iPhone, Schrift sehr groß', viewport: { width: 390, height: 844 }, schrift: 'sehrgross' },
 ];
 const fehler = [];
 const browser = await chromium.launch({ ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH } : {}), headless: true });
@@ -33,6 +34,7 @@ try {
 
   for (const g of geraete) {
     const ctx = await browser.newContext({ viewport: g.viewport, isMobile: true, hasTouch: true, locale: 'de-DE', timezoneId: 'Europe/Berlin' });
+    if (g.schrift) await ctx.addInitScript((schrift) => localStorage.setItem('lernstoff.shell', JSON.stringify({ schrift })), g.schrift);
     const page = await ctx.newPage();
     page.setDefaultTimeout(8000);
     const laufzeit = [];
@@ -50,6 +52,22 @@ try {
       if (r.overflow > 0) fehler.push(`${g.name} ${route}: Seite ${r.overflow} px zu breit`);
       if (r.klein.length) fehler.push(`${g.name} ${route}: Schrift unter 16 px in ${r.klein.slice(0, 3).join(', ')}`);
       if (laufzeit.length) fehler.push(`${g.name} ${route}: ${laufzeit[0]}`);
+    }
+    if (g.schrift) {
+      assert.equal(await page.evaluate(() => getComputedStyle(document.documentElement).fontSize), '20px', 'Schrift sehr groß wirkt');
+    }
+    if (g.name === 'iPad quer') {
+      // Tastenkürzel: Wahltaste + Ziffer, „/“ für die Suche, „?“ für die Übersicht
+      await page.goto(base + '#/', { waitUntil: 'networkidle' });
+      await page.keyboard.press('Alt+Digit2');
+      await page.waitForFunction(() => location.hash === '#/lernen/plan');
+      await page.keyboard.press('Slash');
+      assert(await page.locator('dialog.omnibar[open]').isVisible(), 'Suche mit /');
+      await page.keyboard.press('Escape');
+      await page.keyboard.press('Shift+Slash');
+      assert(await page.getByRole('dialog', { name: 'Tastenkürzel' }).isVisible(), 'Übersicht mit ?');
+      await page.keyboard.press('Escape');
+      assert.equal(await page.locator('dialog[open]').count(), 0, 'Esc schließt');
     }
     if (g.name === 'iPhone') {
       await page.goto(base + '#/lernen/themen', { waitUntil: 'networkidle' });
