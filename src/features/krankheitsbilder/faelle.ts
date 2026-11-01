@@ -715,4 +715,526 @@ export const FAELLE: Fallaufgabe[] = [
       },
     ],
   },
+  // ---------------------------------------------------------------- Asthma bronchiale
+  {
+    id: 'asthma-yilmaz', krankheitId: 'kh.asthma', titel: 'Lea Yilmaz, 19 Jahre', setting: 'Krankenhaus, Innere Medizin',
+    text: [
+      'Lea Yilmaz liegt nach einer Blinddarmoperation auf deiner Station. Sie hat seit der Kindheit ein allergisches Asthma und nutzt morgens und abends ein Kortisonspray, bei Bedarf ein Salbutamol-Spray.',
+      'Am Abend klingelt sie. Sie sitzt vorgebeugt auf der Bettkante, stützt die Arme auf und atmet mit pfeifendem Geräusch aus. Sie spricht in kurzen Sätzen. Ihre Mitpatientin hat gerade einen großen Blumenstrauß bekommen.',
+    ],
+    aufgaben: [
+      {
+        id: 'zeichen', art: 'mehrfach', abschnitt: 'symptome',
+        frage: 'Welche Beobachtungen passen zu einem Asthmaanfall?',
+        optionen: [r('Pfeifendes Geräusch bei der Ausatmung'), r('Sie stützt die Arme auf'), r('Atemnot mit Sprechen in kurzen Sätzen'), f('Bellender Husten mit Stridor beim Einatmen'), f('Ruhiger, tiefer Schlaf')],
+        erklaerung: 'Beim Asthma ist die Ausatmung erschwert (Giemen). Das Aufstützen setzt die Atemhilfsmuskulatur ein. Stridor beim Einatmen spricht eher für eine Verengung der oberen Atemwege, z. B. Pseudokrupp.',
+      },
+      {
+        id: 'sofort', art: 'mehrfach', abschnitt: 'pflege',
+        frage: 'Was tust du sofort?',
+        optionen: [r('Bei ihr bleiben und ruhig sprechen'), r('Lippenbremse anleiten'), r('Bedarfsspray nach Anordnung bzw. Notfallplan anwenden lassen'), r('Sättigung und Atemfrequenz messen'), f('Sie flach hinlegen, damit sie sich entspannt')],
+        erklaerung: 'Ruhe, atemerleichternde Sitzposition, Lippenbremse und das Bedarfsmedikament helfen. Flach liegen verschlechtert die Atmung.',
+      },
+      {
+        id: 'ausloeser', art: 'einfach', abschnitt: 'risikofaktoren',
+        frage: 'Was könnte den Anfall ausgelöst haben?',
+        optionen: [r('Der Blumenstrauß im Zimmer (Pollen)'), f('Das Kortisonspray am Morgen'), f('Die Bettruhe nach der Operation')],
+        erklaerung: 'Bei allergischem Asthma sind Pollen typische Auslöser. Blumen sollten deshalb aus dem Zimmer.',
+      },
+      {
+        id: 'warnzeichen', art: 'mehrfach', abschnitt: 'komplikationen',
+        frage: 'Bei welchen Zeichen rufst du sofort die Ärztin bzw. das Notfallteam?',
+        optionen: [r('Kaum noch hörbares Atemgeräusch („stille Lunge“)'), r('Blaue Lippen'), r('Sie kann nur noch einzelne Worte sprechen'), f('Sie hustet nach dem Spray etwas zähen Schleim ab')],
+        erklaerung: 'Stille Lunge, Zyanose und Sprechen in Einzelworten sind Zeichen eines schweren, lebensbedrohlichen Anfalls.',
+      },
+      {
+        id: 'kortison', art: 'einfach', abschnitt: 'beratung',
+        frage: 'Was rätst du ihr zum Kortisonspray?',
+        optionen: [r('Nach der Inhalation den Mund ausspülen und regelmäßig anwenden, auch ohne Beschwerden'), f('Nur bei Atemnot anwenden, weil es sofort wirkt'), f('Absetzen, sobald sie beschwerdefrei ist')],
+        erklaerung: 'Inhalatives Kortison ist ein Dauermedikament gegen die Entzündung und wirkt nicht akut. Mundspülen beugt Soor vor.',
+        extraTopicIds: ['thema.pro.soor'],
+      },
+    ],
+  },
+  // ---------------------------------------------------------------- pAVK
+  {
+    id: 'pavk-krause', krankheitId: 'kh.pavk', titel: 'Herr Krause, 67 Jahre', setting: 'Ambulante Pflege',
+    text: [
+      'Herr Krause ist langjähriger Raucher und hat Diabetes. Er erzählt, dass er beim Einkaufen alle 100 Meter stehen bleiben muss, weil die rechte Wade schmerzt. Nach einer kurzen Pause geht es wieder.',
+      'Der rechte Fuß ist kühl und blass, am Unterschenkel fehlen die Haare. Seine Frau hat ihm eine Wärmflasche für die kalten Füße gekauft.',
+    ],
+    aufgaben: [
+      {
+        id: 'stadium', art: 'einfach', abschnitt: 'formen',
+        frage: 'In welchem Stadium nach Fontaine befindet sich Herr Krause?',
+        optionen: [r('Stadium IIb: schmerzfreie Gehstrecke unter 200 m'), f('Stadium I: keine Beschwerden'), f('Stadium III: Ruheschmerz'), f('Stadium IV: Nekrose')],
+        erklaerung: 'Schmerzen beim Gehen, die in der Pause vergehen, sind Claudicatio intermittens (Stadium II). Unter 200 m schmerzfreie Gehstrecke ist IIb.',
+      },
+      {
+        id: 'risiko', art: 'mehrfach', abschnitt: 'risikofaktoren',
+        frage: 'Welche Risikofaktoren hat Herr Krause?',
+        optionen: [r('Rauchen'), r('Diabetes mellitus'), f('Kalte Füße'), f('Einkaufen gehen')],
+        erklaerung: 'Rauchen ist der wichtigste Risikofaktor, Diabetes beschleunigt die Arteriosklerose. Kalte Füße sind ein Symptom.',
+      },
+      {
+        id: 'waerme', art: 'einfach', abschnitt: 'pflege',
+        frage: 'Wie reagierst du auf die Wärmflasche?',
+        optionen: [r('Davon abraten und warme Wollsocken empfehlen, weil Verbrennungsgefahr besteht'), f('Gut so, Wärme erweitert die Gefäße'), f('Wärmflasche nur nachts verwenden')],
+        erklaerung: 'Schlecht durchblutete Haut verträgt Wärme schlecht, und Gefühlsstörungen (besonders bei Diabetes) erhöhen die Verbrennungsgefahr.',
+      },
+      {
+        id: 'lage', art: 'einfach', abschnitt: 'pflege',
+        frage: 'Wie lagerst du das Bein, wenn er sich ausruht?',
+        optionen: [r('Flach oder leicht tief'), f('Hochgelagert auf einem Kissen'), f('Mit Kompressionsstrumpf und hochgelagert')],
+        erklaerung: 'Bei arterieller Durchblutungsstörung das Bein nicht hochlagern. Hochlagern und Kompression gehören zur venösen Erkrankung.',
+      },
+      {
+        id: 'beratung', art: 'mehrfach', abschnitt: 'beratung',
+        frage: 'Wozu berätst du Herrn Krause?',
+        optionen: [r('Rauchstopp mit Unterstützung'), r('Tägliches Gehtraining'), r('Tägliche Fußkontrolle'), f('Möglichst wenig gehen, um Schmerzen zu vermeiden')],
+        erklaerung: 'Rauchstopp und Gehtraining verbessern die Gehstrecke. Die tägliche Fußkontrolle hilft, Wunden früh zu erkennen.',
+      },
+    ],
+  },
+  // ---------------------------------------------------------------- Epilepsie
+  {
+    id: 'epi-novak', krankheitId: 'kh.epilepsie', titel: 'Herr Novak, 45 Jahre', setting: 'Krankenhaus, Neurologie',
+    text: [
+      'Herr Novak hat seit einem Schädel-Hirn-Trauma eine Epilepsie. Er wurde aufgenommen, weil er seine Tabletten eine Woche lang nicht genommen hat.',
+      'Beim Frühstück stößt er einen Schrei aus, wird steif, fällt vom Stuhl und beginnt am ganzen Körper rhythmisch zu zucken. Seine Lippen werden bläulich.',
+    ],
+    aufgaben: [
+      {
+        id: 'imanfall', art: 'mehrfach', abschnitt: 'pflege',
+        frage: 'Was tust du während des Anfalls?',
+        optionen: [r('Uhrzeit notieren'), r('Stuhl und Gegenstände wegräumen, Kopf polstern'), r('Bei ihm bleiben und Hilfe rufen'), f('Arme und Beine festhalten'), f('Einen Beißkeil zwischen die Zähne schieben')],
+        erklaerung: 'Schützen, nicht festhalten, nichts in den Mund. Die Zeit ist wichtig, um einen Status epilepticus zu erkennen.',
+      },
+      {
+        id: 'form', art: 'einfach', abschnitt: 'formen',
+        frage: 'Welche Anfallsform beschreibt der Fall?',
+        optionen: [r('Generalisierter tonisch-klonischer Anfall'), f('Absence'), f('Fokaler Anfall ohne Bewusstseinsstörung')],
+        erklaerung: 'Initialschrei, Bewusstlosigkeit, Verkrampfung und rhythmische Zuckungen am ganzen Körper sind typisch für den tonisch-klonischen Anfall.',
+      },
+      {
+        id: 'danach', art: 'einfach', abschnitt: 'pflege',
+        frage: 'Die Zuckungen hören nach zwei Minuten auf, Herr Novak ist nicht ansprechbar, atmet aber. Was tust du?',
+        optionen: [r('Stabile Seitenlage, Atemwege frei, Vitalzeichen und Bewusstsein kontrollieren'), f('Ihm sofort etwas zu trinken geben'), f('Ihn aufsetzen und zum Bett gehen lassen')],
+        erklaerung: 'In der Nachphase ist er schläfrig und verwirrt. Die Seitenlage schützt vor Aspiration. Erst trinken, wenn er wach ist und sicher schlucken kann.',
+        extraTopicIds: ['thema.pro.aspiration'],
+      },
+      {
+        id: 'notfall', art: 'einfach', abschnitt: 'komplikationen',
+        frage: 'Ab wann spricht man von einem Status epilepticus?',
+        optionen: [r('Anfall über 5 Minuten oder Anfälle ohne Erholung dazwischen'), f('Jeder Anfall mit Einnässen'), f('Anfall mit Zungenbiss')],
+        erklaerung: 'Ein Status epilepticus ist ein Notfall: Notarzt und Notfallmedikament nach Anordnung.',
+      },
+      {
+        id: 'ursache', art: 'einfach', abschnitt: 'risikofaktoren',
+        frage: 'Was hat den Anfall am wahrscheinlichsten begünstigt?',
+        optionen: [r('Die Antiepileptika wurden nicht genommen'), f('Das Frühstück'), f('Der Aufenthalt in der Neurologie')],
+        erklaerung: 'Vergessene oder abgesetzte Antiepileptika sind einer der häufigsten Anfallsauslöser. Deshalb nie eigenmächtig absetzen.',
+      },
+    ],
+  },
+  // ---------------------------------------------------------------- Multiple Sklerose
+  {
+    id: 'ms-berger', krankheitId: 'kh.ms', titel: 'Frau Berger, 34 Jahre', setting: 'Krankenhaus, Neurologie',
+    text: [
+      'Frau Berger hat seit acht Jahren eine schubförmige MS. Seit drei Tagen sieht sie auf dem linken Auge verschwommen und hat ein Kribbeln im rechten Bein. Sie bekommt für drei Tage hochdosiert Kortison als Infusion.',
+      'Sie erzählt, dass sie oft schon mittags völlig erschöpft ist. Nach dem heißen Duschen fühle sich ihr Bein schwächer an. Seit einiger Zeit muss sie häufig zur Toilette, und die Blase fühlt sich danach nicht leer an.',
+    ],
+    aufgaben: [
+      {
+        id: 'schub', art: 'mehrfach', abschnitt: 'symptome',
+        frage: 'Welche Beschwerden passen zu einem MS-Schub?',
+        optionen: [r('Verschwommenes Sehen auf einem Auge'), r('Kribbeln im Bein'), f('Bellender Husten'), f('Fieber und Schüttelfrost')],
+        erklaerung: 'Sehstörungen durch Entzündung des Sehnervs und Gefühlsstörungen sind typische Schubsymptome.',
+      },
+      {
+        id: 'waerme', art: 'einfach', abschnitt: 'symptome',
+        frage: 'Warum ist das Bein nach dem heißen Duschen schwächer?',
+        optionen: [r('Wärme verstärkt bei MS vorübergehend die Beschwerden (Uhthoff-Phänomen)'), f('Durch einen neuen Schlaganfall'), f('Weil das Kortison nicht wirkt')],
+        erklaerung: 'Beim Uhthoff-Phänomen leiten geschädigte Nervenfasern bei Wärme schlechter. Lauwarm duschen und Hitze meiden.',
+      },
+      {
+        id: 'kortison', art: 'mehrfach', abschnitt: 'pflege',
+        frage: 'Worauf achtest du während der Kortison-Stoßtherapie?',
+        optionen: [r('Blutzucker'), r('Blutdruck'), r('Schlaf und Stimmung'), f('Gehtraining bis zur Erschöpfung')],
+        erklaerung: 'Hochdosiertes Kortison kann Blutzucker und Blutdruck erhöhen und Schlafstörungen und Stimmungsschwankungen auslösen.',
+      },
+      {
+        id: 'fatigue', art: 'einfach', abschnitt: 'pflege',
+        frage: 'Wie gehst du mit ihrer Erschöpfung (Fatigue) um?',
+        optionen: [r('Aktivitäten über den Tag verteilen und Pausen einplanen'), f('Alle Pflegemaßnahmen morgens am Stück erledigen'), f('Ihr alle Tätigkeiten abnehmen')],
+        erklaerung: 'Energiemanagement mit Pausen erhält die Selbstständigkeit. Alles abnehmen würde Ressourcen verschwenden.',
+      },
+      {
+        id: 'blase', art: 'einfach', abschnitt: 'prophylaxen', extraTopicIds: ['thema.pro.zystitis'],
+        frage: 'Welches Risiko ergibt sich aus dem Gefühl, dass die Blase nicht leer ist?',
+        optionen: [r('Harnwegsinfekte durch Restharn'), f('Exsikkose durch zu viel Trinken'), f('Dekubitus am Kreuzbein')],
+        erklaerung: 'Eine Blasenentleerungsstörung mit Restharn begünstigt Harnwegsinfekte. Restharn ärztlich abklären lassen.',
+      },
+    ],
+  },
+  // ---------------------------------------------------------------- Depression
+  {
+    id: 'dep-lehmann', krankheitId: 'kh.depression', titel: 'Herr Lehmann, 76 Jahre', setting: 'Stationäre Langzeitpflege',
+    text: [
+      'Herr Lehmann ist vor drei Monaten nach dem Tod seiner Frau eingezogen. Er bleibt fast den ganzen Tag im Zimmer, isst kaum und hat vier Kilo abgenommen. Früher hat er gern Schach gespielt, jetzt interessiert ihn nichts mehr.',
+      'Er wacht jeden Morgen um vier Uhr auf. Beim Waschen sagt er leise: „Es wäre besser, wenn ich nicht mehr da wäre. Ich falle allen nur zur Last.“',
+    ],
+    aufgaben: [
+      {
+        id: 'symptome', art: 'mehrfach', abschnitt: 'symptome',
+        frage: 'Welche Beobachtungen passen zu einer Depression?',
+        optionen: [r('Interessenverlust'), r('Früherwachen'), r('Appetitverlust mit Gewichtsabnahme'), r('Schuldgefühle („Ich falle allen zur Last“)'), f('Plötzliche Verwirrtheit seit gestern')],
+        erklaerung: 'Interessenverlust, Schlafstörung mit Früherwachen, Appetitverlust und Schuldgefühle sind typisch. Plötzliche Verwirrtheit spricht eher für ein Delir.',
+      },
+      {
+        id: 'suizid', art: 'einfach', abschnitt: 'pflege',
+        frage: 'Wie reagierst du auf seine Aussage?',
+        optionen: [r('Ruhig nachfragen, ob er daran denkt, sich etwas anzutun, und die Aussage sofort weitergeben'), f('„Ach, das wird schon wieder, Kopf hoch!“'), f('Das Thema wechseln, um ihn nicht auf Ideen zu bringen')],
+        erklaerung: 'Suizidalität offen ansprechen. Nachfragen erhöht das Risiko nicht, sondern entlastet. Aufmunterungen wirken abwertend.',
+      },
+      {
+        id: 'risiko', art: 'mehrfach', abschnitt: 'risikofaktoren',
+        frage: 'Welche Risikofaktoren für eine Depression findest du bei ihm?',
+        optionen: [r('Tod der Ehefrau'), r('Umzug ins Heim und Einsamkeit'), f('Er hat früher gern Schach gespielt'), f('Er wird morgens gewaschen')],
+        erklaerung: 'Verlust und Einsamkeit sind wichtige Auslöser. Das frühere Hobby ist eine Ressource.',
+      },
+      {
+        id: 'tag', art: 'einfach', abschnitt: 'pflege',
+        frage: 'Welche Maßnahme ist sinnvoll?',
+        optionen: [r('Tagesstruktur mit kleinen, erreichbaren Aktivitäten, z. B. eine Schachpartie anbieten'), f('Ihn zu einem großen Fest überreden, damit er auf andere Gedanken kommt'), f('Ihn in Ruhe lassen, bis er von selbst kommt')],
+        erklaerung: 'Kleine Ziele ohne Überforderung und an früheren Interessen anknüpfen. Große Anforderungen überfordern, Rückzug verstärkt die Depression.',
+        extraTopicIds: ['thema.pro.deprivation'],
+      },
+      {
+        id: 'medikament', art: 'einfach', abschnitt: 'beratung',
+        frage: 'Er bekommt seit einer Woche ein Antidepressivum und sagt, es helfe nicht. Was antwortest du?',
+        optionen: [r('Die Wirkung setzt oft erst nach 2 bis 4 Wochen ein; bitte weiter nehmen und mit der Ärztin sprechen'), f('Dann kann er es gleich absetzen'), f('Antidepressiva machen abhängig, deshalb ist das gut so')],
+        erklaerung: 'Antidepressiva wirken verzögert und machen nicht abhängig. Nicht eigenmächtig absetzen.',
+      },
+    ],
+  },
+  // ---------------------------------------------------------------- Schizophrenie
+  {
+    id: 'schizo-meier', krankheitId: 'kh.schizophrenie', titel: 'Herr Meier, 24 Jahre', setting: 'Psychiatrische Klinik',
+    text: [
+      'Herr Meier wurde aufgenommen, nachdem er sich tagelang in seiner Wohnung eingeschlossen hatte. Er ist überzeugt, dass die Nachbarn ihn über die Steckdosen abhören. Er hört Stimmen, die sein Verhalten kommentieren.',
+      'Er hat in den letzten Monaten viel Cannabis geraucht. Auf Station sitzt er angespannt in der Ecke und beobachtet alle misstrauisch. Er bekommt seit zwei Tagen ein Antipsychotikum.',
+    ],
+    aufgaben: [
+      {
+        id: 'positiv', art: 'mehrfach', abschnitt: 'symptome',
+        frage: 'Welche Positivsymptome zeigt Herr Meier?',
+        optionen: [r('Verfolgungswahn'), r('Stimmenhören'), f('Antriebsmangel'), f('Gefühlsverflachung')],
+        erklaerung: 'Wahn und Halluzinationen sind Positivsymptome. Antriebsmangel und Gefühlsverflachung gehören zu den Negativsymptomen.',
+      },
+      {
+        id: 'wahn', art: 'einfach', abschnitt: 'pflege',
+        frage: 'Er sagt: „Die hören mich auch hier ab!“ Wie reagierst du?',
+        optionen: [r('„Ich höre nichts, aber ich merke, dass Sie große Angst haben.“'), f('„Das ist doch Unsinn, hier hört Sie niemand ab.“'), f('„Ja, das kann sein, wir decken die Steckdosen ab.“')],
+        erklaerung: 'Den Wahn weder ausreden noch bestätigen, sondern das Gefühl dahinter ansprechen.',
+      },
+      {
+        id: 'umgang', art: 'mehrfach', abschnitt: 'pflege',
+        frage: 'Was hilft im Umgang mit ihm?',
+        optionen: [r('Reizarme Umgebung mit Rückzugsmöglichkeit'), r('Kurze, klare Sätze ohne Ironie'), r('Verlässliche Absprachen'), f('Ihn mit vielen Mitpatienten in eine laute Gruppe setzen')],
+        erklaerung: 'Ruhe, Klarheit und Verlässlichkeit geben Sicherheit. Viele Reize verstärken Angst und Misstrauen.',
+      },
+      {
+        id: 'nw', art: 'mehrfach', abschnitt: 'pflege',
+        frage: 'Auf welche Nebenwirkungen des Antipsychotikums achtest du?',
+        optionen: [r('Bewegungsstörungen und Sitzunruhe'), r('Müdigkeit'), r('Gewichtszunahme'), f('Haarwachstum an den Händen')],
+        erklaerung: 'Antipsychotika können Bewegungsstörungen, Sitzunruhe, Müdigkeit und Gewichtszunahme verursachen. Nebenwirkungen sind ein häufiger Grund, die Medikamente abzusetzen.',
+      },
+      {
+        id: 'risiko', art: 'einfach', abschnitt: 'risikofaktoren',
+        frage: 'Welcher Faktor im Fall erhöht das Risiko für eine Psychose?',
+        optionen: [r('Cannabiskonsum'), f('Sein Alter von 24 Jahren allein'), f('Der Aufenthalt in der Klinik')],
+        erklaerung: 'Cannabis, besonders in jungen Jahren, erhöht das Risiko und kann Rückfälle auslösen.',
+      },
+    ],
+  },
+  // ---------------------------------------------------------------- Alkoholentzug
+  {
+    id: 'alk-schulz', krankheitId: 'kh.alkohol', titel: 'Herr Schulz, 58 Jahre', setting: 'Krankenhaus, Unfallchirurgie',
+    text: [
+      'Herr Schulz wurde gestern mit einem gebrochenen Handgelenk aufgenommen. Bei der Aufnahme sagte er, er trinke „ab und zu ein Bier“.',
+      'Heute Morgen, etwa 20 Stunden nach der Aufnahme, zittern seine Hände stark, er schwitzt, ist unruhig und will ständig aufstehen. Der Puls liegt bei 118/min, der Blutdruck bei 165/95 mmHg.',
+    ],
+    aufgaben: [
+      {
+        id: 'verdacht', art: 'einfach', abschnitt: 'symptome',
+        frage: 'Woran denkst du zuerst?',
+        optionen: [r('Alkoholentzugssyndrom'), f('Normale Aufregung vor der Operation'), f('Unterzuckerung durch das Frühstück')],
+        erklaerung: 'Zittern, Schwitzen, Unruhe, schneller Puls und hoher Blutdruck einen Tag nach dem letzten Trinken sind typische Entzugszeichen. Konsumangaben werden oft untertrieben.',
+      },
+      {
+        id: 'handeln', art: 'mehrfach', abschnitt: 'pflege',
+        frage: 'Was tust du?',
+        optionen: [r('Ärztin sofort informieren'), r('Vitalzeichen, Bewusstsein und Orientierung engmaschig kontrollieren und dokumentieren'), r('Ruhige, gut beleuchtete Umgebung, Sturzgefahr bedenken'), f('Ihm ein Bier bringen lassen, damit er sich beruhigt'), f('Ihn vorwurfsvoll auf seine falschen Angaben ansprechen')],
+        erklaerung: 'Ein Entzug muss ärztlich behandelt und engmaschig überwacht werden. Wertschätzend bleiben, Vorwürfe verhindern Vertrauen.',
+      },
+      {
+        id: 'delir', art: 'mehrfach', abschnitt: 'komplikationen',
+        frage: 'Welche Zeichen sprechen für ein beginnendes Delirium tremens?',
+        optionen: [r('Er sieht kleine Tiere auf der Bettdecke'), r('Er weiß nicht mehr, wo er ist'), r('Fieber und starke Kreislaufschwankungen'), f('Er möchte telefonieren')],
+        erklaerung: 'Halluzinationen, Desorientierung und vegetative Entgleisung zeigen ein Delirium tremens an: lebensbedrohlich, meist intensivpflichtig.',
+        extraTopicIds: ['thema.pro.delir'],
+      },
+      {
+        id: 'thiamin', art: 'einfach', abschnitt: 'therapie',
+        frage: 'Warum bekommen alkoholkranke Menschen Vitamin B1 (Thiamin) nach Anordnung?',
+        optionen: [r('Um einer Wernicke-Enzephalopathie durch Vitamin-B1-Mangel vorzubeugen'), f('Um den Alkohol schneller abzubauen'), f('Gegen das Zittern')],
+        erklaerung: 'Vitamin-B1-Mangel ist bei Alkoholabhängigkeit häufig und kann eine Wernicke-Enzephalopathie auslösen; Thiamin wird vor einer Glukosegabe gegeben.',
+      },
+    ],
+  },
+  // ---------------------------------------------------------------- Chronische Niereninsuffizienz
+  {
+    id: 'ni-ozturk', krankheitId: 'kh.niereninsuffizienz', titel: 'Frau Öztürk, 70 Jahre', setting: 'Krankenhaus, Nephrologie',
+    text: [
+      'Frau Öztürk hat seit 20 Jahren Diabetes und Bluthochdruck. Ihre Nieren arbeiten kaum noch, sie geht dreimal pro Woche zur Hämodialyse. Am linken Unterarm hat sie einen Shunt.',
+      'Heute wiegt sie 2,5 kg mehr als nach der letzten Dialyse, die Knöchel sind geschwollen. Sie klagt über starken Juckreiz und großen Durst. Ihre Trinkmenge ist auf 750 ml pro Tag begrenzt.',
+    ],
+    aufgaben: [
+      {
+        id: 'shunt', art: 'mehrfach', abschnitt: 'pflege',
+        frage: 'Was beachtest du am linken Arm?',
+        optionen: [r('Kein Blutdruck messen'), r('Keine Blutentnahme und keine Infusion'), r('Täglich auf Schwirren prüfen'), f('Einen festen Verband anlegen, um den Shunt zu schützen')],
+        erklaerung: 'Der Shunt ist ihre Lebensader für die Dialyse. Druck, Einstiche und Einschnürungen können ihn verschließen.',
+      },
+      {
+        id: 'ursache', art: 'mehrfach', abschnitt: 'ursachen',
+        frage: 'Welche Ursachen der Niereninsuffizienz kommen bei ihr infrage?',
+        optionen: [r('Diabetes mellitus'), r('Arterielle Hypertonie'), f('Juckreiz'), f('Der Shunt')],
+        erklaerung: 'Diabetes und Bluthochdruck sind die häufigsten Ursachen einer chronischen Niereninsuffizienz.',
+      },
+      {
+        id: 'gewicht', art: 'einfach', abschnitt: 'pflege',
+        frage: 'Was bedeutet die Gewichtszunahme von 2,5 kg?',
+        optionen: [r('Sie hat Wasser eingelagert; das muss mit der nächsten Dialyse entzogen werden'), f('Sie isst zu viel'), f('Die Waage ist falsch eingestellt')],
+        erklaerung: 'Die Gewichtszunahme zwischen zwei Dialysen ist fast nur Flüssigkeit. Deshalb täglich wiegen und die Trinkmenge einhalten.',
+      },
+      {
+        id: 'durst', art: 'einfach', abschnitt: 'pflege',
+        frage: 'Wie kannst du den Durst lindern, ohne die Trinkmenge zu überschreiten?',
+        optionen: [r('Mundpflege und Eiswürfel, die in die erlaubte Menge eingerechnet werden'), f('Ein zusätzliches Glas Wasser, weil sie so durstig ist'), f('Salzige Snacks gegen das Durstgefühl')],
+        erklaerung: 'Mundpflege und gelutschte Eiswürfel stillen den Durst mit wenig Flüssigkeit. Salz verstärkt den Durst.',
+        extraTopicIds: ['thema.pro.soor'],
+      },
+      {
+        id: 'kalium', art: 'einfach', abschnitt: 'komplikationen',
+        frage: 'Warum soll sie kaliumreiche Lebensmittel wie Bananen meiden?',
+        optionen: [r('Eine Hyperkaliämie kann gefährliche Herzrhythmusstörungen auslösen'), f('Kalium erhöht den Blutzucker'), f('Kalium verursacht den Juckreiz')],
+        erklaerung: 'Die kranke Niere scheidet Kalium schlecht aus. Zu viel Kalium im Blut stört die Herzaktion.',
+      },
+    ],
+  },
+  // ---------------------------------------------------------------- Leberzirrhose
+  {
+    id: 'lz-koenig', krankheitId: 'kh.leberzirrhose', titel: 'Herr König, 61 Jahre', setting: 'Krankenhaus, Gastroenterologie',
+    text: [
+      'Herr König hat nach jahrelangem Alkoholkonsum eine Leberzirrhose. Sein Bauch ist stark gewölbt, die Haut und die Augen sind gelblich, an Armen und Beinen hat er blaue Flecken.',
+      'Heute wirkt er schläfrig und antwortet verlangsamt. Seine Hände zittern grob, wenn er sie ausstreckt. Er hatte seit drei Tagen keinen Stuhlgang.',
+    ],
+    aufgaben: [
+      {
+        id: 'zeichen', art: 'mehrfach', abschnitt: 'symptome',
+        frage: 'Welche Zeichen der Leberzirrhose erkennst du?',
+        optionen: [r('Aszites (gewölbter Bauch)'), r('Ikterus'), r('Blutungsneigung (blaue Flecken)'), f('Bellender Husten')],
+        erklaerung: 'Aszites, Gelbsucht und Blutungsneigung zeigen, dass die Leber ihre Aufgaben nicht mehr erfüllt.',
+      },
+      {
+        id: 'enzephalopathie', art: 'einfach', abschnitt: 'komplikationen',
+        frage: 'Woran denkst du bei Schläfrigkeit und grobem Händezittern?',
+        optionen: [r('Hepatische Enzephalopathie'), f('Normale Müdigkeit nach dem Mittagessen'), f('Unterzuckerung durch zu viel Insulin')],
+        erklaerung: 'Giftstoffe wie Ammoniak, die die Leber nicht mehr abbaut, schädigen das Gehirn. Der Flapping Tremor ist typisch.',
+      },
+      {
+        id: 'stuhl', art: 'einfach', abschnitt: 'therapie',
+        frage: 'Warum ist der fehlende Stuhlgang wichtig?',
+        optionen: [r('Verstopfung fördert die hepatische Enzephalopathie; Lactulose nach Anordnung sorgt für regelmäßigen Stuhlgang'), f('Er hat nichts mit der Leber zu tun'), f('Weil Stuhlgang die Gelbsucht verstärkt')],
+        erklaerung: 'Im Darm entsteht Ammoniak. Lactulose beschleunigt die Darmpassage und senkt die Ammoniakbildung.',
+        extraTopicIds: ['thema.pro.obstipation'],
+      },
+      {
+        id: 'messen', art: 'mehrfach', abschnitt: 'pflege',
+        frage: 'Welche Beobachtungen und Messungen gehören täglich dazu?',
+        optionen: [r('Gewicht'), r('Bauchumfang an gleicher Stelle'), r('Bewusstsein und Orientierung'), f('Augeninnendruck')],
+        erklaerung: 'Gewicht und Bauchumfang zeigen den Verlauf des Aszites, Bewusstsein und Orientierung den Verlauf der Enzephalopathie.',
+      },
+      {
+        id: 'blutung', art: 'einfach', abschnitt: 'pflege',
+        frage: 'Herr König erbricht plötzlich schwallartig Blut. Was tust du?',
+        optionen: [r('Notruf, Seitenlage bzw. Oberkörper hoch, Vitalzeichen kontrollieren, nicht allein lassen'), f('Ihm Wasser zum Ausspülen geben und die Visite abwarten'), f('Ihn zur Toilette begleiten')],
+        erklaerung: 'Eine Ösophagusvarizenblutung ist ein lebensbedrohlicher Notfall mit Schockgefahr.',
+      },
+    ],
+  },
+  // ---------------------------------------------------------------- Kolorektales Karzinom
+  {
+    id: 'krk-fischer', krankheitId: 'kh.kolorektales-karzinom', titel: 'Frau Fischer, 63 Jahre', setting: 'Krankenhaus, Viszeralchirurgie',
+    text: [
+      'Bei Frau Fischer wurde ein Rektumkarzinom entfernt. Sie hat seit der Operation vor drei Tagen ein Kolostoma. Im Vorfeld hatte sie monatelang Blut im Stuhl bemerkt, dachte aber an Hämorrhoiden.',
+      'Beim Versorgungswechsel dreht sie den Kopf weg und sagt: „Das kann ich mir nicht ansehen. So will mich doch keiner mehr.“',
+    ],
+    aufgaben: [
+      {
+        id: 'stoma', art: 'einfach', abschnitt: 'pflege',
+        frage: 'Wie sieht ein gesundes Stoma aus?',
+        optionen: [r('Rosig-rot, feucht und glänzend'), f('Dunkelblau bis schwarz'), f('Blass und trocken')],
+        erklaerung: 'Ein gesundes Stoma ist rosig-rot und feucht. Dunkle oder blasse Verfärbung zeigt eine Durchblutungsstörung und muss sofort gemeldet werden.',
+      },
+      {
+        id: 'symptome', art: 'mehrfach', abschnitt: 'symptome',
+        frage: 'Welche Warnzeichen eines Darmkrebses gibt es?',
+        optionen: [r('Blut im Stuhl'), r('Wechsel von Durchfall und Verstopfung'), r('Ungewollte Gewichtsabnahme'), f('Gerötete Handflächen')],
+        erklaerung: 'Blut im Stuhl, veränderte Stuhlgewohnheiten und Gewichtsabnahme gehören ärztlich abgeklärt, auch wenn man Hämorrhoiden vermutet.',
+      },
+      {
+        id: 'koerperbild', art: 'einfach', abschnitt: 'pflege',
+        frage: 'Wie reagierst du auf ihre Aussage?',
+        optionen: [r('Ihre Gefühle ernst nehmen, Gesprächsbereitschaft zeigen und Kontakt zur Stomatherapie und Selbsthilfe anbieten'), f('„Daran gewöhnen Sie sich schnell, das ist doch nicht schlimm.“'), f('Die Versorgung schweigend zu Ende bringen')],
+        erklaerung: 'Ein Stoma verändert das Körperbild. Gefühle ernst nehmen, Zeit lassen und Hilfen wie Stomatherapie und Selbsthilfegruppen vermitteln.',
+      },
+      {
+        id: 'postop', art: 'mehrfach', abschnitt: 'prophylaxen',
+        frage: 'Welche Prophylaxen sind nach der Bauchoperation besonders wichtig?',
+        optionen: [r('Thromboseprophylaxe'), r('Pneumonieprophylaxe'), f('Kontrakturenprophylaxe der Finger'), f('Soorprophylaxe nur bei Zahnprothese')],
+        erklaerung: 'Tumorerkrankung und Operation erhöhen das Thromboserisiko, Schmerzen führen zu Schonatmung.',
+        extraTopicIds: ['thema.pro.thrombose'],
+      },
+      {
+        id: 'chemo', art: 'einfach', abschnitt: 'beratung',
+        frage: 'Sie soll später eine Chemotherapie bekommen. Welche Information ist wichtig?',
+        optionen: [r('Fieber während der Chemotherapie sofort melden'), f('Fieber ist eine harmlose Nebenwirkung'), f('Mundpflege ist während der Chemotherapie unwichtig')],
+        erklaerung: 'Unter Chemotherapie kann die Abwehr stark sinken. Fieber kann eine lebensbedrohliche Infektion anzeigen.',
+      },
+    ],
+  },
+  // ---------------------------------------------------------------- Fieberkrampf
+  {
+    id: 'fk-mia', krankheitId: 'kh.fieberkrampf', titel: 'Mia, 2 Jahre', setting: 'Kinderklinik, Notaufnahme',
+    text: [
+      'Mia hat seit gestern Schnupfen und heute Mittag 39,6 °C Fieber. Auf dem Arm ihrer Mutter verdreht sie plötzlich die Augen, wird steif und zuckt mit Armen und Beinen. Ihre Lippen werden bläulich.',
+      'Nach zwei Minuten hört der Anfall auf, Mia ist danach sehr müde. Die Mutter weint und fragt, ob Mia jetzt Epilepsie hat. Mias Vater hatte als Kind ebenfalls Fieberkrämpfe.',
+    ],
+    aufgaben: [
+      {
+        id: 'handeln', art: 'mehrfach', abschnitt: 'pflege',
+        frage: 'Was tust du während des Anfalls?',
+        optionen: [r('Uhrzeit notieren'), r('Mia auf eine weiche Unterlage legen und vor Verletzungen schützen'), r('Ruhe bewahren und bei ihr bleiben'), f('Mia festhalten, damit die Zuckungen aufhören'), f('Mia kalt abduschen')],
+        erklaerung: 'Schützen, nicht festhalten, Zeit messen. Danach stabile Seitenlage und Atmung beobachten.',
+      },
+      {
+        id: 'form', art: 'einfach', abschnitt: 'formen',
+        frage: 'Um welche Form handelt es sich wahrscheinlich?',
+        optionen: [r('Einfacher Fieberkrampf: generalisiert, kürzer als 15 Minuten'), f('Komplizierter Fieberkrampf'), f('Status epilepticus')],
+        erklaerung: 'Ein kurzer, generalisierter, einmaliger Anfall bei Fieber ist ein einfacher Fieberkrampf.',
+      },
+      {
+        id: 'mutter', art: 'einfach', abschnitt: 'beratung',
+        frage: 'Was sagst du der Mutter?',
+        optionen: [r('Fieberkrämpfe sind in diesem Alter häufig und meist harmlos; der erste Krampf wird aber immer ärztlich abgeklärt'), f('Mia hat jetzt sicher Epilepsie'), f('Wenn sie das Fieber immer sofort senkt, kann das nie wieder passieren')],
+        erklaerung: 'Ein einfacher Fieberkrampf hat eine gute Prognose. Fiebersenkung lindert Beschwerden, verhindert aber einen erneuten Krampf nicht sicher.',
+      },
+      {
+        id: 'risiko', art: 'mehrfach', abschnitt: 'risikofaktoren',
+        frage: 'Welche Risikofaktoren hat Mia?',
+        optionen: [r('Alter zwischen 6 Monaten und 5 Jahren'), r('Fieberkrämpfe beim Vater'), f('Sie wurde auf dem Arm getragen')],
+        erklaerung: 'Das Alter und die familiäre Veranlagung erhöhen das Risiko.',
+      },
+      {
+        id: 'abklaeren', art: 'einfach', abschnitt: 'komplikationen',
+        frage: 'Was muss die Ärztin ausschließen?',
+        optionen: [r('Eine Hirnhautentzündung (Meningitis)'), f('Eine Blinddarmentzündung'), f('Einen Armbruch')],
+        erklaerung: 'Hinter einem Krampf mit Fieber kann eine Meningitis stecken. Sie muss vor allem beim ersten Anfall ausgeschlossen werden.',
+      },
+    ],
+  },
+  // ---------------------------------------------------------------- Pseudokrupp
+  {
+    id: 'pk-jonas', krankheitId: 'kh.pseudokrupp', titel: 'Jonas, 18 Monate', setting: 'Kinderklinik',
+    text: [
+      'Jonas hat seit zwei Tagen Schnupfen. In der Nacht wacht er mit einem bellenden Husten auf, ist heiser und atmet beim Einatmen pfeifend. Er weint und klammert sich an seinen Vater.',
+      'In der Klinik misst du eine Sättigung von 95 % und eine Temperatur von 38,1 °C. Am Hals siehst du leichte Einziehungen.',
+    ],
+    aufgaben: [
+      {
+        id: 'zeichen', art: 'mehrfach', abschnitt: 'symptome',
+        frage: 'Welche Zeichen sind typisch für Pseudokrupp?',
+        optionen: [r('Bellender Husten'), r('Inspiratorischer Stridor'), r('Heiserkeit'), f('Giemen bei der Ausatmung'), f('Hohes Fieber über 40 °C mit Speichelfluss')],
+        erklaerung: 'Bellender Husten, Heiserkeit und Stridor beim Einatmen sind typisch. Giemen passt zum Asthma, hohes Fieber mit Speichelfluss zur Epiglottitis.',
+      },
+      {
+        id: 'beruhigen', art: 'einfach', abschnitt: 'pflege',
+        frage: 'Was ist die wichtigste erste Maßnahme?',
+        optionen: [r('Jonas auf dem Arm des Vaters beruhigen und aufrecht halten'), f('Jonas zum Messen flach auf die Liege legen'), f('Sofort mit einem Spatel in den Rachen schauen')],
+        erklaerung: 'Aufregung verstärkt die Atemnot. Aufrecht auf dem Arm einer Bezugsperson ist er am ruhigsten.',
+      },
+      {
+        id: 'therapie', art: 'einfach', abschnitt: 'therapie',
+        frage: 'Welches Medikament wird bei Pseudokrupp typischerweise ärztlich verordnet?',
+        optionen: [r('Kortison, z. B. als Zäpfchen oder Saft'), f('Ein Antibiotikum'), f('Ein Hustenstiller')],
+        erklaerung: 'Kortison lässt die Schleimhaut abschwellen. Ursache ist meist ein Virus, deshalb helfen Antibiotika nicht.',
+      },
+      {
+        id: 'epiglottitis', art: 'mehrfach', abschnitt: 'komplikationen',
+        frage: 'Welche Zeichen sprechen eher für eine lebensbedrohliche Epiglottitis?',
+        optionen: [r('Hohes Fieber'), r('Kloßige Sprache'), r('Speichelfluss, das Kind will nicht schlucken'), f('Bellender Husten nach Schnupfen')],
+        erklaerung: 'Bei Verdacht auf Epiglottitis nicht in den Rachen schauen, Kind sitzen lassen, sofort ärztliche Hilfe.',
+      },
+      {
+        id: 'zuhause', art: 'mehrfach', abschnitt: 'beratung',
+        frage: 'Was rätst du den Eltern für einen erneuten Anfall zu Hause?',
+        optionen: [r('Ruhe bewahren und das Kind aufrecht halten'), r('Kühle frische Luft am offenen Fenster'), r('Notruf bei Atemnot in Ruhe oder blauen Lippen'), f('Das Kind in ein heißes Bad setzen')],
+        erklaerung: 'Beruhigen, aufrechte Haltung und kühle Luft helfen. Alarmzeichen erfordern den Notruf.',
+      },
+    ],
+  },
+  // ---------------------------------------------------------------- Osteoporose
+  {
+    id: 'osteo-wagner', krankheitId: 'kh.osteoporose', titel: 'Frau Wagner, 81 Jahre', setting: 'Stationäre Langzeitpflege',
+    text: [
+      'Frau Wagner ist in den letzten Jahren um 6 cm kleiner geworden und hat einen Rundrücken. Sie nimmt seit Jahren Kortison wegen einer rheumatischen Erkrankung. Vor zwei Jahren hatte sie nach einem leichten Sturz einen Handgelenksbruch.',
+      'Seit kurzem bekommt sie einmal pro Woche Alendronsäure und täglich Vitamin D. Sie traut sich kaum noch, allein zu gehen.',
+    ],
+    aufgaben: [
+      {
+        id: 'risiko', art: 'mehrfach', abschnitt: 'risikofaktoren',
+        frage: 'Welche Risikofaktoren für Osteoporose hat Frau Wagner?',
+        optionen: [r('Langzeittherapie mit Kortison'), r('Hohes Alter'), r('Weibliches Geschlecht'), f('Rundrücken')],
+        erklaerung: 'Kortison, Alter und Geschlecht erhöhen das Risiko. Der Rundrücken ist eine Folge der Osteoporose.',
+      },
+      {
+        id: 'zeichen', art: 'mehrfach', abschnitt: 'symptome',
+        frage: 'Welche Beobachtungen sind Zeichen der Osteoporose?',
+        optionen: [r('Abnahme der Körpergröße'), r('Rundrücken'), r('Bruch nach leichtem Sturz'), f('Kribbeln in den Händen')],
+        erklaerung: 'Wirbelkörpereinbrüche lassen die Körpergröße schrumpfen und führen zum Rundrücken. Brüche nach geringem Trauma sind typisch.',
+      },
+      {
+        id: 'alendron', art: 'einfach', abschnitt: 'pflege',
+        frage: 'Wie gibst du die Alendronsäure richtig?',
+        optionen: [r('Morgens nüchtern mit einem großen Glas Leitungswasser, danach aufrecht bleiben'), f('Zum Frühstück mit Milch'), f('Abends im Liegen, damit sie besser schläft')],
+        erklaerung: 'Nahrung und Milch verhindern die Aufnahme. Aufrecht bleiben schützt die Speiseröhre vor Reizungen.',
+      },
+      {
+        id: 'sturz', art: 'mehrfach', abschnitt: 'pflege',
+        frage: 'Wie förderst du ihre Sicherheit und Mobilität?',
+        optionen: [r('Sturzrisiko einschätzen und Stolperfallen beseitigen'), r('Mit Hilfsmittel und Begleitung zum Gehen ermutigen'), r('Hüftprotektoren anbieten'), f('Sie möglichst im Rollstuhl lassen, damit sie nicht stürzt')],
+        erklaerung: 'Bewegung stärkt Knochen und Muskeln. Immobilisierung erhöht langfristig das Sturz- und Frakturrisiko.',
+        extraTopicIds: ['thema.pro.sturz'],
+      },
+      {
+        id: 'ernaehrung', art: 'einfach', abschnitt: 'beratung',
+        frage: 'Welche Ernährungsempfehlung passt?',
+        optionen: [r('Kalziumreich: Milchprodukte, grünes Gemüse, kalziumreiches Mineralwasser'), f('Möglichst wenig Eiweiß'), f('Viel Kaffee und Cola')],
+        erklaerung: 'Kalzium und ausreichend Eiweiß unterstützen den Knochen. Vitamin D entsteht zusätzlich durch Aufenthalt im Freien.',
+      },
+    ],
+  },
 ];

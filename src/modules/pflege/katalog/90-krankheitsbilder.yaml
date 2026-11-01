@@ -764,3 +764,638 @@ diseaseProfiles:
     referenceIds: [es.sturz, es.mobilitaet, es.schmerz]
     topicIds: [thema.kl.bewegung]
     pruefstatus: ungeprueft
+
+  # ---------------------------------------------------------------- Atemwege und Gefäße (Ergänzung 2026-11)
+  # Alle folgenden Steckbriefe: übliches Lehrbuchwissen, nicht mit dem Unterrichtsmaterial abgeglichen.
+  - id: kh.asthma
+    name: Asthma bronchiale
+    synonyms: [Asthma, Bronchialasthma, Status asthmaticus]
+    definition: "Chronisch-entzündliche Erkrankung der Atemwege mit überempfindlichen Bronchien. Anfallsweise verengen sich die Bronchien (Bronchospasmus, Schleimhautschwellung, zäher Schleim); die Verengung ist, anders als bei COPD, weitgehend rückbildungsfähig."
+    formen:
+      - "Allergisches (extrinsisches) Asthma: Auslöser sind Allergene, häufig schon im Kindesalter"
+      - "Nicht-allergisches (intrinsisches) Asthma: Auslöser sind Infekte, Kälte, Anstrengung, Medikamente oder Reizstoffe"
+      - "Mischformen sind häufig"
+    ursachen: ["Genetische Veranlagung mit Neigung zu Allergien", "Chronische Entzündung der Bronchialschleimhaut"]
+    risikofaktoren:
+      - "Allergene: Pollen, Hausstaubmilben, Tierhaare, Schimmelpilze"
+      - "Atemwegsinfekte, kalte Luft, körperliche Anstrengung"
+      - "Tabakrauch, Duftstoffe, Reizgase"
+      - "Medikamente wie ASS und andere NSAR (Analgetika-Asthma) oder Betablocker"
+      - "Psychische Belastung"
+    symptome:
+      - "Anfallsartige Atemnot, oft nachts oder frühmorgens"
+      - "Erschwerte, verlängerte Ausatmung mit Giemen und Brummen"
+      - "Trockener Reizhusten, zäher, glasiger Schleim"
+      - "Engegefühl in der Brust, Angst"
+      - "Im Anfall: sitzt aufrecht, stützt die Arme auf (Einsatz der Atemhilfsmuskulatur)"
+    komplikationen:
+      - "Schwerer Asthmaanfall bzw. Status asthmaticus: Anfall, der auf die Notfallmedikamente nicht anspricht; lebensbedrohlich"
+      - "Warnzeichen: Sprechen nur in Einzelworten, Zyanose, sehr schnelle Atmung, „stille Lunge“ (kaum Atemgeräusch), Erschöpfung, Verwirrtheit"
+      - "Langfristig Umbau der Atemwege bei unzureichender Behandlung"
+    diagnostik:
+      - "Lungenfunktionsprüfung (Spirometrie) mit Bronchospasmolysetest"
+      - "Peak-Flow-Messung und Peak-Flow-Tagebuch"
+      - "Allergietestung"
+      - "Im Anfall: Atemfrequenz, Sättigung, Puls, Sprechfähigkeit"
+    therapie:
+      - "Stufentherapie nach ärztlicher Anordnung"
+      - "Bedarfsmedikation: kurz wirksames inhalatives Beta-2-Sympathomimetikum (z. B. Salbutamol), je nach Stufe auch in Kombination mit einem inhalativen Kortikosteroid"
+      - "Dauermedikation (Controller): inhalative Kortikosteroide, ggf. lang wirksame Beta-2-Sympathomimetika"
+      - "Im schweren Anfall: Sauerstoff, Bronchodilatatoren, systemisches Kortison nach Anordnung; Notarzt"
+      - "Auslöser meiden"
+    pflege:
+      - "Im Anfall Ruhe bewahren, nicht allein lassen, beruhigend sprechen"
+      - "Atemerleichternde Sitzposition (Kutschersitz, Arme aufstützen), enge Kleidung öffnen, Fenster öffnen"
+      - "Lippenbremse anleiten"
+      - "Bedarfsmedikament nach Anordnung bzw. Notfallplan geben lassen oder geben, Wirkung beobachten"
+      - "Atemfrequenz, Sättigung, Puls, Hautfarbe und Sprechfähigkeit engmaschig beobachten, Warnzeichen sofort melden"
+      - "Inhalationstechnik bei jeder Gabe überprüfen"
+      - "Auslöser im Zimmer vermeiden: keine Duftstoffe, keine Blumen bei Pollenallergie"
+    beratung:
+      - "Unterschied zwischen Bedarfs- und Dauermedikament erklären: Das Dauermedikament auch ohne Beschwerden regelmäßig nehmen"
+      - "Richtige Inhalationstechnik, ggf. mit Spacer; nach inhalativem Kortison Mund ausspülen oder vorher essen (Soorprophylaxe)"
+      - "Peak-Flow-Tagebuch führen, Notfallplan kennen"
+      - "Auslöser erkennen und meiden, nicht rauchen"
+      - "Asthmaschulung, Sport mit Aufwärmen ist erwünscht"
+    prophylaxen:
+      - { topicId: thema.pro.soor, grund: "Inhalative Kortikosteroide fördern Mundsoor, deshalb nach der Inhalation Mund spülen" }
+      - { topicId: thema.pro.pneumonie, grund: "Atemwegsinfekte sind häufige Auslöser und verschlechtern das Asthma" }
+    merksatz: "Asthma: Ausatmung erschwert, Bronchien eng, aber rückbildungsfähig. Stille Lunge ist ein Alarmzeichen."
+    drugIds: [arz.salbutamol, arz.budesonid, arz.prednisolon, arz.methylprednisolon]
+    assessmentIds: [as.news]
+    topicIds: [thema.kl.atmung]
+    pruefstatus: ungeprueft
+
+  - id: kh.pavk
+    name: Periphere arterielle Verschlusskrankheit
+    synonyms: [pAVK, Schaufensterkrankheit, Claudicatio intermittens, Raucherbein]
+    definition: "Verengung oder Verschluss der Arterien, meist der Beine, fast immer durch Arteriosklerose. Die Muskulatur wird bei Belastung, im späten Stadium auch in Ruhe, nicht ausreichend mit Blut versorgt."
+    formen:
+      - "Stadium I nach Fontaine: Verengung ohne Beschwerden"
+      - "Stadium II: Schmerzen beim Gehen (Claudicatio intermittens); IIa schmerzfreie Gehstrecke über 200 m, IIb unter 200 m"
+      - "Stadium III: Ruheschmerz, besonders nachts im Liegen"
+      - "Stadium IV: Gewebsuntergang (Nekrose, Gangrän, Ulkus)"
+    ursachen: ["Arteriosklerose der Beinarterien", "Seltener Gefäßentzündungen oder Embolien"]
+    risikofaktoren: ["Rauchen (wichtigster Risikofaktor)", "Diabetes mellitus", "Arterielle Hypertonie", "Fettstoffwechselstörung", "Höheres Alter, Bewegungsmangel"]
+    symptome:
+      - "Belastungsabhängige Wadenschmerzen, die nach kurzer Pause verschwinden"
+      - "Kühle, blasse Haut am betroffenen Bein, schwache oder fehlende Fußpulse"
+      - "Haarausfall am Unterschenkel, verdickte Nägel, schlecht heilende Wunden"
+      - "Ruheschmerz, der sich bessert, wenn das Bein herabhängt"
+    komplikationen:
+      - "Nicht heilende Wunden, Gangrän bis zur Amputation"
+      - "Akuter Gefäßverschluss: plötzlicher Schmerz, Blässe, Pulslosigkeit, Gefühlsstörung, Lähmung (6 P nach Pratt): Notfall"
+      - "Hohes Risiko für Herzinfarkt und Schlaganfall, weil die Arteriosklerose den ganzen Körper betrifft"
+    diagnostik:
+      - "Pulse tasten an Leiste, Kniekehle und Fuß"
+      - "Knöchel-Arm-Index (ABI) mit Doppler"
+      - "Gehtest (schmerzfreie Gehstrecke), Ratschow-Lagerungsprobe"
+      - "Duplexsonografie, ggf. Angiografie"
+    therapie:
+      - "Risikofaktoren behandeln: Rauchstopp, Blutzucker, Blutdruck, Blutfette"
+      - "Strukturiertes Gehtraining in den Stadien I und II"
+      - "Thrombozytenaggregationshemmer und Statin nach ärztlicher Anordnung"
+      - "Gefäßerweiterung per Katheter (Ballon, Stent) oder Bypass-Operation; als letzte Möglichkeit Amputation"
+    pflege:
+      - "Bein nicht hochlagern, sondern flach oder leicht tief lagern (Gegensatz zur venösen Erkrankung)"
+      - "Keine Kompressionsstrümpfe ohne ärztliche Anordnung, keine einschnürende Kleidung"
+      - "Keine Wärmflaschen oder Heizkissen: verminderte Wahrnehmung, Verbrennungsgefahr; warm halten mit Wollsocken"
+      - "Füße täglich inspizieren: Farbe, Temperatur, Pulse, Wunden, Druckstellen; Veränderungen melden"
+      - "Druckentlastung an Fersen und Zehen, gut sitzendes Schuhwerk"
+      - "Fußpflege vorsichtig, Nägel nicht mit spitzen Gegenständen schneiden, kleinste Verletzungen vermeiden"
+      - "Gehtraining unterstützen: bis kurz vor die Schmerzgrenze gehen, Pause, weitergehen"
+    beratung:
+      - "Rauchstopp ist die wichtigste Maßnahme; Hilfsangebote vermitteln"
+      - "Täglich gehen, Gefäßsportgruppe"
+      - "Tägliche Fußkontrolle, bei Diabetes besonders"
+      - "Medikamente regelmäßig einnehmen"
+    prophylaxen:
+      - { topicId: thema.pro.dekubitus, grund: "Schlecht durchblutete Haut an Fersen und Zehen ist besonders druckempfindlich" }
+      - { topicId: thema.pro.sturz, grund: "Schmerzen und eingeschränkte Gehstrecke verunsichern beim Gehen" }
+    merksatz: "pAVK: Bein tief, warm, aber ohne Wärmflasche. Venös: Bein hoch."
+    drugIds: [arz.acetylsalicylsaeure, arz.clopidogrel, arz.simvastatin]
+    referenceIds: [es.wunden]
+    topicIds: [thema.kl.herz.pavk]
+    pruefstatus: ungeprueft
+
+  # ---------------------------------------------------------------- Neurologie
+  - id: kh.epilepsie
+    name: Epilepsie
+    synonyms: [Krampfanfall, Grand Mal, Status epilepticus, Anfallsleiden]
+    definition: "Neigung zu wiederholten epileptischen Anfällen ohne akuten Auslöser. Ein Anfall entsteht durch eine plötzliche, übermäßige und gleichzeitige Entladung von Nervenzellen im Gehirn."
+    formen:
+      - "Fokaler Anfall: beginnt in einer Hirnregion, z. B. Zuckungen einer Hand, mit oder ohne Bewusstseinsstörung"
+      - "Generalisierter Anfall: betrifft beide Hirnhälften, z. B. tonisch-klonischer Anfall (Grand Mal) oder Absence"
+      - "Status epilepticus: Anfall über 5 Minuten oder Anfallsserie ohne Erholung dazwischen; Notfall"
+    ursachen:
+      - "Strukturell: Schlaganfall, Hirntumor, Schädel-Hirn-Trauma, Entzündung, Fehlbildung"
+      - "Genetisch"
+      - "Oft bleibt die Ursache unbekannt"
+    risikofaktoren:
+      - "Anfallsauslöser: Schlafmangel, Alkohol und Alkoholentzug, Flackerlicht, Fieber"
+      - "Vergessene oder abgesetzte Antiepileptika"
+      - "Unterzuckerung, Elektrolytstörungen"
+    symptome:
+      - "Tonisch-klonischer Anfall: Bewusstlosigkeit, Sturz, Initialschrei, Verkrampfung (tonisch), dann rhythmische Zuckungen (klonisch)"
+      - "Zungenbiss, Schaum vor dem Mund, Einnässen, kurzzeitige Zyanose"
+      - "Danach Nachschlaf, Verwirrtheit, Kopfschmerz, Muskelkater"
+      - "Absence: wenige Sekunden abwesend, starrer Blick, keine Erinnerung"
+      - "Manche Betroffene spüren eine Aura vor dem Anfall"
+    komplikationen:
+      - "Verletzungen durch den Sturz, Zungenbiss"
+      - "Aspiration"
+      - "Status epilepticus mit Sauerstoffmangel und Hirnschädigung"
+      - "Plötzlicher unerwarteter Tod bei Epilepsie (SUDEP), selten"
+    diagnostik:
+      - "Genaue Anfallsbeschreibung durch Zeugen ist entscheidend"
+      - "EEG, MRT des Kopfes"
+      - "Labor: Blutzucker, Elektrolyte, Medikamentenspiegel"
+    therapie:
+      - "Antiepileptika als Dauertherapie nach ärztlicher Anordnung, z. B. Levetiracetam"
+      - "Im Anfall über 5 Minuten: Benzodiazepin als Notfallmedikament nach Anordnung, Notarzt"
+      - "Bei Therapieresistenz ggf. Operation"
+    pflege:
+      - "Im Anfall Ruhe bewahren, bei der Person bleiben, Uhrzeit notieren"
+      - "Verletzungen verhindern: Gegenstände wegräumen, Kopf polstern, nicht festhalten"
+      - "Nichts in den Mund schieben, keinen Beißkeil verwenden"
+      - "Nach dem Anfall stabile Seitenlage, Atemwege freihalten, Vitalzeichen und Bewusstsein kontrollieren"
+      - "Anfall genau beobachten und dokumentieren: Beginn, Dauer, Ablauf, betroffene Körperseite, Bewusstsein, Verletzungen, Nachphase"
+      - "Bei Anfall über 5 Minuten oder erneutem Anfall: Notarzt, Notfallmedikament nach Anordnung"
+      - "Anfallsgefährdete nicht allein baden lassen, niedriges Bett, ggf. Sturzhelm"
+      - "Antiepileptika pünktlich geben, Einnahme kontrollieren"
+    beratung:
+      - "Medikamente regelmäßig nehmen, nie eigenmächtig absetzen"
+      - "Anfallskalender führen"
+      - "Auslöser meiden: regelmäßiger Schlaf, wenig oder kein Alkohol"
+      - "Sicherheit im Alltag: Duschen statt Baden, Schwimmen nur in Begleitung"
+      - "Fahrtauglichkeit ist eingeschränkt; Angehörige in Erster Hilfe beim Anfall anleiten"
+    prophylaxen:
+      - { topicId: thema.pro.sturz, grund: "Stürze während des Anfalls und Schwindel unter Antiepileptika" }
+      - { topicId: thema.pro.aspiration, grund: "Speichel und Erbrochenes im Anfall und in der Nachphase" }
+    merksatz: "Im Anfall: schützen, nicht festhalten, nichts in den Mund, Zeit messen. Über 5 Minuten: Notruf."
+    drugIds: [arz.levetiracetam, arz.lorazepam]
+    assessmentIds: [as.gcs]
+    referenceIds: [es.sturz]
+    topicIds: [thema.kl.neuro.epilepsie]
+    pruefstatus: ungeprueft
+
+  - id: kh.ms
+    name: Multiple Sklerose
+    synonyms: [MS, Encephalomyelitis disseminata, ED]
+    definition: "Chronisch-entzündliche Autoimmunerkrankung des zentralen Nervensystems. Das Immunsystem zerstört an vielen Stellen die Markscheiden (Myelin) der Nervenfasern in Gehirn und Rückenmark, sodass Signale verlangsamt oder unterbrochen werden."
+    formen:
+      - "Schubförmig remittierend: Schübe mit vollständiger oder teilweiser Rückbildung; häufigste Form zu Beginn"
+      - "Sekundär progredient: nach schubförmigem Beginn schleichende Verschlechterung"
+      - "Primär progredient: von Anfang an schleichende Verschlechterung ohne deutliche Schübe"
+    ursachen: ["Autoimmunreaktion gegen das Myelin, Ursache nicht vollständig geklärt", "Zusammenspiel aus genetischer Veranlagung und Umweltfaktoren"]
+    risikofaktoren: ["Junges Erwachsenenalter (Beginn meist zwischen 20 und 40 Jahren)", "Weibliches Geschlecht", "Vitamin-D-Mangel, Rauchen, Epstein-Barr-Virus-Infektion"]
+    symptome:
+      - "Sehstörungen, oft einseitig durch Entzündung des Sehnervs (Optikusneuritis), Doppelbilder"
+      - "Gefühlsstörungen wie Kribbeln oder Taubheit"
+      - "Lähmungen, Spastik, Gang- und Gleichgewichtsstörungen"
+      - "Fatigue: ausgeprägte Erschöpfbarkeit"
+      - "Blasen- und Darmstörungen, sexuelle Funktionsstörungen"
+      - "Konzentrations- und Gedächtnisstörungen, Depression"
+      - "Uhthoff-Phänomen: Beschwerden verstärken sich bei Wärme"
+    komplikationen: ["Zunehmende Behinderung bis Rollstuhl und Pflegebedürftigkeit", "Harnwegsinfekte durch Blasenentleerungsstörung", "Kontrakturen, Dekubitus, Stürze", "Depression"]
+    diagnostik: ["Neurologische Untersuchung", "MRT von Gehirn und Rückenmark", "Liquoruntersuchung (Lumbalpunktion)", "Evozierte Potenziale"]
+    therapie:
+      - "Akuter Schub: hochdosiertes Kortison (Methylprednisolon) über wenige Tage nach ärztlicher Anordnung"
+      - "Verlaufsmodifizierende Dauertherapie (Immuntherapie) nach Anordnung"
+      - "Symptomatisch: Physiotherapie, Ergotherapie, Logopädie, Medikamente gegen Spastik und Blasenstörung"
+    pflege:
+      - "Ressourcen fördern, Selbstständigkeit erhalten: so viel Hilfe wie nötig, so wenig wie möglich"
+      - "Fatigue berücksichtigen: Aktivitäten über den Tag verteilen, Pausen einplanen"
+      - "Wärme meiden (keine heißen Bäder), weil sie Symptome verstärken kann"
+      - "Blasenfunktion beobachten (Restharn, Harnwegsinfekt), ggf. intermittierender Selbstkatheterismus"
+      - "Mobilisation und Lagerung mit Blick auf Spastik und Kontrakturen, Hilfsmittel einsetzen"
+      - "Sturzrisiko einschätzen"
+      - "Bei Kortisonstoß: Blutzucker, Blutdruck, Schlaf und Stimmung beobachten"
+      - "Stimmung beobachten, Gesprächsangebote machen"
+    beratung:
+      - "Anzeichen eines Schubes erkennen und ärztlich vorstellen"
+      - "Regelmäßige Bewegung im eigenen Tempo, Selbsthilfegruppen (z. B. DMSG)"
+      - "Selbstinjektion der Immuntherapie anleiten, falls verordnet"
+      - "Energiemanagement bei Fatigue"
+    prophylaxen:
+      - { topicId: thema.pro.kontraktur, grund: "Spastik und Lähmungen führen zu Bewegungseinschränkungen" }
+      - { topicId: thema.pro.zystitis, grund: "Blasenentleerungsstörung mit Restharn" }
+      - { topicId: thema.pro.sturz, grund: "Gang- und Gleichgewichtsstörungen" }
+      - { topicId: thema.pro.dekubitus, grund: "Lähmungen und Gefühlsstörungen" }
+    merksatz: "MS: Krankheit der tausend Gesichter. Wärme verschlechtert, Pausen helfen."
+    drugIds: [arz.methylprednisolon, arz.prednisolon]
+    assessmentIds: [as.barthel, as.braden]
+    referenceIds: [es.mobilitaet]
+    topicIds: [thema.kl.neuro.ms]
+    pruefstatus: ungeprueft
+
+  # ---------------------------------------------------------------- Psychiatrie
+  - id: kh.depression
+    name: Depression
+    synonyms: [depressive Episode, unipolare Depression, Major Depression]
+    definition: "Psychische Erkrankung mit anhaltend gedrückter Stimmung, Interessenverlust und Antriebsminderung über mindestens zwei Wochen. Sie beeinflusst Denken, Gefühle, Körper und Verhalten und ist gut behandelbar."
+    formen:
+      - "Leicht, mittelgradig oder schwer (nach Zahl und Stärke der Symptome)"
+      - "Einzelne Episode oder wiederkehrend (rezidivierend)"
+      - "Bipolare Störung: Wechsel zwischen depressiven und manischen Phasen"
+      - "Altersdepression: oft mit körperlichen Beschwerden, wird leicht mit Demenz verwechselt"
+    ursachen: ["Zusammenspiel aus genetischer Veranlagung, veränderten Botenstoffen im Gehirn und belastenden Lebensereignissen", "Körperliche Erkrankungen und Medikamente können beteiligt sein"]
+    risikofaktoren:
+      - "Verlust, Trennung, Einsamkeit, Überforderung"
+      - "Chronische Erkrankungen, Schmerzen, Pflegebedürftigkeit"
+      - "Frühere depressive Episoden, Depression in der Familie"
+      - "Alkohol- und Drogenkonsum"
+    symptome:
+      - "Hauptsymptome: gedrückte Stimmung, Verlust von Interesse und Freude, Antriebsmangel und schnelle Ermüdbarkeit"
+      - "Konzentrationsstörungen, vermindertes Selbstwertgefühl, Schuldgefühle"
+      - "Hoffnungslosigkeit, Suizidgedanken"
+      - "Schlafstörungen mit Früherwachen, Morgentief"
+      - "Appetitverlust, Gewichtsabnahme, Libidoverlust"
+      - "Körperliche Beschwerden ohne passenden Befund"
+    komplikationen: ["Suizid: das größte Risiko", "Vernachlässigung von Ernährung, Körperpflege und Medikamenten", "Sozialer Rückzug, Chronifizierung"]
+    diagnostik: ["Gespräch und Erhebung der Symptome nach ICD-10/ICD-11", "Fragebögen, z. B. Geriatrische Depressionsskala (GDS) im Alter", "Suizidalität immer direkt erfragen", "Körperliche Ursachen ausschließen (z. B. Schilddrüse)"]
+    therapie:
+      - "Psychotherapie, z. B. kognitive Verhaltenstherapie"
+      - "Antidepressiva nach ärztlicher Anordnung; Wirkung oft erst nach 2 bis 4 Wochen"
+      - "Bewegung, Tagesstruktur, Lichttherapie; bei schwerer Depression ggf. weitere Verfahren"
+    pflege:
+      - "Beziehung aufbauen: Zeit nehmen, zuhören, Gefühle ernst nehmen, nicht bagatellisieren"
+      - "Keine Aufmunterungen wie „Reiß dich zusammen“ oder „Kopf hoch“"
+      - "Suizidalität beobachten und offen ansprechen; Hinweise sofort weitergeben"
+      - "Tagesstruktur geben, kleine erreichbare Ziele, Aktivitäten ohne Überforderung"
+      - "Ernährung, Trinkmenge, Schlaf, Ausscheidung und Körperpflege beobachten und unterstützen"
+      - "Medikamenteneinnahme kontrollieren, Nebenwirkungen beobachten"
+      - "Erfolge anerkennen, Entscheidungen nicht abnehmen, aber kleine Wahlmöglichkeiten anbieten"
+    beratung:
+      - "Depression ist eine Krankheit und kein persönliches Versagen"
+      - "Antidepressiva machen nicht abhängig, die Wirkung braucht Zeit; nicht eigenmächtig absetzen"
+      - "Angehörige über Warnzeichen für Suizid informieren"
+      - "Hilfsangebote: Krisendienst, Telefonseelsorge, Selbsthilfe"
+    prophylaxen:
+      - { topicId: thema.pro.dehydratation, grund: "Appetit- und Antriebsmangel führen zu wenig Essen und Trinken" }
+      - { topicId: thema.pro.obstipation, grund: "Bewegungsmangel und manche Antidepressiva" }
+      - { topicId: thema.pro.deprivation, grund: "Sozialer Rückzug und Einsamkeit verstärken die Depression" }
+    merksatz: "Bei Depression immer nach Suizidgedanken fragen. Fragen erhöht das Risiko nicht."
+    drugIds: [arz.citalopram]
+    topicIds: [thema.kl.psych]
+    pruefstatus: ungeprueft
+
+  - id: kh.schizophrenie
+    name: Schizophrenie
+    synonyms: [Psychose, schizophrene Psychose, paranoide Schizophrenie]
+    definition: "Schwere psychische Erkrankung, bei der Denken, Wahrnehmung, Gefühle und Ich-Erleben verändert sind. Betroffene verlieren zeitweise den Bezug zur Realität. Sie beginnt meist im jungen Erwachsenenalter."
+    formen:
+      - "Paranoide Schizophrenie: Wahn und Halluzinationen stehen im Vordergrund; häufigste Form"
+      - "Verlauf in Episoden mit vollständiger oder unvollständiger Rückbildung oder chronisch"
+    ursachen: ["Vulnerabilitäts-Stress-Modell: genetische Verletzlichkeit plus Belastungen lösen die Erkrankung aus", "Veränderungen im Dopamin-Stoffwechsel"]
+    risikofaktoren: ["Schizophrenie in der Familie", "Belastende Lebensereignisse, Stress", "Cannabis- und anderer Drogenkonsum, besonders in der Jugend"]
+    symptome:
+      - "Positivsymptome: Wahn (z. B. Verfolgungswahn), Halluzinationen (oft Stimmenhören), Ich-Störungen (Gedanken werden eingegeben oder entzogen), formale Denkstörungen"
+      - "Negativsymptome: Antriebsmangel, sozialer Rückzug, Gefühlsverflachung, Sprachverarmung"
+      - "Kognitive Störungen: Aufmerksamkeit, Gedächtnis, Planen"
+      - "Angst, Misstrauen, Unruhe"
+    komplikationen: ["Suizidgefahr", "Selbst- oder Fremdgefährdung in akuten Phasen", "Sozialer Abstieg, Arbeitslosigkeit, Wohnungslosigkeit", "Nebenwirkungen der Neuroleptika, Herz-Kreislauf-Erkrankungen, Diabetes"]
+    diagnostik: ["Psychiatrisches Gespräch, Erhebung des psychopathologischen Befunds", "Ausschluss körperlicher Ursachen und Drogen", "Fremdanamnese durch Angehörige"]
+    therapie:
+      - "Antipsychotika (Neuroleptika) nach ärztlicher Anordnung, in der Akutphase und zur Rückfallvorbeugung"
+      - "Psychotherapie, Psychoedukation, Training sozialer Kompetenzen"
+      - "Soziotherapie, Ergotherapie, Unterstützung bei Arbeit und Wohnen"
+    pflege:
+      - "Ruhig, klar und echt kommunizieren; kurze Sätze, keine Ironie"
+      - "Wahn nicht ausreden und nicht bestätigen; das Gefühl dahinter (z. B. Angst) ansprechen"
+      - "Reizarme Umgebung, Rückzugsmöglichkeiten, Überforderung vermeiden"
+      - "Verlässlich sein: Absprachen einhalten, Bezugspflege"
+      - "Selbst- und Fremdgefährdung einschätzen, eigene Sicherheit beachten, im Team Hilfe holen"
+      - "Medikamenteneinnahme begleiten, Nebenwirkungen beobachten: Bewegungsstörungen, Sitzunruhe, Müdigkeit, Gewichtszunahme"
+      - "Tagesstruktur, Körperpflege und Ernährung unterstützen, Ressourcen fördern"
+    beratung:
+      - "Frühwarnzeichen eines Rückfalls kennen: Schlafstörungen, Rückzug, Misstrauen"
+      - "Medikamente nicht eigenmächtig absetzen; Nebenwirkungen ansprechen"
+      - "Kein Cannabis und keine Drogen"
+      - "Angehörigengruppen und Psychoedukation nutzen"
+    prophylaxen:
+      - { topicId: thema.pro.obstipation, grund: "Antipsychotika und Bewegungsmangel" }
+      - { topicId: thema.pro.sturz, grund: "Müdigkeit, Blutdruckabfall und Bewegungsstörungen unter Antipsychotika" }
+    merksatz: "Wahn: nicht ausreden, nicht bestätigen, das Gefühl ernst nehmen."
+    drugIds: [arz.haloperidol]
+    topicIds: [thema.kl.psych]
+    pruefstatus: ungeprueft
+
+  - id: kh.alkohol
+    name: Alkoholabhängigkeit und Alkoholentzug
+    synonyms: [Alkoholkrankheit, Alkoholismus, Alkoholentzugssyndrom, Delirium tremens]
+    definition: "Abhängigkeit von Alkohol mit starkem Verlangen, Kontrollverlust, Toleranzentwicklung und körperlichen Entzugserscheinungen. Plötzliches Absetzen kann ein lebensgefährliches Entzugssyndrom auslösen."
+    formen:
+      - "Schädlicher Gebrauch: Konsum, der bereits körperlich oder psychisch schadet"
+      - "Abhängigkeit: mindestens drei Kriterien wie Verlangen, Kontrollverlust, Toleranz, Entzugssymptome, Vernachlässigung anderer Interessen, Weitertrinken trotz Schäden"
+      - "Entzugssyndrom und als schwerste Form Delirium tremens"
+    ursachen: ["Zusammenspiel aus Veranlagung, psychischen Faktoren und sozialem Umfeld", "Alkohol als Mittel gegen Stress, Angst oder Einsamkeit"]
+    risikofaktoren: ["Abhängigkeit in der Familie", "Psychische Erkrankungen (Depression, Angst)", "Belastungen, Einsamkeit, Verlust", "Frühes Einstiegsalter"]
+    symptome:
+      - "Entzug (oft 6 bis 24 Stunden nach dem letzten Trinken): Zittern, Schwitzen, Unruhe, Schlafstörungen, Übelkeit, schneller Puls, hoher Blutdruck"
+      - "Krampfanfälle im Entzug"
+      - "Delirium tremens: Desorientierung, Halluzinationen (z. B. kleine Tiere), starke Unruhe, Fieber, Kreislaufentgleisung"
+      - "Langzeitfolgen: Leberschaden, Polyneuropathie, Gedächtnisstörungen, Mangelernährung"
+    komplikationen:
+      - "Delirium tremens: lebensbedrohlich, intensivpflichtig"
+      - "Entzugskrampfanfälle, Stürze"
+      - "Wernicke-Enzephalopathie durch Vitamin-B1-Mangel: Verwirrtheit, Augenbewegungsstörung, Gangunsicherheit"
+      - "Leberzirrhose, Pankreatitis, Ösophagusvarizenblutung"
+    diagnostik: ["Konsum offen und wertfrei erfragen, z. B. mit dem AUDIT-Fragebogen", "Atemalkohol, Laborwerte (Leberwerte, Blutbild)", "Entzugssymptome mit einer Skala einschätzen"]
+    therapie:
+      - "Qualifizierter Entzug unter ärztlicher Überwachung"
+      - "Medikamente gegen Entzugssymptome nach ärztlicher Anordnung, z. B. Benzodiazepine oder Clomethiazol"
+      - "Vitamin B1 (Thiamin) nach Anordnung, vor Glukosegabe"
+      - "Danach Entwöhnungsbehandlung, Selbsthilfegruppen, Suchtberatung"
+    pflege:
+      - "Wertschätzend und ohne Vorwurf begegnen, klare Absprachen treffen"
+      - "Bei jeder Aufnahme an möglichen Entzug denken und den Konsum erfragen"
+      - "Vitalzeichen, Bewusstsein, Orientierung und Entzugszeichen engmaschig beobachten und mit Skala dokumentieren"
+      - "Reizarme, ruhige, gut beleuchtete Umgebung, Orientierung geben"
+      - "Sturz- und Krampfanfallgefahr beachten"
+      - "Flüssigkeit, Ernährung und Elektrolyte im Blick behalten, Schwitzen und Fieber beobachten"
+      - "Kein Alkohol auf Station; Mitbringen durch Besucher ansprechen"
+    beratung:
+      - "Keinen Entzug allein zu Hause ohne ärztliche Begleitung"
+      - "Hilfsangebote: Suchtberatungsstelle, Selbsthilfe (z. B. Anonyme Alkoholiker), Entwöhnungstherapie"
+      - "Angehörige einbeziehen und auf eigene Hilfsangebote hinweisen"
+    prophylaxen:
+      - { topicId: thema.pro.sturz, grund: "Zittern, Unruhe, Krampfanfälle und Polyneuropathie" }
+      - { topicId: thema.pro.delir, grund: "Der Entzug kann in ein Delirium tremens übergehen" }
+      - { topicId: thema.pro.dehydratation, grund: "Schwitzen, Erbrechen und Mangelernährung" }
+    merksatz: "Jeder Patient kann im Entzug sein: Zittern, Schwitzen, Unruhe in den ersten Tagen ernst nehmen."
+    drugIds: [arz.lorazepam]
+    assessmentIds: [as.gcs, as.news]
+    topicIds: [thema.kl.psych]
+    pruefstatus: ungeprueft
+
+  # ---------------------------------------------------------------- Niere, Leber, Onkologie
+  - id: kh.niereninsuffizienz
+    name: Chronische Niereninsuffizienz
+    synonyms: [chronische Nierenerkrankung, CKD, Nierenversagen, Dialysepflicht]
+    definition: "Über mindestens drei Monate bestehende, meist fortschreitende Abnahme der Nierenfunktion. Die Niere kann Wasser, Elektrolyte und harnpflichtige Stoffe nicht mehr ausreichend ausscheiden; im Endstadium ist eine Dialyse oder Transplantation nötig."
+    formen:
+      - "Stadien 1 bis 5 nach glomerulärer Filtrationsrate (GFR); Stadium 5 = Nierenversagen"
+      - "Abzugrenzen: akutes Nierenversagen, das sich innerhalb von Stunden bis Tagen entwickelt und oft rückbildungsfähig ist"
+    ursachen: ["Diabetes mellitus (diabetische Nephropathie)", "Arterielle Hypertonie", "Entzündungen der Nierenkörperchen (Glomerulonephritis)", "Zystennieren, wiederholte Nierenbeckenentzündungen, nierenschädigende Medikamente"]
+    risikofaktoren: ["Diabetes und Bluthochdruck", "Höheres Alter", "Regelmäßige Einnahme von Schmerzmitteln wie NSAR", "Herzinsuffizienz"]
+    symptome:
+      - "Lange beschwerdefrei"
+      - "Ödeme, Bluthochdruck, Gewichtszunahme"
+      - "Müdigkeit, Leistungsabfall, Blässe durch renale Anämie"
+      - "Urämie im Spätstadium: Juckreiz, Übelkeit, Appetitlosigkeit, Uringeruch der Atemluft, Verwirrtheit"
+      - "Veränderte Urinmenge, schaumiger Urin"
+    komplikationen:
+      - "Hyperkaliämie mit Herzrhythmusstörungen"
+      - "Überwässerung mit Lungenödem"
+      - "Renale Anämie, Knochenstoffwechselstörung"
+      - "Herz-Kreislauf-Erkrankungen"
+    diagnostik: ["Kreatinin, Harnstoff, GFR, Kalium", "Urinuntersuchung auf Eiweiß", "Ultraschall der Nieren", "Blutdruck und Gewicht im Verlauf"]
+    therapie:
+      - "Grunderkrankung behandeln: Blutzucker und Blutdruck einstellen"
+      - "Nierenschädigende Medikamente meiden, Dosierungen an die Nierenfunktion anpassen"
+      - "Diuretika, Behandlung von Anämie und Knochenstoffwechsel nach Anordnung"
+      - "Nierenersatztherapie: Hämodialyse, Peritonealdialyse, Nierentransplantation"
+    pflege:
+      - "Täglich wiegen, Ein- und Ausfuhr bilanzieren, verordnete Trinkmenge einhalten"
+      - "Ödeme, Atmung und Blutdruck beobachten"
+      - "Am Shuntarm kein Blutdruck messen, keine Blutentnahme, keine Infusion, nichts Einschnürendes; Shunt täglich auf Schwirren prüfen"
+      - "Hautpflege bei Juckreiz, rückfettende Pflege, Nägel kurz halten"
+      - "Ernährung nach ärztlicher und diätetischer Vorgabe: kaliumarm, phosphatarm, angepasste Eiweiß- und Salzmenge"
+      - "Mundpflege bei Urämie und Durst, Durst lindern z. B. mit Eiswürfeln aus der erlaubten Menge"
+      - "Nach der Dialyse Kreislauf, Punktionsstelle und Gewicht kontrollieren"
+    beratung:
+      - "Trinkmenge und Diät im Alltag umsetzen; kaliumreiche Lebensmittel wie Bananen, Trockenobst oder Kartoffeln kennen"
+      - "Shuntarm schützen"
+      - "Keine Schmerzmittel ohne Rücksprache (besonders NSAR)"
+      - "Gewicht täglich messen und Zunahme melden"
+    prophylaxen:
+      - { topicId: thema.pro.dekubitus, grund: "Ödeme und Anämie machen die Haut verletzlich" }
+      - { topicId: thema.pro.soor, grund: "Eingeschränkte Trinkmenge und Urämie trocknen die Mundschleimhaut aus" }
+    merksatz: "Shuntarm ist tabu: kein Blutdruck, keine Nadel, nichts Enges."
+    drugIds: [arz.furosemid, arz.ramipril]
+    topicIds: [thema.kl.niere]
+    pruefstatus: ungeprueft
+
+  - id: kh.leberzirrhose
+    name: Leberzirrhose
+    synonyms: [Schrumpfleber, Zirrhose]
+    definition: "Endstadium chronischer Lebererkrankungen: Leberzellen gehen zugrunde und werden durch Bindegewebe ersetzt. Die Leber verliert ihre Funktion, und das Blut staut sich vor der Leber in der Pfortader (portale Hypertension)."
+    formen:
+      - "Kompensiert: Leber erfüllt ihre Aufgaben noch weitgehend"
+      - "Dekompensiert: Aszites, Gelbsucht, Blutungen oder Verwirrtheit treten auf"
+      - "Schweregrad nach Child-Pugh A bis C"
+    ursachen: ["Langjähriger Alkoholkonsum (häufigste Ursache in Deutschland)", "Fettleber durch Übergewicht und Diabetes", "Chronische Virushepatitis B oder C", "Seltener Autoimmun- oder Stoffwechselerkrankungen"]
+    risikofaktoren: ["Alkohol", "Übergewicht, Diabetes", "Hepatitis-Infektion"]
+    symptome:
+      - "Müdigkeit, Leistungsabfall, Appetitlosigkeit, Gewichtsabnahme"
+      - "Leberhautzeichen: Gefäßsternchen (Spider naevi), gerötete Handflächen, Lacklippen"
+      - "Gelbsucht (Ikterus), Juckreiz"
+      - "Aszites (Bauchwasser), Ödeme"
+      - "Blutungsneigung: Hämatome, Zahnfleisch- und Nasenbluten"
+      - "Bei Männern Brustvergrößerung und Verlust der Bauchbehaarung"
+    komplikationen:
+      - "Ösophagusvarizenblutung: Erbrechen von Blut, Teerstuhl, Schock; Notfall"
+      - "Hepatische Enzephalopathie: Schläfrigkeit, Verwirrtheit, Händezittern (Flapping Tremor) bis Koma"
+      - "Spontan bakterielle Peritonitis bei Aszites"
+      - "Leberkrebs, Nierenversagen"
+    diagnostik: ["Labor: Leberwerte, Bilirubin, Albumin, Gerinnung (Quick/INR), Ammoniak", "Ultraschall, Elastografie", "Magenspiegelung zur Suche nach Varizen"]
+    therapie:
+      - "Ursache behandeln: völliger Alkoholverzicht, Hepatitis-Therapie"
+      - "Aszites: Diuretika (z. B. Spironolacton), Kochsalz reduzieren, ggf. Aszitespunktion"
+      - "Hepatische Enzephalopathie: Lactulose nach Anordnung"
+      - "Varizen: Betablocker, Gummibandligatur"
+      - "Lebertransplantation als letzte Möglichkeit"
+    pflege:
+      - "Täglich wiegen und Bauchumfang an gleicher Stelle messen, Ein- und Ausfuhr bilanzieren"
+      - "Bewusstsein, Orientierung und Schrift beobachten (frühe Enzephalopathie)"
+      - "Stuhl beobachten: regelmäßige Entleerung fördern, auf Teerstuhl achten"
+      - "Blutungszeichen beobachten, Verletzungen vermeiden: weiche Zahnbürste, elektrischer Rasierer"
+      - "Hautpflege bei Juckreiz und Ödemen, Druckstellen vermeiden"
+      - "Atemerleichternde Lagerung bei großem Aszites"
+      - "Bei Bluterbrechen: Notruf, Oberkörper hoch bzw. Seitenlage, Vitalzeichen, nicht allein lassen"
+    beratung:
+      - "Kein Alkohol, auch nicht in kleinen Mengen"
+      - "Keine Medikamente ohne Rücksprache, besonders keine NSAR und Schlafmittel"
+      - "Ausreichend Eiweiß und Energie, mehrere kleine Mahlzeiten und eine Spätmahlzeit"
+      - "Warnzeichen kennen: Verwirrtheit, Blut im Stuhl oder Erbrochenen, zunehmender Bauchumfang"
+    prophylaxen:
+      - { topicId: thema.pro.obstipation, grund: "Verstopfung fördert die hepatische Enzephalopathie" }
+      - { topicId: thema.pro.dekubitus, grund: "Ödeme, Mangelernährung und Immobilität" }
+      - { topicId: thema.pro.dehydratation, grund: "Mangelernährung ist häufig, Diuretika verändern den Flüssigkeitshaushalt" }
+    merksatz: "Zirrhose: Bauch messen, Kopf beobachten, Stuhl kontrollieren."
+    drugIds: [arz.spironolacton, arz.lactulose, arz.furosemid]
+    topicIds: [thema.kl.verdauung]
+    pruefstatus: ungeprueft
+
+  - id: kh.kolorektales-karzinom
+    name: Kolorektales Karzinom
+    synonyms: [Darmkrebs, Kolonkarzinom, Rektumkarzinom, Stoma]
+    definition: "Bösartiger Tumor des Dickdarms (Kolon) oder Mastdarms (Rektum). Er entsteht meist über Jahre aus gutartigen Polypen und gehört zu den häufigsten Krebserkrankungen."
+    formen:
+      - "Kolonkarzinom und Rektumkarzinom"
+      - "Einteilung nach TNM (Tumorgröße, Lymphknoten, Metastasen) und UICC-Stadien"
+    ursachen: ["Entartung von Darmpolypen (Adenom-Karzinom-Sequenz)", "Erbliche Formen in wenigen Fällen"]
+    risikofaktoren: ["Alter über 50 Jahre", "Darmkrebs in der Familie", "Chronisch-entzündliche Darmerkrankungen", "Rotes und verarbeitetes Fleisch, ballaststoffarme Ernährung, Übergewicht, Bewegungsmangel", "Rauchen, Alkohol"]
+    symptome:
+      - "Lange beschwerdefrei"
+      - "Blut im Stuhl, veränderte Stuhlgewohnheiten (Wechsel von Durchfall und Verstopfung)"
+      - "Bleistiftstuhl, Bauchschmerzen, Blähungen"
+      - "Müdigkeit und Blässe durch Blutarmut, ungewollte Gewichtsabnahme"
+    komplikationen: ["Darmverschluss (Ileus)", "Blutung, Darmdurchbruch", "Metastasen, besonders in Leber und Lunge", "Nach Operation: Anastomoseninsuffizienz, Stomakomplikationen"]
+    diagnostik: ["Darmspiegelung (Koloskopie) mit Gewebeprobe", "Test auf Blut im Stuhl als Vorsorge", "CT, Ultraschall der Leber, Tumormarker CEA zur Verlaufskontrolle"]
+    therapie:
+      - "Operation mit Entfernung des Tumors und der Lymphknoten, ggf. Anlage eines Stomas (vorübergehend oder dauerhaft)"
+      - "Chemotherapie, beim Rektumkarzinom oft Radiochemotherapie vor der Operation"
+      - "Zielgerichtete Therapien je nach Tumoreigenschaften"
+      - "In der palliativen Situation Linderung der Beschwerden"
+    pflege:
+      - "Prä- und postoperative Pflege nach Standard; Frühmobilisation, Schmerzmanagement"
+      - "Stoma beobachten: Farbe (rosig-rot, feucht), Größe, Ausscheidung, Haut um das Stoma"
+      - "Stomaversorgung fachgerecht wechseln, Basisplatte passgenau zuschneiden, Haut schützen"
+      - "Bei Chemotherapie: Übelkeit, Mundschleimhaut, Infektzeichen, Fieber und Blutungszeichen beobachten"
+      - "Hygiene bei Neutropenie besonders sorgfältig"
+      - "Körperbild und Gefühle ansprechen, Gesprächsbereitschaft zeigen, Angehörige einbeziehen"
+      - "Ernährung und Gewicht im Blick behalten"
+    beratung:
+      - "Stomaversorgung selbstständig anleiten, Kontakt zur Stomatherapie und Selbsthilfe (z. B. Deutsche ILCO) vermitteln"
+      - "Ernährung mit Stoma: gut kauen, blähende Speisen testen, bei Ileostoma viel trinken"
+      - "Darmkrebsvorsorge: Koloskopie und Stuhltest nach Altersempfehlung"
+      - "Fieber unter Chemotherapie sofort melden"
+    prophylaxen:
+      - { topicId: thema.pro.thrombose, grund: "Tumorerkrankung und Operation erhöhen das Thromboserisiko" }
+      - { topicId: thema.pro.pneumonie, grund: "Schonatmung nach Bauchoperation" }
+      - { topicId: thema.pro.soor, grund: "Chemotherapie schädigt die Mundschleimhaut" }
+      - { topicId: thema.pro.dehydratation, grund: "Übelkeit, Durchfall und hohe Ausscheidung über ein Ileostoma" }
+    merksatz: "Stoma gesund: rosig, feucht, glänzend. Dunkel oder blass: sofort melden."
+    drugIds: [arz.ondansetron, arz.metoclopramid, arz.morphin, arz.enoxaparin]
+    assessmentIds: [as.nrs, as.mna]
+    referenceIds: [es.schmerz, es.ernaehrung]
+    topicIds: [thema.kl.onko, thema.ph.periop]
+    pruefstatus: ungeprueft
+
+  # ---------------------------------------------------------------- Kinder und Jugendliche
+  - id: kh.fieberkrampf
+    name: Fieberkrampf
+    synonyms: [Fieberkrampfanfall, Infektkrampf]
+    definition: "Epileptischer Anfall bei Kindern, ausgelöst durch Fieber, ohne Infektion des Gehirns. Er tritt typischerweise zwischen 6 Monaten und 5 Jahren auf und ist meist harmlos."
+    formen:
+      - "Einfacher Fieberkrampf: generalisiert, kürzer als 15 Minuten, nur einmal in 24 Stunden"
+      - "Komplizierter Fieberkrampf: fokal, länger als 15 Minuten oder mehrfach in 24 Stunden"
+    ursachen: ["Fieber, meist bei Virusinfekten der oberen Atemwege oder des Mittelohrs", "Altersbedingt erhöhte Krampfbereitschaft des Gehirns, familiäre Veranlagung"]
+    risikofaktoren: ["Alter zwischen 6 Monaten und 5 Jahren", "Fieberkrämpfe bei Eltern oder Geschwistern", "Früherer Fieberkrampf"]
+    symptome:
+      - "Plötzliche Bewusstlosigkeit, Verdrehen der Augen"
+      - "Steifwerden und rhythmisches Zucken von Armen und Beinen"
+      - "Blaue Lippen, unregelmäßige Atmung"
+      - "Danach Schläfrigkeit und Müdigkeit"
+    komplikationen: ["Status epilepticus bei langem Anfall", "Verletzungen, Aspiration", "Erneute Fieberkrämpfe bei weiteren Infekten (bei etwa einem Drittel)", "Dahinter kann eine Hirnhautentzündung stecken: muss ärztlich ausgeschlossen werden"]
+    diagnostik: ["Ärztliche Untersuchung und Suche nach dem Infekt", "Ausschluss einer Meningitis (Nackensteifigkeit, Bewusstseinslage), ggf. Lumbalpunktion", "EEG nur bei kompliziertem Fieberkrampf"]
+    therapie:
+      - "Anfall dauert meist nur wenige Minuten und hört von selbst auf"
+      - "Anfall über 3 bis 5 Minuten: Notfallmedikament (Benzodiazepin, z. B. rektal oder in die Wangentasche) nach ärztlicher Verordnung"
+      - "Fiebersenkung zur Linderung des Unwohlseins; sie verhindert Fieberkrämpfe nach heutigem Wissen nicht sicher"
+      - "Behandlung des auslösenden Infekts"
+    pflege:
+      - "Ruhe bewahren, Kind nicht allein lassen, Uhrzeit notieren"
+      - "Verletzungen verhindern, Kind nicht festhalten, nichts in den Mund geben"
+      - "Nach dem Anfall stabile Seitenlage, Atmung und Hautfarbe beobachten"
+      - "Notruf beim ersten Fieberkrampf, bei Anfall über 5 Minuten oder wenn das Kind nicht aufwacht"
+      - "Temperatur messen, Kind leicht bekleiden, ausreichend trinken lassen"
+      - "Eltern beruhigen und einbeziehen, Anfallsablauf genau dokumentieren"
+    beratung:
+      - "Eltern über Ablauf, gute Prognose und Erste Hilfe beim Anfall informieren"
+      - "Umgang mit dem Notfallmedikament anleiten, falls verordnet"
+      - "Fieber messen und Flüssigkeit anbieten; fiebersenkende Mittel lindern Beschwerden, schützen aber nicht sicher vor einem Krampf"
+    prophylaxen:
+      - { topicId: thema.pro.aspiration, grund: "Speichel und Erbrochenes während und nach dem Anfall" }
+      - { topicId: thema.pro.dehydratation, grund: "Fieber erhöht den Flüssigkeitsbedarf" }
+    merksatz: "Fieberkrampf: meist kurz und harmlos. Schützen, Zeit messen, Seitenlage, beim ersten Mal immer ärztlich abklären."
+    drugIds: [arz.paracetamol, arz.ibuprofen]
+    topicIds: [thema.kl.paediatrie]
+    pruefstatus: ungeprueft
+
+  - id: kh.pseudokrupp
+    name: Pseudokrupp
+    synonyms: [Krupp-Syndrom, subglottische Laryngitis, Laryngotracheitis]
+    definition: "Virusbedingte Entzündung des Kehlkopfs und der Luftröhre unterhalb der Stimmbänder bei Kleinkindern. Die Schleimhaut schwillt an und verengt die Atemwege. Typisch sind nächtliche Anfälle mit bellendem Husten."
+    formen:
+      - "Leicht: bellender Husten, Heiserkeit, Stridor nur bei Aufregung"
+      - "Mittel bis schwer: Stridor in Ruhe, Einziehungen, Unruhe"
+      - "Lebensbedrohlich: Zyanose, Erschöpfung, Bewusstseinsstörung"
+    ursachen: ["Viren, meist Parainfluenzaviren, auch RS- oder Influenzaviren", "Enge Atemwege im Kleinkindalter"]
+    risikofaktoren: ["Alter 6 Monate bis 3 Jahre", "Herbst und Winter", "Passivrauchen, Luftverschmutzung"]
+    symptome:
+      - "Bellender Husten (wie ein Seehund), Heiserkeit"
+      - "Pfeifendes Einatemgeräusch (inspiratorischer Stridor)"
+      - "Atemnot, Einziehungen am Hals und Brustkorb"
+      - "Meist abends oder nachts, oft nach einem Schnupfen, leichtes Fieber"
+      - "Unruhe und Angst, die die Atemnot verstärken"
+    komplikationen: ["Hochgradige Atemwegsverengung mit Sauerstoffmangel", "Abzugrenzen: Epiglottitis (hohes Fieber, kloßige Sprache, Speichelfluss, Kind will sitzen): lebensbedrohlicher Notfall, Rachen nicht inspizieren"]
+    diagnostik: ["Klinisches Bild, Atemfrequenz, Sättigung", "Einschätzung des Schweregrads mit einem Krupp-Score"]
+    therapie:
+      - "Kortison (z. B. als Zäpfchen oder Saft) nach ärztlicher Verordnung, wirkt abschwellend"
+      - "Bei schwerer Atemnot inhalatives Adrenalin in der Klinik"
+      - "Sauerstoff bei niedriger Sättigung"
+    pflege:
+      - "Kind und Eltern beruhigen: Aufregung verstärkt die Atemnot; Kind auf den Arm der Eltern"
+      - "Aufrechte Haltung, Kind nicht zwingen sich hinzulegen"
+      - "Frische, kühle Luft anbieten (z. B. am offenen Fenster)"
+      - "Atemfrequenz, Einziehungen, Stridor, Hautfarbe und Sättigung beobachten"
+      - "Schmerzhafte oder beängstigende Maßnahmen nur, wenn nötig"
+      - "Ausreichend trinken lassen"
+      - "Zeichen einer Verschlechterung sofort melden"
+    beratung:
+      - "Eltern über Erste Hilfe zu Hause informieren: beruhigen, aufrecht halten, kühle Luft"
+      - "Notruf bei Atemnot in Ruhe, blauen Lippen, starker Unruhe oder Erschöpfung"
+      - "Verordnetes Kortison im Notfall bereithalten, Rauchfreiheit in der Wohnung"
+    prophylaxen:
+      - { topicId: thema.pro.dehydratation, grund: "Kleinkinder trinken bei Atemnot und Fieber zu wenig" }
+    merksatz: "Bellender Husten, Stridor, nachts: Pseudokrupp. Beruhigen ist die wichtigste Maßnahme."
+    drugIds: [arz.prednisolon, arz.epinephrin]
+    topicIds: [thema.kl.paediatrie]
+    pruefstatus: ungeprueft
+
+  # ---------------------------------------------------------------- Bewegungsapparat
+  - id: kh.osteoporose
+    name: Osteoporose
+    synonyms: [Knochenschwund]
+    definition: "Systemerkrankung des Skeletts mit verminderter Knochenmasse und gestörter Knochenstruktur. Die Knochen werden brüchig, sodass schon bei geringen Belastungen Frakturen entstehen."
+    formen:
+      - "Primäre Osteoporose: postmenopausal bei Frauen oder altersbedingt"
+      - "Sekundäre Osteoporose: als Folge von Erkrankungen oder Medikamenten (z. B. Langzeit-Kortison)"
+    ursachen: ["Ungleichgewicht zwischen Knochenaufbau und -abbau", "Östrogenmangel nach den Wechseljahren", "Alter"]
+    risikofaktoren: ["Weibliches Geschlecht, Wechseljahre", "Höheres Alter, Bewegungsmangel", "Untergewicht, Kalzium- und Vitamin-D-Mangel", "Langzeittherapie mit Kortison", "Rauchen, Alkohol", "Osteoporose in der Familie"]
+    symptome:
+      - "Lange beschwerdefrei"
+      - "Knochenbrüche nach geringem Trauma: Wirbelkörper, Oberschenkelhals, Handgelenk, Oberarm"
+      - "Rückenschmerzen durch Wirbelkörpereinbrüche"
+      - "Abnahme der Körpergröße, Rundrücken (Witwenbuckel), Tannenbaumphänomen der Rückenhaut"
+    komplikationen: ["Proximale Femurfraktur nach Sturz", "Chronische Schmerzen", "Verlust der Selbstständigkeit, Pflegebedürftigkeit", "Angst vor Stürzen, Rückzug"]
+    diagnostik: ["Knochendichtemessung (DXA)", "Röntgen bei Verdacht auf Fraktur", "Labor zum Ausschluss anderer Ursachen", "Einschätzung des Sturz- und Frakturrisikos"]
+    therapie:
+      - "Bewegung, Muskeltraining, Sturzprophylaxe"
+      - "Kalzium über die Ernährung und Vitamin D nach ärztlicher Anordnung"
+      - "Medikamente nach Anordnung, z. B. Bisphosphonate (Alendronsäure)"
+      - "Schmerztherapie"
+    pflege:
+      - "Sturzrisiko einschätzen und Umgebung sicher gestalten"
+      - "Mobilität fördern, zu Bewegung motivieren, Hilfsmittel einsetzen"
+      - "Vorsichtiges Bewegen und Lagern, keine ruckartigen Bewegungen"
+      - "Schmerzen regelmäßig einschätzen und Schmerzmittel nach Anordnung geben"
+      - "Einnahme von Alendronsäure begleiten: morgens nüchtern, mit einem großen Glas Leitungswasser, aufrecht bleiben"
+      - "Ernährung mit ausreichend Kalzium und Eiweiß unterstützen"
+    beratung:
+      - "Kalziumreiche Ernährung (Milchprodukte, grünes Gemüse, kalziumreiches Mineralwasser)"
+      - "Regelmäßige Bewegung und Aufenthalt im Freien (Vitamin-D-Bildung)"
+      - "Wohnung sturzsicher gestalten, Hüftprotektoren erwägen"
+      - "Nicht rauchen, wenig Alkohol"
+    prophylaxen:
+      - { topicId: thema.pro.sturz, grund: "Jeder Sturz kann zu einer Fraktur führen" }
+      - { topicId: thema.pro.kontraktur, grund: "Schmerzbedingte Schonhaltung und Bewegungsmangel" }
+    merksatz: "Osteoporose: Knochen stärken, Stürze verhindern."
+    drugIds: [arz.alendronsaeure, arz.colecalciferol]
+    assessmentIds: [as.tug]
+    referenceIds: [es.sturz, es.mobilitaet]
+    topicIds: [thema.kl.bewegung, thema.kl.geriatrie]
+    pruefstatus: ungeprueft

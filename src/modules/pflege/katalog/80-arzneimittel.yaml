@@ -686,3 +686,32 @@ drugProfiles:
     sources:
       - { title: "Gelbe Liste: Epinephrin", url: "https://www.gelbe-liste.de/wirkstoffe/Epinephrin_160" }
     pruefstatus: ungeprueft
+
+  # ---------------------------------------------------------------- Ergänzung 2026-11 (Gelbe Liste abgerufen 2026-11-01)
+  - id: arz.methylprednisolon
+    substance: Methylprednisolon
+    brandNames: [Urbason]
+    drugClass: Glukokortikoid (systemisch)
+    mechanism: "Unterdrückt die Aktivität von Immunzellen und die Bildung von Entzündungsbotenstoffen wie Prostaglandinen und Leukotrienen: stark entzündungshemmend und immunsuppressiv."
+    indications: ["Asthma bronchiale und akute COPD-Exazerbation", "Rheumatoide Arthritis", "Schwere allergische Erkrankungen und Hautreaktionen", "Colitis ulcerosa und Morbus Crohn", "Immunsuppression nach Transplantation", "In hoher Dosis beim akuten Schub einer Multiplen Sklerose (ärztliche Anordnung)"]
+    adverseEffects: ["Erhöhtes Infektionsrisiko, Infektionen werden verschleiert", "Blutzuckeranstieg (verschlechterte Glukosetoleranz)", "Bluthochdruck", "Magen-Darm-Ulzera und Blutungen", "Osteoporose, Cushing-Syndrom bei längerer Gabe", "Psychische Veränderungen bis Depression oder Psychose"]
+    contraindications: ["Überempfindlichkeit gegen den Wirkstoff"]
+    nursing: ["Blutzucker kontrollieren, besonders bei Diabetes und bei hochdosierter Stoßtherapie", "Blutdruck, Schlaf und Stimmung beobachten", "Auf Infektzeichen achten, die abgeschwächt sein können", "Auf Magenbeschwerden und Teerstuhl achten", "Nach längerer Gabe nicht abrupt absetzen, nur nach ärztlichem Plan ausschleichen"]
+    topicIds: [thema.ph.medikamente, thema.kl.neuro.ms, thema.kl.atmung]
+    sources:
+      - { title: "Gelbe Liste: Methylprednisolon", url: "https://www.gelbe-liste.de/wirkstoffe/Methylprednisolon_111" }
+    pruefstatus: ungeprueft
+
+  - id: arz.colecalciferol
+    substance: Colecalciferol (Vitamin D3)
+    brandNames: [Vigantol, Dekristol]
+    drugClass: Vitamin D (fettlösliches Vitamin)
+    mechanism: "Vorstufe eines Hormons: wird in Leber und Niere zu Calcitriol umgewandelt. Dieses steigert die Calciumaufnahme im Darm und die Rückresorption in der Niere und reguliert so den Calciumhaushalt."
+    indications: ["Rachitisprophylaxe bei Säuglingen und Kleinkindern", "Vitamin-D-Mangel, Osteomalazie", "Zusammen mit Calcium zur Vorbeugung und Behandlung der Osteoporose"]
+    adverseEffects: ["Hyperkalzämie und vermehrte Calciumausscheidung im Urin bei Überdosierung", "Magen-Darm-Beschwerden: Verstopfung, Übelkeit, Durchfall, Bauchschmerzen", "Überempfindlichkeitsreaktionen der Haut"]
+    contraindications: ["Hyperkalzämie oder Hyperkalziurie", "Neigung zu calciumhaltigen Nierensteinen", "Überempfindlichkeit"]
+    nursing: ["Nach Anordnung regelmäßig geben; keine zusätzlichen freiverkäuflichen Vitamin-D-Präparate ohne Rücksprache (Überdosierung)", "Zeichen einer Hyperkalzämie melden: Übelkeit, Verstopfung, viel Durst und Wasserlassen, Müdigkeit, Verwirrtheit", "Zu Bewegung im Freien und kalziumreicher Ernährung beraten"]
+    topicIds: [thema.ph.medikamente, thema.kl.bewegung, thema.kl.paediatrie]
+    sources:
+      - { title: "Gelbe Liste: Colecalciferol", url: "https://www.gelbe-liste.de/wirkstoffe/Colecalciferol_15409" }
+    pruefstatus: ungeprueft
