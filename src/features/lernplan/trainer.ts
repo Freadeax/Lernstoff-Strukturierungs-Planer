@@ -18,9 +18,11 @@ import { INSTRUMENTE } from '../assessment/instrumente';
 import { GRUPPEN } from '../assessment/vignetten';
 import { FAELLE as KRANKHEITSFAELLE } from '../krankheitsbilder/faelle';
 import { faelleZuThema } from '../krankheitsbilder/bewertung';
+import { HYGIENE_THEMA } from '../hygiene/aufgaben';
+import { THEMA as ANATOMIE_THEMA } from '../anatomie/aufgaben';
 import { heute, leafTopics, logReview, TRAINER_NAME } from './store';
 
-export type TrainerId = 'rechnen' | 'duell' | 'fall' | 'uebergabe' | 'pflegeplanung' | 'sis' | 'mindmap' | 'bericht' | 'assessment' | 'krankheitsbilder' | 'selbsttest';
+export type TrainerId = 'rechnen' | 'duell' | 'fall' | 'uebergabe' | 'pflegeplanung' | 'sis' | 'mindmap' | 'bericht' | 'assessment' | 'krankheitsbilder' | 'selbsttest' | 'hygiene' | 'anatomie';
 
 export const TRAINER_LABEL = TRAINER_NAME as Record<TrainerId, string>;
 
@@ -108,6 +110,10 @@ export function uebungenFuer(topicId: string, modul: CatalogModule = pflegeModul
   if (topicId === UEBERGABE_THEMA) out.push({ trainer: 'uebergabe', label: 'Übergabe-Trainer', path: '/lernen/uebergabe' });
   if (topicId === SIS_THEMA) out.push({ trainer: 'sis', label: 'SIS-Trainer', path: '/lernen/sis' });
   if (topicId === BERICHT_THEMA) out.push({ trainer: 'bericht', label: 'Pflegebericht-Trainer', path: '/lernen/bericht' });
+  if (topicId === HYGIENE_THEMA) out.push({ trainer: 'hygiene', label: 'Hygiene-Trainer', path: '/lernen/hygiene' });
+  for (const [bereich, thema] of Object.entries(ANATOMIE_THEMA)) {
+    if (thema === topicId) out.push({ trainer: 'anatomie', label: 'Anatomie-Trainer', path: `/lernen/anatomie?bereich=${bereich}` });
+  }
   for (const g of GRUPPEN.filter((x) => x.instrumente.some((i) => INSTRUMENTE[i].topicIds.includes(topicId)))) {
     out.push({ trainer: 'assessment', label: `Assessment üben (${g.label})`, path: `/lernen/assessment?gruppe=${g.id}&modus=faelle` });
   }

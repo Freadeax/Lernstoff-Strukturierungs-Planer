@@ -1,0 +1,74 @@
+/* Übungsrunden (Hygiene-, Anatomie-Trainer). Nur Tokens aus src/ui/tokens.css. */
+.qz__kopf { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+.qz__fortschritt { width: 100%; height: 6px; margin: var(--space-2) 0; accent-color: var(--color-primary); }
+.qz__frage { margin: var(--space-2) 0; font-size: var(--text-lg); line-height: var(--leading-normal); }
+
+.qz__optionen { border: 0; padding: 0; margin: 0 0 var(--space-3); display: grid; gap: var(--space-2); }
+.qz__option {
+  display: flex; align-items: flex-start; gap: var(--space-2); padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-surface);
+  cursor: pointer; min-height: 44px;
+}
+.qz__option input { margin-top: 0.2em; flex: none; }
+.qz__option span:first-of-type { flex: 1; }
+.qz__option.is-gewaehlt { border-color: var(--color-primary); background: var(--color-primary-soft); }
+.qz__option.is-ok { border-color: var(--color-success); background: var(--color-success-soft); }
+.qz__option.is-falsch { border-color: var(--color-danger); background: var(--color-danger-soft); }
+.qz__marke-text { font-size: var(--text-sm); font-weight: var(--weight-medium); color: var(--color-success); }
+
+.qz__folge { list-style: none; padding: 0; margin: 0 0 var(--space-3); display: grid; gap: var(--space-2); }
+.qz__schritt {
+  display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2);
+  border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-surface);
+}
+.qz__schritt.is-ok { border-color: var(--color-success); background: var(--color-success-soft); }
+.qz__schritt.is-falsch { border-color: var(--color-danger); background: var(--color-danger-soft); }
+.qz__schritt-text { flex: 1; min-width: 0; }
+.qz__soll { display: block; font-size: var(--text-sm); }
+.qz__pfeile { display: flex; gap: var(--space-1); flex: none; }
+.qz__pfeile button { min-width: 44px; min-height: 44px; }
+.qz__nr {
+  flex: none; display: inline-grid; place-items: center; width: 1.75rem; height: 1.75rem; border-radius: 50%;
+  background: var(--color-surface-sunken); font-weight: var(--weight-medium); font-size: var(--text-sm);
+}
+
+.qz__beschriften { display: grid; gap: var(--space-3); grid-template-columns: minmax(0, 1fr); margin-bottom: var(--space-3); }
+@container content (min-width: 760px) {
+  .qz__beschriften { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
+  .qz__figur { position: sticky; top: calc(var(--header-h) + var(--space-3)); }
+}
+.qz__figur { width: 100%; max-width: 460px; height: auto; justify-self: center; background: var(--color-surface-sunken); border-radius: var(--radius-sm); }
+.qz__zuordnung { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--space-2); }
+.qz__zuordnung label { display: flex; align-items: center; gap: var(--space-2); }
+.qz__zuordnung select { flex: 1; min-width: 0; min-height: 44px; }
+.qz__zuordnung li.is-ok select { border-color: var(--color-success); }
+.qz__zuordnung li.is-falsch select { border-color: var(--color-danger); }
+
+/* Marken in der Abbildung */
+.qz__pin circle { fill: var(--color-surface); stroke: var(--color-text); stroke-width: 1.5; }
+.qz__pin text { font-size: 10px; font-weight: 700; fill: var(--color-text); font-family: inherit; }
+.qz__pin--belegt circle { fill: var(--color-primary-soft); stroke: var(--color-primary); }
+.qz__pin--ok circle { fill: var(--color-success-soft); stroke: var(--color-success); stroke-width: 2.5; }
+.qz__pin--falsch circle { fill: var(--color-danger-soft); stroke: var(--color-danger); stroke-width: 2.5; }
+.qz__pin.is-aktiv circle { stroke: var(--color-focus); stroke-width: 3.5; }
+
+/* Zeichnungen: Farben über Klassen, damit Hell- und Dunkelmodus passen */
+.fig-sauerstoffarm { fill: var(--color-info-soft); stroke: var(--color-info); stroke-width: 1.5; }
+.fig-sauerstoffreich { fill: var(--color-danger-soft); stroke: var(--color-danger); stroke-width: 1.5; }
+.fig-gewebe { fill: var(--color-surface); stroke: var(--color-border-strong); stroke-width: 1.5; }
+.fig-gewebe-2 { fill: var(--color-warning-soft); stroke: var(--color-warning); stroke-width: 1.5; }
+.fig-linie { fill: none; stroke: var(--color-text); stroke-width: 3; stroke-linecap: round; }
+.fig-fein { fill: none; stroke: var(--color-border-strong); stroke-width: 1.2; stroke-linecap: round; }
+.fig-muskel { fill: var(--color-surface-raised); stroke: var(--color-text-muted); stroke-width: 2; }
+
+.qz__erklaerung { margin: var(--space-1) 0 0; padding-left: 1.2em; }
+.qz__falsch { padding-left: 1.2em; }
+.qz__ende h3 { margin-top: 0; }
+
+/* Auswahlseite der Trainer */
+.qz-seite__bereiche { display: grid; gap: var(--space-2); grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr)); padding: 0; list-style: none; margin: 0 0 var(--space-3); }
+.qz-seite__bereich { width: 100%; text-align: left; display: flex; flex-direction: column; gap: var(--space-1); align-items: flex-start; height: 100%; cursor: pointer; }
+.qz-seite__bereich[aria-pressed='true'] { border-color: var(--color-primary); box-shadow: 0 0 0 1px var(--color-primary); }
+.qz-seite__wissen summary { cursor: pointer; font-weight: var(--weight-medium); min-height: 44px; display: flex; align-items: center; }
+.qz-seite__wissen ul, .qz-seite__wissen ol { padding-left: 1.2em; }
+.qz-seite__start { display: flex; gap: var(--space-2); align-items: center; flex-wrap: wrap; }
