@@ -51,7 +51,7 @@ async function lade(moduleId: string): Promise<FortschrittDaten> {
       kartenLogs: karten,
       availability: data.config.availability,
     },
-    lernstand: { leaves: leafTopics(data.topics), studyLogs: input.studyLogs, reviewLogs: input.reviewLogs, settings: resolveSettings(input) },
+    lernstand: { leaves: leafTopics(data.topics), studyLogs: input.studyLogs, reviewLogs: input.reviewLogs, settings: resolveSettings(input), cardEvidence: input.cardEvidence, heute: today },
   };
 }
 

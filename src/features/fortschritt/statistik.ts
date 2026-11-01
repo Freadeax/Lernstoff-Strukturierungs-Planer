@@ -12,7 +12,7 @@ import { addDays } from '../../ui/lib/time';
 import { evidenceRating } from '../lernplan/fsrs';
 import { computeAllProgress, type TopicProgress } from '../lernplan/progress';
 import { availableMinutes } from '../lernplan/scheduler';
-import type { Availability, PlannerSettings, ReviewLog, StudyLog } from '../lernplan/types';
+import type { Availability, CardEvidence, PlannerSettings, ReviewLog, StudyLog } from '../lernplan/types';
 
 export interface StatReview extends ReviewLog { trainer?: string }
 export interface StatKarte { date: string; rating: number }
@@ -227,10 +227,14 @@ export interface Lernstand {
   studyLogs: StudyLog[];
   reviewLogs: ReviewLog[];
   settings: PlannerSettings;
+  /** Heutiger Kartenstand je Thema wie im Lernplan; gilt nur für heute und später (frühere Tage lassen sich nicht rekonstruieren). */
+  cardEvidence?: Record<ID, CardEvidence[]>;
+  heute?: string;
 }
 
 export function statusAm(s: Lernstand, day: string): Map<ID, TopicProgress> {
-  return computeAllProgress(s.leaves, s.studyLogs, s.reviewLogs, day, s.settings);
+  const karten = s.cardEvidence && s.heute && day >= s.heute ? s.cardEvidence : undefined;
+  return computeAllProgress(s.leaves, s.studyLogs, s.reviewLogs, day, s.settings, karten);
 }
 
 const plural = (n: number, eins: string, viele: string) => `${n} ${n === 1 ? eins : viele}`;
