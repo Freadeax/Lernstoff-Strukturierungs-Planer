@@ -83,3 +83,23 @@ describe('Inhalte je Thema', () => {
     expect(n.get('b')).toBe(1);
   });
 });
+
+describe('Lernpfad-Fakten: Praxisfälle', async () => {
+  const { sammleFakten } = await import('./daten');
+  const topic = modul.topics.find((t) => t.id === 'thema.pro.thrombose')!;
+  const themen = [{ topic, herkunft: [], skriptIds: [] }] as unknown as Parameters<typeof sammleFakten>[0];
+  const daten = { skripte: [], karten: [], staende: new Map(), lesestaende: {}, haken: {} };
+  const q = { modul, progress: {}, reviewLogs: [], ceId: 'ce.02' };
+
+  it('zählt Praxisfälle mit und springt zuerst in den Offline-Simulator', () => {
+    const [f] = sammleFakten(themen, { ...q, daten });
+    expect(f!.faelle.anzahl).toBeGreaterThanOrEqual(1);
+    expect(f!.faelle.ziel).toBe('/lernen/praxis?thema=thema.pro.thrombose');
+    expect(f!.faelle.geuebt).toBe(false);
+  });
+
+  it('wertet einen abgeschlossenen Praxisfall als geübt', () => {
+    const [f] = sammleFakten(themen, { ...q, daten: { ...daten, praxisFertig: ['lungenembolie'] } });
+    expect(f!.faelle.geuebt).toBe(true);
+  });
+});
