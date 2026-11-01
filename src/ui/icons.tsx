@@ -46,6 +46,8 @@ const PATHS = {
   pulse: 'M3 12h4l2-5 4 10 2-5h6',
   examen: 'M22 10 12 5 2 10l10 5 10-5ZM6 12v5c3 2 9 2 12 0v-5M22 10v6',
   sort: 'M8 4v16M4 8l4-4 4 4M16 20V4M12 16l4 4 4-4',
+  shield: 'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6zM9 12l2 2 4-4',
+  heart: 'M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z',
 } as const;
 
 export type IconName = keyof typeof PATHS;

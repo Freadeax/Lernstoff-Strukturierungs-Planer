@@ -33,6 +33,10 @@ function trainerLink(f: Fehler): { label: string; path: string } | null {
   if (f.quelle === 'krankheitsbilder') return { label: 'Fall noch einmal bearbeiten', path: `/lernen/krankheitsbilder?fall=${encodeURIComponent(f.id.split(':')[1] ?? '')}` };
   // as:<vignettenId>:<itemId>
   if (f.quelle === 'assessment') return { label: 'Fall noch einmal einschätzen', path: `/lernen/assessment?modus=faelle&fall=${encodeURIComponent(f.id.split(':')[1] ?? '')}` };
+  if (f.quelle === 'hygiene' || f.quelle === 'anatomie') {
+    const u = f.topicIds.flatMap((t) => uebungenFuer(t)).find((x) => x.trainer === f.quelle);
+    if (u) return { label: `Im ${u.label} üben`, path: u.path };
+  }
   const u = f.topicIds.flatMap((t) => uebungenFuer(t)).find((x) => x.trainer !== 'mindmap');
   return u ? { label: u.label, path: u.path } : null;
 }
@@ -244,7 +248,7 @@ export default function FehlerheftSeite() {
           {liste.length === 0 ? (
             <p className="muted">
               Noch keine Fehler gesammelt. Übe im <a href="#/lernen/rechnen">Rechentrainer</a>, im <a href="#/lernen/duell">Fachbegriff-Duell</a>,
-              in der <a href="#/lernen/simulation">Prüfungssimulation</a>, mit den <a href="#/lernen/krankheitsbilder">Krankheitsbild-Fällen</a> oder den <a href="#/lernen/assessment?modus=faelle">Assessment-Fällen</a>: was danebengeht, steht danach hier.
+              in der <a href="#/lernen/simulation">Prüfungssimulation</a>, mit den <a href="#/lernen/krankheitsbilder">Krankheitsbild-Fällen</a>, den <a href="#/lernen/assessment?modus=faelle">Assessment-Fällen</a>, im <a href="#/lernen/hygiene">Hygiene-</a> oder <a href="#/lernen/anatomie">Anatomie-Trainer</a>: was danebengeht, steht danach hier.
             </p>
           ) : (
             <>

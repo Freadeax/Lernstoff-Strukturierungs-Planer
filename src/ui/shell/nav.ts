@@ -48,6 +48,8 @@ export const NAV: NavItem[] = [
       { id: 'krankheitsbilder', label: 'Krankheitsbilder', path: '/lernen/krankheitsbilder', icon: 'pulse' },
       { id: 'assessment', label: 'Assessments', path: '/lernen/assessment', icon: 'gauge' },
       { id: 'uebergabe', label: 'Übergabe-Trainer', path: '/lernen/uebergabe', icon: 'chat' },
+      { id: 'hygiene', label: 'Hygiene-Trainer', path: '/lernen/hygiene', icon: 'shield' },
+      { id: 'anatomie', label: 'Anatomie-Trainer', path: '/lernen/anatomie', icon: 'heart' },
     ],
   },
   {

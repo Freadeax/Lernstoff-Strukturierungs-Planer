@@ -18,7 +18,7 @@ const futureDate = new Date(Date.now() + 21 * 86400000).toISOString().slice(0, 1
   const base=(process.env.UI_BASE_URL || 'http://127.0.0.1:5173/').replace(/\/?$/, '/');
   const go=async route=>{await page.goto(base+'#'+route,{waitUntil:'networkidle'});await page.waitForTimeout(200);};
   const audits=[];
-  for(const route of ['/','/einstellungen','/material/import','/material/zusammenfassen','/material/dokumente','/material/ablage','/lernen/plan?ansicht=pruefungen&neu=1','/lernen/plan?ansicht=zeit']){
+  for(const route of ['/','/einstellungen','/material/import','/material/zusammenfassen','/material/dokumente','/material/ablage','/lernen/plan?ansicht=pruefungen&neu=1','/lernen/plan?ansicht=zeit','/lernen/hygiene','/lernen/anatomie?bereich=herz&runde=1']){
     await go(route);
     const axe=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
     audits.push({route,violations:axe.violations.map(v=>({id:v.id,impact:v.impact,nodes:v.nodes.map(n=>({html:n.html,summary:n.failureSummary}))}))});
@@ -69,7 +69,7 @@ const futureDate = new Date(Date.now() + 21 * 86400000).toISOString().slice(0, 1
   await context.close();
   const mobile=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:'de-DE',timezoneId:'Europe/Berlin',colorScheme:'light'});
   const mp=await mobile.newPage();mp.on('pageerror',e=>pageErrors.push(e.message));
-  for(const route of ['/','/einstellungen','/material/import','/material/zusammenfassen','/lernen/plan?ansicht=pruefungen&neu=1']){
+  for(const route of ['/','/einstellungen','/material/import','/material/zusammenfassen','/lernen/plan?ansicht=pruefungen&neu=1','/lernen/hygiene?bereich=psa&runde=1','/lernen/anatomie?bereich=atmung&runde=1']){
     await mp.goto(base+'#'+route,{waitUntil:'networkidle'});await mp.waitForTimeout(200);
     assert(!(await mp.evaluate(()=>document.documentElement.scrollWidth>innerWidth)),'Mobile overflow: '+route);
     const axe=await new AxeBuilder({page:mp}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();audits.push({route:'mobile:'+route,violations:axe.violations.map(v=>({id:v.id,impact:v.impact,nodes:v.nodes.map(n=>({html:n.html,summary:n.failureSummary}))}))});
