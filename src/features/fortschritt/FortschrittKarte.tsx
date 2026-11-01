@@ -1,8 +1,10 @@
 import './fortschritt.css';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { dauer } from '../lernplan/ui/format';
 import { useFortschritt } from './daten';
 import { serie, woche, wochenStart, wochenZiele } from './statistik';
+
+let geprueft = false;
 
 /** Kurzfassung auf der Startseite: Lernserie und Stand der Wochenziele. */
 export function FortschrittKarte() {
@@ -12,6 +14,12 @@ export function FortschrittKarte() {
     const s = serie(daten.fakten, daten.today);
     const zs = wochenZiele(woche(daten.fakten, wochenStart(daten.today)), ziele);
     return { s, zs };
+  }, [daten, ziele]);
+  useEffect(() => {
+    // Meilensteine und Serien-Erinnerung einmal je App-Start, nachgeladen, damit die Startseite schlank bleibt.
+    if (!daten || geprueft) return;
+    geprueft = true;
+    import('./hintergrund').then((m) => m.pruefeFortschritt(daten, ziele)).catch(() => undefined);
   }, [daten, ziele]);
   if (!werte) return null;
   const { s, zs } = werte;
