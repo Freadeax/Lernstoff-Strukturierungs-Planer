@@ -1,11 +1,12 @@
 // PowerPoint (.pptx): jede Folie ist eine Seite. Kapitel = PowerPoint-Abschnitt (falls angelegt) > Folientitel.
 // Sprechernotizen werden als eigener Block (origin 'notes') übernommen, weil Lehrkräfte dort oft Erklärungen ablegen.
+// Bilder der Folie (Schaubilder, eingefügte Buchseiten) gehen zur Texterkennung (RawPage.images).
 import type { Block, Extracted, RawPage } from '../types';
-import { attr, coreMeta, desc, kid, kids, openZip, rels, type El } from './ooxml';
+import { attr, coreMeta, desc, embeddedImages, kid, kids, openZip, rels, type El } from './ooxml';
 import { editionHint } from './hints';
 
 export async function extractPptx(bytes: Uint8Array): Promise<Extracted> {
-  const { xml } = await openZip(bytes);
+  const { xml, zip } = await openZip(bytes);
   const pres = await xml('ppt/presentation.xml');
   if (!pres) throw new Error('Keine ppt/presentation.xml – beschädigte oder keine PowerPoint-Datei');
   const presRels = await rels(xml, 'ppt/_rels/presentation.xml.rels', 'ppt/');
@@ -17,7 +18,7 @@ export async function extractPptx(bytes: Uint8Array): Promise<Extracted> {
 
   const sldIds = desc(kid(pres.documentElement, 'sldIdLst') ?? pres.documentElement, 'sldId');
   const pages: RawPage[] = [];
-  let pictureOnlySlides = 0;
+  const seen = new Set<string>();
   for (const [i, sld] of sldIds.entries()) {
     const path = presRels.get(attrNs(sld, 'id') ?? '');
     const slide = path ? await xml(path) : undefined;
@@ -41,9 +42,9 @@ export async function extractPptx(bytes: Uint8Array): Promise<Extracted> {
     }
     if (title) blocks.push({ text: title, headingLevel: section ? 2 : 1 });
     for (const b of body) blocks.push({ text: b });
-    if (!title && !body.length && desc(slide, 'pic').length) pictureOnlySlides++;
 
     const slideRels = await rels(xml, path!.replace(/slides\/(slide\d+\.xml)$/, 'slides/_rels/$1.rels'), 'ppt/slides/');
+    const images = await embeddedImages(zip, slide, slideRels, seen);
     const notesPath = [...slideRels.values()].find((t) => t.includes('notesSlide'));
     const notes = notesPath ? await xml(notesPath) : undefined;
     if (notes) {
@@ -54,9 +55,8 @@ export async function extractPptx(bytes: Uint8Array): Promise<Extracted> {
         .join('\n');
       if (text) blocks.push({ text, origin: 'notes' });
     }
-    pages.push({ page: i + 1, printedPage: String(i + 1), blocks });
+    pages.push({ page: i + 1, printedPage: String(i + 1), blocks, ...(images.length ? { images } : {}) });
   }
-  if (pictureOnlySlides) warnings.push(`${pictureOnlySlides} Folie(n) enthalten nur Bilder; Text darin wird im Prototyp nicht per OCR gelesen.`);
   const meta = await coreMeta(xml);
   meta.editionHint = editionHint(pages.flatMap((p) => p.blocks.map((b) => b.text)).join('\n'), meta.title);
   return { kind: 'pptx', pages, meta, warnings };

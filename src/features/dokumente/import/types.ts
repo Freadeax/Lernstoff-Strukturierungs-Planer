@@ -18,6 +18,13 @@ export interface Block {
   headingLevel?: number;
   origin?: 'text' | 'ocr' | 'notes' | 'table' | 'footnote' | 'box'; // footnote = Fuß-/Endnoten, box = Merkkasten
   illegibleSpans?: Array<{ start: number; end: number }>;
+  ocrConfidence?: number;  // 0..1, nur bei Text aus einem eingebetteten Bild (sonst gilt die Seite)
+}
+
+/** Eingebettetes Bild einer Seite/Folie, dessen Text per OCR ergänzt wird. */
+export interface PageImage {
+  bytes: Uint8Array;
+  mediaType: string;
 }
 
 /** Zwischenformat aller Extraktoren: eine physische Seite / Folie / ein Bild. */
@@ -28,6 +35,8 @@ export interface RawPage {
   blocks: Block[];
   ocrConfidence?: number;    // 0..1, nur bei OCR
   needsOcr?: boolean;        // PDF-Seite ohne Textebene
+  images?: PageImage[];      // Bilder in Word/PowerPoint, Text darin per OCR ergänzen
+  imageText?: boolean;       // PDF-Seite mit Textebene und großen Bildern: gerenderte Seite per OCR ergänzen
 }
 
 /** Metadaten aus der Datei selbst, für Versionserkennung. */
@@ -88,6 +97,7 @@ export interface DuplicateMatch {
 export interface ImportReport {
   pages: number;
   ocrPages: number;
+  imageTextPages?: number;   // Seiten, auf denen Text aus Bildern ergänzt wurde
   printedPagesFound: number;
   chapters: string[];
   lowConfidencePages: number[];
