@@ -90,8 +90,8 @@ export async function importiereDateien(
           continue;
         }
         const bytes = new Uint8Array(await file.arrayBuffer());
-        const isImage = /^image\//.test(file.type) || /\.(png|jpe?g|webp)$/i.test(file.name);
-        if ((isImage || file.type === 'application/pdf' || /\.pdf$/i.test(file.name)) && !ocr) ocr = lazyTesseract();
+        // Tesseract wird erst geladen, wenn eine Scan-Seite oder ein Bild mit Text wirklich erkannt werden muss.
+        if (!/\.(txt|md)$/i.test(file.name) && !ocr) ocr = lazyTesseract();
         if (handwritten && !handwritingOcr) {
           const key = getApiKey();
           if (!key) throw new Error('Für Handschrift bitte zuerst in den Einstellungen den API-Schlüssel eintragen.');

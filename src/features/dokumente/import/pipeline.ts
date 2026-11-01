@@ -9,6 +9,7 @@ import { extractPptx } from './extract/pptx';
 import { extractPdf } from './extract/pdf';
 import { chunkPages } from './chunk';
 import { markiereMerkkaesten } from './extract/merkkasten';
+import { leseBildtext } from './ocr/bildtext';
 import { findMatches, fingerprint } from './dedupe';
 import JSZip from 'jszip';
 
@@ -57,7 +58,7 @@ export async function importFile(file: InputFile, ctx: ImportContext = {}): Prom
   let images = new Map<number, Uint8Array>();
   switch (detected.kind) {
     case 'pdf': {
-      const r = await extractPdf(file.bytes, { render: !!(ctx.ocr || ctx.handwritingOcr) });
+      const r = await extractPdf(file.bytes, { render: !!(ctx.ocr || ctx.handwritingOcr), renderImages: !!ctx.ocr });
       ex = r;
       images = r.pageImages;
       break;
@@ -75,6 +76,8 @@ export async function importFile(file: InputFile, ctx: ImportContext = {}): Prom
   }
 
   const ocrPages = await runOcr(ex.pages, images, detected.mediaType ?? 'image/png', file.handwritten ?? false, ctx, ex.warnings);
+  // Text in Abbildungen nur offline (Tesseract) lesen, nie über die Cloud-Engine.
+  const imageTextPages = await leseBildtext(ex.pages, ctx.ocr, images, ex.warnings);
 
   markiereMerkkaesten(ex.pages);
 
@@ -107,6 +110,7 @@ export async function importFile(file: InputFile, ctx: ImportContext = {}): Prom
     report: {
       pages: ex.pages.length,
       ocrPages,
+      imageTextPages,
       printedPagesFound: ex.pages.filter((p) => p.printedPage && !p.pageEstimated).length,
       chapters,
       lowConfidencePages: ex.pages.filter((p) => p.ocrConfidence !== undefined && p.ocrConfidence < PAGE_CONFIDENCE_MIN).map((p) => p.page),

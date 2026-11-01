@@ -2,6 +2,8 @@
 // und markiert Seiten ohne Textebene (Scans) für die OCR.
 // Kapitel: zuerst Lesezeichen (Outline) des PDFs, sonst Schriftgrößen-Heuristik.
 // Gedruckte Seitenzahl: zuerst PDF-Seitenlabels, sonst eine Zahl in Kopf-/Fußzeile.
+// Seiten mit Textebene und großen Abbildungen (≥ 10 % der Seite) werden mit render gerendert und als imageText
+// markiert; die Pipeline ergänzt nur den Text aus den Bildern, der nicht schon in der Textebene steht.
 // Legacy-Build: enthält Polyfills (z. B. Promise.try), die ältere iOS-Safari-Versionen und Node 22 nicht haben.
 import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs';
 import type { Block, Extracted, RawPage } from '../types';
@@ -15,11 +17,15 @@ interface Line { text: string; y: number; size: number }
 
 const MARGIN = 0.08;           // obere/untere 8 % der Seite = Kopf-/Fußzeile
 const MIN_TEXT_CHARS = 25;     // darunter gilt eine Seite als Scan
+const IMAGE_AREA_MIN = 0.1;    // Bildfläche relativ zur Seite, ab der Text darin gelesen wird
+const IMAGE_PAGES_MAX = 40;    // höchstens so viele Bildseiten je PDF rendern (Speicher auf dem Handy)
 const PAGE_NUMBER = /^(?:(?:Seite|S\.)\s*)?(\d{1,4}|[ivxlcdm]{1,7})(?:\s*(?:von|\/)\s*\d{1,4})?$/i;
 
 export interface PdfExtractOptions {
   /** Rendert Scan-Seiten als PNG für die OCR. Fehlt sie, werden Scan-Seiten nur markiert. */
   render?: boolean;
+  /** Seiten mit Textebene und großen Bildern zusätzlich rendern (für Text in Abbildungen). Standard: wie render. */
+  renderImages?: boolean;
   renderScale?: number;
 }
 
@@ -42,6 +48,7 @@ export async function extractPdf(bytes: Uint8Array, opts: PdfExtractOptions = {}
   const lineSets: Line[][] = [];
   const margins: Array<{ top: string[]; bottom: string[] }> = [];
   const pageImages = new Map<number, Uint8Array>();
+  let imagePages = 0;
 
   for (let i = 1; i <= doc.numPages; i++) {
     const page = await doc.getPage(i);
@@ -61,6 +68,10 @@ export async function extractPdf(bytes: Uint8Array, opts: PdfExtractOptions = {}
     if (chars < MIN_TEXT_CHARS) {
       p.needsOcr = true;
       if (opts.render) pageImages.set(i, await renderPng(doc, page, opts.renderScale ?? 2.5));
+    } else if ((opts.renderImages ?? opts.render) && imagePages < IMAGE_PAGES_MAX && await largestImageShare(page) >= IMAGE_AREA_MIN) {
+      p.imageText = true;
+      imagePages++;
+      pageImages.set(i, await renderPng(doc, page, opts.renderScale ?? 2.5));
     }
     pages.push(p);
     page.cleanup();
@@ -98,6 +109,32 @@ export async function extractPdf(bytes: Uint8Array, opts: PdfExtractOptions = {}
   };
   await task.destroy();
   return { kind: 'pdf', pages, meta, warnings, outlineUsed: outline.size > 0, pageImages };
+}
+
+/**
+ * Größter Bildanteil an der Seitenfläche. Verfolgt die Transformationsmatrix durch save/restore/transform bis zu
+ * jedem Bild-Malbefehl; ein Bild füllt das Einheitsquadrat seiner aktuellen Matrix.
+ */
+export async function largestImageShare(page: PDFPage): Promise<number> {
+  const { OPS } = pdfjs;
+  const view = page.view;
+  const area = Math.abs((view[2] - view[0]) * (view[3] - view[1])) || 1;
+  const ops = await page.getOperatorList();
+  const stack: number[][] = [];
+  let m = [1, 0, 0, 1, 0, 0];
+  let best = 0;
+  for (let k = 0; k < ops.fnArray.length; k++) {
+    const fn = ops.fnArray[k];
+    if (fn === OPS.save) stack.push(m);
+    else if (fn === OPS.restore) m = stack.pop() ?? [1, 0, 0, 1, 0, 0];
+    else if (fn === OPS.transform) {
+      const [a, b, c, d, e, f] = ops.argsArray[k] as number[];
+      m = [m[0] * a + m[2] * b, m[1] * a + m[3] * b, m[0] * c + m[2] * d, m[1] * c + m[3] * d, m[0] * e + m[2] * f + m[4], m[1] * e + m[3] * f + m[5]];
+    } else if (fn === OPS.paintImageXObject || fn === OPS.paintInlineImageXObject || fn === OPS.paintImageXObjectRepeat) {
+      best = Math.max(best, Math.abs(m[0] * m[3] - m[1] * m[2]) / area);
+    }
+  }
+  return Math.min(1, best);
 }
 
 async function pageLines(page: PDFPage): Promise<Line[]> {

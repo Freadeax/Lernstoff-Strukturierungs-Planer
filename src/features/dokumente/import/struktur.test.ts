@@ -139,3 +139,20 @@ describe('Enthaltensein', () => {
     expect(b.report.matches).toEqual([]);
   });
 });
+
+describe('Text aus Bildern', () => {
+  it('verwirft unsichere Ergebnisse, Zeichensalat und schon vorhandenen Text', async () => {
+    const { filtereBildtext } = await import('./ocr/bildtext');
+    const blocks = [{ text: 'Fersen frei lagern' }, { text: '| ~ ii' }, { text: 'Die Haut wird beurteilt.' }];
+    expect(filtereBildtext(blocks, 0.5, '')).toEqual([]);
+    expect(filtereBildtext(blocks, 0.9, 'Nach jeder Positionierung wird die Haut beurteilt.').map((b) => [b.text, b.origin, b.ocrConfidence]))
+      .toEqual([['Fersen frei lagern', 'ocr', 0.9]]);
+  });
+
+  it('ohne Texterkennung bleibt nur ein Hinweis, Bilder werden nicht gespeichert', async () => {
+    const bytes = new Uint8Array(readFileSync(new URL('./__fixtures__/folie_mit_bild.pptx', import.meta.url)));
+    const r = await importFile({ name: 'folie_mit_bild.pptx', bytes });
+    expect(r.chunks.some((c) => c.origin === 'ocr')).toBe(false);
+    expect(r.report.warnings.join()).toMatch(/Bildern/);
+  });
+});

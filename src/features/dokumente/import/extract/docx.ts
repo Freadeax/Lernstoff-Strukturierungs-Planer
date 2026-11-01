@@ -7,13 +7,15 @@
 // verwiesen werden; Endnoten ([i]) am Dokumentende. Textfelder und umrahmte/schattierte Absätze sowie
 // Absätze mit Formatvorlagen wie „Merke“ oder „Kasten“ werden zu Merkkästen (origin 'box').
 import type { Block, Extracted, RawPage } from '../types';
-import { attr, coreMeta, desc, kid, kids, openZip, type El } from './ooxml';
+import { attr, coreMeta, desc, embeddedImages, kid, kids, openZip, rels, type El } from './ooxml';
 import { editionHint } from './hints';
 
 const CHARS_PER_PAGE_ESTIMATE = 3000;
 
 export async function extractDocx(bytes: Uint8Array): Promise<Extracted> {
-  const { xml } = await openZip(bytes);
+  const { xml, zip } = await openZip(bytes);
+  const docRels = await rels(xml, 'word/_rels/document.xml.rels', 'word/');
+  const seenImages = new Set<string>();
   const doc = await xml('word/document.xml');
   if (!doc) throw new Error('Keine word/document.xml – beschädigte oder keine Word-Datei');
   const warnings: string[] = [];
@@ -97,6 +99,9 @@ export async function extractDocx(bytes: Uint8Array): Promise<Extracted> {
     flush();
     // Textfelder (Merkkästen, Randnotizen) nach dem Absatz, an dem sie verankert sind.
     for (const t of textBoxes(node)) push({ text: t, origin: 'box' });
+    // Bilder (Schaubilder, eingefügte Scans) zur Texterkennung an die Seite hängen, auf der sie verankert sind.
+    const imgs = await embeddedImages(zip, node, docRels, seenImages);
+    if (imgs.length) { const pg = cur(); pg.images = [...(pg.images ?? []), ...imgs]; }
     // Abschnittswechsel "nächste Seite" steht im pPr des letzten Absatzes des Abschnitts.
     const sect = kid(pPr ?? node, 'sectPr');
     if (!rendered && sect && attr(kid(sect, 'type'), 'val') !== 'continuous') newPage();

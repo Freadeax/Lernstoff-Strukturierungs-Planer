@@ -11,6 +11,8 @@ Synthetische Lehrtexte (keine echten Schulbuchinhalte, keine personenbezogenen D
 | `skript_v1_ohne_lesezeichen.pdf` | dasselbe ohne Lesezeichen – Schriftgrößen-Heuristik |
 | `pflegeprozess.pptx` | drei Folien mit Titeln und Sprechernotizen |
 | `scan_seite1.png` | Seite 1 des PDFs als leicht gedrehtes, unscharfes Bild – OCR |
+| `skript_mit_abbildung.pdf` | PDF mit Textebene und einer Abbildung mit Schrift (Lagerungsplan) – Text aus Bildern |
+| `folie_mit_bild.pptx` | zwei Folien mit demselben Bild – Folienbilder per OCR, jedes Bild nur einmal |
 | `scan.pdf` | dasselbe Bild als PDF ohne Textebene – Scan-Erkennung, Rendern, OCR |
 
-Erzeugt mit python-docx, python-pptx, LibreOffice und Pillow.
+Erzeugt mit python-docx, python-pptx, LibreOffice, Pillow und reportlab.
