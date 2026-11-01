@@ -38,10 +38,9 @@ const result = await importFile({ name: file.name, bytes: new Uint8Array(await f
 
 ## Offen
 
-- Text in Bildern innerhalb von PDFs mit Textebene und in PowerPoint-Bildern wird noch nicht per OCR gelesen (Bericht warnt).
 - Merkkästen im PDF werden nur über Signalwörter erkannt, nicht über gezeichnete Rahmen oder Hintergrundflächen.
 
-Erledigt: Tesseract-Sprachdaten und Worker liegen offline unter `public/tesseract/` (kopiert von `scripts/copy-tesseract.mjs`, vom Service Worker beim ersten Gebrauch zwischengespeichert); Word-Fußnoten, Merkkästen und Ausschnitt-Erkennung siehe oben.
+Erledigt: Text in Abbildungen (`ocr/bildtext.ts`): Bilder in Word und PowerPoint (ab 6 KB, jede Mediendatei einmal je Dokument) und PDF-Seiten mit Textebene, auf denen ein Bild mindestens 10 % der Seite füllt (gerendert, höchstens 40 je Dokument), gehen offline an Tesseract. Übernommen werden nur Zeilen mit Bildsicherheit ≥ 70 %, mindestens zwei echten Wörtern und nicht schon in der Textebene; sie werden eigene Chunks (`origin: 'ocr'`, eigene `ocrConfidence`). Nie über die Cloud-Engine. Tesseract-Sprachdaten und Worker liegen offline unter `public/tesseract/` (kopiert von `scripts/copy-tesseract.mjs`, vom Service Worker beim ersten Gebrauch zwischengespeichert); Word-Fußnoten, Merkkästen und Ausschnitt-Erkennung siehe oben.
 
 ## Gemeinsamer Import und privates Material-Repo
 

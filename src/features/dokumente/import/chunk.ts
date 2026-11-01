@@ -16,6 +16,7 @@ export function chunkPages(documentId: string, pages: RawPage[], newId: () => st
     let text = '';
     let spans: Array<{ start: number; end: number }> = [];
     let origin: ImportChunk['origin'];
+    let conf: number | undefined;
     const flush = () => {
       if (!text.trim()) return;
       chunks.push({
@@ -25,7 +26,7 @@ export function chunkPages(documentId: string, pages: RawPage[], newId: () => st
         printedPage: p.printedPage,
         chapter: path.filter(Boolean).join(' > ') || undefined,
         text,
-        ocrConfidence: p.ocrConfidence,
+        ocrConfidence: conf ?? p.ocrConfidence,
         illegibleSpans: spans.length ? spans : undefined,
         pageEstimated: p.pageEstimated,
         origin,
@@ -33,6 +34,7 @@ export function chunkPages(documentId: string, pages: RawPage[], newId: () => st
       text = '';
       spans = [];
       origin = undefined;
+      conf = undefined;
     };
     for (const b of p.blocks) {
       if (b.headingLevel) {
@@ -45,8 +47,9 @@ export function chunkPages(documentId: string, pages: RawPage[], newId: () => st
       }
       // Sprechernotizen und Tabellen als eigene Chunks, damit Zitate ihre Herkunft behalten.
       const blockOrigin = b.origin === 'text' ? undefined : b.origin;
-      if (blockOrigin !== origin || (text && words(text) + words(b.text) > MAX_WORDS)) flush();
+      if (blockOrigin !== origin || b.ocrConfidence !== conf || (text && words(text) + words(b.text) > MAX_WORDS)) flush();
       origin = blockOrigin;
+      conf = b.ocrConfidence;
       const offset = text ? text.length + 2 : 0;
       text = text ? `${text}\n\n${b.text}` : b.text;
       for (const s of b.illegibleSpans ?? []) spans.push({ start: s.start + offset, end: s.end + offset });
