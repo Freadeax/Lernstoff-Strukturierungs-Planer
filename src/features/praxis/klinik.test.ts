@@ -69,6 +69,29 @@ describe('Praxissimulator – klinischer Verlauf', () => {
     expect(clinicalDebrief(act(gestuerzt, 'fall_care')).final.unstable).toBe(false);
   });
 
+  it('Anaphylaxie: ohne Hilfe schreitet sie fort, Stopp und Notfallteam verhindern das', () => {
+    const scenario = byId('anaphylaxie');
+    const ohne = wait(start(scenario, 2), 900);
+    expect(ohne.story?.verschlimmerung).toBe('fired');
+    expect(clinicalDebrief(ohne).final.unstable).toBe(true);
+    const mit = wait(act(act(act(start(scenario, 2), 'stop'), 'help'), 'orders'), 900);
+    expect(mit.story?.verschlimmerung).toBe('prevented');
+    expect(clinicalDebrief(mit).final.unstable).toBe(false);
+    const aufgestanden = wait(act(start(scenario, 2), 'walk'), 30);
+    expect(aufgestanden.story?.kollaps).toBe('fired');
+    expect(aufgestanden.harms?.map(h => h.id)).toContain('walk');
+  });
+
+  it('Lungenembolie: Weitergehen und Wadenmassage sind Fehlhandlungen, frühe Eskalation stabilisiert', () => {
+    const scenario = byId('lungenembolie');
+    const s = act(act(start(scenario, 2), 'walk_on'), 'massage');
+    expect(s.harms?.map(h => h.id)).toEqual(expect.arrayContaining(['walk_on', 'massage']));
+    const mit = wait(act(act(act(act(start(scenario, 2), 'sit'), 'oxygen'), 'help'), 'orders'), 1200);
+    expect(mit.story?.schock).toBe('prevented');
+    expect(clinicalDebrief(mit).final.unstable).toBe(false);
+    expect(clinicalDebrief(wait(start(scenario, 2), 1200)).final.unstable).toBe(true);
+  });
+
   it('verschiebt Ereignisse nach Ausbildungsstufe', () => {
     expect(storyTime(600, 1)).toBe(900); expect(storyTime(600, 2)).toBe(600); expect(storyTime(600, 3)).toBe(450);
   });
