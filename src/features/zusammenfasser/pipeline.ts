@@ -6,7 +6,7 @@ import type { CatalogModule } from '../../modules/catalog-types';
 import { ampel, pruefeAlles, type AufgabeSoll, type PruefBefund } from '../qualitaet/deterministisch';
 import { zerlegeAntwort, type ApiTextBlock, type ZerlegtClaim } from './zerlegen';
 import { kiPruefung } from './pruefer';
-import { ohneKommentare, Protokoll, rufe, textAus, type KiNachricht } from './ki';
+import { HERKUNFT, ohneKommentare, Protokoll, rufe, textAus, type KiNachricht } from './ki';
 import type { Aufgabe, PipelineRun } from './typen';
 import basisPrompt from './prompts/00-basis.md?raw';
 import originalgetreuPrompt from './prompts/01-originalgetreu.md?raw';
@@ -86,7 +86,7 @@ export function nutzerText(length: SummaryLength, o: ModusOptionen & { thema: st
   }
 }
 
-const kopfzeile = (c: SourceChunk) => `[S. ${c.printedPage ?? c.page}${c.chapter ? ` | ${c.chapter}` : ''}]`;
+const kopfzeile = (c: SourceChunk) => `[S. ${c.printedPage ?? c.page}${c.chapter ? ` | ${c.chapter}` : ''}${c.origin && HERKUNFT[c.origin] ? ` | ${HERKUNFT[c.origin]}` : ''}]`;
 
 /** Ein document-Block pro Dokument, ein Text-Block pro Chunk. blockZuChunk übersetzt die Citations zurück. */
 export function quellenBloecke(docs: Document[], chunks: SourceChunk[]) {

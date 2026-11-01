@@ -8,6 +8,7 @@ import { extractDocx } from './extract/docx';
 import { extractPptx } from './extract/pptx';
 import { extractPdf } from './extract/pdf';
 import { chunkPages } from './chunk';
+import { markiereMerkkaesten } from './extract/merkkasten';
 import { findMatches, fingerprint } from './dedupe';
 import JSZip from 'jszip';
 
@@ -74,6 +75,8 @@ export async function importFile(file: InputFile, ctx: ImportContext = {}): Prom
   }
 
   const ocrPages = await runOcr(ex.pages, images, detected.mediaType ?? 'image/png', file.handwritten ?? false, ctx, ex.warnings);
+
+  markiereMerkkaesten(ex.pages);
 
   const documentId = newId();
   const title = ex.meta.title || file.name.replace(/\.[^.]+$/, '');

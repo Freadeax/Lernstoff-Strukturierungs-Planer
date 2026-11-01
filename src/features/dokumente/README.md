@@ -7,7 +7,7 @@ import { importFile } from './import/pipeline';
 import { createTesseractEngine } from './import/ocr/tesseract';
 // pdf.js-Worker richtet extractPdf im Browser beim ersten PDF selbst ein (import/extract/pdf-worker.ts).
 
-const ocr = await createTesseractEngine({ langPath: '/tessdata' });
+const ocr = await createTesseractEngine({ langPath: 'tesseract/lang' }); // Oberfläche: lazyTesseract() in importiere.ts
 const result = await importFile({ name: file.name, bytes: new Uint8Array(await file.arrayBuffer()), lastModified: file.lastModified }, { ocr, existing });
 // result.document, result.chunks -> db.documents / db.chunks; result.fingerprint mitspeichern
 // result.report.matches -> Nutzer fragen: Duplikat verknüpfen? Neue Fassung bestätigen?
@@ -18,12 +18,13 @@ const result = await importFile({ name: file.name, bytes: new Uint8Array(await f
 1. **Format erkennen** an den ersten Bytes, nicht an der Endung (`detectKind`). Alte Formate (.doc, .ppt, .odt, TIFF, HEIC) werden mit einer verständlichen Meldung abgelehnt.
 2. **Extrahieren** in ein gemeinsames Zwischenformat `RawPage { page, printedPage, blocks[] }`:
    - **PDF** (`extract/pdf.ts`, pdf.js): Zeilen aus Textpositionen, Absätze über Zeilenabstand, Silbentrennung aufgelöst. Kapitel aus den PDF-Lesezeichen, ohne Lesezeichen aus der Schriftgröße. Gedruckte Seitenzahl aus PDF-Seitenlabels oder aus Kopf-/Fußzeile; wiederkehrende Kopf-/Fußzeilen werden aus dem Lerntext entfernt. Seiten mit weniger als 25 Zeichen gelten als Scan und gehen zur OCR.
-   - **Word** (`extract/docx.ts`, JSZip + XML): Überschriften über Formatvorlagen (auch deutsche „Überschrift 1“) und Gliederungsebene, Tabellen als eigener Block. Seiten über `w:lastRenderedPageBreak` (von Word beim Speichern geschrieben) und die Startseitenzahl des Abschnitts. Fehlen diese Marker, sind Seiten geschätzt (`pageEstimated`), und der Bericht empfiehlt, das PDF zu importieren.
+   - **Word** (`extract/docx.ts`, JSZip + XML): Überschriften über Formatvorlagen (auch deutsche „Überschrift 1“) und Gliederungsebene, Tabellen als eigener Block. Fußnoten stehen als `[1]` im Text und als eigener Block (`origin: 'footnote'`) am Ende der Seite des ersten Verweises, Endnoten (`[i]`) am Dokumentende. Textfelder, umrahmte oder farbig hinterlegte Absätze und Formatvorlagen wie „Merke“, „Kasten“, „Info“ werden Merkkästen (`origin: 'box'`); von `mc:AlternateContent` zählt nur die erste Variante, damit Textfelder nicht doppelt erscheinen. Seiten über `w:lastRenderedPageBreak` (von Word beim Speichern geschrieben) und die Startseitenzahl des Abschnitts. Fehlen diese Marker, sind Seiten geschätzt (`pageEstimated`), und der Bericht empfiehlt, das PDF zu importieren.
    - **PowerPoint** (`extract/pptx.ts`): Folie = Seite, Abschnitt > Folientitel = Kapitel, Sprechernotizen als eigene Chunks (`origin: 'notes'`).
    - **Bilder** (PNG, JPEG, WebP): direkt zur OCR.
 3. **OCR** (`ocr/`): Tesseract.js offline für Druckschrift. Handschrift oder Seiten unter 75 % Sicherheit gehen an Claude (`ocr/claude.ts`), aber nur, wenn die Oberfläche eine `handwritingOcr`-Engine übergibt, also der Nutzer dem Hochladen zugestimmt hat. Unleserliches steht als `⟦?⟧` im Text, unsichere Wörter bleiben stehen; beides ist in `illegibleSpans` markiert.
-4. **Chunks** (`chunk.ts`): nie über eine Seiten- oder Kapitelgrenze, höchstens 350 Wörter, Schnitt nur am Absatzende. `chapter` ist der Pfad `Kapitel > Unterkapitel`.
-5. **Dubletten und Versionen** (`dedupe.ts`): byte-gleich (SHA-256), textgleich, gleiches Dokument in anderem Format (MinHash-Ähnlichkeit über Wort-5-Gramme ≥ 0,9), neue Fassung (≥ 0,6 oder gleicher Titel) mit Liste neuer und entfallener Absätze. Welche Fassung neuer ist, kommt aus Auflage/Version/Stand im Text, sonst aus dem Änderungsdatum. Es wird nichts automatisch gelöscht oder ersetzt.
+4. **Merkkästen** (`extract/merkkasten.ts`): in allen Formaten wird ein Absatz, der mit einem Signalwort beginnt („Merke:“, „Wichtig!“, „Praxistipp:“, „Cave:“ …), ein eigener Merkkasten-Chunk. Steht das Signalwort allein (z. B. als große Zeile im PDF), wird es mit dem folgenden Absatz verbunden. Der Zusammenfasser sieht die Herkunft in der Abschnittskopfzeile („Merkkasten“, „Fußnote“, „Tabelle“).
+5. **Chunks** (`chunk.ts`): nie über eine Seiten- oder Kapitelgrenze, höchstens 350 Wörter, Schnitt nur am Absatzende. `chapter` ist der Pfad `Kapitel > Unterkapitel`.
+6. **Dubletten und Versionen** (`dedupe.ts`): byte-gleich (SHA-256), textgleich, gleiches Dokument in anderem Format (MinHash-Ähnlichkeit über Wort-5-Gramme ≥ 0,9), neue Fassung (≥ 0,6 oder gleicher Titel) mit Liste neuer und entfallener Absätze. **Ausschnitte:** Eine Stichprobe der Wort-3-Gramme (`Fingerprint.sample`, jeder Hash mit geradem Wert) schätzt das Enthaltensein unabhängig von der Größe. Stecken mindestens 60 % eines deutlich kleineren Textes im größeren, meldet der Bericht `teil-von` (z. B. Handyfoto einer Buchseite) bzw. `enthaelt` (das vorhandene Dokument war der Ausschnitt). Ältere Fingerabdrücke ohne Stichprobe bekommen sie beim nächsten Import einmalig aus ihren Chunks. Welche Fassung neuer ist, kommt aus Auflage/Version/Stand im Text, sonst aus dem Änderungsdatum. Es wird nichts automatisch gelöscht oder ersetzt.
 
 ## Bibliotheken
 
@@ -37,11 +38,10 @@ const result = await importFile({ name: file.name, bytes: new Uint8Array(await f
 
 ## Offen
 
-- Sprachdaten für Tesseract (`deu.traineddata.gz`, ca. 2 MB) unter `public/tessdata` ablegen und vom Service Worker cachen lassen, damit OCR offline läuft.
 - Text in Bildern innerhalb von PDFs mit Textebene und in PowerPoint-Bildern wird noch nicht per OCR gelesen (Bericht warnt).
-- Fußnoten in Word werden noch übersprungen.
-- Merkkästen werden noch nicht als eigener Chunk erkannt.
-- Erkennung „Scan ist Teil eines vorhandenen Dokuments“ (Enthaltensein statt Ähnlichkeit).
+- Merkkästen im PDF werden nur über Signalwörter erkannt, nicht über gezeichnete Rahmen oder Hintergrundflächen.
+
+Erledigt: Tesseract-Sprachdaten und Worker liegen offline unter `public/tesseract/` (kopiert von `scripts/copy-tesseract.mjs`, vom Service Worker beim ersten Gebrauch zwischengespeichert); Word-Fußnoten, Merkkästen und Ausschnitt-Erkennung siehe oben.
 
 ## Gemeinsamer Import und privates Material-Repo
 

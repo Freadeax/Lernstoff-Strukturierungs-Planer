@@ -6,7 +6,8 @@ import { db } from '../../core/db';
 import { logActivity } from '../../core/activity';
 import { getApiKey } from '../../core/settings';
 import { importFile } from './import/pipeline';
-import type { ImportReport } from './import/types';
+import type { Fingerprint, ImportReport } from './import/types';
+import { containmentSample, fingerprintText } from './import/dedupe';
 import type { OcrEngine } from './import/ocr/engine';
 import { gleicheThemenAb, ladeThemen, ordneThemen } from '../../core/topics';
 import { ladeHoch, ladeZiel, listeDateien, pruefeRepo } from '../ablage/ablage';
@@ -28,6 +29,17 @@ function lazyTesseract(): OcrEngine & { terminate(): Promise<void> } {
     recognize: async (image, mediaType) => (await get()).recognize(image, mediaType),
     terminate: async () => { if (engine) await (await engine).terminate(); },
   };
+}
+
+/** Fingerabdrücke aus früheren Importen haben noch keine Enthaltensein-Stichprobe: einmalig aus den Chunks nachtragen. */
+async function ergaenzeStichproben(fps: Fingerprint[]): Promise<Fingerprint[]> {
+  const fehlend = fps.filter((f) => !f.sample);
+  for (const f of fehlend) {
+    const chunks = await db.chunks.where('documentId').equals(f.documentId).toArray();
+    f.sample = containmentSample(fingerprintText(chunks));
+    await db.fingerprints.update(f.documentId, { sample: f.sample });
+  }
+  return fps;
 }
 
 export async function importiereDateien(
@@ -86,7 +98,7 @@ export async function importiereDateien(
           const { createClaudeVisionEngine } = await import('./import/ocr/claude');
           handwritingOcr = createClaudeVisionEngine({ apiKey: key });
         }
-        const existing = await db.fingerprints.toArray();
+        const existing = await ergaenzeStichproben(await db.fingerprints.toArray());
         const kinds = new Map((await db.documents.toArray()).map((d) => [d.id, d.kind]));
         const paragraphTexts = new Map((await db.paragraphs.toArray()).map((p) => [p.hash, p.text]));
         let neueAbsaetze = new Map<string, string>();

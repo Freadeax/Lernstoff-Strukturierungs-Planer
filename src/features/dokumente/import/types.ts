@@ -16,7 +16,7 @@ export interface InputFile {
 export interface Block {
   text: string;
   headingLevel?: number;
-  origin?: 'text' | 'ocr' | 'notes' | 'table';
+  origin?: 'text' | 'ocr' | 'notes' | 'table' | 'footnote' | 'box'; // footnote = Fuß-/Endnoten, box = Merkkasten
   illegibleSpans?: Array<{ start: number; end: number }>;
 }
 
@@ -59,6 +59,8 @@ export interface Fingerprint {
   contentHash: string;     // SHA-256 des normalisierten Textes
   minhash: number[];       // 128 Werte über Wort-5-Gramme
   paragraphHashes: string[];
+  /** Stichprobe der Wort-3-Gramm-Hashes (jeder mit geradem Hash), sortiert. Schätzt Enthaltensein (Scan einer Buchseite). */
+  sample?: number[];
   meta: FileMeta;
   importedAt: string;
 }
@@ -68,7 +70,9 @@ export type MatchKind =
   | 'gleicher-inhalt'      // Text identisch, z. B. erneut exportiert
   | 'anderes-format'       // gleicher Inhalt als docx und pdf
   | 'neue-version'         // überwiegend gleich, Teile geändert
-  | 'teilweise-ueberlappend';
+  | 'teilweise-ueberlappend'
+  | 'teil-von'             // neues Dokument steckt fast vollständig im bestehenden (z. B. Scan einer Seite)
+  | 'enthaelt';            // bestehendes Dokument steckt fast vollständig im neuen
 
 export interface DuplicateMatch {
   kind: MatchKind;
