@@ -59,6 +59,27 @@ try {
       assert(!(await leiste.isVisible()), 'Untere Leiste beim Tippen ausgeblendet');
       await page.locator('main input[type=search]').first().blur();
       assert(await leiste.isVisible(), 'Untere Leiste nach dem Tippen wieder da');
+
+      // Zurück in der installierten App: nur wenn es innerhalb der App zurückgeht
+      const neu = await ctx.newPage();
+      await neu.goto(base + '#/', { waitUntil: 'networkidle' });
+      assert.equal(await neu.locator('.shell__back').count(), 0, 'Kein Zurück auf der Einstiegsseite');
+      await neu.locator('.shell__tabbar a', { hasText: 'Lernplan' }).click();
+      await neu.locator('.shell__tabbar a', { hasText: 'Karteikarten' }).click();
+      await neu.waitForFunction(() => location.hash === '#/lernen/karten');
+      assert.equal(await neu.locator('.shell__back').count(), 1, 'Zurück nach Seitenwechsel');
+      await neu.locator('.shell__back').evaluate((b) => b.click()); // im Browser per CSS verborgen
+      await neu.waitForFunction(() => location.hash === '#/lernen/plan');
+      await neu.locator('.shell__back').evaluate((b) => b.click());
+      await neu.waitForFunction(() => location.hash === '#/');
+      assert.equal(await neu.locator('.shell__back').count(), 0, 'Zurück verschwindet am Einstieg');
+
+      // Offline-Hinweis
+      await ctx.setOffline(true);
+      await neu.locator('.shell__offline').waitFor();
+      await ctx.setOffline(false);
+      await neu.locator('.shell__offline').waitFor({ state: 'detached' });
+      await neu.close();
     }
     await ctx.close();
   }

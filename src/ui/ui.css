@@ -127,6 +127,10 @@
   }
 }
 @media (min-width: 768px) { .shell__menu-btn { display: none; } }
+/* Zurück nur in der installierten App (Home-Bildschirm), im Browser gibt es eine eigene. */
+.shell__back { display: none; }
+@media (display-mode: standalone) { .shell__back { display: inline-flex; } }
+.shell__offline { flex: 0 0 auto; background: var(--color-warning-soft); color: var(--color-text); border: 1px solid var(--color-warning); }
 
 .tab {
   flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;

@@ -233,6 +233,8 @@ Regeln für Fingerbedienung stehen gesammelt am Ende von `src/styles.css` (`@med
 - Kein Doppeltipp-Zoom auf Bedienelementen (`touch-action: manipulation`), langes Drücken auf Schaltflächen markiert keinen Text.
 - Die untere Leiste blendet sich aus, solange ein Textfeld im Inhalt den Fokus hat.
 - Home-Bildschirm-Symbol als PNG (`public/apple-touch-icon.png`, iOS nimmt kein SVG), Manifest mit PNG- und maskierbarem Symbol. Statusleiste per `theme-color`, folgt auch der manuell gewählten Darstellung.
+- Installierte App: Kopfzeile zeigt eine Zurück-Taste (nur `display-mode: standalone`, nur wenn es innerhalb der App zurückgeht; Tiefe steht im Verlaufseintrag, `useRoute().depth`, `goBack()` in `router.ts`).
+- Offline: Hinweis „Offline“ im Kopf und Mitteilung beim Wechsel (`useOnline()` in `src/ui/lib/online.ts`).
 - `npm run test:geraete` (Teil von `npm run check`) lädt jede Menüseite auf iPhone, iPad hoch und quer und prüft Überlauf, Laufzeitfehler, Feldschrift und die untere Leiste. Neue Seiten mit `path` in `nav.ts` sind automatisch dabei.
 
 ## Leistung

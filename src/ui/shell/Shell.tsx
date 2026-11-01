@@ -6,7 +6,9 @@ import { modules } from '../../modules/registry';
 import { Omnibar } from './Omnibar';
 import { NotificationCenter, Toaster } from './NotificationCenter';
 import { Sidebar, TabBar } from './Sidebar';
-import { navigate, useRoute } from './router';
+import { goBack, navigate, useRoute } from './router';
+import { notify } from './notifications';
+import { useOnline } from '../lib/online';
 import { session, setWorkspace, type Theme } from './session';
 import { flatNav, NAV } from './nav';
 
@@ -37,9 +39,27 @@ function ProfileMenu() {
   );
 }
 
+/** Verbindung: Hinweis im Kopf solange offline, Mitteilung beim Wechsel. */
+function OnlineStatus() {
+  const online = useOnline();
+  const before = useRef(online);
+  useEffect(() => {
+    if (before.current === online) return;
+    before.current = online;
+    if (online) notify('info', 'Wieder online', 'Claude und GitHub sind wieder erreichbar.');
+    else notify('warning', 'Offline', 'Lernen, Karten, Pläne und Dokumente funktionieren weiter. Claude und GitHub brauchen Netz.');
+  }, [online]);
+  if (online) return null;
+  return (
+    <span className="badge shell__offline" role="status" title="Ohne Internet: alles Lokale funktioniert, Claude und GitHub nicht.">
+      Offline
+    </span>
+  );
+}
+
 function Header() {
   const drawer = useStore(session, (s) => s.drawerOpen);
-  const { path } = useRoute();
+  const { path, depth } = useRoute();
   const current = flatNav(NAV).find((item) => item.path === path)?.label ?? 'Lernarbeitsplatz';
   return (
     <header className="shell__header" inert={drawer}>
@@ -47,7 +67,14 @@ function Header() {
         aria-expanded={drawer} onClick={() => session.set({ drawerOpen: !drawer })}>
         <Icon name="menu" />
       </button>
+      {/* Nur in der installierten App sichtbar (CSS), dort fehlt die Zurück-Taste des Browsers. */}
+      {depth > 0 && (
+        <button type="button" className="icon ghost shell__back" aria-label="Zurück" onClick={goBack}>
+          <Icon name="chevronLeft" />
+        </button>
+      )}
       <div className="header-context"><span>Lernarbeitsplatz</span><Icon name="chevronRight" size={14} /><strong>{current}</strong></div>
+      <OnlineStatus />
       <div className="shell__search"><Omnibar /></div>
       <div className="shell__actions">
         <WorkspaceSwitcher />
