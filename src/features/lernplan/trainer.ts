@@ -111,9 +111,8 @@ export function uebungenFuer(topicId: string, modul: CatalogModule = pflegeModul
   if (topicId === SIS_THEMA) out.push({ trainer: 'sis', label: 'SIS-Trainer', path: '/lernen/sis' });
   if (topicId === BERICHT_THEMA) out.push({ trainer: 'bericht', label: 'Pflegebericht-Trainer', path: '/lernen/bericht' });
   if (topicId === HYGIENE_THEMA) out.push({ trainer: 'hygiene', label: 'Hygiene-Trainer', path: '/lernen/hygiene' });
-  for (const [bereich, thema] of Object.entries(ANATOMIE_THEMA)) {
-    if (thema === topicId) out.push({ trainer: 'anatomie', label: 'Anatomie-Trainer', path: `/lernen/anatomie?bereich=${bereich}` });
-  }
+  const anatomie = Object.entries(ANATOMIE_THEMA).find(([, thema]) => thema === topicId);
+  if (anatomie) out.push({ trainer: 'anatomie', label: 'Anatomie-Trainer', path: `/lernen/anatomie?bereich=${anatomie[0]}` });
   for (const g of GRUPPEN.filter((x) => x.instrumente.some((i) => INSTRUMENTE[i].topicIds.includes(topicId)))) {
     out.push({ trainer: 'assessment', label: `Assessment üben (${g.label})`, path: `/lernen/assessment?gruppe=${g.id}&modus=faelle` });
   }
