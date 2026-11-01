@@ -7,11 +7,15 @@ import { modules } from '../../modules/registry';
 // im Wechsler. Die Auswahl wird per BroadcastChannel an andere offene Tabs weitergegeben.
 
 export type Theme = 'system' | 'hell' | 'dunkel';
+/** Schriftgröße der ganzen App (alle Schriftgrößen sind in rem). */
+export type Schrift = 'normal' | 'gross' | 'sehrgross';
+export const SCHRIFTEN: Array<[Schrift, string]> = [['normal', 'normal'], ['gross', 'groß'], ['sehrgross', 'sehr groß']];
 
 export interface SessionState {
   roles: Role[];
   moduleId: string;
   theme: Theme;
+  schrift: Schrift;
   sidebarCollapsed: boolean;
   drawerOpen: boolean;
 }
@@ -23,12 +27,21 @@ export const session = createStore<SessionState>({
   roles: ['lernende'],
   moduleId: saved.moduleId && modules.some((m) => m.id === saved.moduleId) ? saved.moduleId : modules[0]?.id ?? '',
   theme: saved.theme === 'hell' || saved.theme === 'dunkel' ? saved.theme : 'system',
+  schrift: saved.schrift === 'gross' || saved.schrift === 'sehrgross' ? saved.schrift : 'normal',
   sidebarCollapsed: saved.sidebarCollapsed === true,
   drawerOpen: false,
 }, (s) => {
-  storage.write(KEY, { moduleId: s.moduleId, theme: s.theme, sidebarCollapsed: s.sidebarCollapsed });
+  storage.write(KEY, { moduleId: s.moduleId, theme: s.theme, schrift: s.schrift, sidebarCollapsed: s.sidebarCollapsed });
   applyTheme(s.theme);
+  applySchrift(s.schrift);
 });
+
+export function applySchrift(schrift: Schrift) {
+  if (typeof document === 'undefined') return;
+  if (schrift === 'normal') document.documentElement.removeAttribute('data-schrift');
+  else document.documentElement.setAttribute('data-schrift', schrift);
+}
+applySchrift(session.get().schrift);
 
 export function applyTheme(theme: Theme) {
   if (typeof document === 'undefined') return;
@@ -52,7 +65,7 @@ channel?.addEventListener('message', (e: MessageEvent<Partial<SessionState>>) =>
 });
 
 /** Arbeitsbereich wechseln und andere Tabs informieren. */
-export function setWorkspace(patch: Partial<Pick<SessionState, 'moduleId' | 'theme'>>) {
+export function setWorkspace(patch: Partial<Pick<SessionState, 'moduleId' | 'theme' | 'schrift'>>) {
   session.set(patch);
   if (!fromChannel) channel?.postMessage(patch);
 }

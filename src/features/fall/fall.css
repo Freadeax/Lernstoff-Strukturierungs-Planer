@@ -7,7 +7,7 @@
   text-align: left; font: inherit; color: inherit; cursor: pointer; min-height: 0; height: auto;
   transition: border-color var(--dur-fast) var(--ease-standard), box-shadow var(--dur-fast) var(--ease-standard);
 }
-.fall__szenario:hover:not(:disabled) { border-color: var(--color-primary); }
+@media (hover: hover) { .fall__szenario:hover:not(:disabled) { border-color: var(--color-primary); } }
 .fall__szenario:disabled { opacity: 0.6; cursor: not-allowed; }
 .fall__szenario strong { font-size: var(--text-lg); }
 .fall__szenario .muted { font-size: var(--text-sm); line-height: var(--leading-normal); }

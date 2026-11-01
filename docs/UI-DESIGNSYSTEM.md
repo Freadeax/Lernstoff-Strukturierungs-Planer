@@ -235,6 +235,10 @@ Regeln für Fingerbedienung stehen gesammelt am Ende von `src/styles.css` (`@med
 - Home-Bildschirm-Symbol als PNG (`public/apple-touch-icon.png`, iOS nimmt kein SVG), Manifest mit PNG- und maskierbarem Symbol. Statusleiste per `theme-color`, folgt auch der manuell gewählten Darstellung.
 - Installierte App: Kopfzeile zeigt eine Zurück-Taste (nur `display-mode: standalone`, nur wenn es innerhalb der App zurückgeht; Tiefe steht im Verlaufseintrag, `useRoute().depth`, `goBack()` in `router.ts`).
 - Offline: Hinweis „Offline“ im Kopf und Mitteilung beim Wechsel (`useOnline()` in `src/ui/lib/online.ts`).
+- Schriftgröße normal / groß / sehr groß im Profilmenü (`data-schrift` am `html`, 112,5 % bzw. 125 %). Darum alle Schriftgrößen in `rem`, nie in `px`.
+- Hover-Effekte stehen in `@media (hover: hover)`, damit nach dem Antippen nichts „hängen“ bleibt. Neue `:hover`-Regeln genauso einpacken.
+- Wischgesten (`src/ui/shell/gesten.ts`): in der installierten App vom linken Rand das Menü aufziehen, bei offenem Menü nach links wegwischen.
+- Tastenkürzel (`Tastenkuerzel.tsx`, iPad mit Tastatur): `⌘K` oder `/` Suche, `⌥1`–`⌥5` Hauptseiten, `?` Übersicht (auch im Profilmenü).
 - `npm run test:geraete` (Teil von `npm run check`) lädt jede Menüseite auf iPhone, iPad hoch und quer und prüft Überlauf, Laufzeitfehler, Feldschrift und die untere Leiste. Neue Seiten mit `path` in `nav.ts` sind automatisch dabei.
 
 ## Leistung

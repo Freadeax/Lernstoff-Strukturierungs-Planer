@@ -78,7 +78,7 @@
 .mm__zeile { display: flex; align-items: center; gap: var(--space-1); padding-left: calc(var(--tiefe) * var(--space-4)); border-radius: var(--radius-sm); }
 .mm__zeile.is-auswahl { background: var(--color-primary-soft); }
 .mm__zeile input { flex: 1; min-width: 0; border-color: transparent; background: transparent; }
-.mm__zeile input:hover { border-color: var(--color-border); }
+@media (hover: hover) { .mm__zeile input:hover { border-color: var(--color-border); } }
 .mm__zeile input:focus { border-color: var(--color-primary); background: var(--color-surface); }
 .mm__zeile[style*="--tiefe: 0"] input, .mm__zeile:first-child input { font-weight: var(--weight-bold); font-size: var(--text-lg); }
 .mm__punkt { width: 10px; height: 10px; border-radius: 50%; background: var(--ast, var(--color-primary)); flex-shrink: 0; }

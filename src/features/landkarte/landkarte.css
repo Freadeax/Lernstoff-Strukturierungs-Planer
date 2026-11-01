@@ -71,7 +71,7 @@ button.karte__node {
   background: var(--color-surface-raised); color: var(--color-text); box-shadow: var(--elevation-1);
   transition: opacity var(--dur-fast), box-shadow var(--dur-fast);
 }
-button.karte__node:hover:not(:disabled) { box-shadow: var(--elevation-2); }
+@media (hover: hover) { button.karte__node:hover:not(:disabled) { box-shadow: var(--elevation-2); } }
 button.karte__node:active:not(:disabled) { transform: none; }
 button.karte__node:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 .karte__node--pool { background: var(--color-surface-raised); }
