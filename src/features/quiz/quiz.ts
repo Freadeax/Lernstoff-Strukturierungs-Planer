@@ -95,10 +95,11 @@ export function mischeOptionen(a: Aufgabe, zufall: () => number = Math.random): 
 
 /**
  * Eine Runde: bis zu `anzahl` Aufgaben in zufälliger Reihenfolge.
- * Abbildungen kommen immer mit hinein (sie sind das, wofür man den Trainer öffnet), der Rest wird zufällig gezogen.
+ * Abbildungen kommen immer mit hinein (sie sind das, wofür man den Trainer öffnet), höchstens aber die Hälfte
+ * der Runde, damit gemischte Runden nicht nur aus Beschriften bestehen. Der Rest wird zufällig gezogen.
  */
 export function runde(aufgaben: readonly Aufgabe[], anzahl: number, zufall: () => number = Math.random): Aufgabe[] {
-  const bilder = mische(aufgaben.filter((a) => a.art === 'beschriften'), zufall);
+  const bilder = mische(aufgaben.filter((a) => a.art === 'beschriften'), zufall).slice(0, Math.max(1, Math.floor(anzahl / 2)));
   const rest = mische(aufgaben.filter((a) => a.art !== 'beschriften'), zufall);
   const auswahl = [...bilder, ...rest].slice(0, Math.max(0, anzahl));
   return mische(auswahl, zufall).map((a) => mischeOptionen(a, zufall));

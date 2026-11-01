@@ -85,7 +85,7 @@ describe('Mischen', () => {
   it('nimmt Abbildungen immer in die Runde', () => {
     for (let seed = 1; seed < 20; seed++) {
       expect(runde(ANATOMIE_BEREICHE.herz, 3, zufall(seed)).some((a) => a.art === 'beschriften')).toBe(true);
-      expect(runde(ANATOMIE, 8, zufall(seed)).filter((a) => a.art === 'beschriften')).toHaveLength(3);
+      expect(runde(ANATOMIE, 8, zufall(seed)).filter((a) => a.art === 'beschriften')).toHaveLength(4);
     }
   });
 });
