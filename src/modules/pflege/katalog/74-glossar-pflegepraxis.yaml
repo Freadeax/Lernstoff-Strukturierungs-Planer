@@ -30,7 +30,7 @@ glossary:
   - { id: gl.beruhigende-waschung, term: "Beruhigende Waschung", topicIds: [thema.ph.koerperpflege], definition: "Waschung der Basalen Stimulation in Haarwuchsrichtung mit warmem Wasser zur Entspannung." }
   - { id: gl.intimpflege, term: "Intimpflege", topicIds: [thema.ph.koerperpflege, thema.pro.zystitis], definition: "Reinigung des Genital- und Analbereichs, bei Frauen von vorn nach hinten, um Harnwegsinfektionen vorzubeugen." }
   - { id: gl.mundpflege, term: "Mundpflege", topicIds: [thema.ph.mund], definition: "Reinigung und Pflege von Zähnen, Zahnersatz, Zunge und Mundschleimhaut zur Vorbeugung von Infektionen, Soor und Parotitis." }
-  - { id: gl.parotitis, term: "Parotitis", topicIds: [thema.ph.mund], definition: "Entzündung der Ohrspeicheldrüse, begünstigt durch fehlendes Kauen und verminderten Speichelfluss." }
+  - { id: gl.parotitis, term: "Parotitis", topicIds: [thema.ph.mund, thema.pro.soor], definition: "Entzündung der Ohrspeicheldrüse, begünstigt durch fehlendes Kauen und verminderten Speichelfluss." }
   - { id: gl.stomatitis, term: "Stomatitis", topicIds: [thema.ph.mund], definition: "Entzündung der Mundschleimhaut." }
   - { id: gl.xerostomie, term: "Xerostomie", topicIds: [thema.ph.mund, thema.ph.palliativ], definition: "Mundtrockenheit durch verminderten Speichelfluss." }
   - { id: gl.mundinspektion, term: "Mundinspektion", topicIds: [thema.ph.mund], definition: "Begutachtung von Lippen, Zunge, Zähnen und Mundschleimhaut auf Beläge, Verletzungen und Entzündungen." }

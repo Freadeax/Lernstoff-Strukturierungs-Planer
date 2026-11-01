@@ -31,7 +31,7 @@ glossary:
   - { id: gl.anaemie, term: "Anämie", topicIds: [thema.kl.allgemein, thema.ap.blut], definition: "Blutarmut; Verminderung von Hämoglobin, Hämatokrit oder Erythrozytenzahl unter den Normbereich.", synonyms: [Blutarmut] }
   - { id: gl.adipositas, term: "Adipositas", topicIds: [thema.kl.allgemein, thema.ph.ernaehrung], definition: "Starkes Übergewicht mit krankhaft vermehrtem Körperfett; nach WHO ab einem BMI von 30 kg/m²." }
   - { id: gl.kachexie, term: "Kachexie", topicIds: [thema.ph.ernaehrung, thema.kl.onko], definition: "Krankhafte, ausgeprägte Abmagerung mit Verlust von Fett- und Muskelmasse, z. B. bei Tumorerkrankungen." }
-  - { id: gl.malnutrition, term: "Mangelernährung", topicIds: [thema.ph.ernaehrung, thema.kl.geriatrie], definition: "Zustand, bei dem der Bedarf an Energie, Eiweiß oder anderen Nährstoffen über längere Zeit nicht gedeckt ist; Thema eines Expertenstandards.", synonyms: [Malnutrition] }
+  - { id: gl.malnutrition, term: "Mangelernährung", topicIds: [thema.ph.ernaehrung, thema.kl.geriatrie, thema.pro.dehydratation], definition: "Zustand, bei dem der Bedarf an Energie, Eiweiß oder anderen Nährstoffen über längere Zeit nicht gedeckt ist; Thema eines Expertenstandards.", synonyms: [Malnutrition] }
   - { id: gl.hyperglykaemie, term: "Hyperglykämie", topicIds: [thema.kl.diabetes], definition: "Überzuckerung; Blutzucker oberhalb des Normbereichs." }
 
   # --- Herz und Gefäße ---
@@ -107,7 +107,7 @@ glossary:
   - { id: gl.herausforderndes-verhalten, term: "Herausforderndes Verhalten", topicIds: [thema.kl.demenz], definition: "Verhalten von Menschen mit Demenz, das für sie selbst oder andere belastend ist, z. B. Rufen, Umherlaufen oder Abwehr; wird als Ausdruck unerfüllter Bedürfnisse verstanden." }
   - { id: gl.orientierung, term: "Orientierung", topicIds: [thema.kl.demenz, thema.beo.bewusstsein], definition: "Wissen um Zeit, Ort, Situation und die eigene Person; Störungen werden nach diesen Qualitäten beschrieben." }
   - { id: gl.depression, term: "Depression", topicIds: [thema.kl.psych], definition: "Psychische Erkrankung mit gedrückter Stimmung, Interessenverlust und Antriebsminderung über mindestens zwei Wochen." }
-  - { id: gl.suizidalitaet, term: "Suizidalität", topicIds: [thema.kl.psych], definition: "Gesamtheit von Gedanken, Absichten und Handlungen, die auf eine Selbsttötung gerichtet sind; muss offen angesprochen werden." }
+  - { id: gl.suizidalitaet, term: "Suizidalität", topicIds: [thema.kl.psych, thema.fa.psychiatrie], definition: "Gesamtheit von Gedanken, Absichten und Handlungen, die auf eine Selbsttötung gerichtet sind; muss offen angesprochen werden." }
   - { id: gl.schizophrenie, term: "Schizophrenie", topicIds: [thema.kl.psych], definition: "Psychische Erkrankung mit Störungen von Denken, Wahrnehmung, Ich-Erleben und Affekt, z. B. Wahn und Halluzinationen." }
   - { id: gl.wahn, term: "Wahn", topicIds: [thema.kl.psych], definition: "Unkorrigierbare, objektiv falsche Überzeugung, an der trotz Gegenbeweisen festgehalten wird." }
   - { id: gl.halluzination, term: "Halluzination", topicIds: [thema.kl.psych, thema.pro.delir], definition: "Sinneswahrnehmung ohne entsprechenden äußeren Reiz, z. B. Stimmenhören." }
@@ -166,7 +166,7 @@ glossary:
   - { id: gl.strahlentherapie, term: "Strahlentherapie", topicIds: [thema.kl.onko], definition: "Behandlung mit ionisierender Strahlung zur Zerstörung von Tumorzellen; bestrahlte Haut braucht besondere Pflege.", synonyms: [Radiatio] }
   - { id: gl.mukositis, term: "Mukositis", topicIds: [thema.kl.onko, thema.ph.mund], definition: "Entzündung der Schleimhaut, besonders der Mundschleimhaut, häufig als Nebenwirkung von Chemo- oder Strahlentherapie." }
   - { id: gl.neutropenie, term: "Neutropenie", topicIds: [thema.kl.onko, thema.kl.infektion], definition: "Verminderung der neutrophilen Granulozyten mit stark erhöhter Infektionsgefahr, häufig nach Chemotherapie." }
-  - { id: gl.fatigue, term: "Fatigue", topicIds: [thema.kl.onko, thema.ph.palliativ], definition: "Belastende, anhaltende Erschöpfung, die sich durch Schlaf kaum bessert, häufig bei Tumorerkrankungen." }
+  - { id: gl.fatigue, term: "Fatigue", topicIds: [thema.kl.onko, thema.ph.palliativ, thema.kl.neuro.ms], definition: "Belastende, anhaltende Erschöpfung, die sich durch Schlaf kaum bessert, häufig bei Tumorerkrankungen." }
 
   # --- Infektionen ---
   - { id: gl.infektion, term: "Infektion", topicIds: [thema.kl.infektion], definition: "Eindringen und Vermehrung von Krankheitserregern im Körper mit nachfolgender Reaktion des Organismus." }
