@@ -39,6 +39,8 @@ const Fortschritt = lazy(() => import('./features/fortschritt/FortschrittSeite')
 const Examen = lazy(() => import('./features/examen/ExamenSeite'));
 const HygieneTrainer = lazy(() => import('./features/hygiene/HygieneTrainer'));
 const AnatomieTrainer = lazy(() => import('./features/anatomie/AnatomieTrainer'));
+const ExpertenstandardsTrainer = lazy(() => import('./features/expertenstandards/ExpertenstandardsTrainer'));
+const NormwerteTrainer = lazy(() => import('./features/normwerte/NormwerteTrainer'));
 
 function Page({ title, intro, children }: { title: string; intro?: string; children: React.ReactNode }) {
   return (
@@ -79,6 +81,8 @@ function View() {
     case '/lernen/uebergabe': return <Uebergabetrainer />;
     case '/lernen/hygiene': return <HygieneTrainer />;
     case '/lernen/anatomie': return <AnatomieTrainer />;
+    case '/lernen/expertenstandards': return <ExpertenstandardsTrainer />;
+    case '/lernen/normwerte': return <NormwerteTrainer />;
     case '/lernen/faecher': return <Faecher />;
     case '/material/dokumente': return <Dokumente />;
     case '/material/import': return <Page title="Dein Material. Bereit zum Lernen." intro="In vier Schritten von der Datei zur nachvollziehbaren Lernquelle."><WidgetGrid widgets={[WIDGETS.wizard]} allowHide={false} /></Page>;

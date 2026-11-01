@@ -3,17 +3,17 @@
 
 import type { Aufgabe, AuswahlAufgabe } from '../quiz/quiz';
 
-export type BereichId = 'herz' | 'atmung' | 'niere' | 'verdauung' | 'bewegung' | 'nerven' | 'sinne' | 'haut';
+export type BereichId = 'herz' | 'atmung' | 'niere' | 'verdauung' | 'bewegung' | 'nerven' | 'sinne' | 'haut' | 'hormone';
 export interface Bereich { id: BereichId; label: string; kurz: string; wissen: string[] }
 
 export const THEMA: Record<BereichId, string> = {
   herz: 'thema.ap.herz', atmung: 'thema.ap.atmung', niere: 'thema.ap.niere', verdauung: 'thema.ap.verdauung',
-  bewegung: 'thema.ap.bewegung', nerven: 'thema.ap.nerven', sinne: 'thema.ap.nerven', haut: 'thema.ap.haut',
+  bewegung: 'thema.ap.bewegung', nerven: 'thema.ap.nerven', sinne: 'thema.ap.nerven', haut: 'thema.ap.haut', hormone: 'thema.ap.hormone',
 };
 
 const TITEL: Record<BereichId, string> = {
   herz: 'Herz und Kreislauf', atmung: 'Atmung', niere: 'Niere und Harnwege', verdauung: 'Verdauung',
-  bewegung: 'Bewegungsapparat', nerven: 'Nervensystem', sinne: 'Auge und Ohr', haut: 'Haut',
+  bewegung: 'Bewegungsapparat', nerven: 'Nervensystem', sinne: 'Auge und Ohr', haut: 'Haut', hormone: 'Hormonsystem',
 };
 
 function frage(bereich: BereichId, id: string, f: string, optionen: string[], erklaerung: string[], richtig = [0], mehrfach = false): AuswahlAufgabe {
@@ -341,6 +341,44 @@ const hautAufgaben: Aufgabe[] = [
   },
 ];
 
+// ---------------------------------------------------------------- Hormonsystem
+
+const hormone: Aufgabe[] = [
+  {
+    id: 'hormone.beschriften', art: 'beschriften', figur: 'hormone', topicIds: [THEMA.hormone], titel: 'Hormondrüsen beschriften',
+    frage: 'Beschrifte die Hormondrüsen.',
+    marken: [
+      { nr: 1, x: 114, y: 26, label: 'Zirbeldrüse', hinweis: 'Kleine Drüse im Gehirn, bildet Melatonin für den Schlaf-wach-Rhythmus.' },
+      { nr: 2, x: 92, y: 62, label: 'Hypophyse (Hirnanhangsdrüse)', hinweis: 'Übergeordnete Drüse an der Schädelbasis, steuert viele andere Hormondrüsen.' },
+      { nr: 3, x: 100, y: 96, label: 'Schilddrüse', hinweis: 'Schmetterlingsförmig am Hals, ihre Hormone T3 und T4 regeln den Grundumsatz.' },
+      { nr: 4, x: 80, y: 184, label: 'Nebenniere', hinweis: 'Sitzt der Niere auf: Rinde bildet Cortisol und Aldosteron, Mark Adrenalin.' },
+      { nr: 5, x: 126, y: 160, label: 'Bauchspeicheldrüse (Pankreas)', hinweis: 'Ihre Inselzellen bilden Insulin und Glukagon.' },
+      { nr: 6, x: 78, y: 256, label: 'Keimdrüsen (Eierstöcke bzw. Hoden)', hinweis: 'Bilden Geschlechtshormone wie Östrogen, Progesteron und Testosteron.' },
+    ],
+    erklaerung: ['Hypothalamus und Hypophyse steuern als Zentrale Schilddrüse, Nebennierenrinde und Keimdrüsen.', 'Die Nieren sind in der Zeichnung nur zur Orientierung eingezeichnet.'],
+  },
+  {
+    id: 'hormone.regelkreis', art: 'reihenfolge', topicIds: [THEMA.hormone], titel: 'Regelkreis der Schilddrüse',
+    frage: 'Bring den Regelkreis der Schilddrüsenhormone in die richtige Reihenfolge.',
+    schritte: ['Hypothalamus schüttet TRH aus', 'Hypophyse schüttet TSH aus', 'Schilddrüse bildet T3 und T4', 'T3 und T4 steigern den Stoffwechsel', 'Hoher Hormonspiegel hemmt Hypothalamus und Hypophyse'],
+    erklaerung: ['Negative Rückkopplung: Steigt der Spiegel, wird weniger nachgesteuert. So bleibt der Hormonspiegel stabil.', 'Deshalb ist bei einer Unterfunktion der Schilddrüse das TSH meist erhöht.'],
+  },
+  frage('hormone', 'insulin', 'Was bewirkt Insulin?',
+    ['Es senkt den Blutzucker, indem Zellen Glukose aufnehmen', 'Es erhöht den Blutzucker', 'Es steigert die Herzfrequenz', 'Es lässt die Niere Wasser zurückhalten'],
+    ['Glukagon ist der Gegenspieler und erhöht den Blutzucker. Beide stammen aus den Inselzellen der Bauchspeicheldrüse.']),
+  frage('hormone', 'adh', 'Welches Hormon sorgt dafür, dass die Niere Wasser zurückhält?',
+    ['ADH (antidiuretisches Hormon)', 'Insulin', 'Melatonin', 'TSH'],
+    ['ADH wird im Hypothalamus gebildet und aus dem Hypophysenhinterlappen freigesetzt. Alkohol hemmt ADH, deshalb muss man mehr Wasser lassen.']),
+  frage('hormone', 'cortison', 'Welche Folgen kann eine Langzeittherapie mit Cortison haben? Wähle alle zutreffenden.',
+    ['Erhöhter Blutzucker', 'Höhere Infektanfälligkeit', 'Osteoporose', 'Dünne, verletzliche Haut', 'Dauerhaft niedriger Blutdruck'],
+    ['Cortisol wirkt entzündungshemmend und immunsuppressiv, steigert den Blutzucker und baut Knochen und Haut ab. Blutdruck eher erhöht.'],
+    [0, 1, 2, 3], true),
+  frage('hormone', 'ueberfunktion', 'Welche Zeichen passen zu einer Schilddrüsenüberfunktion? Wähle alle zutreffenden.',
+    ['Herzrasen', 'Gewichtsverlust trotz Appetit', 'Unruhe und Schwitzen', 'Ständiges Frieren', 'Verlangsamung und Müdigkeit'],
+    ['Überfunktion: alles läuft schneller. Frieren, Verlangsamung und Gewichtszunahme sprechen eher für eine Unterfunktion.'],
+    [0, 1, 2], true),
+];
+
 export const BEREICHE: Bereich[] = [
   {
     id: 'herz', label: 'Herz und Kreislauf', kurz: 'Herz beschriften, Weg des Blutes, Erregungsleitung',
@@ -406,7 +444,15 @@ export const BEREICHE: Bereich[] = [
       'Säureschutzmantel pH etwa 5,5.',
     ],
   },
+  {
+    id: 'hormone', label: 'Hormonsystem', kurz: 'Hormondrüsen beschriften, Regelkreis, Insulin, Cortison',
+    wissen: [
+      'Hypothalamus und Hypophyse steuern Schilddrüse, Nebennierenrinde und Keimdrüsen über Regelkreise.',
+      'Insulin senkt, Glukagon erhöht den Blutzucker. ADH lässt die Niere Wasser zurückhalten.',
+      'Nebenniere: Cortisol, Aldosteron (Rinde), Adrenalin (Mark).',
+    ],
+  },
 ];
 
-export const AUFGABEN: Record<BereichId, Aufgabe[]> = { herz, atmung, niere, verdauung, bewegung, nerven, sinne, haut: hautAufgaben };
+export const AUFGABEN: Record<BereichId, Aufgabe[]> = { herz, atmung, niere, verdauung, bewegung, nerven, sinne, haut: hautAufgaben, hormone };
 export const ALLE_AUFGABEN: Aufgabe[] = Object.values(AUFGABEN).flat();

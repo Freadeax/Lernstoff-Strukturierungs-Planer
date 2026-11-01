@@ -226,4 +226,31 @@ const haut: Figur = {
   ),
 };
 
-export const FIGUREN: Record<string, Figur> = { herz, atmung, niere, skelett, gehirn, auge, haut };
+const hormone: Figur = {
+  viewBox: '0 0 200 330',
+  beschreibung: 'Schema eines Körpers von vorn mit den wichtigsten Hormondrüsen, ohne Beschriftung',
+  zeichnung: (
+    <g>
+      {/* Körperumriss */}
+      <path className="fig-gewebe" d="M100 10 Q130 10 130 44 Q130 74 112 78 L112 88 Q150 92 156 112 L150 220 Q148 250 136 280 L64 280 Q52 250 50 220 L44 112 Q50 92 88 88 L88 78 Q70 74 70 44 Q70 10 100 10 Z" />
+      {/* Gehirn angedeutet */}
+      <path className="fig-fein" d="M78 40 Q100 20 122 40" />
+      {/* Schilddrüse (Schmetterling) */}
+      <path className="fig-sauerstoffreich" d="M100 92 Q92 84 86 90 Q82 100 92 102 Q98 100 100 96 Q102 100 108 102 Q118 100 114 90 Q108 84 100 92 Z" />
+      {/* Nieren mit aufsitzenden Nebennieren */}
+      <ellipse className="fig-gewebe" cx="80" cy="206" rx="11" ry="17" />
+      <ellipse className="fig-gewebe" cx="120" cy="206" rx="11" ry="17" />
+      <path className="fig-gewebe-2" d="M70 192 Q80 176 90 192 Z M110 192 Q120 176 130 192 Z" />
+      {/* Bauchspeicheldrüse */}
+      <path className="fig-gewebe-2" d="M84 166 Q100 156 120 158 Q134 158 138 152 Q140 164 124 168 Q104 172 86 172 Z" />
+      {/* Keimdrüsen (hier Eierstöcke) */}
+      <ellipse className="fig-gewebe-2" cx="78" cy="256" rx="8" ry="5" />
+      <ellipse className="fig-gewebe-2" cx="122" cy="256" rx="8" ry="5" />
+      {/* Hypophyse und Zirbeldrüse */}
+      <circle className="fig-gewebe-2" cx="98" cy="58" r="4" />
+      <circle className="fig-gewebe-2" cx="110" cy="36" r="3" />
+    </g>
+  ),
+};
+
+export const FIGUREN: Record<string, Figur> = { herz, atmung, niere, skelett, gehirn, auge, haut, hormone };
