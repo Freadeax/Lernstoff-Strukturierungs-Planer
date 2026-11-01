@@ -15,7 +15,7 @@ try {
     const page = await context.newPage(); page.on('pageerror', e => errors.push(e.message));
     await page.goto(base + '#/lernen/praxis', { waitUntil: 'networkidle' });
     await page.getByRole('heading', { name: 'Praxissimulator', exact: true }).waitFor();
-    assert.equal(await page.getByRole('button', { name: 'Schicht übernehmen', exact: true }).count(), 14);
+    assert.equal(await page.getByRole('button', { name: 'Schicht übernehmen', exact: true }).count(), 17);
     const audit = async name => {
       await page.waitForTimeout(350); // Wait for the shared theme/button color transitions to settle.
       assert(!(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)), `${name} overflow @${width}`);
@@ -51,6 +51,11 @@ try {
     await page.getByRole('button', { name: 'Geprüfte Gabe durchführen', exact: true }).click();
     assert(await page.getByText('Furosemid verabreicht', { exact: true }).isVisible());
     await audit('Medikation');
+    // Während der Gabe kommt der Entscheidungsmoment „Zimmernachbar klingelt“: Uhr steht, bis gewählt ist.
+    await page.locator('.praxis-decision').waitFor();
+    await audit('Entscheidung'); await page.screenshot({ path: path.join(output, `entscheidung-${width}.png`), fullPage: true });
+    await page.getByRole('button', { name: /Nachbarn kurz ansprechen/ }).click();
+    assert.equal(await page.locator('.praxis-decision').count(), 0);
     await page.getByRole('button', { name: 'Dokumentation', exact: true }).click();
     await page.getByLabel('Verlaufsdokumentation', { exact: true }).fill('Patient mit Atemnot. Aufrechte Position unterstützt, ärztliches Team hinzugezogen. Wirkung weiter kontrollieren.');
     await page.getByRole('button', { name: 'Pflegebericht speichern · 1 min', exact: true }).click();
@@ -68,6 +73,8 @@ try {
     await page.getByRole('button', { name: 'Fall abschließen', exact: true }).click();
     assert(await page.getByRole('heading', { name: 'Deine Entscheidungen im Rückblick' }).isVisible());
     assert(await page.getByRole('heading', { name: 'Klinischer Verlauf' }).isVisible());
+    assert(await page.getByRole('heading', { name: 'Deine Entscheidungen', exact: true }).isVisible());
+    assert(await page.getByRole('heading', { name: 'Weiterlernen zu diesem Fall' }).isVisible());
     await page.getByRole('button', { name: 'Replay prüfen', exact: true }).click();
     assert(await page.getByText('Replay geprüft: Zustand und Verlauf stimmen vollständig überein.', { exact: true }).isVisible());
     await audit('Debriefing'); await page.screenshot({ path: path.join(output, `debrief-${width}.png`), fullPage: true });
@@ -75,6 +82,23 @@ try {
     await page.getByRole('button', { name: 'Verlauf exportieren', exact: true }).click();
     const downloaded = await downloadPromise; const file = path.join(output, `verlauf-${width}.json`); await downloaded.saveAs(file);
     assert.equal(JSON.parse(fs.readFileSync(file, 'utf8')).phase, 'finished');
+    await page.getByRole('button', { name: 'Zur Fallauswahl', exact: true }).click();
+    // Schichtmodus: zwei Kinder, eine Uhr.
+    await page.locator('.praxis-schichtwahl__eintrag', { hasText: 'Kinderstation' }).getByRole('button', { name: 'Schicht beginnen', exact: true }).click();
+    await page.getByRole('heading', { name: 'Kinderstation am Nachmittag', exact: true }).waitFor();
+    await page.getByRole('button', { name: 'Messgerät verwenden', exact: true }).click();
+    await page.locator('.praxis-patient').nth(1).click();
+    assert.equal(await page.getByText('Du bist hier', { exact: true }).count(), 1);
+    assert(await page.locator('.praxis-clock strong').textContent().then(t => t === '00:01:45'), 'Wegezeit zählt');
+    await page.getByRole('button', { name: '+5 Minuten', exact: true }).click();
+    await page.locator('.praxis-decision').waitFor();
+    await audit('Schicht'); await page.screenshot({ path: path.join(output, `schicht-${width}.png`), fullPage: true });
+    await page.getByRole('button', { name: /Das Spray wirkt heute nicht genug/ }).click();
+    await page.reload({ waitUntil: 'networkidle' });
+    await page.getByRole('heading', { name: 'Kinderstation am Nachmittag', exact: true }).waitFor();
+    await page.getByRole('button', { name: 'Schicht beenden', exact: true }).click();
+    await page.getByRole('heading', { name: 'Wie lief deine Schicht?' }).waitFor();
+    await audit('Schichtauswertung'); await page.screenshot({ path: path.join(output, `schicht-auswertung-${width}.png`), fullPage: true });
     await page.getByRole('button', { name: 'Zur Fallauswahl', exact: true }).click();
     await page.locator('.praxis-editor summary').click();
     await page.getByLabel('Vorlage').selectOption('hausbesuch');

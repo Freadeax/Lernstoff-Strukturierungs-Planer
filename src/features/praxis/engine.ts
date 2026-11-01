@@ -25,13 +25,13 @@ export function start(scenario: Scenario, level: 1 | 2 | 3 = 1, seed = 2026): Se
     deterioration: 0, critical: false, snapshotRemainder: 0,
     seed: seed >>> 0, rng: seed >>> 0, commands: [],
     events: [{ id: 1, at: 0, kind: 'state', title: 'Übernahme', detail: scenario.situation }],
-    avpu: scenario.initialAvpu ?? 'A', oxygen: scenario.initialOxygen ?? false, chart: [], story: {}, drifts: [], harms: [],
+    avpu: scenario.initialAvpu ?? 'A', oxygen: scenario.initialOxygen ?? false, chart: [], story: {}, drifts: [], harms: [], open: [], decisions: [],
   };
 }
 /** Ältere Spielstände ohne klinische Felder bekommen neutrale Startwerte. */
 function clinical(s: Session) {
-  s.avpu ??= s.scenario.initialAvpu ?? 'A'; s.oxygen ??= s.scenario.initialOxygen ?? false; s.chart ??= []; s.story ??= {}; s.drifts ??= []; s.harms ??= [];
-  return s as Session & Required<Pick<Session, 'avpu' | 'oxygen' | 'chart' | 'story' | 'drifts' | 'harms'>>;
+  s.avpu ??= s.scenario.initialAvpu ?? 'A'; s.oxygen ??= s.scenario.initialOxygen ?? false; s.chart ??= []; s.story ??= {}; s.drifts ??= []; s.harms ??= []; s.open ??= []; s.decisions ??= [];
+  return s as Session & Required<Pick<Session, 'avpu' | 'oxygen' | 'chart' | 'story' | 'drifts' | 'harms' | 'open' | 'decisions'>>;
 }
 const worse = (a: Avpu, b: Avpu) => AVPU.indexOf(a) >= AVPU.indexOf(b) ? a : b;
 /** Bewusstseinslage aus Fallverlauf und Physiologie: schwere Hypoxie, Schock oder Hypoglykämie trüben ein. */
@@ -65,6 +65,7 @@ function story(s: Session) {
     if (e.flag) s.flags[e.flag] ??= s.time;
     if (e.drift && e.stoppedBy?.length) c.drifts.push({ id: e.id, drift: e.drift, stoppedBy: e.stoppedBy });
     add(s, 'story', `${STORY_KINDS[e.kind]}: ${e.title}`, e.detail);
+    if (e.choices?.length) c.open.push(e.id);
   }
   for (const d of [...c.drifts]) {
     if (d.stoppedBy.some(f => s.flags[f] !== undefined)) { c.drifts.splice(c.drifts.indexOf(d), 1); continue; }
@@ -75,6 +76,8 @@ function story(s: Session) {
 // A fixed one-second step makes the result independent of timer/UI batching.
 function advance(s: Session, seconds: number) {
   for (let second = 0; second < Math.min(86400, Math.max(0, Math.floor(seconds))); second++) {
+    // Ein offener Entscheidungsmoment hält die Simulationszeit an.
+    if (s.open?.length) break;
     s.time++;
     if (s.scenario.distraction && s.time % s.scenario.distraction.interval === 0) {
       s.rng = (Math.imul(s.rng, 1664525) + 1013904223) >>> 0;
@@ -114,8 +117,24 @@ export const CHECKS = ['Patient identifiziert', 'Wirkstoff und Allergien geprüf
 function execute(previous: Session, command: Command): Session {
   if (previous.phase !== 'active') return previous;
   const s = clinical(structuredClone(previous));
-  if (command.type === 'advance') { advance(s, Number.isFinite(command.seconds) ? command.seconds : 0); return s; }
+  if (command.type === 'advance') { if (s.open.length) return previous; advance(s, Number.isFinite(command.seconds) ? command.seconds : 0); return s; }
   if (command.type === 'finish') { s.phase = 'finished'; add(s, 'state', 'Debriefing begonnen'); return s; }
+  if (command.type === 'choose') {
+    const event = s.scenario.storyline?.find(e => e.id === command.event);
+    const choice = event?.choices?.find(c => c.id === command.choice);
+    if (!event || !choice || !s.open.includes(event.id)) return previous;
+    s.open = s.open.filter(id => id !== event.id);
+    s.decisions.push({ at: s.time, event: event.id, choice: choice.id });
+    add(s, 'action', `Entscheidung: ${choice.label}`, choice.result);
+    if (choice.effect) s.vitals = effect(s.vitals, choice.effect);
+    if (choice.avpu) s.avpu = choice.avpu;
+    if (choice.oxygen !== undefined) s.oxygen = choice.oxygen;
+    if (choice.flag) s.flags[choice.flag] ??= s.time;
+    if (choice.harm) { s.harms.push({ at: s.time, id: `${event.id}:${choice.id}`, text: choice.harm }); add(s, 'warning', `Folge: ${choice.label}`, choice.harm); }
+    advance(s, choice.seconds ?? 30);
+    return s;
+  }
+  if (s.open.length) { add(s, 'warning', 'Entscheidung offen', 'Zuerst im Entscheidungsmoment eine Option wählen.'); return s; }
   if (command.type === 'note') {
     if (command.text.trim().length < 20) { add(s, 'warning', 'Dokumentation unvollständig', 'Mindestens 20 Zeichen: Beobachtung, Handlung und Wirkung festhalten.'); return s; }
     add(s, 'note', 'Pflegebericht', command.text.trim().slice(0, 4000)); s.flags.documented ??= s.time; advance(s, 60); return s;
@@ -173,6 +192,8 @@ export function dispatch(previous: Session, command: Command, commandId?: string
   if (commandId && previous.commands.some(c => c.id === commandId)) return previous;
   const next = execute(previous, command);
   if (next === previous) return previous;
+  // Zeit läuft nur bis zu einem Entscheidungsmoment; aufgezeichnet wird die tatsächlich vergangene Zeit.
+  if (command.type === 'advance') command = { type: 'advance', seconds: next.time - previous.time };
   const last = next.commands.at(-1);
   // Timer ticks are compacted; simulated time, queued events and order stay reproducible.
   if (!commandId && command.type === 'advance' && Number.isFinite(command.seconds) && command.seconds > 0 && last?.id.startsWith('local:') && last.command.type === 'advance' && last.command.seconds + Math.floor(command.seconds) <= 86400) last.command.seconds += Math.floor(command.seconds);
@@ -214,6 +235,10 @@ export function clinicalDebrief(s: Session) {
     escalationMinutes: alarm && help !== undefined && help > alarm.at ? Math.ceil((help - alarm.at) / 60) : 0,
     maxNews2: scores.reduce((m, p) => Math.max(m, p.punkte), 0),
     final: { unstable, avpu: consciousness(s), news2: now, text: unstable ? s.scenario.outcome?.unstable ?? 'Bei Fallabschluss ist die Lage nicht stabil. Wer übernimmt jetzt, und was wurde übergeben?' : s.scenario.outcome?.stable ?? 'Bei Fallabschluss ist die Lage im Modell stabil.' },
+    decisions: c.decisions.flatMap(d => {
+      const event = events.find(e => e.id === d.event); const choice = event?.choices?.find(x => x.id === d.choice);
+      return event && choice ? [{ ...d, title: event.title, label: choice.label, why: choice.why, best: !!choice.best, bestLabel: event.choices!.filter(x => x.best).map(x => x.label).join(' / ') }] : [];
+    }),
     activeComplications: [...c.drifts.map(d => events.find(e => e.id === d.id)?.title ?? d.id), ...unresolved.map(e => e.title)],
   };
 }

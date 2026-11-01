@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { SCENARIOS, RESOURCES } from './catalog';
-import { clinicalDebrief, consciousness, dispatch, news2Of, replay, start, storyTime } from './engine';
+import { clinicalDebrief, consciousness, dispatch as roh, news2Of, replay, start, storyTime } from './engine';
+import { dispatch } from './testhilfe';
 import { news2Punkte } from './news2';
 import { parseScenario } from './storage';
 import type { Scenario, Session } from './types';
@@ -197,6 +198,106 @@ describe('Praxissimulator – klinischer Verlauf', () => {
       s => { s.storyline![0].at = 0; },
     ];
     for (const mutate of broken) { const s = structuredClone(base); mutate(s); expect(() => parseScenario(JSON.stringify(s))).toThrow(); }
+  });
+});
+
+describe('Praxissimulator – Entscheidungsmomente', () => {
+  const choose = (s: Session, event: string, choice: string) => roh(s, { type: 'choose', event, choice });
+  const bis = (s: Session, id: string) => { let x = s; for (let i = 0; i < 400 && !x.open?.includes(id); i++) x = roh(x, { type: 'advance', seconds: 10 }); return x; };
+
+  it('hat in vielen Fällen Entscheidungen mit genau begründeten Optionen', () => {
+    const mit = SCENARIOS.filter(s => s.storyline?.some(e => e.choices?.length));
+    expect(mit.length).toBeGreaterThanOrEqual(12);
+    for (const s of mit) for (const e of s.storyline!.filter(x => x.choices)) {
+      expect(e.choices!.filter(c => c.best).length, `${s.id}/${e.id}`).toBeGreaterThanOrEqual(1);
+      expect(e.choices!.some(c => !c.best), `${s.id}/${e.id}: auch falsche Optionen`).toBe(true);
+      for (const c of e.choices!) expect(c.why.length, `${s.id}/${e.id}/${c.id}`).toBeGreaterThan(30);
+    }
+  });
+
+  it('hält die Uhr an, sperrt Handlungen und läuft nach der Wahl weiter', () => {
+    const scenario = byId('sepsis');
+    let s = bis(start(scenario, 2), 'sohn');
+    expect(s.open).toEqual(['sohn']);
+    const t = s.time;
+    expect(roh(s, { type: 'advance', seconds: 300 })).toBe(s);
+    const gesperrt = roh(s, { type: 'action', id: 'vitals' });
+    expect(gesperrt.events.at(-1)?.title).toBe('Entscheidung offen'); expect(gesperrt.time).toBe(t);
+    s = choose(s, 'sohn', 'ernst');
+    expect(s.open).toEqual([]); expect(s.time).toBe(t + 30); expect(s.flags.family).toBeDefined();
+    expect(roh(s, { type: 'advance', seconds: 60 }).time).toBe(t + 90);
+    expect(choose(s, 'sohn', 'alter')).toBe(s);
+  });
+
+  it('verzweigt den Verlauf: Zwang beim Trinken führt zur Verweigerung', () => {
+    const scenario = byId('kind');
+    const gut = choose(bis(start(scenario, 2), 'mutter'), 'mutter', 'anleiten');
+    const schlecht = choose(bis(start(scenario, 2), 'mutter'), 'mutter', 'zwingen');
+    expect(schlecht.harms!.map(h => h.id)).toContain('mutter:zwingen');
+    expect(roh(schlecht, { type: 'advance', seconds: 30 }).story?.verweigerung).toBe('fired');
+    expect(roh(gut, { type: 'advance', seconds: 30 }).story?.verweigerung).toBeUndefined();
+  });
+
+  it('Folgeereignis nur nach der falschen Wahl, abwendbar durch Hilfe', () => {
+    const scenario = byId('hausbesuch');
+    const abgewiegelt = choose(bis(start(scenario, 2), 'tochter'), 'tochter', 'abwiegeln');
+    expect(wait(abgewiegelt, 1000).story?.allein).toBe('fired');
+    expect(wait(act(abgewiegelt, 'help'), 1000).story?.allein).toBe('prevented');
+    expect(wait(choose(bis(start(scenario, 2), 'tochter'), 'tochter', 'frueher'), 1000).story?.allein).toBeUndefined();
+  });
+
+  it('wertet Entscheidungen im Debriefing aus und bleibt wiederholbar', () => {
+    const scenario = byId('delir');
+    let s = choose(bis(start(scenario, 2, 3), 'gitter'), 'gitter', 'hoch');
+    s = roh(s, { type: 'advance', seconds: 200 });
+    expect(s.story?.gittersturz).toBe('fired');
+    expect(clinicalDebrief(s).final.unstable).toBe(true);
+    const d = clinicalDebrief(s).decisions;
+    expect(d).toHaveLength(1); expect(d[0]).toMatchObject({ event: 'gitter', choice: 'hoch', best: false });
+    expect(d[0].bestLabel).toContain('Nein');
+    s = roh(s, { type: 'finish' });
+    expect(replay(s)).toEqual(s);
+  });
+
+  it('Delir: Harnverhalt als Auslöser behandeln stabilisiert', () => {
+    const scenario = byId('delir');
+    const ohne = wait(start(scenario, 2), 1800);
+    expect(ohne.story?.aggression).toBe('fired'); expect(clinicalDebrief(ohne).final.unstable).toBe(true);
+    let mit = act(act(act(act(start(scenario, 2), 'deescalate'), 'bladder'), 'help'), 'orders');
+    mit = act(wait(mit, 200), 'catheter');
+    mit = wait(mit, 1800);
+    expect(mit.story?.aggression).toBe('prevented'); expect(mit.story?.morgen).toBe('fired');
+    expect(consciousness(mit)).toBe('A'); expect(clinicalDebrief(mit).final.unstable).toBe(false);
+    expect(act(start(scenario, 2), 'fixate').harms?.[0]?.id).toBe('fixate');
+  });
+
+  it('Asthma: Erschöpfung ohne ärztliche Therapie, Flachlage schadet', () => {
+    const scenario = byId('asthma');
+    const ohne = wait(start(scenario, 2), 1000);
+    expect(ohne.story?.erschoepfung).toBe('fired'); expect(consciousness(ohne)).not.toBe('A');
+    const mit = wait(act(act(start(scenario, 2), 'help'), 'orders'), 1000);
+    expect(mit.story?.erschoepfung).toBe('prevented'); expect(clinicalDebrief(mit).final.unstable).toBe(false);
+    expect(wait(act(start(scenario, 2), 'flat'), 30).story?.flach_folge).toBe('fired');
+  });
+
+  it('Demenz: Wille klären, Linderung nach Anordnung', () => {
+    const scenario = byId('demenz');
+    expect(clinicalDebrief(wait(start(scenario, 2), 1500)).final.unstable).toBe(true);
+    const mit = wait(act(act(act(start(scenario, 2), 'verfuegung'), 'help'), 'orders'), 1500);
+    expect(mit.story?.atemnot).toBe('prevented'); expect(clinicalDebrief(mit).final.unstable).toBe(false);
+  });
+
+  it('prüft importierte Entscheidungsmomente', () => {
+    const base = byId('sepsis');
+    const idx = base.storyline!.findIndex(e => e.choices);
+    const broken: ((s: Scenario) => void)[] = [
+      s => { s.storyline![idx].choices = s.storyline![idx].choices!.slice(0, 1); },
+      s => { for (const c of s.storyline![idx].choices!) delete c.best; },
+      s => { s.storyline![idx].choices![1].id = s.storyline![idx].choices![0].id; },
+      s => { s.storyline![idx].choices![0].effect = { zauber: 3 } as never; },
+    ];
+    for (const mutate of broken) { const s = structuredClone(base); mutate(s); expect(() => parseScenario(JSON.stringify(s))).toThrow(); }
+    expect(parseScenario(JSON.stringify(base))).toEqual(base);
   });
 });
 
