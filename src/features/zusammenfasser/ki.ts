@@ -95,6 +95,11 @@ export const ohneKommentare = (s: string) => s.replace(/<!--[\s\S]*?-->/g, '').t
 
 const seite = (c: SourceChunk) => c.printedPage ?? String(c.page);
 
+/** Herkunft eines Abschnitts in Worten, damit die KI Merkkästen, Fußnoten und Tabellen als solche erkennt. */
+export const HERKUNFT: Partial<Record<NonNullable<SourceChunk['origin']>, string>> = {
+  box: 'Merkkasten', footnote: 'Fußnote', table: 'Tabelle', notes: 'Sprechernotiz',
+};
+
 /**
  * Abschnitte als Text mit sichtbarer chunkId, für Aufrufe mit strukturierter Ausgabe
  * (die Citations-Funktion lässt sich nicht mit strukturierter Ausgabe kombinieren).
@@ -102,7 +107,7 @@ const seite = (c: SourceChunk) => c.printedPage ?? String(c.page);
 export function abschnitteAlsText(docs: Document[], chunks: SourceChunk[]): string {
   return docs.map((d) => {
     const eigene = chunks.filter((c) => c.documentId === d.id).sort((a, b) => a.page - b.page);
-    const inhalt = eigene.map((c) => `<abschnitt id="${c.id}" seite="${seite(c)}"${c.chapter ? ` kapitel="${c.chapter.replaceAll('"', "'")}"` : ''}>\n${c.text}\n</abschnitt>`).join('\n');
+    const inhalt = eigene.map((c) => `<abschnitt id="${c.id}" seite="${seite(c)}"${c.chapter ? ` kapitel="${c.chapter.replaceAll('"', "'")}"` : ''}${c.origin && HERKUNFT[c.origin] ? ` art="${HERKUNFT[c.origin]}"` : ''}>\n${c.text}\n</abschnitt>`).join('\n');
     return `<dokument id="${d.id}" titel="${d.title.replaceAll('"', "'")}">\n${inhalt}\n</dokument>`;
   }).join('\n\n');
 }

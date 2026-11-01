@@ -2,12 +2,22 @@
 // Stufe 1: fileHash (Bytes identisch). Stufe 2: contentHash (normalisierter Text identisch).
 // Stufe 3: MinHash über Wort-5-Gramme schätzt die Jaccard-Ähnlichkeit, auch zwischen Formaten (docx vs. pdf).
 // Stufe 4: Absatz-Hashes zeigen, was hinzugekommen oder weggefallen ist.
+// Enthaltensein: Eine Stichprobe der Wort-3-Gramme (Hash mod 2 = 0) schätzt, welcher Anteil des neuen Textes im
+// bestehenden vorkommt, unabhängig vom Größenverhältnis. So fällt auf, dass ein Handyfoto einer Buchseite Teil eines
+// schon importierten Buchs ist (MinHash-Jaccard wäre dafür viel zu klein). 3-Gramme statt 5-Gramme, weil einzelne
+// OCR-Fehler sonst zu viele Treffer zerstören.
 // Nichts wird automatisch gelöscht: das Ergebnis ist ein Vorschlag, den der Nutzer bestätigt.
 import type { DuplicateMatch, FileMeta, Fingerprint, ImportChunk } from './types';
 import { editionRank } from './extract/hints';
 
 const NUM_HASHES = 128;
 const SHINGLE = 5;
+const SAMPLE_SHINGLE = 3;
+const SAMPLE_MOD = 2;
+/** Mindestanteil des kleineren Textes, der im größeren vorkommen muss. */
+export const CONTAINMENT_MIN = 0.6;
+/** Unter so vielen Stichproben-Hashes ist die Schätzung zu unsicher (ca. 25 Wörter). */
+const SAMPLE_MIN = 12;
 
 export function normalize(text: string): string {
   return text
@@ -50,6 +60,32 @@ export function minhash(text: string): number[] {
   return sig;
 }
 
+/** Sortierte, eindeutige Stichprobe der Wort-3-Gramm-Hashes (siehe Kopf). */
+export function containmentSample(text: string): number[] {
+  const words = normalize(text).replace(/[^\p{L}\p{N}\s]/gu, ' ').split(/\s+/).filter(Boolean);
+  const set = new Set<number>();
+  for (let i = 0; i + SAMPLE_SHINGLE <= words.length; i++) {
+    const h = fnv(words.slice(i, i + SAMPLE_SHINGLE).join(' '), 7);
+    if (h % SAMPLE_MOD === 0) set.add(h);
+  }
+  return [...set].sort((a, b) => a - b);
+}
+
+/** Anteil von a, der in b vorkommt (beide sortiert). */
+export function containment(a: number[], b: number[]): number {
+  if (!a.length) return 0;
+  let i = 0, j = 0, hit = 0;
+  while (i < a.length && j < b.length) {
+    if (a[i] === b[j]) { hit++; i++; j++; } else if (a[i] < b[j]) i++; else j++;
+  }
+  return hit / a.length;
+}
+
+/** Text eines Dokuments für den Fingerabdruck: ohne Sprechernotizen. */
+export function fingerprintText(chunks: Array<Pick<ImportChunk, 'origin' | 'text'>>): string {
+  return chunks.filter((c) => c.origin !== 'notes').map((c) => c.text).join('\n\n');
+}
+
 export function similarity(a: number[], b: number[]): number {
   let eq = 0;
   for (let i = 0; i < a.length; i++) if (a[i] === b[i]) eq++;
@@ -58,7 +94,7 @@ export function similarity(a: number[], b: number[]): number {
 
 /** Fingerabdruck plus Zuordnung Absatz-Hash -> Originaltext (für die Anzeige von Änderungen). */
 export async function fingerprint(documentId: string, title: string, bytes: Uint8Array, chunks: ImportChunk[], meta: FileMeta): Promise<{ fingerprint: Fingerprint; paragraphTexts: Map<string, string> }> {
-  const full = chunks.filter((c) => c.origin !== 'notes').map((c) => c.text).join('\n\n');
+  const full = fingerprintText(chunks);
   const paragraphs = full.split(/\n\s*\n/).map((p) => p.trim()).filter((p) => normalize(p).length > 20);
   const paragraphTexts = new Map<string, string>();
   const paragraphHashes: string[] = [];
@@ -75,6 +111,7 @@ export async function fingerprint(documentId: string, title: string, bytes: Uint
       contentHash: await sha256(normalize(full)),
       minhash: minhash(full),
       paragraphHashes,
+      sample: containmentSample(full),
       meta,
       importedAt: new Date().toISOString(),
     },
@@ -109,6 +146,8 @@ export function findMatches(
       });
       continue;
     }
+    const part = partOf(fp, other, sim);
+    if (part) { out.push({ ...base, ...part }); continue; }
     if (sim < 0.3) continue;
     const mine = new Set(fp.paragraphHashes);
     const theirs = new Set(other.paragraphHashes);
@@ -128,6 +167,27 @@ export function findMatches(
     });
   }
   return out.sort((a, b) => b.similarity - a.similarity);
+}
+
+/** Enthaltensein in eine Richtung, wenn ein Text deutlich kleiner ist und fast vollständig im anderen steckt. */
+function partOf(fp: Fingerprint, other: Fingerprint, sim: number): Pick<DuplicateMatch, 'kind' | 'recommendation' | 'similarity'> | undefined {
+  const a = fp.sample, b = other.sample;
+  if (!a || !b || sim >= 0.6) return undefined;
+  if (a.length >= SAMPLE_MIN && b.length >= a.length * 1.5) {
+    const c = containment(a, b);
+    if (c >= CONTAINMENT_MIN) return {
+      kind: 'teil-von', similarity: round2(c),
+      recommendation: `Etwa ${Math.round(c * 100)} % dieses Textes stehen schon in „${other.title}“. Wahrscheinlich ein Ausschnitt (z. B. Foto oder Scan einzelner Seiten): für Quellenangaben das vollständige Dokument nutzen, diesen Import nur behalten, wenn er eigene Notizen enthält.`,
+    };
+  }
+  if (b.length >= SAMPLE_MIN && a.length >= b.length * 1.5) {
+    const c = containment(b, a);
+    if (c >= CONTAINMENT_MIN) return {
+      kind: 'enthaelt', similarity: round2(c),
+      recommendation: `„${other.title}“ ist zu etwa ${Math.round(c * 100)} % in diesem Dokument enthalten. Das vorhandene ist wohl ein Ausschnitt; Zusammenfassungen künftig aus diesem vollständigen Dokument erstellen.`,
+    };
+  }
+  return undefined;
 }
 
 function whichIsNewer(a: FileMeta, b: FileMeta): 'neu' | 'bestehend' | 'unklar' {

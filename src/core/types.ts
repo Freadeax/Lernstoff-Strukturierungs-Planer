@@ -56,7 +56,7 @@ export interface SourceChunk {
   ocrConfidence?: number; // 0..1, nur bei OCR
   illegibleSpans?: Array<{ start: number; end: number }>;
   pageEstimated?: boolean; // Seite nur geschätzt (z. B. docx ohne gespeicherte Seitenumbrüche)
-  origin?: 'text' | 'ocr' | 'notes' | 'table';
+  origin?: 'text' | 'ocr' | 'notes' | 'table' | 'footnote' | 'box'; // footnote = Fuß-/Endnoten, box = Merkkasten
 }
 
 export interface Citation {
