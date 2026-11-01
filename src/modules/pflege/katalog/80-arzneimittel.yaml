@@ -653,7 +653,7 @@ drugProfiles:
     adverseEffects: ["Bei Überdosierung: Herzrasen, Herzrhythmusstörungen, Angina pectoris", "Schwitzen, Zittern, Schlaflosigkeit, Gewichtsabnahme, Durchfall"]
     contraindications: [Unbehandelte Hyperthyreose, "Akuter Herzinfarkt, Myokarditis", Unbehandelte Nebennieren- oder Hypophyseninsuffizienz]
     nursing: ["Morgens nüchtern mit Wasser geben, mit Abstand zum Frühstück", "Abstand zu Calcium, Eisen, Antazida (laut Gelber Liste mindestens 4 Stunden)", "Puls und Unruhe, Schwitzen, Schlaf beobachten (Überdosierung)", "TSH-Kontrollen laut Anordnung"]
-    topicIds: [thema.ph.medikamente, thema.ap.hormone]
+    topicIds: [thema.ph.medikamente, thema.ap.hormone, thema.kl.schilddruese]
     sources:
       - { title: "Gelbe Liste: Levothyroxin", url: "https://www.gelbe-liste.de/wirkstoffe/Levothyroxin_18511" }
     pruefstatus: ungeprueft

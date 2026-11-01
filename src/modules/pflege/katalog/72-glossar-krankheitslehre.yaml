@@ -71,8 +71,8 @@ glossary:
   - { id: gl.ketoazidose, term: "Diabetische Ketoazidose", topicIds: [thema.kl.diabetes, thema.beo.notfall], definition: "Akute Stoffwechselentgleisung bei Insulinmangel mit Übersäuerung des Blutes durch Ketonkörper, typisch bei Typ-1-Diabetes; Zeichen sind u. a. Azetongeruch und Kussmaul-Atmung." }
   - { id: gl.diabetisches-fusssyndrom, term: "Diabetisches Fußsyndrom", abbreviation: "DFS", topicIds: [thema.kl.diabetes, thema.ph.wunde], definition: "Folgeerkrankung des Diabetes mit Wunden am Fuß infolge von Nervenschädigung und/oder Durchblutungsstörung." }
   - { id: gl.polyneuropathie, term: "Polyneuropathie", topicIds: [thema.kl.diabetes, thema.kl.neuro], definition: "Schädigung mehrerer peripherer Nerven mit Empfindungsstörungen, oft strumpfförmig an den Füßen beginnend." }
-  - { id: gl.hypothyreose, term: "Hypothyreose", topicIds: [thema.kl.allgemein, thema.ap.hormone], definition: "Schilddrüsenunterfunktion mit Mangel an Schilddrüsenhormonen, u. a. mit Müdigkeit, Kälteempfindlichkeit und Gewichtszunahme." }
-  - { id: gl.hyperthyreose, term: "Hyperthyreose", topicIds: [thema.kl.allgemein, thema.ap.hormone], definition: "Schilddrüsenüberfunktion mit Überschuss an Schilddrüsenhormonen, u. a. mit Unruhe, Tachykardie und Gewichtsverlust." }
+  - { id: gl.hypothyreose, term: "Hypothyreose", topicIds: [thema.kl.allgemein, thema.ap.hormone, thema.kl.schilddruese], definition: "Schilddrüsenunterfunktion mit Mangel an Schilddrüsenhormonen, u. a. mit Müdigkeit, Kälteempfindlichkeit und Gewichtszunahme." }
+  - { id: gl.hyperthyreose, term: "Hyperthyreose", topicIds: [thema.kl.allgemein, thema.ap.hormone, thema.kl.schilddruese], definition: "Schilddrüsenüberfunktion mit Überschuss an Schilddrüsenhormonen, u. a. mit Unruhe, Tachykardie und Gewichtsverlust." }
   - { id: gl.gicht, term: "Gicht", topicIds: [thema.kl.bewegung, thema.kl.allgemein], definition: "Stoffwechselerkrankung mit erhöhter Harnsäure und schmerzhaften Entzündungen der Gelenke durch Harnsäurekristalle." }
 
   # --- Nervensystem ---

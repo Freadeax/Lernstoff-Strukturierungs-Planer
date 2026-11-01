@@ -1399,3 +1399,260 @@ diseaseProfiles:
     referenceIds: [es.sturz, es.mobilitaet]
     topicIds: [thema.kl.bewegung, thema.kl.geriatrie]
     pruefstatus: ungeprueft
+
+  # ---------------------------------------------------------------- Ergänzung 2026-11, Runde 2 (alle ungeprüft)
+  - id: kh.lungenembolie
+    name: Lungenembolie
+    synonyms: [Lungenarterienembolie, LAE, Pulmonalembolie]
+    definition: "Verschluss einer Lungenarterie, meist durch ein Blutgerinnsel, das sich aus einer tiefen Beinvenenthrombose gelöst hat. Der betroffene Lungenabschnitt wird nicht mehr durchblutet, das rechte Herz wird akut belastet."
+    formen:
+      - "Kleine Embolie: wenige oder keine Beschwerden"
+      - "Große (massive) Embolie: Schock, Herz-Kreislauf-Stillstand möglich"
+      - "Wiederholte kleine Embolien können zu chronischem Lungenhochdruck führen"
+    ursachen: ["Losgelöster Thrombus aus einer tiefen Bein- oder Beckenvenenthrombose (häufigste Ursache)", "Selten Fett-, Luft- oder Fruchtwasserembolie"]
+    risikofaktoren:
+      - "Tiefe Venenthrombose, frühere Thrombosen oder Embolien"
+      - "Immobilität, Bettruhe, lange Reisen"
+      - "Operationen, besonders an Hüfte und Knie, Verletzungen der Beine"
+      - "Krebserkrankungen, Schwangerschaft und Wochenbett, hormonelle Verhütung"
+      - "Herzinsuffizienz, Übergewicht, höheres Alter"
+    symptome:
+      - "Plötzliche Atemnot und schnelle Atmung"
+      - "Atemabhängige Brustschmerzen"
+      - "Herzrasen, Blutdruckabfall, Schweißausbruch, Angst"
+      - "Husten, manchmal mit blutigem Auswurf"
+      - "Gestaute Halsvenen, Zyanose, Bewusstlosigkeit bei großer Embolie"
+      - "Oft zusätzlich Zeichen einer Beinvenenthrombose"
+    komplikationen: ["Akutes Rechtsherzversagen, Schock, Herz-Kreislauf-Stillstand", "Lungeninfarkt", "Erneute Embolien", "Chronischer Lungenhochdruck"]
+    diagnostik: ["Vitalzeichen, Sättigung, Blutgasanalyse", "D-Dimere im Labor", "CT-Angiografie der Lunge", "Echokardiografie, Ultraschall der Beinvenen"]
+    therapie:
+      - "Antikoagulation nach ärztlicher Anordnung (Heparin, später orale Antikoagulanzien)"
+      - "Sauerstoff, Kreislaufstabilisierung"
+      - "Bei massiver Embolie Thrombolyse (Auflösen des Gerinnsels) oder Katheter-/Operationsverfahren"
+    pflege:
+      - "Bei Verdacht sofort Notruf bzw. Notfallteam, Person nicht allein lassen"
+      - "Oberkörper hochlagern, Person nicht aufstehen lassen, Anstrengung vermeiden"
+      - "Beengende Kleidung öffnen, Sauerstoff nach Anordnung"
+      - "Vitalzeichen, Sättigung, Bewusstsein engmaschig überwachen; Reanimationsbereitschaft"
+      - "Venösen Zugang vorbereiten, beruhigen"
+      - "Unter Antikoagulation auf Blutungszeichen achten: Zahnfleisch, Urin, Stuhl, Hämatome"
+    beratung:
+      - "Antikoagulanzien regelmäßig einnehmen, Blutungszeichen kennen, Ausweis mitführen"
+      - "Bewegung, ausreichend trinken, bei langen Reisen Beine bewegen"
+      - "Kompressionsstrümpfe nach Anordnung tragen"
+      - "Warnzeichen einer erneuten Thrombose oder Embolie kennen"
+    prophylaxen:
+      - { topicId: thema.pro.thrombose, grund: "Fast jede Lungenembolie beginnt mit einer Beinvenenthrombose" }
+      - { topicId: thema.pro.sturz, grund: "Unter Antikoagulation sind Stürze wegen der Blutungsgefahr besonders gefährlich" }
+    merksatz: "Plötzliche Atemnot nach OP oder Bettruhe: an eine Lungenembolie denken. Hinsetzen lassen, nicht aufstehen, Notruf."
+    drugIds: [arz.heparin, arz.enoxaparin, arz.apixaban, arz.phenprocoumon]
+    assessmentIds: [as.news]
+    topicIds: [thema.kl.herz.pavk]
+    pruefstatus: ungeprueft
+
+  - id: kh.hypothyreose
+    name: Hypothyreose
+    synonyms: [Schilddrüsenunterfunktion, Hashimoto-Thyreoiditis, Myxödem]
+    definition: "Unterfunktion der Schilddrüse: Sie bildet zu wenig Schilddrüsenhormone (T3, T4). Dadurch verlangsamt sich der gesamte Stoffwechsel."
+    formen:
+      - "Primär: Ursache in der Schilddrüse selbst (häufigste Form)"
+      - "Sekundär: zu wenig TSH aus der Hirnanhangsdrüse"
+      - "Angeboren: wird beim Neugeborenen-Screening erkannt"
+    ursachen: ["Autoimmunentzündung der Schilddrüse (Hashimoto-Thyreoiditis)", "Nach Schilddrüsenoperation oder Radiojodtherapie", "Jodmangel, Medikamente (z. B. Amiodaron, Lithium)"]
+    risikofaktoren: ["Weibliches Geschlecht", "Höheres Alter", "Andere Autoimmunerkrankungen", "Schilddrüsenerkrankungen in der Familie"]
+    symptome:
+      - "Müdigkeit, Antriebslosigkeit, Verlangsamung, Konzentrationsstörungen"
+      - "Kälteempfindlichkeit"
+      - "Gewichtszunahme trotz wenig Appetit"
+      - "Verstopfung"
+      - "Trockene, kühle, teigige Haut, brüchige Haare"
+      - "Langsamer Puls, Heiserkeit"
+      - "Depressive Verstimmung; im Alter oft untypisch und mit Demenz verwechselt"
+    komplikationen: ["Myxödemkoma: lebensbedrohliche Entgleisung mit Unterkühlung, Bewusstseinsstörung, langsamem Puls (selten)", "Erhöhte Blutfette, Herz-Kreislauf-Erkrankungen", "Überdosierung von L-Thyroxin mit Herzrasen und Unruhe"]
+    diagnostik: ["TSH (erhöht bei primärer Hypothyreose) und fT4 im Blut", "Schilddrüsenantikörper", "Ultraschall der Schilddrüse"]
+    therapie: ["Lebenslange Hormonersatztherapie mit L-Thyroxin nach ärztlicher Anordnung", "Einschleichende Dosierung, besonders bei alten und herzkranken Menschen", "Regelmäßige TSH-Kontrollen"]
+    pflege:
+      - "L-Thyroxin morgens nüchtern, etwa 30 Minuten vor dem Frühstück, mit Wasser geben"
+      - "Puls und Befinden beobachten: Herzrasen, Unruhe, Schwitzen können auf Überdosierung hinweisen"
+      - "Für Wärme sorgen: angepasste Kleidung und Raumtemperatur"
+      - "Obstipationsprophylaxe: Bewegung, Ballaststoffe, ausreichend trinken"
+      - "Hautpflege mit rückfettenden Produkten"
+      - "Geduld bei Verlangsamung, Aktivität fördern ohne zu überfordern"
+    beratung:
+      - "Tabletten täglich und lebenslang einnehmen, auch wenn es einem gut geht"
+      - "Abstand zu Kaffee, Milch, Eisen- und Calciumpräparaten einhalten, weil sie die Aufnahme hemmen"
+      - "Zeichen von Über- und Unterdosierung kennen, TSH-Kontrollen wahrnehmen"
+    prophylaxen:
+      - { topicId: thema.pro.obstipation, grund: "Verlangsamter Stoffwechsel und Darmtätigkeit" }
+      - { topicId: thema.pro.sturz, grund: "Müdigkeit, Verlangsamung und langsamer Puls" }
+    merksatz: "Hypothyreose: alles langsam, kalt und müde. L-Thyroxin morgens nüchtern."
+    drugIds: [arz.levothyroxin]
+    topicIds: [thema.kl.schilddruese]
+    pruefstatus: ungeprueft
+
+  - id: kh.arthrose
+    name: Arthrose
+    synonyms: [Gelenkverschleiß, Gonarthrose, Coxarthrose, Arthrosis deformans]
+    definition: "Verschleiß des Gelenkknorpels, der über das altersübliche Maß hinausgeht. Der Knorpel wird dünner, der Knochen darunter verändert sich, das Gelenk verformt sich und schmerzt."
+    formen:
+      - "Gonarthrose: Kniegelenk"
+      - "Coxarthrose: Hüftgelenk"
+      - "Fingerpolyarthrose, Arthrose der Wirbelgelenke"
+      - "Aktivierte Arthrose: zusätzlich entzündet, warm, geschwollen"
+    ursachen: ["Missverhältnis zwischen Belastung und Belastbarkeit des Knorpels", "Primär ohne erkennbare Ursache oder sekundär nach Verletzungen, Fehlstellungen oder Entzündungen"]
+    risikofaktoren: ["Höheres Alter", "Übergewicht", "Fehlstellungen (X- oder O-Beine), frühere Verletzungen", "Einseitige Überlastung oder Bewegungsmangel"]
+    symptome:
+      - "Anlaufschmerz nach Ruhe, z. B. morgens oder nach dem Sitzen"
+      - "Belastungsschmerz, später Ruhe- und Nachtschmerz"
+      - "Kurze Morgensteifigkeit (meist unter 30 Minuten)"
+      - "Bewegungseinschränkung, Gelenkgeräusche, Verformung"
+      - "Bei aktivierter Arthrose Schwellung, Überwärmung, Erguss"
+    komplikationen: ["Zunehmende Immobilität, Kontrakturen, Muskelabbau", "Stürze", "Chronische Schmerzen, sozialer Rückzug", "Nach Endoprothese: Infektion, Luxation, Thrombose"]
+    diagnostik: ["Körperliche Untersuchung (Beweglichkeit, Schwellung)", "Röntgen: Gelenkspaltverschmälerung, Knochenanbauten"]
+    therapie:
+      - "Bewegung und Kräftigung, Physiotherapie, Gewichtsreduktion"
+      - "Schmerzmittel und entzündungshemmende Medikamente nach ärztlicher Anordnung"
+      - "Wärme bei chronischen Beschwerden, Kälte bei aktivierter Arthrose"
+      - "Hilfsmittel: Gehstock, Pufferabsätze, Einlagen"
+      - "Gelenkersatz (Endoprothese) bei fortgeschrittener Arthrose"
+    pflege:
+      - "Schmerzen regelmäßig einschätzen, Schmerzmittel nach Anordnung rechtzeitig vor Belastung geben"
+      - "Zur Bewegung motivieren: gelenkschonend, regelmäßig, ohne Überlastung"
+      - "Anlaufschmerz berücksichtigen: Zeit lassen, Gelenke vor dem Aufstehen durchbewegen"
+      - "Hilfsmittel richtig einstellen und anwenden lassen (Stock auf der gesunden Seite)"
+      - "Bei aktivierter Arthrose kühlen und schonen, bei chronischen Beschwerden Wärme nach Absprache"
+      - "Sturzrisiko einschätzen"
+    beratung:
+      - "Bewegung ist wichtig: Radfahren, Schwimmen, Gehen statt Stoß- und Sprungbelastung"
+      - "Gewicht reduzieren entlastet die Gelenke"
+      - "Gutes Schuhwerk mit weicher Sohle"
+      - "NSAR nicht ohne ärztliche Rücksprache dauerhaft einnehmen (Magen, Niere)"
+    prophylaxen:
+      - { topicId: thema.pro.kontraktur, grund: "Schonhaltung und Bewegungsmangel führen zu Gelenkversteifung" }
+      - { topicId: thema.pro.sturz, grund: "Schmerzen und eingeschränkte Beweglichkeit verunsichern beim Gehen" }
+      - { topicId: thema.pro.thrombose, grund: "Nach Gelenkersatz-Operationen hohes Thromboserisiko" }
+    merksatz: "Arthrose: Anlaufschmerz, Belastungsschmerz, Bewegung hilft."
+    drugIds: [arz.ibuprofen, arz.paracetamol, arz.metamizol]
+    assessmentIds: [as.nrs, as.tug]
+    referenceIds: [es.schmerz, es.mobilitaet]
+    topicIds: [thema.kl.bewegung]
+    pruefstatus: ungeprueft
+
+  - id: kh.angststoerung
+    name: Angststörung
+    synonyms: [Panikstörung, Panikattacke, generalisierte Angststörung, Phobie]
+    definition: "Psychische Erkrankung, bei der Angst übermäßig stark, zu häufig oder ohne echte Gefahr auftritt und das Leben deutlich einschränkt."
+    formen:
+      - "Panikstörung: wiederkehrende, plötzliche Panikattacken"
+      - "Generalisierte Angststörung: anhaltende, schwer kontrollierbare Sorgen über viele Lebensbereiche"
+      - "Phobien: Angst vor bestimmten Situationen oder Objekten, z. B. Agoraphobie (Platzangst), soziale Phobie, Spinnenphobie"
+    ursachen: ["Zusammenspiel aus Veranlagung, Erfahrungen und Belastungen", "Lernprozesse: Vermeidung hält die Angst aufrecht"]
+    risikofaktoren: ["Angststörungen in der Familie", "Belastende Lebensereignisse, Stress", "Andere psychische Erkrankungen (z. B. Depression), Alkohol- oder Medikamentenmissbrauch", "Körperliche Ursachen ausschließen: Schilddrüsenüberfunktion, Herzrhythmusstörungen"]
+    symptome:
+      - "Herzrasen, Atemnot, Brustenge, Schwitzen, Zittern, Schwindel"
+      - "Gefühl, zu sterben, verrückt zu werden oder die Kontrolle zu verlieren"
+      - "Hyperventilation mit Kribbeln in Händen und um den Mund"
+      - "Ständige Anspannung, Grübeln, Schlafstörungen"
+      - "Vermeidungsverhalten, Rückzug"
+    komplikationen: ["Erwartungsangst (Angst vor der Angst) und zunehmende Vermeidung", "Depression, Abhängigkeit von Alkohol oder Beruhigungsmitteln", "Verwechslung mit Herzinfarkt: körperliche Ursache muss immer ausgeschlossen werden"]
+    diagnostik: ["Psychiatrisches oder psychotherapeutisches Gespräch, Fragebögen", "Körperliche Untersuchung, EKG, Labor (z. B. Schilddrüse) zum Ausschluss körperlicher Ursachen"]
+    therapie:
+      - "Kognitive Verhaltenstherapie mit Konfrontation"
+      - "Medikamente nach ärztlicher Anordnung, z. B. Antidepressiva (SSRI)"
+      - "Benzodiazepine nur kurzzeitig im Notfall wegen Abhängigkeitsgefahr"
+      - "Entspannungsverfahren, Sport"
+    pflege:
+      - "In der Panikattacke ruhig bleiben, bei der Person bleiben, mit ruhiger Stimme sprechen"
+      - "Zum langsamen Atmen anleiten, gemeinsam ruhig und lang ausatmen"
+      - "Vitalzeichen kontrollieren, beim ersten Mal oder bei Brustschmerz ärztlich abklären lassen"
+      - "Angst ernst nehmen, nicht bagatellisieren („Sie haben doch nichts“)"
+      - "Vermeidung nicht unterstützen, aber nicht überfordern; kleine Schritte"
+      - "Medikamenteneinnahme begleiten, auf Bedarfsmedikamente mit Abhängigkeitsrisiko achten"
+    beratung:
+      - "Angst ist unangenehm, aber nicht gefährlich; eine Panikattacke klingt von selbst ab"
+      - "Atemübungen und Entspannung regelmäßig üben"
+      - "Psychotherapie ist wirksam, Vermeiden verstärkt die Angst"
+      - "Kein Alkohol zur Selbstbehandlung"
+    prophylaxen:
+      - { topicId: thema.pro.deprivation, grund: "Vermeidung und Rückzug führen zu sozialer Isolation" }
+    merksatz: "Panik ist unangenehm, aber nicht gefährlich. Trotzdem beim ersten Mal den Körper abklären."
+    drugIds: [arz.citalopram, arz.lorazepam]
+    topicIds: [thema.kl.psych]
+    pruefstatus: ungeprueft
+
+  - id: kh.bronchiolitis
+    name: Bronchiolitis
+    synonyms: [RSV-Infektion, RS-Virus, akute Bronchiolitis]
+    definition: "Virusbedingte Entzündung der kleinsten Atemwege (Bronchiolen) bei Säuglingen und Kleinkindern, meist durch das RS-Virus. Schleimhautschwellung und Schleim verengen die Atemwege."
+    formen: ["Leicht: Schnupfen, Husten, gut trinkfähig", "Mittel bis schwer: Atemnot, Trinkschwäche, Sauerstoffbedarf", "Bei jungen Säuglingen Atempausen (Apnoen) möglich"]
+    ursachen: ["Meist Respiratorisches Synzytial-Virus (RSV), Übertragung durch Tröpfchen und Hände", "Saisonal gehäuft im Winter"]
+    risikofaktoren: ["Alter unter 6 Monaten", "Frühgeburt", "Herzfehler, chronische Lungenerkrankungen", "Passivrauchen, Geschwister in Kita"]
+    symptome:
+      - "Beginn mit Schnupfen und Husten"
+      - "Schnelle Atmung, Nasenflügeln, Einziehungen"
+      - "Knistern und Giemen beim Abhören"
+      - "Trinkschwäche, weniger nasse Windeln"
+      - "Fieber, Unruhe; bei jungen Säuglingen Atempausen und Blässe oder Zyanose"
+    komplikationen: ["Sauerstoffmangel, Erschöpfung", "Apnoen bei jungen Säuglingen", "Dehydratation durch Trinkschwäche", "Bakterielle Superinfektion"]
+    diagnostik: ["Klinisches Bild, Atemfrequenz, Sättigung", "Ggf. RSV-Schnelltest aus Nasensekret"]
+    therapie:
+      - "Unterstützend: Nasensekret absaugen, Kochsalz-Nasentropfen, Sauerstoff bei niedriger Sättigung"
+      - "Flüssigkeit, ggf. Sondenernährung oder Infusion"
+      - "Antibiotika helfen nicht gegen Viren"
+      - "Vorbeugend Antikörper für Risikokinder bzw. Säuglinge nach ärztlicher Empfehlung"
+    pflege:
+      - "Atemfrequenz, Einziehungen, Hautfarbe und Sättigung überwachen, Monitor nach Anordnung"
+      - "Oberkörper leicht hochlagern"
+      - "Nase vor dem Trinken frei machen (Kochsalz, vorsichtig absaugen)"
+      - "Kleine, häufige Mahlzeiten, Trinkmenge und nasse Windeln dokumentieren"
+      - "Händehygiene und Isolierung nach Hygieneplan: RSV ist sehr ansteckend"
+      - "Eltern einbeziehen und anleiten"
+    beratung:
+      - "Warnzeichen: schnelle oder angestrengte Atmung, Atempausen, blaue Lippen, trinkt kaum, weniger nasse Windeln"
+      - "Händewaschen, Kontakt zu erkälteten Personen meiden, rauchfreie Umgebung"
+      - "Nase vor dem Trinken mit Kochsalztropfen frei machen"
+    prophylaxen:
+      - { topicId: thema.pro.dehydratation, grund: "Säuglinge trinken bei Atemnot und verstopfter Nase zu wenig" }
+      - { topicId: thema.pro.aspiration, grund: "Trinken bei schneller Atmung erhöht die Aspirationsgefahr" }
+    merksatz: "Säugling, Winter, Schnupfen, dann schnelle Atmung und Trinkschwäche: an RSV-Bronchiolitis denken."
+    topicIds: [thema.kl.paediatrie]
+    pruefstatus: ungeprueft
+
+  - id: kh.gastroenteritis
+    name: Akute Gastroenteritis im Kindesalter
+    synonyms: [Magen-Darm-Infekt, Brechdurchfall, Rotavirus, Norovirus]
+    definition: "Akute Entzündung von Magen und Darm mit Durchfall, oft mit Erbrechen, meist durch Viren. Für Säuglinge und Kleinkinder ist der Flüssigkeitsverlust die größte Gefahr."
+    formen: ["Ohne Dehydratation", "Leichte bis mittelschwere Dehydratation", "Schwere Dehydratation: Notfall"]
+    ursachen: ["Meist Viren (Rota-, Noro-, Adenoviren)", "Seltener Bakterien (z. B. Salmonellen, Campylobacter)", "Übertragung fäkal-oral über Hände, Gegenstände und Lebensmittel"]
+    risikofaktoren: ["Säuglings- und Kleinkindalter", "Gemeinschaftseinrichtungen (Kita)", "Fehlende Rotavirus-Impfung", "Mangelnde Händehygiene"]
+    symptome:
+      - "Wässrige Durchfälle, Erbrechen, Bauchschmerzen, Fieber"
+      - "Zeichen der Dehydratation: trockene Schleimhäute, weniger nasse Windeln, Weinen ohne Tränen"
+      - "Eingesunkene Augen, beim Säugling eingesunkene Fontanelle"
+      - "Schlappheit, Schläfrigkeit, verlängerte Rekapillarisierungszeit bei schwerer Dehydratation"
+    komplikationen: ["Dehydratation bis Schock", "Elektrolytstörungen", "Fieberkrampf", "Ansteckung anderer Kinder und von Personal"]
+    diagnostik: ["Einschätzung des Flüssigkeitsverlusts (Gewichtsverlust, Klinik)", "Stuhlprobe bei schwerem Verlauf oder Ausbruch", "Labor bei schwerer Dehydratation"]
+    therapie:
+      - "Orale Rehydratationslösung (ORL) in kleinen, häufigen Portionen"
+      - "Früh wieder normal ernähren, Stillen fortsetzen"
+      - "Bei Erbrechen ggf. Magensonde oder Infusion; Medikamente gegen Erbrechen nur nach ärztlicher Anordnung"
+      - "Antibiotika meist nicht nötig"
+    pflege:
+      - "Gewicht täglich, Ein- und Ausfuhr (Windeln wiegen), Stuhl- und Erbrechen-Protokoll"
+      - "ORL löffelweise oder mit Spritze anbieten, z. B. alle paar Minuten eine kleine Menge"
+      - "Zeichen der Dehydratation und Bewusstsein beobachten"
+      - "Hautpflege im Windelbereich, Windeln häufig wechseln"
+      - "Kontaktisolierung, Händehygiene; bei Noroviren viruzides Desinfektionsmittel"
+      - "Eltern in Hygiene und Flüssigkeitsgabe anleiten"
+    beratung:
+      - "Nicht Cola, Saft oder Tee mit viel Zucker als Ersatz, sondern ORL aus der Apotheke"
+      - "Warnzeichen: trinkt nicht, keine nasse Windel über mehrere Stunden, sehr schlapp, Blut im Stuhl"
+      - "Händewaschen, Kita erst nach Abklingen der Symptome nach Vorgabe"
+      - "Rotavirus-Impfung im Säuglingsalter"
+    prophylaxen:
+      - { topicId: thema.pro.dehydratation, grund: "Kleine Kinder verlieren über Durchfall und Erbrechen schnell viel Flüssigkeit" }
+      - { topicId: thema.pro.intertrigo, grund: "Häufige Durchfälle schädigen die Haut im Windelbereich" }
+    merksatz: "Brechdurchfall beim Kind: Gewicht, Windeln, Tränen beobachten. ORL in kleinen Schlucken."
+    drugIds: [arz.ondansetron, arz.paracetamol]
+    topicIds: [thema.kl.paediatrie, thema.kl.infektion]
+    pruefstatus: ungeprueft

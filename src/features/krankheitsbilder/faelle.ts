@@ -1237,4 +1237,249 @@ export const FAELLE: Fallaufgabe[] = [
       },
     ],
   },
+  // ---------------------------------------------------------------- Lungenembolie
+  {
+    id: 'le-roth', krankheitId: 'kh.lungenembolie', titel: 'Frau Roth, 72 Jahre', setting: 'Krankenhaus, Orthopädie',
+    text: [
+      'Frau Roth hat vor vier Tagen ein neues Kniegelenk bekommen. Sie hat die Mobilisation wegen Schmerzen oft abgelehnt und die Thrombosespritze gestern vergessen.',
+      'Beim ersten Gang zur Toilette bekommt sie plötzlich starke Luftnot und Schmerzen in der Brust beim Einatmen. Sie ist blass, schwitzt und sagt: „Ich habe Angst.“ Puls 124/min, Sättigung 86 %.',
+    ],
+    aufgaben: [
+      {
+        id: 'verdacht', art: 'einfach', abschnitt: 'symptome',
+        frage: 'Woran denkst du zuerst?',
+        optionen: [r('Lungenembolie'), f('Panikattacke wegen der Schmerzen'), f('Kreislaufschwäche nach dem Aufstehen, die sich von selbst gibt')],
+        erklaerung: 'Plötzliche Atemnot, atemabhängige Brustschmerzen, Herzrasen und Sättigungsabfall nach OP und Immobilität sprechen für eine Lungenembolie.',
+      },
+      {
+        id: 'handeln', art: 'mehrfach', abschnitt: 'pflege',
+        frage: 'Was tust du?',
+        optionen: [r('Notfallteam rufen und bei ihr bleiben'), r('Hinsetzen lassen bzw. ins Bett mit erhöhtem Oberkörper, nicht weiterlaufen lassen'), r('Sauerstoff nach Anordnung, Vitalzeichen überwachen'), f('Sie zur Toilette begleiten, damit sie sich beruhigt'), f('Das Bein massieren, um die Durchblutung zu fördern')],
+        erklaerung: 'Anstrengung vermeiden, Oberkörper hoch, Notfallteam. Massagen am Bein können weitere Gerinnsel lösen.',
+      },
+      {
+        id: 'risiko', art: 'mehrfach', abschnitt: 'risikofaktoren',
+        frage: 'Welche Risikofaktoren hatte Frau Roth?',
+        optionen: [r('Knie-Operation'), r('Wenig Bewegung nach der OP'), r('Vergessene Thrombosespritze'), f('Angst')],
+        erklaerung: 'Operationen am Bein, Immobilität und eine lückenhafte Thromboseprophylaxe begünstigen eine Thrombose, aus der die Embolie entsteht.',
+        extraTopicIds: ['thema.pro.thrombose'],
+      },
+      {
+        id: 'therapie', art: 'einfach', abschnitt: 'therapie',
+        frage: 'Welche Behandlung ist typisch?',
+        optionen: [r('Antikoagulation nach ärztlicher Anordnung, bei massiver Embolie ggf. Thrombolyse'), f('Ein Antibiotikum'), f('Ein Diuretikum zur Entwässerung')],
+        erklaerung: 'Antikoagulanzien verhindern das Wachsen des Gerinnsels und neue Embolien, eine Lyse kann es auflösen.',
+      },
+      {
+        id: 'blutung', art: 'mehrfach', abschnitt: 'beratung',
+        frage: 'Sie soll zu Hause ein Antikoagulans nehmen. Welche Blutungszeichen soll sie kennen?',
+        optionen: [r('Zahnfleischbluten'), r('Roter oder brauner Urin'), r('Schwarzer Stuhl'), r('Große blaue Flecken ohne Anlass'), f('Kalte Füße')],
+        erklaerung: 'Antikoagulanzien erhöhen die Blutungsgefahr. Auffällige Blutungen ärztlich melden.',
+      },
+    ],
+  },
+  // ---------------------------------------------------------------- Hypothyreose
+  {
+    id: 'hypo-albrecht', krankheitId: 'kh.hypothyreose', titel: 'Frau Albrecht, 78 Jahre', setting: 'Ambulante Pflege',
+    text: [
+      'Frau Albrecht wirkt seit einigen Monaten zunehmend verlangsamt und müde. Sie friert ständig, trägt auch im Sommer eine Strickjacke und hat zugenommen, obwohl sie wenig isst. Sie klagt über Verstopfung.',
+      'Ihre Tochter fürchtet eine Demenz. Die Hausärztin findet einen stark erhöhten TSH-Wert und verordnet L-Thyroxin.',
+    ],
+    aufgaben: [
+      {
+        id: 'zeichen', art: 'mehrfach', abschnitt: 'symptome',
+        frage: 'Welche Beobachtungen passen zur Hypothyreose?',
+        optionen: [r('Müdigkeit und Verlangsamung'), r('Kälteempfindlichkeit'), r('Gewichtszunahme trotz wenig Appetit'), r('Verstopfung'), f('Herzrasen und Schwitzen')],
+        erklaerung: 'Bei der Unterfunktion läuft der Stoffwechsel langsamer. Herzrasen und Schwitzen passen eher zur Überfunktion oder zu einer Überdosierung von L-Thyroxin.',
+      },
+      {
+        id: 'demenz', art: 'einfach', abschnitt: 'symptome',
+        frage: 'Was antwortest du der Tochter?',
+        optionen: [r('Eine Schilddrüsenunterfunktion kann im Alter wie eine Demenz aussehen und bessert sich mit der Behandlung oft'), f('Es ist sicher eine Demenz'), f('Müdigkeit ist im Alter normal und muss nicht abgeklärt werden')],
+        erklaerung: 'Im Alter zeigt sich die Hypothyreose oft untypisch und wird leicht mit einer Demenz verwechselt.',
+      },
+      {
+        id: 'einnahme', art: 'einfach', abschnitt: 'pflege',
+        frage: 'Wann gibst du das L-Thyroxin?',
+        optionen: [r('Morgens nüchtern, etwa 30 Minuten vor dem Frühstück, mit Wasser'), f('Zum Frühstück mit einem Glas Milch'), f('Abends vor dem Schlafen mit Kaffee')],
+        erklaerung: 'Nahrung, Milch und Kaffee hemmen die Aufnahme. Deshalb nüchtern mit Wasser.',
+      },
+      {
+        id: 'ueberdosis', art: 'mehrfach', abschnitt: 'komplikationen',
+        frage: 'Nach einigen Wochen: Welche Zeichen können auf eine Überdosierung hinweisen?',
+        optionen: [r('Herzrasen'), r('Innere Unruhe und Schlaflosigkeit'), r('Starkes Schwitzen'), f('Zunehmende Kälteempfindlichkeit')],
+        erklaerung: 'Zu viel Schilddrüsenhormon beschleunigt den Stoffwechsel. Puls und Befinden beobachten und melden.',
+      },
+      {
+        id: 'obstipation', art: 'mehrfach', abschnitt: 'pflege', extraTopicIds: ['thema.pro.obstipation'],
+        frage: 'Was hilft gegen die Verstopfung?',
+        optionen: [r('Bewegung'), r('Ballaststoffreiche Kost'), r('Ausreichend trinken'), f('Mehr Bettruhe')],
+        erklaerung: 'Bewegung, Ballaststoffe und Flüssigkeit regen den verlangsamten Darm an.',
+      },
+    ],
+  },
+  // ---------------------------------------------------------------- Arthrose
+  {
+    id: 'arthrose-peters', krankheitId: 'kh.arthrose', titel: 'Herr Peters, 74 Jahre', setting: 'Stationäre Langzeitpflege',
+    text: [
+      'Herr Peters hat eine fortgeschrittene Kniearthrose rechts. Morgens braucht er lange, bis er „in Gang kommt“, nach einigen Schritten wird es besser. Nach längeren Spaziergängen schmerzt das Knie stark.',
+      'Er ist übergewichtig und möchte am liebsten nur noch sitzen. Heute ist das Knie geschwollen und warm.',
+    ],
+    aufgaben: [
+      {
+        id: 'schmerz', art: 'einfach', abschnitt: 'symptome',
+        frage: 'Wie nennt man den Schmerz am Morgen, der nach einigen Schritten besser wird?',
+        optionen: [r('Anlaufschmerz'), f('Ruheschmerz'), f('Phantomschmerz')],
+        erklaerung: 'Der Anlaufschmerz nach Ruhe ist typisch für die Arthrose.',
+      },
+      {
+        id: 'aktiviert', art: 'einfach', abschnitt: 'pflege',
+        frage: 'Das Knie ist heute geschwollen und warm. Was tust du?',
+        optionen: [r('Kühlen, schonen und die Veränderung melden'), f('Eine Wärmflasche auflegen'), f('Einen langen Spaziergang machen, um es durchzubewegen')],
+        erklaerung: 'Eine aktivierte, entzündete Arthrose wird gekühlt und geschont. Wärme hilft eher bei chronischen Beschwerden ohne Entzündung.',
+      },
+      {
+        id: 'risiko', art: 'mehrfach', abschnitt: 'risikofaktoren',
+        frage: 'Welche Risikofaktoren hat Herr Peters?',
+        optionen: [r('Übergewicht'), r('Höheres Alter'), f('Morgensteifigkeit'), f('Er lebt im Pflegeheim')],
+        erklaerung: 'Alter und Übergewicht belasten den Knorpel. Morgensteifigkeit ist ein Symptom.',
+      },
+      {
+        id: 'bewegung', art: 'mehrfach', abschnitt: 'beratung',
+        frage: 'Wozu berätst du ihn?',
+        optionen: [r('Regelmäßige, gelenkschonende Bewegung wie Radfahren oder Gehen'), r('Gewicht reduzieren'), r('Gutes Schuhwerk mit weicher Sohle'), f('Möglichst viel sitzen, um das Gelenk zu schonen')],
+        erklaerung: 'Bewegung ernährt den Knorpel und kräftigt die Muskulatur. Dauerhaftes Sitzen fördert Kontrakturen und Muskelabbau.',
+        extraTopicIds: ['thema.pro.kontraktur'],
+      },
+      {
+        id: 'stock', art: 'einfach', abschnitt: 'pflege',
+        frage: 'Auf welcher Seite soll er den Gehstock tragen?',
+        optionen: [r('Links, also auf der gesunden Seite'), f('Rechts, auf der kranken Seite'), f('Das ist egal')],
+        erklaerung: 'Der Stock auf der gesunden Seite wird gleichzeitig mit dem kranken Bein aufgesetzt und entlastet es.',
+      },
+    ],
+  },
+  // ---------------------------------------------------------------- Angststörung
+  {
+    id: 'angst-kaya', krankheitId: 'kh.angststoerung', titel: 'Frau Kaya, 29 Jahre', setting: 'Krankenhaus, Notaufnahme',
+    text: [
+      'Frau Kaya kommt zum dritten Mal in diesem Monat in die Notaufnahme. Sie hat plötzlich Herzrasen, Brustenge, zittert und ist überzeugt, gleich zu sterben. Ihre Finger und der Mund kribbeln, sie atmet sehr schnell.',
+      'EKG und Laborwerte waren bei den letzten Besuchen unauffällig. Seit Wochen traut sie sich nicht mehr allein in den Supermarkt.',
+    ],
+    aufgaben: [
+      {
+        id: 'form', art: 'einfach', abschnitt: 'formen',
+        frage: 'Welche Form der Angststörung ist am wahrscheinlichsten?',
+        optionen: [r('Panikstörung mit wiederkehrenden Panikattacken'), f('Spinnenphobie'), f('Generalisierte Angststörung ohne Anfälle')],
+        erklaerung: 'Plötzliche, wiederkehrende Anfälle mit starken körperlichen Symptomen und Todesangst sind Panikattacken.',
+      },
+      {
+        id: 'kribbeln', art: 'einfach', abschnitt: 'symptome',
+        frage: 'Woher kommt das Kribbeln an Fingern und Mund?',
+        optionen: [r('Von der Hyperventilation'), f('Von einem Schlaganfall'), f('Von zu wenig Zucker')],
+        erklaerung: 'Schnelles Atmen senkt den CO2-Gehalt im Blut. Das löst Kribbeln und manchmal Verkrampfungen der Hände aus.',
+      },
+      {
+        id: 'begleiten', art: 'mehrfach', abschnitt: 'pflege',
+        frage: 'Wie begleitest du sie in der Attacke?',
+        optionen: [r('Bei ihr bleiben und ruhig sprechen'), r('Zum langsamen, langen Ausatmen anleiten'), r('Vitalzeichen kontrollieren'), f('„Sie haben doch nichts, das bilden Sie sich ein.“')],
+        erklaerung: 'Ruhe und Atemanleitung helfen. Die Angst ist echt und wird ernst genommen, auch wenn keine körperliche Ursache gefunden wird.',
+      },
+      {
+        id: 'vermeidung', art: 'einfach', abschnitt: 'komplikationen',
+        frage: 'Warum ist es ungünstig, dass sie den Supermarkt meidet?',
+        optionen: [r('Vermeidung hält die Angst aufrecht und schränkt das Leben immer weiter ein'), f('Weil sie dann zu wenig isst'), f('Vermeiden ist die beste Behandlung')],
+        erklaerung: 'Wer meidet, lernt nicht, dass die Situation ungefährlich ist. Die Angst wächst. Psychotherapie mit Konfrontation hilft.',
+        extraTopicIds: ['thema.pro.deprivation'],
+      },
+      {
+        id: 'medikament', art: 'einfach', abschnitt: 'therapie',
+        frage: 'Sie fragt nach „den Beruhigungstabletten vom letzten Mal“. Was weißt du über Benzodiazepine?',
+        optionen: [r('Sie wirken schnell, machen aber abhängig und sind nur kurzzeitig im Notfall vorgesehen'), f('Sie sind die beste Dauertherapie gegen Angst'), f('Sie haben keine Nebenwirkungen')],
+        erklaerung: 'Langfristig werden Psychotherapie und z. B. Antidepressiva eingesetzt. Benzodiazepine nur kurzzeitig nach ärztlicher Anordnung.',
+      },
+    ],
+  },
+  // ---------------------------------------------------------------- Bronchiolitis
+  {
+    id: 'rsv-emil', krankheitId: 'kh.bronchiolitis', titel: 'Emil, 3 Monate', setting: 'Kinderklinik',
+    text: [
+      'Emil hat seit drei Tagen Schnupfen und Husten, seine große Schwester geht in die Kita. Heute trinkt er an der Brust nur noch kurz und hört dann erschöpft auf. Die Mutter hat seit dem Morgen nur zwei nasse Windeln gezählt.',
+      'Du siehst Nasenflügeln und Einziehungen unter dem Rippenbogen. Atemfrequenz 64/min, Sättigung 91 %. Der RSV-Schnelltest ist positiv.',
+    ],
+    aufgaben: [
+      {
+        id: 'zeichen', art: 'mehrfach', abschnitt: 'symptome',
+        frage: 'Welche Zeichen sprechen für eine Atemnot?',
+        optionen: [r('Nasenflügeln'), r('Einziehungen'), r('Schnelle Atmung'), f('Schnupfen')],
+        erklaerung: 'Nasenflügeln, Einziehungen und eine erhöhte Atemfrequenz zeigen, dass Emil sich beim Atmen anstrengen muss.',
+      },
+      {
+        id: 'trinken', art: 'einfach', abschnitt: 'pflege',
+        frage: 'Was hilft Emil beim Trinken?',
+        optionen: [r('Vor dem Stillen die Nase mit Kochsalz frei machen und häufig kleine Mahlzeiten anbieten'), f('Seltener, dafür große Mahlzeiten'), f('Zum Trinken flach hinlegen')],
+        erklaerung: 'Säuglinge atmen beim Trinken durch die Nase. Freie Nase, kleine Portionen und leicht erhöhter Oberkörper erleichtern das Trinken.',
+        extraTopicIds: ['thema.pro.dehydratation'],
+      },
+      {
+        id: 'risiko', art: 'mehrfach', abschnitt: 'komplikationen',
+        frage: 'Worauf achtest du bei so einem jungen Säugling besonders?',
+        optionen: [r('Atempausen'), r('Weniger nasse Windeln'), r('Blaue Verfärbung der Lippen'), f('Ob er Zähne bekommt')],
+        erklaerung: 'Junge Säuglinge können Apnoen bekommen, Trinkschwäche führt zur Dehydratation, Zyanose zeigt Sauerstoffmangel.',
+      },
+      {
+        id: 'hygiene', art: 'einfach', abschnitt: 'pflege',
+        frage: 'Welche Hygienemaßnahme ist besonders wichtig?',
+        optionen: [r('Händehygiene und Isolierung nach Hygieneplan, weil RSV sehr ansteckend ist'), f('Keine besonderen Maßnahmen nötig'), f('Nur Mundschutz für die Mutter')],
+        erklaerung: 'RSV wird über Tröpfchen und Hände übertragen und kann andere Kinder auf Station gefährden.',
+      },
+      {
+        id: 'antibiotikum', art: 'einfach', abschnitt: 'therapie',
+        frage: 'Die Mutter fragt nach einem Antibiotikum. Was stimmt?',
+        optionen: [r('Antibiotika helfen nicht gegen Viren; die Behandlung unterstützt Atmung und Trinken'), f('Ein Antibiotikum heilt RSV in zwei Tagen'), f('Ohne Antibiotikum wird es immer eine Lungenentzündung')],
+        erklaerung: 'Die Bronchiolitis ist eine Viruserkrankung. Wichtig sind freie Nase, Flüssigkeit und bei Bedarf Sauerstoff.',
+      },
+    ],
+  },
+  // ---------------------------------------------------------------- Gastroenteritis
+  {
+    id: 'ge-leon', krankheitId: 'kh.gastroenteritis', titel: 'Leon, 14 Monate', setting: 'Kinderklinik',
+    text: [
+      'Leon hat seit gestern Abend achtmal wässrigen Durchfall gehabt und viermal erbrochen. In seiner Kita gibt es mehrere Kinder mit Magen-Darm-Infekt.',
+      'Er ist schlapp, die Lippen sind trocken, er weint ohne Tränen. Die letzte nasse Windel war vor sechs Stunden. Er wiegt 400 g weniger als bei der U-Untersuchung vor einer Woche. Die Mutter hat ihm Cola gegeben, „weil das bei Durchfall hilft“.',
+    ],
+    aufgaben: [
+      {
+        id: 'dehydratation', art: 'mehrfach', abschnitt: 'symptome',
+        frage: 'Welche Zeichen sprechen für eine Dehydratation?',
+        optionen: [r('Trockene Lippen'), r('Weinen ohne Tränen'), r('Keine nasse Windel seit sechs Stunden'), r('Gewichtsverlust'), f('Er geht in die Kita')],
+        erklaerung: 'Trockene Schleimhäute, fehlende Tränen, wenig Urin und Gewichtsverlust zeigen den Flüssigkeitsmangel.',
+      },
+      {
+        id: 'cola', art: 'einfach', abschnitt: 'beratung',
+        frage: 'Was sagst du zur Cola?',
+        optionen: [r('Besser eine orale Rehydratationslösung aus der Apotheke, weil Cola zu viel Zucker und zu wenig Salz enthält'), f('Cola ist ideal, weil sie Zucker und Koffein enthält'), f('Lieber gar nichts trinken, bis der Durchfall aufhört')],
+        erklaerung: 'Zuckerreiche Getränke können den Durchfall verstärken und ersetzen die Salze nicht. ORL ist auf den Verlust abgestimmt.',
+      },
+      {
+        id: 'orl', art: 'einfach', abschnitt: 'pflege',
+        frage: 'Wie gibst du die Rehydratationslösung bei Erbrechen?',
+        optionen: [r('In kleinen Mengen alle paar Minuten, z. B. löffelweise oder mit einer Spritze'), f('Eine ganze Flasche auf einmal'), f('Erst geben, wenn er drei Stunden nicht erbrochen hat')],
+        erklaerung: 'Kleine, häufige Portionen werden auch bei Erbrechen oft behalten.',
+        extraTopicIds: ['thema.pro.dehydratation'],
+      },
+      {
+        id: 'hygiene', art: 'mehrfach', abschnitt: 'pflege',
+        frage: 'Welche Hygienemaßnahmen sind wichtig?',
+        optionen: [r('Kontaktisolierung nach Hygieneplan'), r('Händehygiene für Personal und Eltern'), r('Bei Noroviren viruzides Desinfektionsmittel'), f('Windeln im Zimmer offen sammeln')],
+        erklaerung: 'Magen-Darm-Viren sind sehr ansteckend und werden über Hände und Flächen übertragen.',
+      },
+      {
+        id: 'beobachten', art: 'mehrfach', abschnitt: 'pflege',
+        frage: 'Was dokumentierst du?',
+        optionen: [r('Gewicht täglich'), r('Ein- und Ausfuhr, Windeln wiegen'), r('Anzahl und Art von Stuhl und Erbrechen'), f('Nur die Temperatur')],
+        erklaerung: 'Gewicht und Bilanz zeigen, ob die Flüssigkeitsgabe reicht.',
+      },
+    ],
+  },
 ];

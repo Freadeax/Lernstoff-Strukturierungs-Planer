@@ -43,6 +43,7 @@ topics:
   - { id: thema.kl.herz.pavk,        parentId: thema.kl.herz, name: "pAVK, Thrombose und Lungenembolie", difficulty: 3, estimatedMinutes: 75, competencyIds: [kb.I.4] }
   - { id: thema.kl.atmung,     parentId: thema.kl, name: "Erkrankungen der Atemwege (COPD, Asthma, Pneumonie)", difficulty: 3, estimatedMinutes: 120, prerequisites: [thema.ap.atmung, thema.kl.allgemein], competencyIds: [ce.05] }
   - { id: thema.kl.diabetes,   parentId: thema.kl, name: "Diabetes mellitus", difficulty: 4, estimatedMinutes: 150, prerequisites: [thema.ap.hormone, thema.ap.verdauung], competencyIds: [kb.I.2, kb.II.2, ce.04, ce.05], tags: [Hypoglykämie, Insulin, Schulung, diabetisches Fußsyndrom] }
+  - { id: thema.kl.schilddruese, parentId: thema.kl, name: "Schilddrüsenerkrankungen (Hypo- und Hyperthyreose)", difficulty: 3, estimatedMinutes: 60, prerequisites: [thema.ap.hormone], competencyIds: [ce.05, ce.09], tags: [Hypothyreose, Hyperthyreose, Struma, L-Thyroxin] }
   - { id: thema.kl.neuro,      parentId: thema.kl, name: "Neurologische Erkrankungen", difficulty: 4, prerequisites: [thema.ap.nerven] }
   - { id: thema.kl.neuro.schlaganfall, parentId: thema.kl.neuro, name: "Schlaganfall (Apoplex)", difficulty: 4, estimatedMinutes: 120, competencyIds: [kb.I.4, ce.06, ce.07], tags: [FAST, Bobath, Neglect, Dysphagie] }
   - { id: thema.kl.neuro.parkinson,    parentId: thema.kl.neuro, name: "Morbus Parkinson", difficulty: 3, estimatedMinutes: 60, competencyIds: [ce.07] }
