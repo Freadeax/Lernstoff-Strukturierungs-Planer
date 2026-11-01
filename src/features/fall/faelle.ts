@@ -119,6 +119,22 @@ export const SZENARIEN: Szenario[] = [
     verborgen: 'Sturz mit kleiner Platzwunde an der Stirn, zunächst wach und orientiert, will sofort wieder ins Bett. Wegen des Blutverdünners droht eine Hirnblutung: Wird die Bewusstseinslage nicht in festen Abständen kontrolliert, wird sie nach etwa 3 bis 5 Zügen zunehmend schläfrig, die Pupillen werden ungleich, sie erbricht. Gute Lösung: nicht hochziehen, Verletzungen prüfen, Vitalzeichen und Bewusstsein, Arzt bzw. Notruf wegen Blutverdünner, engmaschige neurologische Kontrolle, Sturzprotokoll, Ursachen (Toilettengang, Licht, Schuhe) klären, Angehörige am Morgen informieren.',
     topicIds: ['thema.pro.sturz', 'thema.kl.geriatrie', 'thema.beo.bewusstsein', 'thema.fa.langzeit'],
   },
+  {
+    id: 'anaphylaxie',
+    titel: 'Juckreiz nach der ersten Infusion',
+    setting: 'krankenhaus',
+    kurz: 'Frau K., 34 Jahre, internistische Station, Wundinfektion am Unterschenkel. Zehn Minuten nach Beginn der ersten Antibiotika-Infusion klingelt sie.',
+    verborgen: 'Anaphylaktische Reaktion auf das Antibiotikum: Quaddeln, Lippenschwellung, Engegefühl im Hals, Tachykardie, RR fallend, leichtes Giemen. Die Infusion läuft noch. Ohne sofortigen Infusionsstopp und Notfallteam schreitet sie in Minuten zur Atemwegsschwellung und zum Schock fort. Aufstehen lassen führt zum Kollaps. Adrenalin nur nach ärztlicher Anordnung bzw. Notfallstandard. Danach: Nachbeobachtung, Allergie dokumentieren.',
+    topicIds: ['thema.beo.notfall', 'thema.ph.medikamente', 'thema.ph.injektion'],
+  },
+  {
+    id: 'lungenembolie',
+    titel: 'Keine Luft beim ersten Aufstehen',
+    setting: 'krankenhaus',
+    kurz: 'Herr B., 67 Jahre, Unfallchirurgie, vierter Tag nach Knie-Endoprothese. Beim Gang zum Bad bleibt er stehen und ringt nach Luft.',
+    verborgen: 'Lungenembolie aus einer Beinvenenthrombose links (Wade dicker, warm, druckschmerzhaft). Die Thromboseprophylaxe wurde gestern einmal ausgelassen, ohne Rücksprache. Tachypnoe, Tachykardie, SpO2 um 89 %, atemabhängiger Brustschmerz. Weitergehen oder Wadenmassage verschlechtern ihn. Ohne frühe ärztliche Eskalation Blutdruckabfall.',
+    topicIds: ['thema.kl.herz.pavk', 'thema.pro.thrombose', 'thema.beo.notfall'],
+  },
 ];
 
 /** Themen, aus denen sich ein freier Fall erzeugen lässt: Krankheitslehre, Prophylaxen, Pflegehandeln, Fallarbeit. */
