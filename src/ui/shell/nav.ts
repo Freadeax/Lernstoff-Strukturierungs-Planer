@@ -52,6 +52,8 @@ export const NAV: NavItem[] = [
       { id: 'anatomie', label: 'Anatomie-Trainer', path: '/lernen/anatomie', icon: 'heart' },
       { id: 'expertenstandards', label: 'Expertenstandards', path: '/lernen/expertenstandards', icon: 'star' },
       { id: 'normwerte', label: 'Normwerte-Trainer', path: '/lernen/normwerte', icon: 'thermo' },
+      { id: 'notfall', label: 'Notfall-Trainer', path: '/lernen/notfall', icon: 'siren' },
+      { id: 'arzneimittel', label: 'Arzneimittel-Trainer', path: '/lernen/arzneimittel', icon: 'pill' },
     ],
   },
   {

@@ -25,6 +25,9 @@ function baue(f: Fehler): Aufgabe2 {
     : { fehler: f, art: 'auswahl', w: mischeAuswahl(w) };
 }
 
+/** Trainer auf dem gemeinsamen Übungskern: Quelle und Trainer heißen gleich. */
+const QUIZ_QUELLEN = new Set<FehlerQuelle>(['hygiene', 'anatomie', 'expertenstandards', 'normwerte', 'notfall', 'arzneimittel']);
+
 /** Wo man eine Aufgabe außerhalb des Fehlerhefts weiter üben kann. */
 function trainerLink(f: Fehler): { label: string; path: string } | null {
   const w = f.wiederholung;
@@ -33,7 +36,7 @@ function trainerLink(f: Fehler): { label: string; path: string } | null {
   if (f.quelle === 'krankheitsbilder') return { label: 'Fall noch einmal bearbeiten', path: `/lernen/krankheitsbilder?fall=${encodeURIComponent(f.id.split(':')[1] ?? '')}` };
   // as:<vignettenId>:<itemId>
   if (f.quelle === 'assessment') return { label: 'Fall noch einmal einschätzen', path: `/lernen/assessment?modus=faelle&fall=${encodeURIComponent(f.id.split(':')[1] ?? '')}` };
-  if (f.quelle === 'hygiene' || f.quelle === 'anatomie' || f.quelle === 'expertenstandards' || f.quelle === 'normwerte') {
+  if (QUIZ_QUELLEN.has(f.quelle)) {
     const u = f.topicIds.flatMap((t) => uebungenFuer(t)).find((x) => x.trainer === f.quelle);
     if (u) return { label: `Im ${u.label} üben`, path: u.path };
   }

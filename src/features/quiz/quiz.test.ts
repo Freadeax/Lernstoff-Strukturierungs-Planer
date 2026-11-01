@@ -5,6 +5,8 @@ import { ALLE_AUFGABEN as ANATOMIE, AUFGABEN as ANATOMIE_BEREICHE, THEMA } from 
 import { FIGUREN } from '../anatomie/figuren';
 import { ALLE_AUFGABEN as STANDARDS, ES_THEMA } from '../expertenstandards/aufgaben';
 import { ALLE_AUFGABEN as NORMWERTE, THEMEN as NORM_THEMEN } from '../normwerte/aufgaben';
+import { ALLE_AUFGABEN as NOTFALL, NOTFALL_THEMA } from '../notfall/aufgaben';
+import { ALLE_AUFGABEN as ARZNEI, AM_THEMA } from '../arzneimittel/aufgaben';
 import { modules } from '../../modules/registry';
 import { uebungenFuer } from '../lernplan/trainer';
 import { mischeAuswahl, auswahlRichtig } from '../fehlerheft/fehlerheft';
@@ -121,7 +123,7 @@ describe('Fehlerheft', () => {
   });
 
   it('erzeugt Wiederholungen, die das Fehlerheft lösen kann', () => {
-    for (const a of [...HYGIENE, ...ANATOMIE, ...STANDARDS, ...NORMWERTE]) {
+    for (const a of [...HYGIENE, ...ANATOMIE, ...STANDARDS, ...NORMWERTE, ...NOTFALL, ...ARZNEI]) {
       const leer = a.art === 'auswahl' ? { art: 'auswahl' as const, wahl: [] } : a.art === 'reihenfolge' ? { art: 'reihenfolge' as const, folge: [...a.schritte].reverse() } : { art: 'beschriften' as const, zuordnung: {} };
       for (const f of alsFehler(a, leer, 'hygiene')) {
         const w = f.wiederholung;
@@ -171,6 +173,14 @@ describe('Inhalte', () => {
     for (const t of Object.values(NORM_THEMEN)) expect(themen.has(t), t).toBe(true);
     expect(uebungenFuer(ES_THEMA).map((u) => u.path)).toContain('/lernen/expertenstandards');
     expect(uebungenFuer(NORM_THEMEN.vital).map((u) => u.path)).toContain('/lernen/normwerte?bereich=vital');
+  });
+
+  it('Notfall- und Arzneimittel-Aufgaben sind vollständig und gehören zu Katalogthemen', () => {
+    expect(pruefeAufgaben(NOTFALL, themen)).toEqual([]);
+    expect(pruefeAufgaben(ARZNEI, themen)).toEqual([]);
+    expect(NOTFALL.every((a) => a.topicIds.includes(NOTFALL_THEMA))).toBe(true);
+    expect(uebungenFuer(NOTFALL_THEMA).map((u) => u.path)).toContain('/lernen/notfall');
+    expect(uebungenFuer(AM_THEMA).map((u) => u.path)).toContain('/lernen/arzneimittel');
   });
 
   it('Lernplan verweist von den Themen auf die neuen Trainer', () => {
