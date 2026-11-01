@@ -146,3 +146,82 @@ describe('Praktische Prüfung', () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 });
+
+describe('KI-Rückmeldung zur mündlichen Übung', async () => {
+  const { anfrageText, leseMuendlich } = await import('./claude');
+  const fall = MUENDLICHE_FAELLE[0]!;
+  const impulse = impulseFuer(fall, 3, () => 0);
+  const [a, b, c] = impulse as [typeof impulse[0], typeof impulse[0], typeof impulse[0]];
+
+  it('schickt Fall, Stichpunkte mit Nummern und Antworten, markiert fehlende Antworten', () => {
+    const t = anfrageText(fall, impulse, { [a.id]: 'Ich stelle Lina vor.' });
+    expect(t).toContain(fall.text[0]);
+    expect(t).toContain(`0: ${a.stichpunkte[0]}`);
+    expect(t).toContain('<antwort>Ich stelle Lina vor.</antwort>');
+    expect(t).toContain('<antwort>(nicht festgehalten)</antwort>');
+  });
+
+  it('nimmt nur gültige Stichpunkte und nichts für unbeantwortete Impulse', () => {
+    const roh = `Hier: ${JSON.stringify({
+      note: 9,
+      impulse: [
+        { id: a.id, erfuellt: [0, 0, 2, 99, -1, 1.5], kommentar: 'gut', bedenken: ['x', 3], beispiel: 'So.' },
+        { id: b.id, erfuellt: [0, 1], kommentar: 'erfunden', bedenken: ['y'], beispiel: 'B' },
+        { id: 'fremd', erfuellt: [0] },
+      ],
+      staerken: ['a', 'b', 'c', 'd'], tipps: 'kein Array',
+    })}`;
+    const r = leseMuendlich(roh, impulse, { [a.id]: 'Antwort', [b.id]: '   ' });
+    expect(r.note).toBe(6);
+    expect(r.impulse.map((x) => x.id)).toEqual([a.id, b.id, c.id]);
+    expect(r.impulse[0]).toEqual({ id: a.id, erfuellt: [0, 2], kommentar: 'gut', bedenken: ['x'], beispiel: 'So.' });
+    expect(r.impulse[1]!.erfuellt).toEqual([]);
+    expect(r.impulse[1]!.kommentar).toBe('');
+    expect(r.impulse[1]!.bedenken).toEqual([]);
+    expect(r.staerken).toHaveLength(3);
+    expect(r.tipps).toEqual([]);
+  });
+
+  it('meldet unlesbare Antworten verständlich', () => {
+    expect(() => leseMuendlich('kein JSON', impulse, {})).toThrow('nicht lesbar');
+  });
+});
+
+describe('Examens-Hinweis auf der Übersicht', async () => {
+  const { examensHinweis, inTagen } = await import('./hinweis');
+  const T = (p: Partial<{ schriftlich: string; praktisch: string; muendlich: string }>) => ({ schriftlich: '', praktisch: '', muendlich: '', ...p });
+  const eintrag = (at: string) => ({ id: at, at: `${at}T10:00:00.000Z`, fallId: 'm-lina', titel: 'Lina', modus: 'pruefung', prozent: 50, sprechzeit: 60, impulse: 3 });
+
+  it('zeigt ohne kommende Termine nichts', () => {
+    expect(examensHinweis(T({}), '2027-01-10', new Set(), [])).toBeNull();
+    expect(examensHinweis(T({ schriftlich: '2027-01-01' }), '2027-01-10', new Set(), [])).toBeNull();
+  });
+
+  it('sortiert kommende Termine und lässt vergangene weg', () => {
+    const h = examensHinweis(T({ schriftlich: '2027-03-01', praktisch: '2027-01-05', muendlich: '2027-02-01' }), '2027-01-10', new Set(), [eintrag('2027-01-09')])!;
+    expect(h.termine).toEqual([{ art: 'muendlich', tage: 22 }, { art: 'schriftlich', tage: 50 }]);
+    expect(h.schritt).toBeUndefined();
+  });
+
+  it('nennt die überfällige Etappe der praktischen Prüfung zuerst', () => {
+    // 30 Tage vorher: „Rahmen“ (56) und „Planung“ (42) überfällig, „Vorbehalt“ (35) auch
+    const h = examensHinweis(T({ praktisch: '2027-02-09', muendlich: '2027-02-15' }), '2027-01-10', new Set(), [])!;
+    expect(h.schritt?.text).toContain('Rahmen klären');
+    expect(h.schritt?.dringend).toBe(true);
+    expect(h.schritt?.path).toBe('/lernen/examen?ansicht=praktisch');
+  });
+
+  it('erinnert vor der mündlichen Prüfung ans laute Üben, wenn die letzte Übung zu lange her ist', () => {
+    const ohne = examensHinweis(T({ muendlich: '2027-02-01' }), '2027-01-10', new Set(), [])!;
+    expect(ohne.schritt?.text).toContain('noch keine Übung');
+    const alt = examensHinweis(T({ muendlich: '2027-02-01' }), '2027-01-10', new Set(), [eintrag('2027-01-01')])!;
+    expect(alt.schritt?.text).toContain('vor 9 Tagen');
+    expect(alt.schritt?.dringend).toBe(false);
+    expect(examensHinweis(T({ muendlich: '2027-02-01' }), '2027-01-10', new Set(), [eintrag('2027-01-06')])!.schritt).toBeUndefined();
+    expect(examensHinweis(T({ muendlich: '2027-05-01' }), '2027-01-10', new Set(), [])!.schritt).toBeUndefined();
+  });
+
+  it('formuliert Abstände', () => {
+    expect([inTagen(0), inTagen(1), inTagen(5)]).toEqual(['heute', 'morgen', 'in 5 Tagen']);
+  });
+});

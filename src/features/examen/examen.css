@@ -72,6 +72,16 @@
 .examen__check { margin: 0; border: 1px solid var(--color-border); }
 .examen__check legend { font-weight: var(--weight-bold); padding: 0 var(--space-1); }
 
+/* Festgehaltene Antwort und KI-Rückmeldung */
+.examen__antwort summary, .examen__antwort-zu summary, .examen__ki-impuls summary { cursor: pointer; }
+.examen__antwort { display: flex; flex-direction: column; gap: var(--space-2); }
+.examen__antwort textarea { width: 100%; }
+.examen__ki { display: flex; flex-direction: column; gap: var(--space-2); }
+.examen__ki-gesamt { display: flex; flex-direction: column; gap: var(--space-2); }
+.examen__ki-gesamt p { margin: 0; }
+.examen__ki-tag { margin-left: var(--space-2); font-size: var(--text-xs, 0.75rem); }
+.examen__ki-impuls { display: flex; flex-direction: column; gap: var(--space-2); margin-top: var(--space-2); padding-top: var(--space-2); border-top: 1px solid var(--color-border); }
+
 /* Praktisch */
 .examen__praktisch-kopf { display: flex; flex-wrap: wrap; gap: var(--space-3); justify-content: space-between; align-items: flex-end; }
 .examen__praktisch-kopf p { margin: 0; }
