@@ -151,3 +151,21 @@ mark { background: var(--color-highlight); color: inherit; }
 .zusammen__titel { margin-top: var(--space-4); }
 .zusammen section { margin-bottom: var(--space-2); }
 .lauf-info summary { font-size: var(--text-sm); }
+
+/* ---------- iPhone und iPad (Finger statt Maus) ---------- */
+@media (pointer: coarse) {
+  /* Safari vergrößert die Seite beim Antippen von Feldern unter 16 px und bleibt dann vergrößert. */
+  input:not([type='checkbox'], [type='radio'], [type='range'], [type='file'], [type='color']), select, textarea {
+    font-size: 16px !important;
+  }
+  /* Kein Doppeltipp-Zoom auf Bedienelementen (schnelles Tippen bei Karten, Rechnen, Duell). */
+  a, button, input, select, textarea, label, summary, [role='button'], [role='tab'] { touch-action: manipulation; }
+  /* Langes Drücken auf Schaltflächen markiert keinen Text und öffnet kein Kontextmenü. */
+  button, .tab, .nav__item { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+  /* Aufklappbare Abschnitte („So funktioniert …“) sind sonst nur eine Textzeile hoch. */
+  summary { padding-block: 10px; cursor: pointer; }
+}
+@media (max-width: 767px) and (pointer: coarse) {
+  /* Während getippt wird, braucht die Tastatur den Platz; die untere Leiste kommt danach zurück. */
+  .shell:has(main :is(input:not([type='checkbox'], [type='radio'], [type='range'], [type='file'], [type='button'], [type='submit']), textarea, [contenteditable='true']):focus) .shell__tabbar { display: none; }
+}

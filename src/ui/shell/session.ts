@@ -35,6 +35,11 @@ export function applyTheme(theme: Theme) {
   const el = document.documentElement;
   if (theme === 'system') el.removeAttribute('data-theme');
   else el.setAttribute('data-theme', theme === 'dunkel' ? 'dark' : 'light');
+  // iPhone/iPad: Statusleiste folgt der gewählten Darstellung, nicht nur der Systemeinstellung.
+  document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]').forEach((m) => {
+    if (!m.dataset.media) m.dataset.media = m.media;
+    m.media = theme === 'system' ? m.dataset.media : (m.dataset.media.includes('dark') === (theme === 'dunkel') ? 'all' : 'not all');
+  });
 }
 applyTheme(session.get().theme);
 

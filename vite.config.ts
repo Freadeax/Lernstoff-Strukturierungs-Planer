@@ -8,10 +8,10 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icon.svg'],
+      includeAssets: ['icon.svg', 'apple-touch-icon.png'],
       workbox: {
         // Lokal gebündelte Schriften bleiben auch ohne Verbindung verfügbar.
-        globPatterns: ['**/*.{js,wasm,css,html,svg,woff2}'],
+        globPatterns: ['**/*.{js,wasm,css,html,svg,png,woff2}'],
         // Texterkennung (ca. 13 MB) nicht vorab laden, sondern beim ersten Gebrauch zwischenspeichern.
         globIgnores: ['tesseract/**'],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
@@ -30,7 +30,12 @@ export default defineConfig({
         display: 'standalone',
         background_color: '#ffffff',
         theme_color: '#2563eb',
-        icons: [{ src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }],
+        icons: [
+          { src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
+          { src: 'icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: 'icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+        ],
       },
     }),
   ],
