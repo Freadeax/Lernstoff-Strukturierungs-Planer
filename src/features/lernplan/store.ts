@@ -14,6 +14,7 @@ import {
   resolveSettings,
   topicMinutes,
   type Availability,
+  type CardEvidence,
   type EvidenceSource,
   type PlannerInput,
   type PlannerSettings,
@@ -59,7 +60,7 @@ export const SOURCE_LABEL: Record<EvidenceSource, string> = {
 
 /** Anzeigenamen der Übungstrainer (Schlüssel wie TrainerId in trainer.ts). */
 export const TRAINER_NAME: Record<string, string> = {
-  rechnen: 'Rechentrainer', duell: 'Fachbegriff-Duell', fall: 'Fallsimulator', uebergabe: 'Übergabe-Trainer', pflegeplanung: 'Pflegeplanung', sis: 'SIS-Trainer', mindmap: 'Mindmap', bericht: 'Pflegebericht-Trainer', assessment: 'Assessment-Rechner', krankheitsbilder: 'Krankheitsbilder', selbsttest: 'CE-Selbsttest', hygiene: 'Hygiene-Trainer', anatomie: 'Anatomie-Trainer',
+  rechnen: 'Rechentrainer', duell: 'Fachbegriff-Duell', fall: 'Fallsimulator', uebergabe: 'Übergabe-Trainer', pflegeplanung: 'Pflegeplanung', sis: 'SIS-Trainer', mindmap: 'Mindmap', bericht: 'Pflegebericht-Trainer', assessment: 'Assessment-Rechner', krankheitsbilder: 'Krankheitsbilder', selbsttest: 'CE-Selbsttest', hygiene: 'Hygiene-Trainer', anatomie: 'Anatomie-Trainer', expertenstandards: 'Expertenstandards-Trainer', normwerte: 'Normwerte-Trainer',
 };
 
 export const RATING_LABEL: Record<Rating, string> = { 1: 'Vergessen', 2: 'Schwer', 3: 'Gut', 4: 'Leicht' };
@@ -81,6 +82,8 @@ export interface PlannerData {
   reviewLogs: StoredReviewLog[];
   board: BoardEntry[];
   config: PlannerConfig;
+  /** Abgefragte Karteikarten mit ihren Themen (siehe loadCardEvidence). */
+  cards?: Array<CardEvidence & { topicIds: string[] }>;
 }
 
 /**
@@ -127,7 +130,14 @@ export function assembleInput(d: PlannerData): PlannerInput {
     relevance,
     examWeights: d.config.examWeights,
     settings: d.config.settings,
+    ...(d.cards?.length ? { cardEvidence: cardsByTopic(d.cards) } : {}),
   };
+}
+
+export function cardsByTopic(cards: Array<CardEvidence & { topicIds: string[] }>): Record<string, CardEvidence[]> {
+  const out: Record<string, CardEvidence[]> = {};
+  for (const { stability, lastReview, topicIds } of cards) for (const t of new Set(topicIds)) (out[t] ??= []).push({ stability, lastReview });
+  return out;
 }
 
 /** Spalte für das Board nach erfasster Lernzeit: fertig erarbeitet oder noch in Arbeit. */
@@ -148,10 +158,27 @@ export async function saveConfig(patch: Partial<Omit<PlannerConfig, 'id'>>) {
 }
 
 export async function loadPlannerData(topics: Topic[], today = heute()): Promise<PlannerData> {
-  const [exams, studyLogs, reviewLogs, board, config] = await Promise.all([
-    db.exams.toArray(), db.studyLogs.toArray(), db.reviewLogs.toArray(), db.board.toArray(), loadConfig(),
+  const [exams, studyLogs, reviewLogs, board, config, cards] = await Promise.all([
+    db.exams.toArray(), db.studyLogs.toArray(), db.reviewLogs.toArray(), db.board.toArray(), loadConfig(), loadCardEvidence(),
   ]);
-  return { today, topics, exams, studyLogs, reviewLogs, board, config };
+  return { today, topics, exams, studyLogs, reviewLogs, board, config, cards };
+}
+
+/**
+ * Abgefragte, nicht pausierte Karteikarten mit ihren Themen. Katalogkarten werden nicht gespeichert, darum
+ * kommen die Themen aus dem jüngsten Protokolleintrag der Karte (der ihre topicIds mitschreibt).
+ * Optional topicId: nur Karten dieses Themas.
+ */
+export async function loadCardEvidence(topicId?: string): Promise<Array<CardEvidence & { topicIds: string[] }>> {
+  try {
+    const [staende, logs] = await Promise.all([db.kartenStand.toArray(), db.kartenLogs.toArray()]);
+    const themen = new Map<string, string[]>();
+    for (const l of logs) if (l.topicIds?.length) themen.set(l.cardId, l.topicIds);   // ++id: spätere Einträge überschreiben
+    return staende
+      .filter((s) => !s.ausgesetzt && s.reps > 0 && s.lastReview)
+      .map((s) => ({ stability: s.stability, lastReview: s.lastReview, topicIds: themen.get(s.cardId) ?? [] }))
+      .filter((c) => c.topicIds.length && (!topicId || c.topicIds.includes(topicId)));
+  } catch { return []; }
 }
 
 export async function saveExam(exam: Exam, weight: number) {
@@ -205,12 +232,13 @@ export async function logReview(topic: Topic, source: EvidenceSource, result: { 
 
 /** Wissensstand eines Themas aus den gespeicherten Fakten (für Landkarte und Board). */
 export async function topicKnowledge(topic: Topic, today = heute()) {
-  const [study, reviews, cfg, board] = await Promise.all([
+  const [study, reviews, cfg, board, cards] = await Promise.all([
     db.studyLogs.where('topicId').equals(topic.id).toArray(),
     db.reviewLogs.where('topicId').equals(topic.id).toArray(),
     loadConfig(),
     db.board.get(topic.id),
+    loadCardEvidence(topic.id),
   ]);
-  const input = assembleInput({ today, topics: [topic], exams: [], studyLogs: study, reviewLogs: reviews, board: board ? [board] : [], config: cfg });
-  return computeProgress(topic, input.studyLogs, input.reviewLogs, today, resolveSettings(input));
+  const input = assembleInput({ today, topics: [topic], exams: [], studyLogs: study, reviewLogs: reviews, board: board ? [board] : [], config: cfg, cards });
+  return computeProgress(topic, input.studyLogs, input.reviewLogs, today, resolveSettings(input), input.cardEvidence?.[topic.id]);
 }

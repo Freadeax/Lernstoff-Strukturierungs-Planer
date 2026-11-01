@@ -1,5 +1,5 @@
 import './fortschritt.css';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { dauer } from '../lernplan/ui/format';
 import { useFortschritt } from './daten';
 import { serie, woche, wochenStart, wochenZiele } from './statistik';
@@ -12,6 +12,15 @@ export function FortschrittKarte() {
     const s = serie(daten.fakten, daten.today);
     const zs = wochenZiele(woche(daten.fakten, wochenStart(daten.today)), ziele);
     return { s, zs };
+  }, [daten, ziele]);
+  useEffect(() => {
+    // Meilensteine und Serien-Erinnerung bei jeder Datenänderung und alle 15 Minuten (Nachmittag, Tageswechsel).
+    // Doppelte Meldungen verhindern die gespeicherten Merker. Nachgeladen, damit die Startseite schlank bleibt.
+    if (!daten) return;
+    const pruefe = () => { import('./hintergrund').then((m) => m.pruefeFortschritt(daten, ziele)).catch(() => undefined); };
+    pruefe();
+    const t = setInterval(pruefe, 15 * 60_000);
+    return () => clearInterval(t);
   }, [daten, ziele]);
   if (!werte) return null;
   const { s, zs } = werte;

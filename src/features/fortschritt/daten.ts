@@ -3,6 +3,7 @@
 
 import { useMemo } from 'react';
 import { db } from '../../core/db';
+import type { Exam } from '../../core/types';
 import { ladeThemen } from '../../core/topics';
 import type { CatalogModule } from '../../modules/catalog-types';
 import { getModule, modules } from '../../modules/registry';
@@ -31,6 +32,7 @@ export interface FortschrittDaten {
   modul: CatalogModule;
   fakten: Fakten;
   lernstand: Lernstand;
+  exams: Exam[];
   skripte: Array<{ id: string; gruppe: string; titel: string; topicIds: string[] }>;
 }
 
@@ -44,14 +46,14 @@ async function lade(moduleId: string): Promise<FortschrittDaten> {
   ]);
   const input = assembleInput(data);
   return {
-    today, modul, skripte,
+    today, modul, skripte, exams: data.exams,
     fakten: {
       studyLogs: data.studyLogs.map(({ topicId, date, minutes }) => ({ topicId, date, minutes })),
       reviewLogs: data.reviewLogs.map(({ topicId, date, source, rating, scorePercent, trainer }) => ({ topicId, date, source, rating, scorePercent, trainer })),
       kartenLogs: karten,
       availability: data.config.availability,
     },
-    lernstand: { leaves: leafTopics(data.topics), studyLogs: input.studyLogs, reviewLogs: input.reviewLogs, settings: resolveSettings(input) },
+    lernstand: { leaves: leafTopics(data.topics), studyLogs: input.studyLogs, reviewLogs: input.reviewLogs, settings: resolveSettings(input), cardEvidence: input.cardEvidence, heute: today },
   };
 }
 
@@ -62,3 +64,15 @@ export function useFortschritt(zielStand = 0) {
   const ziele = useMemo(() => zieleAufloesen(ladeEigeneZiele(), daten?.fakten.availability), [daten, zielStand]);
   return { daten, ziele, error: state.status === 'error' ? state.error : undefined, retry };
 }
+
+const ERINNERT_KEY = 'lernstoff.fortschritt.erinnert';
+export const MEILENSTEINE_KEY = 'lernstoff.meilensteine';
+
+export const letzteErinnerung = () => storage.read<string>(ERINNERT_KEY, '') || undefined;
+export const merkeErinnerung = (tag: string) => storage.write(ERINNERT_KEY, tag);
+export const gemeldeteMeilensteine = () => storage.read<unknown[]>(MEILENSTEINE_KEY, []).filter((x): x is string => typeof x === 'string');
+export const merkeMeilensteine = (ids: string[]) => storage.write(MEILENSTEINE_KEY, [...new Set(ids)]);
+/** Merker „Meilensteine schon einmal geprüft“, unabhängig davon, ob dabei etwas erreicht war. */
+const MEILENSTEINE_START_KEY = 'lernstoff.meilensteine.start';
+export const meilensteineGestartet = () => storage.read<boolean>(MEILENSTEINE_START_KEY, false) || gemeldeteMeilensteine().length > 0;
+export const merkeMeilensteineGestartet = () => storage.write(MEILENSTEINE_START_KEY, true);

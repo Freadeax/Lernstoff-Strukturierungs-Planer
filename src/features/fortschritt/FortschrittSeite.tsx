@@ -5,14 +5,14 @@ import type { MasteryStatus } from '../../core/types';
 import { PageHeading } from '../../ui/PageHeading';
 import { addDays } from '../../ui/lib/time';
 import { navigate, useRoute } from '../../ui/shell/router';
-import { ceListe, ceThemen } from '../ce/modell';
 import { SOURCE_LABEL, TRAINER_NAME } from '../lernplan/store';
 import { dauer, kurzDatum, STATUS_LABEL } from '../lernplan/ui/format';
 import type { EvidenceSource } from '../lernplan/types';
+import { alleMeilensteine, naechsteSchritte, werteAus, type Auswertung } from './auswertung';
 import { speichereZiel, useFortschritt, type FortschrittDaten } from './daten';
 import {
-  bereichsStand, gesamtWerte, kalenderWochen, kompetenzBereiche, meilensteine, serie, statusAm, stufe, STATUS_REIHE,
-  wochenMitAllenZielen, wochenrueckblick, wochenStart, wochenZiele, woche, ZIEL_GRENZEN,
+  gesamtWerte, kalenderWochen, rueckblickText, serie, stufe, STATUS_REIHE, wissensVerlauf,
+  wochenrueckblick, wochenStart, wochenZiele, woche, ZIEL_GRENZEN,
   type Bereich, type BereichStand, type Ziele, type ZielStand,
 } from './statistik';
 
@@ -30,20 +30,14 @@ const prozent = (x: number) => `${Math.round(x * 100)} %`;
 /** Für CSS ohne Leerzeichen. */
 const breite = (x: number) => `${Math.round(Math.max(0, Math.min(1, x)) * 100)}%`;
 
-interface Ctx {
+interface Ctx extends Auswertung {
   d: FortschrittDaten;
   ziele: Ziele;
-  status: Map<string, { status: MasteryStatus }>;
-  name: (id: string) => string;
 }
 
 function useCtx(d: FortschrittDaten | undefined, ziele: Ziele): Ctx | undefined {
-  return useMemo(() => {
-    if (!d) return undefined;
-    const status = statusAm(d.lernstand, d.today);
-    const namen = new Map(d.lernstand.leaves.map((t) => [t.id, t.name]));
-    return { d, ziele, status, name: (id: string) => namen.get(id) ?? id };
-  }, [d, ziele]);
+  const a = useMemo(() => (d ? werteAus(d) : undefined), [d]);
+  return useMemo(() => (d && a ? { ...a, d, ziele } : undefined), [d, a, ziele]);
 }
 
 export default function FortschrittSeite() {
@@ -140,6 +134,52 @@ function Kalender({ ctx }: { ctx: Ctx }) {
   );
 }
 
+function NaechsterSchritt({ ctx }: { ctx: Ctx }) {
+  const liste = useMemo(() => naechsteSchritte(ctx.d, ctx, ctx.ziele), [ctx]);
+  return (
+    <article className="card fs-schritt">
+      <p className="eyebrow">Dein nächster Schritt</p>
+      <ol className="fs-schritte">
+        {liste.map((e) => (
+          <li key={e.id}>
+            <div><strong>{e.titel}</strong><p className="muted">{e.grund}</p></div>
+            <button type="button" className="small" onClick={() => navigate(e.pfad)}>{e.aktion}</button>
+          </li>
+        ))}
+      </ol>
+    </article>
+  );
+}
+
+function Verlauf({ ctx }: { ctx: Ctx }) {
+  const punkte = useMemo(() => wissensVerlauf(ctx.d.lernstand, ctx.d.today, 12), [ctx]);
+  const gesamt = Math.max(1, ctx.d.lernstand.leaves.length);
+  const letzte = punkte[punkte.length - 1]!, erste = punkte[0]!;
+  const plus = letzte.zahl.sicher - erste.zahl.sicher;
+  const begonnen = (p: typeof letzte) => gesamt - p.zahl.offen;
+  // Skaliert auf die meisten begonnenen Themen, sonst wären die Balken bei vielen offenen Themen kaum sichtbar.
+  const skala = Math.max(1, ...punkte.map(begonnen));
+  return (
+    <article className="card fs-verlauf">
+      <p className="eyebrow">Wissensverlauf, zwölf Wochen</p>
+      <p>{plus > 0 ? `${plural(plus, 'Thema', 'Themen')} mehr sicher als vor zwölf Wochen.` : plus < 0 ? `${plural(-plus, 'Thema', 'Themen')} weniger sicher als vor zwölf Wochen. Zeit für Wiederholungen.` : 'Noch keine Veränderung bei den sicheren Themen.'} {begonnen(letzte) - begonnen(erste) > 0 && `${begonnen(letzte) - begonnen(erste)} neu begonnen.`}</p>
+      <div className="fs-verlauf__balken" role="img" aria-label={punkte.map((p) => `${kurzDatum(p.ende)}: ${p.zahl.sicher} sicher, ${p.zahl.unsicher} unsicher, ${p.zahl.bearbeitet} bearbeitet`).join('; ')}>
+        {punkte.map((p) => (
+          <div key={p.ende} className="fs-verlauf__spalte" title={`${kurzDatum(p.ende)}: ${p.zahl.sicher} sicher, ${p.zahl.unsicher} unsicher, ${p.zahl.bearbeitet} bearbeitet`}>
+            {(['sicher', 'unsicher', 'bearbeitet'] as const).map((st) => p.zahl[st] > 0 && (
+              <span key={st} className={`faecher__teil--${st}`} style={{ height: breite(p.zahl[st] / skala) }} />
+            ))}
+          </div>
+        ))}
+      </div>
+      <ul className="faecher__legende">
+        {(['sicher', 'unsicher', 'bearbeitet'] as const).map((st) => <li key={st}><i className={`faecher__punkt faecher__teil--${st}`} />{STATUS_LABEL[st]}</li>)}
+      </ul>
+      <p className="muted">Volle Höhe = {plural(skala, 'begonnenes Thema', 'begonnene Themen')}, Stand jeweils am Wochenende. Insgesamt {gesamt} Themen.</p>
+    </article>
+  );
+}
+
 // ---------------------------------------------------------------- Überblick
 
 function Ueberblick({ ctx, onZiele }: { ctx: Ctx; onZiele: () => void }) {
@@ -159,6 +199,7 @@ function Ueberblick({ ctx, onZiele }: { ctx: Ctx; onZiele: () => void }) {
 
   return (
     <div className="fs-raster">
+      <NaechsterSchritt ctx={ctx} />
       <article className="card fs-serie">
         <p className="eyebrow">Lernserie</p>
         <p className="fs-zahl"><strong>{s.aktuell}</strong> {s.aktuell === 1 ? 'Lerntag' : 'Lerntage'} in Folge</p>
@@ -194,6 +235,7 @@ function Ueberblick({ ctx, onZiele }: { ctx: Ctx; onZiele: () => void }) {
         <p className="muted">„Sicher“ heißt: mehrfach an verschiedenen Tagen erfolgreich abgefragt und aktuell gut abrufbar. Lesen allein zählt nicht.</p>
       </article>
 
+      <Verlauf ctx={ctx} />
       <article className="card fs-kal">
         <p className="eyebrow">Letzte zwölf Wochen</p>
         <Kalender ctx={ctx} />
@@ -235,6 +277,18 @@ function ZielFormular({ ziele, onChange }: { ziele: Ziele; onChange: () => void 
 
 // ---------------------------------------------------------------- Wochenrückblick
 
+function Kopieren({ text }: { text: () => string }) {
+  const [stand, setStand] = useState<'' | 'ok' | 'fehler'>('');
+  return (
+    <div className="fs-kopieren">
+      <button type="button" className="small" onClick={() => {
+        navigator.clipboard?.writeText(text()).then(() => setStand('ok'), () => setStand('fehler')) ?? setStand('fehler');
+      }}>Als Text kopieren</button>
+      <span role="status" className="muted">{stand === 'ok' ? 'Kopiert.' : stand === 'fehler' ? 'Kopieren hier nicht möglich.' : ''}</span>
+    </div>
+  );
+}
+
 const quelleName = (q: string) => TRAINER_NAME[q] ?? SOURCE_LABEL[q as EvidenceSource] ?? q;
 
 function Rueckblick({ ctx, start: raw }: { ctx: Ctx; start: string | null }) {
@@ -255,6 +309,7 @@ function Rueckblick({ ctx, start: raw }: { ctx: Ctx; start: string | null }) {
 
       <article className="card">
         <ul className="fs-saetze">{r.saetze.map((s) => <li key={s}>{s}</li>)}</ul>
+        <Kopieren text={() => rueckblickText(r, ctx.name)} />
         <div className="fs-tage" role="img" aria-label={r.woche.tage.map((t) => `${kurzDatum(t.date)} ${t.minuten} Minuten`).join(', ')}>
           {r.woche.tage.map((t, i) => (
             <div key={t.date} className={`fs-tage__spalte${t.aktiv ? ' is-aktiv' : ''}${t.ruhetag ? ' is-ruhe' : ''}`}>
@@ -327,18 +382,8 @@ function BereichListe({ titel, text, staende, link }: { titel: string; text: str
   );
 }
 
-function useBereiche(ctx: Ctx) {
-  return useMemo(() => {
-    const { modul, skripte } = ctx.d;
-    const liste = ceListe(modul);
-    const ce: Bereich[] = liste.map((c) => ({ id: c.id, code: c.code, name: c.name, topicIds: ceThemen(modul, c, skripte, liste).map((t) => t.topic.id) }));
-    const st = (id: string) => ctx.status.get(id)?.status ?? 'offen';
-    return { ce: bereichsStand(ce, st), kb: bereichsStand(kompetenzBereiche(modul), st) };
-  }, [ctx]);
-}
-
 function Bereiche({ ctx }: { ctx: Ctx }) {
-  const { ce, kb } = useBereiche(ctx);
+  const { ce, kb } = ctx;
   return (
     <>
       <BereichListe titel="Curriculare Einheiten" staende={ce} link={(b) => `/lernen/ce?ce=${encodeURIComponent(b.id)}`}
@@ -352,21 +397,7 @@ function Bereiche({ ctx }: { ctx: Ctx }) {
 // ---------------------------------------------------------------- Meilensteine
 
 function Meilensteine({ ctx }: { ctx: Ctx }) {
-  const { ce } = useBereiche(ctx);
-  const liste = useMemo(() => {
-    const { d, ziele } = ctx;
-    const g = gesamtWerte(d.fakten, d.today);
-    return meilensteine({
-      laengsteSerie: serie(d.fakten, d.today).laengste,
-      minutenGesamt: g.minuten,
-      abfragenGesamt: g.abfragen,
-      kartenGesamt: g.karten,
-      sicher: [...ctx.status.values()].filter((p) => p.status === 'sicher').length,
-      themenGesamt: d.lernstand.leaves.length,
-      bereicheBegonnen: ce.filter((b) => b.gesamt > 0 && b.zahl.offen === 0).length,
-      wochenMitZiel: wochenMitAllenZielen(d.fakten, ziele, d.today),
-    });
-  }, [ctx, ce]);
+  const liste = useMemo(() => alleMeilensteine(ctx.d, ctx, ctx.ziele), [ctx]);
   const erreicht = liste.filter((m) => m.erreicht).length;
   return (
     <>

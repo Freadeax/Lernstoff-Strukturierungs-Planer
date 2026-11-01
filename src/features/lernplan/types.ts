@@ -82,6 +82,15 @@ export const DEFAULT_SETTINGS: PlannerSettings = {
   defaultDifficulty: 3,
 };
 
+/**
+ * Lernstand einer einzelnen Karteikarte zu einem Thema (FSRS je Karte, siehe karteikarten/planung.ts).
+ * Das Thema erbt daraus den Zustand: Karten können ein Thema nur abwerten, nie aufwerten.
+ */
+export interface CardEvidence {
+  stability: number;
+  lastReview: ISODate;
+}
+
 export interface PlannerInput {
   today: ISODate;
   topics: Topic[];
@@ -94,6 +103,8 @@ export interface PlannerInput {
   /** Gewichtung je Prüfung (z. B. Abschlussprüfung 2, Klausur 1). Standard: 1. */
   examWeights?: Record<ID, number>;
   settings?: Partial<PlannerSettings>;
+  /** Abgefragte Karteikarten je Thema (ohne pausierte). */
+  cardEvidence?: Record<ID, CardEvidence[]>;
 }
 
 export function resolveSettings(input: Pick<PlannerInput, 'settings'>): PlannerSettings {

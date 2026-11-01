@@ -33,7 +33,7 @@ function trainerLink(f: Fehler): { label: string; path: string } | null {
   if (f.quelle === 'krankheitsbilder') return { label: 'Fall noch einmal bearbeiten', path: `/lernen/krankheitsbilder?fall=${encodeURIComponent(f.id.split(':')[1] ?? '')}` };
   // as:<vignettenId>:<itemId>
   if (f.quelle === 'assessment') return { label: 'Fall noch einmal einschätzen', path: `/lernen/assessment?modus=faelle&fall=${encodeURIComponent(f.id.split(':')[1] ?? '')}` };
-  if (f.quelle === 'hygiene' || f.quelle === 'anatomie') {
+  if (f.quelle === 'hygiene' || f.quelle === 'anatomie' || f.quelle === 'expertenstandards' || f.quelle === 'normwerte') {
     const u = f.topicIds.flatMap((t) => uebungenFuer(t)).find((x) => x.trainer === f.quelle);
     if (u) return { label: `Im ${u.label} üben`, path: u.path };
   }

@@ -6,6 +6,8 @@ import { db } from '../../core/db';
 import type { ID } from '../../core/types';
 import type { CatalogModule } from '../../modules/catalog-types';
 import { SZENARIEN } from '../fall/faelle';
+import { readArchive } from '../praxis/storage';
+import { PRAXIS_THEMEN, praxisZuThema } from '../praxis/themen';
 import { ladeKartenDaten } from '../karteikarten/store';
 import type { Karte, KartenStand } from '../karteikarten/typen';
 import { faelleZuThema } from '../krankheitsbilder/bewertung';
@@ -26,6 +28,8 @@ export interface GeraeteDaten {
   staende: Map<ID, KartenStand>;
   lesestaende: Record<ID, Lesestand>;
   haken: Haken;
+  /** Abgeschlossene Fälle im Praxissimulator (Fall-IDs), aus dessen Archiv auf diesem Gerät. */
+  praxisFertig?: string[];
 }
 
 const LEER: GeraeteDaten = { skripte: [], karten: [], staende: new Map(), lesestaende: {}, haken: {} };
@@ -36,7 +40,7 @@ export function useGeraeteDaten(modul: CatalogModule) {
   const [stand, setStand] = useState(0);
   useEffect(() => {
     let aktiv = true;
-    const lokal = { lesestaende: ladeLesestaende(), haken: ladeHaken() };
+    const lokal = { lesestaende: ladeLesestaende(), haken: ladeHaken(), praxisFertig: readArchive().filter((x) => x.phase === 'finished').map((x) => x.scenario.id) };
     setDaten((d) => ({ ...d, ...lokal }));
     db.skripte.toArray().then((skripte) => { if (aktiv) setDaten((d) => ({ ...d, skripte })); }).catch(() => undefined);
     ladeKartenDaten(modul).then((k) => {
@@ -58,6 +62,7 @@ export interface FaktenQuelle {
 }
 
 const enc = encodeURIComponent;
+const PRAXISFAELLE = Object.keys(PRAXIS_THEMEN).map((id) => ({ id }));
 
 /** Baut für alle Themen einer CE die Fakten, aus denen der Lernpfad entsteht. */
 export function sammleFakten(themen: CeThema[], q: FaktenQuelle): ThemaFakten[] {
@@ -74,6 +79,8 @@ export function sammleFakten(themen: CeThema[], q: FaktenQuelle): ThemaFakten[] 
     }
   }
   const geuebt = new Set(q.reviewLogs.filter((l) => l.trainer === 'fall' || l.trainer === 'krankheitsbilder').map((l) => l.topicId));
+  // Ein abgeschlossener Praxisfall hinterlässt keine Abfrage, ist aber eine Spur: Fall-Schritt erledigt.
+  for (const id of daten.praxisFertig ?? []) for (const t of PRAXIS_THEMEN[id] ?? []) geuebt.add(t);
   const tests = new Map<ID, number>();
   for (const l of q.reviewLogs) if (l.source !== 'selbsteinschaetzung') tests.set(l.topicId, (tests.get(l.topicId) ?? 0) + 1);
 
@@ -90,6 +97,7 @@ export function sammleFakten(themen: CeThema[], q: FaktenQuelle): ThemaFakten[] 
   return themen.map((e) => {
     const id = e.topic.id;
     const szen = szenarienZuThema(id, SZENARIEN);
+    const praxis = praxisZuThema(id, PRAXISFAELLE);
     const kf = faelleZuThema(id, KRANKHEITSFAELLE, modul);
     const p = q.progress[id];
     const uebung = uebungenFuer(id, modul)[0];
@@ -103,9 +111,10 @@ export function sammleFakten(themen: CeThema[], q: FaktenQuelle): ThemaFakten[] 
       karten: kartenJe.get(id) ?? { gesamt: 0, gesehen: 0 },
       steckbriefe: steckbriefeZuThema(id, profile).map((x) => ({ id: x.id, name: x.name, gelesen: gelesenKb(x.id) })),
       faelle: {
-        anzahl: szen.length + kf.length,
+        anzahl: szen.length + kf.length + praxis.length,
         geuebt: geuebt.has(id),
-        ziel: szen.length ? `/lernen/fall?thema=${enc(id)}` : kf.length ? `/lernen/krankheitsbilder?ansicht=faelle&thema=${enc(id)}` : undefined,
+        // Offline-Fälle zuerst: Der Praxissimulator braucht keinen API-Schlüssel.
+        ziel: praxis.length ? `/lernen/praxis?thema=${enc(id)}` : szen.length ? `/lernen/fall?thema=${enc(id)}` : kf.length ? `/lernen/krankheitsbilder?ansicht=faelle&thema=${enc(id)}` : undefined,
       },
       status: p?.status ?? 'offen',
       tests: tests.get(id) ?? 0,

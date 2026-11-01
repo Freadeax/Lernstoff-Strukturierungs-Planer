@@ -121,8 +121,11 @@ Gespeichert werden nur Fakten: `studyLogs`, `reviewLogs`, `exams` und die Einste
 
 Browserprüfung: `npm run test:wissen` gegen `UI_BASE_URL` (Standard `http://127.0.0.1:5180/`). Sie nutzt neue Browserkontexte mit synthetischen Daten; persönliche Browserdaten und echte KI-Aufrufe werden nicht benötigt.
 
+### Karteikarten je Thema (`progress.ts`, `CARD_RULES`)
+
+Karteikarten haben ihren eigenen FSRS-Stand je Karte. Hat ein Thema mindestens 3 abgefragte, nicht pausierte Karten, erbt es deren Zustand: „sicher“ nur, wenn die Karten im Schnitt zu mindestens 85 % abrufbar sind und höchstens 20 % wackeln (Abruf unter 70 %). Sonst wird das Thema „unsicher“, die Begründung nennt die Karten, und die Abfrage ist heute fällig. Karten werten nie auf; die Sitzung meldet ihr Ergebnis wie bisher als normale Abfrage. Die Themen einer Katalogkarte kommen aus ihrem jüngsten Protokolleintrag (`loadCardEvidence` in `store.ts`). Die Fortschrittsseite rechnet den Kartenstand nur für heute ein, frühere Tage lassen sich nicht rekonstruieren.
+
 ## Offene Punkte
 
 - FSRS-Parameter später aus den eigenen Abfragedaten optimieren (ab ca. 1000 Abfragen sinnvoll).
-- Bewertung pro Karteikarte statt pro Thema, sobald der Karteikarten-Teil steht; das Thema erbt dann den schwächsten bzw. gemittelten Zustand.
 - Uhrzeiten und Lernblöcke im Kalender (aktuell Tagesebene).

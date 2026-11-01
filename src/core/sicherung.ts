@@ -14,6 +14,7 @@ const NICHT_SICHERN = new Set([
   'lernstoff.lastSeen',
   'lernstoff.sicherung',       // Merker dieses Moduls
   'lernstoff.karten.offeneSitzung', // wird auf dem Gerät selbst nachgemeldet
+  'lernstoff.fortschritt.erinnert', // Serien-Erinnerung: je Gerät einmal am Tag
 ]);
 const PRAEFIXE = ['lernstoff.', 'duell.'];
 
@@ -132,6 +133,7 @@ const LOKAL_LABEL: Record<string, string> = {
   'lernstoff.praxis.archiv': 'abgeschlossene Praxisfälle',
   'lernstoff.lernpfad': 'abgehakte Schritte im CE-Lernpfad',
   'lernstoff.hygiene.stand': 'Ergebnisse im Hygiene-Trainer', 'lernstoff.anatomie.stand': 'Ergebnisse im Anatomie-Trainer',
+  'lernstoff.expertenstandards.stand': 'Ergebnisse im Expertenstandards-Trainer', 'lernstoff.normwerte.stand': 'Ergebnisse im Normwerte-Trainer',
 };
 
 /** Liest eine Sicherungsdatei. Wirft mit verständlicher Meldung, wenn sie nicht passt. */

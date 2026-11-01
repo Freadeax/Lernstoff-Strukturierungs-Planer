@@ -34,7 +34,7 @@ export interface ExamForecast {
 
 export function forecastExams(input: PlannerInput): ExamForecast[] {
   const settings = resolveSettings(input);
-  const progress = computeAllProgress(input.topics, input.studyLogs, input.reviewLogs, input.today, settings);
+  const progress = computeAllProgress(input.topics, input.studyLogs, input.reviewLogs, input.today, settings, input.cardEvidence);
   const names = new Map(input.topics.map((t) => [t.id, t.name]));
 
   return input.exams

@@ -1,5 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
+import { getModule, modules } from '../../modules/registry';
 import { PageHeading } from '../../ui/PageHeading';
+import { useStore } from '../../ui/lib/store';
+import { navigate, useRoute } from '../../ui/shell/router';
+import { session as shellSession } from '../../ui/shell/session';
+import { praxisZuThema } from './themen';
 import { SCENARIOS, CATEGORIES, RESOURCES } from './catalog';
 import { CHECKS, clinicalDebrief, clock, consciousness, debrief, dispatch, replay, SOURCES, start } from './engine';
 import { News2Badge, VitalKurve } from './VitalKurve';
@@ -165,6 +170,13 @@ export default function Praxissimulator() {
   }, []);
   function send(command: Command) { setSession(previous => previous ? dispatch(previous, command) : previous); }
   function begin(scenario: Scenario) { preserveUnreadable.current = false; setSession(start(scenario, level)); setRunning(false); setPanel('Patientenzimmer'); setCategory('untersuchung'); setError(''); requestAnimationFrame(() => headingRef.current?.focus()); }
+  // ?thema=<id> zeigt nur die Fälle zu einem Lernthema (Sprung aus Lernpfad oder Lernplan).
+  const { params } = useRoute();
+  const moduleId = useStore(shellSession, (x) => x.moduleId);
+  const thema = params.get('thema') ?? '';
+  const zumThema = thema ? praxisZuThema(thema, SCENARIOS) : [];
+  const themaName = thema ? (getModule(moduleId) ?? modules[0])?.topics.find((t) => t.id === thema)?.name ?? thema : '';
+  const sichtbar = zumThema.length ? zumThema : SCENARIOS;
   const last = s ? [...s.events].reverse().find(e => e.kind !== 'state') ?? s.events.at(-1) : undefined;
   const active = s?.phase === 'active';
   return <section className="page praxis">
@@ -177,7 +189,8 @@ export default function Praxissimulator() {
         <label>Einrichtung<select value={setting} onChange={e => setSetting(e.target.value)}><option value="alle">Alle Einsatzgebiete</option>{Object.entries(SETTINGS).map(([k, v]) => <option value={k} key={k}>{v}</option>)}</select></label>
         <label>Ausbildungsstufe<select value={level} onChange={e => setLevel(Number(e.target.value) as 1 | 2 | 3)}><option value="1">1. Jahr · langsamer Verlauf, Lernziele sichtbar</option><option value="2">2. Jahr · regulärer Verlauf</option><option value="3">3. Jahr · schnellerer Verlauf</option></select></label>
       </div>
-      <div className="praxis-scenarios">{SCENARIOS.filter(x => setting === 'alle' || x.setting === setting).map((scenario, index) => <article className="card praxis-scenario" key={scenario.id}>
+      {thema && <p className="note" role="status">{zumThema.length ? <>Fälle zum Thema <strong>{themaName}</strong>. </> : <>Zum Thema <strong>{themaName}</strong> gibt es noch keinen Praxisfall. </>}<button type="button" className="link" onClick={() => navigate('/lernen/praxis')}>Alle Fälle zeigen</button></p>}
+      <div className="praxis-scenarios">{sichtbar.filter(x => setting === 'alle' || x.setting === setting).map((scenario, index) => <article className="card praxis-scenario" key={scenario.id}>
         <div className="praxis-scenario__top"><span className="badge">{SETTINGS[scenario.setting]}</span><span className="muted" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span></div>
         <h3>{scenario.title}</h3><p>{scenario.situation}</p><small>{scenario.focus} · {scenario.id === 'nachtwache' ? 'Technischer Referenzfall' : 'Szenariovorschau'} · fachlich ungeprüft</small>
         {scenario.storyline?.length ? <small className="praxis-scenario__story">Verlauf mit {scenario.storyline.length} möglichen Ereignissen · Entscheidungen haben Folgen</small> : null}
