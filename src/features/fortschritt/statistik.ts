@@ -413,3 +413,51 @@ export function kalenderWochen(f: Fakten, today: string, anzahl = 12): Tag[][] {
   const tage = tageswerte(f, erste, addDays(letzte, 6));
   return Array.from({ length: anzahl }, (_, i) => tage.slice(i * 7, i * 7 + 7));
 }
+
+// ---------------------------------------------------------------- Wissensverlauf
+
+export interface VerlaufPunkt { ende: string; zahl: Record<MasteryStatus, number> }
+
+/** Status aller Themen jeweils am Sonntag der letzten Wochen (laufende Woche: heute). Älteste zuerst. */
+export function wissensVerlauf(s: Lernstand, today: string, anzahl = 12): VerlaufPunkt[] {
+  const letzte = wochenStart(today);
+  return Array.from({ length: anzahl }, (_, i) => {
+    const start = addDays(letzte, -7 * (anzahl - 1 - i));
+    const ende = addDays(start, 6) < today ? addDays(start, 6) : today;
+    const zahl = Object.fromEntries(STATUS_REIHE.map((x) => [x, 0])) as Record<MasteryStatus, number>;
+    for (const p of statusAm(s, ende).values()) zahl[p.status]++;
+    return { ende, zahl };
+  });
+}
+
+// ---------------------------------------------------------------- Erinnerung und Meilenstein-Meldungen
+
+/**
+ * Erinnerung an eine gefährdete Serie: höchstens einmal am Tag und erst ab dem Nachmittag,
+ * damit sie nicht schon morgens drängelt.
+ */
+export function brauchtSerienErinnerung(s: Serie, today: string, stunde: number, zuletzt: string | undefined, abStunde = 16) {
+  return s.gefaehrdet && s.aktuell >= 2 && stunde >= abStunde && zuletzt !== today;
+}
+
+/** Meilensteine, die erreicht sind, aber noch nicht gemeldet wurden. */
+export function neueMeilensteine(liste: Meilenstein[], gemeldet: string[]): Meilenstein[] {
+  const schon = new Set(gemeldet);
+  return liste.filter((m) => m.erreicht && !schon.has(m.id));
+}
+
+// ---------------------------------------------------------------- Rückblick als Text
+
+/** Wochenrückblick als schlichter Text zum Kopieren (Notizen, Praxisanleitung, Lerngruppe). */
+export function rueckblickText(r: Rueckblick, name: (id: ID) => string): string {
+  const datum = (d: string) => `${d.slice(8, 10)}.${d.slice(5, 7)}.${d.slice(0, 4)}`;
+  const zeilen = [`Lernwoche ${datum(r.woche.start)} bis ${datum(r.woche.ende)}`, '', ...r.saetze.map((s) => `- ${s}`)];
+  if (r.ziele.length) {
+    zeilen.push('', 'Wochenziele:');
+    for (const z of r.ziele) zeilen.push(`- ${z.label}: ${z.ist} von ${z.soll}${z.einheit ? ` ${z.einheit}` : ''}${z.erreicht ? ' (erreicht)' : ''}`);
+  }
+  if (r.neuSicher.length) zeilen.push('', 'Neu sicher:', ...r.neuSicher.map((id) => `- ${name(id)}`));
+  if (r.meisteZeit.length) zeilen.push('', 'Meiste Lernzeit:', ...r.meisteZeit.map((x) => `- ${name(x.topicId)} (${x.minuten} Min.)`));
+  if (r.schwierig.length) zeilen.push('', 'Noch schwierig:', ...r.schwierig.map((x) => `- ${name(x.topicId)} (${x.fehl} von ${x.gesamt} nicht gelöst)`));
+  return zeilen.join('\n');
+}

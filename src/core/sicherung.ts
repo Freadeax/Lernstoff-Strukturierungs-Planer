@@ -14,6 +14,7 @@ const NICHT_SICHERN = new Set([
   'lernstoff.lastSeen',
   'lernstoff.sicherung',       // Merker dieses Moduls
   'lernstoff.karten.offeneSitzung', // wird auf dem Gerät selbst nachgemeldet
+  'lernstoff.fortschritt.erinnert', // Serien-Erinnerung: je Gerät einmal am Tag
 ]);
 const PRAEFIXE = ['lernstoff.', 'duell.'];
 
