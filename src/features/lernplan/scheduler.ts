@@ -152,7 +152,7 @@ export function buildPlan(input: PlannerInput): StudyPlan {
   const { today } = input;
   const warnings: PlanWarning[] = [];
   const topicsById = new Map(input.topics.map((t) => [t.id, t]));
-  const progress = computeAllProgress(input.topics, input.studyLogs, input.reviewLogs, today, settings);
+  const progress = computeAllProgress(input.topics, input.studyLogs, input.reviewLogs, today, settings, input.cardEvidence);
 
   const upcoming = input.exams.filter((e) => e.date > today).sort((a, b) => (a.date < b.date ? -1 : 1));
   const examsByTopic = new Map<ID, Exam[]>();
