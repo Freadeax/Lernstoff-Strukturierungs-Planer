@@ -57,6 +57,18 @@ describe('Aufgaben', () => {
     expect(runde(0.1 + 0.2)).toBe(0.3);
   });
 
+  it('NEWS2: Summe stimmt mit der Simulator-Tabelle, Lösungsweg nennt Reaktion', () => {
+    for (let seed = 1; seed <= 300; seed++) {
+      for (const stufe of [1, 2, 3] as Stufe[]) {
+        const a = erzeuge('news2', stufe, seed);
+        const summe = a.schritte.find((x) => x.startsWith('Summe:'))!;
+        expect(summe, a.id).toContain(`= ${a.loesung} Punkt`);
+        expect(a.schritte.at(-1), a.id).toMatch(/Beobachtung|ärztlich|Notfall/);
+        if (stufe === 1) expect(a.frage, a.id).toContain('Raumluft');
+      }
+    }
+  });
+
   it('naechste wählt nur aus den gewählten Typen und wiederholt den Typ nicht direkt', () => {
     for (let seed = 1; seed <= 100; seed++) {
       const a = naechste(['dosis', 'prozent'], 2, seed, 'dosis');

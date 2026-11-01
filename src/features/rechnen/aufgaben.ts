@@ -1,10 +1,12 @@
 // Rechentrainer: Aufgaben zum pflegerischen Rechnen (Einheiten, Dosis, Infusion, Perfusor,
-// Insulin, Flüssigkeitsbilanz, BMI, Sauerstoffvorrat).
+// Insulin, Flüssigkeitsbilanz, BMI, Sauerstoffvorrat, NEWS2-Punkte).
 // Alle Werte sind fiktive Übungswerte und keine Dosierungsempfehlung. Aufgaben werden aus einem
 // Startwert erzeugt (seed), damit sie reproduzierbar und testbar sind.
 
+import { AVPU_LABEL, NEWS2_REAKTION, news2Punkte, type Avpu } from '../praxis/news2';
+
 export type AufgabenTyp = 'einheiten' | 'dosis' | 'mgkg' | 'prozent' | 'laufrate' | 'tropfen' | 'laufzeit' | 'perfusor'
-  | 'insulin' | 'bilanz' | 'bmi' | 'sauerstoff';
+  | 'insulin' | 'bilanz' | 'bmi' | 'sauerstoff' | 'news2';
 export type Stufe = 1 | 2 | 3;
 
 export interface Aufgabe {
@@ -26,6 +28,7 @@ const INFUSION = 'thema.ph.injektion';
 const FLUESSIGKEIT = 'thema.pro.dehydratation';
 const ERNAEHRUNG = 'thema.ph.ernaehrung';
 const ATMUNG = 'thema.kl.atmung';
+const VITAL = 'thema.beo.vitalzeichen';
 
 export const TYPEN: TypInfo[] = [
   { typ: 'einheiten', label: 'Einheiten', formel: '1 g = 1000 mg · 1 mg = 1000 µg · 1 l = 1000 ml', merke: 'Eine Stufe größer: durch 1000. Eine Stufe kleiner: mal 1000.', thema: ARZNEI },
@@ -39,6 +42,7 @@ export const TYPEN: TypInfo[] = [
   { typ: 'insulin', label: 'Insulin', formel: 'ml = IE ÷ Konzentration (IE/ml) · U-100 = 100 IE/ml', merke: 'Auf dem Pen oder der Ampulle steht die Konzentration. Bei U-100 sind 10 IE = 0,1 ml.', thema: ARZNEI },
   { typ: 'bilanz', label: 'Flüssigkeitsbilanz', formel: 'Bilanz = Einfuhr gesamt − Ausfuhr gesamt', merke: 'Positiv: mehr aufgenommen als ausgeschieden. Negativ: mehr ausgeschieden. Erst alle Einfuhren, dann alle Ausfuhren addieren.', thema: FLUESSIGKEIT },
   { typ: 'bmi', label: 'BMI', formel: 'BMI = Gewicht (kg) ÷ (Größe in m)²', merke: 'Zentimeter erst in Meter umrechnen: 172 cm = 1,72 m. Dann die Größe mit sich selbst malnehmen.', thema: ERNAEHRUNG },
+  { typ: 'news2', label: 'NEWS2', formel: 'NEWS2 = Summe der Punkte aus Atemfrequenz, SpO₂, O₂-Gabe, systolischem Blutdruck, Puls, Bewusstsein und Temperatur', merke: 'Jeder Parameter 0 bis 3 Punkte, O₂-Gabe 2 Punkte, neu verwirrt zählt wie V, P oder U: 3 Punkte. Ab 5 dringend ärztlich, ab 7 Notfall, ein Einzelwert mit 3 Punkten schon zeitnah.', thema: VITAL },
   { typ: 'sauerstoff', label: 'Sauerstoffvorrat', formel: 'Liter = Flaschenvolumen (l) × Druck (bar) · Minuten = Liter ÷ Flow (l/min)', merke: 'Bei einer Reserve nur den Druck über der Reserve nutzen: (Druck − Reserve) × Volumen.', thema: ATMUNG },
 ];
 
@@ -395,7 +399,54 @@ const sauerstoff: Gen = (r, stufe) => {
   };
 };
 
-const GEN: Record<AufgabenTyp, Gen> = { einheiten, dosis, mgkg, prozent, laufrate, tropfen, laufzeit, perfusor, insulin, bilanz, bmi, sauerstoff };
+// NEWS2 (RCP 2017, SpO₂-Skala 1) mit derselben Punktetabelle wie die Simulatoren.
+// Stufe 1: ein bis zwei auffällige Werte, Stufe 2: drei bis vier, Stufe 3: Werte genau an den Grenzen.
+const NEWS2_WERTE = {
+  af: { normal: [14, 16, 18], auffaellig: [8, 10, 22, 24, 26, 30], grenze: [8, 9, 11, 12, 20, 21, 24, 25] },
+  spo2: { normal: [96, 97, 98], auffaellig: [88, 90, 92, 93, 94, 95], grenze: [91, 92, 93, 94, 95, 96] },
+  sys: { normal: [120, 130, 145], auffaellig: [85, 95, 105, 225], grenze: [90, 91, 100, 101, 110, 111, 219, 220] },
+  puls: { normal: [68, 76, 84], auffaellig: [38, 48, 98, 115, 135], grenze: [40, 41, 50, 51, 90, 91, 110, 111, 130, 131] },
+  temp: { normal: [36.6, 37.0, 37.4], auffaellig: [34.8, 35.8, 38.4, 39.4], grenze: [35.0, 35.1, 36.0, 36.1, 38.0, 38.1, 39.0, 39.1] },
+} as const;
+type News2Zahl = keyof typeof NEWS2_WERTE;
+const NEWS2_NAME: Record<News2Zahl, string> = { af: 'Atemfrequenz', spo2: 'SpO₂', sys: 'RR systolisch', puls: 'Puls', temp: 'Temperatur' };
+const NEWS2_EINHEIT: Record<News2Zahl, string> = { af: '/min', spo2: ' %', sys: ' mmHg', puls: '/min', temp: ' °C' };
+const NEWS2_RISIKO = { niedrig: 'niedriges Risiko', 'niedrig-mittel': 'niedriges Risiko, aber ein Einzelwert mit 3 Punkten', mittel: 'mittleres Risiko', hoch: 'hohes Risiko' } as const;
+
+const NEWS2_PERSON = ['Herr L., 71 Jahre, am zweiten Tag nach einer Hüft-OP.', 'Frau S., 58 Jahre, mit Pneumonie auf der Inneren.', 'Herr D., 83 Jahre, im Pflegeheim, wirkt heute anders als sonst.', 'Frau K., 45 Jahre, nach einer Darm-OP.'];
+
+const news2: Gen = (r, stufe) => {
+  const zahlen = Object.keys(NEWS2_WERTE) as News2Zahl[];
+  const anzahl = stufe === 1 ? r.int(1, 2) : stufe === 2 ? r.int(3, 4) : r.int(3, 5);
+  const auffaellig = new Set<News2Zahl>();
+  while (auffaellig.size < anzahl) auffaellig.add(r.pick(zahlen));
+  const w = Object.fromEntries(zahlen.map((k) => {
+    const quelle = !auffaellig.has(k) ? NEWS2_WERTE[k].normal : stufe === 3 ? NEWS2_WERTE[k].grenze : NEWS2_WERTE[k].auffaellig;
+    return [k, r.pick(quelle)];
+  })) as Record<News2Zahl, number>;
+  const sauerstoffGabe = stufe > 1 && r.next() < 0.4;
+  const avpu: Avpu = stufe === 1 ? 'A' : r.next() < 0.25 ? r.pick(['C', 'V'] as const) : 'A';
+  const werte = { af: w.af, spo2: w.spo2, sauerstoff: sauerstoffGabe, sys: w.sys, puls: w.puls, avpu, temp: w.temp };
+  const { punkte, risiko, teil } = news2Punkte(werte);
+  // Ohne jede Auffälligkeit wäre die Lösung 0: dann einen Wert verschieben (Tests erwarten Lösungen > 0)
+  if (punkte === 0) return news2(r, stufe);
+  const anzeige = (k: News2Zahl) => `${NEWS2_NAME[k]} ${zahl(w[k])}${NEWS2_EINHEIT[k]}`;
+  const zeilen: Array<[string, number]> = [
+    [anzeige('af'), teil[0]!], [anzeige('spo2'), teil[1]!], [sauerstoffGabe ? 'O₂-Gabe ja' : 'Raumluft', teil[2]!],
+    [anzeige('sys'), teil[3]!], [anzeige('puls'), teil[4]!], [`Bewusstsein ${avpu} (${AVPU_LABEL[avpu]})`, teil[5]!], [anzeige('temp'), teil[6]!],
+  ];
+  return {
+    frage: `${r.pick(NEWS2_PERSON)} Du misst: ${zeilen.map(([t]) => t).join(', ')}. Wie viele NEWS2-Punkte ergeben sich? (SpO₂-Skala 1)`,
+    einheit: 'Punkte', loesung: punkte, toleranz: 0,
+    schritte: [
+      ...zeilen.map(([t, p]) => `${t}: ${p} ${p === 1 ? 'Punkt' : 'Punkte'}`),
+      `Summe: ${teil.join(' + ')} = ${punkte} ${punkte === 1 ? 'Punkt' : 'Punkte'}, ${NEWS2_RISIKO[risiko]}`,
+      NEWS2_REAKTION[risiko],
+    ],
+  };
+};
+
+const GEN: Record<AufgabenTyp, Gen> = { einheiten, dosis, mgkg, prozent, laufrate, tropfen, laufzeit, perfusor, insulin, bilanz, bmi, sauerstoff, news2 };
 
 export function erzeuge(typ: AufgabenTyp, stufe: Stufe, seed: number): Aufgabe {
   return { id: `${typ}:${stufe}:${seed}`, typ, stufe, ...GEN[typ](rng(seed), stufe) };

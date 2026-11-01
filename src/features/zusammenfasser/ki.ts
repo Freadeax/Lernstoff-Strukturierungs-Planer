@@ -97,7 +97,7 @@ const seite = (c: SourceChunk) => c.printedPage ?? String(c.page);
 
 /** Herkunft eines Abschnitts in Worten, damit die KI Merkkästen, Fußnoten und Tabellen als solche erkennt. */
 export const HERKUNFT: Partial<Record<NonNullable<SourceChunk['origin']>, string>> = {
-  box: 'Merkkasten', footnote: 'Fußnote', table: 'Tabelle', notes: 'Sprechernotiz',
+  box: 'Merkkasten', footnote: 'Fußnote', table: 'Tabelle', notes: 'Sprechernotiz', ocr: 'Texterkennung',
 };
 
 /**

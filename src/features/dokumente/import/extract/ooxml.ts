@@ -1,7 +1,7 @@
 // Gemeinsame Helfer für docx/pptx (Office Open XML = ZIP mit XML-Teilen).
 import JSZip from 'jszip';
 import { DOMParser } from '@xmldom/xmldom';
-import type { FileMeta } from '../types';
+import type { FileMeta, PageImage } from '../types';
 
 export type El = Element;
 
@@ -78,4 +78,28 @@ function normalizePath(p: string): string {
     else if (part && part !== '.') out.push(part);
   }
   return out.join('/');
+}
+
+/** Kleinere Bilder sind fast immer Symbole, Aufzählungszeichen oder Linien. */
+const BILD_MIN_BYTES = 6 * 1024;
+
+/**
+ * Sammelt eingebettete Bilder (a:blip r:embed) eines XML-Teils für die Texterkennung. Jede Mediendatei nur einmal
+ * je Dokument (seen), damit ein Logo auf jeder Folie nicht jedes Mal gelesen wird.
+ */
+export async function embeddedImages(zip: JSZip, part: Node, relMap: Map<string, string>, seen: Set<string>): Promise<PageImage[]> {
+  const out: PageImage[] = [];
+  for (const blip of desc(part, 'blip')) {
+    let id: string | undefined;
+    for (let i = 0; i < blip.attributes.length; i++) if (blip.attributes[i].localName === 'embed') id = blip.attributes[i].value;
+    const path = id ? relMap.get(id) : undefined;
+    if (!path || seen.has(path)) continue;
+    const mediaType = /\.png$/i.test(path) ? 'image/png' : /\.jpe?g$/i.test(path) ? 'image/jpeg' : undefined;
+    const f = zip.file(path);
+    if (!mediaType || !f) continue;
+    seen.add(path);
+    const bytes = await f.async('uint8array');
+    if (bytes.length >= BILD_MIN_BYTES) out.push({ bytes, mediaType });
+  }
+  return out;
 }

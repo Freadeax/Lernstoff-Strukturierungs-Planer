@@ -31,4 +31,24 @@ describe('OCR', () => {
     expect(r.chunks[0]).toMatchObject({ page: 1 });
     expect(r.chunks.map((c) => c.text).join(' ')).toContain('Dekubitus');
   }, 60_000);
+
+  it('liest Text in Folienbildern, jedes Bild nur einmal je Dokument', async () => {
+    const bytes = new Uint8Array(readFileSync(new URL('./__fixtures__/folie_mit_bild.pptx', import.meta.url)));
+    const r = await importFile({ name: 'folie_mit_bild.pptx', bytes }, { ocr: await engine });
+    const bild = r.chunks.filter((c) => c.origin === 'ocr');
+    expect(bild.map((c) => c.page)).toEqual([1]);
+    expect(bild[0].text).toMatch(/alle zwei Stunden/);
+    expect(bild[0].ocrConfidence).toBeGreaterThan(0.7);
+    expect(r.report.imageTextPages).toBe(1);
+  }, 60_000);
+
+  it('ergänzt im PDF mit Textebene nur den Text der Abbildung, nicht die Textebene doppelt', async () => {
+    const bytes = new Uint8Array(readFileSync(new URL('./__fixtures__/skript_mit_abbildung.pdf', import.meta.url)));
+    const r = await importFile({ name: 'skript_mit_abbildung.pdf', bytes }, { ocr: await engine });
+    expect(r.report.ocrPages).toBe(0);
+    const bild = r.chunks.filter((c) => c.origin === 'ocr').map((c) => c.text).join(' ');
+    expect(bild).toMatch(/Fersen frei/);
+    expect(bild).not.toMatch(/Einschätzung des Risikos/);
+    expect(r.chunks.filter((c) => c.origin !== 'ocr').map((c) => c.text).join(' ')).toMatch(/Einschätzung des Risikos/);
+  }, 60_000);
 });
