@@ -72,3 +72,7 @@ export const letzteErinnerung = () => storage.read<string>(ERINNERT_KEY, '') || 
 export const merkeErinnerung = (tag: string) => storage.write(ERINNERT_KEY, tag);
 export const gemeldeteMeilensteine = () => storage.read<unknown[]>(MEILENSTEINE_KEY, []).filter((x): x is string => typeof x === 'string');
 export const merkeMeilensteine = (ids: string[]) => storage.write(MEILENSTEINE_KEY, [...new Set(ids)]);
+/** Merker „Meilensteine schon einmal geprüft“, unabhängig davon, ob dabei etwas erreicht war. */
+const MEILENSTEINE_START_KEY = 'lernstoff.meilensteine.start';
+export const meilensteineGestartet = () => storage.read<boolean>(MEILENSTEINE_START_KEY, false) || gemeldeteMeilensteine().length > 0;
+export const merkeMeilensteineGestartet = () => storage.write(MEILENSTEINE_START_KEY, true);
