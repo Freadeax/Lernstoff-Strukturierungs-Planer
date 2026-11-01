@@ -15,7 +15,7 @@ try {
     const page = await context.newPage(); page.on('pageerror', e => errors.push(e.message));
     await page.goto(base + '#/lernen/praxis', { waitUntil: 'networkidle' });
     await page.getByRole('heading', { name: 'Praxissimulator', exact: true }).waitFor();
-    assert.equal(await page.getByRole('button', { name: 'Schicht übernehmen', exact: true }).count(), 12);
+    assert.equal(await page.getByRole('button', { name: 'Schicht übernehmen', exact: true }).count(), 14);
     const audit = async name => {
       await page.waitForTimeout(350); // Wait for the shared theme/button color transitions to settle.
       assert(!(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)), `${name} overflow @${width}`);
