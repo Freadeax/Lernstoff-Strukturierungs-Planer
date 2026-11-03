@@ -10,6 +10,8 @@ import { ABSCHNITTE, aufgabenThemen } from '../krankheitsbilder/bewertung';
 import { INSTRUMENTE } from '../assessment/instrumente';
 import type { Vignette } from '../assessment/vignetten';
 import type { VignettenErgebnis } from '../assessment/bewertung';
+import type { Scenario } from '../praxis/types';
+import { PRAXIS_THEMEN } from '../praxis/themen';
 import type { NeuerFehler } from './fehlerheft';
 
 const STUFE_LABEL: Record<Stufe, string> = { 1: 'Einstieg', 2: 'Station', 3: 'Profi' };
@@ -121,4 +123,28 @@ export function ausAssessment(v: Vignette, e: VignettenErgebnis, eigeneKategorie
     });
   }
   return items;
+}
+
+/**
+ * Praxissimulator: Entscheidungsmomente, in denen nicht die beste Option gewählt wurde.
+ * Wiederholt wird als Auswahl mit der Lage im Moment der Entscheidung. Die Begründungen
+ * aller Optionen stehen in der Erklärung, damit klar wird, warum die eigene Wahl schwächer war.
+ */
+export function ausPraxis(scenario: Scenario, entscheidungen: { event: string; choice: string }[]): NeuerFehler[] {
+  return entscheidungen.flatMap(({ event, choice }) => {
+    const e = scenario.storyline?.find((x) => x.id === event);
+    const optionen = e?.choices ?? [];
+    const gewaehlt = optionen.find((o) => o.id === choice);
+    const richtig = optionen.flatMap((o, i) => (o.best ? [i] : []));
+    if (!e || !gewaehlt || gewaehlt.best || !richtig.length) return [];
+    return [{
+      id: `praxis:${scenario.id}:${e.id}`, quelle: 'praxis' as const, topicIds: PRAXIS_THEMEN[scenario.id] ?? [],
+      titel: `${scenario.title} · ${e.title}`,
+      frage: `${scenario.patient}, ${scenario.age} Jahre (${scenario.focus}). ${e.detail} Was tust du?`,
+      deineAntwort: gewaehlt.label,
+      loesung: richtig.map((i) => optionen[i]!.label).join(' · '),
+      erklaerung: [...richtig.map((i) => optionen[i]!.why), `Deine Wahl: ${gewaehlt.why}`],
+      wiederholung: { art: 'auswahl' as const, optionen: optionen.map((o) => o.label), richtig, mehrfach: richtig.length > 1 },
+    }];
+  });
 }

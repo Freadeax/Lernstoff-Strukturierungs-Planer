@@ -4,7 +4,9 @@ import { pflegeModule } from '../../modules/pflege';
 import { erzeugeRunde, karten } from '../duell/duell';
 import { katalog, rechenFragen } from '../simulation/simulation';
 import { auswahlRichtig, faellig, MAX_EINTRAEGE, merke, mischeAuswahl, nachThema, ueberblick, wiederholt, type NeuerFehler } from './fehlerheft';
-import { ausAssessment, ausDuell, ausKrankheitsbild, ausRechentrainer, ausSimulation } from './quellen';
+import { ausAssessment, ausDuell, ausKrankheitsbild, ausPraxis, ausRechentrainer, ausSimulation } from './quellen';
+import { SCENARIOS } from '../praxis/catalog';
+import { PRAXIS_THEMEN } from '../praxis/themen';
 import { VIGNETTEN } from '../assessment/vignetten';
 import { bewerteVignette } from '../assessment/bewertung';
 import { FAELLE } from '../krankheitsbilder/faelle';
@@ -138,5 +140,25 @@ describe('Quellen', () => {
       expect(w.optionen[w.richtig[0]!]).toBe(x.loesung);
     }
     expect(ausAssessment(v, bewerteVignette(v, { werte: v.loesung, kategorie: 'mittel' }), 'mittel')).toEqual([]);
+  });
+
+  it('legt für Praxisfälle je schwächerer Entscheidung einen Eintrag an, beste Wahl bleibt draußen', () => {
+    const mitWahl = SCENARIOS.flatMap((sc) => (sc.storyline ?? []).filter((e) => e.choices?.length).map((e) => ({ sc, e })));
+    expect(mitWahl.length).toBeGreaterThan(10);
+    for (const { sc, e } of mitWahl) {
+      const schwach = e.choices!.filter((c) => !c.best);
+      const best = e.choices!.filter((c) => c.best);
+      expect(ausPraxis(sc, best.map((c) => ({ event: e.id, choice: c.id })))).toEqual([]);
+      for (const c of schwach) {
+        const [n] = ausPraxis(sc, [{ event: e.id, choice: c.id }]);
+        expect(n).toMatchObject({ id: `praxis:${sc.id}:${e.id}`, quelle: 'praxis', deineAntwort: c.label, topicIds: PRAXIS_THEMEN[sc.id] });
+        const w = n!.wiederholung;
+        if (w.art !== 'auswahl') throw new Error('Auswahl erwartet');
+        expect(w.richtig.map((i) => w.optionen[i])).toEqual(best.map((b) => b.label));
+        expect(n!.erklaerung.at(-1)).toContain(c.why);
+      }
+    }
+    // unbekannte Ereignisse und Optionen werden übergangen
+    expect(ausPraxis(SCENARIOS[0]!, [{ event: 'gibtsnicht', choice: 'x' }])).toEqual([]);
   });
 });

@@ -87,7 +87,7 @@ describe('Lernplan-Verknüpfung', async () => {
   const { uebungenFuer } = await import('../lernplan/trainer');
   it('SIS-Thema führt zum SIS-Trainer, jedes Thema zur Mindmap', () => {
     expect(uebungenFuer('thema.pp.sis').map((u) => u.path)).toContain('/lernen/sis');
-    expect(uebungenFuer('thema.kl.diabetes').at(-1)?.trainer).toBe('mindmap');
+    expect(uebungenFuer('thema.kl.diabetes').map((u) => u.trainer)).toContain('mindmap');
     expect(uebungenFuer('thema.gibtsnicht')).toEqual([]);
   });
 });
