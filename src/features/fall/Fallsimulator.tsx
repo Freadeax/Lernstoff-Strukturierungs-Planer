@@ -6,6 +6,7 @@ import { pflegeModule } from '../../modules/pflege';
 import { useRoute } from '../../ui/shell/router';
 import { proThema } from '../lernplan/trainer';
 import { LernplanHinweis, useLernplanUebernahme } from '../lernplan/ui/LernplanHinweis';
+import { faelleZuKrankheit, KI_KRANKHEITEN } from '../krankheitsbilder/fallbezug';
 import {
   fallThemen, SETTING_LABEL, STUFE_LABEL, SZENARIEN, szenarioAusThema,
   type Setting, type Stufe, type Szenario,
@@ -44,9 +45,15 @@ function Start({ onStart, apiKey }: { onStart: (s: Szenario, stufe: Stufe) => vo
   const [stufe, setStufe] = useState<Stufe>(1);
   const themen = useMemo(() => fallThemen(modul), []);
   // Sprung aus dem Lernplan: #/lernen/fall?thema=… stellt passende Fälle nach vorn
-  const wunsch = useRoute().params.get('thema') ?? '';
+  const params = useRoute().params;
+  const wunsch = params.get('thema') ?? '';
+  // Sprung aus dem Krankheitsbild-Steckbrief: #/lernen/fall?kb=kh.… stellt dessen Fälle nach vorn
+  const kb = params.get('kb') ?? '';
+  const kbFaelle = useMemo(() => (kb ? faelleZuKrankheit(KI_KRANKHEITEN, kb) : []), [kb]);
+  const kbName = modul.diseaseProfiles?.find((p) => p.id === kb)?.name ?? kb;
   const [themaId, setThemaId] = useState(themen.some((t) => t.id === wunsch) ? wunsch : themen[0]?.id ?? '');
-  const szenarien = useMemo(() => [...SZENARIEN].sort((a, b) => Number(b.topicIds.includes(wunsch)) - Number(a.topicIds.includes(wunsch))), [wunsch]);
+  const passt = (s: Szenario) => Number(kbFaelle.includes(s.id)) * 2 + Number(s.topicIds.includes(wunsch));
+  const szenarien = useMemo(() => [...SZENARIEN].sort((a, b) => passt(b) - passt(a)), [wunsch, kbFaelle]);
   const [setting, setSetting] = useState<Setting>('krankenhaus');
   const [archiv] = useState(ladeArchiv);
   const [offen, setOffen] = useState<Fall | null>(null);
@@ -75,6 +82,7 @@ function Start({ onStart, apiKey }: { onStart: (s: Szenario, stufe: Stufe) => vo
             <span className="row fall__badges">
               <span className="badge badge--demo">{SETTING_LABEL[s.setting]}</span>
               {wunsch && s.topicIds.includes(wunsch) && <span className="badge">passt zu {themaName(wunsch)}</span>}
+              {kbFaelle.includes(s.id) && <span className="badge">zeigt {kbName}</span>}
             </span>
             <strong>{s.titel}</strong>
             <span className="muted">{s.kurz}</span>

@@ -9,6 +9,7 @@ import { navigate, useRoute } from '../../ui/shell/router';
 import { proThema } from '../lernplan/trainer';
 import { LernplanHinweis, useLernplanUebernahme } from '../lernplan/ui/LernplanHinweis';
 import { FAELLE, type Fallaufgabe } from './faelle';
+import { faelleZuKrankheit, KI_KRANKHEITEN, PRAXIS_KRANKHEITEN } from './fallbezug';
 import {
   ABSCHNITTE, ASSESSMENT_GRUPPE, belegeFuer, belegQuote, bewerteFall, faelleZuThema, MIN_PRO_THEMA, mischung, passtZurSuche, vollstaendig,
   type Antworten, type FallErgebnis,
@@ -126,6 +127,8 @@ function Verknuepfungen({ p }: { p: DiseaseProfile }) {
   const standards = (p.referenceIds ?? []).map((id) => REFS.get(id)).filter((r) => !!r);
   const themen = [...new Set([...p.topicIds, ...(p.prophylaxen ?? []).map((x) => x.topicId)])];
   const faelle = FAELLE.filter((f) => f.krankheitId === p.id);
+  const praxis = faelleZuKrankheit(PRAXIS_KRANKHEITEN, p.id);
+  const ki = faelleZuKrankheit(KI_KRANKHEITEN, p.id);
   return (
     <aside className="card kb__seite">
       {!!faelle.length && (
@@ -133,6 +136,15 @@ function Verknuepfungen({ p }: { p: DiseaseProfile }) {
           <h3>Fallaufgaben</h3>
           <div className="stack-1">
             {faelle.map((f) => <button key={f.id} type="button" className="primary small" onClick={() => gehe({ ansicht: 'faelle', fall: f.id })}>{f.titel}</button>)}
+          </div>
+        </section>
+      )}
+      {(praxis.length > 0 || ki.length > 0) && (
+        <section>
+          <h3>In der Simulation erleben</h3>
+          <div className="stack-1">
+            {praxis.length > 0 && <button type="button" className="small" onClick={() => navigate(`/lernen/praxis?kb=${encodeURIComponent(p.id)}`)}>Praxissimulator (offline) · {praxis.length} {praxis.length === 1 ? 'Fall' : 'Fälle'}</button>}
+            {ki.length > 0 && <button type="button" className="small ghost" onClick={() => navigate(`/lernen/fall?kb=${encodeURIComponent(p.id)}`)}>KI-Fallsimulator · {ki.length} {ki.length === 1 ? 'Fall' : 'Fälle'}</button>}
           </div>
         </section>
       )}

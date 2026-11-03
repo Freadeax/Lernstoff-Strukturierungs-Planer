@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { getModule, modules } from '../../modules/registry';
+import type { CatalogModule } from '../../modules/catalog-types';
 import { PageHeading } from '../../ui/PageHeading';
 import { useStore } from '../../ui/lib/store';
 import { navigate, useRoute } from '../../ui/shell/router';
 import { session as shellSession } from '../../ui/shell/session';
 import { PRAXIS_THEMEN, praxisZuThema } from './themen';
+import { faelleZuKrankheit, krankheitenZuFall, PRAXIS_KRANKHEITEN } from '../krankheitsbilder/fallbezug';
 import { SCENARIOS, CATEGORIES, RESOURCES } from './catalog';
 import { CHECKS, clinicalDebrief, clock, consciousness, debrief, dispatch, replay, SOURCES, start } from './engine';
 import { News2Badge, VitalKurve } from './VitalKurve';
@@ -14,6 +16,9 @@ import { SchichtAnsicht } from './Schicht';
 import { beginneSchicht, leseSchicht, SCHICHTEN, speichereSchicht, type Schicht } from './schicht';
 import { SETTINGS, STORY_KINDS, type Category, type Command, type Medication, type Scenario, type Session, type Vital } from './types';
 import './praxis.css';
+
+/** Fachmodul mit Katalog (Steckbriefe); die Registry liefert den allgemeinen Modultyp. */
+const katalog = (id: string) => (getModule(id) ?? modules[0]) as CatalogModule | undefined;
 
 const VITALS: { key: Vital; label: string; unit: string }[] = [
   { key: 'pulse', label: 'Puls', unit: '/min' }, { key: 'spo2', label: 'SpO₂', unit: '%' },
@@ -133,9 +138,12 @@ function Weiterlernen({ id }: { id: string }) {
   const moduleId = useStore(shellSession, (x) => x.moduleId);
   const topics = (getModule(moduleId) ?? modules[0])?.topics ?? [];
   const ids = PRAXIS_THEMEN[id] ?? [];
+  const profile = katalog(moduleId)?.diseaseProfiles ?? [];
+  const steckbriefe = krankheitenZuFall(PRAXIS_KRANKHEITEN, id).flatMap(k => profile.filter(p => p.id === k));
   if (!ids.length) return null;
   return <div className="praxis-weiter"><h4>Weiterlernen zu diesem Fall</h4><p className="muted">Diese Lernthemen hat der Fall geübt. Lücken aus dem Debriefing schließt du am besten gleich dort.</p>
-    <ul>{ids.map(t => <li key={t}><a href={`#/lernen/themen?thema=${encodeURIComponent(t)}`}>{topics.find(x => x.id === t)?.name ?? t}</a><span className="praxis-weiter__links"><a href={`#/lernen/karten?thema=${encodeURIComponent(t)}`}>Karteikarten</a> · <a href={`#/lernen/skript?thema=${encodeURIComponent(t)}`}>Skript</a></span></li>)}</ul></div>;
+    <ul>{ids.map(t => <li key={t}><a href={`#/lernen/themen?thema=${encodeURIComponent(t)}`}>{topics.find(x => x.id === t)?.name ?? t}</a><span className="praxis-weiter__links"><a href={`#/lernen/karten?thema=${encodeURIComponent(t)}`}>Karteikarten</a> · <a href={`#/lernen/skript?thema=${encodeURIComponent(t)}`}>Skript</a></span></li>)}</ul>
+    {steckbriefe.length > 0 && <p>Krankheitsbild nachlesen: {steckbriefe.map((p, i) => <span key={p.id}>{i > 0 && ' · '}<a href={`#/lernen/krankheitsbilder?kb=${encodeURIComponent(p.id)}`}>{p.name}</a></span>)}</p>}</div>;
 }
 
 /** Entscheidungsmoment: Die Simulationsuhr steht, bis eine Option gewählt ist. */
@@ -237,7 +245,12 @@ export default function Praxissimulator() {
   // ?fall=<id> zeigt genau einen Fall (Sprung aus dem Fehlerheft).
   const fallParam = params.get('fall') ?? '';
   const zumFall = fallParam ? SCENARIOS.filter((x) => x.id === fallParam) : [];
-  const zumThema = zumFall.length ? zumFall : thema ? praxisZuThema(thema, SCENARIOS) : [];
+  // ?kb=<kh.id> zeigt die Fälle zu einem Krankheitsbild (Sprung aus dem Steckbrief).
+  const kb = params.get('kb') ?? '';
+  const kbFaelle = kb ? faelleZuKrankheit(PRAXIS_KRANKHEITEN, kb) : [];
+  const zumKb = SCENARIOS.filter((x) => kbFaelle.includes(x.id));
+  const kbName = kb ? katalog(moduleId)?.diseaseProfiles?.find((p) => p.id === kb)?.name ?? kb : '';
+  const zumThema = zumFall.length ? zumFall : zumKb.length ? zumKb : thema ? praxisZuThema(thema, SCENARIOS) : [];
   const themaName = thema ? (getModule(moduleId) ?? modules[0])?.topics.find((t) => t.id === thema)?.name ?? thema : '';
   const sichtbar = zumThema.length ? zumThema : SCENARIOS;
   const active = s?.phase === 'active';
@@ -253,7 +266,8 @@ export default function Praxissimulator() {
         <label>Ausbildungsstufe<select value={level} onChange={e => setLevel(Number(e.target.value) as 1 | 2 | 3)}><option value="1">1. Jahr · langsamer Verlauf, Lernziele sichtbar</option><option value="2">2. Jahr · regulärer Verlauf</option><option value="3">3. Jahr · schnellerer Verlauf</option></select></label>
       </div>
       {zumFall.length > 0 && <p className="note" role="status">Fall aus deinem Fehlerheft: <strong>{zumFall[0]!.title}</strong>. <button type="button" className="link" onClick={() => navigate('/lernen/praxis')}>Alle Fälle zeigen</button></p>}
-      {thema && !zumFall.length && <p className="note" role="status">{zumThema.length ? <>Fälle zum Thema <strong>{themaName}</strong>. </> : <>Zum Thema <strong>{themaName}</strong> gibt es noch keinen Praxisfall. </>}<button type="button" className="link" onClick={() => navigate('/lernen/praxis')}>Alle Fälle zeigen</button></p>}
+      {kb && !zumFall.length && <p className="note" role="status">{zumKb.length ? <>Fälle zum Krankheitsbild <strong>{kbName}</strong>. </> : <>Zum Krankheitsbild <strong>{kbName}</strong> gibt es noch keinen Praxisfall. </>}<button type="button" className="link" onClick={() => navigate('/lernen/praxis')}>Alle Fälle zeigen</button></p>}
+      {thema && !zumFall.length && !zumKb.length && <p className="note" role="status">{zumThema.length ? <>Fälle zum Thema <strong>{themaName}</strong>. </> : <>Zum Thema <strong>{themaName}</strong> gibt es noch keinen Praxisfall. </>}<button type="button" className="link" onClick={() => navigate('/lernen/praxis')}>Alle Fälle zeigen</button></p>}
       <div className="praxis-scenarios">{sichtbar.filter(x => setting === 'alle' || x.setting === setting).map((scenario, index) => <article className="card praxis-scenario" key={scenario.id}>
         <div className="praxis-scenario__top"><span className="badge">{SETTINGS[scenario.setting]}</span><span className="muted" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span></div>
         <h3>{scenario.title}</h3><p>{scenario.situation}</p><small>{scenario.focus} · {scenario.id === 'nachtwache' ? 'Technischer Referenzfall' : 'Szenariovorschau'} · fachlich ungeprüft</small>
