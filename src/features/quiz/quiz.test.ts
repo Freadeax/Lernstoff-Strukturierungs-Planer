@@ -7,6 +7,7 @@ import { ALLE_AUFGABEN as STANDARDS, ES_THEMA } from '../expertenstandards/aufga
 import { ALLE_AUFGABEN as NORMWERTE, THEMEN as NORM_THEMEN } from '../normwerte/aufgaben';
 import { ALLE_AUFGABEN as NOTFALL, NOTFALL_THEMA } from '../notfall/aufgaben';
 import { ALLE_AUFGABEN as ARZNEI, AM_THEMA } from '../arzneimittel/aufgaben';
+import { ALLE_AUFGABEN as RECHT, AUFGABEN as RECHT_BEREICHE, BEREICH_ZU_THEMA } from '../recht/aufgaben';
 import { modules } from '../../modules/registry';
 import { uebungenFuer } from '../lernplan/trainer';
 import { mischeAuswahl, auswahlRichtig } from '../fehlerheft/fehlerheft';
@@ -123,7 +124,7 @@ describe('Fehlerheft', () => {
   });
 
   it('erzeugt Wiederholungen, die das Fehlerheft lösen kann', () => {
-    for (const a of [...HYGIENE, ...ANATOMIE, ...STANDARDS, ...NORMWERTE, ...NOTFALL, ...ARZNEI]) {
+    for (const a of [...HYGIENE, ...ANATOMIE, ...STANDARDS, ...NORMWERTE, ...NOTFALL, ...ARZNEI, ...RECHT]) {
       const leer = a.art === 'auswahl' ? { art: 'auswahl' as const, wahl: [] } : a.art === 'reihenfolge' ? { art: 'reihenfolge' as const, folge: [...a.schritte].reverse() } : { art: 'beschriften' as const, zuordnung: {} };
       for (const f of alsFehler(a, leer, 'hygiene')) {
         const w = f.wiederholung;
@@ -181,6 +182,17 @@ describe('Inhalte', () => {
     expect(NOTFALL.every((a) => a.topicIds.includes(NOTFALL_THEMA))).toBe(true);
     expect(uebungenFuer(NOTFALL_THEMA).map((u) => u.path)).toContain('/lernen/notfall');
     expect(uebungenFuer(AM_THEMA).map((u) => u.path)).toContain('/lernen/arzneimittel');
+  });
+
+  it('Recht-Aufgaben sind vollständig, jedes Rechtsthema hat genug Aufgaben für den Lernplan', () => {
+    expect(pruefeAufgaben(RECHT, themen)).toEqual([]);
+    for (const [thema, bereich] of Object.entries(BEREICH_ZU_THEMA)) {
+      expect(uebungenFuer(thema).map((u) => u.path), thema).toContain(`/lernen/recht?bereich=${bereich}`);
+      // Mindestens 3 Aufgaben zum Thema, damit eine Runde im Lernplan zählen kann
+      expect(RECHT.filter((a) => a.topicIds.includes(thema)).length, thema).toBeGreaterThanOrEqual(3);
+      // Der Sprung landet in einem Bereich, der das Thema wirklich abfragt
+      expect(RECHT_BEREICHE[bereich].some((a) => a.topicIds.includes(thema)), thema).toBe(true);
+    }
   });
 
   it('Lernplan verweist von den Themen auf die neuen Trainer', () => {

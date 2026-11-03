@@ -43,6 +43,7 @@ const ExpertenstandardsTrainer = lazy(() => import('./features/expertenstandards
 const NormwerteTrainer = lazy(() => import('./features/normwerte/NormwerteTrainer'));
 const NotfallTrainer = lazy(() => import('./features/notfall/NotfallTrainer'));
 const ArzneimittelTrainer = lazy(() => import('./features/arzneimittel/ArzneimittelTrainer'));
+const RechtTrainer = lazy(() => import('./features/recht/RechtTrainer'));
 
 function Page({ title, intro, children }: { title: string; intro?: string; children: React.ReactNode }) {
   return (
@@ -87,6 +88,7 @@ function View() {
     case '/lernen/normwerte': return <NormwerteTrainer />;
     case '/lernen/notfall': return <NotfallTrainer />;
     case '/lernen/arzneimittel': return <ArzneimittelTrainer />;
+    case '/lernen/recht': return <RechtTrainer />;
     case '/lernen/faecher': return <Faecher />;
     case '/material/dokumente': return <Dokumente />;
     case '/material/import': return <Page title="Dein Material. Bereit zum Lernen." intro="In vier Schritten von der Datei zur nachvollziehbaren Lernquelle."><WidgetGrid widgets={[WIDGETS.wizard]} allowHide={false} /></Page>;

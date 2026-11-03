@@ -26,7 +26,7 @@ function baue(f: Fehler): Aufgabe2 {
 }
 
 /** Trainer auf dem gemeinsamen Übungskern: Quelle und Trainer heißen gleich. */
-const QUIZ_QUELLEN = new Set<FehlerQuelle>(['hygiene', 'anatomie', 'expertenstandards', 'normwerte', 'notfall', 'arzneimittel']);
+const QUIZ_QUELLEN = new Set<FehlerQuelle>(['hygiene', 'anatomie', 'expertenstandards', 'normwerte', 'notfall', 'arzneimittel', 'recht']);
 
 /** Wo man eine Aufgabe außerhalb des Fehlerhefts weiter üben kann. */
 function trainerLink(f: Fehler): { label: string; path: string } | null {
