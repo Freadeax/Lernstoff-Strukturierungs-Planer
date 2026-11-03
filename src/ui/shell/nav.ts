@@ -54,6 +54,7 @@ export const NAV: NavItem[] = [
       { id: 'normwerte', label: 'Normwerte-Trainer', path: '/lernen/normwerte', icon: 'thermo' },
       { id: 'notfall', label: 'Notfall-Trainer', path: '/lernen/notfall', icon: 'siren' },
       { id: 'arzneimittel', label: 'Arzneimittel-Trainer', path: '/lernen/arzneimittel', icon: 'pill' },
+      { id: 'recht', label: 'Recht-Trainer', path: '/lernen/recht', icon: 'scale' },
     ],
   },
   {

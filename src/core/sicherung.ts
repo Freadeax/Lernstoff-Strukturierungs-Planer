@@ -135,6 +135,7 @@ const LOKAL_LABEL: Record<string, string> = {
   'lernstoff.hygiene.stand': 'Ergebnisse im Hygiene-Trainer', 'lernstoff.anatomie.stand': 'Ergebnisse im Anatomie-Trainer',
   'lernstoff.expertenstandards.stand': 'Ergebnisse im Expertenstandards-Trainer', 'lernstoff.normwerte.stand': 'Ergebnisse im Normwerte-Trainer',
   'lernstoff.notfall.stand': 'Ergebnisse im Notfall-Trainer', 'lernstoff.arzneimittel.stand': 'Ergebnisse im Arzneimittel-Trainer',
+  'lernstoff.recht.stand': 'Ergebnisse im Recht-Trainer',
 };
 
 /** Liest eine Sicherungsdatei. Wirft mit verständlicher Meldung, wenn sie nicht passt. */
