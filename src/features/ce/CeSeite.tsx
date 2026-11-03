@@ -129,7 +129,7 @@ function ThemaZeile({ e, status, minuten, pfad, fakten, haken, onHaken }: {
   const t = e.topic;
   const st = status(t.id);
   // Fall und Krankheitsbild-Fälle stehen schon im Pfad
-  const uebungen = uebungenFuer(t.id, modul).filter((u) => u.trainer !== 'fall' && u.trainer !== 'krankheitsbilder');
+  const uebungen = uebungenFuer(t.id, modul).filter((u) => u.trainer !== 'fall' && u.trainer !== 'krankheitsbilder' && u.trainer !== 'praxis');
 
   return (
     <details className="ce__thema">

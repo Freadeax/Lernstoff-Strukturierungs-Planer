@@ -24,9 +24,10 @@ import { ES_THEMA } from '../expertenstandards/aufgaben';
 import { THEMEN as NORMWERT_THEMEN } from '../normwerte/aufgaben';
 import { NOTFALL_THEMA } from '../notfall/aufgaben';
 import { AM_THEMA } from '../arzneimittel/aufgaben';
+import { PRAXIS_THEMEN } from '../praxis/themen';
 import { heute, leafTopics, logReview, TRAINER_NAME } from './store';
 
-export type TrainerId = 'rechnen' | 'duell' | 'fall' | 'uebergabe' | 'pflegeplanung' | 'sis' | 'mindmap' | 'bericht' | 'assessment' | 'krankheitsbilder' | 'selbsttest' | 'hygiene' | 'anatomie' | 'expertenstandards' | 'normwerte' | 'notfall' | 'arzneimittel';
+export type TrainerId = 'rechnen' | 'duell' | 'fall' | 'uebergabe' | 'pflegeplanung' | 'sis' | 'mindmap' | 'bericht' | 'assessment' | 'krankheitsbilder' | 'selbsttest' | 'hygiene' | 'anatomie' | 'expertenstandards' | 'normwerte' | 'notfall' | 'arzneimittel' | 'praxis';
 
 export const TRAINER_LABEL = TRAINER_NAME as Record<TrainerId, string>;
 
@@ -138,5 +139,11 @@ export function uebungenFuer(topicId: string, modul: CatalogModule = pflegeModul
   }
   // Mindmap aus dem Gedächtnis geht zu jedem Thema, steht als allgemeinste Übung zuletzt
   if (modul.topics.some((t) => t.id === topicId)) out.push({ trainer: 'mindmap', label: 'Mindmap aus dem Gedächtnis', path: `/lernen/mindmap?thema=${encodeURIComponent(topicId)}` });
+  // Praxissimulator (offline) zählt nicht als Abfrage im Lernplan (Debriefing ist kein Kompetenznachweis),
+  // darum ganz hinten: wer nur die erste Übung nimmt, bekommt eine, die den Wissensstand belegt.
+  // Fehlentscheidungen aus seinen Entscheidungsmomenten landen im Fehlerheft.
+  if (Object.values(PRAXIS_THEMEN).some((t) => t.includes(topicId))) {
+    out.push({ trainer: 'praxis', label: 'Praxisfall (offline)', path: `/lernen/praxis?thema=${encodeURIComponent(topicId)}` });
+  }
   return out;
 }

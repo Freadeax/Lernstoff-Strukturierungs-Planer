@@ -1,6 +1,8 @@
 import type { Scenario, Session } from './types';
 import { SETTINGS, STORY_KINDS } from './types';
 import { AVPU } from './news2';
+import { notiereFehler } from '../fehlerheft/fehlerheft';
+import { ausPraxis } from '../fehlerheft/quellen';
 
 const KEYS = ['pulse', 'sys', 'dia', 'spo2', 'resp', 'temp', 'glucose', 'pain'];
 const text = (v: unknown): v is string => typeof v === 'string' && v.length <= 5000;
@@ -103,10 +105,17 @@ export function saveSession(s: Session | null) {
   try { if (s) localStorage.setItem(CURRENT, JSON.stringify(s)); else localStorage.removeItem(CURRENT); return ''; }
   catch { return 'Speichern auf diesem Gerät nicht möglich. Bitte den Verlauf als JSON exportieren.'; }
 }
+/**
+ * Legt einen abgeschlossenen Fall ins Archiv. Beim ersten Archivieren gehen Entscheidungen,
+ * bei denen nicht die beste Option gewählt wurde, ins Fehlerheft (nicht noch einmal nach einem Neuladen).
+ */
 export function archive(s: Session) {
   try {
-    const old: Session[] = JSON.parse(localStorage.getItem(ARCHIVE) ?? '[]');
-    localStorage.setItem(ARCHIVE, JSON.stringify([s, ...(Array.isArray(old) ? old : []).filter(x => x.id !== s.id)].slice(0, 10)));
+    const raw: unknown = JSON.parse(localStorage.getItem(ARCHIVE) ?? '[]');
+    const old = Array.isArray(raw) ? raw as Session[] : [];
+    const neu = !old.some(x => x?.id === s.id);
+    localStorage.setItem(ARCHIVE, JSON.stringify([s, ...old.filter(x => x?.id !== s.id)].slice(0, 10)));
+    if (neu) notiereFehler(ausPraxis(s.scenario, s.decisions ?? []));
     return '';
   } catch { return 'Archiv konnte nicht gespeichert werden. Bitte Verlauf exportieren.'; }
 }

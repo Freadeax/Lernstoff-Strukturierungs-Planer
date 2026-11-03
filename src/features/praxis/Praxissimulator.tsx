@@ -234,7 +234,10 @@ export default function Praxissimulator() {
   const { params } = useRoute();
   const moduleId = useStore(shellSession, (x) => x.moduleId);
   const thema = params.get('thema') ?? '';
-  const zumThema = thema ? praxisZuThema(thema, SCENARIOS) : [];
+  // ?fall=<id> zeigt genau einen Fall (Sprung aus dem Fehlerheft).
+  const fallParam = params.get('fall') ?? '';
+  const zumFall = fallParam ? SCENARIOS.filter((x) => x.id === fallParam) : [];
+  const zumThema = zumFall.length ? zumFall : thema ? praxisZuThema(thema, SCENARIOS) : [];
   const themaName = thema ? (getModule(moduleId) ?? modules[0])?.topics.find((t) => t.id === thema)?.name ?? thema : '';
   const sichtbar = zumThema.length ? zumThema : SCENARIOS;
   const active = s?.phase === 'active';
@@ -249,7 +252,8 @@ export default function Praxissimulator() {
         <label>Einrichtung<select value={setting} onChange={e => setSetting(e.target.value)}><option value="alle">Alle Einsatzgebiete</option>{Object.entries(SETTINGS).map(([k, v]) => <option value={k} key={k}>{v}</option>)}</select></label>
         <label>Ausbildungsstufe<select value={level} onChange={e => setLevel(Number(e.target.value) as 1 | 2 | 3)}><option value="1">1. Jahr · langsamer Verlauf, Lernziele sichtbar</option><option value="2">2. Jahr · regulärer Verlauf</option><option value="3">3. Jahr · schnellerer Verlauf</option></select></label>
       </div>
-      {thema && <p className="note" role="status">{zumThema.length ? <>Fälle zum Thema <strong>{themaName}</strong>. </> : <>Zum Thema <strong>{themaName}</strong> gibt es noch keinen Praxisfall. </>}<button type="button" className="link" onClick={() => navigate('/lernen/praxis')}>Alle Fälle zeigen</button></p>}
+      {zumFall.length > 0 && <p className="note" role="status">Fall aus deinem Fehlerheft: <strong>{zumFall[0]!.title}</strong>. <button type="button" className="link" onClick={() => navigate('/lernen/praxis')}>Alle Fälle zeigen</button></p>}
+      {thema && !zumFall.length && <p className="note" role="status">{zumThema.length ? <>Fälle zum Thema <strong>{themaName}</strong>. </> : <>Zum Thema <strong>{themaName}</strong> gibt es noch keinen Praxisfall. </>}<button type="button" className="link" onClick={() => navigate('/lernen/praxis')}>Alle Fälle zeigen</button></p>}
       <div className="praxis-scenarios">{sichtbar.filter(x => setting === 'alle' || x.setting === setting).map((scenario, index) => <article className="card praxis-scenario" key={scenario.id}>
         <div className="praxis-scenario__top"><span className="badge">{SETTINGS[scenario.setting]}</span><span className="muted" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span></div>
         <h3>{scenario.title}</h3><p>{scenario.situation}</p><small>{scenario.focus} · {scenario.id === 'nachtwache' ? 'Technischer Referenzfall' : 'Szenariovorschau'} · fachlich ungeprüft</small>

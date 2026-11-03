@@ -109,4 +109,10 @@ describe('Passende Übung zu einem Thema', () => {
     expect(uebungenFuer('thema.pp.ziele').map((u) => u.path)).toContain('/lernen/pflegeplanung');
     expect(uebungenFuer('thema.pro.aspiration').map((u) => u.path)).toContain('/lernen/pflegeplanung?fall=schlaganfall');
   });
+
+  it('nennt Praxisfälle (offline) ganz hinten, weil sie nicht im Lernplan zählen', () => {
+    const u = uebungenFuer('thema.kl.demenz');
+    expect(u.at(-1)).toMatchObject({ trainer: 'praxis', path: '/lernen/praxis?thema=thema.kl.demenz' });
+    expect(uebungenFuer('thema.gibtsnicht').some((x) => x.trainer === 'praxis')).toBe(false);
+  });
 });

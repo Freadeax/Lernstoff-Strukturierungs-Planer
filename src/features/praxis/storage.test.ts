@@ -28,3 +28,14 @@ it('meldet Speicherfehler und begrenzt das Abschlussarchiv', () => {
   vi.stubGlobal('localStorage', { setItem: () => { throw new Error('quota'); } });
   expect(saveSession(start(SCENARIOS[0]))).toContain('nicht möglich');
 });
+it('trägt schwächere Entscheidungen beim ersten Archivieren ins Fehlerheft ein, nicht bei jedem Neuladen', () => {
+  const sc = SCENARIOS.find(x => x.storyline?.some(e => e.choices?.some(c => !c.best)))!;
+  const e = sc.storyline!.find(x => x.choices?.some(c => !c.best))!;
+  const schwach = e.choices!.find(c => !c.best)!;
+  const s = { ...start(sc), phase: 'finished' as const, decisions: [{ at: e.at, event: e.id, choice: schwach.id }] };
+  expect(archive(s)).toBe('');
+  expect(archive(s)).toBe('');
+  const heft = JSON.parse(data.get('lernstoff.fehlerheft') ?? '[]');
+  expect(heft).toHaveLength(1);
+  expect(heft[0]).toMatchObject({ id: `praxis:${sc.id}:${e.id}`, quelle: 'praxis', fehlerAnzahl: 1 });
+});
