@@ -126,12 +126,12 @@ export function Editor({ start }: { start: KlassenFall }) {
       <div className="card">
         <h3>Lösung für die Klasse</h3>
         <div className="pills" role="radiogroup" aria-label="Lösung zeigen">
-          <button type="button" role="radio" className="pill" aria-checked={f.loesung === 'nach-abgabe'} aria-pressed={f.loesung === 'nach-abgabe'} onClick={() => setze('loesung', 'nach-abgabe')}>Nach der Abgabe zeigen</button>
+          <button type="button" role="radio" className="pill" aria-checked={f.loesung === 'nach-abgabe'} aria-pressed={f.loesung === 'nach-abgabe'} onClick={() => setze('loesung', 'nach-abgabe')}>Später als eigenen Link verteilen</button>
           <button type="button" role="radio" className="pill" aria-checked={f.loesung === 'nie'} aria-pressed={f.loesung === 'nie'} onClick={() => setze('loesung', 'nie')}>Nicht zeigen</button>
         </div>
         <p className="muted">{f.loesung === 'nie'
-          ? 'Die Lösung bleibt nur auf diesem Gerät und kommt nicht in den Link der Klasse.'
-          : 'Die Lösung steckt im Link und erscheint nach dem Abgeben. Wer sich auskennt, kann sie auch vorher aus dem Link lesen.'}</p>
+          ? 'Die Lösung bleibt nur auf diesem Gerät und kommt in keinen Link.'
+          : 'Der Link für die Klasse enthält nie die Lösung. Du bekommst zusätzlich einen Lösungslink, den du erst nach der Frist verteilst. Dann sieht die Klasse den Erwartungshorizont zu ihren Abgaben.'}</p>
         {hatAbgaben && <p className="muted">Es gibt schon Abgaben. Nach Änderungen bitte den neuen Link verteilen, die bisherigen Abgaben bleiben erhalten.</p>}
         {fehler && <div className="note warn" role="alert">{fehler}</div>}
         <div className="row klasse__knoepfe">

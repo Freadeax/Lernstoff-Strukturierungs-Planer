@@ -4,6 +4,7 @@
 import type { Befund, Claim, ClaimStatus, Document, MasteryStatus, SourceChunk, Summary, SummaryBlock, SummaryLength } from '../../core/types';
 import type { CatalogModule } from '../../modules/catalog-types';
 import { ampel, pruefeAlles, type AufgabeSoll, type PruefBefund } from '../qualitaet/deterministisch';
+import { stufenAusBefunden } from '../qualitaet/belegstufen';
 import { zerlegeAntwort, type ApiTextBlock, type ZerlegtClaim } from './zerlegen';
 import { kiPruefung } from './pruefer';
 import { HERKUNFT, ohneKommentare, Protokoll, rufe, textAus, type KiNachricht } from './ki';
@@ -203,12 +204,14 @@ export async function fasseZusammen(opts: ModusOptionen & {
     const befunde = pruefeAlles(claims, {
       modus: pruefModus, chunks: chunkMap, erlaubteDokumente: new Set(docs.map((d) => d.id)), glossar: modul.glossary, aufgaben: soll, antwortText,
     });
+    let kiGeprueft: Set<string> | null = null;
     if (opts.kiPruefer !== false) {
       melde('pruefung-ki');
       const ki = await kiPruefung({ apiKey, modul, modus: pruefModus, protokoll, docs, chunks, claims, antwortText, aufgaben: opts.aufgaben });
       befunde.push(...ki.befunde);
+      kiGeprueft = new Set(ki.antwort.urteile.map((u) => u.claimId));
     }
-    return { claims, befunde, antwortText };
+    return { claims, befunde, antwortText, kiGeprueft };
   };
 
   let lauf = await auswerten([ersteNachricht]);
@@ -231,6 +234,7 @@ export async function fasseZusammen(opts: ModusOptionen & {
   const claims: Claim[] = lauf.claims.map((c) => ({
     id: c.id, text: c.text, citations: c.citations, kind: c.kind, blockId: blockVon.get(c.id),
     status: statusFuer(c, lauf.befunde), isSupplementary: c.kind === 'ergaenzung' || c.kind === 'lernhilfe',
+    pruefung: stufenAusBefunden(c, lauf.befunde, lauf.kiGeprueft),
   }));
   const befunde: Befund[] = lauf.befunde.map((b, i) => ({ id: `b${i + 1}`, ...b }));
   const summaryId = crypto.randomUUID();

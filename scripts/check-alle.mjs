@@ -67,7 +67,7 @@ if (!schnell && gebaut) {
   const vorschau = spawn(process.execPath, ['node_modules/vite/bin/vite.js', 'preview', '--host', '127.0.0.1', '--port', String(port), '--strictPort'], { stdio: 'ignore' });
   try {
     await wartenAuf(base);
-    for (const s of ['check-ui', 'check-material', 'check-wissensstand', 'check-praxis', 'check-geraete']) {
+    for (const s of ['check-ui', 'check-material', 'check-wissensstand', 'check-praxis', 'check-lernalltag', 'check-geraete']) {
       schritt(`Browser: ${s}`, 'node', [`scripts/${s}.mjs`], { UI_BASE_URL: base });
     }
   } finally {

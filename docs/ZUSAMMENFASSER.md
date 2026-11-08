@@ -275,6 +275,20 @@ Bewusst nur **eine** Reparaturrunde: mehr Runden kosten viel und erhöhen das Ri
 
 ---
 
+## 7a. Belegprüfung je Aussage: drei Stufen
+
+„Keine Prüfbefunde“ (grüne Ampel) heißt nicht, dass eine Aussage fachlich stimmt. Jede Aussage trägt deshalb drei getrennte Stufen (`Claim.pruefung`, Logik in `src/features/qualitaet/belegstufen.ts`):
+
+| Stufe | Wer prüft | Werte |
+|---|---|---|
+| 1. Zitat gefunden | Code (Q1a/Q1c/Q1d) | gefunden, ähnlich, nicht gefunden, ohne Beleg, entfällt |
+| 2. Sinn geprüft | KI-Prüfer (K1/K3/K5) und Zahlenprüfung Q2 | gestützt, teilweise, nicht gestützt, nicht geprüft (KI-Prüfer aus oder kein Urteil), entfällt |
+| 3. Fachlich freigegeben | Mensch (Lernende, Lehrkraft, Praxisanleitung) | offen, freigegeben, abgelehnt, jeweils mit Name/Rolle, Datum, Anmerkung |
+
+„Sinn geprüft“ gilt nur, wenn der KI-Prüfer zu genau dieser Aussage ein Urteil abgegeben hat. Ältere Zusammenfassungen ohne `pruefung` werden aus den Befunden abgeleitet, dort bleibt der Sinn „nicht geprüft“. Freigaben werden in der gespeicherten Zusammenfassung abgelegt (keine DB-Versionsänderung) und laufen mit der Datensicherung mit.
+
+**Quellenangaben (`Document.quelle`).** Unter Dokumente → „Quellenangabe“ lassen sich Art (Expertenstandard, Gesetz, Leitlinie, Fachinformation, Fachbuch, Schule, Einrichtung, Mitschrift), Herausgeber, Fassung, Geltungsbereich und Prüfdatum hinterlegen. Der Abschnitt kommt aus dem Beleg (Kapitel, Seite). Aussagen zu Expertenstandards, Recht, Arzneimitteln und Normwerten (erkannt an der Quellenart und am Text) zeigen diese Angaben direkt an der Belegstelle und warnen bei fehlenden Angaben oder einem Prüfdatum älter als 24 Monate. Stützt sich eine Aussage auf Fachstandard und Haus- oder Schulvorgabe zugleich oder nur auf eine Hausvorgabe, erscheint ein Hinweis zur Geltung.
+
 ## 8. Versionsvergleich und Nachprüfung
 
 Wenn ein Dokument in neuer Version importiert wird (`Document.previousVersionId`):

@@ -8,6 +8,13 @@ import { deleteExam, saveExam } from '../store';
 import { dauer, inTagen, kurzDatum, langDatum, STATUS_LABEL } from './format';
 import type { PlanCtx } from './Lernplan';
 import { Field, useFormFeedback } from '../../../ui/form/Field';
+import type { CatalogModule } from '../../../modules/catalog-types';
+import { getModule } from '../../../modules/registry';
+import { useStore } from '../../../ui/lib/store';
+import { session } from '../../../ui/shell/session';
+import { kompetenzBereiche } from '../../fortschritt/statistik';
+import { kompetenzUebersicht } from '../alltag';
+import { KalenderExport } from './KalenderExport';
 
 const GEWICHTE = [
   { w: 1, label: 'Klausur oder Test' },
@@ -149,6 +156,43 @@ function Prognose({ f, ctx }: { f: ExamForecast; ctx: PlanCtx }) {
   );
 }
 
+/** Vor der Prüfung: je Kompetenzbereich, wo belastbare Antworten vorliegen und wo zu wenige Abfragen. */
+function Kompetenzen({ e, ctx }: { e: Exam; ctx: PlanCtx }) {
+  const moduleId = useStore(session, (s) => s.moduleId);
+  const zeilen = useMemo(() => {
+    const mod = getModule(moduleId) as CatalogModule | undefined;
+    const bereiche = mod ? kompetenzBereiche({ topics: ctx.data.topics as CatalogModule['topics'], frameworks: mod.frameworks }) : [];
+    return kompetenzUebersicht(bereiche, e.topicIds.filter((id) => ctx.topics.has(id)), ctx.plan.progress);
+  }, [moduleId, ctx, e]);
+  if (!zeilen.length) return null;
+  const name = (id: string) => ctx.topics.get(id)?.name ?? id;
+  const luecken = zeilen.filter((z) => z.zuWenig > 0).sort((a, b) => b.zuWenig / b.themen - a.zuWenig / a.themen);
+  return (
+    <details className="kompetenzen">
+      <summary>Stand nach Kompetenzbereich</summary>
+      <p className="muted">Belastbar heißt: an mindestens zwei Tagen erfolgreich abgefragt und gut abrufbar. Ein Thema kann zu mehreren Bereichen gehören.</p>
+      <ul className="kompetenzen__liste">
+        {zeilen.map((z) => (
+          <li key={z.id}>
+            <p className="kompetenzen__name">{z.code !== '–' ? <strong>{z.code} · </strong> : null}{z.name}</p>
+            <div className="kompetenzen__balken" role="img" aria-label={`${z.belastbar} belastbar, ${z.wackelig} wackelig, ${z.zuWenig} zu wenig abgefragt von ${z.themen} Themen`}>
+              {z.belastbar > 0 && <span className="kompetenzen__b" style={{ flexGrow: z.belastbar }} />}
+              {z.wackelig > 0 && <span className="kompetenzen__w" style={{ flexGrow: z.wackelig }} />}
+              {z.zuWenig > 0 && <span className="kompetenzen__z" style={{ flexGrow: z.zuWenig }} />}
+            </div>
+            <p className="muted kompetenzen__zahlen">{z.themen} Themen: {z.belastbar} belastbar · {z.wackelig} wackelig · <span className={z.zuWenig ? 'kompetenzen__luecke' : ''}>{z.zuWenig} zu wenig abgefragt</span></p>
+          </li>
+        ))}
+      </ul>
+      {luecken.length > 0 && (
+        <p>Die größte Lücke liegt in <strong>{luecken[0]!.code !== '–' ? `${luecken[0]!.code} ` : ''}{luecken[0]!.name}</strong>: {luecken[0]!.zuWenig} von {luecken[0]!.themen} Themen sind höchstens einmal abgefragt
+          {' '}({luecken[0]!.topicIds.zuWenig.slice(0, 3).map(name).join(', ')}{luecken[0]!.zuWenig > 3 ? ' …' : ''}).
+          {' '}<button type="button" className="link" onClick={() => navigate(`/lernen/karten?thema=${encodeURIComponent(luecken[0]!.topicIds.zuWenig[0]!)}`)}>Mit Karteikarten anfangen</button></p>
+      )}
+    </details>
+  );
+}
+
 function Karte({ e, ctx, f, bearbeiten, onEdit, onDone, onDelete }: {
   e: Exam; ctx: PlanCtx; f?: ExamForecast; bearbeiten: boolean; onEdit: () => void; onDone: () => void; onDelete: () => void;
 }) {
@@ -169,6 +213,7 @@ function Karte({ e, ctx, f, bearbeiten, onEdit, onDone, onDelete }: {
         </div>
       </div>
       {f && e.date > today && <Prognose f={f} ctx={ctx} />}
+      {e.date > today && <Kompetenzen e={e} ctx={ctx} />}
     </article>
   );
 }
@@ -193,7 +238,7 @@ export function Pruefungen({ ctx }: { ctx: PlanCtx }) {
     <div className="stack-2">
       {bearbeite === 'neu'
         ? <ExamForm ctx={ctx} onDone={schliessen} />
-        : <div><button type="button" className="primary" onClick={() => setBearbeite('neu')}>Prüfung eintragen</button></div>}
+        : <div className="row"><button type="button" className="primary" onClick={() => setBearbeite('neu')}>Prüfung eintragen</button>{kommend.length > 0 && <KalenderExport ctx={ctx} />}</div>}
       {!kommend.length && bearbeite !== 'neu' && <p className="muted">Keine anstehenden Prüfungen. Ohne Termin kann der Plan den Stoff nicht verteilen.</p>}
       {kommend.map((e) => (
         <Karte key={e.id} e={e} ctx={ctx} f={forecast.get(e.id)} bearbeiten={bearbeite === e.id}

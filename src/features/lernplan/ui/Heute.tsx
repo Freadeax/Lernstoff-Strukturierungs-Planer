@@ -10,6 +10,7 @@ import { blockTitel, bloecke, dauer, langDatum, STATUS_LABEL } from './format';
 import { OhnePruefung, type PlanCtx } from './Lernplan';
 import { KartenHinweis } from '../../karteikarten/ui/KartenHinweis';
 import { SkriptKnopf } from '../../skript/ui/SkriptKnopf';
+import { Verpasst } from './Verpasst';
 
 const QUELLEN: EvidenceSource[] = ['karteikarten', 'quiz', 'offene_frage', 'pruefungssimulation', 'selbsteinschaetzung'];
 
@@ -170,6 +171,7 @@ export function Heute({ ctx }: { ctx: PlanCtx }) {
         )}
       </div>
 
+      <Verpasst ctx={ctx} />
       <KartenHinweis />
       {sichtbar.map((w, i) => <p key={i} className="note warn">{w.message}</p>)}
       {(warnungen.length > 2 || plan.warnings.some((w) => w.kind === 'fehlende_voraussetzung')) && (

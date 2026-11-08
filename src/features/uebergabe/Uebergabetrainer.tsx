@@ -1,4 +1,5 @@
 import { storage } from '../../ui/lib/store';
+import { DatenHinweis } from '../../ui/DatenHinweis';
 import { useMemo, useRef, useState } from 'react';
 import './uebergabe.css';
 import { logActivity } from '../../core/activity';
@@ -126,6 +127,7 @@ export default function Uebergabetrainer() {
   const text = modus === 'frei' ? frei : TEILE.filter((t) => felder[t].trim()).map((t) => `${t}: ${felder[t].trim()}`).join('\n');
   const live = useMemo(() => pruefe(fall, text), [fall, text]);
 
+  const [diktatFrage, setDiktatFrage] = useState(false);
   const diktat = useDiktat((stueck) => {
     const ziel = modus === 'frei' ? 'frei' : fokus;
     const anhaengen = (alt: string) => (alt && !/\s$/.test(alt) ? `${alt} ${stueck}` : alt + stueck);
@@ -250,12 +252,21 @@ export default function Uebergabetrainer() {
             </div>
           )}
           {diktat.fehler && <div className="note warn" role="alert">{diktat.fehler}</div>}
+          {diktatFrage && !diktat.aktiv && (
+            <div className="note" role="dialog" aria-label="Hinweis zum Diktat">
+              <DatenHinweis art="diktat" className="ohne-rahmen" />
+              <div className="row">
+                <button type="button" className="primary" onClick={() => { diktat.bestaetige(); setDiktatFrage(false); diktat.start(); }}>Verstanden, Diktat starten</button>
+                <button type="button" className="ghost" onClick={() => setDiktatFrage(false)}>Lieber tippen</button>
+              </div>
+            </div>
+          )}
 
           <div className="row sbar__knoepfe">
             <button type="submit" className="primary" disabled={leer}>Prüfen</button>
             {diktat.moeglich && (
               <button type="button" className={diktat.aktiv ? 'danger' : undefined} aria-pressed={diktat.aktiv}
-                onClick={() => (diktat.aktiv ? diktat.stop() : diktat.start())}>
+                onClick={() => (diktat.aktiv ? diktat.stop() : diktat.bestaetigt ? diktat.start() : setDiktatFrage(true))}>
                 {diktat.aktiv ? 'Diktat beenden' : 'Sprechen'}
               </button>
             )}
@@ -263,7 +274,7 @@ export default function Uebergabetrainer() {
           </div>
           <p className="muted">
             {diktat.moeglich
-              ? 'Sprechen nutzt die Spracherkennung des Geräts. Alternativ: Mikrofon-Taste auf der Tastatur.'
+              ? (diktat.lokal ? 'Sprechen wird auf diesem Gerät erkannt, ohne Upload. Alternativ: Mikrofon-Taste auf der Tastatur.' : 'Sprechen nutzt die Spracherkennung des Browsers, die Aufnahme kann dafür an den Hersteller gehen. Alternativ: Mikrofon-Taste auf der Tastatur.')
               : 'Diktieren: Tippe ins Feld und dann auf das Mikrofon der Tastatur.'}
             {modus === 'frei' && ' Sag oder schreib „S:“, „B:“, „A:“, „R:“ vor jedem Teil, dann prüft der Trainer auch die Zuordnung.'}
           </p>
@@ -282,7 +293,7 @@ export default function Uebergabetrainer() {
                   : <p className="muted">Für eine ausführliche Rückmeldung (prüft auch, ob deine Werte stimmen) einen API-Schlüssel hinterlegen. <button type="button" className="link" onClick={() => navigate('/einstellungen')}>Zu den Einstellungen</button></p>}
                 <button type="button" onClick={zufall}>Nächster Fall</button>
               </div>
-              {apiKey && !ki && !kiLaeuft && <p className="muted">Gesendet werden nur der Übungsfall und dein Text.</p>}
+              {apiKey && !ki && !kiLaeuft && <DatenHinweis art="ki" detail="Gesendet werden nur der Übungsfall und dein Text." />}
               {kiFehler && <div className="note warn" role="alert">{kiFehler}</div>}
               <details>
                 <summary>Beispiel-Übergabe ansehen</summary>

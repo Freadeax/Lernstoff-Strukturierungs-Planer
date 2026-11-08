@@ -134,3 +134,39 @@
 .heute-karte__kopf { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-2); flex-wrap: wrap; }
 .wissen { display: flex; flex-direction: column; gap: var(--space-1); }
 .wissen p { margin: 0; }
+
+/* Erklärte Verschiebung (Vorschau vor dem Speichern, liegen gebliebene Blöcke) */
+.vorschau { border-left: 4px solid var(--color-info); background: var(--color-info-soft); border-radius: var(--radius-sm); padding: var(--space-2) var(--space-3); }
+.vorschau p, .vorschau ul { margin: 0; }
+.vorschau ul { padding-left: var(--space-4); }
+.vorschau__titel { font-weight: var(--weight-medium); }
+.vorschau__raus { color: var(--color-danger); font-weight: var(--weight-medium); }
+.verpasst { display: flex; flex-direction: column; gap: var(--space-2); border-left: 4px solid var(--color-warning); }
+.verpasst p { margin: 0; }
+.verpasst__liste { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.verpasst__liste li { overflow-wrap: anywhere; }
+
+/* Dienstplan */
+.dienstplan { display: flex; flex-direction: column; gap: var(--space-2); }
+.dienstplan p { margin: 0; }
+.dienstplan__tage { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-1); grid-template-columns: minmax(0, 1fr); }
+@container content (min-width: 640px) { .dienstplan__tage { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--space-4); } }
+.dienstplan__tag { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr) 6.5rem; gap: var(--space-2); align-items: center; padding: var(--space-1) 0; border-bottom: 1px solid var(--color-border); }
+.dienstplan__tag select { width: 100%; min-width: 0; }
+.dienstplan__tag > span { text-align: right; font-size: var(--text-sm); }
+.dienstplan__tag--neu label { font-weight: var(--weight-medium); color: var(--color-primary); }
+.dienstplan__vorlagen .field { display: flex; flex-direction: column; gap: var(--space-1); }
+.ausnahme-form__vorlagen { flex-wrap: wrap; }
+
+/* Kompetenzbereiche vor der Prüfung */
+.kompetenzen { margin-top: var(--space-2); }
+.kompetenzen > summary { cursor: pointer; font-weight: var(--weight-medium); }
+.kompetenzen__liste { list-style: none; margin: var(--space-2) 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+.kompetenzen__liste p { margin: 0; overflow-wrap: anywhere; }
+.kompetenzen__name { font-size: var(--text-sm); }
+.kompetenzen__zahlen { font-size: var(--text-sm); font-variant-numeric: tabular-nums; }
+.kompetenzen__balken { display: flex; height: 8px; margin: var(--space-1) 0; border-radius: var(--radius-pill); overflow: hidden; background: var(--color-surface-sunken); }
+.kompetenzen__b { background: var(--color-success); }
+.kompetenzen__w { background: var(--color-warning); }
+.kompetenzen__z { background: var(--color-border-strong); }
+.kompetenzen__luecke { color: var(--color-danger); font-weight: var(--weight-medium); }

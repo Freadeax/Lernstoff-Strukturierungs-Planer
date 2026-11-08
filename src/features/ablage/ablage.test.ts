@@ -149,6 +149,12 @@ describe('Upload ins Material-Repo', () => {
     expect((await pruefeRepo(Z, gh.f)).eingerichtet).toBe(true);
   });
 
+  it('lädt nichts in ein öffentliches Repo, auch wenn vorher geladene Repo-Infos privat sagten', async () => {
+    const gh = fakeGitHub({ privat: false });
+    await expect(ladeHoch(Z, datei('Buch.pdf', 100), { branch: 'main', vorhanden: [], fetch: gh.f })).rejects.toThrow('nicht privat');
+    expect(gh.posts).toEqual([]);
+  });
+
   it('zerlegt große Dateien, legt ein Manifest an und setzt sie wieder richtig zusammen', async () => {
     const gh = fakeGitHub();
     const d = datei('Pflege Heute.pdf', 2500, 7);

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { DatenHinweis } from '../../ui/DatenHinweis';
 import './fall.css';
 import { logActivity } from '../../core/activity';
 import { getApiKey } from '../../core/settings';
@@ -323,6 +324,7 @@ export default function Fallsimulator() {
       <div className="page__head">
         <h2>Fallbeispiel-Simulator</h2>
         <p className="muted">Claude spielt Patientin, Angehörige und Station. Du entscheidest, was du tust, und der Verlauf hängt davon ab. Am Ende gibt es eine Auswertung entlang des Pflegeprozesses. Alle Fälle sind erfunden.</p>
+        <DatenHinweis art="ki" detail="Gesendet werden der erfundene Fall und deine Eingaben." />
       </div>
 
       {!fall && <Start apiKey={apiKey} onStart={(s, st) => void starte(s, st)} />}
