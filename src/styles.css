@@ -17,6 +17,8 @@ h3 { font-size: var(--text-lg); }
 p { margin: 0 0 var(--space-2); }
 a { color: var(--color-primary); }
 :focus-visible { outline: none; box-shadow: var(--focus-ring); border-radius: var(--radius-xs); }
+/* Datums- und Zeitfelder: Chrome/Safari setzen :focus-visible hier nicht zuverlässig, der Fokus muss trotzdem sichtbar sein. */
+input:is([type='date'], [type='time'], [type='datetime-local'], [type='month']):focus { outline: 2px solid var(--color-focus); outline-offset: 2px; }
 
 .visually-hidden {
   position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
