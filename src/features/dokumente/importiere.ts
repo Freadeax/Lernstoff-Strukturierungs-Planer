@@ -155,7 +155,7 @@ export async function importiereDateien(
         ergebnisse.push(ergebnis);
       } catch (e) {
         const error = e instanceof Error ? e.message : String(e);
-        if (e instanceof ImportAbgebrochen) { ergebnisse.push({ name: file.name, error: 'Abgebrochen, nicht importiert.', archive, archiveError }); continue; }
+        if (e instanceof ImportAbgebrochen) { ergebnisse.push({ name: file.name, error: 'Abgebrochen, nicht importiert.' }); continue; }
         await logActivity({ kind: 'import', severity: 'critical', title: `${file.name} nicht importiert`, detail: error, subjectIds: subjectId ? [subjectId] : undefined });
         ergebnisse.push({ name: file.name, error, ...(hochladen ? { archive: 'Original wurde nicht hochgeladen, weil das Einlesen gescheitert ist.' } : {}) });
       }

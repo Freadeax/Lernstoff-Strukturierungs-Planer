@@ -274,7 +274,7 @@ export function Zusammenfassen() {
         </fieldset>
         <div className="form-actions"><p>{selected.size ? `${selected.size} ${selected.size === 1 ? 'Quelle ausgewählt' : 'Quellen ausgewählt'} · ${info.label}` : 'Wähle deine Quellen, um mit der Erstellung zu starten.'}</p><button className="primary" type="submit" disabled={!!busy || !hasKey}>{busy ? 'Wird erstellt …' : modus === 'pruefung' ? (mitFragen ? (mitUebersicht ? 'Fragen und Übersicht erstellen' : 'Fragen erstellen') : 'Lernzielübersicht erstellen') : modus === 'vergleich' ? 'Quellen vergleichen' : modus === 'arbeitsauftrag' ? 'Aufgaben bearbeiten' : 'Zusammenfassung erstellen'}</button></div>
         {hasKey && <DatenHinweis art="ki" fiktiv={false} detail="Gesendet werden die Textabschnitte der ausgewählten Quellen. Steckt in deinen Unterlagen etwas zu echten Personen, nimm diese Quelle vorher heraus." />}
-        {kosten && !busy && <p className=\"field-hint\">{kosten}</p>}
+        {kosten && !busy && <p className="field-hint">{kosten}</p>}
         {busy && <p className="note" role="status" aria-live="polite">{busy}</p>}
         {error && <div className="note warn" role="alert">{error}</div>}
       </form>

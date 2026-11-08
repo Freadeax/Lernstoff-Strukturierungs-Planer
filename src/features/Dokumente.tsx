@@ -23,6 +23,7 @@ export function Dokumente() {
   const [archive, setArchive] = useState(false);
   const [handwritten, setHandwritten] = useState(false);
   const [busy, setBusy] = useState('');
+  const [abbruch, setAbbruch] = useState<AbortController | null>(null);
   const [reports, setReports] = useState<ImportErgebnis[]>([]);
   const [open, setOpen] = useState<string | null>(null);
   const [chunks, setChunks] = useState<SourceChunk[]>([]);
@@ -41,8 +42,11 @@ export function Dokumente() {
     try {
       const liste = Array.from(files);
       const hochladen = archive && bestaetigeRepoUpload(liste);
-      setReports(await importiereDateien(liste, { subjectId, handwritten, archive: hochladen, onProgress: (name) => setBusy(`Lese ${name} …`) }));
+      const ctrl = new AbortController();
+      setAbbruch(ctrl);
+      setReports(await importiereDateien(liste, { subjectId, handwritten, archive: hochladen, signal: ctrl.signal, onProgress: (name) => setBusy(`Lese ${name} …`) }));
     } finally {
+      setAbbruch(null);
       setBusy('');
       reload();
     }
@@ -85,7 +89,7 @@ export function Dokumente() {
           <strong>{busy || 'Dateien auswählen und importieren'}</strong>
           <small>PDF, Word, PowerPoint, Text, Foto oder ZIP</small>
         </label>
-        {busy && <p className="note" role="status" aria-live="polite">{busy}</p>}
+        {busy && <p className="note" role="status" aria-live="polite">{busy}{abbruch && <> <button type="button" className="small ghost" disabled={abbruch.signal.aborted} onClick={() => { abbruch.abort(); setBusy('Wird abgebrochen …'); }}>Abbrechen</button></>}</p>}
         {reports.map((r, i) => (
           <div key={`${r.name}-${i}`} className={r.error || r.archiveError ? 'note warn' : 'note'}>
             <strong>{r.name}</strong>
