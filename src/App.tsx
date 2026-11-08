@@ -44,6 +44,8 @@ const NormwerteTrainer = lazy(() => import('./features/normwerte/NormwerteTraine
 const NotfallTrainer = lazy(() => import('./features/notfall/NotfallTrainer'));
 const ArzneimittelTrainer = lazy(() => import('./features/arzneimittel/ArzneimittelTrainer'));
 const RechtTrainer = lazy(() => import('./features/recht/RechtTrainer'));
+const UebenSeite = lazy(() => import('./features/ueben/UebenSeite'));
+const ThemaSeite = lazy(() => import('./features/thema/ThemaSeite'));
 
 function Page({ title, intro, children }: { title: string; intro?: string; children: React.ReactNode }) {
   return (
@@ -63,9 +65,11 @@ function View() {
     case '/lernen/plan': return <Lernplan />;
     case '/lernen/themen': return <Page title="Themen" intro="Alle Themen des Fachmoduls. Arbeitsstand direkt in der Tabelle ändern oder mehrere auswählen."><WidgetGrid widgets={[WIDGETS.themen]} allowHide={false} /></Page>;
     case '/lernen/ce': return <CeSeite />;
+    case '/lernen/thema': return <ThemaSeite />;
+    case '/lernen/ueben': return <UebenSeite />;
     case '/lernen/fortschritt': return <Fortschritt />;
     case '/lernen/landkarte': return <Landkarte />;
-    case '/lernen/board': return <Page title="Lernstand"><WidgetGrid widgets={[WIDGETS.board]} allowHide={false} /></Page>;
+    case '/lernen/board': return <Page title="Mein Themenboard" intro="Dein Arbeitsstand je Thema: Themenpool, diese Woche, in Arbeit, erarbeitet. Ob du ein Thema sicher kannst, zeigt der Wissensstand aus Abfragen im Lernplan."><WidgetGrid widgets={[WIDGETS.board]} allowHide={false} /></Page>;
     case '/lernen/skript': return <Skript />;
     case '/lernen/karten': return <Karteikarten />;
     case '/lernen/rechnen': return <Rechentrainer />;

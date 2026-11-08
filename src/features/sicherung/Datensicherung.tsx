@@ -33,7 +33,7 @@ function Erstellen({ onFertig }: { onFertig: () => void }) {
   return (
     <div className="card">
       <h3>Sicherung erstellen</h3>
-      <p>Eine Datei mit allem, was du hier gelernt und angelegt hast: Lernplan, Lernstand-Board, Karteikarten, Prüfungssimulationen, Fälle, Mindmaps, Trainer-Bestwerte, importierte Dokumente und Zusammenfassungen.</p>
+      <p>Eine Datei mit allem, was du hier gelernt und angelegt hast: Lernplan, Themenboard, Karteikarten, Prüfungssimulationen, Fälle, Mindmaps, Trainer-Bestwerte, importierte Dokumente und Zusammenfassungen.</p>
       <p className="muted">Nicht enthalten: dein API-Schlüssel und Zugangsdaten für „Große Dateien“. Die trägst du auf jedem Gerät selbst ein.</p>
       <label className="check">
         <input type="checkbox" checked={mitPasswort} disabled={busy} onChange={(e) => setMitPasswort(e.target.checked)} />

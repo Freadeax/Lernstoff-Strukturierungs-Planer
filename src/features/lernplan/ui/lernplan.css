@@ -170,3 +170,17 @@
 .kompetenzen__w { background: var(--color-warning); }
 .kompetenzen__z { background: var(--color-border-strong); }
 .kompetenzen__luecke { color: var(--color-danger); font-weight: var(--weight-medium); }
+
+/* Heute lernen (Startseite) */
+.today-focus__main > .today-teile { font-size: 0.8125rem; color: var(--focus-text); font-weight: 600; margin: 0 0 22px; }
+.today-focus__main > .today-rest { font-size: 0.75rem; color: var(--focus-muted); margin: 16px 0 0; }
+.today-rest a, .today-blocks a { color: inherit; }
+.today-focus--start { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); min-height: 0; }
+.today-start { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.today-start a { display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 12px 14px; border: 1px solid var(--focus-line); border-radius: 10px; color: var(--focus-text); text-decoration: none; }
+@media (hover: hover) { .today-start a:hover { border-color: var(--focus-text); } }
+.today-start strong { display: block; font-size: 0.8125rem; font-weight: 600; }
+.today-start small { display: block; font-size: 0.75rem; color: var(--focus-muted); margin-top: 3px; line-height: 1.5; }
+.today-start a > svg:last-child { margin-left: auto; flex-shrink: 0; }
+.today-start__icon { display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: 36px; height: 36px; border-radius: 9px; border: 1px solid var(--focus-line); }
+@media (max-width: 760px) { .today-focus--start { grid-template-columns: minmax(0, 1fr); } }

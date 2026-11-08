@@ -196,8 +196,8 @@ function Details({ id, topics, preds, succs, stand, rankOf, subjects, onSelect, 
         <h4>Baut darauf auf</h4>
         <Liste ids={folgen} leer="Kein weiteres Thema im Katalog." />
       </section>
-      <button type="button" className="karte__mehr" onClick={() => navigate(`/lernen/themen?thema=${encodeURIComponent(id)}`)}>
-        In der Themen-Tabelle zeigen
+      <button type="button" className="karte__mehr" onClick={() => navigate(`/lernen/thema?id=${encodeURIComponent(id)}`)}>
+        Themenseite öffnen
       </button>
       <SkriptKnopf topicId={id} className="karte__mehr" />
     </aside>

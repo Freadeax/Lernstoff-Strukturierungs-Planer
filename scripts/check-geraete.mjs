@@ -10,7 +10,7 @@ import fs from 'node:fs';
 import assert from 'node:assert/strict';
 
 const base = (process.env.UI_BASE_URL || 'http://127.0.0.1:5173/').replace(/\/?$/, '/');
-const routes = [...fs.readFileSync('src/ui/shell/nav.ts', 'utf8').matchAll(/path: '([^']+)'/g)].map((m) => m[1]);
+const routes = [...new Set([...fs.readFileSync('src/ui/shell/nav.ts', 'utf8').matchAll(/path: '([^']+)'/g)].map((m) => m[1]))];
 assert(routes.length > 20, 'Menüpfade aus nav.ts gelesen');
 
 const geraete = [
@@ -83,8 +83,8 @@ try {
       await neu.goto(base + '#/', { waitUntil: 'networkidle' });
       assert.equal(await neu.locator('.shell__back').count(), 0, 'Kein Zurück auf der Einstiegsseite');
       await neu.locator('.shell__tabbar a', { hasText: 'Lernplan' }).click();
-      await neu.locator('.shell__tabbar a', { hasText: 'Karteikarten' }).click();
-      await neu.waitForFunction(() => location.hash === '#/lernen/karten');
+      await neu.locator('.shell__tabbar a', { hasText: 'Üben' }).click();
+      await neu.waitForFunction(() => location.hash === '#/lernen/ueben');
       assert.equal(await neu.locator('.shell__back').count(), 1, 'Zurück nach Seitenwechsel');
       await neu.locator('.shell__back').evaluate((b) => b.click()); // im Browser per CSS verborgen
       await neu.waitForFunction(() => location.hash === '#/lernen/plan');

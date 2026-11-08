@@ -147,6 +147,7 @@ function ThemaZeile({ e, status, minuten, pfad, fakten, haken, onHaken }: {
           {dauer(minuten(e))} Erarbeitung{t.difficulty ? ` · ${DIFF[t.difficulty]}` : ''} · Zuordnung: {e.herkunft.map((h) => HERKUNFT_LABEL[h]).join(', ')}
         </p>
         {pfad && fakten && <SchrittListe pfad={pfad} fakten={fakten} haken={haken} onHaken={onHaken} />}
+        <div><button type="button" className="small" onClick={() => navigate(`/lernen/thema?id=${encodeURIComponent(t.id)}`)}>Themenseite öffnen</button></div>
         {!!uebungen.length && (
           <div className="ce__ueben">
             <span className="muted">Weitere Übungen</span>

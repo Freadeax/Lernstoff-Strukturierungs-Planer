@@ -102,6 +102,7 @@ input[aria-invalid='true'], select[aria-invalid='true'], textarea[aria-invalid='
 .start-steps a > svg { margin-left: auto; flex-shrink: 0; color: var(--color-text-muted); }
 .start-steps .is-done .start-steps__number { color: var(--color-primary); }
 .tool-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.tool-grid--drei { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .tool-link { position: relative; display: flex; flex-direction: column; align-items: flex-start; padding: 22px 18px; min-height: 210px; border: 1px solid var(--color-border); border-radius: 10px; background: var(--color-surface); color: var(--color-text); text-decoration: none; }
 @media (hover: hover) { .tool-link:hover { border-color: var(--color-primary); background: var(--color-primary-soft); } }
 .tool-link__icon { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px; background: var(--color-surface-sunken); color: var(--color-primary); margin-bottom: 18px; }
@@ -205,6 +206,7 @@ input[aria-invalid='true'], select[aria-invalid='true'], textarea[aria-invalid='
   .workspace__name { max-width: 12ch; }
   .page-heading { align-items: flex-start; flex-direction: column; gap: 18px; }
   .tool-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tool-grid--drei { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .tool-link { min-height: 185px; }
   .start-steps { grid-template-columns: minmax(0, 1fr); }
   .start-steps li + li { border-left: 0; border-top: 1px solid var(--color-border); }
@@ -238,6 +240,8 @@ input[aria-invalid='true'], select[aria-invalid='true'], textarea[aria-invalid='
   .section-heading { align-items: flex-start; }
   .getting-started .section-heading { flex-direction: column; gap: 4px; }
   .tool-grid { gap: 10px; }
+  .tool-grid--drei { grid-template-columns: minmax(0, 1fr); }
+  .tool-grid--drei .tool-link { min-height: 0; }
   .tool-link { padding: 18px 14px; min-height: 210px; }
   .tool-link h3 { font-size: 0.8125rem; }
   .tool-link > svg { right: 12px; top: 26px; width: 14px; }

@@ -7,7 +7,8 @@ const k = (code: string, mod: Partial<{ altKey: boolean; ctrlKey: boolean; metaK
 describe('sprungZiel', () => {
   it('Alt/Wahltaste + Ziffer springt zu den Hauptseiten', () => {
     expect(sprungZiel(k('Digit1', { altKey: true }))).toBe('/');
-    expect(sprungZiel(k('Digit4', { altKey: true }))).toBe('/lernen/karten');
+    expect(sprungZiel(k('Digit4', { altKey: true }))).toBe('/lernen/ueben');
+    expect(sprungZiel(k('Digit5', { altKey: true }))).toBe('/lernen/karten');
   });
   it('ohne Alt, mit weiteren Tasten oder unbekannte Ziffer: nichts', () => {
     expect(sprungZiel(k('Digit1'))).toBeNull();

@@ -12,7 +12,7 @@ import { useOnline } from '../lib/online';
 import { useMenueGesten } from './gesten';
 import { kuerzelHilfe, Tastenkuerzel } from './Tastenkuerzel';
 import { SCHRIFTEN, session, setWorkspace, type Theme } from './session';
-import { flatNav, NAV } from './nav';
+import { seitenName } from './nav';
 
 function WorkspaceSwitcher() {
   const moduleId = useStore(session, (s) => s.moduleId);
@@ -65,7 +65,7 @@ function OnlineStatus() {
 function Header() {
   const drawer = useStore(session, (s) => s.drawerOpen);
   const { path, depth } = useRoute();
-  const current = flatNav(NAV).find((item) => item.path === path)?.label ?? 'Lernarbeitsplatz';
+  const current = seitenName(path) ?? 'Lernarbeitsplatz';
   return (
     <header className="shell__header" inert={drawer}>
       <button type="button" className="icon ghost shell__menu-btn" aria-label="Navigation öffnen" aria-controls="sidebar"
@@ -100,7 +100,7 @@ export function Shell({ children }: { children: ReactNode }) {
   // Nach Seitenwechsel Fokus auf den Inhalt (Screenreader) und nach oben scrollen.
   const first = useRef(true);
   useEffect(() => {
-    document.title = `${flatNav(NAV).find((item) => item.path === path)?.label ?? 'Lernarbeitsplatz'} · Lernstoff`;
+    document.title = `${seitenName(path) ?? 'Lernarbeitsplatz'} · Lernstoff`;
     if (first.current) { first.current = false; return; }
     main.current?.focus({ preventScroll: true });
     window.scrollTo({ top: 0 });

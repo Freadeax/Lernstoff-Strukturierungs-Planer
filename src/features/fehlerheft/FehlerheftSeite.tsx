@@ -283,7 +283,7 @@ export default function FehlerheftSeite() {
           <div key={g.topicId || 'ohne'} className="card fehlerheft__thema">
             <div className="fehlerheft__thema-kopf">
               <h3>{thema}</h3>
-              <span className="muted">{g.fehler.length} offen{g.topicId && <> · <a href={`#/lernen/themen?thema=${encodeURIComponent(g.topicId)}`}>Thema ansehen</a></>}</span>
+              <span className="muted">{g.fehler.length} offen{g.topicId && <> · <a href={`#/lernen/thema?id=${encodeURIComponent(g.topicId)}`}>Thema ansehen</a></>}</span>
             </div>
             {g.topicId && <Rueckwege topicId={g.topicId} />}
             <ul className="fehlerheft__liste">

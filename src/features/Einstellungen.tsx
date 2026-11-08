@@ -6,6 +6,26 @@ import { apiKeyDauerhaft, getApiKey, setApiKey } from '../core/settings';
 import { Field, useFormFeedback } from '../ui/form/Field';
 import { PageHeading } from '../ui/PageHeading';
 import { Icon } from '../ui/icons';
+import { useStore } from '../ui/lib/store';
+import { timeZones } from '../ui/lib/time';
+import { filterStore, setzeZeitzone } from '../widgets/filter/filterStore';
+
+/** Zeitzone für Kalendertage (Lernserie, Verlauf, Kennzahlen). Selten nötig, daher hier statt in der Filterleiste. */
+function Zeitzone() {
+  const tz = useStore(filterStore, (f) => f.timeZone);
+  return (
+    <section className="card form-card" aria-labelledby="zeit-title">
+      <h2 id="zeit-title">Zeitzone</h2>
+      <p className="form-section__description">Bestimmt, zu welchem Kalendertag eine Lerneinheit zählt, zum Beispiel nach einem Nachtdienst oder im Urlaub.</p>
+      <label className="field">
+        <span>Zeitzone</span>
+        <select value={tz} onChange={(e) => setzeZeitzone(e.target.value)}>
+          {timeZones().map((z) => <option key={z} value={z}>{z.replace(/_/g, ' ')}</option>)}
+        </select>
+      </label>
+    </section>
+  );
+}
 
 export function Einstellungen() {
   const [key, setKey] = useState(getApiKey());
@@ -31,10 +51,10 @@ export function Einstellungen() {
   }
   return <section className="page">
     <PageHeading eyebrow="Dein Arbeitsplatz" title="So lernst du am liebsten."
-      description="Richte die KI-Unterstützung ein und behalte die Kontrolle über deine Lerndaten." />
+      description="KI-Unterstützung (optional), Zeitzone und deine Lerndaten." />
     <form className="card form-card" noValidate onSubmit={save}>
       <fieldset className="form-section">
-        <legend>KI-Unterstützung</legend>
+        <legend>KI-Unterstützung (optional)</legend>
         <p className="form-section__description">Für Zusammenfassungen, Handschrifterkennung und KI-Feedback benötigst du einen eigenen Claude-API-Schlüssel. Offline-Übungen funktionieren auch ohne ihn.</p>
         <Field label="Claude-API-Schlüssel" name="apiKey" hint="Optional. Den Schlüssel erhältst du in der Anthropic Console. Er gilt standardmäßig nur bis zum Schließen der App und kommt nie in Datensicherungen." error={feedback.error('apiKey')}>
           {(props) => <div className="password-control"><input {...props} type={visible ? 'text' : 'password'} autoComplete="off" autoCapitalize="none" spellCheck={false} placeholder="sk-ant-…" value={key} onBlur={() => feedback.touch('apiKey')} onChange={(e) => { setKey(e.target.value); setSaved(false); setSaveError(''); }} />
@@ -48,6 +68,7 @@ export function Einstellungen() {
       <p className="form-feedback" role="status">{saved ? key.trim() ? (merken ? 'Schlüssel auf diesem Gerät gespeichert.' : 'Schlüssel für diese Sitzung gespeichert.') : 'Schlüssel von diesem Gerät entfernt.' : ''}</p>
       {saveError && <p className="field-error" role="alert">{saveError}</p>}
     </form>
+    <Zeitzone />
     <section className="card form-card" aria-labelledby="my-data-title">
       <h2 id="my-data-title">Deine Daten. In deiner Hand.</h2>
       <p className="form-section__description">Deine Unterlagen und Lernergebnisse liegen in diesem Browser. Mit einer Sicherungsdatei kannst du sie aufbewahren oder auf ein anderes Gerät übertragen.</p>

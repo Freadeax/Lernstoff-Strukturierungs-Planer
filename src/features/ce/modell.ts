@@ -127,3 +127,15 @@ export function kartenProThema(karten: Array<{ topicIds: ID[] }>): Map<ID, numbe
   for (const k of karten) for (const id of new Set(k.topicIds)) n.set(id, (n.get(id) ?? 0) + 1);
   return n;
 }
+
+/** Die CE eines Themas über die Katalog-Zuordnung am Thema oder an einem Oberthema (erste Treffer gewinnt). */
+export function ceZuThema(modul: CatalogModule, topicId: ID, liste: Ce[] = ceListe(modul)): Ce | undefined {
+  const byId = new Map(modul.topics.map((t) => [t.id, t]));
+  const zuCe = new Map<ID, Ce>();
+  for (const ce of liste) { zuCe.set(ce.id, ce); for (const t of ce.teile) zuCe.set(t.id, ce); }
+  for (let t = byId.get(topicId), tiefe = 0; t && tiefe < 10; t = t.parentId ? byId.get(t.parentId) : undefined, tiefe++) {
+    const ce = (t.competencyIds ?? []).map((c) => zuCe.get(c)).find(Boolean);
+    if (ce) return ce;
+  }
+  return undefined;
+}

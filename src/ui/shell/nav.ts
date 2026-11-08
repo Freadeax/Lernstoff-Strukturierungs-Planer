@@ -13,53 +13,68 @@ export interface NavItem {
   icon?: IconName;
   roles?: Role[];         // fehlt = für alle sichtbar
   children?: NavItem[];   // bis zu drei Ebenen
-  tab?: boolean;          // in der unteren Leiste auf dem Handy
+  /** Gruppe startet eingeklappt (klappt auf, wenn eine Seite darin offen ist). */
+  zu?: boolean;
 }
 
 export const NAV: NavItem[] = [
-  { id: 'uebersicht', label: 'Übersicht', path: '/', icon: 'home', tab: true },
+  { id: 'heute', label: 'Heute', path: '/', icon: 'home' },
   {
     id: 'lernen', label: 'Lernen', icon: 'book', children: [
-      { id: 'plan', label: 'Lernplan', path: '/lernen/plan', icon: 'calendar', tab: true },
-      { id: 'themen', label: 'Themen', path: '/lernen/themen', icon: 'table', tab: true },
-      { id: 'fortschritt', label: 'Fortschritt', path: '/lernen/fortschritt', icon: 'gauge' },
+      { id: 'plan', label: 'Lernplan', path: '/lernen/plan', icon: 'calendar' },
       { id: 'ce', label: 'Curriculare Einheiten', path: '/lernen/ce', icon: 'layers' },
-      { id: 'landkarte', label: 'Themen-Landkarte', path: '/lernen/landkarte', icon: 'map' },
-      { id: 'board', label: 'Lernstand', path: '/lernen/board', icon: 'board', tab: true },
+      { id: 'themen', label: 'Themen', path: '/lernen/themen', icon: 'table' },
       { id: 'skript', label: 'Skript', path: '/lernen/skript', icon: 'book' },
-      { id: 'karten', label: 'Karteikarten', path: '/lernen/karten', icon: 'cards', tab: true },
+      { id: 'karten', label: 'Karteikarten', path: '/lernen/karten', icon: 'cards' },
+      { id: 'landkarte', label: 'Themen-Landkarte', path: '/lernen/landkarte', icon: 'map' },
+      { id: 'board', label: 'Mein Themenboard', path: '/lernen/board', icon: 'board' },
+      { id: 'fortschritt', label: 'Fortschritt', path: '/lernen/fortschritt', icon: 'gauge' },
       { id: 'faecher', label: 'Fächer', path: '/lernen/faecher', icon: 'layers' },
     ],
   },
   {
-    id: 'ueben', label: 'Üben & anwenden', icon: 'clipboard', children: [
-      { id: 'rechnen', label: 'Rechentrainer', path: '/lernen/rechnen', icon: 'calc' },
-      { id: 'fall', label: 'Fallsimulator', path: '/lernen/fall', icon: 'user' },
-      { id: 'praxis', label: 'Praxissimulator', path: '/lernen/praxis', icon: 'clipboard' },
-      { id: 'duell', label: 'Fachbegriff-Duell', path: '/lernen/duell', icon: 'duell' },
-      { id: 'examen', label: 'Examen', path: '/lernen/examen', icon: 'examen' },
-      { id: 'simulation', label: 'Prüfungssimulation', path: '/lernen/simulation', icon: 'timer' },
-      { id: 'fehler', label: 'Fehlerheft', path: '/lernen/fehler', icon: 'alert' },
-      { id: 'pflegeplanung', label: 'Pflegeplanung', path: '/lernen/pflegeplanung', icon: 'clipboard' },
-      { id: 'sis', label: 'SIS-Trainer', path: '/lernen/sis', icon: 'form' },
-      { id: 'bericht', label: 'Pflegebericht-Trainer', path: '/lernen/bericht', icon: 'pen' },
-      { id: 'mindmap', label: 'Mindmaps', path: '/lernen/mindmap', icon: 'mindmap' },
-      { id: 'klasse', label: 'Klassenmodus', path: '/lernen/klasse', icon: 'klasse' },
-      { id: 'krankheitsbilder', label: 'Krankheitsbilder', path: '/lernen/krankheitsbilder', icon: 'pulse' },
-      { id: 'assessment', label: 'Assessments', path: '/lernen/assessment', icon: 'gauge' },
-      { id: 'uebergabe', label: 'Übergabe-Trainer', path: '/lernen/uebergabe', icon: 'chat' },
-      { id: 'hygiene', label: 'Hygiene-Trainer', path: '/lernen/hygiene', icon: 'shield' },
-      { id: 'anatomie', label: 'Anatomie-Trainer', path: '/lernen/anatomie', icon: 'heart' },
-      { id: 'expertenstandards', label: 'Expertenstandards', path: '/lernen/expertenstandards', icon: 'star' },
-      { id: 'normwerte', label: 'Normwerte-Trainer', path: '/lernen/normwerte', icon: 'thermo' },
-      { id: 'notfall', label: 'Notfall-Trainer', path: '/lernen/notfall', icon: 'siren' },
-      { id: 'arzneimittel', label: 'Arzneimittel-Trainer', path: '/lernen/arzneimittel', icon: 'pill' },
-      { id: 'recht', label: 'Recht-Trainer', path: '/lernen/recht', icon: 'scale' },
+    // Drei Bündel statt einer langen Liste: Wissen festigen, in der Praxis anwenden, auf die Prüfung vorbereiten.
+    id: 'ueben', label: 'Üben', icon: 'clipboard', zu: true, children: [
+      { id: 'ueben-alle', label: 'Alle Übungen', path: '/lernen/ueben', icon: 'clipboard' },
+      {
+        id: 'fachwissen', label: 'Fachwissen', icon: 'book', zu: true, children: [
+          { id: 'krankheitsbilder', label: 'Krankheitsbilder', path: '/lernen/krankheitsbilder', icon: 'pulse' },
+          { id: 'anatomie', label: 'Anatomie-Trainer', path: '/lernen/anatomie', icon: 'heart' },
+          { id: 'arzneimittel', label: 'Arzneimittel-Trainer', path: '/lernen/arzneimittel', icon: 'pill' },
+          { id: 'normwerte', label: 'Normwerte-Trainer', path: '/lernen/normwerte', icon: 'thermo' },
+          { id: 'hygiene', label: 'Hygiene-Trainer', path: '/lernen/hygiene', icon: 'shield' },
+          { id: 'expertenstandards', label: 'Expertenstandards', path: '/lernen/expertenstandards', icon: 'star' },
+          { id: 'recht', label: 'Recht-Trainer', path: '/lernen/recht', icon: 'scale' },
+          { id: 'rechnen', label: 'Rechentrainer', path: '/lernen/rechnen', icon: 'calc' },
+          { id: 'duell', label: 'Fachbegriff-Duell', path: '/lernen/duell', icon: 'duell' },
+          { id: 'mindmap', label: 'Mindmaps', path: '/lernen/mindmap', icon: 'mindmap' },
+        ],
+      },
+      {
+        id: 'praxis-gruppe', label: 'Praxis', icon: 'user', zu: true, children: [
+          { id: 'praxis', label: 'Praxissimulator', path: '/lernen/praxis', icon: 'clipboard' },
+          { id: 'fall', label: 'Fallsimulator', path: '/lernen/fall', icon: 'user' },
+          { id: 'notfall', label: 'Notfall-Trainer', path: '/lernen/notfall', icon: 'siren' },
+          { id: 'assessment', label: 'Assessments', path: '/lernen/assessment', icon: 'gauge' },
+          { id: 'pflegeplanung', label: 'Pflegeplanung', path: '/lernen/pflegeplanung', icon: 'clipboard' },
+          { id: 'sis', label: 'SIS-Trainer', path: '/lernen/sis', icon: 'form' },
+          { id: 'bericht', label: 'Pflegebericht-Trainer', path: '/lernen/bericht', icon: 'pen' },
+          { id: 'uebergabe', label: 'Übergabe-Trainer', path: '/lernen/uebergabe', icon: 'chat' },
+        ],
+      },
+      {
+        id: 'pruefung-gruppe', label: 'Prüfung', icon: 'timer', zu: true, children: [
+          { id: 'simulation', label: 'Prüfungssimulation', path: '/lernen/simulation', icon: 'timer' },
+          { id: 'examen', label: 'Examen', path: '/lernen/examen', icon: 'examen' },
+          { id: 'fehler', label: 'Fehlerheft', path: '/lernen/fehler', icon: 'alert' },
+          { id: 'klasse', label: 'Klassenmodus', path: '/lernen/klasse', icon: 'klasse' },
+        ],
+      },
     ],
   },
   {
     id: 'material', label: 'Material', icon: 'folder', children: [
-      { id: 'dokumente', label: 'Dokumente', path: '/material/dokumente', icon: 'folder', tab: true },
+      { id: 'dokumente', label: 'Dokumente', path: '/material/dokumente', icon: 'folder' },
       { id: 'import', label: 'Import-Assistent', path: '/material/import', icon: 'upload' },
       { id: 'ablage', label: 'Große Dateien', path: '/material/ablage', icon: 'upload' },
       { id: 'zusammenfassen', label: 'Zusammenfassen', path: '/material/zusammenfassen', icon: 'sparkle' },
@@ -74,6 +89,32 @@ export const NAV: NavItem[] = [
   },
 ];
 
+/** Seiten ohne eigenen Menüeintrag (erreichbar über Links), für Seitentitel und Gerätetest. */
+export const UNTERSEITEN: NavItem[] = [
+  { id: 'thema', label: 'Thema', path: '/lernen/thema', icon: 'book' },
+];
+
+/** Untere Leiste auf dem Handy: vier feste Ziele plus „Mehr“ (öffnet das ganze Menü). */
+export interface Tab { id: string; label: string; path: string; icon: IconName; bereich: (path: string) => boolean }
+
+export const TABS: Tab[] = [
+  { id: 'heute', label: 'Heute', path: '/', icon: 'home', bereich: (p) => p === '/' },
+  { id: 'plan', label: 'Lernplan', path: '/lernen/plan', icon: 'calendar', bereich: (p) => p === '/lernen/plan' },
+  { id: 'material', label: 'Material', path: '/material/dokumente', icon: 'folder', bereich: (p) => p.startsWith('/material/') },
+  { id: 'ueben', label: 'Üben', path: '/lernen/ueben', icon: 'clipboard', bereich: (p) => uebenPfade().has(p) },
+];
+
+let _ueben: Set<string> | undefined;
+function uebenPfade(): Set<string> {
+  _ueben ??= new Set(flatNav(NAV.find((i) => i.id === 'ueben')?.children ?? []).map((i) => i.path!));
+  return _ueben;
+}
+
+/** Die drei Bündel unter „Üben“ (für die Übersichtsseite). */
+export function uebenGruppen(): NavItem[] {
+  return (NAV.find((i) => i.id === 'ueben')?.children ?? []).filter((i) => i.children?.length);
+}
+
 export function visibleNav(items: NavItem[], roles: Role[]): NavItem[] {
   return items
     .filter((i) => !i.roles || i.roles.some((r) => roles.includes(r)))
@@ -83,6 +124,11 @@ export function visibleNav(items: NavItem[], roles: Role[]): NavItem[] {
 
 export function flatNav(items: NavItem[]): NavItem[] {
   return items.flatMap((i) => [...(i.path ? [i] : []), ...flatNav(i.children ?? [])]);
+}
+
+/** Seitentitel für einen Pfad, auch für Seiten ohne Menüeintrag. */
+export function seitenName(path: string): string | undefined {
+  return [...flatNav(NAV), ...UNTERSEITEN].find((i) => i.path === path)?.label;
 }
 
 /** Alte Pfade (vor dem Designsystem) weiterleiten. */

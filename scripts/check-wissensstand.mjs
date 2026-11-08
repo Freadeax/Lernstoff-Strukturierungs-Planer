@@ -20,7 +20,7 @@ try {
     const go = async (route) => { await page.goto(base + '#' + route, { waitUntil: 'networkidle' }); };
     await go('/lernen/plan');
     await page.getByRole('button', { name: 'Wissensstand ohne Prüfung prüfen', exact: true }).click();
-    await page.getByRole('heading', { name: 'Was kannst du schon abrufen?' }).waitFor();
+    await page.getByRole('heading', { name: 'Wissensstand aus Abfragen' }).waitFor();
     await page.getByRole('button', { name: 'Weitere Themen anzeigen', exact: true }).click();
     assert.equal(await page.locator('.wissensstand .block').count(), 40);
     const today = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Berlin' }).format(new Date());
