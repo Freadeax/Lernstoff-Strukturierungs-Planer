@@ -5,6 +5,7 @@ import { db } from '../../core/db';
 import { logActivity } from '../../core/activity';
 import { moveTopics, type BoardEntry } from '../../core/board';
 import type { Exam, Topic } from '../../core/types';
+import type { SchichtId } from './alltag';
 import { dayKey } from '../../ui/lib/time';
 import { computeProgress } from './progress';
 import { evidenceRating } from './fsrs';
@@ -37,6 +38,8 @@ export interface PlannerConfig {
   examWeights: Record<string, number>;
   /** Freitext je Ausnahmetag, z. B. „Spätdienst“ oder „krank“. */
   exceptionNotes?: Record<string, string>;
+  /** Eigene Lernminuten je Dienstplan-Vorlage (Frühdienst, Spätdienst …), sonst der Vorschlag aus alltag.ts. */
+  shiftMinutes?: Partial<Record<SchichtId, number>>;
 }
 
 export const DEFAULT_CONFIG: PlannerConfig = {

@@ -5,6 +5,7 @@ import { navigate } from '../../../ui/shell/router';
 import { addDays } from '../dates';
 import { blockTitel, dauer, kurzDatum } from './format';
 import { OhnePruefung, type PlanCtx } from './Lernplan';
+import { KalenderExport } from './KalenderExport';
 
 export function Woche({ ctx }: { ctx: PlanCtx }) {
   const { plan, data } = ctx;
@@ -50,6 +51,7 @@ export function Woche({ ctx }: { ctx: PlanCtx }) {
           </button>
         )}
         {examsInWeek.map((e) => <p key={e.id} className="note">Prüfung „{e.name}“ am {kurzDatum(e.date)}</p>)}
+        <div><KalenderExport ctx={ctx} label="Ganzen Plan in den Kalender (.ics)" /></div>
       </div>
 
       {ohnePruefung.length > 0 && (
@@ -67,7 +69,7 @@ export function Woche({ ctx }: { ctx: PlanCtx }) {
               <strong>{d.date === data.today ? 'Heute' : kurzDatum(d.date)}</strong>
               <span className="muted">{d.capacityMinutes ? `${dauer(d.plannedMinutes)} / ${dauer(d.capacityMinutes)}` : 'frei'}</span>
             </div>
-            {d.capacityMinutes > 0 && <div className="balken"><span style={{ width: `${Math.min(100, (d.plannedMinutes / d.capacityMinutes) * 100)}%` }} /></div>}
+            {d.capacityMinutes > 0 && <div className="balken" role="img" aria-label={`${d.plannedMinutes} von ${d.capacityMinutes} Minuten verplant`}><span style={{ width: `${Math.min(100, (d.plannedMinutes / d.capacityMinutes) * 100)}%` }} /></div>}
             {d.blocks.length ? (
               <ul className="tag-karte__bloecke">
                 {d.blocks.map((b, i) => (
