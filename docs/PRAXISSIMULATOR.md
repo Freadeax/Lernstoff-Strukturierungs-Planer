@@ -158,3 +158,25 @@ Quellenabruf: 26.10.2026. Quellen unterstützen einzelne Grundprinzipien; sie va
 - [ADL: xAPI Data Specification](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md): Struktur des Statement-Entwurfs. Kein Interoperabilitätsnachweis gegen ein LRS.
 
 Ausstehende Freigaben: alle Fallverläufe, Ziel-/Grenzwerte, Pflegehandlungen, Kompetenzauslegung, Medikamentenwirkungen, Eskalationsregeln und klinische Bewertung. Prüfer und Prüfdaten dürfen erst nach tatsächlicher Prüfung ergänzt werden.
+
+## Kernfälle (Stand 08.11.2026)
+
+Drei Fälle sind vollständig ausgearbeitet und tragen im JSON das Feld `kern`: **Atemnot in der Nacht** (`nachtwache`, Normalstation), **Brustdruck am Empfang** (`zna`, Notaufnahme) und **Die Wohnung ist heute ungewohnt still** (`hausbesuch`, ambulante Pflege). In der Fallauswahl filtert „Kernfälle“ genau diese drei.
+
+Was ein Kernfall zusätzlich enthält:
+
+- **Ketten Beobachtung → Entscheidung** (`chains`): Jede Kette nennt eine Beobachtung (`seenBy`: Handlung, Flag, `ereignis:<id>` oder `wahl:<ereignis>:<option>`), die erwartete Entscheidung, ein Zeitfenster und einen oder mehrere richtige Wege (`ways`, je Weg müssen alle Kennungen vorliegen). Arten: `entscheidung`, `reevaluation` (zählt nur nach der Beobachtung, `after: true`) und `eskalation`. Grundlage ist die Spur `Session.trail`, die jede Handlung, jedes Flag, Ereignis und jede Wahl mit Zeitpunkt festhält. Ältere Spielstände ohne Spur werden über die Flags ausgewertet.
+- **Alternative richtige Wege** auch bei Kriterien (`criteriaPatch` → `anyOf`) und als zusätzliche Handlungen, die dasselbe Flag setzen (z. B. Notfallteam statt Stationsarzt, Trage statt Lagerung, Trinkplan statt Trinkangebot, Bereitschaftsdienst statt Hausarztpraxis).
+- **Prüfart je Kriterium** (`bewertet`): `vorliegen` (nur ausgeführt bzw. Text vorhanden), `zeitpunkt` (auch wann/in welcher Reihenfolge), `inhalt` (Auswahl im Entscheidungsmoment wird mit der besten Option verglichen). Ohne Angabe wird die Prüfart aus `before`/`after` abgeleitet. Das Debriefing zeigt sie an jedem Kriterium.
+- **SBAR-Stichwortprüfung** (`sbarCheck`): je Feld typische Begriffe. Ausdrücklich keine Sinnprüfung; die Oberfläche sagt das.
+- **Debriefing** zeigt je Kette: was wann beobachtet wurde, welcher Weg gewählt wurde und mit welchem Abstand, und hebt fehlende erneute Beurteilung oder Eskalation hervor. Ketten ohne Anlass im Verlauf (Ereignis nicht eingetreten, Maßnahme nie erfolgt) erscheinen nur in einer Sammelzeile.
+
+### Fachliche Freigabe (offen)
+
+`kern.freigabe` steht bei allen drei Fällen auf `ausstehend`. Freigeben kann nur ein Mensch mit Pflegefachexpertise. `parseScenario` lehnt `freigabe: 'erteilt'` ohne `pruefer` ab. Die offenen Prüfpunkte stehen je Fall in `kern.pruefpunkte` und werden in der App beim Kernfall-Hinweis aufgeklappt angezeigt. Nach der Prüfung: `freigabe`, `pruefer` und `stand` setzen und Änderungswünsche in die Szenariodaten übernehmen.
+
+## Raumansicht
+
+Das Patientenzimmer hat vier benutzbare Elemente: **Patient**, **Monitor** (im Hausbesuch: Messgeräte aus der Pflegetasche), **Materialwagen** (Pflegetasche) und **Telefon** (Diensthandy). Antippen zeigt ohne Zeitverbrauch einen qualitativen ersten Blick (Bewusstsein, Atmung, Hautfarbe, Schmerz; keine Zahlen) bzw. den Zustand des Elements und darunter die Handlungen an diesem Element. Die Umschaltung **Liste** zeigt dieselben vier Elemente mit denselben Handlungen als strukturierte Liste für Tastatur, Screenreader und kleine Displays; die Wahl wird lokal gemerkt (`lernstoff.praxis.ansicht`).
+
+Die Zuordnung Handlung → Element steht in `src/features/praxis/raum.ts` (`elementVon`). Messhandlungen gehören zum Monitor, Gespräch und Untersuchung zum Patienten, Pflege und Geräte zum Materialwagen, Team, Anordnung und Diagnostik zum Telefon. Jedes Element hat neben den SVG-Prozentkoordinaten normierte Raumkoordinaten (`pos`, Meter), auf denen eine spätere Orbit-Kamera aufbauen kann. Ein Test prüft, dass Raum und Liste für jeden Fall genau dieselben Handlungen anbieten.

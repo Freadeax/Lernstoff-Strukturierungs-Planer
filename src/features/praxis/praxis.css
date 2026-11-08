@@ -44,10 +44,9 @@
 .praxis-main, .praxis-briefing { min-width: 0; padding: var(--space-4); }
 .praxis-briefing { border-top: 3px solid var(--color-primary); }
 .praxis-briefing li { margin-bottom: var(--space-2); }
-.praxis-room__scene { color: var(--color-primary); border-radius: var(--radius-md); background: var(--color-primary-soft); padding: var(--space-3); }
+.praxis-room__scene { position: relative; color: var(--color-primary); border-radius: var(--radius-md); background: var(--color-primary-soft); padding: var(--space-3); }
 .praxis-room svg { display: block; width: 100%; height: auto; }
 .praxis-room__label { font-size: var(--text-xs); color: var(--color-text-muted); }
-.praxis-room__shortcuts { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 .praxis-actions { display: grid; gap: var(--space-2); }
 .praxis-actions button { display: grid; gap: var(--space-1); text-align: left; padding: var(--space-3); }
 .praxis-actions small { font-weight: var(--weight-regular); font-size: var(--text-xs); }
@@ -158,3 +157,38 @@
 .praxis-schicht__tabelle th, .praxis-schicht__tabelle td { text-align: left; padding: var(--space-2); border-bottom: 1px solid var(--color-border); vertical-align: top; }
 .praxis-schicht__tabelle caption { text-align: left; font-weight: 600; padding-bottom: var(--space-2); }
 .praxis-schicht__detail { margin: var(--space-2) 0; padding: var(--space-2) var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+
+/* Raumelemente: Hotspots über der schematischen Szene, gleichwertige Liste darunter */
+.praxis-room__head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-2); }
+.praxis-room__head p { margin: 0; flex: 1 1 16rem; }
+.praxis-ansicht { display: inline-flex; gap: var(--space-1); }
+.praxis-room svg g.is-active { color: var(--color-text); }
+.praxis-room svg g { transition: color .2s; }
+.praxis-hotspot { position: absolute; transform: translate(-50%, -50%); max-width: 32%; padding: var(--space-1) var(--space-3); border-radius: 999px; font-size: var(--text-sm); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: var(--color-surface); border: 1px solid var(--color-border-strong); box-shadow: 0 1px 3px rgb(0 0 0 / .15); }
+.praxis-hotspot[aria-pressed=true] { background: var(--color-primary); color: var(--color-on-primary, #fff); border-color: var(--color-primary); }
+.praxis-element, .praxis-liste section { display: grid; gap: var(--space-2); margin-top: var(--space-3); }
+.praxis-element h4, .praxis-liste h4 { margin: 0; }
+.praxis-liste h4 small { font-weight: var(--weight-regular); color: var(--color-text-muted); }
+.praxis-blick { margin: 0; padding: var(--space-2) var(--space-3); border-left: 3px solid var(--color-primary); background: var(--color-surface-sunken); font-size: var(--text-sm); }
+.praxis-liste { display: grid; gap: var(--space-4); }
+
+/* Kernfälle und Auswertung: was wurde wie geprüft */
+.praxis-kernmarke { color: var(--color-text); font-weight: var(--weight-semibold, 600); }
+.praxis-kern { margin: var(--space-3) 0; padding: var(--space-3); border: 1px solid var(--color-border); border-left: 3px solid var(--color-warning); border-radius: var(--radius-sm); }
+.praxis-kern ul { margin: var(--space-2) 0 0; }
+.praxis-pruefart { display: inline-block; font-size: var(--text-xs); padding: 0 var(--space-2); border-radius: 999px; background: var(--color-surface-sunken); border: 1px solid var(--color-border); color: var(--color-text-muted); }
+.praxis-criteria small { display: block; margin-top: var(--space-1); }
+.praxis-legende dl { display: grid; gap: var(--space-2); margin: var(--space-2) 0 0; }
+.praxis-legende dt { font-weight: var(--weight-semibold, 600); }
+.praxis-legende dd { margin: 0; }
+.praxis-ketten, .praxis-sbar-inhalt { margin-bottom: var(--space-4); }
+.praxis-kette { list-style: none; padding: 0; display: grid; gap: var(--space-2); }
+.praxis-kette li { display: grid; gap: var(--space-1); padding: var(--space-3); border-left: 3px solid var(--color-success); background: var(--color-surface-sunken); border-radius: var(--radius-sm); }
+.praxis-kette li.is-open { border-color: var(--color-danger); }
+.praxis-kette dl { display: grid; gap: var(--space-1); margin: 0; }
+.praxis-kette dl div { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: var(--space-2); }
+.praxis-kette dt { font-size: var(--text-sm); color: var(--color-text-muted); }
+.praxis-kette dd { margin: 0; }
+.praxis-kette small { color: var(--color-text-muted); }
+.praxis-kette p { margin: 0; }
+@media (max-width: 560px) { .praxis-kette dl div { grid-template-columns: minmax(0, 1fr); gap: 0; } .praxis-hotspot { font-size: var(--text-xs); padding: 0 var(--space-2); min-height: 2.25rem; } }

@@ -7,14 +7,15 @@ import { navigate, useRoute } from '../../ui/shell/router';
 import { session as shellSession } from '../../ui/shell/session';
 import { PRAXIS_THEMEN, praxisZuThema } from './themen';
 import { faelleZuKrankheit, krankheitenZuFall, PRAXIS_KRANKHEITEN } from '../krankheitsbilder/fallbezug';
-import { SCENARIOS, CATEGORIES, RESOURCES } from './catalog';
-import { CHECKS, clinicalDebrief, clock, consciousness, debrief, dispatch, replay, SOURCES, start } from './engine';
+import { SCENARIOS, RESOURCES } from './catalog';
+import { CHECKS, clinicalDebrief, clock, consciousness, debrief, dispatch, ketten, replay, sbarPruefung, SOURCES, start, wegLabel } from './engine';
+import { blick, handlungenFuer, RAUM_ELEMENTE, raumElemente, type RaumElement } from './raum';
 import { News2Badge, VitalKurve } from './VitalKurve';
 import { archive, download, parseScenario, readArchive, readSession, saveSession } from './storage';
 import { xapiDraft } from './tracking';
 import { SchichtAnsicht } from './Schicht';
 import { beginneSchicht, leseSchicht, SCHICHTEN, speichereSchicht, type Schicht } from './schicht';
-import { SETTINGS, STORY_KINDS, type Category, type Command, type Medication, type Scenario, type Session, type Vital } from './types';
+import { BEWERTET, KETTEN, SETTINGS, STORY_KINDS, type Action, type Command, type Medication, type Scenario, type Session, type Vital } from './types';
 import './praxis.css';
 
 /** Fachmodul mit Katalog (Steckbriefe); die Registry liefert den allgemeinen Modultyp. */
@@ -30,29 +31,54 @@ const PANELS = ['Patientenzimmer', 'Vitalkurve', 'Patientenakte', 'Medikation', 
 export type Panel = typeof PANELS[number];
 const format = (value: number | undefined, key: Vital) => value === undefined ? '—' : new Intl.NumberFormat('de-DE', { maximumFractionDigits: key === 'temp' ? 1 : 0 }).format(value);
 
+/** Handlungsknöpfe: in Raumansicht und Liste identisch. */
+function Handlungen({ s, actions, send }: { s: Session; actions: Action[]; send: (c: Command) => void }) {
+  if (!actions.length) return <p className="muted">Hier ist in dieser Einrichtung kein Werkzeug hinterlegt.</p>;
+  return <div className="praxis-actions">{actions.map(a => <button key={a.id} disabled={s.done.includes(a.id) && !a.repeatable} onClick={() => send({ type: 'action', id: a.id })}><span>{a.label}</span><small>{a.seconds < 60 ? `${a.seconds} s` : `${a.seconds / 60} min`}{a.delay ? ` · Befund +${a.delay / 60} min` : ''}{a.requires ? ' · Freigabe erforderlich' : ''}{s.done.includes(a.id) ? ' · durchgeführt' : ''}</small></button>)}</div>;
+}
+
+const ANSICHT_KEY = 'lernstoff.praxis.ansicht';
+function leseAnsicht(): 'raum' | 'liste' { try { return localStorage.getItem(ANSICHT_KEY) === 'liste' ? 'liste' : 'raum'; } catch { return 'raum'; } }
+
+/**
+ * Patientenzimmer: Patient, Monitor, Materialwagen und Telefon sind benutzbar. Ein Klick zeigt,
+ * was man dort sofort wahrnimmt, und die Handlungen an diesem Element. Die Liste bietet dieselben
+ * Elemente und Handlungen für Tastatur, Screenreader und kleine Displays.
+ */
 function Room({ s, send }: { s: Session; send: (c: Command) => void }) {
+  const [element, setElement] = useState<RaumElement>('patient');
+  const [ansicht, setAnsichtState] = useState(leseAnsicht);
+  const setAnsicht = (a: 'raum' | 'liste') => { setAnsichtState(a); try { localStorage.setItem(ANSICHT_KEY, a); } catch { /* nur Komfort */ } };
+  const info = raumElemente(s.scenario);
+  const zuhause = RESOURCES[s.scenario.setting].longVisits;
   return <div className="praxis-room">
-    <div className="praxis-room__scene">
-      <svg viewBox="0 0 700 240" aria-hidden="true" focusable="false">
-        <path d="M25 210H675M70 60H220V150H70Z" fill="none" stroke="currentColor" strokeWidth="2" opacity=".25" />
-        <path d="M145 60V150M70 105H220" stroke="currentColor" opacity=".2" />
-        <rect x="245" y="139" width="310" height="38" rx="12" fill="currentColor" opacity=".16" />
-        <path d="M255 175V210M540 175V210M245 140V110" stroke="currentColor" strokeWidth="8" strokeLinecap="round" />
-        <circle cx="302" cy="114" r="24" fill="currentColor" opacity=".8" />
-        <path d="M333 128Q385 90 430 128L519 139H323Z" fill="currentColor" opacity=".4" />
-        <path d="M591 78V206M570 207H612M579 79H610" stroke="currentColor" strokeWidth="4" />
-        <rect x="584" y="91" width="20" height="40" rx="4" fill="currentColor" opacity=".3" />
-        <rect x="434" y="38" width="99" height="57" rx="5" fill="currentColor" opacity=".14" />
-        <path d="M443 69H462L468 54L477 81L484 63L490 69H523" fill="none" stroke="currentColor" strokeWidth="2" />
-      </svg>
-      <span className="praxis-room__label">Interaktiver 2D-Arbeitsplatz · schematische Darstellung</span>
-    </div>
-    <p>{s.scenario.environment}</p>
-    <div className="praxis-room__shortcuts" role="group" aria-label="Im Patientenzimmer handeln">
-      <button onClick={() => send({ type: 'action', id: 'assessment' })}>Patient beurteilen</button>
-      <button onClick={() => send({ type: 'action', id: 'vitals' })}>Messgerät verwenden</button>
-      <button onClick={() => send({ type: 'action', id: 'help' })}>Team rufen</button>
-    </div>
+    <div className="praxis-room__head"><p>{s.scenario.environment}</p>
+      <div className="praxis-ansicht" role="group" aria-label="Darstellung des Zimmers"><button aria-pressed={ansicht === 'raum'} onClick={() => setAnsicht('raum')}>Raum</button><button aria-pressed={ansicht === 'liste'} onClick={() => setAnsicht('liste')}>Liste</button></div></div>
+    {ansicht === 'raum' ? <>
+      <div className="praxis-room__scene">
+        <svg viewBox="0 0 700 260" aria-hidden="true" focusable="false">
+          <path d="M20 225H680" stroke="currentColor" strokeWidth="2" opacity=".25" />
+          <path d="M150 40H280V120H150Z M215 40V120 M150 80H280" fill="none" stroke="currentColor" strokeWidth="2" opacity=".2" />
+          <g className={element === 'telefon' ? 'is-active' : ''}><rect x="44" y="88" width="34" height="50" rx="6" fill="currentColor" opacity=".2" /><path d="M52 98H70M52 110H70M52 120H70" stroke="currentColor" strokeWidth="3" opacity=".6" /><path d="M78 120Q98 150 80 175" fill="none" stroke="currentColor" strokeWidth="2" opacity=".4" /></g>
+          {zuhause
+            ? <g className={element === 'patient' ? 'is-active' : ''}><rect x="260" y="140" width="150" height="60" rx="16" fill="currentColor" opacity=".18" /><rect x="250" y="95" width="40" height="110" rx="14" fill="currentColor" opacity=".24" /><rect x="380" y="95" width="40" height="110" rx="14" fill="currentColor" opacity=".24" /><circle cx="335" cy="96" r="22" fill="currentColor" opacity=".8" /><path d="M300 150Q335 115 370 150Z" fill="currentColor" opacity=".45" /><path d="M260 200V222M410 200V222" stroke="currentColor" strokeWidth="6" strokeLinecap="round" /></g>
+            : <g className={element === 'patient' ? 'is-active' : ''}><rect x="250" y="150" width="310" height="38" rx="12" fill="currentColor" opacity=".16" /><path d="M260 186V222M545 186V222M250 151V118" stroke="currentColor" strokeWidth="8" strokeLinecap="round" /><circle cx="310" cy="124" r="24" fill="currentColor" opacity=".8" /><path d="M340 138Q392 100 437 138L526 150H330Z" fill="currentColor" opacity=".4" /></g>}
+          <g className={element === 'monitor' ? 'is-active' : ''}><rect x="434" y="36" width="99" height="57" rx="5" fill="currentColor" opacity=".14" /><path d="M443 67H462L468 52L477 79L484 61L490 67H523" fill="none" stroke="currentColor" strokeWidth="2" opacity={s.monitoring ? 1 : 0.35} /></g>
+          <g className={element === 'wagen' ? 'is-active' : ''}><rect x="600" y="132" width="70" height="80" rx="6" fill="currentColor" opacity=".2" /><path d="M606 152H664M606 172H664M606 192H664" stroke="currentColor" strokeWidth="2" opacity=".5" /><circle cx="610" cy="218" r="5" fill="currentColor" opacity=".5" /><circle cx="660" cy="218" r="5" fill="currentColor" opacity=".5" /></g>
+        </svg>
+        {RAUM_ELEMENTE.map(e => <button key={e} className="praxis-hotspot" style={{ left: `${info[e].svg.x}%`, top: `${info[e].svg.y}%` }} aria-pressed={element === e} aria-label={`${info[e].label}: ${info[e].zweck}`} onClick={() => setElement(e)}>{info[e].kurz}</button>)}
+        <span className="praxis-room__label">Schematische Darstellung · Elemente antippen</span>
+      </div>
+      <section className="praxis-element" aria-labelledby="praxis-element-titel">
+        <h4 id="praxis-element-titel">{info[element].label}</h4>
+        <p className="praxis-blick">{blick(s, element)}</p>
+        <Handlungen s={s} actions={handlungenFuer(s.scenario, element)} send={send} />
+      </section>
+    </> : <div className="praxis-liste">{RAUM_ELEMENTE.map(e => <section key={e} aria-labelledby={`praxis-liste-${e}`}>
+      <h4 id={`praxis-liste-${e}`}>{info[e].label} <small>· {info[e].zweck}</small></h4>
+      <p className="praxis-blick">{blick(s, e)}</p>
+      <Handlungen s={s} actions={handlungenFuer(s.scenario, e)} send={send} />
+    </section>)}</div>}
   </div>;
 }
 
@@ -112,11 +138,66 @@ const ESCALATION: Record<ReturnType<typeof clinicalDebrief>['escalation'], strin
   verspätet: 'Zwischen auffälligem NEWS2 und Hilfe lagen mehr als zehn Minuten.',
 };
 
+const KETTEN_STATUS: Record<ReturnType<typeof ketten>[number]['status'], { icon: string; text: string }> = {
+  erfüllt: { icon: '✓', text: 'Geschlossen' },
+  vorausschauend: { icon: '✓', text: 'Erledigt, bevor die Beobachtung erhoben war' },
+  verspätet: { icon: '△', text: 'Verspätet' },
+  fehlt: { icon: '✗', text: 'Beobachtet, aber keine Konsequenz' },
+  'nicht beobachtet': { icon: '○', text: 'Nicht beobachtet' },
+  'kein Anlass': { icon: '–', text: 'Kein Anlass im Verlauf' },
+};
+
+/** Kernfall: vollständig ausgearbeitet, fachliche Freigabe durch einen Menschen steht aus. */
+export function KernHinweis({ scenario, offen = false }: { scenario: Scenario; offen?: boolean }) {
+  const k = scenario.kern;
+  if (!k) return null;
+  return <details className="praxis-kern" open={offen}><summary><strong>Kernfall</strong> · vollständig ausgearbeitet · fachliche Freigabe {k.freigabe === 'erteilt' ? `erteilt${k.pruefer ? ` durch ${k.pruefer}` : ''}` : 'ausstehend'} · Stand {new Date(`${k.stand}T12:00:00`).toLocaleDateString('de-DE')}</summary>
+    <p>Bewertungskriterien, Ketten von Beobachtung zu Entscheidung und alternative richtige Wege sind hinterlegt. {k.freigabe === 'erteilt' ? '' : 'Eine Pflegefachperson oder Lehrkraft muss den Fall noch fachlich prüfen. Offene Prüfpunkte:'}</p>
+    {k.freigabe !== 'erteilt' && <ul>{k.pruefpunkte.map(p => <li key={p}>{p}</li>)}</ul>}
+  </details>;
+}
+
+/** Welche Beobachtung zu welcher Entscheidung geführt hat, und wo Reevaluation oder Eskalation fehlten. */
+function KettenAnsicht({ s }: { s: Session }) {
+  const k = ketten(s);
+  if (!k.length) return null;
+  const fehlend = k.filter(x => !x.ok);
+  const luecken = fehlend.filter(x => x.art !== 'entscheidung');
+  return <div className="praxis-ketten">
+    <h4>Beobachtung → Entscheidung</h4>
+    <p>{k.filter(x => x.ok && x.status !== 'kein Anlass').length} von {k.filter(x => x.status !== 'kein Anlass').length} Ketten geschlossen. <span className="praxis-pruefart">Geprüft: Reihenfolge und Zeitpunkt, nicht die Qualität der Ausführung</span></p>
+    {luecken.length > 0 && <p className="praxis-outcome is-warning"><strong>Hier fehlten erneute Beurteilung oder Eskalation</strong>{luecken.map(x => `${KETTEN[x.art]}: ${x.decision}`).join(' · ')}</p>}
+    <ol className="praxis-kette">{k.filter(x => x.status !== 'kein Anlass').sort((a, b) => Number(a.ok) - Number(b.ok)).map(x => <li key={x.id} className={x.ok ? 'is-ok' : 'is-open'}>
+      <span className="eyebrow">{KETTEN[x.art]}</span>
+      <strong>{KETTEN_STATUS[x.status].icon} {KETTEN_STATUS[x.status].text}{x.status === 'verspätet' && x.minutes !== undefined ? ` · nach ${x.minutes} min` : ''}</strong>
+      <dl>
+        <div><dt>Beobachtung</dt><dd>{x.observation}{x.seenAt !== undefined ? <small> · {clock(x.seenAt)} über „{x.seenLabel}“</small> : <small> · {x.status === 'kein Anlass' ? 'im Verlauf nicht aufgetreten' : 'nicht erhoben'}</small>}</dd></div>
+        <div><dt>Entscheidung</dt><dd>{x.decision}{x.taken ? <small> · {clock(x.taken.at)} über „{x.taken.label}“{x.minutes !== undefined ? ` (${x.minutes} min nach der Beobachtung)` : ''}</small> : <small> · {x.status === 'kein Anlass' ? 'nicht nötig' : 'fehlt'}</small>}</dd></div>
+      </dl>
+      {x.ways.length > 1 && <p className="muted">Richtige Wege: {x.ways.map(w => w.label).join(' oder ')}</p>}
+      <p>{x.why}{x.within ? ` Zeitfenster im Fall: ${Math.round(x.within / 60)} min.` : ''}</p>
+    </li>)}</ol>
+    {k.some(x => x.status === 'kein Anlass') && <p className="muted">Ohne Anlass in deinem Verlauf: {k.filter(x => x.status === 'kein Anlass').map(x => x.observation).join(' · ')}.</p>}
+  </div>;
+}
+
+/** SBAR in Kernfällen: Stichwortprüfung. Ausdrücklich keine Sinnprüfung. */
+function SbarInhalt({ s }: { s: Session }) {
+  const p = sbarPruefung(s);
+  if (!p.checks.length) return null;
+  return <div className="praxis-sbar-inhalt"><h4>SBAR-Inhalt</h4>
+    <p><span className="praxis-pruefart">Geprüft: Stichworte je Feld, keine Sinnprüfung</span> {p.vorhanden ? `${p.checks.filter(c => c.met).length} von ${p.checks.length} erwarteten Inhalten gefunden.` : 'Keine SBAR-Übergabe abgegeben.'}</p>
+    {p.vorhanden && <ul>{p.checks.map(c => <li key={c.label}>{c.met ? '✓' : '○'} {c.label}</li>)}</ul>}
+    <p className="muted">Ob die Aussagen stimmen und gut formuliert sind, kann nur eine Lehrperson beurteilen.</p></div>;
+}
+
 /** Klinischer Rückblick: Ausgang, Eskalation, Komplikationen, Fehlhandlungen, Lernimpulse. */
 export function Klinik({ s }: { s: Session }) {
   const k = clinicalDebrief(s);
   return <section className="praxis-klinik" aria-label="Klinischer Verlauf">
     <h3>Klinischer Verlauf</h3>
+    <KettenAnsicht s={s} />
+    <SbarInhalt s={s} />
     <p className={`praxis-outcome ${k.final.unstable ? 'is-warning' : 'is-stable'}`}><strong>{k.final.unstable ? 'Lage bei Abschluss nicht stabil' : 'Lage bei Abschluss stabil'}</strong>{k.final.text}{k.activeComplications.length > 0 && ` Noch aktiv: ${k.activeComplications.join(', ')}.`}</p>
     <div className="praxis-klinik__grid">
       <div><span className="eyebrow">Eskalation</span><strong>{k.escalation}{k.escalationMinutes ? ` · nach ${k.escalationMinutes} min` : ''}</strong><p>{ESCALATION[k.escalation]} Höchster gemessener NEWS2: {k.maxNews2}, bei Abschluss (Modellwerte): {k.final.news2}.</p></div>
@@ -126,7 +207,7 @@ export function Klinik({ s }: { s: Session }) {
         <ul>{k.harms.map(h => <li key={`${h.id}-${h.at}`}>{clock(h.at)} · {h.text}</li>)}</ul></div>
     </div>
     {(s.chart?.length ?? 0) > 0 && <><h4>NEWS2 und Vitalwerte im Verlauf</h4><VitalKurve chart={s.chart!} /></>}
-    {k.decisions.length > 0 && <><h4>Deine Entscheidungen</h4><ul className="praxis-decisions">{k.decisions.map(d => <li key={d.event} className={d.best ? 'is-best' : 'is-other'}><strong>{d.best ? '✓ Gut gewählt' : '△ Anders gewählt'} · {d.title}</strong><span>{clock(d.at)} · {d.label}</span><p>{d.why}</p>{!d.best && <p className="muted">Fachlich besser: {d.bestLabel}</p>}</li>)}</ul></>}
+    {k.decisions.length > 0 && <><h4>Deine Entscheidungen</h4><p><span className="praxis-pruefart">{BEWERTET.inhalt}: deine Auswahl wird mit der fachlich besten Option verglichen</span></p><ul className="praxis-decisions">{k.decisions.map(d => <li key={d.event} className={d.best ? 'is-best' : 'is-other'}><strong>{d.best ? '✓ Gut gewählt' : '△ Anders gewählt'} · {d.title}</strong><span>{clock(d.at)} · {d.label}</span><p>{d.why}</p>{!d.best && <p className="muted">Fachlich besser: {d.bestLabel}</p>}</li>)}</ul></>}
     {s.scenario.teaching?.length ? <><h4>Merksätze zu diesem Fall</h4><ul>{s.scenario.teaching.map(t => <li key={t}>{t}</li>)}</ul></> : null}
     <Weiterlernen id={s.scenario.id} />
     <p className="muted">NEWS2: {SOURCES.news2.title}. Verlauf und Komplikationen sind didaktische Modellregeln, keine validierte Physiologie.</p>
@@ -162,7 +243,7 @@ function Entscheidung({ s, send }: { s: Session; send: (c: Command) => void }) {
 }
 
 /** Ein Patient im Blick: Monitor, letzte Rückmeldung, Entscheidungsmoment, Arbeitsbereiche. Auch im Schichtmodus genutzt. */
-export function Arbeitsplatz({ s, send, panel, setPanel, category, setCategory }: { s: Session; send: (c: Command) => void; panel: Panel; setPanel: (p: Panel) => void; category: Category; setCategory: (c: Category) => void }) {
+export function Arbeitsplatz({ s, send, panel, setPanel }: { s: Session; send: (c: Command) => void; panel: Panel; setPanel: (p: Panel) => void }) {
   const last = [...s.events].reverse().find(e => e.kind !== 'state') ?? s.events.at(-1);
   return <>
     <section className="praxis-monitor" aria-label="Vitalparameter"><div className="praxis-monitor__heading"><strong>{s.monitoring ? 'Kontinuierliches Monitoring' : s.measuredAt === null ? 'Noch keine Messung' : `Letzte Messung · ${clock(s.measuredAt)}`}</strong><span>SpO₂: LOINC 59408-5 · keine Alarmgrenzen für die pädiatrische Bewertung</span></div>
@@ -175,7 +256,7 @@ export function Arbeitsplatz({ s, send, panel, setPanel, category, setCategory }
     <nav className="praxis-panels" aria-label="Arbeitsbereich">{PANELS.map(p => <button key={p} aria-pressed={panel === p} onClick={() => setPanel(p)}>{p}</button>)}</nav>
     <div className="praxis-workspace">
       <section className="card praxis-main" aria-label={panel}>
-        {panel === 'Patientenzimmer' && <><Room s={s} send={send} /><h3>Was tust du als Nächstes?</h3><div className="praxis-categories" role="group" aria-label="Maßnahmenkategorie">{Object.entries(CATEGORIES).filter(([k]) => k !== 'geraete' || RESOURCES[s.scenario.setting].devices).map(([k, label]) => <button key={k} aria-pressed={category === k} onClick={() => setCategory(k as Category)}>{label}</button>)}</div><div className="praxis-actions">{s.scenario.actions.filter(a => a.category === category).map(a => <button key={a.id} disabled={s.done.includes(a.id) && !a.repeatable} onClick={() => send({ type: 'action', id: a.id })}><span>{a.label}</span><small>{a.seconds < 60 ? `${a.seconds} s` : `${a.seconds / 60} min`}{a.delay ? ` · Befund +${a.delay / 60} min` : ''}{a.requires ? ' · Freigabe erforderlich' : ''}{s.done.includes(a.id) ? ' · durchgeführt' : ''}</small></button>)}{!s.scenario.actions.some(a => a.category === category) && <p>In dieser Einrichtung ist dafür kein Werkzeug hinterlegt.</p>}</div></>}
+        {panel === 'Patientenzimmer' && <Room s={s} send={send} />}
         {panel === 'Vitalkurve' && <><h3>Verlauf der Messungen</h3><p className="muted">Jede Messung, Nachkontrolle und Monitor-Minute. NEWS2 rechnet die App selbst (Skala 1, Bewusstsein nach ACVPU, Sauerstoff zählt mit 2 Punkten). Lokale Eskalationsregeln gehen vor.</p><VitalKurve chart={s.chart ?? []} /></>}
         {panel === 'Patientenakte' && <><h3>Aufnahme und Übergabe</h3><dl className="praxis-record">{[['S · Situation', s.scenario.situation], ['B · Hintergrund', s.scenario.background], ['A · Einschätzung aus der Übergabe', s.scenario.assessment], ['R · Empfehlung', s.scenario.recommendation], ['Allergien', s.scenario.allergies.join(', ') || 'Keine dokumentiert – aktiv erfragen'], ['Organfunktion', s.scenario.renal], ['Umgebung', s.scenario.environment]].map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl><h3>Befunde und Anordnungen</h3>{s.events.filter(e => e.kind === 'result').length ? s.events.filter(e => e.kind === 'result').map(e => <div key={e.id} className="praxis-result"><strong>{clock(e.at)} · {e.title}</strong><p>{e.detail}</p></div>) : <p>Noch keine Ergebnisse eingegangen.</p>}</>}
         {panel === 'Medikation' && (s.scenario.medications.length ? s.scenario.medications.map(m => <MedicationForm key={m.id} med={m} s={s} send={send} />) : <><h3>Medikationsschrank</h3><p>Für diesen Fall ist keine Arzneimittelgabe modelliert. Die Übung „Atemnot in der Nacht“ enthält eine vollständige Dosis- und Applikationsprüfung.</p><p>Es werden keine unbelegten Dosierungen aus Gewicht oder Nierenfunktion erzeugt.</p></>)}
@@ -211,7 +292,7 @@ export default function Praxissimulator() {
   const [schichtOffen, setSchichtOffen] = useState(() => !!schicht && schicht.phase === 'active' && !s);
   const [running, setRunning] = useState(false); const [speed, setSpeed] = useState(1);
   const [level, setLevel] = useState<1 | 2 | 3>(1); const [setting, setSetting] = useState('alle');
-  const [panel, setPanel] = useState<Panel>('Patientenzimmer'); const [category, setCategory] = useState<Category>('untersuchung');
+  const [panel, setPanel] = useState<Panel>('Patientenzimmer');
   const sessionRef = useRef(s); sessionRef.current = s;
   const archivedRef = useRef('');
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -237,7 +318,7 @@ export default function Praxissimulator() {
   useEffect(() => { const message = speichereSchicht(schicht); if (message) setError(message); }, [schicht]);
   function beginSchicht(id: string) { const v = SCHICHTEN.find(x => x.id === id); if (!v) return; setSchicht(beginneSchicht(v, SCENARIOS, level)); setSchichtOffen(true); requestAnimationFrame(() => window.scrollTo({ top: 0 })); }
   function send(command: Command) { setSession(previous => previous ? dispatch(previous, command) : previous); }
-  function begin(scenario: Scenario) { preserveUnreadable.current = false; setSession(start(scenario, level)); setRunning(false); setPanel('Patientenzimmer'); setCategory('untersuchung'); setError(''); requestAnimationFrame(() => headingRef.current?.focus()); }
+  function begin(scenario: Scenario) { preserveUnreadable.current = false; setSession(start(scenario, level)); setRunning(false); setPanel('Patientenzimmer'); setError(''); requestAnimationFrame(() => headingRef.current?.focus()); }
   // ?thema=<id> zeigt nur die Fälle zu einem Lernthema (Sprung aus Lernpfad oder Lernplan).
   const { params } = useRoute();
   const moduleId = useStore(shellSession, (x) => x.moduleId);
@@ -262,15 +343,15 @@ export default function Praxissimulator() {
     {!s && !(schicht && schichtOffen) && <>
       <div className="praxis-intro card"><div><span className="eyebrow">Deine nächste Schicht</span><h2>Ein Raum. Viele Entscheidungen.</h2><p>Übernimm einen Patienten, erhebe Befunde, organisiere Unterstützung und überprüfe die Wirkung deiner Maßnahmen. Die Simulationsuhr lässt sich jederzeit pausieren.</p></div><div className="praxis-intro__number"><strong>{SCENARIOS.length}</strong><span>Fälle in 9 Einsatzgebieten</span></div></div>
       <div className="praxis-filters">
-        <label>Einrichtung<select value={setting} onChange={e => setSetting(e.target.value)}><option value="alle">Alle Einsatzgebiete</option>{Object.entries(SETTINGS).map(([k, v]) => <option value={k} key={k}>{v}</option>)}</select></label>
+        <label>Einrichtung<select value={setting} onChange={e => setSetting(e.target.value)}><option value="alle">Alle Einsatzgebiete</option><option value="kern">Kernfälle · vollständig ausgearbeitet</option>{Object.entries(SETTINGS).map(([k, v]) => <option value={k} key={k}>{v}</option>)}</select></label>
         <label>Ausbildungsstufe<select value={level} onChange={e => setLevel(Number(e.target.value) as 1 | 2 | 3)}><option value="1">1. Jahr · langsamer Verlauf, Lernziele sichtbar</option><option value="2">2. Jahr · regulärer Verlauf</option><option value="3">3. Jahr · schnellerer Verlauf</option></select></label>
       </div>
       {zumFall.length > 0 && <p className="note" role="status">Fall aus deinem Fehlerheft: <strong>{zumFall[0]!.title}</strong>. <button type="button" className="link" onClick={() => navigate('/lernen/praxis')}>Alle Fälle zeigen</button></p>}
       {kb && !zumFall.length && <p className="note" role="status">{zumKb.length ? <>Fälle zum Krankheitsbild <strong>{kbName}</strong>. </> : <>Zum Krankheitsbild <strong>{kbName}</strong> gibt es noch keinen Praxisfall. </>}<button type="button" className="link" onClick={() => navigate('/lernen/praxis')}>Alle Fälle zeigen</button></p>}
       {thema && !zumFall.length && !zumKb.length && <p className="note" role="status">{zumThema.length ? <>Fälle zum Thema <strong>{themaName}</strong>. </> : <>Zum Thema <strong>{themaName}</strong> gibt es noch keinen Praxisfall. </>}<button type="button" className="link" onClick={() => navigate('/lernen/praxis')}>Alle Fälle zeigen</button></p>}
-      <div className="praxis-scenarios">{sichtbar.filter(x => setting === 'alle' || x.setting === setting).map((scenario, index) => <article className="card praxis-scenario" key={scenario.id}>
+      <div className="praxis-scenarios">{sichtbar.filter(x => setting === 'alle' || (setting === 'kern' ? !!x.kern : x.setting === setting)).map((scenario, index) => <article className="card praxis-scenario" key={scenario.id}>
         <div className="praxis-scenario__top"><span className="badge">{SETTINGS[scenario.setting]}</span><span className="muted" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span></div>
-        <h3>{scenario.title}</h3><p>{scenario.situation}</p><small>{scenario.focus} · {scenario.id === 'nachtwache' ? 'Technischer Referenzfall' : 'Szenariovorschau'} · fachlich ungeprüft</small>
+        <h3>{scenario.title}</h3><p>{scenario.situation}</p><small>{scenario.focus} · {scenario.kern ? <strong className="praxis-kernmarke">Kernfall · vollständig ausgearbeitet · Freigabe {scenario.kern.freigabe === 'erteilt' ? 'erteilt' : 'ausstehend'}</strong> : 'Szenariovorschau · fachlich ungeprüft'}</small>
         {scenario.storyline?.length ? <small className="praxis-scenario__story">Verlauf mit {scenario.storyline.length} möglichen Ereignissen · Entscheidungen haben Folgen</small> : null}
         <button className="primary" onClick={() => begin(scenario)}>Schicht übernehmen</button>
       </article>)}</div>
@@ -280,10 +361,10 @@ export default function Praxissimulator() {
       </section>
       <Editor onStart={begin} />
       {readArchive().length > 0 && <details className="card"><summary>Abgeschlossene Übungen auf diesem Gerät</summary><ul>{readArchive().map(previous => <li key={previous.id}><button onClick={() => { setSession(previous); archivedRef.current = previous.id; }}>{previous.scenario.title} · {clock(previous.time)}</button></li>)}</ul><p className="muted">Die letzten zehn Abschlüsse bleiben im lokalen Archiv. Sie sind auch in der allgemeinen Datensicherung enthalten.</p></details>}
-      <details className="card"><summary>Funktionsumfang und nächste Ausbauschritte</summary><p>Enthalten: {SCENARIOS.length} Lehrszenarien mit klinischem Verlauf (Komplikationen, Angehörige, Visite, Telefonate), Fehlhandlungen mit Folgen, NEWS2-Verlaufskurve mit Bewusstsein und Sauerstoff, Entscheidungsmomente mit verzweigtem Verlauf, Schichtmodus mit mehreren Patienten gleichzeitig, verzögerte Diagnostik, strukturierte Gespräche, Untersuchungsbefunde als Text, Pflegehandlungen, eine Furosemid-Rechenübung, SBAR, Dokumentation, Ereignisverlauf und JSON-Werkstatt.</p><p>Noch ausstehend: fachlich validierte Dosis- und Interaktionsmodelle, Kreislaufstillstand und Reanimation, echte EKG-/Bilddaten, DICOM, Audios, formale MTS-/ESI-Triage, VR, Konten, serverseitiges RBAC, verschlüsselte mandantenfähige Speicherung und xAPI-/SCORM-Anbindung.</p><p>Der <a href="#/lernen/fall">Text-Fallsimulator</a> bleibt ein separates Angebot.</p></details>
+      <details className="card"><summary>Funktionsumfang und nächste Ausbauschritte</summary><p>Kernfälle: je ein vollständig ausgearbeiteter Fall für Normalstation, Notaufnahme und ambulante Pflege mit Ketten von Beobachtung zu Entscheidung, alternativen richtigen Wegen und Angabe, was nur auf Vorliegen und was inhaltlich geprüft wird. Die fachliche Freigabe durch eine Pflegefachperson steht aus.</p><p>Enthalten: {SCENARIOS.length} Lehrszenarien mit klinischem Verlauf (Komplikationen, Angehörige, Visite, Telefonate), Fehlhandlungen mit Folgen, NEWS2-Verlaufskurve mit Bewusstsein und Sauerstoff, Entscheidungsmomente mit verzweigtem Verlauf, Schichtmodus mit mehreren Patienten gleichzeitig, verzögerte Diagnostik, strukturierte Gespräche, Untersuchungsbefunde als Text, Pflegehandlungen, eine Furosemid-Rechenübung, SBAR, Dokumentation, Ereignisverlauf und JSON-Werkstatt.</p><p>Noch ausstehend: fachliche Freigabe der Kernfälle, Orbit-Kamera für die Raumansicht, fachlich validierte Dosis- und Interaktionsmodelle, Kreislaufstillstand und Reanimation, echte EKG-/Bilddaten, DICOM, Audios, formale MTS-/ESI-Triage, VR, Konten, serverseitiges RBAC, verschlüsselte mandantenfähige Speicherung und xAPI-/SCORM-Anbindung.</p><p>Der <a href="#/lernen/fall">Text-Fallsimulator</a> bleibt ein separates Angebot.</p></details>
     </>}
     {s && !(schicht && schichtOffen) && <>
-      <header className="praxis-sessionhead"><div><span className="eyebrow">{SETTINGS[s.scenario.setting]} · Ausbildungsjahr {s.level}</span><h2 ref={headingRef} tabIndex={-1}>{s.scenario.title}</h2><p>{s.scenario.patient}, {s.scenario.age} Jahre · {s.scenario.weight} kg</p><small>Modell {s.scenario.model.version} · fachlich ungeprüft · Seed {s.seed}</small></div><div className="praxis-clock"><span>Simulationszeit</span><strong>{clock(s.time)}</strong><span>{active ? running ? 'Uhr läuft' : 'Uhr pausiert' : 'Fall beendet'}</span></div></header>
+      <header className="praxis-sessionhead"><div><span className="eyebrow">{SETTINGS[s.scenario.setting]} · Ausbildungsjahr {s.level}</span><h2 ref={headingRef} tabIndex={-1}>{s.scenario.title}</h2><p>{s.scenario.patient}, {s.scenario.age} Jahre · {s.scenario.weight} kg</p><small>Modell {s.scenario.model.version} · {s.scenario.kern ? 'Kernfall · fachliche Freigabe ausstehend' : 'fachlich ungeprüft'} · Seed {s.seed}</small></div><div className="praxis-clock"><span>Simulationszeit</span><strong>{clock(s.time)}</strong><span>{active ? running ? 'Uhr läuft' : 'Uhr pausiert' : 'Fall beendet'}</span></div></header>
       {active ? <>
         <div className="praxis-controls" role="group" aria-label="Simulationssteuerung"><button className="primary" onClick={() => setRunning(!running)}>{running ? 'Uhr pausieren' : 'Uhr starten'}</button><label>Tempo<select value={speed} onChange={e => setSpeed(Number(e.target.value))}><option value="1">1× Echtzeit</option><option value="5">5×</option><option value="30">30× Zeitraffer</option></select></label>
           <button onClick={() => send({ type: 'advance', seconds: 60 })}>+1 Minute</button><button onClick={() => send({ type: 'advance', seconds: 300 })}>+5 Minuten</button>
@@ -291,9 +372,15 @@ export default function Praxissimulator() {
           <button onClick={() => { setRunning(false); send({ type: 'finish' }); setPanel('Verlauf'); }}>Fall abschließen</button>
         </div>
         <p className="muted praxis-clockhint">Handlungen verbrauchen auch bei pausierter Uhr ihre angezeigte Simulationszeit. Beim Verlassen der Seite pausiert die Uhr. Tageswechsel erst nach Versorgung, SBAR und Abschluss offener Aufträge.</p>
-        <Arbeitsplatz s={s} send={send} panel={panel} setPanel={setPanel} category={category} setCategory={setCategory} />
+        <Arbeitsplatz s={s} send={send} panel={panel} setPanel={setPanel} />
       </> : <div className="card praxis-debrief"><span className="eyebrow">Debriefing</span><h3>Deine Entscheidungen im Rückblick</h3><p>{debrief(s).filter(c => c.met).length} von {s.scenario.criteria.length} Szenariokriterien erfüllt · {s.events.filter(e => e.kind === 'warning').length} Warnungen · {s.pending.length} offene Aufträge bei Abschluss.</p><p className="muted">Die Auswertung prüft ausgeführte Handlungen und Zeitpunkte. Sie ist kein Kompetenznachweis. Freitexte und klinische Angemessenheit müssen mit einer Lehrperson reflektiert werden.</p>
-        <ul className="praxis-criteria">{debrief(s).map(c => <li key={c.flag}><strong>{c.met ? '✓ Erfüllt' : c.late ? '△ Verspätet' : '○ Offen'} · {c.label}</strong>{c.at !== undefined && <span>{clock(c.at)}</span>}<p>{c.why}</p>{SOURCES[c.source].url ? <a href={SOURCES[c.source].url} target="_blank" rel="noreferrer">{SOURCES[c.source].title}</a> : <small>{SOURCES[c.source].title}</small>}</li>)}</ul>
+        <KernHinweis scenario={s.scenario} />
+        <details className="praxis-legende"><summary>Was wurde wie bewertet?</summary><dl>
+          <div><dt>{BEWERTET.vorliegen}</dt><dd>Die Handlung wurde ausgeführt oder ein Text liegt vor. Ob sie gut gemacht oder der Text richtig ist, prüft die App nicht.</dd></div>
+          <div><dt>{BEWERTET.zeitpunkt}</dt><dd>Zusätzlich zählt, wann oder in welcher Reihenfolge du gehandelt hast, z. B. erneute Beurteilung erst nach der Maßnahme.</dd></div>
+          <div><dt>{BEWERTET.inhalt}</dt><dd>Deine Auswahl in einem Entscheidungsmoment wird mit der fachlich besten Option verglichen. Pflegebericht und SBAR-Freitext werden nie inhaltlich bewertet; in Kernfällen prüft die App bei SBAR nur Stichworte.</dd></div>
+        </dl></details>
+        <ul className="praxis-criteria">{debrief(s).map(c => <li key={c.flag}><strong>{c.met ? '✓ Erfüllt' : c.late ? '△ Verspätet' : '○ Offen'} · {c.label}</strong>{c.at !== undefined && <span>{clock(c.at)}</span>}<small className="praxis-pruefart">{c.pruefung}</small>{c.via && <small>Erfüllt über: {c.via}</small>}{c.anyOf?.length && !c.met ? <small>Richtige Wege: {[c.flag, ...c.anyOf].map(f => wegLabel(s.scenario, f)).join(' oder ')}</small> : null}<p>{c.why}</p>{SOURCES[c.source].url ? <a href={SOURCES[c.source].url} target="_blank" rel="noreferrer">{SOURCES[c.source].title}</a> : <small>{SOURCES[c.source].title}</small>}</li>)}</ul>
         <Klinik s={s} />
         <h3>Zur gemeinsamen Reflexion</h3><p>Welche Veränderung hat deine Entscheidung ausgelöst? Welche Informationen haben gefehlt? Welche Maßnahme würdest du beim nächsten Durchlauf früher oder anders ausführen?</p><details><summary>Vollständige Timeline und Warnungen</summary><Timeline s={s} /></details><div className="row"><button onClick={() => { download(`praxis-${s.scenario.id}-verlauf.json`, s); }}>Verlauf exportieren</button><button onClick={() => download(`praxis-${s.scenario.id}-xapi-entwurf.json`, xapiDraft(s))}>xAPI-Entwurf exportieren</button><button onClick={() => { const result = replay(s); setError(JSON.stringify(result) === JSON.stringify(s) ? 'Replay geprüft: Zustand und Verlauf stimmen vollständig überein.' : 'Replay weicht ab. Bitte Verlauf für die technische Prüfung sichern.'); }}>Replay prüfen</button><button onClick={() => begin(s.scenario)}>Diesen Fall wiederholen</button><button className="primary" onClick={() => { setSession(null); setRunning(false); }}>Zur Fallauswahl</button></div><p className="muted">Der xAPI-Entwurf enthält eine zufällige Sitzungskennung, Ereignistypen und Simulationszeit, keine Berichtstexte. Eine LRS-Verbindung und geprüfte LMS-Konformität sind noch nicht vorhanden.</p>
       </div>}

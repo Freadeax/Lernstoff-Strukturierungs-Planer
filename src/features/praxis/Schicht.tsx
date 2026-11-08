@@ -3,14 +3,14 @@ import { Arbeitsplatz, Klinik, type Panel } from './Praxissimulator';
 import { clock } from './engine';
 import { beendeSchicht, handle, neuBei, schichtAuswertung, warte, wechsle, WEGEZEIT, type Schicht } from './schicht';
 import { archive } from './storage';
-import type { Category, Command } from './types';
+import type { Command } from './types';
 
 const ESKALATION_KURZ: Record<string, string> = { 'kein Auslöser gemessen': 'kein Auslöser gemessen', 'nicht eskaliert': 'nicht eskaliert', vorausschauend: 'vorausschauend', zeitnah: 'zeitnah', 'verspätet': 'verspätet' };
 
 /** Schichtmodus: mehrere Patienten, eine Uhr. */
 export function SchichtAnsicht({ schicht, setSchicht, onClose }: { schicht: Schicht; setSchicht: (f: (x: Schicht | null) => Schicht | null) => void; onClose: () => void }) {
   const [running, setRunning] = useState(false); const [speed, setSpeed] = useState(1);
-  const [panel, setPanel] = useState<Panel>('Patientenzimmer'); const [category, setCategory] = useState<Category>('untersuchung');
+  const [panel, setPanel] = useState<Panel>('Patientenzimmer');
   const headingRef = useRef<HTMLHeadingElement>(null);
   const archiviert = useRef('');
   const s = schicht.sessions[schicht.active];
@@ -50,7 +50,7 @@ export function SchichtAnsicht({ schicht, setSchicht, onClose }: { schicht: Schi
         </button>;
       })}</div>
       <div className="praxis-schicht__patient"><h3>{s.scenario.patient} · {s.scenario.title}</h3><p className="muted">{s.scenario.background}</p></div>
-      <Arbeitsplatz s={s} send={send} panel={panel} setPanel={setPanel} category={category} setCategory={setCategory} />
+      <Arbeitsplatz s={s} send={send} panel={panel} setPanel={setPanel} />
     </> : <Auswertung schicht={schicht} onClose={onClose} />}
   </section>;
 }

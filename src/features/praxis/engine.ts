@@ -1,4 +1,4 @@
-import { STORY_KINDS, type Avpu, type Command, type Event, type Session, type Scenario, type Vitals, type Vital } from './types';
+import { BEWERTET, STORY_KINDS, type Avpu, type Bewertet, type Chain, type Criterion, type Command, type Event, type Session, type Scenario, type Vitals, type Vital } from './types';
 import { AVPU, news2Punkte, NEWS2_QUELLE } from './news2';
 import { correctVolume, decimalEqual } from './quantity';
 
@@ -25,13 +25,20 @@ export function start(scenario: Scenario, level: 1 | 2 | 3 = 1, seed = 2026): Se
     deterioration: 0, critical: false, snapshotRemainder: 0,
     seed: seed >>> 0, rng: seed >>> 0, commands: [],
     events: [{ id: 1, at: 0, kind: 'state', title: 'Übernahme', detail: scenario.situation }],
-    avpu: scenario.initialAvpu ?? 'A', oxygen: scenario.initialOxygen ?? false, chart: [], story: {}, drifts: [], harms: [], open: [], decisions: [],
+    avpu: scenario.initialAvpu ?? 'A', oxygen: scenario.initialOxygen ?? false, chart: [], story: {}, drifts: [], harms: [], open: [], decisions: [], trail: [],
   };
 }
 /** Ältere Spielstände ohne klinische Felder bekommen neutrale Startwerte. */
 function clinical(s: Session) {
-  s.avpu ??= s.scenario.initialAvpu ?? 'A'; s.oxygen ??= s.scenario.initialOxygen ?? false; s.chart ??= []; s.story ??= {}; s.drifts ??= []; s.harms ??= []; s.open ??= []; s.decisions ??= [];
-  return s as Session & Required<Pick<Session, 'avpu' | 'oxygen' | 'chart' | 'story' | 'drifts' | 'harms' | 'open' | 'decisions'>>;
+  s.avpu ??= s.scenario.initialAvpu ?? 'A'; s.oxygen ??= s.scenario.initialOxygen ?? false; s.chart ??= []; s.story ??= {}; s.drifts ??= []; s.harms ??= []; s.open ??= []; s.decisions ??= []; s.trail ??= [];
+  return s as Session & Required<Pick<Session, 'avpu' | 'oxygen' | 'chart' | 'story' | 'drifts' | 'harms' | 'open' | 'decisions' | 'trail'>>;
+}
+/** Spur begrenzt halten: genug für lange Fälle, ohne den Speicher zu füllen. */
+function mark(s: Session, id: string, at = s.time) {
+  const c = clinical(s);
+  if (c.trail.some(t => t.id === id && t.at === at)) return;
+  c.trail.push({ at, id });
+  if (c.trail.length > 2000) c.trail.splice(0, c.trail.length - 2000);
 }
 const worse = (a: Avpu, b: Avpu) => AVPU.indexOf(a) >= AVPU.indexOf(b) ? a : b;
 /** Bewusstseinslage aus Fallverlauf und Physiologie: schwere Hypoxie, Schock oder Hypoglykämie trüben ein. */
@@ -60,6 +67,7 @@ function story(s: Session) {
     if (s.time < (e.when !== undefined ? s.flags[e.when] : 0) + storyTime(e.at, s.level)) continue;
     if (e.unless?.some(f => s.flags[f] !== undefined)) { c.story[e.id] = 'prevented'; continue; }
     c.story[e.id] = 'fired';
+    mark(s, `ereignis:${e.id}`);
     if (e.effect) s.vitals = effect(s.vitals, e.effect);
     if (e.avpu) c.avpu = e.avpu;
     if (e.flag) s.flags[e.flag] ??= s.time;
@@ -125,6 +133,7 @@ function execute(previous: Session, command: Command): Session {
     if (!event || !choice || !s.open.includes(event.id)) return previous;
     s.open = s.open.filter(id => id !== event.id);
     s.decisions.push({ at: s.time, event: event.id, choice: choice.id });
+    mark(s, `wahl:${event.id}:${choice.id}`);
     add(s, 'action', `Entscheidung: ${choice.label}`, choice.result);
     if (choice.effect) s.vitals = effect(s.vitals, choice.effect);
     if (choice.avpu) s.avpu = choice.avpu;
@@ -150,6 +159,7 @@ function execute(previous: Session, command: Command): Session {
     if (action.requires && s.flags[action.requires] === undefined) { add(s, 'warning', 'Freigabe fehlt', 'Zuerst ärztliche Anordnung bzw. angezeigte Voraussetzung einholen.'); return s; }
     advance(s, action.seconds);
     if (!s.done.includes(action.id)) s.done.push(action.id);
+    mark(s, action.id);
     // Eine vorab strukturierte SBAR-Übergabe verkürzt im Modell die Zeit bis zur ärztlichen Entscheidung.
     const delay = action.id === 'orders' && action.delay && s.flags.sbar !== undefined ? Math.ceil(action.delay / 2) : action.delay;
     add(s, 'action', action.label, delay ? `Ergebnis in ${Math.ceil(delay / 60)} Simulationsminuten.${delay !== action.delay ? ' Deine SBAR-Übergabe liegt bereits vor; die Rückmeldung kommt schneller.' : ''}` : action.result);
@@ -182,7 +192,7 @@ function execute(previous: Session, command: Command): Session {
     return s;
   }
   advance(s, command.duration * 60);
-  s.done.push(`med:${med.id}`); s.flags.medication ??= s.time;
+  s.done.push(`med:${med.id}`); s.flags.medication ??= s.time; mark(s, `med:${med.id}`);
   add(s, 'medication', `${med.name} verabreicht`, `${med.dose} ${med.unit} · ${med.route} · ${command.volume} ml. Simulationswirkung nach ${med.onset} Minuten.`);
   s.pending.push({ id: `med:${med.id}`, medicationId: med.id, title: `Wirkungskontrolle: ${med.name}`, due: s.time + med.onset * 60, result: med.result, flag: 'medication_effect', requestedBy: s.events.at(-1)?.id });
   return s;
@@ -192,6 +202,8 @@ export function dispatch(previous: Session, command: Command, commandId?: string
   if (commandId && previous.commands.some(c => c.id === commandId)) return previous;
   const next = execute(previous, command);
   if (next === previous) return previous;
+  // Neu gesetzte oder erneuerte Flags in die Spur übernehmen (mit ihrem eigenen Zeitpunkt).
+  for (const [flag, at] of Object.entries(next.flags)) if (previous.flags[flag] !== at) mark(next, flag, at);
   // Zeit läuft nur bis zu einem Entscheidungsmoment; aufgezeichnet wird die tatsächlich vergangene Zeit.
   if (command.type === 'advance') command = { type: 'advance', seconds: next.time - previous.time };
   const last = next.commands.at(-1);
@@ -205,8 +217,69 @@ export function replay(session: Session): Session {
   for (const entry of session.commands) result = dispatch(result, entry.command, entry.id);
   return result;
 }
+/** Was ein Kriterium prüft; ohne Angabe aus der Zeitbedingung abgeleitet. */
+export const bewertetVon = (c: Criterion): Bewertet => c.bewertet ?? (c.before !== undefined || c.after !== undefined ? 'zeitpunkt' : 'vorliegen');
+/** Bezeichnung eines Flags oder einer Kennung aus der Spur, z. B. für „erfüllt über …“. */
+export function wegLabel(scenario: Scenario, id: string): string {
+  const action = scenario.actions.find(a => a.flag === id || a.id === id);
+  if (action) return action.label;
+  if (id.startsWith('wahl:')) { const [, e, c] = id.split(':'); return scenario.storyline?.find(x => x.id === e)?.choices?.find(x => x.id === c)?.label ?? id; }
+  if (id.startsWith('ereignis:')) return scenario.storyline?.find(x => x.id === id.slice(9))?.title ?? id;
+  for (const e of scenario.storyline ?? []) { const c = e.choices?.find(x => x.flag === id); if (c) return c.label; }
+  return { documented: 'Pflegebericht', sbar: 'SBAR-Übergabe', medication: 'Arzneimittelgabe', medication_effect: 'Wirkungseintritt', medication_reviewed: 'Wirkung kontrolliert' }[id] ?? id;
+}
 export function debrief(s: Session) {
-  return s.scenario.criteria.map(c => ({ ...c, at: s.flags[c.flag], met: s.flags[c.flag] !== undefined && (c.before === undefined || s.flags[c.flag] <= c.before) && (c.after === undefined || s.flags[c.after] !== undefined && s.flags[c.flag] >= s.flags[c.after]), late: s.flags[c.flag] !== undefined && c.before !== undefined && s.flags[c.flag] > c.before }));
+  return s.scenario.criteria.map(c => {
+    // Alternative Wege: früheste erfüllende Kennung zählt.
+    const candidates = [c.flag, ...(c.anyOf ?? [])].filter(f => s.flags[f] !== undefined).sort((a, b) => s.flags[a] - s.flags[b]);
+    const via = candidates.find(f => (c.before === undefined || s.flags[f] <= c.before) && (c.after === undefined || s.flags[c.after] !== undefined && s.flags[f] >= s.flags[c.after])) ?? candidates[0];
+    const at = via === undefined ? undefined : s.flags[via];
+    const met = via !== undefined && (c.before === undefined || at! <= c.before) && (c.after === undefined || s.flags[c.after] !== undefined && at! >= s.flags[c.after]);
+    return { ...c, at, met, late: at !== undefined && c.before !== undefined && at > c.before, via: met && via !== c.flag ? wegLabel(s.scenario, via) : undefined, bewertet: bewertetVon(c), pruefung: BEWERTET[bewertetVon(c)] };
+  });
+}
+
+export type KettenStatus = 'erfüllt' | 'vorausschauend' | 'verspätet' | 'fehlt' | 'nicht beobachtet' | 'kein Anlass';
+/** Erster Zeitpunkt, an dem eine Kennung in der Spur steht (optional nicht vor `from`). */
+function first(trail: { at: number; id: string }[], id: string, from = -1) {
+  return trail.find(t => t.id === id && t.at >= from)?.at;
+}
+/**
+ * Auswertung der Ketten Beobachtung → Entscheidung: Wann wurde die Beobachtung gemacht, welcher Weg
+ * wurde gewählt, wo fehlten erneute Beurteilung oder Eskalation. Geprüft werden Reihenfolge und Zeitpunkt.
+ */
+export function ketten(s: Session) {
+  const trail = [...(s.trail ?? Object.entries(s.flags).map(([id, at]) => ({ id, at })))].sort((a, b) => a.at - b.at);
+  return (s.scenario.chains ?? []).map((k: Chain) => {
+    const seenAt = k.seenBy.map(id => first(trail, id)).filter((t): t is number => t !== undefined).sort((a, b) => a - b)[0];
+    const seenVia = seenAt === undefined ? undefined : k.seenBy.find(id => first(trail, id) === seenAt);
+    const from = k.after && seenAt !== undefined ? seenAt : -1;
+    // Ein Weg ist gegangen, wenn alle Kennungen vorliegen; Zeitpunkt = letzte davon.
+    const ways = k.ways.map(w => { const times = w.ids.map(id => first(trail, id, from)); return { ...w, at: times.every(t => t !== undefined) ? Math.max(...(times as number[])) : undefined }; });
+    const taken = ways.filter(w => w.at !== undefined).sort((a, b) => a.at! - b.at!)[0];
+    const onlyEvents = k.seenBy.every(id => id.startsWith('ereignis:'));
+    // Ohne Anlass (Ereignis nicht eingetreten, Maßnahme nie erfolgt) gibt es nichts nachzuholen.
+    const status: KettenStatus = seenAt === undefined
+      ? onlyEvents || k.after ? 'kein Anlass' : taken ? 'vorausschauend' : 'nicht beobachtet'
+      : !taken ? 'fehlt'
+      : taken.at! < seenAt ? 'vorausschauend'
+      : k.within !== undefined && taken.at! - seenAt > k.within ? 'verspätet' : 'erfüllt';
+    return {
+      ...k, seenAt, seenLabel: seenVia ? wegLabel(s.scenario, seenVia) : undefined, status,
+      taken: taken && status !== 'kein Anlass' ? { label: taken.label, at: taken.at! } : undefined,
+      minutes: taken && seenAt !== undefined && taken.at! >= seenAt ? Math.round((taken.at! - seenAt) / 60) : undefined,
+      ok: status === 'erfüllt' || status === 'vorausschauend' || status === 'kein Anlass',
+    };
+  });
+}
+
+/** Stichwortprüfung der letzten SBAR-Übergabe (nur Kernfälle). Prüft Begriffe, nicht den Sinn. */
+export function sbarPruefung(s: Session) {
+  const checks = s.scenario.sbarCheck ?? [];
+  const last = [...s.events].reverse().find(e => e.kind === 'note' && e.title === 'SBAR-Übergabe');
+  if (!checks.length) return { vorhanden: !!last, checks: [] as { label: string; field: number; met: boolean }[] };
+  const fields = ['S', 'B', 'A', 'R'].map(k => last?.detail.split('\n').find(line => line.startsWith(`${k}: `))?.slice(3).toLowerCase() ?? '');
+  return { vorhanden: !!last, checks: checks.map(c => ({ label: c.label, field: c.field, met: c.any.some(w => fields[c.field]!.includes(w.toLowerCase())) })) };
 }
 
 /** Klinische Auswertung: Verlauf, verhinderte Komplikationen, Fehlhandlungen und Eskalationszeit. */
@@ -219,7 +292,7 @@ export function clinicalDebrief(s: Session) {
   const scores = c.chart.map(p => ({ at: p.at, ...news2Of(p) }));
   const alarm = scores.find(p => p.punkte >= 5 || p.teil.includes(3));
   // Notruf (z. B. 112 im Heim) zählt ebenso als Eskalation wie das Hinzuziehen des Teams.
-  const help = [s.flags.help, s.flags.ems].filter((t): t is number => t !== undefined).sort((a, b) => a - b)[0];
+  const help = [s.flags.help, s.flags.ems, ...(s.scenario.escalation ?? []).map(f => s.flags[f])].filter((t): t is number => t !== undefined).sort((a, b) => a - b)[0];
   const escalation = !alarm ? 'kein Auslöser gemessen' as const
     : help === undefined ? 'nicht eskaliert' as const
     : help <= alarm.at ? 'vorausschauend' as const

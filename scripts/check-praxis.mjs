@@ -23,14 +23,26 @@ try {
       audits.push({ width, name, violations: axe.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => ({ html: n.html, summary: n.failureSummary })) })) });
     };
     await audit('Fallauswahl'); await page.screenshot({ path: path.join(output, `auswahl-${width}.png`), fullPage: true });
+    await page.getByLabel('Einrichtung').selectOption('kern');
+    assert.equal(await page.locator('.praxis-kernmarke').count(), 3, 'drei Kernfälle');
     await page.getByLabel('Einrichtung').selectOption('station');
     await page.locator('.praxis-scenario', { hasText: 'Atemnot in der Nacht' }).getByRole('button', { name: 'Schicht übernehmen', exact: true }).click();
     assert(await page.getByText('Noch keine Messung', { exact: true }).isVisible());
-    await page.getByRole('button', { name: 'Messgerät verwenden', exact: true }).click();
+    // Raumelemente: Antippen zeigt den ersten Blick (ohne Zeitverbrauch) und die Handlungen dort.
+    assert(await page.locator('.praxis-element .praxis-blick').textContent().then(t => /Erster Blick: wach und ansprechbar, atmet sichtbar schnell/.test(t ?? '')));
+    assert.equal(await page.locator('.praxis-clock strong').textContent(), '00:00:00', 'Hinsehen kostet keine Zeit');
+    await page.getByRole('button', { name: /^Monitor und Messgeräte/ }).click();
+    await page.getByRole('button', { name: /Vitalparameter einschließlich BZ messen/ }).click();
     assert(await page.getByText('Letzte Messung · 00:01:00', { exact: true }).isVisible());
-    await page.getByRole('button', { name: 'Team rufen', exact: true }).click();
-    await page.getByRole('button', { name: 'Team & Übergabe', exact: true }).click();
+    await page.getByRole('button', { name: /^Stationstelefon/ }).click();
+    await page.getByRole('button', { name: /Qualifiziertes Team hinzuziehen/ }).click();
     await page.getByRole('button', { name: /Ärztliche Rücksprache und Anordnung/ }).click();
+    // Gleichwertige Liste: alle vier Elemente mit denselben Handlungen.
+    await page.getByRole('button', { name: 'Liste', exact: true }).click();
+    assert.equal(await page.locator('.praxis-liste h4').count(), 4);
+    assert.equal(await page.locator('.praxis-liste .praxis-actions button').count(), await page.evaluate(() => JSON.parse(localStorage.getItem('lernstoff.praxis.aktuell')).scenario.actions.length));
+    await audit('Raumliste');
+    await page.getByRole('button', { name: 'Raum', exact: true }).click();
     await page.getByRole('button', { name: '+5 Minuten', exact: true }).click();
     assert(await page.locator('.praxis-news2 strong').first().textContent().then(t => /NEWS2 \d+/.test(t ?? '')));
     await page.getByRole('button', { name: 'Vitalkurve', exact: true }).click();
@@ -75,6 +87,9 @@ try {
     assert(await page.getByRole('heading', { name: 'Klinischer Verlauf' }).isVisible());
     assert(await page.getByRole('heading', { name: 'Deine Entscheidungen', exact: true }).isVisible());
     assert(await page.getByRole('heading', { name: 'Weiterlernen zu diesem Fall' }).isVisible());
+    assert(await page.getByRole('heading', { name: 'Beobachtung → Entscheidung' }).isVisible());
+    assert(await page.getByRole('heading', { name: 'SBAR-Inhalt' }).isVisible());
+    assert(await page.locator('.praxis-criteria .praxis-pruefart', { hasText: 'Geprüft: nur Vorliegen' }).first().isVisible());
     await page.getByRole('button', { name: 'Replay prüfen', exact: true }).click();
     assert(await page.getByText('Replay geprüft: Zustand und Verlauf stimmen vollständig überein.', { exact: true }).isVisible());
     await audit('Debriefing'); await page.screenshot({ path: path.join(output, `debrief-${width}.png`), fullPage: true });
@@ -86,7 +101,8 @@ try {
     // Schichtmodus: zwei Kinder, eine Uhr.
     await page.locator('.praxis-schichtwahl__eintrag', { hasText: 'Kinderstation' }).getByRole('button', { name: 'Schicht beginnen', exact: true }).click();
     await page.getByRole('heading', { name: 'Kinderstation am Nachmittag', exact: true }).waitFor();
-    await page.getByRole('button', { name: 'Messgerät verwenden', exact: true }).click();
+    await page.getByRole('button', { name: /^Monitor und Messgeräte/ }).click();
+    await page.getByRole('button', { name: /Vitalparameter einschließlich BZ messen/ }).click();
     await page.locator('.praxis-patient').nth(1).click();
     assert.equal(await page.getByText('Du bist hier', { exact: true }).count(), 1);
     assert(await page.locator('.praxis-clock strong').textContent().then(t => t === '00:01:45'), 'Wegezeit zählt');
