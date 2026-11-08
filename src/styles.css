@@ -114,6 +114,18 @@ input.wide, textarea.wide { width: 100%; }
 .claim.fehlt { font-style: italic; color: var(--color-text-muted); }
 .claim.active { outline: 2px solid var(--color-primary); }
 .source { margin-top: var(--space-3); padding: var(--space-3); border-radius: var(--radius-sm); background: var(--color-surface-sunken); }
+/* Zusammenfassung und Original nebeneinander (iPad quer, Rechner); schmal untereinander */
+.source--leer { display: none; }
+.quote__original { display: inline-block; margin-top: var(--space-1); font-size: var(--text-sm); }
+@media (min-width: 1000px) {
+  .zf-split { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: var(--space-4); align-items: start; }
+  .zf-split > .source { position: sticky; top: calc(var(--header-h) + var(--space-2)); margin-top: 0; max-height: calc(100dvh - var(--header-h) - var(--space-4)); overflow-y: auto; }
+  .zf-split > .source--leer { display: block; }
+}
+.chunk--ziel { outline: 2px solid var(--color-focus); outline-offset: 2px; border-radius: var(--radius-xs); }
+.chunk--unsicher { border-left: 3px solid var(--color-warning); padding-left: var(--space-2); }
+.lesehinweise ul { margin: var(--space-1) 0 0; padding-left: var(--space-4); }
+.dokument__dublette { margin: var(--space-2) 0 0; }
 .quote { margin-top: var(--space-2); }
 mark { background: var(--color-highlight); color: inherit; }
 

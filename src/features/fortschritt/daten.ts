@@ -12,6 +12,7 @@ import { session } from '../../ui/shell/session';
 import { useWidgetData } from '../../ui/widget/useWidgetData';
 import { assembleInput, heute, leafTopics, loadPlannerData } from '../lernplan/store';
 import { resolveSettings } from '../lernplan/types';
+import { ladeLesestaende } from '../skript/store';
 import { zieleAufloesen, type Fakten, type Lernstand, type StatKarte, type Ziele } from './statistik';
 
 export const ZIELE_KEY = 'lernstoff.ziele';
@@ -34,6 +35,8 @@ export interface FortschrittDaten {
   lernstand: Lernstand;
   exams: Exam[];
   skripte: Array<{ id: string; gruppe: string; titel: string; topicIds: string[] }>;
+  /** Themen von Skripten, in denen mindestens ein Abschnitt als gelesen markiert ist. */
+  skriptGelesen: string[];
 }
 
 async function lade(moduleId: string): Promise<FortschrittDaten> {
@@ -45,8 +48,10 @@ async function lade(moduleId: string): Promise<FortschrittDaten> {
     db.skripte.toArray().then((s) => s.map(({ id, gruppe, titel, topicIds }) => ({ id, gruppe, titel, topicIds }))).catch(() => []),
   ]);
   const input = assembleInput(data);
+  const lesestaende = ladeLesestaende();
   return {
     today, modul, skripte, exams: data.exams,
+    skriptGelesen: [...new Set(skripte.filter((s) => (lesestaende[s.id]?.gelesen.length ?? 0) > 0).flatMap((s) => s.topicIds))],
     fakten: {
       studyLogs: data.studyLogs.map(({ topicId, date, minutes }) => ({ topicId, date, minutes })),
       reviewLogs: data.reviewLogs.map(({ topicId, date, source, rating, scorePercent, trainer }) => ({ topicId, date, source, rating, scorePercent, trainer })),

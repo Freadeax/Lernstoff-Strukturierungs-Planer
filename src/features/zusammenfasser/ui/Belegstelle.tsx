@@ -5,7 +5,7 @@ import { QUELLENART_GELTUNG, QUELLENART_TEXT, quellenLuecken } from '../../quali
 
 const datum = (d: string) => new Date(`${d}T00:00:00`).toLocaleDateString('de-DE');
 
-export function Belegstelle(props: { titel?: string; chunk?: SourceChunk; seite: string; start?: number; end?: number; zitat: string; quelle?: Quellenangabe; sensibel?: boolean; dokumentId?: string }) {
+export function Belegstelle(props: { titel?: string; chunk?: SourceChunk; seite: string; start?: number; end?: number; zitat: string; quelle?: Quellenangabe; sensibel?: boolean; dokumentId?: string; ganz?: boolean }) {
   const { chunk: ch, start, end, quelle: q } = props;
   const luecken = props.sensibel ? quellenLuecken(q, ch) : [];
   return (
@@ -25,8 +25,15 @@ export function Belegstelle(props: { titel?: string; chunk?: SourceChunk; seite:
         </div>
       )}
       {ch && start !== undefined && end !== undefined
-        ? <div className="pre">…{ch.text.slice(Math.max(0, start - 120), start)}<mark>{ch.text.slice(start, end)}</mark>{ch.text.slice(end, end + 120)}…</div>
+        ? props.ganz
+          ? <div className="pre">{ch.text.slice(0, start)}<mark>{ch.text.slice(start, end)}</mark>{ch.text.slice(end)}</div>
+          : <div className="pre">…{ch.text.slice(Math.max(0, start - 120), start)}<mark>{ch.text.slice(start, end)}</mark>{ch.text.slice(end, end + 120)}…</div>
         : <div className="pre">„{props.zitat}“</div>}
+      {ch && (
+        <a className="quote__original" href={`#/material/dokumente?dokument=${encodeURIComponent(ch.documentId)}&abschnitt=${encodeURIComponent(ch.id)}${start !== undefined && end !== undefined ? `&von=${start}&bis=${end}` : ''}`}>
+          Fundstelle im Dokument öffnen<span className="visually-hidden">: {props.titel ?? 'Quelle'}, Seite {props.seite}</span>
+        </a>
+      )}
     </div>
   );
 }

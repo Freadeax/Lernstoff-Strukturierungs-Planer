@@ -11,7 +11,7 @@ import type { EvidenceSource } from '../lernplan/types';
 import { alleMeilensteine, naechsteSchritte, werteAus, type Auswertung } from './auswertung';
 import { speichereZiel, useFortschritt, type FortschrittDaten } from './daten';
 import {
-  gesamtWerte, kalenderWochen, rueckblickText, serie, stufe, STATUS_REIHE, wissensVerlauf,
+  gesamtWerte, kalenderWochen, lernstufen, LERNSTUFEN, rueckblickText, serie, stufe, STATUS_REIHE, wissensVerlauf,
   wochenrueckblick, wochenStart, wochenZiele, woche, ZIEL_GRENZEN,
   type Bereich, type BereichStand, type Ziele, type ZielStand,
 } from './statistik';
@@ -180,6 +180,34 @@ function Verlauf({ ctx }: { ctx: Ctx }) {
   );
 }
 
+/** Lernstufen: gelesen → abgerufen → angewendet → bestätigt, je Anzahl Themen. */
+function Stufen({ ctx }: { ctx: Ctx }) {
+  const { d } = ctx;
+  const ids = useMemo(() => d.lernstand.leaves.map((t) => t.id), [d]);
+  const st = useMemo(() => lernstufen(ids, d.lernstand.studyLogs, d.lernstand.reviewLogs, (id) => ctx.status.get(id)?.status ?? 'offen', d.skriptGelesen), [ids, d, ctx.status]);
+  const gesamt = Math.max(1, ids.length);
+  const luecke = st.gelesen.filter((id) => !st.abgerufen.includes(id) && !st.bestaetigt.includes(id));
+  return (
+    <article className="card fs-stufen">
+      <p className="eyebrow">Vom Lesen zum Können</p>
+      <ol className="fs-stufen__liste">
+        {LERNSTUFEN.map((s) => (
+          <li key={s.id}>
+            <div className="fs-stufen__kopf"><strong>{s.label}</strong><span>{st[s.id].length} von {ids.length} Themen</span></div>
+            <div className="fs-stufen__balken" role="img" aria-label={`${s.label}: ${st[s.id].length} von ${ids.length} Themen, ${prozent(st[s.id].length / gesamt)}`}><span style={{ width: breite(st[s.id].length / gesamt) }} /></div>
+            <p className="muted">{s.text}</p>
+          </li>
+        ))}
+      </ol>
+      {luecke.length > 0 && (
+        <p>{plural(luecke.length, 'Thema ist', 'Themen sind')} gelesen, aber noch nie abgefragt ({luecke.slice(0, 3).map(ctx.name).join(', ')}{luecke.length > 3 ? ' …' : ''}).
+          {' '}<a className="text-link" href={`#/lernen/karten?thema=${encodeURIComponent(luecke[0]!)}`}>Jetzt abfragen</a></p>
+      )}
+      <p className="muted">Selbsteinschätzungen zählen auf keiner Stufe. Bestätigt ist ein Thema erst nach mehreren erfolgreichen Abfragen an verschiedenen Tagen.</p>
+    </article>
+  );
+}
+
 // ---------------------------------------------------------------- Überblick
 
 function Ueberblick({ ctx, onZiele }: { ctx: Ctx; onZiele: () => void }) {
@@ -235,6 +263,7 @@ function Ueberblick({ ctx, onZiele }: { ctx: Ctx; onZiele: () => void }) {
         <p className="muted">„Sicher“ heißt: mehrfach an verschiedenen Tagen erfolgreich abgefragt und aktuell gut abrufbar. Lesen allein zählt nicht.</p>
       </article>
 
+      <Stufen ctx={ctx} />
       <Verlauf ctx={ctx} />
       <article className="card fs-kal">
         <p className="eyebrow">Letzte zwölf Wochen</p>

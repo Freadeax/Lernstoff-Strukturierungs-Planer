@@ -23,7 +23,7 @@ beforeEach(() => {
 const quiz = (date: string) => ({ topicId: 'thema.ap.herz', date, source: 'quiz' as const, rating: 3 as const });
 function daten(today: string, reviews: ReturnType<typeof quiz>[] = [], kartenTage: string[] = []): FortschrittDaten {
   return {
-    today, modul: pflegeModule, skripte: [], exams: [],
+    today, modul: pflegeModule, skripte: [], skriptGelesen: [], exams: [],
     fakten: { studyLogs: [], reviewLogs: reviews, kartenLogs: kartenTage.map((date) => ({ date, rating: 3 })) },
     lernstand: { leaves: [], studyLogs: [], reviewLogs: reviews, settings: DEFAULT_SETTINGS },
   };

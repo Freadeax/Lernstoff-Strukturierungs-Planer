@@ -12,7 +12,7 @@ import { addDays } from '../../ui/lib/time';
 import { evidenceRating } from '../lernplan/fsrs';
 import { computeAllProgress, type TopicProgress } from '../lernplan/progress';
 import { availableMinutes } from '../lernplan/scheduler';
-import type { Availability, CardEvidence, PlannerSettings, ReviewLog, StudyLog } from '../lernplan/types';
+import type { Availability, CardEvidence, EvidenceSource, PlannerSettings, ReviewLog, StudyLog } from '../lernplan/types';
 
 export interface StatReview extends ReviewLog { trainer?: string }
 export interface StatKarte { date: string; rating: number }
@@ -460,4 +460,44 @@ export function rueckblickText(r: Rueckblick, name: (id: ID) => string): string 
   if (r.meisteZeit.length) zeilen.push('', 'Meiste Lernzeit:', ...r.meisteZeit.map((x) => `- ${name(x.topicId)} (${x.minuten} Min.)`));
   if (r.schwierig.length) zeilen.push('', 'Noch schwierig:', ...r.schwierig.map((x) => `- ${name(x.topicId)} (${x.fehl} von ${x.gesamt} nicht gelöst)`));
   return zeilen.join('\n');
+}
+
+// ---------------------------------------------------------------- Lernstufen je Thema
+
+/**
+ * Vier Stufen vom Lesen bis zum Nachweis. Sie bauen aufeinander auf, werden aber unabhängig gezählt:
+ * - gelesen: Lernzeit erfasst, auf dem Board erarbeitet oder im Skript Abschnitte als gelesen markiert
+ * - abgerufen: echte Abfrage aus dem Gedächtnis (Karteikarten, Quiz, offene Frage, Prüfungssimulation)
+ * - angewendet: in einem Übungstrainer, Fall oder Praxissimulator genutzt
+ * - bestätigt: sicher nach den Lernplan-Regeln (mehrfach an verschiedenen Tagen erfolgreich, gut abrufbar)
+ * Selbsteinschätzungen zählen auf keiner Stufe.
+ */
+export type Lernstufe = 'gelesen' | 'abgerufen' | 'angewendet' | 'bestaetigt';
+export const LERNSTUFEN: Array<{ id: Lernstufe; label: string; text: string }> = [
+  { id: 'gelesen', label: 'Gelesen', text: 'Lernzeit erfasst oder im Skript gelesen' },
+  { id: 'abgerufen', label: 'Abgerufen', text: 'aus dem Gedächtnis abgefragt' },
+  { id: 'angewendet', label: 'Angewendet', text: 'in Trainer, Fall oder Praxis genutzt' },
+  { id: 'bestaetigt', label: 'Bestätigt', text: 'sicher nach mehreren Abfragen' },
+];
+
+const ABRUF: EvidenceSource[] = ['karteikarten', 'quiz', 'offene_frage', 'pruefungssimulation'];
+
+export function lernstufen(
+  topicIds: ID[],
+  studyLogs: StudyLog[],
+  reviewLogs: ReviewLog[],
+  status: (id: ID) => MasteryStatus,
+  skriptGelesen: Iterable<ID> = [],
+): Record<Lernstufe, ID[]> {
+  const ids = new Set(topicIds);
+  const gelesen = new Set<ID>([...skriptGelesen].filter((id) => ids.has(id)));
+  for (const l of studyLogs) if (l.minutes > 0 && ids.has(l.topicId)) gelesen.add(l.topicId);
+  const abgerufen = new Set<ID>(), angewendet = new Set<ID>();
+  for (const l of reviewLogs) {
+    if (!ids.has(l.topicId) || evidenceRating(l) === undefined) continue;
+    if (l.source === 'trainer') angewendet.add(l.topicId);
+    else if (ABRUF.includes(l.source)) abgerufen.add(l.topicId);
+  }
+  const bestaetigt = topicIds.filter((id) => status(id) === 'sicher');
+  return { gelesen: topicIds.filter((id) => gelesen.has(id)), abgerufen: topicIds.filter((id) => abgerufen.has(id)), angewendet: topicIds.filter((id) => angewendet.has(id)), bestaetigt };
 }

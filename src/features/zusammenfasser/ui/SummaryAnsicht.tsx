@@ -1,6 +1,6 @@
 // Anzeige einer Zusammenfassung aus den Text-Modi: Ampel, Prüfhinweise, Rückfragen, Gliederung mit
 // markierten Kästen, Ampel je Aussage und Originalstelle per Tippen.
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import type { Claim, Document, SourceChunk, Summary, SummaryBlock } from '../../../core/types';
 import { sensibleKategorien, stufenUebersicht, stufenVon, uebersichtText, KATEGORIE_TEXT } from '../../qualitaet/belegstufen';
 import { Belegstelle } from './Belegstelle';
@@ -17,6 +17,19 @@ const KASTEN: Record<string, string> = {
 };
 export const MODUS_TEXT: Record<string, string> = { originalgetreu: 'Originalgetreu', lernen: 'Lernen', arbeitsauftrag: 'Arbeitsauftrag', pruefung: 'Prüfung', vergleich: 'Vergleich' };
 
+/** Breite Ansicht (iPad quer, Rechner): Original neben der Zusammenfassung, dort mit ganzem Abschnitt. */
+function useBreit(query = '(min-width: 1000px)') {
+  const [breit, setBreit] = useState(() => typeof matchMedia === 'function' && matchMedia(query).matches);
+  useEffect(() => {
+    if (typeof matchMedia !== 'function') return;
+    const mq = matchMedia(query);
+    const f = () => setBreit(mq.matches);
+    mq.addEventListener('change', f);
+    return () => mq.removeEventListener('change', f);
+  }, [query]);
+  return breit;
+}
+
 const nurTrenner = (t: string) => /^[\s|:-]+$/.test(t);
 
 export function SummaryAnsicht({ summary, chunkMap, titles, docs = new Map(), onAendern }: {
@@ -24,6 +37,7 @@ export function SummaryAnsicht({ summary, chunkMap, titles, docs = new Map(), on
   docs?: Map<string, Document>; onAendern?: (s: Summary) => void;
 }) {
   const [shownId, setShownId] = useState<string | null>(null);
+  const breit = useBreit();
   const shown = summary.claims.find((c) => c.id === shownId) ?? null;
   const setShown = (c: Claim | null) => setShownId(c?.id ?? null);
   const uebersicht = stufenUebersicht(summary, docs, chunkMap);
@@ -103,19 +117,22 @@ export function SummaryAnsicht({ summary, chunkMap, titles, docs = new Map(), on
       {allgemein.length > 0 && (
         <div className="note warn"><ul className="befunde">{allgemein.map((b) => <li key={b.id}>{b.meldung}</li>)}</ul></div>
       )}
+      <div className="zf-split">
       <div className="summary">{summary.blocks?.length ? gliederung() : fliesstext()}</div>
+      {!shown && <aside className="source source--leer" aria-label="Originalstelle"><p className="muted">Tippe links auf eine Aussage. Hier erscheint die Originalstelle aus deinem Material.</p></aside>}
       {shown && (
-        <div className="source">
+        <aside className="source" aria-label="Originalstelle" aria-live="polite" tabIndex={0}>
           <div><strong>{STATUS_TEXT[shown.status]}</strong>{shown.isSupplementary ? ' · nicht aus deinen Quellen' : ''}
             {sensibleKategorien(shown, docs).map((k) => <span key={k} className="tag tag--warning">{KATEGORIE_TEXT[k]}</span>)}</div>
           <Pruefstufen summary={summary} claim={shown} docs={docs} onAendern={onAendern} />
           {qa?.befunde.filter((b) => b.claimId === shown.id).map((b) => <div key={b.id} className="muted">{b.pruefung}: {b.meldung}</div>)}
           {shown.citations.map((z, i) => (
             <Belegstelle key={i} titel={titles.get(z.documentId)} chunk={chunkMap.get(z.chunkId)} seite={z.printedPage ?? String(z.page)} start={z.charStart} end={z.charEnd} zitat={z.quote}
-              quelle={docs.get(z.documentId)?.quelle} sensibel={sensibleKategorien(shown, docs).length > 0} dokumentId={z.documentId} />
+              quelle={docs.get(z.documentId)?.quelle} sensibel={sensibleKategorien(shown, docs).length > 0} dokumentId={z.documentId} ganz={breit} />
           ))}
-        </div>
+        </aside>
       )}
+      </div>
       {qa && qa.befunde.length > 0 && (
         <details className="befunde-alle">
           <summary>Alle Prüfhinweise ({qa.befunde.length})</summary>
