@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { deleteAll } from '../core/db';
 import { loescheLokaleEintraege } from '../core/sicherung';
 import { navigate } from '../ui/shell/router';
-import { getApiKey, setApiKey } from '../core/settings';
+import { apiKeyDauerhaft, getApiKey, setApiKey } from '../core/settings';
 import { Field, useFormFeedback } from '../ui/form/Field';
 import { PageHeading } from '../ui/PageHeading';
 import { Icon } from '../ui/icons';
@@ -10,6 +10,7 @@ import { Icon } from '../ui/icons';
 export function Einstellungen() {
   const [key, setKey] = useState(getApiKey());
   const [visible, setVisible] = useState(false);
+  const [merken, setMerken] = useState(apiKeyDauerhaft);
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState('');
   const errors = { apiKey: key.trim() && (!key.trim().startsWith('sk-ant-') || /\s/.test(key.trim())) ? 'Füge den vollständigen Anthropic-Schlüssel ein. Er beginnt mit sk-ant- und enthält keine Leerzeichen.' : '' };
@@ -18,7 +19,7 @@ export function Einstellungen() {
   function save(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!feedback.validate(e.currentTarget)) return;
-    setApiKey(key);
+    setApiKey(key, merken);
     const ok = getApiKey() === key.trim();
     setSaved(ok);
     setSaveError(ok ? '' : 'Der Browser konnte den Schlüssel nicht speichern. Erlaube lokalen Speicher und versuche es erneut.');
@@ -35,14 +36,16 @@ export function Einstellungen() {
       <fieldset className="form-section">
         <legend>KI-Unterstützung</legend>
         <p className="form-section__description">Für Zusammenfassungen, Handschrifterkennung und KI-Feedback benötigst du einen eigenen Claude-API-Schlüssel. Offline-Übungen funktionieren auch ohne ihn.</p>
-        <Field label="Claude-API-Schlüssel" name="apiKey" hint="Optional. Den Schlüssel erhältst du in der Anthropic Console. Er wird nur auf diesem Gerät gespeichert und nicht in Datensicherungen übernommen." error={feedback.error('apiKey')}>
+        <Field label="Claude-API-Schlüssel" name="apiKey" hint="Optional. Den Schlüssel erhältst du in der Anthropic Console. Er gilt standardmäßig nur bis zum Schließen der App und kommt nie in Datensicherungen." error={feedback.error('apiKey')}>
           {(props) => <div className="password-control"><input {...props} type={visible ? 'text' : 'password'} autoComplete="off" autoCapitalize="none" spellCheck={false} placeholder="sk-ant-…" value={key} onBlur={() => feedback.touch('apiKey')} onChange={(e) => { setKey(e.target.value); setSaved(false); setSaveError(''); }} />
             <button type="button" aria-pressed={visible} onClick={() => setVisible(!visible)}>{visible ? 'Verbergen' : 'Anzeigen'}</button></div>}
         </Field>
+        <label className="check"><input type="checkbox" checked={merken} onChange={(e) => { setMerken(e.target.checked); setSaved(false); }} />
+          <span><strong>Auf diesem Gerät merken</strong><br />Ohne Haken musst du den Schlüssel nach dem Schließen der App neu eintragen. Gemerkt liegt er unverschlüsselt im Browser-Speicher dieser Website. Lege in der Anthropic Console am besten einen eigenen Schlüssel mit Ausgabenlimit nur für diese App an.</span></label>
         <a className="text-link" href="https://console.anthropic.com/settings/keys" target="_blank" rel="noreferrer">Anthropic Console öffnen <Icon name="chevronRight" size={16} /></a>
       </fieldset>
-      <div className="form-actions"><p>Bei KI-Funktionen werden die benötigten Inhalte an Anthropic gesendet. Dabei können API-Kosten entstehen.</p><button className="primary" type="submit"><Icon name="check" size={16} /> Einstellung speichern</button></div>
-      <p className="form-feedback" role="status">{saved ? key.trim() ? 'Schlüssel auf diesem Gerät gespeichert.' : 'Schlüssel von diesem Gerät entfernt.' : ''}</p>
+      <div className="form-actions"><p>Bei KI-Funktionen werden die benötigten Inhalte direkt aus dem Browser an Anthropic gesendet. Jede Funktion zeigt vorher, was sie sendet. Dabei können API-Kosten entstehen.</p><button className="primary" type="submit"><Icon name="check" size={16} /> Einstellung speichern</button></div>
+      <p className="form-feedback" role="status">{saved ? key.trim() ? (merken ? 'Schlüssel auf diesem Gerät gespeichert.' : 'Schlüssel für diese Sitzung gespeichert.') : 'Schlüssel von diesem Gerät entfernt.' : ''}</p>
       {saveError && <p className="field-error" role="alert">{saveError}</p>}
     </form>
     <section className="card form-card" aria-labelledby="my-data-title">

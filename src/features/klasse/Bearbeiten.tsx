@@ -7,6 +7,7 @@ import { abgabeText } from './kodierung';
 import { arbeitZu, meinName, merkeName, speichereArbeit, type Arbeit } from './speicher';
 import { dateiname, datumText, kopiere, speichereDatei, teile } from './teilen';
 import { hatLoesung, type Abgabe, type KlassenFall } from './typen';
+import { DatenHinweis } from '../../ui/DatenHinweis';
 
 /** Ansicht für die Klasse: Fall lesen, Aufgaben beantworten, Abgabe teilen. */
 export function Bearbeiten({ fall }: { fall: KlassenFall }) {
@@ -61,9 +62,10 @@ export function Bearbeiten({ fall }: { fall: KlassenFall }) {
           </label>
         ))}
         <label className="field">
-          <span>Dein Name (erscheint bei der Lehrkraft)</span>
-          <input value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" required />
+          <span>Dein Name oder Kürzel (erscheint bei der Lehrkraft)</span>
+          <input value={name} onChange={(e) => setName(e.target.value)} autoComplete="off" required />
         </label>
+        <DatenHinweis art="abgabe" fiktiv={false} />
         <div className="row klasse__knoepfe">
           <button type="submit" className="primary" disabled={!name.trim() || beantwortet === 0}>{abgegeben ? 'Erneut abgeben' : 'Abgeben'}</button>
           <span className="muted">{beantwortet} von {fall.aufgaben.length} beantwortet · bleibt auf diesem Gerät gespeichert</span>
@@ -112,6 +114,7 @@ export function Bearbeiten({ fall }: { fall: KlassenFall }) {
             })}
           </div>
         )}
+        {abgegeben && fall.loesung === 'nach-abgabe' && !hatLoesung(fall) && <p className="muted">Die Lösung schickt dir {fall.von || 'die Lehrkraft'} nach der Frist als eigenen Link. Öffne ihn auf diesem Gerät, dann siehst du sie neben deinen Antworten.</p>}
         {abgegeben && fall.loesung === 'nie' && <p className="muted">Die Lösung bespricht {fall.von || 'die Lehrkraft'} mit der Klasse.</p>}
         <p className="muted"><button type="button" className="link" onClick={() => navigate('/lernen/klasse')}>Alle Klassenfälle</button></p>
       </div>

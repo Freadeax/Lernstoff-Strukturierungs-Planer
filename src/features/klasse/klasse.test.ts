@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { gesamtQuote, kernpunkteAlsText, leseKernpunkte, pruefeAntwort } from './auswertung';
 import { abgabeText, ausBase64url, entpacke, fallLink, leseAbgaben, leseFall, packe, zuBase64url } from './kodierung';
-import { hatLoesung, klassenFassung, type Abgabe, type KlassenFall } from './typen';
+import { hatLoesung, klassenFassung, loesungsFassung, type Abgabe, type KlassenFall } from './typen';
 import { leererFall, VORLAGEN } from './vorlagen';
 
 const fall: KlassenFall = {
@@ -86,7 +86,11 @@ describe('Lösung', () => {
     const k = klassenFassung(fall);
     expect(hatLoesung(k)).toBe(false);
     expect(k.aufgaben[0]).toEqual({ id: 'a1', frage: 'Welche Risiken bestehen?' });
-    expect(klassenFassung({ ...fall, loesung: 'nach-abgabe' })).toEqual({ ...fall, loesung: 'nach-abgabe' });
+    // Auch „nach der Abgabe“: der Klassenlink enthält nie die Lösung, sie kommt über den Lösungslink.
+    const nachAbgabe = klassenFassung({ ...fall, loesung: 'nach-abgabe' });
+    expect(nachAbgabe.loesung).toBe('nach-abgabe');
+    expect(nachAbgabe.aufgaben.some((a) => a.erwartung || a.kernpunkte)).toBe(false);
+    expect(loesungsFassung({ ...fall, loesung: 'nie' })).toEqual({ ...fall, loesung: 'nach-abgabe' });
   });
 });
 

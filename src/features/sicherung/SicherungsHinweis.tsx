@@ -24,8 +24,15 @@ export function SicherungsHinweis() {
     const ok = () => { setzeMerker({ hinweisGesehen: true, erinnertAm: new Date().toISOString() }); setArt(null); };
     return (
       <div className="card sicherung-hinweis" role="region" aria-label="Hinweis zu deinen Daten">
-        <h3>Deine Daten bleiben auf diesem Gerät</h3>
-        <p>Der Lernstoff-Planer hat kein Konto und keinen Server. Alles, was du lernst und anlegst, speichert nur dieser Browser.</p>
+        <h3>Deine Lerndaten liegen auf diesem Gerät</h3>
+        <p>Der Lernstoff-Planer hat kein Konto und keinen Server. Alles, was du lernst und anlegst, speichert dieser Browser. Daten verlassen das Gerät nur, wenn du es auslöst, und die App sagt vorher, wohin:</p>
+        <ul>
+          <li>KI-Funktionen senden den nötigen Text oder Bilder an Claude (Anthropic).</li>
+          <li>„Große Dateien“ und der Repo-Haken beim Import legen Originale in deinem privaten GitHub-Repository ab.</li>
+          <li>Das Diktat nutzt die Spracherkennung des Browsers, die je nach Gerät beim Hersteller läuft.</li>
+          <li>Geteilte Links und Abgabe-Codes enthalten ihren Inhalt lesbar.</li>
+          <li>Für Pflegedokumentation nur ausgedachte Übungsdaten verwenden, keine echten Patientinnen und Patienten.</li>
+        </ul>
         <ul>
           <li>Auf dem iPhone oder iPad: über „Teilen → Zum Home-Bildschirm“ hinzufügen und immer von dort öffnen.</li>
           <li>Ab und zu unter <strong>Datensicherung</strong> eine Sicherung erstellen. Damit überträgst du deinen Stand auch auf ein anderes Gerät.</li>

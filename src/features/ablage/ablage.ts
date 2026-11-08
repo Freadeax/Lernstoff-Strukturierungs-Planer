@@ -33,17 +33,29 @@ export class AblageFehler extends Error {
 
 // ---------- Einstellungen (nur dieses Gerät, nie im Datenexport) ----------
 
-const KEY = 'lernstoff.ablage';
+const KEY = 'lernstoff.ablage';           // owner/repo (und Token nur, wenn „merken“ gewählt)
+const SITZUNG = 'lernstoff.ablage.token'; // Token nur für diese Sitzung (sessionStorage)
 
 export function ladeZiel(): AblageZiel {
-  try { return { owner: '', repo: '', token: '', ...JSON.parse(localStorage.getItem(KEY) ?? '{}') }; }
-  catch { return { owner: '', repo: '', token: '' }; }
+  let z: AblageZiel = { owner: '', repo: '', token: '' };
+  try { z = { ...z, ...JSON.parse(localStorage.getItem(KEY) ?? '{}') }; } catch { /* kaputt oder gesperrt */ }
+  if (!z.token) { try { z.token = sessionStorage.getItem(SITZUNG) ?? ''; } catch { /* gesperrt */ } }
+  return z;
 }
 
-export function speichereZiel(z: AblageZiel | null) {
+/** Liegt der Token dauerhaft auf dem Gerät? */
+export function tokenDauerhaft(): boolean {
+  try { return !!JSON.parse(localStorage.getItem(KEY) ?? '{}').token; } catch { return false; }
+}
+
+/** Standard: Token nur für diese Sitzung. `merken` legt ihn dauerhaft in diesem Browser ab. */
+export function speichereZiel(z: AblageZiel | null, merken = false) {
+  try { sessionStorage.removeItem(SITZUNG); } catch { /* gesperrt */ }
   try {
-    if (z) localStorage.setItem(KEY, JSON.stringify({ owner: z.owner.trim(), repo: z.repo.trim(), token: z.token.trim() }));
-    else localStorage.removeItem(KEY);
+    if (!z) { localStorage.removeItem(KEY); return; }
+    const token = z.token.trim();
+    localStorage.setItem(KEY, JSON.stringify({ owner: z.owner.trim(), repo: z.repo.trim(), ...(merken ? { token } : {}) }));
+    if (!merken) sessionStorage.setItem(SITZUNG, token);
   } catch { /* privater Modus */ }
 }
 
@@ -235,6 +247,11 @@ export async function ladeHoch(z: AblageZiel, datei: File, o: HochladenOptionen)
   const anzahl = teilAnzahl(datei.size, groesse);
   const melde = (phase: Fortschritt['phase'], bytes: number, teil: number) => o.onFortschritt?.({ phase, bytes, teil, teile: anzahl });
 
+  // Privatstatus bei jedem Upload frisch prüfen, nicht auf früher geladene Repo-Infos verlassen:
+  // ein inzwischen öffentlich gestelltes Repo bekommt keine Bücher und Skripte.
+  const repo = await gh<{ private?: boolean; full_name?: string }>(z, '', {}, f);
+  if (repo.private !== true) throw new AblageFehler(`${repo.full_name ?? `${z.owner}/${z.repo}`} ist nicht privat. Es wurde nichts hochgeladen. Bitte ein privates Repository verwenden.`);
+
   const { ordner, schonDa } = waehleOrdner(datei, o.vorhanden);
   let identisch = schonDa;
   if (schonDa) {
@@ -345,14 +362,14 @@ SHA-256-Prüfsumme jedes Teils.
 
 ## In der Lernstoff-App verwenden
 
-- Unter **Material → Import-Assistent** oder **Dokumente** können kleine Dateien und ZIP-Sammlungen direkt eingelesen werden. „Originale auch im privaten Material-Repo speichern“ sichert sie zusätzlich hier. Mit verbundener Repo-Verbindung ist die Option vorausgewählt.
+- Unter **Material → Import-Assistent** oder **Dokumente** können kleine Dateien und ZIP-Sammlungen direkt eingelesen werden. „Originale auch im privaten Material-Repo speichern“ sichert sie zusätzlich hier. Die Option ist nie vorausgewählt; hochgeladen wird erst, nachdem die Datei lokal eingelesen wurde.
 - Unter **Material → Große Dateien** werden Originale hier abgelegt. „Nach dem Upload Text einlesen und Themen abgleichen“ übernimmt unterstützte Dateien außerdem in die Dokumente des aktuellen Geräts.
 - Bereits hier liegende Dateien lassen sich mit **Als Dokument einlesen / Themen abgleichen** übernehmen. Die App setzt Teile am festen Commit zusammen und prüft Größe und SHA-256 jedes Teils vor dem Import.
 - Bei ZIP-Sammlungen werden unterstützte Dokumente einzeln eingelesen und mit dem ZIP-Original verknüpft. Die Browser-Verarbeitung ist auf 512 MiB komprimiert/entpackt, 128 MiB je ZIP-Eintrag und 500 Dokumente begrenzt. Größere Sammlungen bleiben hier erhalten; benötigte Dokumente oder Kapitel bitte in kleineren Einheiten importieren.
 - Unter **Dokumente → Themen zuordnen** werden erkannte bestehende Themen verknüpft. Neue Themen aus Kapitelüberschriften (bei unstrukturierten Texten aus dem Dokumenttitel) sind Vorschläge. Vor der Übernahme können Name und Oberthema geprüft werden; bestätigte Themen erscheinen in Themenansicht, Themenpool und Lernplan. Eigene Abwahlen werden beim erneuten Abgleich berücksichtigt.
 - **Wichtigste Inhalte zusammenfassen** öffnet das Dokument im Zusammenfasser mit „kurz“. Große Texte werden vollständig in Teilabschnitten zusammengefasst; Originalbelege und Qualitätsprüfung bleiben erhalten. Dafür wird wie bisher ein Claude-API-Schlüssel benötigt und Quelltext an Claude übertragen.
 
-Originale liegen geräteübergreifend in diesem privaten Repo. Eingelesene Texte, Themenzuordnung, Zusammenfassungen und Lernstand liegen weiterhin im jeweiligen Browser. Auf einem anderen Gerät Originale erneut einlesen oder **Datensicherung** exportieren und importieren. GitHub-Zugangsdaten und API-Schlüssel bleiben auf dem jeweiligen Gerät und sind nicht in der Sicherung.
+Originale liegen geräteübergreifend in diesem privaten Repo. Eingelesene Texte, Themenzuordnung, Zusammenfassungen und Lernstand liegen weiterhin im jeweiligen Browser. Auf einem anderen Gerät Originale erneut einlesen oder **Datensicherung** exportieren und importieren. GitHub-Zugangsdaten und API-Schlüssel bleiben auf dem jeweiligen Gerät (standardmäßig nur bis zum Schließen der App) und sind nicht in der Sicherung.
 
 ## Für Claude: Dateien abholen
 

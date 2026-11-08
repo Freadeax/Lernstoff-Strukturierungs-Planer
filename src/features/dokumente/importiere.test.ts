@@ -45,10 +45,30 @@ describe('gemeinsamer Import für Browser und Repo', () => {
     const zip = new JSZip().file('Ordner/A.txt', 'Inhalt eins').file('B.txt', 'Inhalt zwei').file('unbekannt.bin', 'x');
     const file = new File([await zip.generateAsync({ type: 'uint8array' }) as BlobPart], 'Sammlung.zip');
     const r = await importiereDateien([file], opts);
-    expect(r).toHaveLength(2);
-    expect(r.every((e) => e.documentId && !e.error)).toBe(true);
+    expect(r).toHaveLength(3);
+    expect(r.slice(0, 2).every((e) => e.documentId && !e.error)).toBe(true);
+    expect(r[2]).toMatchObject({ name: 'Sammlung.zip', archive: expect.stringContaining('gespeichert') });
     expect(ladeHoch).toHaveBeenCalledTimes(1);
     expect((await db.documents.toArray()).every((d) => d.repository?.ordner === 'skript')).toBe(true);
+  });
+  it('lädt ohne ausdrückliche Auswahl nichts hoch, auch mit verbundenem Repo', async () => {
+    const [r] = await importiereDateien([new File(['Textinhalt'], 'Skript.txt')], { subjectId, handwritten: false });
+    expect(r!.documentId).toBeTruthy();
+    expect(r!.archive).toBeUndefined();
+    expect(pruefeRepo).not.toHaveBeenCalled();
+    expect(ladeHoch).not.toHaveBeenCalled();
+  });
+  it('lädt erst nach erfolgreichem lokalem Einlesen hoch', async () => {
+    const reihenfolge: string[] = [];
+    vi.mocked(ladeHoch).mockImplementation(async () => { reihenfolge.push(`upload:${await db.documents.count()}`); return { ordner: 'skript', manifest: {} as never, uebersprungen: false }; });
+    await importiereDateien([new File(['Ein Lerninhalt zum Hochladen.'], 'Skript.txt')], opts);
+    expect(reihenfolge).toEqual(['upload:1']);
+  });
+  it('lädt nichts hoch, wenn das Einlesen scheitert', async () => {
+    const r = await importiereDateien([new File(['x'], 'Kaputt.zip')], opts);
+    expect(r[0]!.error).toBeTruthy();
+    expect(r[0]!.archive).toContain('nicht hochgeladen');
+    expect(ladeHoch).not.toHaveBeenCalled();
   });
   it('liest Dateien aus der Ablage ohne erneutes Hochladen', async () => {
     const [r] = await importiereDateien([new File(['Textinhalt'], 'Skript.txt')], { ...opts, repository: { owner: 'test', repo: 'material', ordner: 'vorhanden' } });

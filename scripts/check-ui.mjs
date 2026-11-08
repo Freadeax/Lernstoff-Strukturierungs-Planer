@@ -38,7 +38,8 @@ const futureDate = new Date(Date.now() + 21 * 86400000).toISOString().slice(0, 1
   await page.getByRole('button',{name:'Einstellung speichern'}).click();
   assert.equal(await key.evaluate(e=>e===document.activeElement),true);
   await key.fill('sk-ant-ui-regression-test');await key.press('Tab');assert.equal(await key.getAttribute('aria-invalid'),'false');
-  await page.getByRole('button',{name:'Einstellung speichern'}).click();assert(await page.getByText('Schlüssel auf diesem Gerät gespeichert.',{exact:true}).isVisible());
+  await page.getByRole('button',{name:'Einstellung speichern'}).click();assert(await page.getByText('Schlüssel für diese Sitzung gespeichert.',{exact:true}).isVisible());
+  assert.equal(await page.evaluate(()=>localStorage.getItem('lernstoff.apiKey')),null,'API-Schlüssel ohne „merken“ dauerhaft gespeichert');
   await go('/lernen/plan?ansicht=pruefungen&neu=1');
   await page.getByRole('button',{name:'Prüfung eintragen',exact:true}).click();
   const examName=page.getByLabel('Name der Prüfung');assert.equal(await examName.getAttribute('aria-invalid'),'true');assert.equal(await examName.evaluate(e=>e===document.activeElement),true);

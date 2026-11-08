@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { DatenHinweis } from '../../ui/DatenHinweis';
 import { logActivity } from '../../core/activity';
 import { getApiKey } from '../../core/settings';
 import { istObjekt, storage } from '../../ui/lib/store';
@@ -372,7 +373,7 @@ function Durchlauf({ lauf, fall, setLauf, onFertig }: { lauf: Lauf; fall: Muendl
                   <button type="button" className={lauf.ki ? 'ghost' : 'primary'} onClick={() => void fragClaude()} disabled={kiLaeuft}>{kiLaeuft ? 'Claude liest …' : lauf.ki ? 'Noch einmal bewerten' : 'Rückmeldung von Claude'}</button>
                   {lauf.ki && <button type="button" className="primary" onClick={uebernimmKi}>Claudes Haken übernehmen</button>}
                 </div>
-                {!lauf.ki && !kiLaeuft && <p className="muted examen__klein">Gesendet werden nur der Übungsfall, die Impulse und deine festgehaltenen Antworten, keine Aufnahme.</p>}
+                {!lauf.ki && !kiLaeuft && <DatenHinweis art="ki" detail="Gesendet werden nur der Übungsfall, die Impulse und deine festgehaltenen Antworten, keine Aufnahme." />}
               </>}
           {kiFehler && <div className="note warn" role="alert">{kiFehler}</div>}
           {lauf.ki && <KiZusammenfassung ki={lauf.ki} />}

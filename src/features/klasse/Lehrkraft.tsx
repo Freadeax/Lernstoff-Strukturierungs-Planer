@@ -7,11 +7,12 @@ import { qrPfad, QrVollbild } from './qr';
 import { fallLink, leseAbgaben } from './kodierung';
 import { abgabenZu, entferneAbgabe, loescheEigenen, nimmAbgabenAuf } from './speicher';
 import { appBasis, dateiname, datumText, fristText, kopiere, speichereDatei, teile } from './teilen';
-import { hatLoesung, klassenFassung, type Abgabe, type KlassenFall } from './typen';
+import { hatLoesung, klassenFassung, loesungsFassung, type Abgabe, type KlassenFall } from './typen';
+import { DatenHinweis } from '../../ui/DatenHinweis';
 
 /** Übersicht eines verteilten Falls: Link teilen, Abgaben einlesen und vergleichen. */
 export function Lehrkraft({ fall }: { fall: KlassenFall }) {
-  const [links, setLinks] = useState<{ klasse: string; lehrkraft: string } | null>(null);
+  const [links, setLinks] = useState<{ klasse: string; lehrkraft: string; loesung?: string } | null>(null);
   const [abgaben, setAbgaben] = useState<Abgabe[]>(() => abgabenZu(fall.id));
   const [eingabe, setEingabe] = useState('');
   const [meldung, setMeldung] = useState<{ art: 'ok' | 'warn'; text: string } | null>(null);
@@ -22,8 +23,11 @@ export function Lehrkraft({ fall }: { fall: KlassenFall }) {
 
   useEffect(() => {
     let aktiv = true;
-    void Promise.all([fallLink(klassenFassung(fall), appBasis()), fallLink(fall, appBasis(), 'lehrkraft')])
-      .then(([klasse, lehrkraft]) => { if (aktiv) setLinks({ klasse, lehrkraft }); });
+    const mitLoesung = fall.loesung === 'nach-abgabe' && hatLoesung(fall);
+    void Promise.all([
+      fallLink(klassenFassung(fall), appBasis()), fallLink(fall, appBasis(), 'lehrkraft'),
+      mitLoesung ? fallLink(loesungsFassung(fall), appBasis()) : Promise.resolve(undefined),
+    ]).then(([klasse, lehrkraft, loesung]) => { if (aktiv) setLinks({ klasse, lehrkraft, loesung }); });
     return () => { aktiv = false; };
   }, [fall]);
 
@@ -88,9 +92,20 @@ export function Lehrkraft({ fall }: { fall: KlassenFall }) {
           <button type="button" disabled={!qrMoeglich} onClick={() => setZeigeQr(true)}>QR-Code zeigen</button>
           {links && <a className="button-link" href={links.klasse} target="_blank" rel="noopener">So sieht es die Klasse</a>}
         </div>
-        {links && !qrMoeglich && <p className="muted">Für einen QR-Code ist der Link zu lang. {fall.loesung === 'nach-abgabe' && hatLoesung(fall) ? 'Mit „Lösung nicht zeigen“ wird er deutlich kürzer.' : 'Den Fall kürzen oder den Link teilen.'}</p>}
+        {links && !qrMoeglich && <p className="muted">Für einen QR-Code ist der Link zu lang. Den Fall kürzen oder den Link teilen.</p>}
         {zeigeQr && links && <QrVollbild text={links.klasse} titel={fall.titel} onClose={() => setZeigeQr(false)} />}
-        {links && <p className="muted">Länge des Links: {links.klasse.length.toLocaleString('de-DE')} Zeichen{links.klasse.length > 6000 ? '. Sehr lang: Wenn ein Programm ihn abschneidet, den Fall kürzen.' : '.'} {fall.loesung === 'nie' && hatLoesung(fall) ? 'Ohne Lösung.' : hatLoesung(fall) ? 'Mit Lösung (erscheint nach der Abgabe).' : ''}</p>}
+        {links && <p className="muted">Länge des Links: {links.klasse.length.toLocaleString('de-DE')} Zeichen{links.klasse.length > 6000 ? '. Sehr lang: Wenn ein Programm ihn abschneidet, den Fall kürzen.' : '.'} {hatLoesung(fall) ? 'Ohne Lösung.' : ''}</p>}
+        <DatenHinweis art="teilen" />
+        {links?.loesung && (
+          <div className="note" role="note">
+            <strong>Lösung getrennt verteilen</strong>
+            <p>Der Link oben enthält keine Lösung. Erst nach der Frist diesen Lösungslink an die Klasse geben: Wer schon abgegeben hat, sieht dann den Erwartungshorizont und die Checkliste zu den eigenen Antworten.</p>
+            <div className="row klasse__knoepfe">
+              <button type="button" onClick={() => links.loesung && teile({ title: `Lösung: ${fall.titel}`, text: `${fall.titel}: Lösung zum Vergleich mit deiner Abgabe.`, url: links.loesung }, 'Lösungslink')}>Lösungslink teilen …</button>
+              <button type="button" className="ghost" onClick={() => links.loesung && kopiere(links.loesung, 'Lösungslink')}>Lösungslink kopieren</button>
+            </div>
+          </div>
+        )}
         <details className="klasse__block">
           <summary>Mehr</summary>
           <div className="row klasse__knoepfe">
