@@ -58,7 +58,42 @@ export type Medication = {
   duration: number; onset: number; effect: Partial<Vitals>; result: string; equipment: string;
   targets: Partial<Vitals>;
 };
-export type Criterion = { flag: string; label: string; why: string; before?: number; after?: string; source: 'abcde' | 'sbar' | 'scenario' | 'drug' };
+/** Was ein Kriterium tatsächlich prüft: nur ob etwas vorliegt, auch den Zeitpunkt oder auch den Inhalt. */
+export const BEWERTET = {
+  vorliegen: 'Geprüft: nur Vorliegen',
+  zeitpunkt: 'Geprüft: Vorliegen und Zeitpunkt',
+  inhalt: 'Geprüft: auch Inhalt',
+} as const;
+export type Bewertet = keyof typeof BEWERTET;
+export type Criterion = {
+  flag: string; label: string; why: string; before?: number; after?: string; source: 'abcde' | 'sbar' | 'scenario' | 'drug';
+  /** Alternative richtige Wege: Das Kriterium ist auch erfüllt, wenn eines dieser Flags gesetzt ist. */
+  anyOf?: string[];
+  /** Ohne Angabe: Zeitbedingung → zeitpunkt, sonst vorliegen. */
+  bewertet?: Bewertet;
+};
+/** Art einer Kette Beobachtung → Entscheidung. */
+export const KETTEN = { entscheidung: 'Entscheidung', reevaluation: 'Erneute Beurteilung', eskalation: 'Eskalation' } as const;
+export type KettenArt = keyof typeof KETTEN;
+/**
+ * Kette Beobachtung → Entscheidung (Kernfälle). Beobachtet ist sie, sobald eine der Kennungen aus
+ * `seenBy` in der Spur steht (Handlung, Flag, `ereignis:<id>` oder `wahl:<ereignis>:<option>`).
+ * Entschieden ist sie, wenn ein Weg aus `ways` vollständig vorliegt (alle Kennungen eines Wegs).
+ */
+export type Chain = {
+  id: string; art: KettenArt;
+  observation: string; decision: string; why: string;
+  seenBy: string[];
+  ways: { label: string; ids: string[] }[];
+  /** Zeitfenster in Sekunden ab der Beobachtung. */
+  within?: number;
+  /** true: Entscheidung zählt nur nach der Beobachtung (z. B. Reevaluation nach Maßnahme). */
+  after?: boolean;
+};
+/** Stichwortprüfung für ein SBAR-Feld (0 = S … 3 = R). Keine Sinnprüfung. */
+export type SbarCheck = { field: 0 | 1 | 2 | 3; label: string; any: string[] };
+/** Kernfall: vollständig ausgearbeitet, wartet auf fachliche Freigabe durch einen Menschen. */
+export type Kernfall = { stand: string; freigabe: 'ausstehend' | 'erteilt'; pruefer?: string; pruefpunkte: string[] };
 export type Scenario = {
   version: 1; id: string; title: string; setting: Setting; focus: string; patient: string; age: number;
   model: { id: string; version: string; accuracy: 'didactic'; review: 'unreviewed'; sources: string[] };
@@ -70,6 +105,8 @@ export type Scenario = {
   /** Optional: klinischer Verlauf, Startbewusstsein und Lernimpulse fürs Debriefing. */
   storyline?: StoryEvent[]; initialAvpu?: Avpu; initialOxygen?: boolean; teaching?: string[];
   outcome?: { stable: string; unstable: string };
+  /** Kernfälle: Ketten Beobachtung → Entscheidung, SBAR-Stichworte, Eskalationswege, Freigabestatus. */
+  chains?: Chain[]; sbarCheck?: SbarCheck[]; escalation?: string[]; kern?: Kernfall;
 };
 export type ChartPoint = { at: number; vitals: Vitals; avpu: Avpu; oxygen: boolean };
 export type Event = { id: number; at: number; kind: 'action' | 'result' | 'warning' | 'note' | 'state' | 'medication' | 'story'; title: string; detail: string };
@@ -88,6 +125,8 @@ export type Session = {
   /** Offene Entscheidungsmomente (Ereignis-IDs) und getroffene Entscheidungen. */
   open?: string[];
   decisions?: { at: number; event: string; choice: string }[];
+  /** Spur aller Handlungen, Flags, Ereignisse und Wahlen mit Zeitpunkt (für Ketten Beobachtung → Entscheidung). */
+  trail?: { at: number; id: string }[];
 };
 export type Command = { type: 'action'; id: string } | { type: 'advance'; seconds: number }
   | { type: 'note'; text: string } | { type: 'sbar'; fields: string[] }

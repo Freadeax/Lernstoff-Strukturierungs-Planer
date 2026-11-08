@@ -1,5 +1,5 @@
 import type { Scenario, Session } from './types';
-import { SETTINGS, STORY_KINDS } from './types';
+import { BEWERTET, KETTEN, SETTINGS, STORY_KINDS } from './types';
 import { AVPU } from './news2';
 import { notiereFehler } from '../fehlerheft/fehlerheft';
 import { ausPraxis } from '../fehlerheft/quellen';
@@ -58,10 +58,10 @@ export function parseScenario(json: string): Scenario {
     storyIds.add(e.id); if (e.flag) flags.add(e.flag as string);
   }
   for (const e of (d.storyline ?? []) as Record<string, unknown>[]) if ([...((e.unless as string[]) ?? []), ...((e.stoppedBy as string[]) ?? []), ...((e.resolvedBy as string[]) ?? []), ...(e.when ? [e.when as string] : [])].some(f => !flags.has(f))) throw new Error('Verlaufsereignis verweist auf unbekannte Handlung.');
-  const medIds = new Set();
+  const medIds = new Set<string>();
   for (const m of d.medications) {
     if (!object(m) || !identifier(m.id) || medIds.has(m.id) || !['name', 'atc', 'unit', 'route', 'equipment', 'result'].every(k => text(m[k]) && !!m[k]) || !positive(m.dose) || (m.dose as number) === 0 || !positive(m.concentration) || (m.concentration as number) === 0 || !positive(m.duration) || !positive(m.onset) || !deltas(m.effect) || !deltas(m.targets)) throw new Error('Medikationsmodell ungültig.');
-    medIds.add(m.id);
+    medIds.add(m.id as string);
   }
   for (const c of d.criteria) if (!object(c) || !identifier(c.flag) || !flags.has(c.flag) || (c.after !== undefined && (!identifier(c.after) || !flags.has(c.after))) || !text(c.label) || !text(c.why) || !['abcde', 'sbar', 'scenario', 'drug'].includes(String(c.source)) || (c.before !== undefined && !positive(c.before))) throw new Error('Bewertungskriterium ungültig.');
   if (d.actions.some(a => a.requires && !flags.has(a.requires)) || d.stabilizers.some(f => !flags.has(f))) throw new Error('Voraussetzung oder Stabilisierungsregel verweist auf unbekannte Aktion.');
@@ -69,6 +69,32 @@ export function parseScenario(json: string): Scenario {
   for (let i = 0; i <= d.actions.length; i++) for (const a of d.actions) if (!a.requires || reachable.has(a.requires)) { if (a.flag) reachable.add(a.flag); }
   if (d.actions.some(a => a.requires && !reachable.has(a.requires))) throw new Error('Unerreichbare Aktion: zyklische oder nicht erfüllbare Voraussetzungen.');
   if (new Set(d.criteria.map(c => c.flag)).size !== d.criteria.length) throw new Error('Bewertungskriterium doppelt.');
+  for (const c of d.criteria as Record<string, unknown>[]) if ((c.anyOf !== undefined && (!Array.isArray(c.anyOf) || !c.anyOf.length || c.anyOf.length > 6 || !c.anyOf.every(f => identifier(f) && flags.has(f)))) || (c.bewertet !== undefined && !Object.hasOwn(BEWERTET, String(c.bewertet)))) throw new Error('Bewertungskriterium: alternativer Weg oder Prüfart ungültig.');
+  if (d.escalation !== undefined && (!Array.isArray(d.escalation) || d.escalation.length > 6 || !d.escalation.every(f => identifier(f) && flags.has(f)))) throw new Error('Eskalationsweg verweist auf unbekannte Handlung.');
+  // Kennungen in Ketten: Handlung, Flag, ereignis:<id>, wahl:<ereignis>:<option> oder med:<id>.
+  const known = (id: unknown) => {
+    if (typeof id !== 'string' || id.length > 130) return false;
+    const [kind, a, b] = id.split(':');
+    if (id.startsWith('ereignis:')) return storyIds.has(a!);
+    if (id.startsWith('med:')) return medIds.has(a!);
+    if (id.startsWith('wahl:')) return ((d.storyline ?? []) as Record<string, unknown>[]).some(e => e.id === a && ((e.choices as Record<string, unknown>[] | undefined) ?? []).some(c => c.id === b));
+    return identifier(kind) && (ids.has(id) || flags.has(id));
+  };
+  if (d.chains !== undefined) {
+    if (!Array.isArray(d.chains) || d.chains.length > 30) throw new Error('Ketten ungültig oder zu viele.');
+    const chainIds = new Set<string>();
+    for (const k of d.chains as unknown[]) {
+      if (!object(k) || !identifier(k.id) || chainIds.has(k.id) || !Object.hasOwn(KETTEN, String(k.art)) || !['observation', 'decision', 'why'].every(f => text(k[f]) && !!(k[f] as string).trim())) throw new Error('Kette Beobachtung → Entscheidung ungültig oder Kennung doppelt.');
+      if (!Array.isArray(k.seenBy) || !k.seenBy.length || k.seenBy.length > 10 || !k.seenBy.every(known)) throw new Error(`Kette ${k.id}: Beobachtung verweist auf Unbekanntes.`);
+      if (!Array.isArray(k.ways) || !k.ways.length || k.ways.length > 5 || !k.ways.every(w => object(w) && text(w.label) && !!w.label.trim() && Array.isArray(w.ids) && w.ids.length > 0 && w.ids.length <= 6 && w.ids.every(known))) throw new Error(`Kette ${k.id}: Handlungswege ungültig.`);
+      if ((k.within !== undefined && (!positive(k.within) || (k.within as number) < 1)) || (k.after !== undefined && typeof k.after !== 'boolean')) throw new Error(`Kette ${k.id}: Zeitfenster ungültig.`);
+      chainIds.add(k.id);
+    }
+  }
+  if (d.sbarCheck !== undefined && (!Array.isArray(d.sbarCheck) || d.sbarCheck.length > 20 || !d.sbarCheck.every(c => object(c) && [0, 1, 2, 3].includes(c.field as number) && text(c.label) && !!c.label.trim() && strings(c.any) && c.any.length > 0 && c.any.every(w => w.trim().length >= 2)))) throw new Error('SBAR-Stichwortprüfung ungültig.');
+  if (d.kern !== undefined && (!object(d.kern) || !text(d.kern.stand) || !['ausstehend', 'erteilt'].includes(String(d.kern.freigabe)) || (d.kern.pruefer !== undefined && !text(d.kern.pruefer)) || !strings(d.kern.pruefpunkte))) throw new Error('Kernfall-Angaben ungültig.');
+  // Eine fachliche Freigabe braucht immer eine namentlich prüfende Person.
+  if (object(d.kern) && d.kern.freigabe === 'erteilt' && !d.kern.pruefer) throw new Error('Freigabe ohne prüfende Person ist nicht zulässig.');
   // Return only JSON data; rendering uses React text nodes, never HTML.
   return d as unknown as Scenario;
 }
@@ -90,7 +116,7 @@ export function pruefeSession(value: unknown): Session {
   s.scenario = parseScenario(JSON.stringify(s.scenario));
   if (!s.pending.every(p => object(p) && text(p.id) && number(p.due) && text(p.title) && text(p.result) && (p.effect === undefined || deltas(p.effect))) || !s.events.every(e => object(e) && number(e.id) && number(e.at) && text(e.title) && text(e.detail)) || !Object.values(s.flags).every(number)) throw new Error();
   // Klinische Felder sind optional (ältere Stände); wenn vorhanden, muss ihre Form stimmen.
-  if ((s.chart !== undefined && (!Array.isArray(s.chart) || s.chart.length > 300 || !s.chart.every(p => object(p) && number(p.at) && deltas(p.vitals) && avpu(p.avpu) && typeof p.oxygen === 'boolean'))) || (s.avpu !== undefined && !avpu(s.avpu)) || (s.oxygen !== undefined && typeof s.oxygen !== 'boolean') || (s.story !== undefined && (!object(s.story) || !Object.values(s.story).every(v => ['fired', 'prevented', 'skipped'].includes(v)))) || (s.drifts !== undefined && (!Array.isArray(s.drifts) || !s.drifts.every(d => object(d) && text(d.id) && deltas(d.drift) && strings(d.stoppedBy)))) || (s.harms !== undefined && (!Array.isArray(s.harms) || !s.harms.every(h => object(h) && number(h.at) && text(h.id) && text(h.text)))) || (s.open !== undefined && !strings(s.open)) || (s.decisions !== undefined && (!Array.isArray(s.decisions) || !s.decisions.every(x => object(x) && number(x.at) && text(x.event) && text(x.choice))))) throw new Error();
+  if ((s.chart !== undefined && (!Array.isArray(s.chart) || s.chart.length > 300 || !s.chart.every(p => object(p) && number(p.at) && deltas(p.vitals) && avpu(p.avpu) && typeof p.oxygen === 'boolean'))) || (s.avpu !== undefined && !avpu(s.avpu)) || (s.oxygen !== undefined && typeof s.oxygen !== 'boolean') || (s.story !== undefined && (!object(s.story) || !Object.values(s.story).every(v => ['fired', 'prevented', 'skipped'].includes(v)))) || (s.drifts !== undefined && (!Array.isArray(s.drifts) || !s.drifts.every(d => object(d) && text(d.id) && deltas(d.drift) && strings(d.stoppedBy)))) || (s.harms !== undefined && (!Array.isArray(s.harms) || !s.harms.every(h => object(h) && number(h.at) && text(h.id) && text(h.text)))) || (s.open !== undefined && !strings(s.open)) || (s.decisions !== undefined && (!Array.isArray(s.decisions) || !s.decisions.every(x => object(x) && number(x.at) && text(x.event) && text(x.choice)))) || (s.trail !== undefined && (!Array.isArray(s.trail) || s.trail.length > 2000 || !s.trail.every(t => object(t) && number(t.at) && text(t.id))))) throw new Error();
   if (!s.commands.every(c => object(c) && text(c.id) && object(c.command) && ['advance', 'action', 'medication', 'sbar', 'note', 'choose', 'finish'].includes(String(c.command.type))) || new Set(s.commands.map(c => c.id)).size !== s.commands.length) throw new Error();
   return s;
 }
