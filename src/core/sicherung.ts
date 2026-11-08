@@ -1,8 +1,9 @@
 // Datensicherung: alles, was nur in diesem Browser liegt (IndexedDB und die localStorage-Einträge
 // der Trainer), als eine JSON-Datei. Damit lässt sich der Lernstand sichern und auf ein anderes
 // Gerät übertragen (iPhone ↔ iPad ↔ Rechner). Kein Server, die Datei gibt man selbst weiter.
-import type { Table } from 'dexie';
+import Dexie, { type Table } from 'dexie';
 import { db, type LernstoffDB } from './db';
+import { verschluessele } from './sicherung-krypto';
 
 export const SICHERUNG_FORMAT = 1;
 
@@ -110,7 +111,7 @@ export async function erstelleSicherung(database: LernstoffDB = db): Promise<Sic
   };
 }
 
-export const dateiName = (d = new Date()) => `lernstoff-sicherung-${d.toISOString().slice(0, 10)}.json`;
+export const dateiName = (d = new Date(), verschluesselt = false) => `lernstoff-sicherung-${d.toISOString().slice(0, 10)}${verschluesselt ? '-verschluesselt' : ''}.json`;
 
 // ---------------------------------------------------------------- Prüfen
 
@@ -228,7 +229,51 @@ export function fuehreWertZusammen(lokal: unknown, fremd: unknown): unknown {
   return lokal;
 }
 
-export interface Ergebnis { neu: number; aktualisiert: number; tabellen: number }
+export interface Ergebnis {
+  neu: number; aktualisiert: number; tabellen: number;
+  /** Geräteeinträge (Trainer, Mindmaps, …), die nicht geschrieben werden konnten, z. B. weil der Speicher voll ist. */
+  lokalFehler: string[];
+  /** Zeitpunkt der Rückfallsicherung, die vor „Ersetzen“ angelegt wurde. */
+  rueckfall?: string;
+}
+
+// ---------------------------------------------------------------- Rückfallsicherung
+
+// Vor „Ersetzen“ wird der bisherige Stand in einer eigenen kleinen Datenbank abgelegt. Sie wird beim Ersetzen
+// nicht geleert und gehört nicht in Sicherungen. So lässt sich ein versehentliches Ersetzen rückgängig machen.
+class RueckfallDB extends Dexie {
+  staende!: Table<{ id: string; at: string; text: string }, string>;
+  constructor(name: string) { super(name); this.version(1).stores({ staende: 'id' }); }
+}
+const rueckfallDbs = new Map<string, RueckfallDB>();
+const rueckfallDb = (database: LernstoffDB) => {
+  const name = `${database.name}-rueckfall`;
+  let r = rueckfallDbs.get(name);
+  if (!r) { r = new RueckfallDB(name); rueckfallDbs.set(name, r); }
+  return r;
+};
+const RUECKFALL_ID = 'vor-ersetzen';
+
+export async function legeRueckfallAn(database: LernstoffDB = db): Promise<string> {
+  const at = new Date().toISOString();
+  await rueckfallDb(database).staende.put({ id: RUECKFALL_ID, at, text: JSON.stringify(await erstelleSicherung(database)) });
+  return at;
+}
+
+export async function ladeRueckfall(database: LernstoffDB = db): Promise<{ at: string; text: string } | undefined> {
+  try { return await rueckfallDb(database).staende.get(RUECKFALL_ID); } catch { return undefined; }
+}
+
+/** Spielt den Stand vor dem letzten „Ersetzen“ wieder ein (der jetzige Stand wird dabei selbst zur Rückfallsicherung). */
+export async function stelleRueckfallWiederHer(database: LernstoffDB = db): Promise<Ergebnis> {
+  const r = await ladeRueckfall(database);
+  if (!r) throw new Error('Es gibt keine Rückfallsicherung auf diesem Gerät.');
+  return spieleEin(lesePruefe(r.text, database).sicherung, 'ersetzen', database);
+}
+
+export async function loescheRueckfall(database: LernstoffDB = db) {
+  try { await rueckfallDb(database).staende.delete(RUECKFALL_ID); } catch { /* nichts da */ }
+}
 
 async function fuehreTabelleZusammen(table: Table, rows: Record<string, unknown>[]): Promise<{ neu: number; aktualisiert: number }> {
   const pk = table.schema.primKey;
@@ -261,6 +306,12 @@ async function fuehreTabelleZusammen(table: Table, rows: Record<string, unknown>
 export async function spieleEin(s: Sicherung, modus: Modus, database: LernstoffDB = db): Promise<Ergebnis> {
   const tabellen = database.tables.filter((t) => Array.isArray(s.data[t.name]));
   let neu = 0, aktualisiert = 0;
+  // Ohne Rückfallsicherung wird nicht ersetzt: lieber abbrechen als Daten unwiederbringlich verlieren.
+  let rueckfall: string | undefined;
+  if (modus === 'ersetzen') {
+    try { rueckfall = await legeRueckfallAn(database); }
+    catch (e) { throw new Error(`Vor dem Ersetzen konnte keine Rückfallsicherung angelegt werden (${e instanceof Error ? e.message : String(e)}). Es wurde nichts verändert.`); }
+  }
   await database.transaction('rw', database.tables, async () => {
     if (modus === 'ersetzen') await Promise.all(database.tables.map((t) => t.clear()));
     for (const t of tabellen) {
@@ -271,22 +322,32 @@ export async function spieleEin(s: Sicherung, modus: Modus, database: LernstoffD
       neu += e.neu; aktualisiert += e.aktualisiert;
     }
   });
-  spieleLokalEin(s.local ?? {}, modus);
-  return { neu, aktualisiert, tabellen: tabellen.length };
+  const lokalFehler = spieleLokalEin(s.local ?? {}, modus);
+  return { neu, aktualisiert, tabellen: tabellen.length, lokalFehler, rueckfall };
 }
 
-function spieleLokalEin(local: Record<string, string>, modus: Modus) {
+/** Schreibt die Geräteeinträge. Liefert die Schlüssel, die nicht geschrieben werden konnten (Teilfehler). */
+function spieleLokalEin(local: Record<string, string>, modus: Modus): string[] {
+  const fehler: string[] = [];
   try {
     if (modus === 'ersetzen') loescheLokaleEintraege();
-    for (const [k, v] of Object.entries(local)) {
-      if (!gehoertInSicherung(k)) continue;
+  } catch { /* privater Modus: unten schlägt dann jedes Schreiben fehl und wird gemeldet */ }
+  for (const [k, v] of Object.entries(local)) {
+    if (!gehoertInSicherung(k)) continue;
+    try {
       const alt = localStorage.getItem(k);
       if (modus === 'ersetzen' || alt === null) { localStorage.setItem(k, v); continue; }
-      try { localStorage.setItem(k, JSON.stringify(fuehreWertZusammen(JSON.parse(alt), JSON.parse(v)))); }
-      catch { /* kein JSON: vorhandenen Wert behalten */ }
-    }
-  } catch { /* privater Modus oder Speicher voll */ }
+      let zusammen: string;
+      try { zusammen = JSON.stringify(fuehreWertZusammen(JSON.parse(alt), JSON.parse(v))); }
+      catch { continue; /* kein JSON: vorhandenen Wert behalten, das ist kein Fehler */ }
+      localStorage.setItem(k, zusammen);
+    } catch { fehler.push(k); }
+  }
+  return fehler;
 }
+
+/** Lesbare Namen für Geräteeinträge (für Fehlermeldungen). */
+export const lokalLabel = (k: string) => LOKAL_LABEL[k] ?? k.replace(/^lernstoff\.|^duell\./, '');
 
 /** Für „Alle Daten löschen“: die Trainer-Einträge in localStorage gleich mit entfernen. */
 export function loescheLokaleEintraege() {
@@ -315,9 +376,10 @@ export async function bitteUmDauerhaftenSpeicher(): Promise<boolean> {
 }
 
 /** Sicherung erstellen und weitergeben: Teilen-Menü (AirDrop, „In Dateien sichern“) oder Download. */
-export async function sichereUndGibWeiter(art: 'teilen' | 'datei' = 'datei'): Promise<'geteilt' | 'gespeichert' | 'abgebrochen'> {
-  const text = JSON.stringify(await erstelleSicherung());
-  const name = dateiName();
+export async function sichereUndGibWeiter(art: 'teilen' | 'datei' = 'datei', passwort?: string): Promise<'geteilt' | 'gespeichert' | 'abgebrochen'> {
+  const klar = JSON.stringify(await erstelleSicherung());
+  const text = passwort ? await verschluessele(klar, passwort) : klar;
+  const name = dateiName(new Date(), !!passwort);
   if (art === 'teilen') {
     const file = new File([text], name, { type: 'application/json' });
     if (navigator.canShare?.({ files: [file] })) {

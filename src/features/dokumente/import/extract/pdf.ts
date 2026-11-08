@@ -8,6 +8,7 @@
 import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs';
 import type { Block, Extracted, RawPage } from '../types';
 import { editionHint } from './hints';
+import { GRENZEN, GrenzFehler, ImportAbgebrochen } from '../grenzen';
 
 type PDFDoc = Awaited<ReturnType<typeof pdfjs.getDocument>['promise']>;
 type PDFPage = Awaited<ReturnType<PDFDoc['getPage']>>;
@@ -27,6 +28,8 @@ export interface PdfExtractOptions {
   /** Seiten mit Textebene und großen Bildern zusätzlich rendern (für Text in Abbildungen). Standard: wie render. */
   renderImages?: boolean;
   renderScale?: number;
+  /** Abbruch zwischen zwei Seiten. */
+  signal?: AbortSignal;
 }
 
 export interface PdfExtracted extends Extracted {
@@ -40,6 +43,10 @@ export async function extractPdf(bytes: Uint8Array, opts: PdfExtractOptions = {}
   // pdf.js übernimmt den Puffer; Kopie, damit der Aufrufer die Bytes weiter nutzen kann (Hash, Speicherung).
   const task = pdfjs.getDocument({ data: bytes.slice(), useSystemFonts: true });
   const doc = await task.promise;
+  if (doc.numPages > GRENZEN.pdfSeiten) {
+    await task.destroy();
+    throw new GrenzFehler(`Das PDF hat ${doc.numPages} Seiten (höchstens ${GRENZEN.pdfSeiten}). Bitte in Kapitel aufteilen.`);
+  }
   const warnings: string[] = [];
   const labels = await doc.getPageLabels().catch(() => null);
   const outline = await outlineByPage(doc);
@@ -51,6 +58,7 @@ export async function extractPdf(bytes: Uint8Array, opts: PdfExtractOptions = {}
   let imagePages = 0;
 
   for (let i = 1; i <= doc.numPages; i++) {
+    if (opts.signal?.aborted) { await task.destroy(); throw new ImportAbgebrochen(); }
     const page = await doc.getPage(i);
     const { height } = page.getViewport({ scale: 1 });
     const lines = await pageLines(page);
@@ -244,7 +252,10 @@ async function outlineByPage(doc: PDFDoc): Promise<Map<number, Array<{ title: st
 }
 
 async function renderPng(doc: PDFDoc, page: PDFPage, scale: number): Promise<Uint8Array> {
-  const viewport = page.getViewport({ scale });
+  // Übergroße Seiten (Poster, präparierte PDFs) nicht in riesige Bilder rendern: Maßstab auf die Pixelgrenze kappen.
+  const basis = page.getViewport({ scale: 1 });
+  const maxScale = Math.sqrt(GRENZEN.bildPixel / 4 / Math.max(1, basis.width * basis.height));
+  const viewport = page.getViewport({ scale: Math.min(scale, maxScale) });
   const factory = doc.canvasFactory as { create(w: number, h: number): { canvas: any; context: any } };
   const { canvas, context } = factory.create(Math.ceil(viewport.width), Math.ceil(viewport.height));
   await page.render({ canvasContext: context, canvas, viewport }).promise;

@@ -1,9 +1,21 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+import { execSync } from 'node:child_process';
+
+/** Sichtbare Build-ID: Commit (kurz) und Build-Datum, z. B. „83ad59d · 2026-11-08“. „+“ = mit lokalen Änderungen. */
+function buildId(): string {
+  const datum = new Date().toISOString().slice(0, 10);
+  try {
+    const sha = execSync('git rev-parse --short HEAD', { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+    const dirty = execSync('git status --porcelain', { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim() ? '+' : '';
+    return `${sha}${dirty} · ${datum}`;
+  } catch { return `lokal · ${datum}`; }
+}
 
 export default defineConfig({
   base: './',
+  define: { __BUILD_ID__: JSON.stringify(process.env.LERNSTOFF_BUILD_ID || buildId()) },
   plugins: [
     react(),
     VitePWA({

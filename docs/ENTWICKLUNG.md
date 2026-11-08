@@ -44,3 +44,25 @@ Die Daten liegen nur auf den Geräten (iPhone, iPad, Rechner). Ein Fehler hier k
 Große, selten gebrauchte Teile (PDF, OCR, Fallbibliotheken) per `import()` erst bei Bedarf laden.
 Größter Einzelposten ist derzeit der Pflege-Katalog (~100 KB); wer das Budget bewusst anhebt,
 begründet es im PR.
+
+## Fremde Dateien und KI-Eingaben
+
+- Grenzen für Importe stehen gesammelt in `src/features/dokumente/import/grenzen.ts` (`GRENZEN`): Dateigröße,
+  ZIP-Einträge und entpackte Größe (vor dem Entpacken aus dem Inhaltsverzeichnis), Kompressionsrate,
+  XML-Größe/-Tiefe und DOCTYPE/ENTITY-Verbot für Office-Teile, PDF-Seiten, Bildpunkte, Klassencodes.
+  Neue Leser für Fremdformate prüfen ihre Eingaben dort, statt eigene Zahlen einzuführen.
+- Der Dateityp kommt aus der Signatur, nicht aus der Endung (`detectKind`); Abweichungen landen im Importbericht.
+- Import und Texterkennung sind über `signal` (AbortSignal) abbrechbar.
+- Dokumentinhalt ist für die KI fremdes Material: `rufe()` hängt `FREMDE_DATEN` an jede Systemanweisung,
+  `abschnitteAlsText`/`entschaerfe` verhindern, dass Quelltext einen Quellblock schließt, `rufeJson` prüft
+  die Antwort gegen das Schema. Beim Import meldet `anweisungen.ts` Text, der wie eine KI-Anweisung aussieht.
+  Testdokumente dazu: `import/grenzen.test.ts`, `zusammenfasser/fremde-daten.test.ts`.
+
+## PWA und Abhängigkeiten
+
+- Nach jedem Update von `vite-plugin-pwa`/Workbox: `npm run build`, Vorschau starten und `npm run test:offline`
+  (ist auch Teil von `npm run check`). Geprüft werden Service Worker, Vorab-Cache, alle Menüseiten ohne Netz und
+  ein kalter Start ohne Netz.
+- `package.json` → `overrides` hebt `glob` unter `workbox-build` auf eine Version ohne bekannte Lücken.
+  Übrig bleibt `deepmerge` (niedrig, nur Build-Kette, kein Fix verfügbar).
+- Die Build-ID (Commit · Datum) steht unter Datensicherung und auf Fehlerseiten. Ein „+“ heißt: mit lokalen Änderungen gebaut.

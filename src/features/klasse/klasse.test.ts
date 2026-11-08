@@ -184,3 +184,12 @@ describe('QR-Code', () => {
     expect(qrPfad(link)?.groesse).toBeGreaterThan(21);
   });
 });
+
+describe('Grenzen für Klassen- und Abgabecodes', () => {
+  it('öffnet keine übergroßen oder präparierten Codes', async () => {
+    await expect(entpacke('j' + 'A'.repeat(4 * 1024 * 1024))).rejects.toThrow(/zu lang/);
+    // 20 MB Nullen, gepackt nur wenige KB: darf nicht vollständig entpackt werden
+    const bombe = new Uint8Array(await new Response(new Blob([new Uint8Array(20 * 1024 * 1024)]).stream().pipeThrough(new CompressionStream('deflate-raw'))).arrayBuffer());
+    await expect(entpacke('z' + zuBase64url(bombe))).rejects.toThrow(/entpackt zu groß/);
+  });
+});

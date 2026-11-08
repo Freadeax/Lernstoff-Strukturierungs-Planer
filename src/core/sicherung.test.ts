@@ -2,7 +2,7 @@ import 'fake-indexeddb/auto';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { LernstoffDB } from './db';
 import { brauchtErinnerung } from '../features/sicherung/erinnerung';
-import { dekodiere, erstelleSicherung, fuehreWertZusammen, kodiere, lesePruefe, spieleEin } from './sicherung';
+import { dekodiere, erstelleSicherung, fuehreWertZusammen, kodiere, ladeRueckfall, lesePruefe, spieleEin, stelleRueckfallWiederHer } from './sicherung';
 
 // Node hat kein localStorage: einfacher Ersatz im Speicher.
 class Speicher {
@@ -92,6 +92,39 @@ describe('Datensicherung', () => {
     // zweimal einspielen ändert nichts mehr
     const nochmal = await spieleEin(sicherung, 'zusammenfuehren', ipad);
     expect(nochmal).toMatchObject({ neu: 0, aktualisiert: 0 });
+  });
+
+  it('legt vor „Ersetzen“ eine Rückfallsicherung an und kann sie wiederherstellen', async () => {
+    const quelle = neueDb();
+    await quelle.subjects.add({ id: 'neu', name: 'Aus der Datei' });
+    const datei = lesePruefe(JSON.stringify(await erstelleSicherung(quelle)), quelle).sicherung;
+    const geraet = neueDb();
+    await geraet.subjects.add({ id: 'alt', name: 'Nur hier' });
+    ls.setItem('lernstoff.mindmaps', '[{"id":"m-hier"}]');
+    const e = await spieleEin(datei, 'ersetzen', geraet);
+    expect(e.rueckfall).toBeTruthy();
+    expect((await geraet.subjects.toArray()).map((x) => x.id)).toEqual(['neu']);
+    expect((await ladeRueckfall(geraet))!.text).toContain('Nur hier');
+    await stelleRueckfallWiederHer(geraet);
+    expect((await geraet.subjects.toArray()).map((x) => x.id)).toEqual(['alt']);
+    expect(ls.getItem('lernstoff.mindmaps')).toContain('m-hier');
+    // Zusammenführen braucht keine Rückfallsicherung
+    expect((await spieleEin(datei, 'zusammenfuehren', geraet)).rueckfall).toBeUndefined();
+  });
+
+  it('meldet Geräteeinträge, die nicht geschrieben werden konnten, statt sie still zu verlieren', async () => {
+    const a = neueDb();
+    ls.setItem('lernstoff.mindmaps', '[{"id":"m1"}]');
+    ls.setItem('lernstoff.fall.archiv', '[{"id":"f1"}]');
+    const datei = lesePruefe(JSON.stringify(await erstelleSicherung(a)), a).sicherung;
+    ls.clear();
+    const original = ls.setItem.bind(ls);
+    ls.setItem = (k: string, v: string) => { if (k === 'lernstoff.fall.archiv') throw new DOMException('voll', 'QuotaExceededError'); original(k, v); };
+    try {
+      const e = await spieleEin(datei, 'zusammenfuehren', neueDb());
+      expect(e.lokalFehler).toEqual(['lernstoff.fall.archiv']);
+      expect(ls.getItem('lernstoff.mindmaps')).toContain('m1');
+    } finally { ls.setItem = original; }
   });
 
   it('lehnt fremde, beschädigte und zu neue Dateien verständlich ab', () => {

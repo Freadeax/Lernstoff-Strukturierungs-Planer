@@ -21,7 +21,8 @@
     "check": "node scripts/check-alle.mjs",
     "check:schnell": "node scripts/check-alle.mjs --schnell",
     "check:bundle": "node scripts/check-bundle.mjs",
-    "check:katalog": "python3 scripts/build-module.py src/modules/pflege --pruefen"
+    "check:katalog": "python3 scripts/build-module.py src/modules/pflege --pruefen",
+    "test:offline": "node scripts/check-offline.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.2.0",
@@ -48,5 +49,10 @@
     "vite": "^8.3.5",
     "vite-plugin-pwa": "^2.0.0",
     "vitest": "^5.0.5"
+  },
+  "overrides": {
+    "workbox-build": {
+      "glob": "^14.0.4"
+    }
   }
 }

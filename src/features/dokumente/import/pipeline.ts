@@ -12,6 +12,8 @@ import { markiereMerkkaesten } from './extract/merkkasten';
 import { leseBildtext } from './ocr/bildtext';
 import { findMatches, fingerprint } from './dedupe';
 import JSZip from 'jszip';
+import { abbrechbar, GRENZEN, GrenzFehler, pruefeAbbruch, pruefeBild, pruefeText, pruefeZip } from './grenzen';
+import { pruefeAufAnweisungen } from './anweisungen';
 
 export interface ImportContext {
   /** Fingerabdrücke bereits importierter Dokumente (mit kind), für Dubletten-/Versionsprüfung. */
@@ -27,6 +29,8 @@ export interface ImportContext {
   subjectIds?: string[];
   topicIds?: string[];
   newId?: () => string;
+  /** Bricht Einlesen und Texterkennung zwischen zwei Schritten ab (wirft ImportAbgebrochen). */
+  signal?: AbortSignal;
 }
 
 export async function detectKind(bytes: Uint8Array, name: string): Promise<{ kind: FileKind; mediaType?: string } | { error: string }> {
@@ -40,6 +44,7 @@ export async function detectKind(bytes: Uint8Array, name: string): Promise<{ kin
   if (sig([0xd0, 0xcf, 0x11, 0xe0])) return { error: 'Altes Office-Format (.doc/.ppt). Bitte in Word/PowerPoint als .docx/.pptx oder PDF speichern.' };
   if (sig([0x50, 0x4b, 0x03, 0x04])) {
     const zip = await JSZip.loadAsync(bytes);
+    pruefeZip(zip, `„${name}“`);
     if (zip.file('word/document.xml')) return { kind: 'docx' };
     if (zip.file('ppt/presentation.xml')) return { kind: 'pptx' };
     if (zip.file('content.xml')) return { error: 'OpenDocument (.odt/.odp) bitte als .docx/.pptx oder PDF exportieren.' };
@@ -49,16 +54,25 @@ export async function detectKind(bytes: Uint8Array, name: string): Promise<{ kin
   return { error: `Dateiformat von "${name}" nicht erkannt.` };
 }
 
-export async function importFile(file: InputFile, ctx: ImportContext = {}): Promise<ImportResult> {
+export async function importFile(file: InputFile, ctxIn: ImportContext = {}): Promise<ImportResult> {
+  const { signal } = ctxIn;
+  // OCR-Engines abbrechbar machen: vor jeder Seite prüfen, laufende Erkennung nicht abwarten.
+  const ctx: ImportContext = { ...ctxIn, ocr: abbrechbar(ctxIn.ocr, signal), handwritingOcr: abbrechbar(ctxIn.handwritingOcr, signal) };
   const newId = ctx.newId ?? (() => crypto.randomUUID());
+  pruefeAbbruch(signal);
+  if (file.bytes.length > GRENZEN.dateiBytes) throw new GrenzFehler(`„${file.name}“ ist über ${GRENZEN.dateiBytes / 1024 / 1024} MB groß.`);
   const detected = await detectKind(file.bytes, file.name);
   if ('error' in detected) throw new Error(detected.error);
+  // Dateityp kommt aus dem Inhalt (Signatur), nicht aus der Endung. Passt beides nicht zusammen, wird es gemeldet.
+  const endungsWarnung = endungPasst(file.name, detected.kind) ? undefined : `Die Endung von „${file.name}“ passt nicht zum Inhalt; gelesen als ${detected.kind.toUpperCase()}.`;
+  if (detected.kind === 'image') pruefeBild(file.bytes);
+  if (detected.kind === 'text') pruefeText(file.bytes);
 
   let ex: Extracted;
   let images = new Map<number, Uint8Array>();
   switch (detected.kind) {
     case 'pdf': {
-      const r = await extractPdf(file.bytes, { render: !!(ctx.ocr || ctx.handwritingOcr), renderImages: !!ctx.ocr });
+      const r = await extractPdf(file.bytes, { render: !!(ctx.ocr || ctx.handwritingOcr), renderImages: !!ctx.ocr, signal });
       ex = r;
       images = r.pageImages;
       break;
@@ -75,10 +89,13 @@ export async function importFile(file: InputFile, ctx: ImportContext = {}): Prom
     }
   }
 
+  pruefeAbbruch(signal);
+  if (endungsWarnung) ex.warnings.push(endungsWarnung);
   const ocrPages = await runOcr(ex.pages, images, detected.mediaType ?? 'image/png', file.handwritten ?? false, ctx, ex.warnings);
   // Text in Abbildungen nur offline (Tesseract) lesen, nie über die Cloud-Engine.
   const imageTextPages = await leseBildtext(ex.pages, ctx.ocr, images, ex.warnings);
 
+  pruefeAbbruch(signal);
   markiereMerkkaesten(ex.pages);
 
   const documentId = newId();
@@ -102,6 +119,8 @@ export async function importFile(file: InputFile, ctx: ImportContext = {}): Prom
     importedAt: fp.importedAt,
   };
   if (!chunks.length) ex.warnings.push('Kein Text gefunden.');
+  // Text, der wie eine Anweisung an eine KI aussieht, wird gemeldet. Die KI-Aufrufe behandeln Dokumente ohnehin als fremde Daten.
+  ex.warnings.push(...pruefeAufAnweisungen(chunks));
 
   return {
     document,
@@ -118,6 +137,16 @@ export async function importFile(file: InputFile, ctx: ImportContext = {}): Prom
       matches,
     },
   };
+}
+
+const ENDUNGEN: Record<FileKind, RegExp> = {
+  pdf: /\.pdf$/i, docx: /\.docx$/i, pptx: /\.pptx$/i, image: /\.(png|jpe?g|webp)$/i, text: /\.(txt|md)$/i,
+} as Record<FileKind, RegExp>;
+
+/** Ohne Endung (z. B. aus dem Teilen-Menü) gibt es nichts zu vergleichen. */
+function endungPasst(name: string, kind: FileKind): boolean {
+  if (!/\.[A-Za-z0-9]{1,5}$/.test(name)) return true;
+  return ENDUNGEN[kind]?.test(name) ?? true;
 }
 
 /**
