@@ -271,8 +271,9 @@ export async function stelleRueckfallWiederHer(database: LernstoffDB = db): Prom
   return spieleEin(lesePruefe(r.text, database).sicherung, 'ersetzen', database);
 }
 
+/** Für „Alle Lerndaten löschen“: die Rückfallsicherung enthält ebenfalls Lerndaten. Wirft bei Fehlern. */
 export async function loescheRueckfall(database: LernstoffDB = db) {
-  try { await rueckfallDb(database).staende.delete(RUECKFALL_ID); } catch { /* nichts da */ }
+  await rueckfallDb(database).staende.delete(RUECKFALL_ID);
 }
 
 async function fuehreTabelleZusammen(table: Table, rows: Record<string, unknown>[]): Promise<{ neu: number; aktualisiert: number }> {
@@ -308,11 +309,23 @@ export async function spieleEin(s: Sicherung, modus: Modus, database: LernstoffD
   let neu = 0, aktualisiert = 0;
   // Ohne Rückfallsicherung wird nicht ersetzt: lieber abbrechen als Daten unwiederbringlich verlieren.
   let rueckfall: string | undefined;
+  // Die bisherige Rückfallsicherung bleibt erhalten, bis das Ersetzen gelungen ist (z. B. beim Wiederherstellen
+  // eines größeren älteren Stands, das am Speicherplatz scheitert).
+  const vorherigerRueckfall = modus === 'ersetzen' ? await ladeRueckfall(database) : undefined;
   if (modus === 'ersetzen') {
     try { rueckfall = await legeRueckfallAn(database); }
     catch (e) { throw new Error(`Vor dem Ersetzen konnte keine Rückfallsicherung angelegt werden (${e instanceof Error ? e.message : String(e)}). Es wurde nichts verändert.`); }
   }
-  await database.transaction('rw', database.tables, async () => {
+  try {
+    await schreibeTabellen();
+  } catch (e) {
+    if (vorherigerRueckfall) await rueckfallDb(database).staende.put({ id: RUECKFALL_ID, ...vorherigerRueckfall }).catch(() => undefined);
+    throw e;
+  }
+  const lokalFehler = spieleLokalEin(s.local ?? {}, modus);
+  return { neu, aktualisiert, tabellen: tabellen.length, lokalFehler, rueckfall };
+
+  async function schreibeTabellen() { await database.transaction('rw', database.tables, async () => {
     if (modus === 'ersetzen') await Promise.all(database.tables.map((t) => t.clear()));
     for (const t of tabellen) {
       const rows = dekodiere(s.data[t.name]) as Record<string, unknown>[];
@@ -321,9 +334,7 @@ export async function spieleEin(s: Sicherung, modus: Modus, database: LernstoffD
       const e = await fuehreTabelleZusammen(t, rows);
       neu += e.neu; aktualisiert += e.aktualisiert;
     }
-  });
-  const lokalFehler = spieleLokalEin(s.local ?? {}, modus);
-  return { neu, aktualisiert, tabellen: tabellen.length, lokalFehler, rueckfall };
+  }); }
 }
 
 /** Schreibt die Geräteeinträge. Liefert die Schlüssel, die nicht geschrieben werden konnten (Teilfehler). */
