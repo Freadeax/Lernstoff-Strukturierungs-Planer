@@ -13,11 +13,19 @@ import { ACCEPT, importiereDateien, type ImportErgebnis } from './dokumente/impo
 import { Field } from '../ui/form/Field';
 import { PageHeading } from '../ui/PageHeading';
 import { Icon } from '../ui/icons';
+import { dubletten, DUBLETTE_TEXT, leseHinweise, LESBAR_MIN } from './dokumente/hinweise';
+import type { DuplicateMatch } from './dokumente/import/types';
 
 const subjects = modules.flatMap((m) => m.subjects);
 
 export function Dokumente() {
-  const quelleOffen = useRoute().params.get('quelle');
+  const { params } = useRoute();
+  const quelleOffen = params.get('quelle');
+  // Sprung zur Fundstelle: #/material/dokumente?dokument=<id>&abschnitt=<chunkId>&von=<n>&bis=<n>
+  const ziel = params.get('dokument');
+  const zielAbschnitt = params.get('abschnitt');
+  const von = Number(params.get('von')), bis = Number(params.get('bis'));
+  const [doppelt, setDoppelt] = useState<Map<string, DuplicateMatch[]>>(new Map());
   const [docs, setDocs] = useState<Document[]>([]);
   const [subjectId, setSubjectId] = useState(subjects[0]?.id ?? '');
   const [archive, setArchive] = useState(false);
@@ -28,6 +36,27 @@ export function Dokumente() {
   const [open, setOpen] = useState<string | null>(null);
   const [chunks, setChunks] = useState<SourceChunk[]>([]);
   const [loeschen, setLoeschen] = useState<string | null>(null);
+  useEffect(() => { if (ziel) setOpen(ziel); }, [ziel]);
+  useEffect(() => {
+    // Dubletten aus den gespeicherten Fingerabdrücken, aktuell bei jedem Import oder Löschen
+    const sub = liveQuery(async () => {
+      const [fps, ds] = await Promise.all([db.fingerprints.toArray(), db.documents.toArray()]);
+      const kinds = new Map(ds.map((d) => [d.id, d.kind]));
+      return dubletten(fps.filter((f) => kinds.has(f.documentId)).map((f) => ({ ...f, kind: kinds.get(f.documentId) })));
+    }).subscribe({ next: setDoppelt, error: () => setDoppelt(new Map()) });
+    return () => sub.unsubscribe();
+  }, []);
+  useEffect(() => {
+    if (!zielAbschnitt || open !== ziel || !chunks.some((c) => c.id === zielAbschnitt)) return;
+    const el = document.getElementById(`abschnitt-${zielAbschnitt}`);
+    el?.scrollIntoView({ block: 'center' });
+    el?.focus({ preventScroll: true });
+  }, [chunks, zielAbschnitt, open, ziel]);
+  const springe = (chunkId: string) => {
+    const el = document.getElementById(`abschnitt-${chunkId}`);
+    el?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    el?.focus({ preventScroll: true });
+  };
 
   const reload = async () => setDocs(await db.documents.orderBy('importedAt').reverse().toArray().catch(() => db.documents.toArray()));
   useEffect(() => { const sub = liveQuery(async () => (await db.documents.toArray()).sort((a, b) => b.importedAt.localeCompare(a.importedAt))).subscribe(setDocs); return () => sub.unsubscribe(); }, []);
@@ -120,18 +149,43 @@ export function Dokumente() {
             <button className="danger small" aria-expanded={loeschen === d.id} onClick={() => setLoeschen(loeschen === d.id ? null : d.id)}>Löschen</button>
           </div>
           {loeschen === d.id && <LoeschDialog document={d} onAbbrechen={() => setLoeschen(null)} onLoeschen={(abgeleitete) => void remove(d.id, abgeleitete)} />}
+          {(doppelt.get(d.id) ?? []).map((m) => (
+            <p key={m.otherDocumentId} className="note dokument__dublette">
+              <strong>Dublette:</strong> {DUBLETTE_TEXT[m.kind]} „{docs.find((x) => x.id === m.otherDocumentId)?.title ?? m.otherTitle}“. <span className="muted">{m.recommendation}</span>
+            </p>
+          ))}
           <ThemenZuordnung document={d} />
           <QuellenangabeEditor document={d} offen={quelleOffen === d.id} />
-          {open === d.id && (
-            <div id={`document-${d.id}`} className="chunks">
-              {chunks.map((c) => (
-                <div key={c.id} className="chunk">
-                  <div className="muted">S. {c.printedPage ?? c.page}{c.pageEstimated ? ' (geschätzt)' : ''}{c.chapter ? ` · ${c.chapter}` : ''}{c.ocrConfidence !== undefined ? ` · Lesbarkeit ${Math.round(c.ocrConfidence * 100)} %` : ''}</div>
-                  <div className="pre">{c.text}</div>
-                </div>
-              ))}
-            </div>
-          )}
+          {open === d.id && (() => {
+            const h = leseHinweise(chunks);
+            return (
+              <div id={`document-${d.id}`} className="chunks">
+                {(h.schwerLesbar.length > 0 || h.unleserlich > 0 || h.geschaetzt) && (
+                  <div className="note warn lesehinweise" role="note">
+                    <strong>Vor dem Lernen mit dem Original vergleichen</strong>
+                    <ul>
+                      {h.schwerLesbar.length > 0 && <li>
+                        {h.schwerLesbar.length === 1 ? '1 Seite' : `${h.schwerLesbar.length} Seiten`} schwer lesbar (Texterkennung unter {Math.round(LESBAR_MIN * 100)} %):{' '}
+                        {h.schwerLesbar.slice(0, 12).map((x, i) => <span key={x.chunkId}>{i ? ', ' : ''}<button type="button" className="link" onClick={() => springe(x.chunkId)} aria-label={`Zu Seite ${x.seite}, Lesbarkeit ${Math.round(x.sicherheit * 100)} %`}>S. {x.seite}</button></span>)}
+                        {h.schwerLesbar.length > 12 ? ' …' : ''}
+                      </li>}
+                      {h.unleserlich > 0 && <li>{h.unleserlich === 1 ? '1 unleserliche Stelle' : `${h.unleserlich} unleserliche Stellen`}, im Text als ⟦?⟧ markiert.{h.ersteUnleserlich && <> <button type="button" className="link" onClick={() => springe(h.ersteUnleserlich!)}>Zur ersten Stelle</button></>}</li>}
+                      {h.geschaetzt && <li>Seitenzahlen sind geschätzt, weil die Datei keine Seitenumbrüche speichert. Für Quellenangaben besser die PDF-Fassung nutzen.</li>}
+                    </ul>
+                  </div>
+                )}
+                {chunks.map((c) => {
+                  const markiert = c.id === zielAbschnitt && Number.isInteger(von) && Number.isInteger(bis) && bis > von && von >= 0 && bis <= c.text.length;
+                  return (
+                    <div key={c.id} id={`abschnitt-${c.id}`} tabIndex={-1} className={`chunk${c.id === zielAbschnitt ? ' chunk--ziel' : ''}${c.ocrConfidence !== undefined && c.ocrConfidence < LESBAR_MIN ? ' chunk--unsicher' : ''}`}>
+                      <div className="muted">S. {c.printedPage ?? c.page}{c.pageEstimated ? ' (geschätzt)' : ''}{c.chapter ? ` · ${c.chapter}` : ''}{c.ocrConfidence !== undefined ? ` · Lesbarkeit ${Math.round(c.ocrConfidence * 100)} %` : ''}</div>
+                      <div className="pre">{markiert ? <>{c.text.slice(0, von)}<mark>{c.text.slice(von, bis)}</mark>{c.text.slice(bis)}</> : c.text}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })()}
         </div>
       ))}
     </section>

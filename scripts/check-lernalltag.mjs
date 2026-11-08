@@ -78,8 +78,64 @@ try {
     assert.match(ics, /^BEGIN:VCALENDAR\r\n/);
     assert.match(ics, /SUMMARY:Prüfung: Testklausur Alltag/);
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Überlauf bei ${width}px`);
+
+    // Material: schwer lesbare Seiten, Dubletten, Sprung zur Fundstelle, Original neben der Zusammenfassung
+    const thema = blaetter[1];
+    await page.evaluate(async ({ thema }) => {
+      const open = indexedDB.open('lernstoff-planer');
+      const db = await new Promise((resolve, reject) => { open.onsuccess = () => resolve(open.result); open.onerror = () => reject(open.error); });
+      const tx = db.transaction(['documents', 'chunks', 'fingerprints', 'summaries'], 'readwrite');
+      const doc = (id, title) => ({ id, title, kind: 'pdf', subjectIds: [], topicIds: [thema], version: 1, contentHash: 'c-' + id, importedAt: new Date().toISOString() });
+      tx.objectStore('documents').put(doc('test.scan', 'Testscan Kreislauf'));
+      tx.objectStore('documents').put(doc('test.kopie', 'Testscan Kreislauf Kopie'));
+      const text = 'Der Blutdruck wird in mmHg gemessen. Normal sind etwa 120 zu 80 mmHg. Werte über 140 zu 90 gelten als erhöht.';
+      tx.objectStore('chunks').put({ id: 'test.scan#1', documentId: 'test.scan', page: 1, text, ocrConfidence: 0.95 });
+      tx.objectStore('chunks').put({ id: 'test.scan#2', documentId: 'test.scan', page: 2, text: 'Schlecht lesbarer ⟦?⟧ Abschnitt.', ocrConfidence: 0.45 });
+      const fp = (id) => ({ documentId: id, title: id, fileHash: 'gleich', contentHash: 'gleich', minhash: Array(128).fill(1), paragraphHashes: [], meta: {}, importedAt: '' });
+      tx.objectStore('fingerprints').put(fp('test.scan'));
+      tx.objectStore('fingerprints').put(fp('test.kopie'));
+      const start = text.indexOf('Normal');
+      tx.objectStore('summaries').put({ id: 'test.zf', mode: 'originalgetreu', length: 'kurz', topicIds: [thema], sourceDocumentIds: ['test.scan'], createdAt: new Date().toISOString(), needsReview: false,
+        claims: [{ id: 'k1', text: 'Normal sind etwa 120 zu 80 mmHg.', status: 'belegt', isSupplementary: false, citations: [{ chunkId: 'test.scan#1', documentId: 'test.scan', page: 1, quote: 'Normal sind etwa 120 zu 80 mmHg.', charStart: start, charEnd: start + 32 }] }] });
+      await new Promise((resolve, reject) => { tx.oncomplete = resolve; tx.onerror = () => reject(tx.error); });
+      db.close();
+      localStorage.setItem('lernstoff.fehlerheft', JSON.stringify([{ id: 'simulation:test', quelle: 'simulation', topicIds: [thema], titel: 'Testfrage Blutdruck', frage: 'Normwert?', deineAntwort: '160/100', loesung: '120/80', erklaerung: [], wiederholung: { art: 'auswahl', optionen: ['120/80', '160/100'], richtig: [0], mehrfach: false }, erfasst: '2026-11-01', letzterFehler: '2026-11-01', fehlerAnzahl: 1, treffer: [], aktualisiert: new Date().toISOString() }]));
+    }, { thema });
+    await page.goto(base + '#/material/zusammenfassen', { waitUntil: 'networkidle' });
+    await page.getByRole('button', { name: /Originalgetreu · kurz/ }).click();
+    await page.getByText('Normal sind etwa 120 zu 80 mmHg.', { exact: true }).click();
+    const original = page.getByRole('link', { name: /Fundstelle im Dokument öffnen/ });
+    await original.waitFor();
+    if (width >= 1000) {
+      const [zf, src] = await Promise.all([page.locator('.zf-split > .summary').boundingBox(), page.locator('.zf-split > .source').boundingBox()]);
+      assert(src.x > zf.x + zf.width - 1, 'Original steht auf dem iPad quer neben der Zusammenfassung');
+    }
+    await page.screenshot({ path: path.join(out, `zusammenfassung-${width}.png`), fullPage: true });
+    await axe(page, 'Zusammenfassung');
+    await original.click();
+    await page.locator('.chunk--ziel mark').waitFor();
+    assert.equal(await page.locator('.chunk--ziel mark').innerText(), 'Normal sind etwa 120 zu 80 mmHg.');
+    assert.match(await page.locator('.lesehinweise').innerText(), /1 Seite schwer lesbar/);
+    assert.equal(await page.locator('.dokument__dublette').count(), 2);
+    await page.screenshot({ path: path.join(out, `dokument-${width}.png`), fullPage: true });
+    await axe(page, 'Dokumente');
+
+    // Fehlerheft: zurück zum Stoff
+    await page.goto(base + '#/lernen/fehler', { waitUntil: 'networkidle' });
+    const wege = page.locator('.fehlerheft__rueckwege').first();
+    await wege.getByRole('link', { name: 'Thema mit Karteikarten wiederholen' }).waitFor();
+    await wege.getByRole('link', { name: /Original: Testscan Kreislauf/ }).first().waitFor();
+    await axe(page, 'Fehlerheft');
+
+    // Fortschritt: Lernstufen
+    await page.goto(base + '#/lernen/fortschritt', { waitUntil: 'networkidle' });
+    const stufen = page.locator('.fs-stufen');
+    await stufen.waitFor();
+    assert.match(await stufen.innerText(), /Abgerufen\s*1 von/);
+    await axe(page, 'Fortschritt');
+    assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Überlauf bei ${width}px`);
     assert.deepEqual(errors, []);
-    console.log(`Lernalltag ${width}px: liegen gebliebene Blöcke, Dienstplan mit Vorschau, Kompetenzbereiche, Kalenderexport und WCAG bestanden.`);
+    console.log(`Lernalltag ${width}px: liegen gebliebene Blöcke, Dienstplan mit Vorschau, Kompetenzbereiche, Kalenderexport, Fundstelle, Original nebeneinander, Lese-/Dublettenhinweise, Fehlerheft-Rückwege, Lernstufen und WCAG bestanden.`);
     await context.close();
   }
 } finally { await browser.close(); }

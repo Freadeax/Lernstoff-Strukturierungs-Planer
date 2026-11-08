@@ -4,6 +4,7 @@ import { logActivity } from '../../core/activity';
 import { pflegeModule } from '../../modules/pflege';
 import { bewerte, erzeuge, zahl, type Aufgabe } from '../rechnen/aufgaben';
 import { uebungenFuer } from '../lernplan/trainer';
+import { Rueckwege } from './Rueckwege';
 import {
   auswahlRichtig, BEHOBEN_NACH, faellig, heutigerTag, istOffen, ladeFehler, mischeAuswahl, nachThema, QUELLE_LABEL,
   speichereFehler, ueberblick, wiederholt, type Fehler, type FehlerQuelle, type Wiederholung,
@@ -67,7 +68,7 @@ function Eintrag({ f, onEntfernen }: { f: Fehler; onEntfernen: () => void }) {
         <p>Richtig: <strong>{f.loesung}</strong></p>
         {f.erklaerung.length > 0 && <ol className="fehlerheft__weg">{f.erklaerung.map((s, i) => <li key={i}>{s}</li>)}</ol>}
         <div className="row">
-          {link && <a className="button" href={`#${link.path}`}>{link.label}</a>}
+          {link && <a className="button-link" href={`#${link.path}`}>{link.label}</a>}
           <button type="button" className="ghost" onClick={onEntfernen}>Aus dem Fehlerheft entfernen</button>
         </div>
       </details>
@@ -284,6 +285,7 @@ export default function FehlerheftSeite() {
               <h3>{thema}</h3>
               <span className="muted">{g.fehler.length} offen{g.topicId && <> · <a href={`#/lernen/themen?thema=${encodeURIComponent(g.topicId)}`}>Thema ansehen</a></>}</span>
             </div>
+            {g.topicId && <Rueckwege topicId={g.topicId} />}
             <ul className="fehlerheft__liste">
               {g.fehler.map((f) => <Eintrag key={f.id} f={f} onEntfernen={() => aendere(ladeFehler().filter((x) => x.id !== f.id))} />)}
             </ul>
