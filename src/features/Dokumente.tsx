@@ -2,6 +2,8 @@ import { ladeZiel } from './ablage/ablage';
 import { useEffect, useState } from 'react';
 import { liveQuery } from 'dexie';
 import { ThemenZuordnung } from './dokumente/ThemenZuordnung';
+import { QuellenangabeEditor } from './dokumente/QuellenangabeEditor';
+import { useRoute } from '../ui/shell/router';
 import { db, deleteDocument } from '../core/db';
 import type { Document, SourceChunk } from '../core/types';
 import { logActivity } from '../core/activity';
@@ -14,6 +16,7 @@ import { Icon } from '../ui/icons';
 const subjects = modules.flatMap((m) => m.subjects);
 
 export function Dokumente() {
+  const quelleOffen = useRoute().params.get('quelle');
   const [docs, setDocs] = useState<Document[]>([]);
   const [subjectId, setSubjectId] = useState(subjects[0]?.id ?? '');
   const [archive, setArchive] = useState(() => !!ladeZiel().token);
@@ -106,6 +109,7 @@ export function Dokumente() {
             <button className="danger small" onClick={() => remove(d.id)}>Löschen</button>
           </div>
           <ThemenZuordnung document={d} />
+          <QuellenangabeEditor document={d} offen={quelleOffen === d.id} />
           {open === d.id && (
             <div id={`document-${d.id}`} className="chunks">
               {chunks.map((c) => (

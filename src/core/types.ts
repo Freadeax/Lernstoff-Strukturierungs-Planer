@@ -43,6 +43,21 @@ export interface Document {
   topicSuggestions?: Array<{ name: string; parentId?: ID; parentNames?: string[]; subjectId: ID }>;
   ignoredTopicNames?: string[];
   excludedTopicIds?: ID[];
+  quelle?: Quellenangabe;     // Herkunft und Geltung, wichtig bei Expertenstandards, Recht, Arzneimitteln, Normwerten
+}
+
+/** Art der Quelle. Trennt verbindliche Fachstandards von Vorgaben der Schule oder der Einrichtung. */
+export type QuellenArt =
+  | 'expertenstandard' | 'gesetz' | 'leitlinie' | 'fachinformation' | 'fachbuch'
+  | 'schule' | 'einrichtung' | 'mitschrift' | 'sonstige';
+
+/** Angaben, die an jeder Aussage aus dieser Quelle mit angezeigt werden. Der Abschnitt kommt aus dem Beleg (Kapitel, Seite). */
+export interface Quellenangabe {
+  art: QuellenArt;
+  herausgeber?: string;      // z. B. DNQP, Bundesgesetzgeber, Hersteller, Pflegeschule
+  fassung?: string;          // z. B. „1. Aktualisierung 2017“, „Stand 01.01.2024“
+  geltungsbereich?: string;  // z. B. „bundesweit“, „Klinikum Musterstadt, Station 4“, „Kurs 2025“
+  geprueftAm?: string;       // YYYY-MM-DD, wann die Fassung zuletzt auf Aktualität geprüft wurde
 }
 
 /** Kleinste belegbare Texteinheit. Jede Quellenangabe zeigt auf einen Chunk. */
@@ -82,6 +97,21 @@ export interface Claim {
   isSupplementary: boolean;   // ergänzendes Wissen, nicht aus der Quelle
   kind?: ClaimKind;
   blockId?: ID;               // Gliederungsblock in Summary.blocks
+  pruefung?: Belegpruefung;   // getrennte Prüfstufen; fehlt bei älteren Zusammenfassungen
+}
+
+/** Drei getrennte Stufen statt eines pauschalen „belegt“: Code findet das Zitat, KI-Prüfer prüft den Sinn, ein Mensch gibt fachlich frei. */
+export interface Belegpruefung {
+  zitat: 'gefunden' | 'aehnlich' | 'nicht_gefunden' | 'ohne_beleg' | 'entfaellt';
+  sinn: 'gestuetzt' | 'teilweise' | 'nicht_gestuetzt' | 'nicht_geprueft' | 'entfaellt';
+  freigabe?: FachFreigabe;
+}
+
+export interface FachFreigabe {
+  urteil: 'freigegeben' | 'abgelehnt';
+  durch: string;              // Name oder Rolle, z. B. „Praxisanleitung“
+  am: string;                 // ISO-Zeitpunkt
+  anmerkung?: string;
 }
 
 export type SummaryMode = 'originalgetreu' | 'lernen' | 'arbeitsauftrag' | 'pruefung' | 'vergleich';

@@ -1,11 +1,14 @@
 // Anzeige einer Zusammenfassung aus den Text-Modi: Ampel, Prüfhinweise, Rückfragen, Gliederung mit
 // markierten Kästen, Ampel je Aussage und Originalstelle per Tippen.
 import { useState, type ReactNode } from 'react';
-import type { Claim, SourceChunk, Summary, SummaryBlock } from '../../../core/types';
+import type { Claim, Document, SourceChunk, Summary, SummaryBlock } from '../../../core/types';
+import { sensibleKategorien, stufenUebersicht, stufenVon, uebersichtText, KATEGORIE_TEXT } from '../../qualitaet/belegstufen';
 import { Belegstelle } from './Belegstelle';
 import { LaufInfo } from './LaufInfo';
+import { Pruefstufen } from './Pruefstufen';
 
-const AMPEL = { gruen: 'Alle Aussagen belegt', gelb: 'Mit Hinweisen, bitte prüfen', rot: 'Nicht verlässlich: unbelegte, falsch zitierte oder sinnverschobene Aussagen' };
+// „Grün“ heißt nur: Code und KI-Prüfer haben nichts beanstandet. Was je Aussage bestätigt ist, steht in der Stufenzeile darunter.
+const AMPEL = { gruen: 'Keine Prüfbefunde', gelb: 'Mit Hinweisen, bitte prüfen', rot: 'Nicht verlässlich: unbelegte, falsch zitierte oder sinnverschobene Aussagen' };
 const STATUS_TEXT: Record<string, string> = {
   belegt: 'belegt', unbelegt: 'ohne tragfähigen Beleg', abweichend: 'weicht ab', widerspruch: 'Widerspruch', unleserlich: 'unleserlich', fehlt: 'fehlt in der Quelle', ungeprueft: 'ungeprüft',
 };
@@ -16,15 +19,21 @@ export const MODUS_TEXT: Record<string, string> = { originalgetreu: 'Originalget
 
 const nurTrenner = (t: string) => /^[\s|:-]+$/.test(t);
 
-export function SummaryAnsicht({ summary, chunkMap, titles }: { summary: Summary; chunkMap: Map<string, SourceChunk>; titles: Map<string, string> }) {
-  const [shown, setShown] = useState<Claim | null>(null);
+export function SummaryAnsicht({ summary, chunkMap, titles, docs = new Map(), onAendern }: {
+  summary: Summary; chunkMap: Map<string, SourceChunk>; titles: Map<string, string>;
+  docs?: Map<string, Document>; onAendern?: (s: Summary) => void;
+}) {
+  const [shownId, setShownId] = useState<string | null>(null);
+  const shown = summary.claims.find((c) => c.id === shownId) ?? null;
+  const setShown = (c: Claim | null) => setShownId(c?.id ?? null);
+  const uebersicht = stufenUebersicht(summary, docs, chunkMap);
   const claimById = new Map(summary.claims.map((c) => [c.id, c]));
   const qa = summary.qa;
   const rueckfragen = summary.claims.filter((c) => c.kind === 'rueckfrage');
   const allgemein = qa?.befunde.filter((b) => !b.claimId && b.schwere !== 'hinweis') ?? [];
 
   const claimSpan = (c: Claim) => (
-    <span key={c.id} className={`claim ${c.status} ${c.isSupplementary ? 'zusatz' : ''} ${shown?.id === c.id ? 'active' : ''}`}
+    <span key={c.id} className={`claim ${c.status} ${c.isSupplementary ? 'zusatz' : ''} ${shown?.id === c.id ? 'active' : ''} ${stufenVon(c, summary).freigabe?.urteil ?? ''}`}
       role="button" tabIndex={0}
       onClick={() => setShown(shown?.id === c.id ? null : c)}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShown(shown?.id === c.id ? null : c); } }}>
@@ -72,9 +81,13 @@ export function SummaryAnsicht({ summary, chunkMap, titles }: { summary: Summary
   return (
     <>
       {qa && <div className={`ampel ${qa.ampel}`}>{AMPEL[qa.ampel]}</div>}
+      {qa && <p className="stufen-zeile"><strong>{uebersichtText(uebersicht)}</strong>
+        {uebersicht.sensibel > 0 && <> · {uebersicht.sensibel} sensible {uebersicht.sensibel === 1 ? 'Aussage' : 'Aussagen'} (Expertenstandard, Recht, Arzneimittel oder Normwert){uebersicht.sensibelUnvollstaendig ? `, davon ${uebersicht.sensibelUnvollstaendig} mit unvollständiger Quellenangabe` : ''}</>}
+        {uebersicht.abgelehnt > 0 && <> · {uebersicht.abgelehnt} fachlich abgelehnt</>}
+      </p>}
       {qa && (
         <p className="muted">
-          {MODUS_TEXT[summary.mode]} · {qa.statistik.belegt} von {qa.statistik.claims} Aussagen belegt
+          {MODUS_TEXT[summary.mode]} · {qa.statistik.belegt} von {qa.statistik.claims} Aussagen ohne Befund
           {qa.statistik.unbelegt ? `, ${qa.statistik.unbelegt} ohne tragfähigen Beleg` : ''}
           {qa.statistik.ergaenzung ? `, ${qa.statistik.ergaenzung} Lernhilfen/Ergänzungen` : ''}
           {qa.statistik.fehlt ? `, ${qa.statistik.fehlt} Lücken markiert` : ''}
@@ -93,10 +106,13 @@ export function SummaryAnsicht({ summary, chunkMap, titles }: { summary: Summary
       <div className="summary">{summary.blocks?.length ? gliederung() : fliesstext()}</div>
       {shown && (
         <div className="source">
-          <div><strong>{STATUS_TEXT[shown.status]}</strong>{shown.isSupplementary ? ' · nicht aus deinen Quellen' : ''}</div>
+          <div><strong>{STATUS_TEXT[shown.status]}</strong>{shown.isSupplementary ? ' · nicht aus deinen Quellen' : ''}
+            {sensibleKategorien(shown, docs).map((k) => <span key={k} className="tag tag--warning">{KATEGORIE_TEXT[k]}</span>)}</div>
+          <Pruefstufen summary={summary} claim={shown} docs={docs} onAendern={onAendern} />
           {qa?.befunde.filter((b) => b.claimId === shown.id).map((b) => <div key={b.id} className="muted">{b.pruefung}: {b.meldung}</div>)}
           {shown.citations.map((z, i) => (
-            <Belegstelle key={i} titel={titles.get(z.documentId)} chunk={chunkMap.get(z.chunkId)} seite={z.printedPage ?? String(z.page)} start={z.charStart} end={z.charEnd} zitat={z.quote} />
+            <Belegstelle key={i} titel={titles.get(z.documentId)} chunk={chunkMap.get(z.chunkId)} seite={z.printedPage ?? String(z.page)} start={z.charStart} end={z.charEnd} zitat={z.quote}
+              quelle={docs.get(z.documentId)?.quelle} sensibel={sensibleKategorien(shown, docs).length > 0} dokumentId={z.documentId} />
           ))}
         </div>
       )}
