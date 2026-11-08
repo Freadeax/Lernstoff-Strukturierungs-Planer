@@ -23,6 +23,7 @@ import { topicKnowledge } from './lernplan/store';
 import { Field, useFormFeedback } from '../ui/form/Field';
 import { PageHeading } from '../ui/PageHeading';
 import { Icon } from '../ui/icons';
+import { kostenText, schaetzeKosten } from './zusammenfasser/kosten';
 
 type Modus = Exclude<TextModus, 'lernziele'> | 'pruefung' | 'vergleich';
 
@@ -96,6 +97,16 @@ export function Zusammenfassen() {
   const aendereSummary = async (s: Summary) => { setCurrent(s); await db.summaries.put(s); };
   const topic = topics.find((t) => t.name.toLowerCase() === thema.trim().toLowerCase());
   const info = MODI.find((m) => m.id === modus)!;
+  // Textmenge der gewählten Quellen für die Kostenschätzung vor dem Start.
+  const [quellZeichen, setQuellZeichen] = useState(0);
+  useEffect(() => {
+    let aktiv = true;
+    const ids = [...selected];
+    if (!ids.length) { setQuellZeichen(0); return; }
+    void db.chunks.where('documentId').anyOf(ids).toArray().then((cs) => { if (aktiv) setQuellZeichen(cs.reduce((n, c) => n + c.text.length, 0)); });
+    return () => { aktiv = false; };
+  }, [selected]);
+  const kosten = quellZeichen ? kostenText(schaetzeKosten({ quellZeichen, modus, laenge: length, kiPruefer })) : '';
   const [wissenAusPlan, setWissenAusPlan] = useState(false);
   // Lernmodus: Wissensstand aus dem Lernplan übernehmen, solange die Person ihn nicht selbst ändert
   useEffect(() => {
@@ -263,6 +274,7 @@ export function Zusammenfassen() {
         </fieldset>
         <div className="form-actions"><p>{selected.size ? `${selected.size} ${selected.size === 1 ? 'Quelle ausgewählt' : 'Quellen ausgewählt'} · ${info.label}` : 'Wähle deine Quellen, um mit der Erstellung zu starten.'}</p><button className="primary" type="submit" disabled={!!busy || !hasKey}>{busy ? 'Wird erstellt …' : modus === 'pruefung' ? (mitFragen ? (mitUebersicht ? 'Fragen und Übersicht erstellen' : 'Fragen erstellen') : 'Lernzielübersicht erstellen') : modus === 'vergleich' ? 'Quellen vergleichen' : modus === 'arbeitsauftrag' ? 'Aufgaben bearbeiten' : 'Zusammenfassung erstellen'}</button></div>
         {hasKey && <DatenHinweis art="ki" fiktiv={false} detail="Gesendet werden die Textabschnitte der ausgewählten Quellen. Steckt in deinen Unterlagen etwas zu echten Personen, nimm diese Quelle vorher heraus." />}
+        {kosten && !busy && <p className="field-hint">{kosten}</p>}
         {busy && <p className="note" role="status" aria-live="polite">{busy}</p>}
         {error && <div className="note warn" role="alert">{error}</div>}
       </form>

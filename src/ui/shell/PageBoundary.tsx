@@ -1,4 +1,5 @@
 import { Suspense, type ReactNode } from 'react';
+import { BUILD_ID } from '../../core/build';
 import { ErrorBoundary } from '../widget/ErrorBoundary';
 import { PageHeading } from '../PageHeading';
 import { navigate } from './router';
@@ -39,7 +40,7 @@ function Fehler({ error, reset }: { error: Error; reset: () => void }) {
         <button type="button" className={laden ? 'primary' : ''} onClick={() => location.reload()}>Seite neu laden</button>
         <button type="button" className="ghost" onClick={() => navigate('/')}>Zur Übersicht</button>
       </div>
-      {!laden && <details className="muted"><summary>Technische Angabe</summary><code>{error.message}</code></details>}
+      {!laden && <details className="muted"><summary>Technische Angabe</summary><code>{error.message}</code><br />App-Version: <code>{BUILD_ID}</code></details>}
     </section>
   );
 }

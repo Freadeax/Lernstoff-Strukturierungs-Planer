@@ -12,6 +12,7 @@ import type { OcrEngine } from './import/ocr/engine';
 import { gleicheThemenAb, ladeThemen, ordneThemen } from '../../core/topics';
 import { ladeHoch, ladeZiel, listeDateien, pruefeRepo } from '../ablage/ablage';
 import type { Document } from '../../core/types';
+import { ImportAbgebrochen, pruefeZip } from './import/grenzen';
 
 export interface ImportErgebnis { name: string; report?: ImportReport; error?: string; documentId?: string; archive?: string; archiveError?: string }
 
@@ -66,7 +67,7 @@ async function sichereOriginal(file: File, documentIds: Array<string | undefined
 
 export async function importiereDateien(
   files: File[],
-  opts: { subjectId: string; handwritten: boolean; archive?: boolean; repository?: Document['repository']; onProgress?: (name: string, index: number) => void },
+  opts: { subjectId: string; handwritten: boolean; archive?: boolean; repository?: Document['repository']; onProgress?: (name: string, index: number) => void; signal?: AbortSignal },
 ): Promise<ImportErgebnis[]> {
   const ergebnisse: ImportErgebnis[] = [];
   let ocr: (OcrEngine & { terminate(): Promise<void> }) | undefined;
@@ -74,6 +75,7 @@ export async function importiereDateien(
   const { subjectId, handwritten } = opts;
   try {
     for (const [i, file] of files.entries()) {
+      if (opts.signal?.aborted) { ergebnisse.push({ name: file.name, error: 'Abgebrochen, nicht importiert.' }); continue; }
       opts.onProgress?.(file.name, i);
       const repository = opts.repository;
       // Upload ins Material-Repo nur nach ausdrücklicher Auswahl (archive === true) und erst,
@@ -84,6 +86,7 @@ export async function importiereDateien(
         if (file.size > 512 * 1024 * 1024) throw new Error('Diese Datei ist für das Einlesen auf Handy/iPad zu groß (über 512 MB). Bitte benötigte Dokumente oder Kapitel einzeln bzw. als kleinere ZIP hochladen.');
         if (/\.zip$/i.test(file.name)) {
           const zip = await JSZip.loadAsync(await file.arrayBuffer());
+          pruefeZip(zip);
           const entries = Object.values(zip.files).filter((e) => !e.dir && !e.name.startsWith('__MACOSX/') && SUPPORTED.test(e.name) && !/\.zip$/i.test(e.name));
           if (!entries.length) throw new Error('Das ZIP enthält keine unterstützten Dokumente. Verschachtelte ZIP bitte zuerst entpacken.');
           if (entries.length > 500) throw new Error('Das ZIP enthält mehr als 500 Dokumente. Bitte kleinere Sammlungen hochladen.');
@@ -122,6 +125,7 @@ export async function importiereDateien(
             existingParagraphText: (h) => paragraphTexts.get(h),
             ocr, handwritingOcr, subjectIds: subjectId ? [subjectId] : [],
             onParagraphs: (m) => { neueAbsaetze = m; },
+            signal: opts.signal,
           },
         );
         const doppelt = result.report.matches.find((m) => m.kind === 'gleiche-datei');
@@ -151,6 +155,7 @@ export async function importiereDateien(
         ergebnisse.push(ergebnis);
       } catch (e) {
         const error = e instanceof Error ? e.message : String(e);
+        if (e instanceof ImportAbgebrochen) { ergebnisse.push({ name: file.name, error: 'Abgebrochen, nicht importiert.' }); continue; }
         await logActivity({ kind: 'import', severity: 'critical', title: `${file.name} nicht importiert`, detail: error, subjectIds: subjectId ? [subjectId] : undefined });
         ergebnisse.push({ name: file.name, error, ...(hochladen ? { archive: 'Original wurde nicht hochgeladen, weil das Einlesen gescheitert ist.' } : {}) });
       }

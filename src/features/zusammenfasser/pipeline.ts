@@ -7,7 +7,7 @@ import { ampel, pruefeAlles, type AufgabeSoll, type PruefBefund } from '../quali
 import { stufenAusBefunden } from '../qualitaet/belegstufen';
 import { zerlegeAntwort, type ApiTextBlock, type ZerlegtClaim } from './zerlegen';
 import { kiPruefung } from './pruefer';
-import { HERKUNFT, ohneKommentare, Protokoll, rufe, textAus, type KiNachricht } from './ki';
+import { entschaerfe, HERKUNFT, ohneKommentare, Protokoll, rufe, textAus, type KiNachricht } from './ki';
 import type { Aufgabe, PipelineRun } from './typen';
 import basisPrompt from './prompts/00-basis.md?raw';
 import originalgetreuPrompt from './prompts/01-originalgetreu.md?raw';
@@ -82,7 +82,7 @@ export function nutzerText(length: SummaryLength, o: ModusOptionen & { thema: st
   switch (o.modus ?? 'originalgetreu') {
     case 'lernen': return `Erkläre und fasse die Quellen zum Thema „${o.thema}“ für das Lernen zusammen. Länge: ${length}.`;
     case 'lernziele': return `Ordne den Lernstoff zum Thema „${o.thema}“ nach den Lernzielen der Prüfung. Länge: ${length}.`;
-    case 'arbeitsauftrag': return `${o.blattText ? `<arbeitsblatt>\n${o.blattText}\n</arbeitsblatt>\n\n` : ''}Bearbeite den Arbeitsauftrag mit den Aufgaben oben anhand der Quellen.`;
+    case 'arbeitsauftrag': return `${o.blattText ? `<arbeitsblatt>\n${entschaerfe(o.blattText)}\n</arbeitsblatt>\n\n` : ''}Bearbeite den Arbeitsauftrag mit den Aufgaben oben anhand der Quellen.`;
     default: return `Fasse die Quellen zum Thema „${o.thema}“ zusammen. Länge: ${length}.`;
   }
 }

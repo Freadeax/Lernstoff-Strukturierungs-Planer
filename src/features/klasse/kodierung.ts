@@ -1,4 +1,5 @@
 import { ART_LABEL, type Abgabe, type KlassenFall } from './typen';
+import { GRENZEN, leseBegrenzt } from '../dokumente/import/grenzen';
 
 // Fall und Abgabe werden als JSON gepackt (deflate, wenn der Browser es kann) und base64url-kodiert.
 // Erstes Zeichen: „z“ = komprimiert, „j“ = reines JSON. Kein Server, keine Bibliothek.
@@ -8,6 +9,12 @@ const hatKompression = () => typeof CompressionStream !== 'undefined' && typeof 
 async function durch(bytes: Uint8Array, strom: CompressionStream | DecompressionStream): Promise<Uint8Array> {
   const out = new Response(new Blob([bytes as BlobPart]).stream().pipeThrough(strom));
   return new Uint8Array(await out.arrayBuffer());
+}
+
+/** Entpacken mit Obergrenze: ein präparierter Code (wenige KB) könnte sonst Hunderte MB erzeugen. */
+async function entpackeBegrenzt(bytes: Uint8Array): Promise<Uint8Array> {
+  const strom = new Blob([bytes as BlobPart]).stream().pipeThrough(new DecompressionStream('deflate-raw')) as ReadableStream<Uint8Array>;
+  return leseBegrenzt(strom, GRENZEN.codeEntpacktBytes, 'Der Code ist entpackt zu groß und wird nicht geöffnet.');
 }
 
 export function zuBase64url(bytes: Uint8Array): string {
@@ -29,14 +36,16 @@ export async function packe(wert: unknown): Promise<string> {
 }
 
 export async function entpacke(code: string): Promise<unknown> {
+  if (code.length > GRENZEN.codeZeichen) throw new Error('Der Code ist zu lang und wird nicht geöffnet.');
   const c = code.replace(/\s+/g, '');
   const art = c[0];
   let bytes: Uint8Array;
   try { bytes = ausBase64url(c.slice(1)); } catch { throw new Error('Der Code ist beschädigt oder unvollständig.'); }
   if (art === 'z') {
     if (typeof DecompressionStream === 'undefined') throw new Error('Dieser Browser ist zu alt. Bitte Safari ab iOS 16.4 oder einen aktuellen Browser verwenden.');
-    try { bytes = await durch(bytes, new DecompressionStream('deflate-raw')); } catch { throw new Error('Der Code ist beschädigt oder unvollständig.'); }
+    try { bytes = await entpackeBegrenzt(bytes); } catch (e) { throw new Error((e as Error)?.name === 'GrenzFehler' ? (e as Error).message : 'Der Code ist beschädigt oder unvollständig.'); }
   } else if (art !== 'j') throw new Error('Unbekanntes Format.');
+  else if (bytes.length > GRENZEN.codeEntpacktBytes) throw new Error('Der Code ist entpackt zu groß und wird nicht geöffnet.');
   try { return JSON.parse(new TextDecoder().decode(bytes)); } catch { throw new Error('Der Code ist beschädigt oder unvollständig.'); }
 }
 
@@ -107,7 +116,9 @@ export async function leseAbgaben(text: string): Promise<{ abgaben: Abgabe[]; fe
   const abgaben: Abgabe[] = [];
   const fehler: string[] = [];
   const re = /LSP-ABGABE\s*\[([A-Za-z0-9_\-\s>]+)\]/g;
+  if (text.length > GRENZEN.codeZeichen * 20) return { abgaben, fehler: ['Der eingefügte Text ist zu lang. Bitte Abgaben in kleineren Teilen einfügen.'] };
   for (const m of text.matchAll(re)) {
+    if (abgaben.length + fehler.length >= 500) { fehler.push('Mehr als 500 Abgabe-Codes, der Rest wurde nicht gelesen.'); break; }
     // „>“ = Zitatzeichen aus Mail-Antworten
     try { abgaben.push(pruefeAbgabe(await entpacke(m[1]!.replace(/[\s>]+/g, '')))); } catch (e) { fehler.push((e as Error).message); }
   }

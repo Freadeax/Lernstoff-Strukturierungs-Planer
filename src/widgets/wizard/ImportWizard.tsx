@@ -59,6 +59,7 @@ function WizardBody({ data, partial }: { data: WizardData; partial: boolean }) {
   const [files, setFiles] = useState<File[]>([]);
   const [touched, setTouched] = useState<Set<number>>(new Set());
   const [progress, setProgress] = useState<{ name: string; index: number } | null>(null);
+  const abbruch = useRef<AbortController | null>(null);
   const [results, setResults] = useState<ImportErgebnis[]>([]);
   const [savedAt, setSavedAt] = useState<string | null>(data.draft?.savedAt ?? null);
   const headRef = useRef<HTMLHeadingElement>(null);
@@ -88,8 +89,9 @@ function WizardBody({ data, partial }: { data: WizardData; partial: boolean }) {
 
   async function run() {
     setProgress({ name: files[0]?.name ?? '', index: 0 });
+    abbruch.current = new AbortController();
     try {
-      const r = await importiereDateien(files, { subjectId, handwritten, archive, onProgress: (name, index) => setProgress({ name, index }) });
+      const r = await importiereDateien(files, { subjectId, handwritten, archive, signal: abbruch.current.signal, onProgress: (name, index) => setProgress({ name, index }) });
       setResults(r);
       const ok = r.filter((x) => x.documentId).length;
       notify(r.some((e) => e.error || e.archiveError) ? 'warning' : 'info', `Import fertig: ${ok} ${ok === 1 ? 'Dokument' : 'Dokumente'} verfügbar`);
@@ -221,6 +223,7 @@ function WizardBody({ data, partial }: { data: WizardData; partial: boolean }) {
         {step > 0 && step < 3 && <button type="button" onClick={() => setStep(step - 1)} disabled={!!progress}>Zurück</button>}
         {step < 2 && <button type="button" className="primary" onClick={() => go(step + 1)}>Weiter</button>}
         {step === 2 && <button type="button" className="primary" onClick={run} disabled={!!progress || errors.some((e) => e.length)}>{progress ? 'Importiere …' : `${files.length} ${files.length === 1 ? 'Datei' : 'Dateien'} importieren`}</button>}
+        {step === 2 && progress && <button type="button" className="ghost" onClick={() => abbruch.current?.abort()}>Abbrechen</button>}
         {step === 3 && <>
           <button type="button" onClick={reset}>Weitere Dateien</button>
           <button type="button" className="primary" onClick={() => navigate('/material/zusammenfassen')}>Zusammenfassen</button>

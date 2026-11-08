@@ -2,15 +2,20 @@
 import JSZip from 'jszip';
 import { DOMParser } from '@xmldom/xmldom';
 import type { FileMeta, PageImage } from '../types';
+import { bildMasse, GRENZEN, pruefeXml, pruefeZip } from '../grenzen';
 
 export type El = Element;
 
 export async function openZip(bytes: Uint8Array) {
   const zip = await JSZip.loadAsync(bytes);
+  // Inhaltsverzeichnis prüfen, bevor irgendetwas entpackt wird (präparierte oder übergroße Office-Dateien).
+  pruefeZip(zip, 'Die Office-Datei');
   const xml = async (path: string): Promise<globalThis.Document | undefined> => {
     const f = zip.file(path);
     if (!f) return undefined;
-    return new DOMParser().parseFromString(await f.async('string'), 'text/xml') as unknown as globalThis.Document;
+    const text = await f.async('string');
+    pruefeXml(text, `Der Teil „${path}“ der Office-Datei`);
+    return new DOMParser().parseFromString(text, 'text/xml') as unknown as globalThis.Document;
   };
   return { zip, xml };
 }
@@ -99,7 +104,11 @@ export async function embeddedImages(zip: JSZip, part: Node, relMap: Map<string,
     if (!mediaType || !f) continue;
     seen.add(path);
     const bytes = await f.async('uint8array');
-    if (bytes.length >= BILD_MIN_BYTES) out.push({ bytes, mediaType });
+    if (bytes.length < BILD_MIN_BYTES) continue;
+    // Riesige Bilder (Bildpunkte) nicht an die Texterkennung geben, das sprengt den Speicher auf dem Handy.
+    const m = bildMasse(bytes);
+    if (!m || m.breite * m.hoehe > GRENZEN.bildPixel) continue;
+    out.push({ bytes, mediaType });
   }
   return out;
 }
