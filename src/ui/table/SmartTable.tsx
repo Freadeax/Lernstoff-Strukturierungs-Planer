@@ -118,8 +118,7 @@ export function SmartTable<R>(props: SmartTableProps<R>) {
   }
 
   return (
-    <div ref={scroller} className="stable" onScroll={onScroll} role="table" aria-label={label} aria-rowcount={rows.length + 1}
-      aria-multiselectable={selectable || undefined}>
+    <div ref={scroller} className="stable" onScroll={onScroll} role="table" aria-label={label} aria-rowcount={rows.length + 1}>
       <div role="rowgroup" className="stable__head">
         <div role="row" className="stable__row" style={template} aria-rowindex={1}>
           {selectable && (

@@ -327,13 +327,13 @@ export default function SisTrainer() {
 
         <form ref={eingabeRef} className="card sis__eingabe" onSubmit={(e) => { e.preventDefault(); pruefen(); }}>
           <div className="pills sis__abschnitte" role="tablist" aria-label="Teil der SIS">
-            <button type="button" role="tab" className="pill" aria-selected={abschnitt === 'B'} aria-pressed={abschnitt === 'B'} onClick={() => wechsle('B')}>
+            <button type="button" role="tab" className="pill" aria-selected={abschnitt === 'B'} onClick={() => wechsle('B')}>
               Feld B {felder.B.trim() ? '✓' : ''}
             </button>
-            <button type="button" role="tab" className="pill" aria-selected={abschnitt === 'TF'} aria-pressed={abschnitt === 'TF'} onClick={() => wechsle('TF')}>
+            <button type="button" role="tab" className="pill" aria-selected={abschnitt === 'TF'} onClick={() => wechsle('TF')}>
               Themenfelder {tfGefuellt}/6
             </button>
-            <button type="button" role="tab" className="pill" aria-selected={abschnitt === 'matrix'} aria-pressed={abschnitt === 'matrix'} onClick={() => wechsle('matrix')}>
+            <button type="button" role="tab" className="pill" aria-selected={abschnitt === 'matrix'} onClick={() => wechsle('matrix')}>
               Risikomatrix {matrixFertig}/6
             </button>
           </div>

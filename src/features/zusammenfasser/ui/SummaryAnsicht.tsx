@@ -75,7 +75,8 @@ export function SummaryAnsicht({ summary, chunkMap, titles, docs = new Map(), on
           if (cs.length === 1) {
             const c = cs[0];
             const zellen = c.text.replace(/^\|/, '').replace(/\|$/, '').split('|');
-            return <tr key={g.id} className={`claim ${c.status} ${shown?.id === c.id ? 'active' : ''}`} onClick={() => setShown(shown?.id === c.id ? null : c)}>{zellen.map((z, k) => <td key={k}>{z.trim()}</td>)}</tr>;
+            return <tr key={g.id} className={`claim ${c.status} ${shown?.id === c.id ? 'active' : ''}`} tabIndex={0} aria-label={`${c.text.replace(/\|/g, ' ').trim()}. Originalstelle zeigen`} onClick={() => setShown(shown?.id === c.id ? null : c)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShown(shown?.id === c.id ? null : c); } }}>{zellen.map((z, k) => <td key={k}>{z.trim()}</td>)}</tr>;
           }
           return <tr key={g.id}><td colSpan={9}>{cs.map(claimSpan)}</td></tr>;
         })}</tbody></table></div>);

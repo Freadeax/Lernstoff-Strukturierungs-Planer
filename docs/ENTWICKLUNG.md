@@ -66,3 +66,15 @@ begründet es im PR.
 - `package.json` → `overrides` hebt `glob` unter `workbox-build` auf eine Version ohne bekannte Lücken.
   Übrig bleibt `deepmerge` (niedrig, nur Build-Kette, kein Fix verfügbar).
 - Die Build-ID (Commit · Datum) steht unter Datensicherung und auf Fehlerseiten. Ein „+“ heißt: mit lokalen Änderungen gebaut.
+
+## Barrierefreiheit
+
+- `npm run test:barrierefreiheit` (Teil von `npm run check`) öffnet jede Menüseite aus `nav.ts` auf dem iPhone mit
+  sehr großer Schrift und prüft axe nach WCAG 2.2 AA, sichtbaren Tastaturfokus für die ersten 20 Tab-Schritte und
+  Textalternativen für SVG/Canvas. Ausnahmen stehen begründet in `AUSNAHMEN` im Skript (bisher nur die Zielgröße
+  der Landkartenknoten, weil sich die Karte zoomen lässt und die Suche gleichwertig auswählt).
+- Regeln: Reiter mit `role="tab"` tragen `aria-selected`, kein `aria-pressed`. Diagramme bekommen
+  `role="img"` mit einer `aria-label`, die die Zahlen nennt, oder eine Liste/Tabelle daneben. Anklickbare
+  Elemente ohne Button (z. B. Tabellenzeilen) brauchen `tabIndex={0}` und Enter/Leertaste. Schriftgrößen nur in rem.
+- `npm run test:lernalltag` prüft Dienstplan, liegen gebliebene Blöcke, Kompetenzbereiche, Kalenderexport,
+  Fundstelle, Original neben der Zusammenfassung, Lese-/Dublettenhinweise, Fehlerheft-Rückwege und Lernstufen.

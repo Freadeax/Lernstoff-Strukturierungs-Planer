@@ -108,7 +108,7 @@ export default function Karteikarten() {
       </div>
       {!sitzung && (
         <div className="pills karten__tabs" role="tablist" aria-label="Ansicht">
-          {ANSICHTEN.map((a) => <button key={a.id} type="button" role="tab" className="pill" aria-selected={ansicht === a.id} aria-pressed={ansicht === a.id} onClick={() => wechsel(a.id)}>{a.label}</button>)}
+          {ANSICHTEN.map((a) => <button key={a.id} type="button" role="tab" className="pill" aria-selected={ansicht === a.id} onClick={() => wechsel(a.id)}>{a.label}</button>)}
         </div>
       )}
       {fehler && <p className="note warn">Karteikarten konnten nicht geladen werden: {fehler}</p>}

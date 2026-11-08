@@ -139,9 +139,9 @@ export function Lehrkraft({ fall }: { fall: KlassenFall }) {
             <button type="button" className="small" onClick={csv}>Als Tabelle (CSV)</button>
           </div>
           <div className="pills klasse__tabs" role="tablist" aria-label="Aufgabe">
-            <button type="button" role="tab" className="pill" aria-selected={aufgabeId === 'alle'} aria-pressed={aufgabeId === 'alle'} onClick={() => setAufgabeId('alle')}>Alle</button>
+            <button type="button" role="tab" className="pill" aria-selected={aufgabeId === 'alle'} onClick={() => setAufgabeId('alle')}>Alle</button>
             {fall.aufgaben.map((a, i) => (
-              <button key={a.id} type="button" role="tab" className="pill" aria-selected={aufgabeId === a.id} aria-pressed={aufgabeId === a.id} onClick={() => setAufgabeId(a.id)}>Aufgabe {i + 1}</button>
+              <button key={a.id} type="button" role="tab" className="pill" aria-selected={aufgabeId === a.id} onClick={() => setAufgabeId(a.id)}>Aufgabe {i + 1}</button>
             ))}
           </div>
 

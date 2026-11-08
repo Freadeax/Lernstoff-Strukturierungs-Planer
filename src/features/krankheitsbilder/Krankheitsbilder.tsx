@@ -381,10 +381,10 @@ export default function Krankheitsbilder() {
         Lernhilfe, keine Behandlungsanweisung. Abschnitte mit grünem Hinweis stammen aus deinem Unterrichtsmaterial (mit Seite), alles mit „ungeprüft“ ist übliches Lehrbuchwissen und noch mit dem Unterricht abzugleichen. Es gelten ärztliche Anordnung und Hausstandard.
       </div>
       <div className="pills" role="tablist" aria-label="Ansicht">
-        <button type="button" role="tab" className="pill" aria-selected={ansicht === 'steckbriefe'} aria-pressed={ansicht === 'steckbriefe'} onClick={() => gehe({})}>
+        <button type="button" role="tab" className="pill" aria-selected={ansicht === 'steckbriefe'} onClick={() => gehe({})}>
           Steckbriefe <span className="pill__count">{PROFILE.length}</span>
         </button>
-        <button type="button" role="tab" className="pill" aria-selected={ansicht === 'faelle'} aria-pressed={ansicht === 'faelle'} onClick={() => gehe({ ansicht: 'faelle' })}>
+        <button type="button" role="tab" className="pill" aria-selected={ansicht === 'faelle'} onClick={() => gehe({ ansicht: 'faelle' })}>
           Fallaufgaben <span className="pill__count">{FAELLE.length}</span>
         </button>
       </div>
