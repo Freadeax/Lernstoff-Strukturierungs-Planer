@@ -7,7 +7,7 @@ import type { Document } from '../../core/types';
 import skript from './abholen.py?raw';
 import {
   AblageFehler, ladeOriginal, formatGroesse, ladeHoch, ladeZiel, listeDateien, parseRepo, pruefeRepo, readmeText, richteEin,
-  speichereZiel, teilAnzahl, type AblageZiel, type Eintrag, type Fortschritt, type RepoInfo,
+  speichereZiel, teilAnzahl, tokenDauerhaft, type AblageZiel, type Eintrag, type Fortschritt, type RepoInfo,
 } from './ablage';
 import './ablage.css';
 import { Field, useFormFeedback } from '../../ui/form/Field';
@@ -26,6 +26,7 @@ export default function Ablage() {
   const [ziel, setZiel] = useState<AblageZiel>(ladeZiel);
   const [repoEingabe, setRepoEingabe] = useState(() => { const z = ladeZiel(); return z.owner ? `${z.owner}/${z.repo}` : ''; });
   const [info, setInfo] = useState<RepoInfo | null>(null);
+  const [merken, setMerken] = useState(tokenDauerhaft);
   const [verbinden, setVerbinden] = useState('');
   const [fehler, setFehler] = useState('');
   const [liste, setListe] = useState<Eintrag[]>([]);
@@ -99,7 +100,7 @@ export default function Ablage() {
     if (!r) { setFehler('Repo bitte als „name/repo“ angeben, z. B. Freadeax/lernstoff-material.'); return; }
     if (!ziel.token.trim()) { setFehler('Bitte den Token einfügen.'); return; }
     const z = { ...r, token: ziel.token.trim() };
-    setZiel(z); speichereZiel(z); verbindeMit(z);
+    setZiel(z); speichereZiel(z, merken); verbindeMit(z);
   }
 
   function trennen() {
@@ -118,7 +119,12 @@ export default function Ablage() {
     const neu = Array.from(files).map((datei) => ({ id: naechsteId++, datei, status: 'wartet' as Status }));
     warteschlange.current.push(...neu);
     setAuftraege((alle) => [...alle, ...neu]);
-    if (!laeuftRef.current) abarbeiten();
+    // Kein automatischer Start: erst Liste und Ziel ansehen, dann bewusst übertragen.
+  }
+
+  function entferneWartende() {
+    warteschlange.current = warteschlange.current.filter((a) => a.status !== 'wartet');
+    setAuftraege((alle) => alle.filter((a) => a.status !== 'wartet'));
   }
 
   async function abarbeiten() {
@@ -168,6 +174,7 @@ export default function Ablage() {
 
   const gesamt = auftraege.reduce((s, a) => s + a.datei.size, 0);
   const erledigt = auftraege.reduce((s, a) => s + (a.status === 'fertig' || a.status === 'uebersprungen' ? a.datei.size : a.status === 'laeuft' ? a.fortschritt?.bytes ?? 0 : 0), 0);
+  const wartend = auftraege.filter((a) => a.status === 'wartet');
   const offen = auftraege.some((a) => a.status === 'fehler' || a.status === 'abgebrochen');
 
   return (
@@ -180,7 +187,7 @@ export default function Ablage() {
         {verbunden ? (
           <>
             <p>Verbunden mit <strong>{info!.vollerName}</strong> <span className="badge">privat</span></p>
-            <div className="row"><span className="muted">Token liegt nur auf diesem Gerät.</span><button className="small" onClick={trennen}>Trennen</button></div>
+            <div className="row"><span className="muted">{tokenDauerhaft() ? 'Token ist auf diesem Gerät gespeichert.' : 'Token gilt nur für diese Sitzung und ist nach dem Schließen der App weg.'}</span><button className="small" onClick={trennen}>Trennen</button></div>
           </>
         ) : (
           <form className="form-stack" noValidate onSubmit={(e) => { e.preventDefault(); if (feedback.validate(e.currentTarget)) speichern(); }}>
@@ -193,6 +200,8 @@ export default function Ablage() {
               {(props) => <input {...props} disabled={!!verbinden} type="password" autoComplete="off" autoCapitalize="none" spellCheck={false} placeholder="github_pat_…"
                 value={ziel.token} onBlur={() => feedback.touch('token')} onChange={(e) => setZiel({ ...ziel, token: e.target.value })} />}
             </Field>
+            <label className="check"><input type="checkbox" checked={merken} disabled={!!verbinden} onChange={(e) => setMerken(e.target.checked)} />
+              <span><strong>Token auf diesem Gerät merken</strong><br />Ohne Haken gilt er nur bis zum Schließen der App. Gemerkt liegt er unverschlüsselt im Browser-Speicher. Verwende einen Token mit Ablaufdatum, der nur dieses eine Repository darf.</span></label>
             <div className="row">
               <button type="submit" className="primary" disabled={!!verbinden}>Repository verbinden</button>
               {verbinden && <span className="muted" role="status">{verbinden}</span>}
@@ -202,7 +211,7 @@ export default function Ablage() {
               <ol>
                 <li>Auf github.com: <strong>+ → New repository</strong>. Name z. B. <code>lernstoff-material</code>, <strong>Private</strong> wählen, „Add a README file“ ankreuzen, Create.</li>
                 <li>Profilbild → <strong>Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token</strong>.</li>
-                <li>Repository access: <strong>Only select repositories</strong> → nur <code>lernstoff-material</code>. Permissions → Repository permissions → <strong>Contents: Read and write</strong>. Generate, Token kopieren.</li>
+                <li>Expiration: kurz wählen, z. B. <strong>30 Tage</strong>. Repository access: <strong>Only select repositories</strong> → nur <code>lernstoff-material</code>. Permissions → Repository permissions → <strong>Contents: Read and write</strong>. Generate, Token kopieren.</li>
                 <li>Hier Repo und Token eintragen und verbinden.</li>
                 <li>Damit Claude die Dateien abholen kann, das Repo in den Projekteinstellungen unter Repositories hinzufügen.</li>
               </ol>
@@ -227,7 +236,7 @@ export default function Ablage() {
           </div>
           <label className="upload">
             <input type="file" multiple disabled={laeuft || !!importBusy} onChange={(e) => { hinzufuegen(e.target.files); e.target.value = ''; }} />
-            <span>Dateien auswählen – beliebig viele, beliebig groß</span>
+            <span>Dateien auswählen – beliebig viele, beliebig groß. Du siehst die Liste, bevor etwas übertragen wird.</span>
           </label>
           <p className="muted">Tipp: Während des Uploads die App offen lassen. Bei einem Abbruch einfach dieselben Dateien erneut wählen: Fertiges wird übersprungen, bereits gesendete Teile nicht noch einmal übertragen.</p>
 
@@ -240,6 +249,16 @@ export default function Ablage() {
               <ul className="ablage__liste">
                 {auftraege.map((a) => <AuftragZeile key={a.id} a={a} />)}
               </ul>
+              {!laeuft && wartend.length > 0 && (
+                <div className="note" role="note">
+                  <strong>Bereit zum Übertragen</strong>
+                  <p>{wartend.length} {wartend.length === 1 ? 'Datei' : 'Dateien'} ({formatGroesse(wartend.reduce((s, a) => s + a.datei.size, 0))}) gehen an das private Repository <code>{info!.vollerName}</code>. Vor jeder Datei prüft die App erneut, ob es privat ist.{verarbeiten ? ' Danach werden unterstützte Dateien auf diesem Gerät eingelesen.' : ''}</p>
+                  <div className="row">
+                    <button type="button" className="primary" onClick={() => void abarbeiten()}>{wartend.length === 1 ? 'Datei' : `${wartend.length} Dateien`} jetzt übertragen</button>
+                    <button type="button" className="ghost small" onClick={entferneWartende}>Auswahl verwerfen</button>
+                  </div>
+                </div>
+              )}
               <div className="row">
                 {laeuft && <button className="danger small" onClick={() => abbruch.current?.abort()}>Abbrechen</button>}
                 {!laeuft && offen && <button className="small" onClick={erneut}>Fehlgeschlagene erneut versuchen</button>}

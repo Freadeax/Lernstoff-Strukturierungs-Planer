@@ -1,14 +1,25 @@
-// Gerätebezogene Einstellungen (API-Schlüssel). Bewusst nur im localStorage dieses Geräts,
-// nie in der exportierten Datensicherung.
+// Gerätebezogene Zugangsdaten (Claude-API-Schlüssel). Nie in der exportierten Datensicherung.
+// Standard: nur für die laufende Sitzung (sessionStorage, weg nach Schließen des Tabs bzw. der App).
+// Nur wer „auf diesem Gerät merken“ wählt, bekommt den Schlüssel dauerhaft in localStorage.
 const KEY = 'lernstoff.apiKey';
 
-export function getApiKey(): string {
-  try { return localStorage.getItem(KEY) ?? ''; } catch { return ''; }
+function lies(s: () => Storage): string {
+  try { return s().getItem(KEY) ?? ''; } catch { return ''; }
 }
 
-export function setApiKey(value: string) {
-  try {
-    if (value) localStorage.setItem(KEY, value.trim());
-    else localStorage.removeItem(KEY);
-  } catch { /* privater Modus: Schlüssel gilt nur für diese Sitzung nicht */ }
+export function getApiKey(): string {
+  return lies(() => sessionStorage) || lies(() => localStorage);
+}
+
+/** Liegt der Schlüssel dauerhaft auf dem Gerät (statt nur in dieser Sitzung)? */
+export function apiKeyDauerhaft(): boolean {
+  return !!lies(() => localStorage);
+}
+
+export function setApiKey(value: string, dauerhaft = false) {
+  const v = value.trim();
+  try { localStorage.removeItem(KEY); } catch { /* privater Modus */ }
+  try { sessionStorage.removeItem(KEY); } catch { /* privater Modus */ }
+  if (!v) return;
+  try { (dauerhaft ? localStorage : sessionStorage).setItem(KEY, v); } catch { /* Speicher gesperrt */ }
 }

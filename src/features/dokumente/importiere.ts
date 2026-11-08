@@ -42,6 +42,28 @@ async function ergaenzeStichproben(fps: Fingerprint[]): Promise<Fingerprint[]> {
   return fps;
 }
 
+/**
+ * Original nach erfolgreichem lokalem Einlesen ins private Material-Repo hochladen und die
+ * Dokumente damit verknüpfen. Ohne eingelesenes Dokument wird nichts übertragen.
+ */
+async function sichereOriginal(file: File, documentIds: Array<string | undefined>, i: number, onProgress?: (name: string, index: number) => void): Promise<Pick<ImportErgebnis, 'archive' | 'archiveError'>> {
+  const ids = documentIds.filter((d): d is string => !!d);
+  if (!ids.length) return { archive: 'Original wurde nicht hochgeladen, weil kein Dokument eingelesen wurde.' };
+  try {
+    const z = ladeZiel();
+    if (!z.owner || !z.repo || !z.token) throw new Error('Bitte unter „Große Dateien“ das private Material-Repo verbinden und die Datei danach erneut importieren.');
+    onProgress?.(`${file.name} – überträgt Original an ${z.owner}/${z.repo}`, i);
+    const info = await pruefeRepo(z);
+    if (!info.privat) throw new Error('Das Material-Repository muss privat sein.');
+    const upload = await ladeHoch(z, file, { branch: info.branch, vorhanden: await listeDateien(z) });
+    const repository = { owner: z.owner, repo: z.repo, ordner: upload.ordner };
+    await db.documents.bulkUpdate(ids.map((key) => ({ key, changes: { repository } })));
+    return { archive: `Original im privaten Material-Repo ${z.owner}/${z.repo} gespeichert.` };
+  } catch (e) {
+    return { archiveError: `Repo-Sicherung fehlgeschlagen, das Dokument bleibt lokal: ${e instanceof Error ? e.message : String(e)}` };
+  }
+}
+
 export async function importiereDateien(
   files: File[],
   opts: { subjectId: string; handwritten: boolean; archive?: boolean; repository?: Document['repository']; onProgress?: (name: string, index: number) => void },
@@ -53,23 +75,11 @@ export async function importiereDateien(
   try {
     for (const [i, file] of files.entries()) {
       opts.onProgress?.(file.name, i);
-      let repository = opts.repository;
-      let archive: string | undefined;
-      let archiveError: string | undefined;
+      const repository = opts.repository;
+      // Upload ins Material-Repo nur nach ausdrücklicher Auswahl (archive === true) und erst,
+      // nachdem die Datei lokal erfolgreich eingelesen wurde. Lokal ist der Standard.
+      const hochladen = opts.archive === true && !repository;
       try {
-        const z = ladeZiel();
-        if (repository) archive = 'Original liegt im privaten Material-Repo.';
-        else if (opts.archive ?? !!(z.owner && z.repo && z.token)) {
-          try {
-            if (!z.owner || !z.repo || !z.token) throw new Error('Bitte unter „Große Dateien“ das private Material-Repo verbinden und die Datei danach erneut importieren.');
-            opts.onProgress?.(`${file.name} – sichere Original im Material-Repo`, i);
-            const info = await pruefeRepo(z);
-            if (!info.privat) throw new Error('Das Material-Repository muss privat sein.');
-            const upload = await ladeHoch(z, file, { branch: info.branch, vorhanden: await listeDateien(z) });
-            repository = { owner: z.owner, repo: z.repo, ordner: upload.ordner };
-            archive = 'Original im privaten Material-Repo gespeichert.';
-          } catch (e) { archiveError = `Repo-Sicherung fehlgeschlagen: ${e instanceof Error ? e.message : String(e)}`; }
-        }
         opts.onProgress?.(file.name, i);
         if (file.size > 512 * 1024 * 1024) throw new Error('Diese Datei ist für das Einlesen auf Handy/iPad zu groß (über 512 MB). Bitte benötigte Dokumente oder Kapitel einzeln bzw. als kleinere ZIP hochladen.');
         if (/\.zip$/i.test(file.name)) {
@@ -78,15 +88,18 @@ export async function importiereDateien(
           if (!entries.length) throw new Error('Das ZIP enthält keine unterstützten Dokumente. Verschachtelte ZIP bitte zuerst entpacken.');
           if (entries.length > 500) throw new Error('Das ZIP enthält mehr als 500 Dokumente. Bitte kleinere Sammlungen hochladen.');
           let total = 0;
+          const kinder: ImportErgebnis[] = [];
           for (const entry of entries) {
             // ZIP-Metadaten vor dem Entpacken prüfen; schützt mobile Browser vor übergroßen Ausgaben.
             const size = (entry as unknown as { _data?: { uncompressedSize?: number } })._data?.uncompressedSize;
             if (typeof size !== 'number' || size > 128 * 1024 * 1024 || (total += size) > 512 * 1024 * 1024) throw new Error('Die entpackten Dokumente sind zu groß. Bitte kleinere Sammlungen verwenden. Bereits eingelesene Dokumente bleiben erhalten.');
             const bytes = await entry.async('uint8array');
             const child = new File([bytes as BlobPart], entry.name, { lastModified: entry.date.getTime() });
-            ergebnisse.push(...await importiereDateien([child], { ...opts, archive: false, repository, onProgress: (name) => opts.onProgress?.(name, i) }));
+            const r = await importiereDateien([child], { ...opts, archive: false, repository, onProgress: (name) => opts.onProgress?.(name, i) });
+            kinder.push(...r);
+            ergebnisse.push(...r);
           }
-          if (archiveError) ergebnisse.push({ name: file.name, archiveError });
+          if (hochladen) ergebnisse.push({ name: file.name, ...await sichereOriginal(file, kinder.map((k) => k.documentId), i, opts.onProgress) });
           continue;
         }
         const bytes = new Uint8Array(await file.arrayBuffer());
@@ -125,7 +138,9 @@ export async function importiereDateien(
           if (repository) await db.documents.update(documentId, { repository });
           await gleicheThemenAb(documentId);
         }
-        const ergebnis: ImportErgebnis = { name: file.name, report: result.report, documentId, archive, archiveError };
+        const ergebnis: ImportErgebnis = { name: file.name, report: result.report, documentId };
+        if (repository) ergebnis.archive = 'Original liegt im privaten Material-Repo.';
+        else if (hochladen) Object.assign(ergebnis, await sichereOriginal(file, [documentId], i, opts.onProgress));
         if (doppelt) result.report.warnings.push('Bereits als Dokument vorhanden. Es wurde keine zweite Kopie angelegt.');
         const r = result.report;
         await logActivity({
@@ -137,7 +152,7 @@ export async function importiereDateien(
       } catch (e) {
         const error = e instanceof Error ? e.message : String(e);
         await logActivity({ kind: 'import', severity: 'critical', title: `${file.name} nicht importiert`, detail: error, subjectIds: subjectId ? [subjectId] : undefined });
-        ergebnisse.push({ name: file.name, error, archive, archiveError });
+        ergebnisse.push({ name: file.name, error, ...(hochladen ? { archive: 'Original wurde nicht hochgeladen, weil das Einlesen gescheitert ist.' } : {}) });
       }
     }
   } finally {

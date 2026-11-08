@@ -1,4 +1,5 @@
-import { ladeZiel } from './ablage/ablage';
+import { RepoUploadAuswahl, bestaetigeRepoUpload } from './ablage/RepoUploadAuswahl';
+import { DatenHinweis } from '../ui/DatenHinweis';
 import { useEffect, useState } from 'react';
 import { liveQuery } from 'dexie';
 import { ThemenZuordnung } from './dokumente/ThemenZuordnung';
@@ -19,12 +20,13 @@ export function Dokumente() {
   const quelleOffen = useRoute().params.get('quelle');
   const [docs, setDocs] = useState<Document[]>([]);
   const [subjectId, setSubjectId] = useState(subjects[0]?.id ?? '');
-  const [archive, setArchive] = useState(() => !!ladeZiel().token);
+  const [archive, setArchive] = useState(false);
   const [handwritten, setHandwritten] = useState(false);
   const [busy, setBusy] = useState('');
   const [reports, setReports] = useState<ImportErgebnis[]>([]);
   const [open, setOpen] = useState<string | null>(null);
   const [chunks, setChunks] = useState<SourceChunk[]>([]);
+  const [loeschen, setLoeschen] = useState<string | null>(null);
 
   const reload = async () => setDocs(await db.documents.orderBy('importedAt').reverse().toArray().catch(() => db.documents.toArray()));
   useEffect(() => { const sub = liveQuery(async () => (await db.documents.toArray()).sort((a, b) => b.importedAt.localeCompare(a.importedAt))).subscribe(setDocs); return () => sub.unsubscribe(); }, []);
@@ -37,18 +39,22 @@ export function Dokumente() {
   async function onFiles(files: FileList | null) {
     if (!files?.length) return;
     try {
-      setReports(await importiereDateien(Array.from(files), { subjectId, handwritten, archive, onProgress: (name) => setBusy(`Lese ${name} …`) }));
+      const liste = Array.from(files);
+      const hochladen = archive && bestaetigeRepoUpload(liste);
+      setReports(await importiereDateien(liste, { subjectId, handwritten, archive: hochladen, onProgress: (name) => setBusy(`Lese ${name} …`) }));
     } finally {
       setBusy('');
       reload();
     }
   }
 
-  async function remove(id: string) {
-    if (!confirm('Dokument und seine Textabschnitte löschen?')) return;
+  async function remove(id: string, abgeleitete: boolean) {
     const title = docs.find((d) => d.id === id)?.title ?? 'Dokument';
-    await deleteDocument(id);
-    await logActivity({ kind: 'dokument', severity: 'warning', ref: id, title: `${title} gelöscht`, detail: 'Abgeleitete Zusammenfassungen sind zur Prüfung markiert.' });
+    const r = await deleteDocument(id, db, { abgeleitete });
+    await logActivity(abgeleitete
+      ? { kind: 'dokument', severity: 'warning', title: 'Dokument mit abgeleiteten Inhalten gelöscht', detail: `${r.zusammenfassungen} Zusammenfassungen, ${r.protokolle} KI-Protokolle, ${r.karten} Karteikarten entfernt.` }
+      : { kind: 'dokument', severity: 'warning', ref: id, title: `${title} gelöscht`, detail: 'Abgeleitete Zusammenfassungen sind zur Prüfung markiert.' });
+    setLoeschen(null);
     if (open === id) setOpen(null);
     reload();
   }
@@ -68,9 +74,10 @@ export function Dokumente() {
         </Field>
         <label className="check">
           <input type="checkbox" disabled={!!busy} checked={handwritten} onChange={(e) => setHandwritten(e.target.checked)} />
-          <span><strong>Handschrift erkennen</strong><br />Bilder werden dafür an Claude gesendet. Verwende keine Patientendaten.</span>
+          <span><strong>Handschrift erkennen</strong><br />Die Seitenbilder werden dafür mit deinem API-Schlüssel an Claude (Anthropic) gesendet. Nur Lernmaterial, keine echten Patientendaten.</span>
         </label>
-        <label className="check"><input type="checkbox" checked={archive} disabled={!!busy} onChange={(e) => setArchive(e.target.checked)} /><span>Originale zusätzlich im privaten Material-Repo speichern · <a href="#/material/ablage">Verbindung verwalten</a></span></label>
+        <RepoUploadAuswahl checked={archive} disabled={!!busy} onChange={setArchive} />
+        <DatenHinweis art="import" />
         <label className="upload">
           <input type="file" multiple accept={ACCEPT}
             disabled={!!busy || !subjectId} onChange={(e) => { onFiles(e.target.files); e.target.value = ''; }} />
@@ -106,8 +113,9 @@ export function Dokumente() {
               <strong>{d.title}</strong> <span className="muted">{d.kind.toUpperCase()}</span>
             </button>
             <a className="button-link" href={`#/material/zusammenfassen?dokument=${encodeURIComponent(d.id)}`}>Wichtigste Inhalte zusammenfassen</a>
-            <button className="danger small" onClick={() => remove(d.id)}>Löschen</button>
+            <button className="danger small" aria-expanded={loeschen === d.id} onClick={() => setLoeschen(loeschen === d.id ? null : d.id)}>Löschen</button>
           </div>
+          {loeschen === d.id && <LoeschDialog document={d} onAbbrechen={() => setLoeschen(null)} onLoeschen={(abgeleitete) => void remove(d.id, abgeleitete)} />}
           <ThemenZuordnung document={d} />
           <QuellenangabeEditor document={d} offen={quelleOffen === d.id} />
           {open === d.id && (
@@ -123,5 +131,26 @@ export function Dokumente() {
         </div>
       ))}
     </section>
+  );
+}
+
+/** Auswahl beim Löschen: nur die Quelle oder auch alles, was aus ihr entstanden ist. */
+function LoeschDialog({ document: d, onAbbrechen, onLoeschen }: { document: Document; onAbbrechen: () => void; onLoeschen: (abgeleitete: boolean) => void }) {
+  const [abgeleitete, setAbgeleitete] = useState(false);
+  const [anzahl, setAnzahl] = useState<number | null>(null);
+  useEffect(() => { void db.summaries.where('sourceDocumentIds').equals(d.id).count().then(setAnzahl).catch(() => setAnzahl(null)); }, [d.id]);
+  return (
+    <div className="note warn loesch-dialog" role="group" aria-label={`${d.title} löschen`}>
+      <strong>„{d.title}“ löschen</strong>
+      <label className="check"><input type="radio" name={`loeschen-${d.id}`} checked={!abgeleitete} onChange={() => setAbgeleitete(false)} />
+        <span><strong>Nur die Quelle</strong><br />Text, Seiten und Absätze dieses Dokuments. {anzahl ? `${anzahl} daraus erstellte ${anzahl === 1 ? 'Zusammenfassung bleibt' : 'Zusammenfassungen bleiben'} und ${anzahl === 1 ? 'wird' : 'werden'} zur Prüfung markiert.` : ''}</span></label>
+      <label className="check"><input type="radio" name={`loeschen-${d.id}`} checked={abgeleitete} onChange={() => setAbgeleitete(true)} />
+        <span><strong>Auch abgeleitete Inhalte</strong><br />Zusätzlich {anzahl ?? 'alle'} daraus erstellte Zusammenfassungen und Fragensätze, die Karteikarten daraus mit Lernstand, die zugehörigen KI-Protokolle (gespeicherte Claude-Antworten) und Aktivitätseinträge.</span></label>
+      <p className="muted">Kopien außerhalb dieses Browsers löscht die App nicht: {d.repository ? <>das Original im GitHub-Repository <code>{d.repository.owner}/{d.repository.repo}</code> (Ordner <code>{d.repository.ordner}</code>, auch in dessen Versionsgeschichte), </> : ''}heruntergeladene Exporte und ältere Datensicherungen. Bereits an Claude gesendete Inhalte verarbeitet Anthropic nach eigenen Regeln.</p>
+      <div className="row">
+        <button type="button" className="danger" onClick={() => onLoeschen(abgeleitete)}>{abgeleitete ? 'Quelle und Abgeleitetes löschen' : 'Nur Quelle löschen'}</button>
+        <button type="button" className="ghost" onClick={onAbbrechen}>Abbrechen</button>
+      </div>
+    </div>
   );
 }

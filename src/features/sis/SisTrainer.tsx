@@ -1,4 +1,5 @@
 import { storage } from '../../ui/lib/store';
+import { DatenHinweis } from '../../ui/DatenHinweis';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import './sis.css';
 import { logActivity } from '../../core/activity';
@@ -392,7 +393,7 @@ export default function SisTrainer() {
                   : <p className="muted">Für eine ausführliche Rückmeldung (Sicht der Person, fachliche Richtigkeit) einen API-Schlüssel hinterlegen. <button type="button" className="link" onClick={() => navigate('/einstellungen')}>Zu den Einstellungen</button></p>}
                 <button type="button" onClick={naechsterFall}>Nächster Fall</button>
               </div>
-              {apiKey && !ki && !kiLaeuft && <p className="muted">Gesendet werden nur der Übungsfall und deine SIS.</p>}
+              {apiKey && !ki && !kiLaeuft && <DatenHinweis art="ki" detail="Gesendet werden nur der Übungsfall und deine SIS." />}
               {kiFehler && <div className="note warn" role="alert">{kiFehler}</div>}
               <details>
                 <summary>Beispiel-SIS ansehen</summary>

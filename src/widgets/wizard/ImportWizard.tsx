@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState } from 'react';
-import { ladeZiel } from '../../features/ablage/ablage';
+import { RepoUploadAuswahl } from '../../features/ablage/RepoUploadAuswahl';
+import { DatenHinweis } from '../../ui/DatenHinweis';
 import { getApiKey } from '../../core/settings';
 import { Widget } from '../../ui/widget/Widget';
 import { useWidgetData } from '../../ui/widget/useWidgetData';
@@ -54,7 +55,7 @@ function WizardBody({ data, partial }: { data: WizardData; partial: boolean }) {
   const [step, setStep] = useState(data.draft?.step ? Math.min(data.draft.step, 1) : 0);
   const [subjectId, setSubjectId] = useState(data.draft?.subjectId ?? data.subjects[0]?.id ?? '');
   const [handwritten, setHandwritten] = useState(data.draft?.handwritten ?? false);
-  const [archive, setArchive] = useState(() => !!ladeZiel().token);
+  const [archive, setArchive] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [touched, setTouched] = useState<Set<number>>(new Set());
   const [progress, setProgress] = useState<{ name: string; index: number } | null>(null);
@@ -143,7 +144,7 @@ function WizardBody({ data, partial }: { data: WizardData; partial: boolean }) {
             </Field>
             <label className="check">
               <input type="checkbox" checked={handwritten} onChange={(e) => setHandwritten(e.target.checked)} />
-              <span><strong>Handschrift erkennen</strong><br />Nur aktivieren, wenn dein Material handschriftliche Notizen enthält. Die Bilder werden dafür an Claude gesendet. Verwende keine Patientendaten.</span>
+              <span><strong>Handschrift erkennen</strong><br />Nur aktivieren, wenn dein Material handschriftliche Notizen enthält. Die Die Seitenbilder werden dafür mit deinem API-Schlüssel an Claude (Anthropic) gesendet. Nur Lernmaterial, keine echten Patientendaten.</span>
             </label>
             {handwritten && !data.hasKey && <p className="note warn">Ohne API-Schlüssel geht Handschrift nicht. <button type="button" className="link" onClick={() => navigate('/einstellungen')}>Zu den Einstellungen</button></p>}
           </>
@@ -174,12 +175,14 @@ function WizardBody({ data, partial }: { data: WizardData; partial: boolean }) {
 
         {step === 2 && (
           <>
-            <label className="check"><input type="checkbox" checked={archive} disabled={!!progress} onChange={(e) => setArchive(e.target.checked)} /><span><strong>Originale auch im privaten Material-Repo speichern</strong><br />{ladeZiel().token ? 'Die Dateien bleiben zusätzlich als Originale im verbundenen Repository erhalten.' : <a href="#/material/ablage">Zuerst privates Material-Repo verbinden</a>}</span></label>
+            <RepoUploadAuswahl checked={archive} disabled={!!progress} onChange={setArchive} files={files} />
             <dl className="summary-list">
               <dt>Fach</dt><dd>{subjectName ?? '–'}</dd>
               <dt>Handschrift</dt><dd>{handwritten ? 'ja, Texterkennung über Claude' : 'nein'}</dd>
               <dt>Dateien</dt><dd>{files.map((f) => f.name).join(', ')}</dd>
+              <dt>Speicherort</dt><dd>{archive ? 'dieses Gerät, danach Original ins private Material-Repo' : 'nur dieses Gerät'}</dd>
             </dl>
+            <DatenHinweis art="import" />
             {progress
               ? <div className="note" role="status" aria-live="polite">Lese {progress.name} … ({progress.index + 1} von {files.length})
                   <progress max={files.length} value={progress.index} aria-label="Fortschritt" /></div>

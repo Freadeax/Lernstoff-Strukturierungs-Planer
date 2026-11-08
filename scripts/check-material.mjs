@@ -71,9 +71,13 @@ try {
     await page.getByRole('button', { name: 'Weiter', exact: true }).click();
     await page.locator('main input[type=file]').setInputFiles({ name: 'Assistent Sicherung.txt', mimeType: 'text/plain', buffer: Buffer.from('Weiterer Lernstoff aus dem Import-Assistenten.') });
     await page.getByRole('button', { name: 'Weiter', exact: true }).click();
-    assert(await page.getByLabel('Originale auch im privaten Material-Repo speichern', { exact: false }).isChecked());
+    const repoHaken = page.getByRole('checkbox', { name: /Originale zusätzlich im privaten Material-Repo/ });
+    assert.equal(await repoHaken.isChecked(), false, 'Repo-Upload darf nicht vorausgewählt sein');
+    await repoHaken.check();
+    await page.getByText('Was übertragen wird', { exact: true }).waitFor();
+    assert(await page.getByText('Assistent Sicherung.txt (', { exact: false }).first().isVisible());
     await page.getByRole('button', { name: '1 Datei importieren', exact: true }).click();
-    await page.getByText('Original im privaten Material-Repo gespeichert.', { exact: true }).waitFor();
+    await page.getByText('Original im privaten Material-Repo test/material gespeichert.', { exact: true }).waitFor();
     assert(writes > 0);
     assert.deepEqual(errors, []);
     console.log(`Materialablauf ${width}px: Browserimport, Themenpool, Zusammenfassen, Repo-Abruf und Assistent-Sicherung bestanden.`);

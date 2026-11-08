@@ -1,4 +1,5 @@
 import { storage } from '../../ui/lib/store';
+import { DatenHinweis } from '../../ui/DatenHinweis';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import './pflegeplanung.css';
 import { logActivity } from '../../core/activity';
@@ -497,7 +498,7 @@ export default function Pflegeplanung() {
                   {lernplan.uebernahme ? 'An den Lernplan übergeben' : 'Fertig: Ergebnis in den Lernplan'}
                 </button>
               </div>
-              {apiKey && !ki && !kiLaeuft && <p className="muted">Gesendet werden nur der Fall und deine Planung.</p>}
+              {apiKey && !ki && !kiLaeuft && <DatenHinweis art="ki" detail="Gesendet werden nur der Fall und deine Planung." />}
               {kiFehler && <div className="note warn" role="alert">{kiFehler}</div>}
               {!lernplan.uebernahme && (
                 <p className="muted">

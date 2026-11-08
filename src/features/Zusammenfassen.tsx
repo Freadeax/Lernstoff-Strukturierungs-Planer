@@ -1,4 +1,5 @@
 import { liveQuery } from 'dexie';
+import { DatenHinweis } from '../ui/DatenHinweis';
 import { ladeThemen } from '../core/topics';
 import type { Topic } from '../core/types';
 import { useRoute } from '../ui/shell/router';
@@ -261,6 +262,7 @@ export function Zusammenfassen() {
             : 'Liest Aussagen gegen die Quelle. Ein zusätzlicher Aufruf und bei Bedarf eine Korrekturrunde.'}</span></span></label>}
         </fieldset>
         <div className="form-actions"><p>{selected.size ? `${selected.size} ${selected.size === 1 ? 'Quelle ausgewählt' : 'Quellen ausgewählt'} · ${info.label}` : 'Wähle deine Quellen, um mit der Erstellung zu starten.'}</p><button className="primary" type="submit" disabled={!!busy || !hasKey}>{busy ? 'Wird erstellt …' : modus === 'pruefung' ? (mitFragen ? (mitUebersicht ? 'Fragen und Übersicht erstellen' : 'Fragen erstellen') : 'Lernzielübersicht erstellen') : modus === 'vergleich' ? 'Quellen vergleichen' : modus === 'arbeitsauftrag' ? 'Aufgaben bearbeiten' : 'Zusammenfassung erstellen'}</button></div>
+        {hasKey && <DatenHinweis art="ki" fiktiv={false} detail="Gesendet werden die Textabschnitte der ausgewählten Quellen. Steckt in deinen Unterlagen etwas zu echten Personen, nimm diese Quelle vorher heraus." />}
         {busy && <p className="note" role="status" aria-live="polite">{busy}</p>}
         {error && <div className="note warn" role="alert">{error}</div>}
       </form>

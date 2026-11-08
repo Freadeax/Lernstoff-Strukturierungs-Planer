@@ -50,10 +50,18 @@ export const ART_LABEL: Record<FallArt, string> = {
   krankheitsbild: 'Krankheitsbild-Fall', assessment: 'Assessment',
 };
 
-/** Fassung für die Klasse: ohne Lösung, wenn sie nie gezeigt werden soll. */
+/**
+ * Fassung für die Klasse: immer ohne Lösung. Ein Link ist nur kodiert, nicht verschlüsselt;
+ * eine eingebettete Lösung könnte jeder vor der Abgabe auslesen. Die Lösung geht deshalb
+ * getrennt über den Lösungslink (loesungsFassung), den die Lehrkraft nach der Frist verteilt.
+ */
 export function klassenFassung(fall: KlassenFall): KlassenFall {
-  if (fall.loesung === 'nach-abgabe') return fall;
   return { ...fall, aufgaben: fall.aufgaben.map(({ erwartung: _e, kernpunkte: _k, ...a }) => a) };
+}
+
+/** Fassung mit Lösung, die nach der Abgabe erscheint. Erst nach der Frist an die Klasse geben. */
+export function loesungsFassung(fall: KlassenFall): KlassenFall {
+  return { ...fall, loesung: 'nach-abgabe' };
 }
 
 export function hatLoesung(fall: KlassenFall): boolean {

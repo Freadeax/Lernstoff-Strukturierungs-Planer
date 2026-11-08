@@ -107,12 +107,45 @@ export async function deleteAll(database: LernstoffDB = db) {
   });
 }
 
-/** Ein Dokument mit Chunks, Fingerabdruck und davon abgeleiteten Zusammenfassungen löschen. */
-export async function deleteDocument(documentId: string, database: LernstoffDB = db) {
-  await database.transaction('rw', [database.documents, database.chunks, database.fingerprints, database.summaries], async () => {
+export interface LoeschErgebnis { zusammenfassungen: number; protokolle: number; karten: number }
+
+/**
+ * Ein Dokument löschen: Chunks, Fingerabdruck und nur von ihm stammende Absatztexte immer.
+ * „nur Quelle“ (Standard): abgeleitete Zusammenfassungen bleiben und werden zur Prüfung markiert.
+ * `abgeleitete: true`: auch Zusammenfassungen/Fragensätze aus dieser Quelle, daraus erzeugte
+ * Karteikarten samt Lernstand, die zugehörigen KI-Protokolle (Rohantworten) und Aktivitätseinträge.
+ */
+export async function deleteDocument(documentId: string, database: LernstoffDB = db, opts: { abgeleitete?: boolean } = {}): Promise<LoeschErgebnis> {
+  const ergebnis: LoeschErgebnis = { zusammenfassungen: 0, protokolle: 0, karten: 0 };
+  await database.transaction('rw', [database.documents, database.chunks, database.fingerprints, database.summaries, database.paragraphs, database.pipelineRuns, database.karten, database.kartenStand, database.activity], async () => {
+    // Absatztexte (Dublettenprüfung) enthalten Quelltext: weg, wenn kein anderes Dokument sie nutzt.
+    const fp = await database.fingerprints.get(documentId);
+    if (fp?.paragraphHashes?.length) {
+      const andere = new Set((await database.fingerprints.filter((f) => f.documentId !== documentId).toArray()).flatMap((f) => f.paragraphHashes ?? []));
+      await database.paragraphs.bulkDelete(fp.paragraphHashes.filter((h) => !andere.has(h)));
+    }
     await database.chunks.where('documentId').equals(documentId).delete();
     await database.fingerprints.delete(documentId);
-    await database.summaries.where('sourceDocumentIds').equals(documentId).modify({ needsReview: true });
+    const abgeleitet = database.summaries.where('sourceDocumentIds').equals(documentId);
+    if (!opts.abgeleitete) {
+      await abgeleitet.modify({ needsReview: true });
+    } else {
+      const summaries = await abgeleitet.toArray();
+      const ids = new Set(summaries.map((x) => x.id));
+      const runIds = new Set(summaries.map((x) => x.pipelineRunId).filter((x): x is string => !!x));
+      const runs = await database.pipelineRuns.filter((r) => runIds.has(r.id) || (!!r.ergebnisSummaryId && ids.has(r.ergebnisSummaryId)) || !!r.eingabe?.documentIds?.includes(documentId)).primaryKeys();
+      const ausQuelle = (id: string) => { const [art, sid] = id.split(':'); return (art === 'sum' || art === 'def' || art === 'pf') && ids.has(sid ?? ''); };
+      const karten = await database.karten.filter((k) => ausQuelle(String(k.id))).primaryKeys();
+      const stand = await database.kartenStand.filter((k) => ausQuelle(String(k.cardId))).primaryKeys();
+      await database.summaries.bulkDelete([...ids]);
+      await database.pipelineRuns.bulkDelete(runs);
+      await database.karten.bulkDelete(karten);
+      await database.kartenStand.bulkDelete(stand);
+      const refs = new Set<string>([documentId, ...ids]);
+      await database.activity.filter((a) => !!a.ref && refs.has(a.ref)).delete();
+      Object.assign(ergebnis, { zusammenfassungen: ids.size, protokolle: runs.length, karten: new Set([...karten, ...stand]).size });
+    }
     await database.documents.delete(documentId);
   });
+  return ergebnis;
 }
