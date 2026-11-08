@@ -49,8 +49,10 @@ function useNebenZaehler(modul: CatalogModule | undefined) {
   const [fehler, setFehler] = useState(() => ladeFehler());
   useEffect(() => {
     let aktiv = true;
-    Promise.all([modul ? zaehleHeute(modul).catch(() => ({ faellig: 0, neu: 0 })) : { faellig: 0, neu: 0 }, db.documents.count().catch(() => 0)])
-      .then(([k, docs]) => { if (aktiv) setZ({ ...k, docs }); });
+    Promise.all([modul ? zaehleHeute(modul).catch(() => ({ faellig: 0, neu: 0 })) : { faellig: 0, neu: 0 }, db.documents.count().catch(() => 0),
+      // Eigenes Material zählt als Spur: gespeicherte Karten (Katalogkarten werden nicht gespeichert) und Skripte.
+      db.karten.count().catch(() => 0), db.skripte.count().catch(() => 0)])
+      .then(([k, docs, karten, skripte]) => { if (aktiv) setZ({ ...k, docs: docs + karten + skripte }); });
     const neu = () => setFehler(ladeFehler());
     window.addEventListener('fehlerheft', neu);
     return () => { aktiv = false; window.removeEventListener('fehlerheft', neu); };

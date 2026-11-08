@@ -60,14 +60,24 @@ export default function ThemaSeite() {
   const { ctx } = usePlan();
   const { daten, setHaken } = useGeraeteDaten(modul);
   const quellen = useQuellen(id);
-  const [fehler] = useState(() => ladeFehler().filter((f) => istOffen(f) && f.topicIds.includes(id)));
+  // Bei Themenwechsel (nur der Parameter ändert sich, die Seite bleibt) neu filtern.
+  const [fehlerStand, setFehlerStand] = useState(0);
+  useEffect(() => {
+    const neu = () => setFehlerStand((n) => n + 1);
+    window.addEventListener('fehlerheft', neu);
+    return () => window.removeEventListener('fehlerheft', neu);
+  }, []);
+  const fehler = useMemo(() => ladeFehler().filter((f) => istOffen(f) && f.topicIds.includes(id)), [id, fehlerStand]);
 
   const topic = (modul.topics.find((t) => t.id === id) ?? ctx?.topics.get(id)) as CatalogTopic | undefined;
   const ce = useMemo(() => (topic ? ceZuThema(modul, id, liste) : undefined), [topic, modul, id, liste]);
   const eintrag: CeThema | undefined = useMemo(() => {
     if (!topic) return undefined;
     const ausCe = ce && ceThemen(modul, ce, daten.skripte, liste).find((t) => t.topic.id === id);
-    return ausCe ?? { topic, herkunft: ['katalog'], skriptIds: daten.skripte.filter((s) => s.topicIds.includes(id)).map((s) => s.id) };
+    // Alle Skripte zum Thema, auch aus anderen Gruppen (z. B. LEB 5), nicht nur die der CE.
+    const zumThema = daten.skripte.filter((s) => s.topicIds.includes(id)).map((s) => s.id);
+    const skriptIds = [...new Set([...(ausCe?.skriptIds ?? []), ...zumThema])];
+    return ausCe ? { ...ausCe, skriptIds } : { topic, herkunft: ['katalog'], skriptIds };
   }, [topic, ce, modul, daten.skripte, liste, id]);
   const fakten = useMemo(() => {
     if (!eintrag) return undefined;
