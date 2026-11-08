@@ -91,6 +91,8 @@ export function Zusammenfassen() {
     db.chunks.where('documentId').anyOf(current.sourceDocumentIds).toArray().then((cs) => setChunkMap(new Map(cs.map((c) => [c.id, c]))));
   }, [current]);
   const titles = useMemo(() => new Map(docs.map((d) => [d.id, d.title])), [docs]);
+  const docMap = useMemo(() => new Map(docs.map((d) => [d.id, d])), [docs]);
+  const aendereSummary = async (s: Summary) => { setCurrent(s); await db.summaries.put(s); };
   const topic = topics.find((t) => t.name.toLowerCase() === thema.trim().toLowerCase());
   const info = MODI.find((m) => m.id === modus)!;
   const [wissenAusPlan, setWissenAusPlan] = useState(false);
@@ -153,7 +155,7 @@ export function Zusammenfassen() {
           pruefung: { name: pruefName, datum: pruefDatum, lernziele: ziele }, onSchritt: (s) => setBusy(`Lernzielübersicht: ${SCHRITT_TEXT[s]}`),
         }, setBusy);
         await speichere(summary, run, `Lernzielübersicht: ${pruefName || 'Übungsprüfung'}`,
-          summary.qa ? `${summary.qa.statistik.belegt} von ${summary.qa.statistik.claims} Aussagen belegt` : undefined,
+          summary.qa ? `${summary.qa.statistik.belegt} von ${summary.qa.statistik.claims} Aussagen ohne Prüfbefund, fachliche Freigabe offen` : undefined,
           summary.qa?.ampel === 'rot' ? 'critical' : summary.qa?.ampel === 'gelb' ? 'warning' : 'info');
       }
       if (mitFragen) {
@@ -176,7 +178,7 @@ export function Zusammenfassen() {
       onSchritt: (s) => setBusy(SCHRITT_TEXT[s]),
     }, setBusy);
     await speichere(summary, run, `${MODUS_TEXT[modus]}: ${thema || auswahl.map((d) => d.title).join(', ')}`,
-      summary.qa ? `${summary.qa.statistik.belegt} von ${summary.qa.statistik.claims} Aussagen belegt` : undefined,
+      summary.qa ? `${summary.qa.statistik.belegt} von ${summary.qa.statistik.claims} Aussagen ohne Prüfbefund, fachliche Freigabe offen` : undefined,
       summary.qa?.ampel === 'rot' ? 'critical' : summary.qa?.ampel === 'gelb' ? 'warning' : 'info');
   });
 
@@ -266,7 +268,7 @@ export function Zusammenfassen() {
       {current && istFragenSatz(current) && <FragenAnsicht key={current.id} satz={current} chunkMap={chunkMap} titles={titles} />}
       {current && istVergleich(current) && <VergleichsAnsicht key={current.id} ergebnis={current} chunkMap={chunkMap} titles={titles} />}
       {current && !istFragenSatz(current) && !istVergleich(current) && (
-        <div className="card"><SummaryAnsicht key={current.id} summary={current} chunkMap={chunkMap} titles={titles} /></div>
+        <div className="card"><SummaryAnsicht key={current.id} summary={current} chunkMap={chunkMap} titles={titles} docs={docMap} onAendern={aendereSummary} /></div>
       )}
 
       {summaries.length > 0 && (
