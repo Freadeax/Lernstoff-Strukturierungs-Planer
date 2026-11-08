@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { deleteAll } from '../core/db';
-import { loescheLokaleEintraege } from '../core/sicherung';
+import { loescheLokaleEintraege, loescheRueckfall } from '../core/sicherung';
 import { navigate } from '../ui/shell/router';
 import { apiKeyDauerhaft, getApiKey, setApiKey } from '../core/settings';
 import { Field, useFormFeedback } from '../ui/form/Field';
@@ -26,7 +26,7 @@ export function Einstellungen() {
   }
   async function wipe() {
     if (!confirm('Wirklich alle lokal gespeicherten Daten löschen? Ohne Sicherung ist dein Lernstand danach weg.')) return;
-    try { await deleteAll(); loescheLokaleEintraege(); setSaveError(''); }
+    try { await deleteAll(); loescheLokaleEintraege(); await loescheRueckfall(); setSaveError(''); }
     catch { setSaveError('Die Daten konnten nicht vollständig gelöscht werden. Bitte versuche es erneut.'); }
   }
   return <section className="page">

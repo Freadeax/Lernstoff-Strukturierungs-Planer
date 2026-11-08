@@ -2,7 +2,7 @@ import 'fake-indexeddb/auto';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { LernstoffDB } from './db';
 import { brauchtErinnerung } from '../features/sicherung/erinnerung';
-import { dekodiere, erstelleSicherung, fuehreWertZusammen, kodiere, ladeRueckfall, lesePruefe, spieleEin, stelleRueckfallWiederHer } from './sicherung';
+import { dekodiere, erstelleSicherung, fuehreWertZusammen, kodiere, ladeRueckfall, lesePruefe, loescheRueckfall, spieleEin, stelleRueckfallWiederHer } from './sicherung';
 
 // Node hat kein localStorage: einfacher Ersatz im Speicher.
 class Speicher {
@@ -108,6 +108,15 @@ describe('Datensicherung', () => {
     await stelleRueckfallWiederHer(geraet);
     expect((await geraet.subjects.toArray()).map((x) => x.id)).toEqual(['alt']);
     expect(ls.getItem('lernstoff.mindmaps')).toContain('m-hier');
+    // Scheitert das Ersetzen, bleibt die bisherige Rückfallsicherung erhalten
+    const vorher = (await ladeRueckfall(geraet))!.text;
+    const kaputt = { ...datei, data: { ...datei.data, subjects: [{ name: 'ohne Schlüssel' }] } };
+    await expect(spieleEin(kaputt, 'ersetzen', geraet)).rejects.toThrow();
+    expect((await ladeRueckfall(geraet))!.text).toBe(vorher);
+    expect((await geraet.subjects.toArray()).map((x) => x.id)).toEqual(['alt']);
+    // „Alle Lerndaten löschen“ entfernt auch die Rückfallsicherung
+    await loescheRueckfall(geraet);
+    expect(await ladeRueckfall(geraet)).toBeUndefined();
     // Zusammenführen braucht keine Rückfallsicherung
     expect((await spieleEin(datei, 'zusammenfuehren', geraet)).rueckfall).toBeUndefined();
   });
