@@ -28,8 +28,8 @@ export function Wissensstand({ ctx }: { ctx: PlanCtx }) {
 
   return <div className="stack-2 wissensstand">
     <div className="card heute__kopf">
-      <h3>Was kannst du schon abrufen?</h3>
-      <p>Alle Themen aus Katalog und eigenen Materialien, auch ohne Prüfungstermin. Bearbeiteter Stoff ist noch kein Wissensnachweis. Sicher wird ein Thema erst durch erfolgreiche Abfragen an mehreren Tagen.</p>
+      <h3>Wissensstand aus Abfragen</h3>
+      <p>Was kannst du schon abrufen? Alle Themen aus Katalog und eigenen Materialien, auch ohne Prüfungstermin. Bearbeiteter Stoff ist noch kein Wissensnachweis. Sicher wird ein Thema erst durch erfolgreiche Abfragen an mehreren Tagen. Deinen Arbeitsstand sortierst du getrennt davon im <a href="#/lernen/board">Themenboard</a>.</p>
       <div className="wissensstand__filter">
         <label className="field">Themen suchen
           <input type="search" value={suche} onChange={(e) => { setSuche(e.target.value); reset(); }} placeholder="Thema eingeben …" />

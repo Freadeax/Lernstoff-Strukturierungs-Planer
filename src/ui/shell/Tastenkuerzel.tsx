@@ -6,11 +6,11 @@ import { navigate } from './router';
 // Kürzel greifen nicht, solange in ein Feld getippt wird.
 
 export const SPRUENGE: Array<[string, string, string]> = [
-  ['1', '/', 'Übersicht'],
+  ['1', '/', 'Heute'],
   ['2', '/lernen/plan', 'Lernplan'],
-  ['3', '/lernen/themen', 'Themen'],
-  ['4', '/lernen/karten', 'Karteikarten'],
-  ['5', '/material/dokumente', 'Dokumente'],
+  ['3', '/material/dokumente', 'Material'],
+  ['4', '/lernen/ueben', 'Üben'],
+  ['5', '/lernen/karten', 'Karteikarten'],
 ];
 
 export const kuerzelHilfe = createStore({ offen: false });

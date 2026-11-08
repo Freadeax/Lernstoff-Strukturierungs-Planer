@@ -123,7 +123,7 @@ export interface Uebersicht {
 }
 
 const LABEL: Record<string, string> = {
-  documents: 'Dokumente', summaries: 'Zusammenfassungen', exams: 'Prüfungstermine', board: 'Themen auf dem Lernstand-Board',
+  documents: 'Dokumente', summaries: 'Zusammenfassungen', exams: 'Prüfungstermine', board: 'Themen auf dem Themenboard',
   studyLogs: 'erfasste Lernzeiten', reviewLogs: 'Abfrageergebnisse im Lernplan', karten: 'eigene Karteikarten',
   kartenStand: 'Karteikarten mit Lernstand', kartenLogs: 'Karteikarten-Antworten', activity: 'Einträge im Verlauf',
   pipelineRuns: 'protokollierte Zusammenfasser-Läufe',

@@ -43,7 +43,7 @@ export function fieldsFor(subjects: Array<{ id: string; name: string; code?: str
 
 export function columnsFor(onStand?: (row: ThemaRow, value: BoardColumn) => void): Column<ThemaRow>[] {
   return [
-    { key: 'name', label: 'Thema', width: 260, minWidth: 140, sticky: true, value: (r) => r.name, render: (r) => <span className="stable__text" title={r.name}>{r.name}</span> },
+    { key: 'name', label: 'Thema', width: 260, minWidth: 140, sticky: true, value: (r) => r.name, render: (r) => <a className="stable__text" title={r.name} href={`#/lernen/thema?id=${encodeURIComponent(r.id)}`}>{r.name}</a> },
     { key: 'fach', label: 'Fach', width: 80, value: (r) => r.fach },
     { key: 'bereich', label: 'Bereich', width: 200, value: (r) => r.bereich, render: (r) => <span className="stable__text muted" title={r.bereich}>{r.bereich}</span> },
     { key: 'schwierigkeit', label: 'Schwierigkeit', width: 130, align: 'end', value: (r) => r.schwierigkeit, render: (r) => r.schwierigkeit ? <span className="diff" title={DIFF[r.schwierigkeit]}>{'●'.repeat(r.schwierigkeit)}<span className="diff__off">{'●'.repeat(5 - r.schwierigkeit)}</span></span> : '–' },

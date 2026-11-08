@@ -1,6 +1,5 @@
 import { useId } from 'react';
 import { useStore } from '../../ui/lib/store';
-import { timeZones } from '../../ui/lib/time';
 import { Icon } from '../../ui/icons';
 import { getModule } from '../../modules/registry';
 import { session } from '../../ui/shell/session';
@@ -8,7 +7,7 @@ import { drillUp, filterStore, presetRange } from './filterStore';
 
 const PRESETS = [[7, '7 Tage'], [14, '14 Tage'], [30, '30 Tage'], [90, '90 Tage']] as const;
 
-/** Globale Filterleiste für die Übersicht: Zeitraum mit Zeitzone und Fach. */
+/** Globale Filterleiste für die Übersicht: Zeitraum und Fach. Die Zeitzone steht in den Einstellungen. */
 export function FilterBar() {
   const f = useStore(filterStore, (s) => s);
   const moduleId = useStore(session, (s) => s.moduleId);
@@ -42,12 +41,6 @@ export function FilterBar() {
           <span>Bis</span>
           <input type="date" value={f.to} min={f.from} aria-invalid={invalid}
             onChange={(e) => e.target.value && filterStore.set({ to: e.target.value, previous: undefined })} />
-        </label>
-        <label className="field">
-          <span>Zeitzone</span>
-          <select value={f.timeZone} onChange={(e) => filterStore.set({ timeZone: e.target.value })}>
-            {timeZones().map((tz) => <option key={tz} value={tz}>{tz.replace(/_/g, ' ')}</option>)}
-          </select>
         </label>
         <label className="field">
           <span>Fach</span>

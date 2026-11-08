@@ -223,7 +223,7 @@ function Weiterlernen({ id }: { id: string }) {
   const steckbriefe = krankheitenZuFall(PRAXIS_KRANKHEITEN, id).flatMap(k => profile.filter(p => p.id === k));
   if (!ids.length) return null;
   return <div className="praxis-weiter"><h4>Weiterlernen zu diesem Fall</h4><p className="muted">Diese Lernthemen hat der Fall geübt. Lücken aus dem Debriefing schließt du am besten gleich dort.</p>
-    <ul>{ids.map(t => <li key={t}><a href={`#/lernen/themen?thema=${encodeURIComponent(t)}`}>{topics.find(x => x.id === t)?.name ?? t}</a><span className="praxis-weiter__links"><a href={`#/lernen/karten?thema=${encodeURIComponent(t)}`}>Karteikarten</a> · <a href={`#/lernen/skript?thema=${encodeURIComponent(t)}`}>Skript</a></span></li>)}</ul>
+    <ul>{ids.map(t => <li key={t}><a href={`#/lernen/thema?id=${encodeURIComponent(t)}`}>{topics.find(x => x.id === t)?.name ?? t}</a><span className="praxis-weiter__links"><a href={`#/lernen/karten?thema=${encodeURIComponent(t)}`}>Karteikarten</a> · <a href={`#/lernen/skript?thema=${encodeURIComponent(t)}`}>Skript</a></span></li>)}</ul>
     {steckbriefe.length > 0 && <p>Krankheitsbild nachlesen: {steckbriefe.map((p, i) => <span key={p.id}>{i > 0 && ' · '}<a href={`#/lernen/krankheitsbilder?kb=${encodeURIComponent(p.id)}`}>{p.name}</a></span>)}</p>}</div>;
 }
 

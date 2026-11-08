@@ -236,7 +236,7 @@ export function BoardView({ id, state, badge, onRetry, lastSynced, onHide, lifec
   return (
     <Widget<BoardData, Pill> id={id} state={state} onRetry={onRetry} skeleton={<BoardSkeleton />} lifecycle={lifecycle}
       header={{
-        title: 'Lernstand-Board', subtitle: 'Arbeitsstand je Thema. Sicher ist ein Thema erst nach erfolgreichen Abfragen.', badge, onHide,
+        title: 'Mein Themenboard', subtitle: 'Woran du arbeitest, von dir sortiert. Ob ein Thema sitzt, zeigt der Wissensstand aus Abfragen im Lernplan.', badge, onHide,
         filters: [{ key: 'alle', label: 'Alle' }, { key: 'leicht', label: 'Leicht' }, { key: 'schwer', label: 'Schwer' }],
         activeFilter: pill, onFilterChange: setPill,
         exportRows: cols ? () => Object.values(cols).flat().map((c) => ({ thema: c.name, fach: c.fach, stand: COLUMN_LABEL[c.column] })) : undefined,

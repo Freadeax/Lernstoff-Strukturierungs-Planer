@@ -189,7 +189,7 @@ function Verknuepfungen({ p }: { p: DiseaseProfile }) {
         <h3>Katalogthemen</h3>
         <ul className="kb__links">
           {themen.map((t) => (
-            <li key={t}><button type="button" className="link" onClick={() => navigate(`/lernen/themen?thema=${encodeURIComponent(t)}`)}>{THEMEN.get(t)?.name ?? t}</button></li>
+            <li key={t}><button type="button" className="link" onClick={() => navigate(`/lernen/thema?id=${encodeURIComponent(t)}`)}>{THEMEN.get(t)?.name ?? t}</button></li>
           ))}
         </ul>
       </section>

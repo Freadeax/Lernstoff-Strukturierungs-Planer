@@ -15,6 +15,9 @@ export interface GlobalFilter {
 }
 
 const KEY = 'lernstoff.filter';
+/** Zeitzone ist eine Geräte-Einstellung (Einstellungen), unabhängig von „Filter merken“. */
+const ZONE = 'lernstoff.zeitzone';
+const gespeicherteZone = () => storage.read<string>(ZONE, '', 'local', (v) => typeof v === 'string');
 
 export function defaultFilter(now = new Date(), timeZone = DEFAULT_TZ): GlobalFilter {
   const to = dayKey(now, timeZone);
@@ -24,7 +27,9 @@ export function defaultFilter(now = new Date(), timeZone = DEFAULT_TZ): GlobalFi
 function initial(): GlobalFilter {
   const passt = (v: unknown) => istObjekt(v) && typeof v.from === 'string' && typeof v.to === 'string';
   const saved = storage.read<GlobalFilter | null>(KEY, null, 'local', passt) ?? storage.read<GlobalFilter | null>(KEY, null, 'session', passt);
-  return saved ? { ...defaultFilter(), ...saved, previous: undefined } : defaultFilter();
+  const zone = gespeicherteZone();
+  const basis = saved ? { ...defaultFilter(), ...saved, previous: undefined } : defaultFilter(undefined, zone || undefined);
+  return zone ? { ...basis, timeZone: zone } : basis;
 }
 
 export const filterStore = createStore<GlobalFilter>(initial(), (f) => {
@@ -50,4 +55,10 @@ export function drillDown(day: string) {
 
 export function drillUp() {
   filterStore.set((f) => (f.previous ? { ...f, ...f.previous, previous: undefined } : f));
+}
+
+/** Zeitzone für Kalendertage in Übersicht und Verlauf setzen und auf dem Gerät merken. */
+export function setzeZeitzone(timeZone: string) {
+  storage.write(ZONE, timeZone);
+  filterStore.set({ timeZone });
 }

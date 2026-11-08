@@ -17,7 +17,7 @@ function buildIndex(moduleId: string, roles: Parameters<typeof visibleNav>[1]): 
   return new Trie<Hit>([
     ...flatNav(visibleNav(NAV, roles)).map((n): Hit => ({ id: `nav:${n.id}`, type: 'Seite', label: n.label, to: n.path })),
     ...(mod?.subjects ?? []).map((s): Hit => ({ id: `fach:${s.id}`, type: 'Fach', label: s.name, keywords: s.code ? [s.code] : [], to: `/lernen/themen?fach=${encodeURIComponent(s.id)}` })),
-    ...(mod?.topics ?? []).map((t): Hit => ({ id: `thema:${t.id}`, type: 'Thema', label: t.name, hint: subjectName.get(t.subjectId), to: `/lernen/themen?thema=${encodeURIComponent(t.id)}` })),
+    ...(mod?.topics ?? []).map((t): Hit => ({ id: `thema:${t.id}`, type: 'Thema', label: t.name, hint: subjectName.get(t.subjectId), to: `/lernen/thema?id=${encodeURIComponent(t.id)}` })),
     ...(mod?.glossary ?? []).map((g, i): Hit => ({
       id: `begriff:${i}`, type: 'Begriff', label: g.term, keywords: g.abbreviation ? [g.abbreviation] : [], hint: g.abbreviation, definition: g.definition,
     })),

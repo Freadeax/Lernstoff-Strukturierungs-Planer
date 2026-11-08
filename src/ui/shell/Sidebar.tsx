@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Icon } from '../icons';
 import { useStore } from '../lib/store';
 import { isActive, useRoute } from './router';
-import { NAV, visibleNav, type NavItem } from './nav';
+import { flatNav, NAV, TABS, visibleNav, type NavItem } from './nav';
 import { session } from './session';
 
 function NavTree({ items, level, path, collapsed }: { items: NavItem[]; level: number; path: string; collapsed: boolean }) {
@@ -14,8 +14,8 @@ function NavTree({ items, level, path, collapsed }: { items: NavItem[]; level: n
 }
 
 function NavEntry({ item, level, path, collapsed }: { item: NavItem; level: number; path: string; collapsed: boolean }) {
-  const containsActive = !!item.children?.some((c) => c.path && isActive(c.path, path));
-  const [open, setOpen] = useState(item.id !== 'ueben' || containsActive);
+  const containsActive = flatNav(item.children ?? []).some((c) => isActive(c.path!, path));
+  const [open, setOpen] = useState(!item.zu || containsActive);
   useEffect(() => { if (containsActive) setOpen(true); }, [containsActive]);
   const close = () => session.set({ drawerOpen: false });
 
@@ -102,17 +102,14 @@ export function Sidebar() {
 
 export function TabBar() {
   const { path } = useRoute();
-  const roles = useStore(session, (s) => s.roles);
   const drawer = useStore(session, (s) => s.drawerOpen);
-  const flat = (items: NavItem[]): NavItem[] => items.flatMap((i) => [...(i.tab ? [i] : []), ...flat(i.children ?? [])]);
-  const tabs = flat(visibleNav(NAV, roles)).filter((t) => ['uebersicht', 'plan', 'karten', 'dokumente'].includes(t.id));
   return (
     <nav className="shell__tabbar" aria-label="Schnellzugriff" inert={drawer}>
-      {tabs.map((t) => {
-        const active = t.path === '/' ? path === '/' : isActive(t.path!, path);
+      {TABS.map((t) => {
+        const active = t.bereich(path);
         return (
           <a key={t.id} href={`#${t.path}`} className={`tab${active ? ' tab--active' : ''}`} aria-current={active ? 'page' : undefined}>
-            {t.icon && <Icon name={t.icon} size={22} />}
+            <Icon name={t.icon} size={22} />
             <span>{t.label}</span>
           </a>
         );
