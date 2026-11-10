@@ -18,10 +18,10 @@ export function raumElemente(scenario: Pick<Scenario, 'setting'>): Record<RaumEl
   const r = RESOURCES[scenario.setting];
   const zuhause = r.longVisits;
   return {
-    patient: { label: zuhause ? 'Patientin/Patient im Sessel' : 'Patientin/Patient im Bett', kurz: 'Patient', zweck: 'Ansehen, ansprechen, untersuchen', pos: { x: 0, y: 0.6, z: 0 }, svg: { x: 36, y: 50 } },
-    monitor: { label: r.monitor ? 'Monitor und Messgeräte' : 'Messgeräte aus der Pflegetasche', kurz: r.monitor ? 'Monitor' : 'Messgeräte', zweck: 'Messen und Verlauf ablesen', pos: { x: 1.2, y: 1.4, z: -0.6 }, svg: { x: 69, y: 22 } },
-    wagen: { label: zuhause ? 'Pflegetasche und Material' : 'Materialwagen', kurz: zuhause ? 'Material' : 'Materialwagen', zweck: 'Material richten, pflegerisch handeln', pos: { x: 1.6, y: 0.8, z: 0.8 }, svg: { x: 87, y: 60 } },
-    telefon: { label: zuhause ? 'Diensthandy' : 'Stationstelefon', kurz: 'Telefon', zweck: 'Team, Ärztin und Diagnostik erreichen', pos: { x: -1.8, y: 1.1, z: -0.9 }, svg: { x: 13, y: 26 } },
+    patient: { label: zuhause ? 'Patientin/Patient im Sessel' : 'Patientin/Patient im Bett', kurz: 'Patient', zweck: 'Ansehen, ansprechen, untersuchen', pos: { x: 0, y: 0.6, z: 0 }, svg: { x: 50, y: 66 } },
+    monitor: { label: r.monitor ? 'Monitor und Messgeräte' : 'Messgeräte aus der Pflegetasche', kurz: r.monitor ? 'Monitor' : 'Messgeräte', zweck: 'Messen und Verlauf ablesen', pos: { x: 1.2, y: 1.4, z: -0.6 }, svg: { x: 81, y: 42 } },
+    wagen: { label: zuhause ? 'Pflegetasche und Material' : 'Materialwagen', kurz: zuhause ? 'Material' : 'Materialwagen', zweck: 'Material richten, pflegerisch handeln', pos: { x: 1.6, y: 0.8, z: 0.8 }, svg: { x: 91, y: 50 } },
+    telefon: { label: zuhause ? 'Diensthandy' : 'Stationstelefon', kurz: 'Telefon', zweck: 'Team, Ärztin und Diagnostik erreichen', pos: { x: -1.8, y: 1.1, z: -0.9 }, svg: { x: 19, y: 48 } },
   };
 }
 

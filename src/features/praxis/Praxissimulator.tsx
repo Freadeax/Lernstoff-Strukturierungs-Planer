@@ -11,6 +11,9 @@ import { SCENARIOS, RESOURCES } from './catalog';
 import { CHECKS, clinicalDebrief, clock, consciousness, debrief, dispatch, ketten, replay, sbarPruefung, SOURCES, start, wegLabel } from './engine';
 import { blick, handlungenFuer, RAUM_ELEMENTE, raumElemente, type RaumElement } from './raum';
 import { News2Badge, VitalKurve } from './VitalKurve';
+import { Szene } from './Szene';
+import { PatientenMonitor } from '../../ui/sim/PatientenMonitor';
+import './szene.css';
 import { archive, download, parseScenario, readArchive, readSession, saveSession } from './storage';
 import { xapiDraft } from './tracking';
 import { SchichtAnsicht } from './Schicht';
@@ -45,30 +48,12 @@ function leseAnsicht(): 'raum' | 'liste' { try { return localStorage.getItem(ANS
  * was man dort sofort wahrnimmt, und die Handlungen an diesem Element. Die Liste bietet dieselben
  * Elemente und Handlungen für Tastatur, Screenreader und kleine Displays.
  */
-function Room({ s, send }: { s: Session; send: (c: Command) => void }) {
-  const [element, setElement] = useState<RaumElement>('patient');
-  const [ansicht, setAnsichtState] = useState(leseAnsicht);
-  const setAnsicht = (a: 'raum' | 'liste') => { setAnsichtState(a); try { localStorage.setItem(ANSICHT_KEY, a); } catch { /* nur Komfort */ } };
+function Room({ s, send, element, ansicht, setAnsicht }: { s: Session; send: (c: Command) => void; element: RaumElement; ansicht: 'raum' | 'liste'; setAnsicht: (a: 'raum' | 'liste') => void }) {
   const info = raumElemente(s.scenario);
-  const zuhause = RESOURCES[s.scenario.setting].longVisits;
   return <div className="praxis-room">
     <div className="praxis-room__head"><p>{s.scenario.environment}</p>
       <div className="praxis-ansicht" role="group" aria-label="Darstellung des Zimmers"><button aria-pressed={ansicht === 'raum'} onClick={() => setAnsicht('raum')}>Raum</button><button aria-pressed={ansicht === 'liste'} onClick={() => setAnsicht('liste')}>Liste</button></div></div>
     {ansicht === 'raum' ? <>
-      <div className="praxis-room__scene">
-        <svg viewBox="0 0 700 260" aria-hidden="true" focusable="false">
-          <path d="M20 225H680" stroke="currentColor" strokeWidth="2" opacity=".25" />
-          <path d="M150 40H280V120H150Z M215 40V120 M150 80H280" fill="none" stroke="currentColor" strokeWidth="2" opacity=".2" />
-          <g className={element === 'telefon' ? 'is-active' : ''}><rect x="44" y="88" width="34" height="50" rx="6" fill="currentColor" opacity=".2" /><path d="M52 98H70M52 110H70M52 120H70" stroke="currentColor" strokeWidth="3" opacity=".6" /><path d="M78 120Q98 150 80 175" fill="none" stroke="currentColor" strokeWidth="2" opacity=".4" /></g>
-          {zuhause
-            ? <g className={element === 'patient' ? 'is-active' : ''}><rect x="260" y="140" width="150" height="60" rx="16" fill="currentColor" opacity=".18" /><rect x="250" y="95" width="40" height="110" rx="14" fill="currentColor" opacity=".24" /><rect x="380" y="95" width="40" height="110" rx="14" fill="currentColor" opacity=".24" /><circle cx="335" cy="96" r="22" fill="currentColor" opacity=".8" /><path d="M300 150Q335 115 370 150Z" fill="currentColor" opacity=".45" /><path d="M260 200V222M410 200V222" stroke="currentColor" strokeWidth="6" strokeLinecap="round" /></g>
-            : <g className={element === 'patient' ? 'is-active' : ''}><rect x="250" y="150" width="310" height="38" rx="12" fill="currentColor" opacity=".16" /><path d="M260 186V222M545 186V222M250 151V118" stroke="currentColor" strokeWidth="8" strokeLinecap="round" /><circle cx="310" cy="124" r="24" fill="currentColor" opacity=".8" /><path d="M340 138Q392 100 437 138L526 150H330Z" fill="currentColor" opacity=".4" /></g>}
-          <g className={element === 'monitor' ? 'is-active' : ''}><rect x="434" y="36" width="99" height="57" rx="5" fill="currentColor" opacity=".14" /><path d="M443 67H462L468 52L477 79L484 61L490 67H523" fill="none" stroke="currentColor" strokeWidth="2" opacity={s.monitoring ? 1 : 0.35} /></g>
-          <g className={element === 'wagen' ? 'is-active' : ''}><rect x="600" y="132" width="70" height="80" rx="6" fill="currentColor" opacity=".2" /><path d="M606 152H664M606 172H664M606 192H664" stroke="currentColor" strokeWidth="2" opacity=".5" /><circle cx="610" cy="218" r="5" fill="currentColor" opacity=".5" /><circle cx="660" cy="218" r="5" fill="currentColor" opacity=".5" /></g>
-        </svg>
-        {RAUM_ELEMENTE.map(e => <button key={e} className="praxis-hotspot" style={{ left: `${info[e].svg.x}%`, top: `${info[e].svg.y}%` }} aria-pressed={element === e} aria-label={`${info[e].label}: ${info[e].zweck}`} onClick={() => setElement(e)}>{info[e].kurz}</button>)}
-        <span className="praxis-room__label">Schematische Darstellung · Elemente antippen</span>
-      </div>
       <section className="praxis-element" aria-labelledby="praxis-element-titel">
         <h4 id="praxis-element-titel">{info[element].label}</h4>
         <p className="praxis-blick">{blick(s, element)}</p>
@@ -243,11 +228,18 @@ function Entscheidung({ s, send }: { s: Session; send: (c: Command) => void }) {
 }
 
 /** Ein Patient im Blick: Monitor, letzte Rückmeldung, Entscheidungsmoment, Arbeitsbereiche. Auch im Schichtmodus genutzt. */
-export function Arbeitsplatz({ s, send, panel, setPanel }: { s: Session; send: (c: Command) => void; panel: Panel; setPanel: (p: Panel) => void }) {
+export function Arbeitsplatz({ s, send, panel, setPanel, zeitraffer = 1 }: { s: Session; send: (c: Command) => void; panel: Panel; setPanel: (p: Panel) => void; zeitraffer?: number }) {
   const last = [...s.events].reverse().find(e => e.kind !== 'state') ?? s.events.at(-1);
+  const [element, setElement] = useState<RaumElement>('patient');
+  const [ansicht, setAnsichtState] = useState(leseAnsicht);
+  const setAnsicht = (a: 'raum' | 'liste') => { setAnsichtState(a); try { localStorage.setItem(ANSICHT_KEY, a); } catch { /* nur Komfort */ } };
   return <>
+    {ansicht === 'raum' && <Szene s={s} fokus={element} onFokus={e => { setElement(e); setPanel('Patientenzimmer'); }} zeitraffer={zeitraffer} />}
     <section className="praxis-monitor" aria-label="Vitalparameter"><div className="praxis-monitor__heading"><strong>{s.monitoring ? 'Kontinuierliches Monitoring' : s.measuredAt === null ? 'Noch keine Messung' : `Letzte Messung · ${clock(s.measuredAt)}`}</strong><span>SpO₂: LOINC 59408-5 · keine Alarmgrenzen für die pädiatrische Bewertung</span></div>
-      <dl>{VITALS.map(v => <div key={v.key}><dt>{v.label}</dt><dd>{format(s.measured[v.key], v.key)}<small>{v.unit}</small></dd></div>)}</dl>
+      {s.monitoring
+        ? <><PatientenMonitor className="praxis-monitor__live" titel={`Monitor · ${clock(s.time)}`} werte={{ puls: s.measured.pulse ?? null, af: s.measured.resp ?? null, spo2: s.measured.spo2 ?? null, sys: s.measured.sys ?? null, dia: s.measured.dia ?? null, temp: s.measured.temp ?? null, avpu: consciousness(s), sauerstoff: s.oxygen ?? false }} />
+          <dl className="praxis-monitor__rest">{VITALS.filter(v => v.key === 'glucose' || v.key === 'pain').map(v => <div key={v.key}><dt>{v.label}</dt><dd>{format(s.measured[v.key], v.key)}<small>{v.unit}</small></dd></div>)}</dl></>
+        : <dl>{VITALS.map(v => <div key={v.key}><dt>{v.label}</dt><dd>{format(s.measured[v.key], v.key)}<small>{v.unit}</small></dd></div>)}</dl>}
       <News2Badge point={s.monitoring && s.measuredAt !== null ? { at: s.measuredAt, vitals: s.vitals, avpu: consciousness(s), oxygen: s.oxygen ?? false } : s.chart?.at(-1)} />
     </section>
     <Entscheidung s={s} send={send} />
@@ -256,7 +248,7 @@ export function Arbeitsplatz({ s, send, panel, setPanel }: { s: Session; send: (
     <nav className="praxis-panels" aria-label="Arbeitsbereich">{PANELS.map(p => <button key={p} aria-pressed={panel === p} onClick={() => setPanel(p)}>{p}</button>)}</nav>
     <div className="praxis-workspace">
       <section className="card praxis-main" aria-label={panel}>
-        {panel === 'Patientenzimmer' && <Room s={s} send={send} />}
+        {panel === 'Patientenzimmer' && <Room s={s} send={send} element={element} ansicht={ansicht} setAnsicht={setAnsicht} />}
         {panel === 'Vitalkurve' && <><h3>Verlauf der Messungen</h3><p className="muted">Jede Messung, Nachkontrolle und Monitor-Minute. NEWS2 rechnet die App selbst (Skala 1, Bewusstsein nach ACVPU, Sauerstoff zählt mit 2 Punkten). Lokale Eskalationsregeln gehen vor.</p><VitalKurve chart={s.chart ?? []} /></>}
         {panel === 'Patientenakte' && <><h3>Aufnahme und Übergabe</h3><dl className="praxis-record">{[['S · Situation', s.scenario.situation], ['B · Hintergrund', s.scenario.background], ['A · Einschätzung aus der Übergabe', s.scenario.assessment], ['R · Empfehlung', s.scenario.recommendation], ['Allergien', s.scenario.allergies.join(', ') || 'Keine dokumentiert – aktiv erfragen'], ['Organfunktion', s.scenario.renal], ['Umgebung', s.scenario.environment]].map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl><h3>Befunde und Anordnungen</h3>{s.events.filter(e => e.kind === 'result').length ? s.events.filter(e => e.kind === 'result').map(e => <div key={e.id} className="praxis-result"><strong>{clock(e.at)} · {e.title}</strong><p>{e.detail}</p></div>) : <p>Noch keine Ergebnisse eingegangen.</p>}</>}
         {panel === 'Medikation' && (s.scenario.medications.length ? s.scenario.medications.map(m => <MedicationForm key={m.id} med={m} s={s} send={send} />) : <><h3>Medikationsschrank</h3><p>Für diesen Fall ist keine Arzneimittelgabe modelliert. Die Übung „Atemnot in der Nacht“ enthält eine vollständige Dosis- und Applikationsprüfung.</p><p>Es werden keine unbelegten Dosierungen aus Gewicht oder Nierenfunktion erzeugt.</p></>)}
@@ -372,7 +364,7 @@ export default function Praxissimulator() {
           <button onClick={() => { setRunning(false); send({ type: 'finish' }); setPanel('Verlauf'); }}>Fall abschließen</button>
         </div>
         <p className="muted praxis-clockhint">Handlungen verbrauchen auch bei pausierter Uhr ihre angezeigte Simulationszeit. Beim Verlassen der Seite pausiert die Uhr. Tageswechsel erst nach Versorgung, SBAR und Abschluss offener Aufträge.</p>
-        <Arbeitsplatz s={s} send={send} panel={panel} setPanel={setPanel} />
+        <Arbeitsplatz s={s} send={send} panel={panel} setPanel={setPanel} zeitraffer={running ? speed : 1} />
       </> : <div className="card praxis-debrief"><span className="eyebrow">Debriefing</span><h3>Deine Entscheidungen im Rückblick</h3><p>{debrief(s).filter(c => c.met).length} von {s.scenario.criteria.length} Szenariokriterien erfüllt · {s.events.filter(e => e.kind === 'warning').length} Warnungen · {s.pending.length} offene Aufträge bei Abschluss.</p><p className="muted">Die Auswertung prüft ausgeführte Handlungen und Zeitpunkte. Sie ist kein Kompetenznachweis. Freitexte und klinische Angemessenheit müssen mit einer Lehrperson reflektiert werden.</p>
         <KernHinweis scenario={s.scenario} />
         <details className="praxis-legende"><summary>Was wurde wie bewertet?</summary><dl>
