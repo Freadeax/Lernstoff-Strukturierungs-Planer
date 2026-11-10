@@ -7,6 +7,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent as RPointerEvent } from 'react';
 import { grauTabelle, malePixel, vonRoh, type Fenster, type Rohbild } from './phantom';
 import { anzahlSchichten, befundeAuf, FENSTER, ladeSchicht, modalitaetVon, type Befundmarke, type Bildserie } from './serie';
+import { wenigBewegung } from '../../shell/session';
 import './bildgebung.css';
 
 export type Werkzeug = 'blaettern' | 'fenster' | 'lupe' | 'markieren';
@@ -26,7 +27,8 @@ export interface BildBetrachterProps {
   onSchicht?: (i: number) => void;
 }
 
-const reduziert = () => typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+/** Einstellung der App (data-motion) oder des Systems. */
+const reduziert = () => wenigBewegung();
 const fmt = (n: number) => new Intl.NumberFormat('de-DE', { maximumFractionDigits: 0 }).format(n);
 
 export function BildBetrachter({ serie, sichtbareBefunde = [], markierungen = [], onTipp, startSchicht, onSchicht }: BildBetrachterProps) {
