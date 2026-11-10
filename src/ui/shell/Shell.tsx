@@ -1,4 +1,5 @@
 import { useEffect, useRef, type ReactNode } from 'react';
+import { UmzugsHinweis } from '../../features/sicherung/UmzugsHinweis';
 import { Icon } from '../icons';
 import { Menu } from '../Menu';
 import { useStore } from '../lib/store';
@@ -112,7 +113,7 @@ export function Shell({ children }: { children: ReactNode }) {
       <Sidebar />
       <Header />
       <main id="main" ref={main} className="shell__main" tabIndex={-1} inert={drawer}>
-        <div className="content">{children}</div>
+        <div className="content"><UmzugsHinweis />{children}</div>
       </main>
       <TabBar />
       <Toaster />

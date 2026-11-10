@@ -3,7 +3,7 @@
 //   1. Typprüfung und Unit-Tests (vitest)
 //   2. Fachmodul-JSON passt zu den YAML-Dateien (scripts/build-module.py --pruefen, falls Python da ist)
 //   3. Produktions-Build und Startgrößen-Budget (scripts/check-bundle.mjs)
-//   4. Browser-Prüfungen gegen den gebauten Stand (check-ui, -material, -wissensstand, -praxis, -geraete, -offline)
+//   4. Browser-Prüfungen gegen den gebauten Stand (check-ui, -material, -wissensstand, -praxis, -geraete, -offline, -csp; mit den Headern aus public/_headers)
 //
 // Optionen:  --schnell  nur 1–3, ohne Browser.
 // Der Browser kommt aus Playwright; ein anderer Chromium über PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH.
@@ -63,11 +63,12 @@ if (gebaut) schritt('Startgröße', 'node', ['scripts/check-bundle.mjs']);
 if (!schnell && gebaut) {
   const port = await freierPort();
   const base = `http://127.0.0.1:${port}/`;
-  // vite direkt über node starten (nicht über npx), damit kill() den Server selbst beendet
-  const vorschau = spawn(process.execPath, ['node_modules/vite/bin/vite.js', 'preview', '--host', '127.0.0.1', '--port', String(port), '--strictPort'], { stdio: 'ignore' });
+  // dist/ mit den Headern aus public/_headers ausliefern (wie Cloudflare Pages), damit jede Browser-Prüfung
+  // auch unter der echten Content Security Policy läuft. Direkt über node, damit kill() den Server beendet.
+  const vorschau = spawn(process.execPath, ['scripts/serve-dist.mjs', String(port)], { stdio: 'ignore' });
   try {
     await wartenAuf(base);
-    for (const s of ['check-ui', 'check-material', 'check-wissensstand', 'check-praxis', 'check-lernalltag', 'check-geraete', 'check-barrierefreiheit', 'check-offline']) {
+    for (const s of ['check-ui', 'check-material', 'check-wissensstand', 'check-praxis', 'check-lernalltag', 'check-geraete', 'check-barrierefreiheit', 'check-offline', 'check-csp']) {
       schritt(`Browser: ${s}`, 'node', [`scripts/${s}.mjs`], { UI_BASE_URL: base });
     }
   } finally {
