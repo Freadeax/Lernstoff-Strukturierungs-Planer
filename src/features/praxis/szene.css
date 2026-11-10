@@ -94,7 +94,7 @@
 .szene__punkte circle:nth-child(3) { animation-delay: .6s; }
 .szene__wellen { animation: szene-klingeln .9s ease-out 3; }
 /* Sprechblase */
-.szene__blase { position: absolute; z-index: 3; transform: translate(-50%, calc(-100% - 10px)); max-width: min(46%, 22rem); display: grid; gap: 2px; padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); background: var(--szene-blase); color: var(--color-text); border: 2px solid var(--color-primary); box-shadow: 0 6px 18px rgb(0 0 0 / .18); font-size: var(--text-sm); line-height: var(--leading-tight); animation: szene-blase 9s var(--ease-standard) both; pointer-events: none; }
+.szene__blase { position: absolute; z-index: 3; transform: translate(-50%, calc(-100% - 10px)); max-width: min(46%, 22rem); display: grid; gap: 2px; padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); background: var(--szene-blase); color: var(--color-text); border: 2px solid var(--color-primary); box-shadow: 0 6px 18px rgb(0 0 0 / .18); font-size: var(--text-sm); line-height: var(--leading-tight); animation: szene-blase var(--dur-normal, 200ms) var(--ease-spring, var(--ease-standard)) both; pointer-events: none; }
 .szene__blase strong { font-size: var(--text-xs); text-transform: uppercase; letter-spacing: .04em; color: var(--color-primary); }
 .szene__blase::after { content: ''; position: absolute; left: 50%; bottom: -8px; width: 14px; height: 14px; background: inherit; border-right: 2px solid var(--color-primary); border-bottom: 2px solid var(--color-primary); transform: translateX(-50%) rotate(45deg); }
 .szene__blase.is-links { transform: translate(-12%, calc(-100% - 10px)); }
@@ -108,8 +108,11 @@
 .szene__blase.is-story strong { color: #8a5a12; }
 .szene__blase.is-story::after { border-color: #b7791f; }
 .szene__status { position: absolute; left: var(--space-2); top: var(--space-2); display: flex; flex-wrap: wrap; gap: var(--space-1); max-width: 60%; pointer-events: none; }
-.szene__chip { padding: 2px var(--space-2); border-radius: var(--radius-pill); background: rgb(0 0 0 / .62); color: #fff; font-size: var(--text-xs); animation: szene-einblenden .4s ease-out; }
-.szene__chip.is-rot { background: #c62828; animation: szene-blinken 1s steps(2) infinite; }
+.szene__chip { padding: 2px var(--space-2); border-radius: var(--radius-pill); background: rgb(0 0 0 / .62); color: #fff; font-size: var(--text-xs); animation: szene-chip .3s ease-out; }
+@keyframes szene-chip { from { translate: 0 -6px; } to { translate: 0 0; } }
+.szene__chip.is-rot { background: #b71c1c; animation: szene-chipalarm 1s steps(2) infinite; }
+/* Alarm blinkt über Rahmen und Hintergrund, nie über opacity (Text bleibt kontrastreich). */
+@keyframes szene-chipalarm { 50% { background: #7f1010; box-shadow: 0 0 0 2px #ff6b6b; } }
 .szene__chip.is-gelb { background: #8a6d00; }
 .szene__ton { position: absolute; right: var(--space-2); top: var(--space-2); min-height: 2rem !important; padding: 0 var(--space-2); font-size: var(--text-xs); border-radius: var(--radius-pill); }
 .szene__treffer rect { fill: transparent; cursor: pointer; }
@@ -139,7 +142,8 @@
 @keyframes szene-arbeit { 0% { opacity: 0; } 15% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
 @keyframes szene-pumpen { to { transform: scale(1.15); } }
 @keyframes szene-einblenden { from { opacity: 0; } to { opacity: 1; } }
-@keyframes szene-blase { 0% { opacity: 0; scale: .85; } 6% { opacity: 1; scale: 1; } 88% { opacity: 1; } 100% { opacity: 0; } }
+/* Text nie über opacity einblenden (Kontrastprüfungen): nur Größe; Ausblenden übernimmt die Komponente. */
+@keyframes szene-blase { 0% { scale: .85; } 100% { scale: 1; } }
 @keyframes szene-wolken { from { transform: translateX(-12px); } to { transform: translateX(14px); } }
 
 @media (max-width: 560px) {
