@@ -19,6 +19,8 @@ const Rechentrainer = lazy(() => import('./features/rechnen/Rechentrainer'));
 const Fehlerheft = lazy(() => import('./features/fehlerheft/FehlerheftSeite'));
 const Fallsimulator = lazy(() => import('./features/fall/Fallsimulator'));
 const Praxissimulator = lazy(() => import('./features/praxis/Praxissimulator'));
+const LaborTrainer = lazy(() => import('./features/labortrainer/LaborTrainer'));
+const Diagnostik = lazy(() => import('./features/diagnostik/DiagnostikSeite'));
 const Duell = lazy(() => import('./features/duell/DuellSeite'));
 const SisTrainer = lazy(() => import('./features/sis/SisTrainer'));
 const Berichttrainer = lazy(() => import('./features/bericht/Berichttrainer'));
@@ -90,6 +92,8 @@ function View() {
     case '/lernen/anatomie': return <AnatomieTrainer />;
     case '/lernen/expertenstandards': return <ExpertenstandardsTrainer />;
     case '/lernen/normwerte': return <NormwerteTrainer />;
+    case '/lernen/diagnostik': return <Diagnostik />;
+    case '/lernen/labor': return <LaborTrainer />;
     case '/lernen/notfall': return <NotfallTrainer />;
     case '/lernen/arzneimittel': return <ArzneimittelTrainer />;
     case '/lernen/recht': return <RechtTrainer />;

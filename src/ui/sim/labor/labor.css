@@ -1,0 +1,30 @@
+/* Laborbausteine: Kumulativbefund, Röhrchen. Nutzt die App-Tokens (hell und dunkel). */
+.lt { overflow-x: auto; }
+.lt__tabelle { width: 100%; border-collapse: collapse; font-size: 0.875rem; font-variant-numeric: tabular-nums; }
+.lt__tabelle thead th { text-align: left; font-size: 0.75rem; font-weight: 600; color: var(--color-text-muted); padding: 4px 6px; border-bottom: 1px solid var(--color-border); }
+.lt__tabelle td, .lt__tabelle tbody th { padding: 6px; border-bottom: 1px solid var(--color-border); vertical-align: top; text-align: left; font-weight: 400; }
+.lt__gruppe th { padding-top: 12px !important; font-size: 0.75rem !important; font-weight: 700 !important; text-transform: uppercase; letter-spacing: .04em; color: var(--color-text-muted); border-bottom: 0 !important; }
+.lt__name { display: block; font-weight: 600; }
+.lt__zeit { display: block; font-size: 0.75rem; color: var(--color-text-muted); }
+.lt__kommentar { display: block; margin-top: 2px; font-size: 0.75rem; color: var(--color-warning); font-weight: 600; }
+.lt__zahl { text-align: right !important; white-space: nowrap; }
+.lt__wert { font-weight: 700; }
+.lt__einheit { font-size: 0.75rem; color: var(--color-text-muted); }
+.lt__ref { font-size: 0.75rem; color: var(--color-text-muted); white-space: nowrap; }
+.lt__spark { width: 70px; color: var(--color-text-muted); }
+.lt__zeile--hoch .lt__spark, .lt__zeile--niedrig .lt__spark { color: var(--color-warning); }
+.lt__zeile--kritisch-hoch .lt__spark, .lt__zeile--kritisch-niedrig .lt__spark { color: var(--color-danger); }
+.lt__flag { display: inline-block; margin-left: 4px; min-width: 2em; padding: 0 5px; border-radius: 999px; font-size: 0.6875rem; font-weight: 700; text-align: center; vertical-align: 1px; }
+.lt__flag--hoch, .lt__flag--niedrig { background: var(--color-warning-soft); color: var(--color-warning); }
+.lt__flag--kritisch-hoch, .lt__flag--kritisch-niedrig { background: var(--color-danger); color: #fff; }
+.lt__zeile.is-neu { animation: lt-neu 1.6s ease-out 1; }
+@keyframes lt-neu { from { background: var(--color-highlight); } to { background: transparent; } }
+@media (max-width: 480px) { .lt__ref { display: none; } }
+@media (prefers-reduced-motion: reduce) { .lt__zeile.is-neu { animation: none; background: var(--color-primary-soft); } }
+
+.roehrchen { display: inline-flex; flex-direction: column; align-items: center; gap: 4px; }
+.roehrchen__koerper { position: relative; width: 26px; height: 64px; border-radius: 5px 5px 13px 13px; background: linear-gradient(90deg, #e5e7eb, #f8fafc 40%, #d1d5db); box-shadow: inset 0 0 0 1px #0002; overflow: hidden; }
+.roehrchen__kappe { position: absolute; inset: 0 0 auto 0; height: 16px; background: var(--kappe); border-radius: 5px 5px 2px 2px; box-shadow: inset 0 -2px 0 #0003; }
+.roehrchen__blut { position: absolute; left: 3px; right: 3px; bottom: 3px; height: var(--fuellung, 0%); background: #8b1414; border-radius: 0 0 10px 10px; transition: height 600ms ease; }
+@media (prefers-reduced-motion: reduce) { .roehrchen__blut { transition: none; } }
+.roehrchen__name { font-size: 0.6875rem; max-width: 72px; text-align: center; line-height: 1.2; color: var(--color-text-muted); }
