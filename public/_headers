@@ -1,0 +1,26 @@
+# Sicherheitsheader für Cloudflare Pages (https://developers.cloudflare.com/pages/configuration/headers/).
+# GitHub Pages ignoriert diese Datei. Geprüft mit scripts/check-csp.mjs (Teil von npm run check):
+# alle Seiten, PDF mit Scan-Seite (pdf.js-Worker + Tesseract-WASM im Blob-Worker), PWA, ohne CSP-Verstoß.
+#
+# Erlaubte Verbindungen: nur die eigene Adresse, die Claude-API (KI-Funktionen mit eigenem Schlüssel)
+# und die GitHub-API (private Material-Ablage). Neue Dienste hier UND in scripts/check-csp.mjs eintragen.
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; style-src 'self'; img-src 'self' data: blob:; font-src 'self'; media-src 'self' blob:; connect-src 'self' blob: data: https://api.anthropic.com https://api.github.com https://uploads.github.com; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer
+  Permissions-Policy: camera=(self), microphone=(self), geolocation=(), payment=(), usb=(), serial=(), bluetooth=(), interest-cohort=()
+  Cross-Origin-Opener-Policy: same-origin
+  Strict-Transport-Security: max-age=31536000
+
+# Service Worker und Manifest immer frisch holen, damit Updates ankommen
+/sw.js
+  Cache-Control: no-cache
+/registerSW.js
+  Cache-Control: no-cache
+/manifest.webmanifest
+  Cache-Control: no-cache
+
+# Gebündelte Dateien tragen einen Hash im Namen und ändern sich nie
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable

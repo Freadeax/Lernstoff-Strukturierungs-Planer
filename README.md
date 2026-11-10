@@ -52,7 +52,7 @@ Architektur, vollständiges Anforderungsregister, tatsächlicher Funktionsumfang
 
 ## Neue Version veröffentlichen
 
-GitHub Pages zeigt die App unter https://freadeax.github.io/Lernstoff-Strukturierungs-Planer/. Nach einem Push auf `main` baut und veröffentlicht `.github/workflows/pages.yml` genau diesen Stand. Ein separater Veröffentlichungsbranch entfällt. Der Workflow lässt sich auch manuell über GitHub Actions starten.
+Künftig über Cloudflare Pages mit Sicherheitsheadern, Einrichtung siehe `docs/HOSTING-CLOUDFLARE.md`. Bis zum Umzug zeigt GitHub Pages die App unter https://freadeax.github.io/Lernstoff-Strukturierungs-Planer/. Nach einem Push auf `main` baut und veröffentlicht `.github/workflows/pages.yml` genau diesen Stand. Ein separater Veröffentlichungsbranch entfällt. Der Workflow lässt sich auch manuell über GitHub Actions starten.
 
 Vor jedem Push: `npm run check`. Der Befehl führt Typprüfung, Tests, Katalog-Abgleich, Build, Startgrößen-Budget und alle Browserprüfungen (`test:ui`, `test:material`, `test:wissen`, `test:praxis`, `test:geraete`) gegen den gebauten Stand aus und startet dafür selbst einen Server. Einzelne Browserprüfungen laufen weiterhin mit `UI_BASE_URL` gegen einen laufenden Server. Regeln für Datenbank-Versionen und neue Fachgebiete: [docs/ENTWICKLUNG.md](docs/ENTWICKLUNG.md).
 
