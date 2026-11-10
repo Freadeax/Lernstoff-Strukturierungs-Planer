@@ -6,6 +6,7 @@ import { useStore } from '../../ui/lib/store';
 import { session } from '../../ui/shell/session';
 import { filterStore } from '../filter/filterStore';
 import { activeDays, buildKpis, formatTrend, loadSnapshot, type KpiCard } from '../data';
+import { Zaehler } from '../../ui/motion/Zaehler';
 import { sparkPath } from './sparkline';
 
 function Sparkline({ values, label }: { values: Array<number | null>; label: string }) {
@@ -24,7 +25,7 @@ function Scorecard({ card, partial }: { card: KpiCard; partial: boolean }) {
     <article className="kpi" aria-label={card.label}>
       <h4 className="kpi__label">{card.label}</h4>
       <div className="kpi__row">
-        <span className="kpi__value">{card.value}</span>
+        <Zaehler className="kpi__value" wert={String(card.value)} />
         <span className={`kpi__trend kpi__trend--${dir}`} title="Veränderung zum gleich langen Zeitraum davor">
           {formatTrend(card.trend)}<span className="visually-hidden"> zur Vorperiode</span>
         </span>

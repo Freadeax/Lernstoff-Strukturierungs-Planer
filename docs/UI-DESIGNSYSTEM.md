@@ -1,6 +1,56 @@
 # UI-Designsystem
 
+## Überarbeitung: „Farbfelder“ und Bewegung (10. November 2026)
+
+Die ganze Oberfläche hat eine neue Formensprache und bewegt sich. Inhalte, Routen und Daten sind unverändert.
+
+- **Hell („Farbfelder“):** Creme, Petrol und Tinte. Kräftige Farbflächen, 2-px-Rahmen (`--color-outline`), harte
+  Schatten (`--shadow-hard-sm`, `--shadow-hard`, `--shadow-hard-lg`), große Serifen-Überschriften. Primäre
+  Schaltflächen sind korallfarben mit Tintenschrift. Einstiege nebeneinander nutzen die Kachelfarben `--tile-1` bis `-4`.
+- **Dunkel („Nachtschicht“):** Indigo statt Schwarz, leuchtende Markierungen (`--glow`, `--mark-shadow`), feines
+  Raster im Hintergrund, EKG-Linie in der Heute-Karte. Gleiche Bausteine, andere Tokenwerte.
+- **Bereichsfarbe:** Die Shell trägt `data-bereich` (`heute`, `lernen`, `ueben`, `material`, `system`, aus
+  `bereichVon()` in `nav.ts`). Daraus folgt `--area` für die Marke im Kopf und die kleinen Etiketten (`.eyebrow`).
+- **Dateien:** `src/ui/tokens.css` (Werte), `src/ui/farbfelder.css` (Formen, wird nach `ui.css` und
+  `workspace.css` geladen), `src/ui/motion.css` (Bewegung). Die Seitenleiste und die untere Leiste setzen ihre
+  Textfarben über lokale Tokens, Module darin brauchen keine eigenen Farben.
+
+### Bewegung (für alle Module, auch die Simulatoren)
+
+| Baustein | Bedeutung |
+|---|---|
+| `--dur-fast` 120 ms · `--dur-normal` 200 ms · `--dur-slow` 420 ms · `--dur-slower` 700 ms | Dauern |
+| `--ease-standard` · `--ease-out` · `--ease-spring` | Kurven; `--ease-spring` federt nach |
+| `--stagger` 55 ms | Versatz zwischen nacheinander erscheinenden Elementen |
+| `.m-rise` · `.m-pop` · `.m-wipe` | einmal beim Erscheinen: von unten, aufspringen, aufdecken |
+| `.m-stagger` | Kinder erscheinen nacheinander (bis 12) |
+| `.m-float` · `.m-pulse` | Dauerschleifen für Schmuck und Aufmerksamkeit |
+| `.m-shake` | Fehler, einmal |
+| `.m-press` | Taste mit hartem Schatten, drückt sich beim Antippen ein |
+| Keyframes `m-*` | für eigene Regeln, Liste im Kopf von `motion.css` |
+| `<Zaehler wert="85 %" />` (`src/ui/motion/Zaehler.tsx`) | Zahl zählt hoch, Screenreader lesen den Endwert |
+
+Regeln:
+
+1. Nur `transform` und `clip-path` animieren, sonst ruckelt es auf dem iPhone.
+2. Dauern und Kurven nur über die Tokens.
+3. Nichts darf von Bewegung abhängen. „Bewegung reduzieren“ kommt vom System (`prefers-reduced-motion`) oder aus
+   dem Profilmenü („Bewegung reduziert“, `data-motion="reduce"` am `html`). Dann schaltet `motion.css` alle
+   Animationen und Übergänge ab, der Endzustand muss ohne sie stimmen. In JavaScript: `wenigBewegung()` aus `session.ts`.
+4. Text nie über die Deckkraft einblenden. Die Kontrastprüfungen (axe) laufen kurz nach dem Laden und messen
+   sonst halb durchsichtigen Text. `m-fade` ist nur für Flächen ohne Text (Abdunklung, Diagrammlinien).
+5. Seiten liegen in `<div class="route">` mit Schlüssel je Seite (`App.tsx`): Die direkten Kinder von `.page`
+   erscheinen nacheinander. Die Regel hat Spezifität null (`:where`), eigene Animationen eines Moduls gewinnen.
+
+Die wandernde Markierung im Menü misst den aktiven Eintrag (`useMarkierung` in `Sidebar.tsx`) und setzt
+`--mark-x/-y/-w/-h`; die untere Leiste rechnet mit `--tab-i`. Ausprobieren: **System → Designsystem → Bewegung**.
+
+---
+
 ## Überarbeitung: Lernarbeitsplatz (26. Oktober 2026)
+
+Hinweis: Palette und Formen dieses Abschnitts sind seit November 2026 durch „Farbfelder“ ersetzt, die Aussagen
+zu Navigation, Formularen und Bedienung gelten weiter.
 
 Die Oberfläche nutzt eine ruhige Papier-/Petrol-Palette und lokal gebündelte Schriften
 (Manrope für Bedientexte, Newsreader für Seitenüberschriften). Lizenztexte liegen unter
@@ -223,7 +273,7 @@ Dunkelmodus folgt dem System oder wird im Profilmenü gewählt (`data-theme`).
 - Alles per Tastatur: Tab-Reihenfolge, „Zum Inhalt springen“, Menüs mit Pfeiltasten und Esc, Suche mit Strg/Cmd+K, Diagramme mit ←/→ und Eingabe, Board-Karten mit Leertaste + Pfeilen, Spaltenbreite mit ←/→.
 - Sichtbarer Fokusring auf allen Bedienelementen, Kontraste der Tokens ≥ 4,5:1 für Text.
 - ARIA: `aria-expanded`/`aria-controls` (Navigation, Menüs, Filter), `aria-current` (Seite, Schritt), `aria-sort`, `aria-rowcount`/`aria-rowindex` (virtuelle Tabelle), `aria-describedby` (Untertitel, Feldfehler), `role="feed"` + `aria-live="polite"`, Ansagen beim Verschieben, versteckte Datentabellen hinter Diagrammen.
-- `prefers-reduced-motion` schaltet Animationen ab.
+- `prefers-reduced-motion` und „Bewegung reduziert“ im Profilmenü schalten Animationen ab.
 
 ## iPhone und iPad
 

@@ -4,6 +4,8 @@ import { App } from './App';
 import './styles.css';
 import './ui/ui.css';
 import './ui/workspace.css';
+import './ui/farbfelder.css';
+import './ui/motion.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

@@ -18,6 +18,9 @@ const LABS: Array<[Lab, string]> = [['kpi', 'Kennzahlen'], ['chart', 'Diagramme'
 const STATES: Array<[LabState, string]> = [['ideal', 'Ideal'], ['loading', 'Laden'], ['empty', 'Leer'], ['error', 'Fehler'], ['partial', 'Teilweise'], ['interaktiv', 'Interaktiv']];
 
 const COLORS = ['primary', 'primary-soft', 'secondary', 'secondary-soft', 'background', 'surface', 'surface-raised', 'surface-sunken', 'border', 'border-strong', 'text', 'text-muted', 'success', 'warning', 'danger', 'info', 'focus'];
+const AKZENTE = ['ink', 'outline', 'sun', 'coral', 'mint', 'apricot', 'lilac', 'sky'];
+const KACHELN = [1, 2, 3, 4];
+const BEWEGUNGEN: Array<[string, string]> = [['m-rise', 'von unten einblenden'], ['m-pop', 'aufspringen'], ['m-wipe', 'aufdecken'], ['m-shake', 'Fehler'], ['m-float', 'schweben'], ['m-pulse', 'Aufmerksamkeit']];
 const SPACES = [1, 2, 3, 4, 5, 6, 7];
 const SPACE_PX = ['4', '8', '16', '24', '32', '48', '64'];
 
@@ -61,6 +64,26 @@ function StateLab() {
       {st === 'interaktiv' && <p className="note">Interaktiv: Fahre über Karten und Zeilen, springe mit Tab durch die Bedienelemente (sichtbarer Fokusring), zieh Karten am Griff oder drück auf einer Karte die Leertaste und verschieb sie mit den Pfeiltasten.</p>}
       <div key={`${lab}-${st}-${nonce}`}>{view}</div>
     </div>
+  );
+}
+
+/** Bewegungs-Bausteine aus motion.css zum Ausprobieren. „Nochmal“ baut die Kästen neu auf. */
+function BewegungsLabor() {
+  const [lauf, setLauf] = useState(0);
+  return (
+    <>
+      <p className="muted">Klassen und Tokens aus <code>src/ui/motion.css</code>. Dauern: <code>--dur-fast</code> 120 ms, <code>--dur-normal</code> 200 ms, <code>--dur-slow</code> 420 ms, <code>--dur-slower</code> 700 ms. Kurven: <code>--ease-out</code>, <code>--ease-spring</code>. Bei „Bewegung reduziert“ (System oder Profilmenü) steht alles sofort im Endzustand.</p>
+      <div className="ds-motion" key={lauf}>
+        {BEWEGUNGEN.map(([k, l]) => <div key={k} className={k}><code>.{k}</code><span>{l}</span></div>)}
+      </div>
+      <ul className="ds-motion m-stagger" key={`s${lauf}`} role="list" aria-label="Beispiel für .m-stagger">
+        {KACHELN.concat(KACHELN).map((n, i) => <li key={i} style={{ background: `var(--tile-${n})` }}><code>.m-stagger</code><span>Kind {i + 1}</span></li>)}
+      </ul>
+      <div className="ds-states">
+        <button type="button" onClick={() => setLauf((n) => n + 1)}><Icon name="refresh" size={16} /> Nochmal abspielen</button>
+        <button type="button" className="m-press">.m-press: Taste mit hartem Schatten</button>
+      </div>
+    </>
   );
 }
 
@@ -126,6 +149,20 @@ export default function Designsystem() {
       </div>
 
       <div className="card ds-section">
+        <h3>Akzentflächen und Kacheln</h3>
+        <p className="muted">Tinte für Rahmen und harte Schatten, Akzentflächen für Marken und Formen, vier Kachelfarben für nebeneinander stehende Einstiege. Text auf Akzentflächen: <code>--color-on-accent</code>.</p>
+        <div className="ds-swatches">
+          {AKZENTE.map((c) => <div key={c} className="ds-swatch"><span style={{ background: `var(--color-${c})` }} /><code>--color-{c}</code></div>)}
+          {KACHELN.map((n) => <div key={n} className="ds-swatch"><span style={{ background: `var(--tile-${n})` }} /><code>--tile-{n}</code></div>)}
+        </div>
+      </div>
+
+      <div className="card ds-section">
+        <h3>Bewegung</h3>
+        <BewegungsLabor />
+      </div>
+
+      <div className="card ds-section">
         <h3>Abstände (8px-Raster)</h3>
         <div className="ds-scale">
           {SPACES.map((s, i) => <div key={s}><i style={{ width: `var(--space-${s})` }} /><code>--space-{s}</code> {SPACE_PX[i]} px</div>)}
@@ -135,10 +172,13 @@ export default function Designsystem() {
       <div className="card ds-section">
         <h3>Eckenradien und Ebenen</h3>
         <div className="ds-boxes">
-          {['xs', 'sm', 'md', 'lg', 'pill'].map((r) => <div key={r} style={{ borderRadius: `var(--radius-${r})` }}><code>--radius-{r}</code></div>)}
+          {['xs', 'sm', 'md', 'lg', 'xl', 'pill'].map((r) => <div key={r} style={{ borderRadius: `var(--radius-${r})` }}><code>--radius-{r}</code></div>)}
         </div>
         <div className="ds-boxes">
           {[0, 1, 2, 3, 4].map((e) => <div key={e} style={{ boxShadow: `var(--elevation-${e})`, borderRadius: 'var(--radius-md)' }}><code>--elevation-{e}</code></div>)}
+        </div>
+        <div className="ds-boxes">
+          {['sm', '', 'lg'].map((g) => <div key={g} style={{ boxShadow: `var(--shadow-hard${g && '-' + g})`, border: 'var(--border-card) solid var(--color-outline)', borderRadius: 'var(--radius-md)' }}><code>--shadow-hard{g && '-' + g}</code></div>)}
         </div>
       </div>
 

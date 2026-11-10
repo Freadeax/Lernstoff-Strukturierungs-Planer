@@ -131,6 +131,19 @@ export function seitenName(path: string): string | undefined {
   return [...flatNav(NAV), ...UNTERSEITEN].find((i) => i.path === path)?.label;
 }
 
+/** Bereich einer Seite (oberste Menügruppe): steuert die Akzentfarbe der Shell über `data-bereich`. */
+export type Bereich = 'heute' | 'lernen' | 'ueben' | 'material' | 'system';
+export const BEREICH_NAME: Record<Bereich, string> = { heute: 'Heute', lernen: 'Lernen', ueben: 'Üben', material: 'Material', system: 'System' };
+
+export function bereichVon(path: string): Bereich {
+  if (path === '/') return 'heute';
+  const gruppe = NAV.find((g) => flatNav(g.children ?? []).some((i) => i.path === path || path.startsWith(i.path + '/')));
+  if (gruppe) return gruppe.id as Bereich;
+  if (path.startsWith('/material/')) return 'material';
+  if (path.startsWith('/lernen/')) return 'lernen';
+  return 'system';
+}
+
 /** Alte Pfade (vor dem Designsystem) weiterleiten. */
 export const REDIRECTS: Record<string, string> = {
   '/dokumente': '/material/dokumente',
