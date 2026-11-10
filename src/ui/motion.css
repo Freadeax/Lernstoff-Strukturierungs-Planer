@@ -1,0 +1,134 @@
+/*
+ * Bewegung. Öffentliche Bausteine für alle Module (auch die Simulatoren):
+ *
+ *   Tokens (tokens.css):  --dur-fast 120 ms · --dur-normal 200 ms · --dur-slow 420 ms · --dur-slower 700 ms
+ *                         --ease-standard · --ease-out (weich auslaufend) · --ease-spring (federt nach) · --stagger 55 ms
+ *   Klassen:              .m-rise (von unten einblenden) · .m-pop (aufspringen) · .m-wipe (von links aufdecken)
+ *                         .m-stagger (Kinder nacheinander, bis zu 12) · .m-float (schweben) · .m-pulse (Aufmerksamkeit)
+ *                         .m-shake (Fehler, einmal) · .m-press (Taste mit hartem Schatten, drückt sich ein)
+ *   Keyframes:            m-rise, m-pop, m-wipe, m-fade, m-drop, m-float, m-spin, m-wiggle, m-bounce, m-shake,
+ *                         m-pulse, m-grow-x, m-grow-y, m-draw, m-stripes, m-shimmer, m-ekg
+ *
+ * Regeln: Nur transform und clip-path animieren (flüssig auf dem iPhone). Text nie über die Deckkraft einblenden:
+ * Die Kontrastprüfungen (axe) messen sonst mitten im Einblenden halb durchsichtigen Text. m-fade nur für Flächen ohne Text. Dauern und Kurven nur
+ * über die Tokens. Nichts darf von Bewegung abhängen: Bei „Bewegung reduzieren“ (System oder Profilmenü)
+ * schaltet der Block am Ende dieser Datei alle Animationen und Übergänge ab, der Endzustand muss stimmen.
+ */
+
+@keyframes m-rise { from { transform: translateY(28px) rotate(-0.8deg) scale(0.96); } }
+@keyframes m-pop { from { transform: scale(0.78) rotate(-4deg); } }
+@keyframes m-wipe { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes m-wipe-up { from { clip-path: inset(0 0 100% 0); transform: translateY(0.35em); } to { clip-path: inset(-0.2em 0 -0.2em 0); transform: none; } }
+@keyframes m-fade { from { opacity: 0; } }
+@keyframes m-drop { from { transform: translateY(30px) scale(0.9) rotate(1.5deg); } }
+@keyframes m-slide-in { from { transform: translateX(-105%); } }
+@keyframes m-float { 50% { transform: translate(-6px, 10px) rotate(4deg); } }
+@keyframes m-spin { to { transform: rotate(378deg); } }
+@keyframes m-wiggle { 25% { transform: rotate(-12deg) scale(1.08); } 60% { transform: rotate(7deg) scale(1.08); } }
+@keyframes m-bounce { 30% { transform: translateY(-5px) scale(1.12); } 60% { transform: translateY(1px) scale(0.96); } }
+@keyframes m-shake { 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
+@keyframes m-pulse { 50% { transform: scale(1.06); } }
+@keyframes m-grow-x { from { transform: scaleX(0); } }
+@keyframes m-grow-y { from { transform: scaleY(0); } }
+@keyframes m-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes m-stripes { to { background-position: 28px 0; } }
+@keyframes m-shimmer { to { background-position: -200% 0; } }
+@keyframes m-ekg { to { background-position: -260px 0; } }
+@keyframes m-dots { 30% { transform: translateY(-9px) rotate(20deg); } 60% { transform: none; } }
+
+/* ---------- Bausteine ---------- */
+.m-rise { animation: m-rise var(--dur-slow) var(--ease-out) backwards; }
+.m-pop { animation: m-pop var(--dur-slow) var(--ease-spring) backwards; }
+.m-wipe { animation: m-wipe var(--dur-slower) var(--ease-out) backwards; }
+.m-float { animation: m-float 7s ease-in-out infinite; }
+.m-pulse { animation: m-pulse 1.6s ease-in-out infinite; }
+.m-shake { animation: m-shake var(--dur-slow) var(--ease-standard); }
+.m-stagger > * { animation: m-rise var(--dur-slow) var(--ease-out) backwards; animation-delay: calc(var(--i, 0) * var(--stagger)); }
+:where(.m-stagger, .route > .page, .grid12, .tool-grid, .ueben__liste, .today-start) > :nth-child(2) { --i: 1; }
+:where(.m-stagger, .route > .page, .grid12, .tool-grid, .ueben__liste, .today-start) > :nth-child(3) { --i: 2; }
+:where(.m-stagger, .route > .page, .grid12, .tool-grid, .ueben__liste, .today-start) > :nth-child(4) { --i: 3; }
+:where(.m-stagger, .route > .page, .grid12, .tool-grid, .ueben__liste, .today-start) > :nth-child(5) { --i: 4; }
+:where(.m-stagger, .route > .page, .grid12, .tool-grid, .ueben__liste, .today-start) > :nth-child(6) { --i: 5; }
+:where(.m-stagger, .route > .page, .grid12, .tool-grid, .ueben__liste, .today-start) > :nth-child(7) { --i: 6; }
+:where(.m-stagger, .route > .page, .grid12, .tool-grid, .ueben__liste, .today-start) > :nth-child(8) { --i: 7; }
+:where(.m-stagger, .route > .page, .grid12, .tool-grid, .ueben__liste, .today-start) > :nth-child(9) { --i: 8; }
+:where(.m-stagger, .route > .page, .grid12, .tool-grid, .ueben__liste, .today-start) > :nth-child(10) { --i: 9; }
+:where(.m-stagger, .route > .page, .grid12, .tool-grid, .ueben__liste, .today-start) > :nth-child(11) { --i: 10; }
+:where(.m-stagger, .route > .page, .grid12, .tool-grid, .ueben__liste, .today-start) > :nth-child(n + 12) { --i: 11; }
+.m-press { transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out); box-shadow: var(--shadow-hard); }
+@media (hover: hover) { .m-press:hover { transform: translate(-2px, -2px); box-shadow: var(--shadow-hard-lg); } }
+.m-press:active { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--color-ink); }
+
+/* ---------- Seitenwechsel: Inhalte der Seite erscheinen nacheinander ---------- */
+/* :where hält die Spezifität bei null, eigene Animationen der Module gewinnen immer. */
+:where(.route > .page) > * { animation: m-rise var(--dur-slow) var(--ease-spring) backwards; animation-delay: calc(var(--i, 0) * var(--stagger)); }
+.page-heading h1 { animation: m-wipe-up var(--dur-slower) var(--ease-out) backwards; }
+.page-heading .eyebrow, .header-context__bereich { animation: m-pop var(--dur-slow) var(--ease-spring) backwards; }
+.header-context strong { animation: m-rise var(--dur-normal) var(--ease-out) backwards; }
+:where(.grid12) > * { animation: m-rise var(--dur-slow) var(--ease-out) backwards; animation-delay: calc(var(--i, 0) * var(--stagger) + 120ms); }
+:where(.tool-grid, .ueben__liste, .today-start) > * { animation: m-pop var(--dur-slow) var(--ease-spring) backwards; animation-delay: calc(var(--i, 0) * var(--stagger) + 160ms); }
+.route-laden { display: flex; align-items: center; gap: 6px; padding: var(--space-4) 0; }
+.route-laden > span { width: 10px; height: 10px; border-radius: 3px; background: var(--color-sun); border: 1.5px solid var(--color-outline); animation: m-dots 900ms var(--ease-standard) infinite; }
+.route-laden > span:nth-child(2) { background: var(--color-coral); animation-delay: 120ms; }
+.route-laden > span:nth-child(3) { background: var(--color-mint); animation-delay: 240ms; margin-right: 6px; }
+
+/* ---------- Shell ---------- */
+.brand-mark { animation: m-pop var(--dur-slower) var(--ease-spring) backwards; }
+@media (hover: hover) { .sidebar__brand:hover .brand-mark { animation: m-wiggle var(--dur-slow) var(--ease-standard); } }
+.sidebar__nav[data-markierung='an']::before { transition: transform var(--dur-slow) var(--ease-spring), width var(--dur-normal) var(--ease-out), height var(--dur-normal) var(--ease-out), opacity var(--dur-fast); }
+.nav__item { transition: color var(--dur-fast), background var(--dur-fast), transform var(--dur-normal) var(--ease-spring); }
+@media (hover: hover) { .nav__item:hover { transform: translateX(3px); } }
+.nav__item--active > svg, .tab--active > svg { animation: m-bounce var(--dur-slow) var(--ease-standard); }
+.nav__chevron { transition: transform var(--dur-normal) var(--ease-spring); }
+.nav__toggle[aria-expanded='true'] .nav__chevron { transform: rotate(90deg); }
+.nav__group > div:not([hidden]) { animation: m-rise var(--dur-normal) var(--ease-out); transform-origin: top; }
+.shell__tabbar::before { transition: transform var(--dur-slow) var(--ease-spring), opacity var(--dur-fast); }
+@media (max-width: 767px) {
+  .shell__sidebar { transition: transform var(--dur-slow) var(--ease-spring), visibility 0s var(--dur-slow); }
+  .shell__sidebar.is-open { transition: transform var(--dur-slow) var(--ease-spring), visibility 0s; }
+  .shell__scrim { animation: m-fade var(--dur-normal) var(--ease-out); }
+}
+.menu__list, .popover { animation: m-pop var(--dur-normal) var(--ease-spring); transform-origin: top right; }
+.menu__list--start { transform-origin: top left; }
+.toast { animation: m-drop var(--dur-slow) var(--ease-spring); }
+dialog[open] { animation: m-drop var(--dur-slow) var(--ease-spring); }
+dialog[open]::backdrop { animation: m-fade var(--dur-normal) var(--ease-out); }
+.notif__dot { animation: m-pop var(--dur-slow) var(--ease-spring); }
+
+/* ---------- Bedienelemente ---------- */
+button.primary, .button-link, .tool-link, .ueben__link, .today-start a, .omnibar__trigger { transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out), background var(--dur-fast), border-color var(--dur-fast); }
+.tool-link, .ueben__link, .today-start a { transition-duration: var(--dur-normal); transition-timing-function: var(--ease-spring); }
+.tool-link__icon, .ueben__icon, .today-start__icon { transition: transform var(--dur-normal) var(--ease-spring); }
+.tool-link > svg, .ueben__link > svg:last-child, .today-start a > svg:last-child, .text-link > svg, .focus-action > svg { transition: transform var(--dur-normal) var(--ease-spring); }
+@media (hover: hover) {
+  .tool-link:hover .tool-link__icon, .ueben__link:hover .ueben__icon, .today-start a:hover .today-start__icon { transform: rotate(-8deg) scale(1.1); }
+  .tool-link:hover > svg, .ueben__link:hover > svg:last-child, .today-start a:hover > svg:last-child, .text-link:hover > svg, .focus-action:hover > svg { transform: translateX(5px); }
+}
+.pill { transition: transform var(--dur-normal) var(--ease-spring), background var(--dur-fast), color var(--dur-fast), border-color var(--dur-fast); }
+.pill[aria-pressed='true'], .pill[role='tab'][aria-selected='true'] { animation: m-pulse var(--dur-normal) var(--ease-standard); }
+input[type='checkbox']:checked, input[type='radio']:checked { animation: m-pop var(--dur-normal) var(--ease-spring); }
+select, input, textarea { transition: border-color var(--dur-fast), box-shadow var(--dur-fast) var(--ease-out); }
+.field-error, .note.warn[role='alert'] { animation: m-shake var(--dur-slow) var(--ease-standard); }
+
+/* ---------- Inhalte ---------- */
+.today-focus__detail::before, .today-start::before { animation: m-float 9s ease-in-out infinite; }
+.today-focus__detail::after, .today-start::after { animation: m-spin 26s linear infinite; }
+.today-focus::after { animation: m-ekg 3.2s linear infinite; }
+.today-label > span { animation: m-pulse 1.8s ease-in-out infinite; }
+.fs-balken > span, .wizard-progress progress { transform-origin: left; animation: m-grow-x var(--dur-slower) var(--ease-out) 200ms backwards; }
+.bone { animation: m-shimmer 1.4s linear infinite; }
+.badge--syncing .badge__dot { animation: m-pulse 1s ease-in-out infinite; }
+.spark { animation: m-wipe 900ms var(--ease-out) 250ms backwards; }
+.chart__plot rect { transform-box: fill-box; transform-origin: bottom; animation: m-grow-y var(--dur-slower) var(--ease-out) backwards; }
+.chart__plot path { animation: m-fade var(--dur-slower) var(--ease-out) backwards; }
+.state__art { animation: m-float 6s ease-in-out infinite; }
+.state__art path { stroke-dasharray: 1; animation: m-draw 1.1s var(--ease-out) 150ms backwards; }
+.kcard, .feed__item, .stable__row { transition: background var(--dur-fast), box-shadow var(--dur-fast), transform var(--dur-fast), opacity var(--dur-fast); }
+.stepper__num { transition: background var(--dur-normal), color var(--dur-normal), transform var(--dur-normal) var(--ease-spring); }
+.is-current .stepper__num { transform: scale(1.15); }
+
+/* ---------- Bewegung reduzieren: System oder Profilmenü ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+:root[data-motion='reduce'] *, :root[data-motion='reduce'] *::before, :root[data-motion='reduce'] *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }

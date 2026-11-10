@@ -113,5 +113,8 @@ function View() {
 
 export function App() {
   const { path } = useRoute();
-  return <Shell><PageBoundary path={path}><View /></PageBoundary></Shell>;
+  // Schlüssel je Seite: beim Seitenwechsel wird der Rahmen neu aufgebaut, die Einblend-Animation läuft erneut.
+  // Unterseiten des Klassenmodus teilen sich einen Schlüssel, damit ihr Zustand erhalten bleibt.
+  const seite = path.startsWith('/lernen/klasse') ? '/lernen/klasse' : path;
+  return <Shell><PageBoundary path={path}><div className="route" key={seite}><View /></div></PageBoundary></Shell>;
 }

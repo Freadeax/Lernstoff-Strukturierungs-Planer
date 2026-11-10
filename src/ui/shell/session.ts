@@ -11,11 +11,16 @@ export type Theme = 'system' | 'hell' | 'dunkel';
 export type Schrift = 'normal' | 'gross' | 'sehrgross';
 export const SCHRIFTEN: Array<[Schrift, string]> = [['normal', 'normal'], ['gross', 'groß'], ['sehrgross', 'sehr groß']];
 
+/** Bewegung: wie das System (prefers-reduced-motion) oder in der App abgeschaltet. */
+export type Bewegung = 'system' | 'reduziert';
+export const BEWEGUNGEN: Array<[Bewegung, string]> = [['system', 'an (wie System)'], ['reduziert', 'reduziert']];
+
 export interface SessionState {
   roles: Role[];
   moduleId: string;
   theme: Theme;
   schrift: Schrift;
+  bewegung: Bewegung;
   sidebarCollapsed: boolean;
   drawerOpen: boolean;
 }
@@ -28,12 +33,14 @@ export const session = createStore<SessionState>({
   moduleId: saved.moduleId && modules.some((m) => m.id === saved.moduleId) ? saved.moduleId : modules[0]?.id ?? '',
   theme: saved.theme === 'hell' || saved.theme === 'dunkel' ? saved.theme : 'system',
   schrift: saved.schrift === 'gross' || saved.schrift === 'sehrgross' ? saved.schrift : 'normal',
+  bewegung: saved.bewegung === 'reduziert' ? 'reduziert' : 'system',
   sidebarCollapsed: saved.sidebarCollapsed === true,
   drawerOpen: false,
 }, (s) => {
-  storage.write(KEY, { moduleId: s.moduleId, theme: s.theme, schrift: s.schrift, sidebarCollapsed: s.sidebarCollapsed });
+  storage.write(KEY, { moduleId: s.moduleId, theme: s.theme, schrift: s.schrift, bewegung: s.bewegung, sidebarCollapsed: s.sidebarCollapsed });
   applyTheme(s.theme);
   applySchrift(s.schrift);
+  applyBewegung(s.bewegung);
 });
 
 export function applySchrift(schrift: Schrift) {
@@ -42,6 +49,20 @@ export function applySchrift(schrift: Schrift) {
   else document.documentElement.setAttribute('data-schrift', schrift);
 }
 applySchrift(session.get().schrift);
+
+export function applyBewegung(bewegung: Bewegung) {
+  if (typeof document === 'undefined') return;
+  if (bewegung === 'system') document.documentElement.removeAttribute('data-motion');
+  else document.documentElement.setAttribute('data-motion', 'reduce');
+}
+applyBewegung(session.get().bewegung);
+
+/** Soll gerade auf Bewegung verzichtet werden (System oder App-Einstellung)? */
+export function wenigBewegung(): boolean {
+  if (typeof document === 'undefined') return true;
+  return document.documentElement.dataset.motion === 'reduce'
+    || (typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches);
+}
 
 export function applyTheme(theme: Theme) {
   if (typeof document === 'undefined') return;
@@ -65,7 +86,7 @@ channel?.addEventListener('message', (e: MessageEvent<Partial<SessionState>>) =>
 });
 
 /** Arbeitsbereich wechseln und andere Tabs informieren. */
-export function setWorkspace(patch: Partial<Pick<SessionState, 'moduleId' | 'theme' | 'schrift'>>) {
+export function setWorkspace(patch: Partial<Pick<SessionState, 'moduleId' | 'theme' | 'schrift' | 'bewegung'>>) {
   session.set(patch);
   if (!fromChannel) channel?.postMessage(patch);
 }

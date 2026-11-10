@@ -31,7 +31,7 @@ export function EmptyState({ spec }: { spec: EmptySpec }) {
     <div className="state state--empty">
       <svg className="state__art" viewBox="0 0 84 84" aria-hidden="true">
         <circle cx="42" cy="42" r="40" className="state__art-bg" />
-        <path d={ILLUSTRATION[spec.illustration ?? 'allgemein']} />
+        <path d={ILLUSTRATION[spec.illustration ?? 'allgemein']} pathLength={1} />
       </svg>
       <p className="state__title">{spec.title}</p>
       <p className="state__msg">{spec.message}</p>
