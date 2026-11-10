@@ -142,6 +142,10 @@ try {
     await page.getByRole('button', { name: /messe Blutdruck/ }).click();
     await page.locator('.sim-monitor:not(.is-aus)').waitFor();
     await page.locator('.fall__option').first().waitFor();
+    await page.getByRole('button', { name: '1: Patient ansehen' }).click();
+    await page.getByRole('region', { name: /^1: Patient/ }).waitFor();
+    await page.getByRole('button', { name: 'Übergabe', exact: true }).click();
+    assert(await page.getByRole('button', { name: /^Ich übergebe nach SBAR/ }).isVisible());
     await page.waitForTimeout(3000); // Untertitel blendet Wort für Wort ein, erst danach Kontrast messen
     await audit('Fallsimulator Probefall'); await page.screenshot({ path: path.join(output, `fall-probe-${width}.png`), fullPage: true });
     await context.close();

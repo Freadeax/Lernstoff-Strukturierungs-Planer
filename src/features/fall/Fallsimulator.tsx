@@ -11,7 +11,8 @@ import { faelleZuKrankheit, KI_KRANKHEITEN } from '../krankheitsbilder/fallbezug
 import { PatientenMonitor } from '../../ui/sim/PatientenMonitor';
 import { DEMO_SZENARIO, demoAbschluss, demoZug, istDemo } from './demo';
 import { Szene } from './Szene';
-import { szenenBild } from './szene';
+import { szenenBild, type Fokus, type SzenenBild } from './szene';
+import { LEISTE, leistenVorschlaege, objektInfo, RAUM_FUER, type Leiste, type Marker, type Raum } from './raeume';
 import {
   fallThemen, SETTING_LABEL, STUFE_LABEL, SZENARIEN, szenarioAusThema,
   type Setting, type Stufe, type Szenario,
@@ -314,6 +315,61 @@ function AktuellerZug({ fall }: { fall: Fall }) {
   );
 }
 
+// ---------- Objektmenü und Bedienleiste ----------
+
+function Vorschlag({ text, demo, onWahl }: { text: string; demo: boolean; onWahl: (t: string) => void }) {
+  return (
+    <li>
+      <button type="button" className="fall__vorschlag" disabled={demo} onClick={() => onWahl(text)}
+        title={demo ? 'Im Probefall wählst du aus den Vorschlägen unten. Mit KI-Schlüssel übernimmst du das als eigene Handlung.' : 'In das Eingabefeld übernehmen'}>
+        {text}
+      </button>
+    </li>
+  );
+}
+
+function Werkzeuge({ fall, bild, raum, demo, marker, setMarker, onWahl, onUebersicht }: {
+  fall: Fall; bild: SzenenBild; raum: Raum; demo: boolean; marker: Marker | null; setMarker: (m: Marker | null) => void;
+  onWahl: (t: string) => void; onUebersicht: () => void;
+}) {
+  const [bereich, setBereich] = useState<Leiste | null>(null);
+  const runde = fall.runden.length;
+  useEffect(() => { setBereich(null); }, [runde]);
+  const info = marker ? objektInfo(marker.id, raum, bild) : null;
+  return (
+    <div className="fall__werkzeuge">
+      <div className="fall__leiste" role="group" aria-label="Bedienleiste">
+        {LEISTE.map((l) => (
+          <button key={l.id} type="button" className="fall__leisten-knopf" aria-pressed={bereich === l.id}
+            onClick={() => { setBereich(bereich === l.id ? null : l.id); setMarker(null); }}>{l.label}</button>
+        ))}
+        <button type="button" className="fall__leisten-knopf is-uebersicht" onClick={() => { setBereich(null); onUebersicht(); }}>Raumübersicht</button>
+      </div>
+      {info && marker && (
+        <section className="fall__objekt" aria-label={`${marker.nr}: ${info.titel}`}>
+          <div className="fall__objekt-kopf">
+            <strong><span className="fall__objekt-nr" aria-hidden="true">{marker.nr}</span> {info.titel}</strong>
+            <button type="button" className="ghost" onClick={() => setMarker(null)}>Schließen</button>
+          </div>
+          <ul className="fall__objekt-beobachtung">{info.beobachtung.map((b) => <li key={b}>{b}</li>)}</ul>
+          <ul className="fall__vorschlaege">{info.handlungen.map((h) => <Vorschlag key={h} text={h} demo={demo} onWahl={onWahl} />)}</ul>
+        </section>
+      )}
+      {bereich && (
+        <section className="fall__objekt" aria-label={LEISTE.find((l) => l.id === bereich)!.label}>
+          <div className="fall__objekt-kopf">
+            <strong>{LEISTE.find((l) => l.id === bereich)!.label}</strong>
+            <button type="button" className="ghost" onClick={() => setBereich(null)}>Schließen</button>
+          </div>
+          {bereich === 'uebergabe' && <p className="muted">Entwurf aus dem bisherigen Verlauf. Prüfe ihn und ergänze, was fehlt.</p>}
+          <ul className="fall__vorschlaege">{leistenVorschlaege(bereich, raum, bild, fall).map((h) => <Vorschlag key={h} text={h} demo={demo} onWahl={onWahl} />)}</ul>
+        </section>
+      )}
+      {demo && (info || bereich) && <p className="muted fall__demo-hinweis">Im Probefall sind diese Handlungen nur zum Ansehen. Mit KI-Schlüssel übernimmst du sie ins Eingabefeld.</p>}
+    </div>
+  );
+}
+
 const warte = (ms: number) => new Promise((ok) => setTimeout(ok, ms));
 
 // ---------- Seite ----------
@@ -387,6 +443,17 @@ export default function Fallsimulator() {
 
   const letzter = fall?.runden.at(-1)?.zug;
   const bild = useMemo(() => (fall ? szenenBild(fall) : null), [fall]);
+  const raum: Raum = fall ? RAUM_FUER[fall.szenario.setting] ?? 'krankenhaus' : 'krankenhaus';
+  // Marker oder Raumübersicht steuern die Kamera, bis der nächste Zug kommt
+  const [marker, setMarker] = useState<Marker | null>(null);
+  const [kamera, setKamera] = useState<Fokus | null>(null);
+  const runden = fall?.runden.length ?? 0;
+  useEffect(() => { setMarker(null); setKamera(null); }, [runden]);
+  function waehleMarker(m: Marker | null) { setMarker(m); setKamera(m ? m.ort : null); }
+  function uebernimm(text: string) {
+    setEingabe(text);
+    requestAnimationFrame(() => { inputRef.current?.focus(); inputRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' }); });
+  }
   const demo = fall ? istDemo(fall) : false;
   const entscheidungen = fall?.runden.filter((r) => r.eingabe).length ?? 0;
 
@@ -421,9 +488,13 @@ export default function Fallsimulator() {
 
             {bild && (
               <div className="fall__buehne">
-                <Szene bild={bild} uhrzeit={letzter?.uhrzeit} />
+                <Szene bild={bild} raum={raum} uhrzeit={letzter?.uhrzeit} fokus={kamera ?? undefined} aktiverMarker={marker?.id ?? null} onMarker={(m) => waehleMarker(marker?.id === m.id ? null : m)} />
                 <PatientenMonitor werte={bild.monitor} aktiv={bild.monitorAn} titel={bild.monitorAn ? `${letzter?.uhrzeit ?? ''} Uhr` : 'Noch nicht gemessen'} />
               </div>
+            )}
+
+            {bild && letzter && !letzter.beendet && (
+              <Werkzeuge fall={fall} bild={bild} raum={raum} demo={demo} marker={marker} setMarker={waehleMarker} onWahl={uebernimm} onUebersicht={() => { setMarker(null); setKamera('raum'); }} />
             )}
 
             {fall.runden.length > 1 && (
