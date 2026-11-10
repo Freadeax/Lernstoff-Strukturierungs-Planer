@@ -36,7 +36,8 @@ function Figurbild({ f, x }: { f: Figur; x: number }) {
 
 /** Bett mit Patient; Lage, Atmung, Haut und Gesicht folgen dem Zustand. */
 function PatientImBett({ z }: { z: SzenenZustand }) {
-  const winkel = z.lage === 'erhoeht' ? -24 : z.lage === 'flach' ? 4 : -10;
+  const winkel = z.lage === 'erhoeht' ? -24 : z.lage === 'flach' || z.lage === 'schock' ? 4 : -10;
+  const beine = z.lage === 'schock' ? 9 : z.lage === 'bein' ? 6 : 0;
   return <g className="szene__bett">
     <path d="M265 288V330M555 288V330" stroke="#6c7a75" strokeWidth="7" strokeLinecap="round" />
     <circle cx="265" cy="334" r="6" className="szene__rad" /><circle cx="555" cy="334" r="6" className="szene__rad" />
@@ -49,7 +50,7 @@ function PatientImBett({ z }: { z: SzenenZustand }) {
       <g className="szene__brust"><path d="M440 262q22-30 72-12l4 12z" className="szene__decke" /></g>
       <Gesicht z={z} cx={530} cy={230} />
     </g>
-    <path d="M262 262q40-26 90-12q40-14 92 -2l0 16h-182z" className="szene__decke" />
+    <g className="szene__beine" style={{ transform: `rotate(${beine}deg)` }}><path d="M262 262q40-26 90-12q40-14 92 -2l0 16h-182z" className="szene__decke" /></g>
     {z.zugang && <g><rect x="470" y="252" width="10" height="5" rx="2" fill="#fff" stroke="#5a8fb0" /><circle cx="475" cy="254" r="2" fill="#2f7fd1" /></g>}
     <rect x="562" y="205" width="12" height="85" rx="4" fill="#8c9c96" />
   </g>;
@@ -136,6 +137,7 @@ export function Szene({ s, fokus, onFokus, zeitraffer }: { s: Session; fokus: Ra
   const stil = { '--atem': `${z.atemSek.toFixed(2)}s`, '--herz': `${z.herzSek.toFixed(2)}s`, '--pflege-x': `${pflegeX}px` } as CSSProperties;
 
   return <div className={klassen} style={stil}>
+    <div className="szene__buehne">
     <svg viewBox="0 0 800 450" aria-hidden="true" focusable="false" className="szene__svg">
       <defs>
         <linearGradient id="szene-himmel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" className="szene__himmel-oben" /><stop offset="1" className="szene__himmel-unten" /></linearGradient>
@@ -219,6 +221,7 @@ export function Szene({ s, fokus, onFokus, zeitraffer }: { s: Session; fokus: Ra
       <strong>{BLASEN_TITEL[blase.ton]}</strong>
       <span>{blase.ton === 'rede' ? `„${blase.text}“` : blase.text}</span>
     </div>}
+    </div>
     <div className="szene__orte" role="group" aria-label="Wohin gehst du?">
       {RAUM_ELEMENTE.map(e => <button key={e} type="button" className="praxis-hotspot" aria-pressed={fokus === e} aria-label={`${info[e].label}: ${info[e].zweck}`} onClick={() => onFokus(e)}><span className={`szene__ort-symbol is-${e}`} aria-hidden="true" />{info[e].kurz}</button>)}
     </div>

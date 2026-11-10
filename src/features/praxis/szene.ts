@@ -10,7 +10,8 @@ import type { Avpu } from './news2';
 import type { Event, Session, StoryKind } from './types';
 
 export type Hautton = 'rosig' | 'blass' | 'grau' | 'zyanotisch' | 'geroetet';
-export type Lage = 'normal' | 'erhoeht' | 'flach' | 'sitzend';
+/** schock = flach mit hochgelagerten Beinen, bein = Oberkörper normal, ein Bein hochgelagert. */
+export type Lage = 'normal' | 'erhoeht' | 'flach' | 'schock' | 'bein' | 'sitzend';
 export type FigurArt = 'arzt' | 'kollege' | 'angehoerige' | 'rettung';
 export type Figur = { art: FigurArt; label: string; seit: number; grund: string };
 export type BlasenQuelle = 'patient' | 'telefon' | 'tuer' | 'pflege' | 'monitor' | 'wagen';
@@ -39,8 +40,18 @@ export type HandlungsArt = 'messen' | 'hoeren' | 'reden' | 'tasten' | 'telefonie
 
 /** Wie lange (Simulationssekunden) eine Person nach einem Ereignis im Zimmer bleibt. */
 export const VERWEILDAUER = 6 * 60;
-const FLACH = new Set(['flat', 'lie_flat', 'legs', 'feed_flat']);
-const ERHOEHT = /oberkörper|aufrecht|herzbett|hochlagern|hoch lagern|sitzend lagern|kutschersitz/i;
+/**
+ * Lagerung je Handlung. Reihenfolge zählt: „flach … Beine hoch“ ist Schocklage, „Bein hochlagern“
+ * betrifft nur das Bein, Oberkörper-Formulierungen heben den Oberkörper. Ohne Treffer bleibt die Lage.
+ */
+export function lageVon(a: { id: string; label: string }): Exclude<Lage, 'sitzend'> | undefined {
+  const t = a.label.toLowerCase();
+  if (/flach/.test(t) && /beine? hoch/.test(t)) return 'schock';
+  if (/flach/.test(t)) return 'flach';
+  if (/bein(e)? hoch/.test(t)) return 'bein';
+  if (/oberkörper|atemerleichternd|kutschersitz|aufrecht|herzbett|hinsetzen|zurück ins bett setzen|an der bettkante sitzen/.test(t)) return 'erhoeht';
+  return undefined;
+}
 const FIGUR_ZU_STORY: Partial<Record<StoryKind, FigurArt>> = { angehoerige: 'angehoerige', visite: 'arzt', team: 'kollege' };
 const FIGUR_LABEL: Record<FigurArt, string> = { arzt: 'Ärztin/Arzt', kollege: 'Pflegefachkraft aus dem Team', angehoerige: 'Angehörige/r', rettung: 'Rettungsdienst' };
 
@@ -61,9 +72,10 @@ export function lage(s: Session, zuhause: boolean): Lage {
   const trail = [...(s.trail ?? [])].sort((a, b) => a.at - b.at);
   for (const t of trail) {
     const a = s.scenario.actions.find(x => x.id === t.id);
-    if (!a) continue;
-    if (FLACH.has(a.id) || /flach/i.test(a.label)) l = 'flach';
-    else if (ERHOEHT.test(a.label)) l = zuhause ? 'sitzend' : 'erhoeht';
+    const neu = a && lageVon(a);
+    if (!neu) continue;
+    // Im Sessel gibt es nur sitzend oder zurückgelehnt.
+    l = zuhause ? (neu === 'erhoeht' || neu === 'bein' ? 'sitzend' : 'flach') : neu;
   }
   return l;
 }
