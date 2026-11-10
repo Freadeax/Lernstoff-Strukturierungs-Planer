@@ -87,6 +87,8 @@ function Lernmodus() {
   const [stand, setStand] = useState<Record<string, { richtig: boolean; wahl: string }>>(() => storage.read(LERN_KEY, {}));
   const offen = fragen.findIndex(({ q }) => !stand[q.id]);
   const [index, setIndex] = useState(offen < 0 ? 0 : offen);
+  // Zählt Neustarts, damit „Von vorn“ auch die offene Frage neu aufbaut (alte Markierungen weg).
+  const [runde, setRunde] = useState(0);
   const aktuell = fragen[index];
   const richtig = Object.values(stand).filter((s) => s.richtig).length;
   const antworten = (id: string, r: boolean, wahl: string) => setStand((s) => { const n = { ...s, [id]: { richtig: r, wahl } }; storage.write(LERN_KEY, n); return n; });
@@ -95,11 +97,11 @@ function Lernmodus() {
       <h3 id="dx-lernen">Befund lesen lernen</h3>
       <p className="muted">Schritt {index + 1} von {fragen.length} · {richtig} richtig · aus „{aktuell.f.titel}“</p>
       <div className="dx-fortschritt" aria-hidden="true">{fragen.map(({ q }, i) => <i key={q.id} className={stand[q.id] ? (stand[q.id].richtig ? 'is-richtig' : 'is-falsch') : i === index ? 'is-jetzt' : ''} />)}</div>
-      <FrageKarte key={aktuell.q.id} frage={aktuell.q} fall={aktuell.f} antwort={stand[aktuell.q.id]} onAntwort={(r, w) => antworten(aktuell.q.id, r, w)} />
+      <FrageKarte key={`${aktuell.q.id}-${runde}`} frage={aktuell.q} fall={aktuell.f} antwort={stand[aktuell.q.id]} onAntwort={(r, w) => antworten(aktuell.q.id, r, w)} />
       <div className="dx-zeile">
         <button type="button" disabled={index === 0} onClick={() => setIndex(index - 1)}>Zurück</button>
         <button type="button" className="primary" disabled={index === fragen.length - 1} onClick={() => setIndex(index + 1)}>Weiter</button>
-        <button type="button" onClick={() => { setStand({}); storage.write(LERN_KEY, null); setIndex(0); }}>Von vorn</button>
+        <button type="button" onClick={() => { setStand({}); storage.write(LERN_KEY, null); setIndex(0); setRunde((r) => r + 1); }}>Von vorn</button>
       </div>
     </section>
   );

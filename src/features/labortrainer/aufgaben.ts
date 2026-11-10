@@ -124,6 +124,18 @@ const befund: Aufgabe[] = [
   wahl('bf.hb', THEMEN.blut, 'Hämoglobin', 'Am Tag nach einer OP sinkt das Hb von 12,8 auf 8,9 g/dl. Was beobachtest du gezielt?',
     ['Blutungszeichen (Verband, Drainage), Blässe, Puls, Blutdruck, Schwindel beim Aufstehen', 'Nur den Appetit', 'Den Blutzucker', 'Nichts, das ist nach OP immer so'],
     ['Ein Abfall dieser Größe kann Blutung oder starke Verdünnung bedeuten. Sturzgefahr bei Mobilisation; ärztlich melden.']),
+  wahl('bf.krea-anstieg', THEMEN.niere, 'Kreatinin', 'Das Kreatinin steigt innerhalb von zwei Tagen von 0,9 auf 1,8 mg/dl. Was beobachtest du jetzt besonders?',
+    ['Urinmenge und Bilanz, Gewicht, Ödeme, nierenschädigende Medikamente melden', 'Nur die Körpertemperatur', 'Nichts, Kreatinin schwankt immer so stark', 'Die Trinkmenge auf 500 ml begrenzen, ohne Rücksprache'],
+    ['Ein Anstieg auf das Doppelte spricht für eine akute Nierenschädigung. Die Urinausscheidung ist der früheste pflegerische Hinweis; Medikamente wie NSAR oder Metformin ärztlich ansprechen.']),
+  wahl('bf.kalium-niere', THEMEN.niere, 'Kalium bei Niereninsuffizienz', 'Bei einer Patientin mit Niereninsuffizienz liegt das Kalium bei 6,3 mmol/l (Probe nicht hämolytisch). Was ist richtig?',
+    ['Gefahr von Herzrhythmusstörungen: sofort ärztlich melden, Monitor nach Anordnung', 'Unbedenklich, die Niere scheidet es morgen aus', 'Eine Banane gegen den Hunger anbieten', 'Nur beim nächsten Routinelabor erneut prüfen'],
+    ['Die kranke Niere scheidet Kalium schlecht aus. Hohe Werte können das Herz gefährden; kaliumreiche Kost und kaliumsparende Medikamente sind dann Thema für die ärztliche Anordnung.']),
+  wahl('bf.hba1c', THEMEN.diabetes, 'HbA1c', 'Was zeigt der HbA1c-Wert?',
+    ['Den mittleren Blutzucker der letzten etwa 8–12 Wochen', 'Den Blutzucker im Moment der Abnahme', 'Ob gerade eine Unterzuckerung vorliegt', 'Die Insulinmenge im Blut'],
+    ['HbA1c eignet sich zur Verlaufskontrolle der Einstellung. Für akute Entscheidungen (Hypo, Hyper) zählt der aktuelle Blutzucker.']),
+  wahl('bf.keton', THEMEN.diabetes, 'Ketone', 'Blutzucker 412 mg/dl, Ketone im Urin stark positiv, tiefe Atmung. Was ist richtig?',
+    ['Verdacht auf Ketoazidose: sofort ärztlich melden, BGA und Elektrolyte nach Anordnung', 'Normal nach einer großen Mahlzeit', 'Erst morgen nüchtern nachmessen', 'Mehr Kohlenhydrate geben'],
+    ['Bei Insulinmangel verbrennt der Körper Fett, es entstehen Ketone und eine metabolische Azidose. Die tiefe Atmung (Kussmaul) ist der Versuch, CO₂ abzuatmen.']),
 ];
 
 export const BEREICHE: Bereich[] = [

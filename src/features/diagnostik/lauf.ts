@@ -3,7 +3,7 @@
 
 import { bewerte, parameter } from '../../ui/sim/labor/parameter';
 import { kumulativ, werteAuftrag, type Auftrag, type AuftragsErgebnis, type Ergebnis, type Flags, type Prioritaet, wahrerWert } from '../../ui/sim/labor/modell';
-import { benoetigteRoehrchen, type Abnahme } from '../../ui/sim/labor/praeanalytik';
+import { benoetigteRoehrchen, STANDARD_ABNAHME, type Abnahme } from '../../ui/sim/labor/praeanalytik';
 import type { MonitorWerte } from '../../ui/sim/monitor';
 import type { DiagnostikFall, Untersuchung } from './typen';
 
@@ -22,6 +22,8 @@ export interface Lauf {
   aufgedeckt: string[];
   /** Parameter-ID@Minute des Befunds -> Minute der Quittung */
   quittiert: Record<string, number>;
+  /** Parameter-ID@Auftrag -> Minute, zu der der kritische Wert ärztlich nachgemeldet wurde */
+  gemeldet?: Record<string, number>;
   sbar?: { minute: number; fakten: string[] };
   massnahmen: { id: string; minute: number }[];
   antworten: Record<string, { richtig: boolean; wahl: string }>;
@@ -37,6 +39,7 @@ export type Befehl =
   | { typ: 'aufdecken'; serie: string }
   | { typ: 'quittieren'; schluessel: string }
   | { typ: 'sbar'; fakten: string[] }
+  | { typ: 'melden'; schluessel: string }
   | { typ: 'massnahme'; id: string }
   | { typ: 'antwort'; frage: string; richtig: boolean; wahl: string }
   | { typ: 'notiz'; text: string }
@@ -61,6 +64,17 @@ export function offeneAnrufe(l: Lauf, fall: DiagnostikFall): { schluessel: strin
   const out: { schluessel: string; ergebnis: Ergebnis }[] = [];
   for (const a of ergebnisse(l, fall)) for (const e of a.ergebnisse) {
     if (e.anruf && e.fertig <= l.minute && l.quittiert[anrufSchluessel(e, a.auftrag)] === undefined) out.push({ schluessel: anrufSchluessel(e, a.auftrag), ergebnis: e });
+  }
+  return out;
+}
+
+/** Quittierte kritische Werte, die nach dem SBAR-Gespräch kamen und noch ärztlich nachgemeldet werden müssen. */
+export function offeneMeldungen(l: Lauf, fall: DiagnostikFall): { schluessel: string; ergebnis: Ergebnis }[] {
+  if (!l.sbar) return [];
+  const out: { schluessel: string; ergebnis: Ergebnis }[] = [];
+  for (const a of ergebnisse(l, fall)) for (const e of a.ergebnisse) {
+    const k = anrufSchluessel(e, a.auftrag);
+    if (e.anruf && l.quittiert[k] !== undefined && l.sbar.minute < e.fertig && l.gemeldet?.[k] === undefined) out.push({ schluessel: k, ergebnis: e });
   }
   return out;
 }
@@ -132,11 +146,22 @@ export function fuehreAus(l: Lauf, fall: DiagnostikFall, b: Befehl): Lauf {
       const n = rueckt(l, ZEIT.sbar);
       return { ...n, sbar: { minute: l.minute, fakten: b.fakten }, log: log(n, 'Ärztin/Arzt per SBAR informiert, Anordnungen liegen vor') };
     }
+    case 'melden': {
+      if (!l.sbar || l.gemeldet?.[b.schluessel] !== undefined || l.quittiert[b.schluessel] === undefined) return l;
+      const [id] = b.schluessel.split('@');
+      const n = rueckt(l, 2);
+      return { ...n, gemeldet: { ...l.gemeldet, [b.schluessel]: l.minute }, log: log(n, `Kritischen Wert ${parameter(id).name} ärztlich nachgemeldet`) };
+    }
     case 'massnahme': {
       const a = fall.anordnungen.find((x) => x.id === b.id);
       if (!a || !l.sbar || l.flags[a.flag] !== undefined) return l;
       const n = rueckt(l, a.dauer);
-      return { ...n, flags: { ...n.flags, [a.flag]: l.minute + Math.min(a.dauer, 5) }, massnahmen: [...l.massnahmen, { id: a.id, minute: l.minute }], log: log(n, `Durchgeführt: ${a.label}`) };
+      const zeit = l.minute + Math.min(a.dauer, 5);
+      // Blutkulturen als Anordnung: dieselbe Probe geht auch ins Labor (sonst gäbe es nie einen Befund).
+      const bk = a.flag === 'bk-abgenommen' && !l.auftraege.some((x) => x.parameter.includes('bk'))
+        ? [{ id: `a${l.auftraege.length + 1}`, parameter: ['bk'], prioritaet: 'notfall' as Prioritaet, minute: zeit, abnahme: { ...STANDARD_ABNAHME, vorAntibiose: l.flags.antibiose === undefined } }]
+        : [];
+      return { ...n, flags: { ...n.flags, [a.flag]: zeit }, auftraege: [...l.auftraege, ...bk], massnahmen: [...l.massnahmen, { id: a.id, minute: l.minute }], log: log(n, `Durchgeführt: ${a.label}`) };
     }
     case 'antwort':
       if (l.antworten[b.frage]) return l;
@@ -169,9 +194,10 @@ export function auswertung(l: Lauf, fall: DiagnostikFall): Punkt[] {
   for (const { e, k } of kritisch) {
     const q = l.quittiert[k];
     const pp = parameter(e.parameter);
-    const gemeldet = l.sbar && l.sbar.minute >= e.fertig;
-    const text = q === undefined ? `Der Laboranruf zu ${pp.name} wurde nicht entgegengenommen.` : `${pp.name} nach ${q - e.fertig} min quittiert${gemeldet ? `, ärztlich gemeldet nach ${l.sbar!.minute - e.fertig} min.` : l.sbar ? ', das SBAR-Gespräch lag aber schon vorher.' : ', aber nicht ärztlich weitergegeben.'}${e.verfaelscht ? ' Achtung: der Wert war durch die Präanalytik verfälscht.' : ''}`;
-    p.push({ ok: q !== undefined && (gemeldet || !!l.sbar), titel: 'Kritischer Wert', text });
+    // Gemeldet zählt nur, wenn die Meldung nach Eintreffen des Werts kam (SBAR danach oder eigene Nachmeldung).
+    const meldung = l.gemeldet?.[k] ?? (l.sbar && l.sbar.minute >= e.fertig ? l.sbar.minute : undefined);
+    const text = q === undefined ? `Der Laboranruf zu ${pp.name} wurde nicht entgegengenommen.` : `${pp.name} nach ${q - e.fertig} min quittiert${meldung !== undefined ? `, ärztlich gemeldet nach ${meldung - e.fertig} min.` : l.sbar ? ', aber nicht ärztlich nachgemeldet (das SBAR-Gespräch lag vor dem Befund).' : ', aber nicht ärztlich weitergegeben.'}${e.verfaelscht ? ' Achtung: der Wert war durch die Präanalytik verfälscht.' : ''}`;
+    p.push({ ok: q !== undefined && meldung !== undefined, titel: 'Kritischer Wert', text });
   }
 
   for (const u of fall.bildgebung) {

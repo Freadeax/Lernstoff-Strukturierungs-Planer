@@ -10,7 +10,7 @@ import { uhrzeit } from '../../ui/sim/labor/modell';
 import type { Farbsystem } from '../../ui/sim/labor/praeanalytik';
 import { LaborBereich } from './LaborBereich';
 import { FrageKarte, Rueckmeldung } from './FrageKarte';
-import { auswertung, fuehreAus, naechsterBefund, offeneAnrufe, vitalwerte, type Befehl, type Lauf } from './lauf';
+import { auswertung, fuehreAus, naechsterBefund, offeneAnrufe, offeneMeldungen, vitalwerte, type Befehl, type Lauf } from './lauf';
 import type { DiagnostikFall, Untersuchung } from './typen';
 
 export const REITER = [
@@ -28,6 +28,7 @@ export function FallAnsicht({ fall, lauf, setLauf, zurueck, farbsystem, setFarbs
   const [reiter, setReiter] = useState<Reiter>('beobachtung');
   const senden = (b: Befehl) => setLauf(fuehreAus(lauf, fall, b));
   const anrufe = offeneAnrufe(lauf, fall);
+  const meldungen = lauf.beendet === undefined ? offeneMeldungen(lauf, fall) : [];
   const naechster = naechsterBefund(lauf, fall);
   const werte = vitalwerte(lauf, fall);
   const uhr = uhrzeit(fall.startzeit, lauf.minute);
@@ -46,6 +47,16 @@ export function FallAnsicht({ fall, lauf, setLauf, zurueck, farbsystem, setFarbs
           <div key={schluessel} className="dx-anruf" role="alert">
             <p><strong>Telefon: Zentrallabor.</strong> „Kritischer Wert bei {fall.patient.name}: {p.name} {formatWert(p, ergebnis.wert!)} {p.einheit}, {FLAG_TEXT[ergebnis.flag]}.{ergebnis.kommentar ? ` ${ergebnis.kommentar}` : ''}“</p>
             <button type="button" className="primary" onClick={() => senden({ typ: 'quittieren', schluessel })}>Zurücklesen, Name und Uhrzeit dokumentieren</button>
+          </div>
+        );
+      })}
+
+      {meldungen.map(({ schluessel, ergebnis }) => {
+        const p = parameter(ergebnis.parameter);
+        return (
+          <div key={schluessel} className="dx-anruf" role="status">
+            <p><strong>Noch nicht ärztlich gemeldet:</strong> {p.name} {formatWert(p, ergebnis.wert!)} {p.einheit} kam nach deinem SBAR-Gespräch.</p>
+            <button type="button" className="primary" onClick={() => senden({ typ: 'melden', schluessel })}>Ärztin/Arzt anrufen und den Wert melden</button>
           </div>
         );
       })}
