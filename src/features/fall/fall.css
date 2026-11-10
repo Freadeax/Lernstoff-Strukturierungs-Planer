@@ -212,3 +212,33 @@ a.pill { display: inline-flex; align-items: center; text-decoration: none; color
 .fall__probe p { margin: var(--space-1) 0 0; font-size: var(--text-sm); }
 .fall__aktuell { display: flex; flex-direction: column; gap: var(--space-2); }
 .fall__aktuell .note { margin: 0; }
+
+/* Marker in der Szene */
+.szene__marker { cursor: pointer; outline: none; }
+.szene__marker-kreis { fill: #2dd4bf; stroke: #0b3b35; stroke-width: 2; transition: r var(--dur-fast) var(--ease-standard); animation: szene-marker 2.4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.szene__marker-nr { font: 700 12px var(--font-sans, system-ui); fill: #062b26; pointer-events: none; }
+.szene__marker:hover .szene__marker-kreis, .szene__marker.is-aktiv .szene__marker-kreis { fill: #fff; stroke: #17695f; stroke-width: 3; }
+.szene__marker:focus-visible .szene__marker-kreis { stroke: var(--color-focus, #1d4ed8); stroke-width: 4; }
+@keyframes szene-marker { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+.szene__tropf { animation: szene-tropf 1.4s linear infinite; }
+@keyframes szene-tropf { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -12; } }
+
+/* Bedienleiste und Objektmenü */
+.fall__werkzeuge { display: flex; flex-direction: column; gap: var(--space-2); }
+.fall__leiste { display: flex; flex-wrap: wrap; gap: 2px; padding: 3px; border-radius: var(--radius-md); background: #1b2523; scrollbar-width: none; }
+.fall__leisten-knopf {
+  flex: 1 1 auto; height: auto; min-height: 40px; padding: var(--space-1) var(--space-3); border: 0; border-radius: calc(var(--radius-md) - 3px);
+  background: transparent; color: #e6efec; font: inherit; font-size: var(--text-sm); cursor: pointer; white-space: nowrap;
+  /* kein Farbübergang: Kontrast muss in jedem Moment stimmen */
+}
+.fall__leisten-knopf[aria-pressed='true'] { background: #2dd4bf; color: #062b26; font-weight: var(--weight-medium); }
+@media (hover: hover) { .fall__leisten-knopf:hover:not([aria-pressed='true']) { background: #ffffff1f; } }
+.fall__leisten-knopf:focus-visible { outline: 3px solid #fde68a; outline-offset: -3px; }
+.fall__leisten-knopf.is-uebersicht { color: #9fd9cf; }
+.fall__objekt { border: 1px solid var(--color-border); border-left: 4px solid #2dd4bf; border-radius: var(--radius-md); padding: var(--space-2) var(--space-3); background: var(--color-surface); animation: fall-rein 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.fall__objekt-kopf { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); }
+.fall__objekt-nr { display: inline-grid; place-items: center; width: 1.5rem; height: 1.5rem; border-radius: 50%; background: #2dd4bf; color: #062b26; font-size: var(--text-sm); }
+.fall__objekt-beobachtung { margin: var(--space-1) 0; padding-left: var(--space-4); font-size: var(--text-sm); }
+.fall__vorschlaege { list-style: none; margin: var(--space-1) 0 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-1); }
+.fall__vorschlag { width: 100%; height: auto; min-height: var(--control-h); text-align: left; white-space: normal; justify-content: flex-start; padding: var(--space-2) var(--space-3); line-height: var(--leading-normal); }
+@media (prefers-reduced-motion: reduce) { .szene__marker-kreis, .szene__tropf, .fall__objekt { animation: none !important; } }
