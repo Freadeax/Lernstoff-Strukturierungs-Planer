@@ -182,7 +182,7 @@ a.pill { display: inline-flex; align-items: center; text-decoration: none; color
 @keyframes szene-rahmen { 50% { stroke: #5b6b67; } }
 @keyframes szene-wackeln { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-8deg); } 75% { transform: rotate(8deg); } }
 @keyframes szene-tropfen { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(10px); opacity: 0; } }
-@keyframes szene-herein { from { transform: translate(-60px, -20px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes szene-herein { from { transform: translate(-70px, -24px) scale(0.85); } to { transform: none; } }
 @keyframes szene-wippen { 25%, 75% { transform: translateY(-3px); } 50% { transform: translateY(0); } }
 @keyframes szene-einblenden { from { stroke-dashoffset: 220; } to { stroke-dashoffset: 0; } }
 
@@ -190,9 +190,11 @@ a.pill { display: inline-flex; align-items: center; text-decoration: none; color
 .fall__untertitel { margin: 0; padding: var(--space-3); border-radius: var(--radius-md); background: var(--color-surface-sunken); line-height: var(--leading-normal); font-size: var(--text-md, 1rem); }
 .fall__untertitel button.fall__weiter { all: unset; cursor: pointer; }
 .fall__wort { animation: fall-wort 0.35s ease-out both; }
-@keyframes fall-wort { from { opacity: 0; filter: blur(2px); } to { opacity: 1; filter: none; } }
+/* Einblenden über clip-path, nie über opacity: Text ist in jedem Moment voll kontrastreich */
+.fall__wort { display: inline-block; }
+@keyframes fall-wort { from { clip-path: inset(0 100% 0 0); transform: translateY(2px); } to { clip-path: inset(0 0 0 0); transform: none; } }
 .fall__rueck { animation: fall-rein 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
-@keyframes fall-rein { from { opacity: 0; transform: translateY(8px) scale(0.98); } to { opacity: 1; transform: none; } }
+@keyframes fall-rein { from { transform: translateY(10px) scale(0.98); } to { transform: none; } }
 .fall__option { animation: fall-rein 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 .fall__option:nth-child(2) { animation-delay: 0.08s; }
 .fall__option:nth-child(3) { animation-delay: 0.16s; }
@@ -229,7 +231,7 @@ a.pill { display: inline-flex; align-items: center; text-decoration: none; color
 .fall__leisten-knopf {
   flex: 1 1 auto; height: auto; min-height: 40px; padding: var(--space-1) var(--space-3); border: 0; border-radius: calc(var(--radius-md) - 3px);
   background: transparent; color: #e6efec; font: inherit; font-size: var(--text-sm); cursor: pointer; white-space: nowrap;
-  /* kein Farbübergang: Kontrast muss in jedem Moment stimmen */
+  transition: none; /* kein Farbübergang: Kontrast muss in jedem Moment stimmen */
 }
 .fall__leisten-knopf[aria-pressed='true'] { background: #2dd4bf; color: #062b26; font-weight: var(--weight-medium); }
 @media (hover: hover) { .fall__leisten-knopf:hover:not([aria-pressed='true']) { background: #ffffff1f; } }

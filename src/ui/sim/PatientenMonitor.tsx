@@ -5,6 +5,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import './sim.css';
+import { wenigBewegung } from '../shell/session';
 import { alarmStufe, anzeige, atmung, ekg, gesamtAlarm, pleth, proSekunde, type Alarm, type MonitorWerte } from './monitor';
 
 export type { MonitorWerte } from './monitor';
@@ -20,8 +21,8 @@ export interface PatientenMonitorProps {
   className?: string;
 }
 
-const bewegungReduziert = () =>
-  typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+// Systemeinstellung oder App-Schalter „Bewegung reduzieren“ (data-motion="reduce")
+const bewegungReduziert = () => wenigBewegung();
 
 /** Zahl gleitet in ~0,6 s auf den neuen Wert (bei reduzierter Bewegung sofort). */
 function useGleitend(ziel: number | null | undefined): number | null {
