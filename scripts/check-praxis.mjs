@@ -31,9 +31,14 @@ try {
     // Raumelemente: Antippen zeigt den ersten Blick (ohne Zeitverbrauch) und die Handlungen dort.
     assert(await page.locator('.praxis-element .praxis-blick').textContent().then(t => /Erster Blick: wach und ansprechbar, atmet sichtbar schnell/.test(t ?? '')));
     assert.equal(await page.locator('.praxis-clock strong').textContent(), '00:00:00', 'Hinsehen kostet keine Zeit');
+    // Animierte Zimmerszene: Patient, Pflegekraft und Orte als Knöpfe; Handlungen bewegen die Pflegekraft.
+    assert(await page.locator('.szene .szene__pflege').count() === 1, 'Pflegekraft in der Szene');
+    assert.equal(await page.locator('.szene__orte .praxis-hotspot').count(), 4);
+    assert(await page.locator('.szene .szene__brust').count() >= 1, 'Patient atmet');
     await page.getByRole('button', { name: /^Monitor und Messgeräte/ }).click();
     await page.getByRole('button', { name: /Vitalparameter einschließlich BZ messen/ }).click();
     assert(await page.getByText('Letzte Messung · 00:01:00', { exact: true }).isVisible());
+    assert.equal(await page.locator('.szene__arbeit').count(), 1, 'Messen zeigt die Arbeitsanimation');
     await page.getByRole('button', { name: /^Stationstelefon/ }).click();
     await page.getByRole('button', { name: /Qualifiziertes Team hinzuziehen/ }).click();
     await page.getByRole('button', { name: /Ärztliche Rücksprache und Anordnung/ }).click();
@@ -68,6 +73,11 @@ try {
     await audit('Entscheidung'); await page.screenshot({ path: path.join(output, `entscheidung-${width}.png`), fullPage: true });
     await page.getByRole('button', { name: /Nachbarn kurz ansprechen/ }).click();
     assert.equal(await page.locator('.praxis-decision').count(), 0);
+    await page.getByRole('button', { name: 'Patientenzimmer', exact: true }).click();
+    await page.getByRole('button', { name: /^Monitor und Messgeräte/ }).click();
+    await page.getByRole('button', { name: /Kontinuierliches Monitoring anschließen/ }).click();
+    await page.locator('.szene__schirm canvas').waitFor();
+    assert(await page.locator('.praxis-monitor .sim-monitor').count() === 1, 'Live-Monitor bei Monitoring');
     await page.getByRole('button', { name: 'Dokumentation', exact: true }).click();
     await page.getByLabel('Verlaufsdokumentation', { exact: true }).fill('Patient mit Atemnot. Aufrechte Position unterstützt, ärztliches Team hinzugezogen. Wirkung weiter kontrollieren.');
     await page.getByRole('button', { name: 'Pflegebericht speichern · 1 min', exact: true }).click();
