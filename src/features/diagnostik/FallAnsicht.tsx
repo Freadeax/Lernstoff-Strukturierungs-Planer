@@ -172,7 +172,7 @@ function UntersuchungKarte({ u, fall, lauf, senden }: { u: Untersuchung; fall: D
           />
           <div className="dx-zeile">
             <span className="muted">{serie.befunde.filter((b) => lauf.gefunden.includes(b.id)).length} von {serie.befunde.length} Befunden selbst gefunden</span>
-            {serie.befunde.some((b) => !sichtbar.includes(b.id)) && <button type="button" onClick={() => senden({ typ: 'aufdecken', serie: u.serie.id })}>Befunde zeigen</button>}
+            {serie.befunde.some((b) => !sichtbar.includes(b.id)) && <button type="button" onClick={() => senden({ typ: 'aufdecken', serie: serie.id })}>Befunde zeigen</button>}
           </div>
           {befundDa ? <p className="dx-befundtext"><strong>Befund der Radiologie ({uhrzeit(fall.startzeit, ul.befundAb)}):</strong> {(ansicht === 'echt' && u.echt ? u.echt : u.serie).befundtext}</p>
             : <p className="muted">Schriftlicher Befund der Radiologie folgt gegen {uhrzeit(fall.startzeit, ul.befundAb)}.</p>}

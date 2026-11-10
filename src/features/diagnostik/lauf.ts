@@ -131,9 +131,10 @@ export function fuehreAus(l: Lauf, fall: DiagnostikFall, b: Befehl): Lauf {
       return { ...l, tipps: { ...l.tipps, [b.serie]: liste }, gefunden };
     }
     case 'aufdecken': {
-      const u = untersuchungVon(fall, b.serie);
-      if (!u) return l;
-      const neu = u.serie.befunde.map((x) => x.id).filter((id) => !l.gefunden.includes(id) && !l.aufgedeckt.includes(id));
+      // Auch das echte Vergleichsbild: nur dessen Befunde aufdecken, nicht die des synthetischen Bildes.
+      const serie = fall.bildgebung.flatMap((u) => [u.serie, ...(u.echt ? [u.echt] : [])]).find((x) => x.id === b.serie);
+      if (!serie) return l;
+      const neu = serie.befunde.map((x) => x.id).filter((id) => !l.gefunden.includes(id) && !l.aufgedeckt.includes(id));
       return { ...l, aufgedeckt: [...l.aufgedeckt, ...neu] };
     }
     case 'quittieren': {
