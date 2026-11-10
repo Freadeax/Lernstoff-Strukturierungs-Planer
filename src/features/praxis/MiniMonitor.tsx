@@ -1,15 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
+import { wenigBewegung } from '../../ui/shell/session';
 
-/** true, wenn das System reduzierte Bewegung wünscht. */
+/** true bei reduzierter Bewegung: Systemeinstellung oder App-Einstellung (data-motion="reduce"). */
 export function useReducedMotion(): boolean {
-  const query = typeof window !== 'undefined' && window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
-  const [reduziert, setReduziert] = useState(() => query?.matches ?? false);
+  const [reduziert, setReduziert] = useState(wenigBewegung);
   useEffect(() => {
-    if (!query) return;
-    const onChange = () => setReduziert(query.matches);
-    query.addEventListener?.('change', onChange);
-    return () => query.removeEventListener?.('change', onChange);
-  }, [query]);
+    const pruefen = () => setReduziert(wenigBewegung());
+    const query = typeof matchMedia === 'function' ? matchMedia('(prefers-reduced-motion: reduce)') : null;
+    query?.addEventListener?.('change', pruefen);
+    const mo = typeof MutationObserver !== 'undefined' ? new MutationObserver(pruefen) : null;
+    mo?.observe(document.documentElement, { attributes: true, attributeFilter: ['data-motion'] });
+    return () => { query?.removeEventListener?.('change', pruefen); mo?.disconnect(); };
+  }, []);
   return reduziert;
 }
 
