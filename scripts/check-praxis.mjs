@@ -134,6 +134,16 @@ try {
     await page.screenshot({ path: path.join(output, `dark-${width}.png`), fullPage: true });
     await page.goto(base + '#/lernen/fall', { waitUntil: 'networkidle' });
     await page.getByRole('heading', { name: 'Fallbeispiel-Simulator', exact: true }).waitFor();
+    // Probefall ohne KI: Szene und Monitor laufen, eine Entscheidung bewegt Figur und Werte
+    await page.getByRole('button', { name: 'Probefall starten', exact: true }).click();
+    await page.locator('.fall__option').first().waitFor();
+    assert(await page.locator('.szene svg').isVisible());
+    assert(await page.locator('.sim-monitor.is-aus').isVisible());
+    await page.getByRole('button', { name: /messe Blutdruck/ }).click();
+    await page.locator('.sim-monitor:not(.is-aus)').waitFor();
+    await page.locator('.fall__option').first().waitFor();
+    await page.waitForTimeout(3000); // Untertitel blendet Wort für Wort ein, erst danach Kontrast messen
+    await audit('Fallsimulator Probefall'); await page.screenshot({ path: path.join(output, `fall-probe-${width}.png`), fullPage: true });
     await context.close();
   }
   fs.writeFileSync(path.join(output, 'audit.json'), JSON.stringify({ audits, errors }, null, 2));
