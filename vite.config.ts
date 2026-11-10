@@ -6,6 +6,8 @@ import { execSync } from 'node:child_process';
 /** Sichtbare Build-ID: Commit (kurz) und Build-Datum, z. B. „83ad59d · 2026-11-08“. „+“ = mit lokalen Änderungen. */
 function buildId(): string {
   const datum = new Date().toISOString().slice(0, 10);
+  // Cloudflare Pages liefert den Commit als Umgebungsvariable (das Klonen dort ist flach, git geht trotzdem)
+  if (process.env.CF_PAGES_COMMIT_SHA) return `${process.env.CF_PAGES_COMMIT_SHA.slice(0, 7)} · ${datum}`;
   try {
     const sha = execSync('git rev-parse --short HEAD', { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
     const dirty = execSync('git status --porcelain', { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim() ? '+' : '';
@@ -40,8 +42,8 @@ export default defineConfig({
         lang: 'de',
         start_url: '.',
         display: 'standalone',
-        background_color: '#ffffff',
-        theme_color: '#2563eb',
+        background_color: '#fbf6ec',
+        theme_color: '#123f39',
         icons: [
           { src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
           { src: 'icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },

@@ -1,0 +1,169 @@
+/* Animierte Zimmerszene des Praxissimulators. Eigene Szenenfarben, abgeleitet aus den Tokens. */
+.szene {
+  --szene-wand: #e7efe9; --szene-boden: #cdd7ce; --szene-sockel: #b4c1b8; --szene-tuer: #c3d0c7; --szene-zarge: #9aab9f;
+  --szene-decke: #7fb0c8; --szene-himmel-oben: #9fd0f2; --szene-himmel-unten: #dff0fb; --szene-rahmen: #8aa39b;
+  --szene-blase: var(--color-surface); --szene-text: var(--color-text);
+  position: relative; overflow: hidden; border-radius: var(--radius-md); background: var(--szene-wand);
+  isolation: isolate; color: var(--szene-text);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .szene { --szene-wand: #2b3a36; --szene-boden: #223029; --szene-sockel: #3a4b45; --szene-tuer: #3b4b46; --szene-zarge: #52655e; --szene-decke: #4f7f97; --szene-rahmen: #5d7871; }
+}
+:root[data-theme='dark'] .szene { --szene-wand: #2b3a36; --szene-boden: #223029; --szene-sockel: #3a4b45; --szene-tuer: #3b4b46; --szene-zarge: #52655e; --szene-decke: #4f7f97; --szene-rahmen: #5d7871; }
+.szene.is-nacht { --szene-himmel-oben: #0d1b35; --szene-himmel-unten: #23365e; }
+.szene__svg { display: block; width: 100%; height: auto; }
+.szene__wand { fill: var(--szene-wand); }
+.szene__boden { fill: var(--szene-boden); }
+.szene__sockel { stroke: var(--szene-sockel); stroke-width: 6; }
+.szene__tuer { fill: var(--szene-tuer); }
+.szene__zarge { fill: var(--szene-zarge); }
+.szene__rahmen { fill: none; stroke: var(--szene-rahmen); stroke-width: 4; }
+.szene__himmel-oben { stop-color: var(--szene-himmel-oben); }
+.szene__himmel-unten { stop-color: var(--szene-himmel-unten); }
+.szene__wolken ellipse { fill: #fff; opacity: .9; }
+.szene__wolken { animation: szene-wolken 40s linear infinite alternate; }
+.szene__sterne { fill: #fff8d6; opacity: 0; }
+.szene.is-nacht .szene__sterne { opacity: 1; }
+.szene.is-nacht .szene__wolken { opacity: 0; }
+.szene__mond { fill: #fff3c4; }
+.szene__nachtlicht { fill: #071225; opacity: 0; pointer-events: none; transition: opacity 1s; }
+.szene.is-nacht .szene__nachtlicht { opacity: .22; }
+.szene__schatten { fill: #000; opacity: .14; }
+.szene__rad { fill: #2f3534; }
+.szene__decke { fill: var(--szene-decke); }
+.szene__pullover { fill: #9b7bb5; }
+.szene__haut { fill: #f1c9a5; transition: fill 1.2s; }
+.szene__kopf.is-blass .szene__haut { fill: #e9dfd2; }
+.szene__kopf.is-grau .szene__haut { fill: #cbc6be; }
+.szene__kopf.is-zyanotisch .szene__haut { fill: #c6cde0; }
+.szene__kopf.is-geroetet .szene__haut { fill: #f4b29a; }
+.szene__mund { stroke: #8a3c3c; }
+.szene__mund--offen { fill: #6d2b2b; stroke: none; }
+.szene__kopf.is-zyanotisch .szene__mund { stroke: #4b5fa0; }
+.szene__kopf.is-zyanotisch .szene__mund--offen { fill: #3e4f8a; }
+.szene__schweiss { fill: #7cc4f0; animation: szene-schweiss 2.4s ease-in infinite; }
+.szene__luft { fill: none; stroke: #8aa3b5; stroke-width: 2; stroke-linecap: round; animation: szene-luft var(--atem) ease-out infinite; }
+.szene__frage { font: 700 22px var(--font-sans); fill: #c0392b; animation: szene-schweben 2s ease-in-out infinite; }
+.szene__zzz { font: 700 18px var(--font-sans); fill: #555; }
+.szene__augen { animation: szene-blinzeln 5s infinite; transform-box: fill-box; transform-origin: center; }
+.szene__oberkoerper { transform-box: view-box; transform-origin: 450px 262px; transition: transform 1.4s var(--ease-standard); }
+.szene__buehne { position: relative; }
+.szene__beine { transform-box: view-box; transform-origin: 450px 262px; transition: transform 1.4s var(--ease-standard); }
+.szene__oberkoerper--sitz { transform-origin: 500px 268px; }
+.szene__brust { transform-box: fill-box; transform-origin: 50% 100%; animation: szene-atmen var(--atem) ease-in-out infinite; }
+.szene__o2 { animation: szene-einblenden .6s ease-out; }
+/* Telefon */
+.szene__klingeln path { fill: none; stroke: #e05555; stroke-width: 3; stroke-linecap: round; opacity: 0; }
+.szene__telefon.is-klingelt .szene__klingeln path { animation: szene-klingeln .9s ease-out infinite; }
+.szene__telefon.is-klingelt > rect:first-child { animation: szene-wackeln .3s linear infinite; transform-box: fill-box; transform-origin: center; }
+.szene .is-fokus { filter: drop-shadow(0 0 6px var(--color-primary)); }
+/* Uhr */
+.szene__uhr-blatt { fill: #fff; stroke: #4d5a60; stroke-width: 3; }
+.szene__zeiger { stroke: #222; stroke-linecap: round; transform-box: view-box; transform-origin: 480px 82px; transition: transform .9s linear; }
+.szene__zeiger--min { stroke-width: 2.5; }
+.szene__zeiger--std { stroke-width: 4; }
+.szene__raffer { fill: none; stroke: var(--color-primary); stroke-width: 2; stroke-dasharray: 8 6; transform-box: view-box; transform-origin: 480px 82px; animation: szene-drehen 2s linear infinite; }
+/* Monitor */
+.szene__alarmlicht { fill: #4a5552; }
+.szene.is-alarm-gelb .szene__alarmlicht { fill: #f2c94c; animation: szene-blinken 1.2s steps(2) infinite; }
+.szene.is-alarm-rot .szene__alarmlicht { fill: #ff4d4d; animation: szene-blinken .5s steps(2) infinite; }
+.szene__schirm { position: absolute; left: 74.25%; top: 20.4%; width: 14%; height: 16%; border-radius: 4px; overflow: hidden; pointer-events: none; }
+.szene__bildschirm { display: block; width: 100%; height: 100%; }
+.szene__lcd { position: absolute; left: 75.6%; top: 27.6%; width: 3.6%; height: 2.8%; font: 700 clamp(5px, 1.1vw, 10px)/1 var(--font-mono); color: #12332b; display: grid; place-items: center; text-align: center; pointer-events: none; }
+.szene__lcd small { display: none; }
+.szene.is-alarm-rot { box-shadow: inset 0 0 0 0 #ff4d4d; animation: szene-alarmrand 1s ease-in-out infinite; }
+.szene.is-komplikation::after { content: ''; position: absolute; inset: 0; background: #ff4d4d; opacity: 0; pointer-events: none; animation: szene-blitz 1.6s ease-out 1; }
+/* Infusion */
+.szene__tropfen { fill: #2f7fd1; animation: szene-tropfen 1.4s ease-in infinite; }
+/* Figuren */
+.szene__figur { transform: translateX(var(--x)); animation: szene-hereinkommen 1.6s var(--ease-standard) both; }
+.szene__figur .szene__bein--l { animation: szene-schritt-l .4s ease-in-out 4 alternate; }
+.szene__figur .szene__bein--r { animation: szene-schritt-r .4s ease-in-out 4 alternate; }
+.szene__bein { transform-box: fill-box; transform-origin: 50% 0; }
+.szene__pflege { transform: translateX(var(--pflege-x)); transition: transform .9s var(--ease-standard); }
+.szene__pflege.is-geht .szene__bein--l { animation: szene-schritt-l .22s ease-in-out infinite alternate; }
+.szene__pflege.is-geht .szene__bein--r { animation: szene-schritt-r .22s ease-in-out infinite alternate; }
+.szene__kasack { fill: var(--color-primary); }
+.szene__arm { stroke: var(--color-primary); stroke-width: 9; stroke-linecap: round; fill: none; }
+.szene__du { fill: var(--color-surface); stroke: var(--color-primary); }
+.szene__du-text { font: 700 11px var(--font-sans); fill: var(--color-primary); }
+.szene__arbeit { animation: szene-arbeit 2.6s ease-out both; }
+.szene__manschette { fill: #3d6fa8; animation: szene-pumpen .5s ease-in-out 4 alternate; transform-box: fill-box; transform-origin: center; }
+.szene__punkte circle { fill: var(--color-primary); animation: szene-blinken .9s steps(2) infinite; }
+.szene__punkte circle:nth-child(2) { animation-delay: .3s; }
+.szene__punkte circle:nth-child(3) { animation-delay: .6s; }
+.szene__wellen { animation: szene-klingeln .9s ease-out 3; }
+/* Sprechblase */
+.szene__blase { position: absolute; z-index: 3; transform: translate(-50%, calc(-100% - 10px)); max-width: min(46%, 22rem); display: grid; gap: 2px; padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); background: var(--szene-blase); color: var(--color-text); border: 2px solid var(--color-primary); box-shadow: 0 6px 18px rgb(0 0 0 / .18); font-size: var(--text-sm); line-height: var(--leading-tight); animation: szene-blase 9s var(--ease-standard) both; pointer-events: none; }
+.szene__blase strong { font-size: var(--text-xs); text-transform: uppercase; letter-spacing: .04em; color: var(--color-primary); }
+.szene__blase::after { content: ''; position: absolute; left: 50%; bottom: -8px; width: 14px; height: 14px; background: inherit; border-right: 2px solid var(--color-primary); border-bottom: 2px solid var(--color-primary); transform: translateX(-50%) rotate(45deg); }
+.szene__blase.is-links { transform: translate(-12%, calc(-100% - 10px)); }
+.szene__blase.is-links::after { left: 12%; }
+.szene__blase.is-rechts { transform: translate(-88%, calc(-100% - 10px)); }
+.szene__blase.is-rechts::after { left: 88%; }
+.szene__blase.is-warn { border-color: var(--color-danger, #c0392b); }
+.szene__blase.is-warn strong { color: var(--color-danger, #c0392b); }
+.szene__blase.is-warn::after { border-color: var(--color-danger, #c0392b); }
+.szene__blase.is-story { border-color: #b7791f; }
+.szene__blase.is-story strong { color: #8a5a12; }
+.szene__blase.is-story::after { border-color: #b7791f; }
+.szene__status { position: absolute; left: var(--space-2); top: var(--space-2); display: flex; flex-wrap: wrap; gap: var(--space-1); max-width: 60%; pointer-events: none; }
+.szene__chip { padding: 2px var(--space-2); border-radius: var(--radius-pill); background: rgb(0 0 0 / .62); color: #fff; font-size: var(--text-xs); animation: szene-einblenden .4s ease-out; }
+.szene__chip.is-rot { background: #c62828; animation: szene-blinken 1s steps(2) infinite; }
+.szene__chip.is-gelb { background: #8a6d00; }
+.szene__ton { position: absolute; right: var(--space-2); top: var(--space-2); min-height: 2rem !important; padding: 0 var(--space-2); font-size: var(--text-xs); border-radius: var(--radius-pill); }
+.szene__treffer rect { fill: transparent; cursor: pointer; }
+.szene__orte { display: flex; flex-wrap: wrap; gap: var(--space-2); padding: var(--space-2); background: var(--praxis-ink, #183e3a); }
+.szene .praxis-hotspot { position: static; transform: none; max-width: none; flex: 1 1 8rem; display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); background: rgb(255 255 255 / .1); color: #fff; border-color: rgb(255 255 255 / .25); box-shadow: none; }
+.szene .praxis-hotspot[aria-pressed=true] { background: #fff; color: var(--praxis-ink, #183e3a); border-color: #fff; }
+.szene__ort-symbol { width: .7rem; height: .7rem; border-radius: 50%; background: currentColor; opacity: .7; }
+.szene__ort-symbol.is-monitor { border-radius: 2px; }
+.szene__ort-symbol.is-wagen { border-radius: 1px; width: .8rem; height: .55rem; }
+.szene__ort-symbol.is-telefon { border-radius: 2px; width: .45rem; }
+
+@keyframes szene-atmen { 0%, 100% { transform: scaleY(1); } 45% { transform: scaleY(1.09); } }
+@keyframes szene-blinzeln { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
+@keyframes szene-schweiss { 0% { transform: translateY(0); opacity: 0; } 30% { opacity: 1; } 100% { transform: translateY(10px); opacity: 0; } }
+@keyframes szene-luft { 0% { opacity: 0; transform: translateX(-3px); } 40% { opacity: .9; } 100% { opacity: 0; transform: translateX(6px); } }
+@keyframes szene-schweben { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+@keyframes szene-klingeln { 0% { opacity: 0; } 30% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes szene-wackeln { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-6deg); } 75% { transform: rotate(6deg); } }
+@keyframes szene-drehen { to { transform: rotate(360deg); } }
+@keyframes szene-blinken { 50% { opacity: .25; } }
+@keyframes szene-alarmrand { 50% { box-shadow: inset 0 0 0 4px #ff4d4d; } }
+@keyframes szene-blitz { 0% { opacity: .35; } 100% { opacity: 0; } }
+@keyframes szene-tropfen { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(10px); opacity: 0; } }
+@keyframes szene-hereinkommen { from { transform: translateX(-90px); opacity: 0; } to { transform: translateX(var(--x)); opacity: 1; } }
+@keyframes szene-schritt-l { from { transform: rotate(-12deg); } to { transform: rotate(12deg); } }
+@keyframes szene-schritt-r { from { transform: rotate(12deg); } to { transform: rotate(-12deg); } }
+@keyframes szene-arbeit { 0% { opacity: 0; } 15% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes szene-pumpen { to { transform: scale(1.15); } }
+@keyframes szene-einblenden { from { opacity: 0; } to { opacity: 1; } }
+@keyframes szene-blase { 0% { opacity: 0; scale: .85; } 6% { opacity: 1; scale: 1; } 88% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes szene-wolken { from { transform: translateX(-12px); } to { transform: translateX(14px); } }
+
+@media (max-width: 560px) {
+  .szene__blase { font-size: var(--text-xs); max-width: 62%; padding: var(--space-1) var(--space-2); }
+  .szene__status { max-width: 70%; }
+  .szene__chip:not(.is-rot):not(.is-gelb) { display: none; }
+
+}
+/* Reduzierte Bewegung: Zustand bleibt sichtbar (Farbe, Lage, Figuren), nur ohne Bewegung. */
+@media (prefers-reduced-motion: reduce) {
+  .szene *, .szene, .szene::after { animation: none !important; transition: none !important; }
+  .szene__arbeit, .szene__blase { opacity: 1; }
+  .szene__telefon.is-klingelt .szene__klingeln path { opacity: 1; }
+}
+.szene { margin: var(--space-4) 0; }
+.praxis-monitor__live { margin-top: var(--space-3); }
+.praxis .praxis-monitor dl.praxis-monitor__rest { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 560px) {
+  .szene__orte { flex-wrap: nowrap; gap: var(--space-1); padding: var(--space-1); }
+  .szene .praxis-hotspot { flex: 1 1 0; min-width: 0; padding: 0 var(--space-1); font-size: var(--text-xs); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .szene__ort-symbol { display: none; }
+}
+/* Schmale Displays: Sprechblase als Leiste über den Orte-Knöpfen, damit nichts abgeschnitten wird. */
+@media (max-width: 560px) {
+  .szene__blase, .szene__blase.is-links, .szene__blase.is-rechts { left: var(--space-1) !important; right: var(--space-1); top: auto !important; bottom: var(--space-1); transform: none; max-width: none; }
+  .szene__blase::after { display: none; }
+}

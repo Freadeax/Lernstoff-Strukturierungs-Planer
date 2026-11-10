@@ -1,4 +1,5 @@
 import { useEffect, useRef, type ReactNode } from 'react';
+import { UmzugsHinweis } from '../../features/sicherung/UmzugsHinweis';
 import { Icon } from '../icons';
 import { Menu } from '../Menu';
 import { useStore } from '../lib/store';
@@ -11,8 +12,8 @@ import { notify } from './notifications';
 import { useOnline } from '../lib/online';
 import { useMenueGesten } from './gesten';
 import { kuerzelHilfe, Tastenkuerzel } from './Tastenkuerzel';
-import { SCHRIFTEN, session, setWorkspace, type Theme } from './session';
-import { seitenName } from './nav';
+import { BEWEGUNGEN, SCHRIFTEN, session, setWorkspace, type Theme } from './session';
+import { BEREICH_NAME, bereichVon, seitenName } from './nav';
 
 function WorkspaceSwitcher() {
   const moduleId = useStore(session, (s) => s.moduleId);
@@ -31,6 +32,7 @@ function WorkspaceSwitcher() {
 function ProfileMenu() {
   const theme = useStore(session, (s) => s.theme);
   const schrift = useStore(session, (s) => s.schrift);
+  const bewegung = useStore(session, (s) => s.bewegung);
   const themes: Array<[Theme, string]> = [['system', 'wie System'], ['hell', 'hell'], ['dunkel', 'dunkel']];
   return (
     <Menu label="Profil und Darstellung" trigger={<Icon name="user" />} className="icon ghost"
@@ -38,6 +40,7 @@ function ProfileMenu() {
         { id: 'settings', label: 'Einstellungen', onSelect: () => navigate('/einstellungen') },
         ...themes.map(([t, l]) => ({ id: `theme-${t}`, label: `${t === theme ? '✓ ' : ''}Darstellung ${l}`, onSelect: () => setWorkspace({ theme: t }) })),
         ...SCHRIFTEN.map(([g, l]) => ({ id: `schrift-${g}`, label: `${g === schrift ? '✓ ' : ''}Schrift ${l}`, onSelect: () => setWorkspace({ schrift: g }) })),
+        ...BEWEGUNGEN.map(([b, l]) => ({ id: `bewegung-${b}`, label: `${b === bewegung ? '✓ ' : ''}Bewegung ${l}`, onSelect: () => setWorkspace({ bewegung: b }) })),
         { id: 'sicherung', label: 'Datensicherung (sichern, übertragen)', onSelect: () => navigate('/system/sicherung') },
         { id: 'kuerzel', label: 'Tastenkürzel (?)', onSelect: () => kuerzelHilfe.set({ offen: true }) },
       ]} />
@@ -78,7 +81,10 @@ function Header() {
           <Icon name="chevronLeft" />
         </button>
       )}
-      <div className="header-context"><span>Lernarbeitsplatz</span><Icon name="chevronRight" size={14} /><strong>{current}</strong></div>
+      <div className="header-context">
+        <span className="header-context__bereich">{BEREICH_NAME[bereichVon(path)]}</span>
+        {path !== '/' && <><Icon name="chevronRight" size={14} /><strong key={path}>{current}</strong></>}
+      </div>
       <OnlineStatus />
       <div className="shell__search"><Omnibar /></div>
       <div className="shell__actions">
@@ -107,12 +113,12 @@ export function Shell({ children }: { children: ReactNode }) {
   }, [path]);
 
   return (
-    <div className="shell" data-sidebar={collapsed ? 'collapsed' : 'expanded'}>
+    <div className="shell" data-sidebar={collapsed ? 'collapsed' : 'expanded'} data-bereich={bereichVon(path)}>
       <a className="skip-link" href="#main" onClick={(e) => { e.preventDefault(); main.current?.focus(); }}>Zum Inhalt springen</a>
       <Sidebar />
       <Header />
       <main id="main" ref={main} className="shell__main" tabIndex={-1} inert={drawer}>
-        <div className="content">{children}</div>
+        <div className="content"><UmzugsHinweis />{children}</div>
       </main>
       <TabBar />
       <Toaster />

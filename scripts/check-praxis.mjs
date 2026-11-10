@@ -31,9 +31,14 @@ try {
     // Raumelemente: Antippen zeigt den ersten Blick (ohne Zeitverbrauch) und die Handlungen dort.
     assert(await page.locator('.praxis-element .praxis-blick').textContent().then(t => /Erster Blick: wach und ansprechbar, atmet sichtbar schnell/.test(t ?? '')));
     assert.equal(await page.locator('.praxis-clock strong').textContent(), '00:00:00', 'Hinsehen kostet keine Zeit');
+    // Animierte Zimmerszene: Patient, Pflegekraft und Orte als Knöpfe; Handlungen bewegen die Pflegekraft.
+    assert(await page.locator('.szene .szene__pflege').count() === 1, 'Pflegekraft in der Szene');
+    assert.equal(await page.locator('.szene__orte .praxis-hotspot').count(), 4);
+    assert(await page.locator('.szene .szene__brust').count() >= 1, 'Patient atmet');
     await page.getByRole('button', { name: /^Monitor und Messgeräte/ }).click();
     await page.getByRole('button', { name: /Vitalparameter einschließlich BZ messen/ }).click();
     assert(await page.getByText('Letzte Messung · 00:01:00', { exact: true }).isVisible());
+    assert.equal(await page.locator('.szene__arbeit').count(), 1, 'Messen zeigt die Arbeitsanimation');
     await page.getByRole('button', { name: /^Stationstelefon/ }).click();
     await page.getByRole('button', { name: /Qualifiziertes Team hinzuziehen/ }).click();
     await page.getByRole('button', { name: /Ärztliche Rücksprache und Anordnung/ }).click();
@@ -68,6 +73,11 @@ try {
     await audit('Entscheidung'); await page.screenshot({ path: path.join(output, `entscheidung-${width}.png`), fullPage: true });
     await page.getByRole('button', { name: /Nachbarn kurz ansprechen/ }).click();
     assert.equal(await page.locator('.praxis-decision').count(), 0);
+    await page.getByRole('button', { name: 'Patientenzimmer', exact: true }).click();
+    await page.getByRole('button', { name: /^Monitor und Messgeräte/ }).click();
+    await page.getByRole('button', { name: /Kontinuierliches Monitoring anschließen/ }).click();
+    await page.locator('.szene__schirm canvas').waitFor();
+    assert(await page.locator('.praxis-monitor .sim-monitor').count() === 1, 'Live-Monitor bei Monitoring');
     await page.getByRole('button', { name: 'Dokumentation', exact: true }).click();
     await page.getByLabel('Verlaufsdokumentation', { exact: true }).fill('Patient mit Atemnot. Aufrechte Position unterstützt, ärztliches Team hinzugezogen. Wirkung weiter kontrollieren.');
     await page.getByRole('button', { name: 'Pflegebericht speichern · 1 min', exact: true }).click();
@@ -124,6 +134,16 @@ try {
     await page.screenshot({ path: path.join(output, `dark-${width}.png`), fullPage: true });
     await page.goto(base + '#/lernen/fall', { waitUntil: 'networkidle' });
     await page.getByRole('heading', { name: 'Fallbeispiel-Simulator', exact: true }).waitFor();
+    // Probefall ohne KI: Szene und Monitor laufen, eine Entscheidung bewegt Figur und Werte
+    await page.getByRole('button', { name: 'Probefall starten', exact: true }).click();
+    await page.locator('.fall__option').first().waitFor();
+    assert(await page.locator('.szene svg').isVisible());
+    assert(await page.locator('.sim-monitor.is-aus').isVisible());
+    await page.getByRole('button', { name: /messe Blutdruck/ }).click();
+    await page.locator('.sim-monitor:not(.is-aus)').waitFor();
+    await page.locator('.fall__option').first().waitFor();
+    await page.waitForTimeout(3000); // Untertitel blendet Wort für Wort ein, erst danach Kontrast messen
+    await audit('Fallsimulator Probefall'); await page.screenshot({ path: path.join(output, `fall-probe-${width}.png`), fullPage: true });
     await context.close();
   }
   fs.writeFileSync(path.join(output, 'audit.json'), JSON.stringify({ audits, errors }, null, 2));

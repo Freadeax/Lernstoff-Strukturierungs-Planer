@@ -53,7 +53,7 @@ function Fehler({ error, reset }: { error: Error; reset: () => void }) {
 export function PageBoundary({ path, children }: { path: string; children: ReactNode }) {
   return (
     <ErrorBoundary resetKey={path} fallback={(error, reset) => <Fehler error={error} reset={reset} />}>
-      <Suspense fallback={<p className="muted">Lädt …</p>}>{children}</Suspense>
+      <Suspense fallback={<p className="muted route-laden" role="status"><span aria-hidden="true" /><span aria-hidden="true" /><span aria-hidden="true" />Lädt …</p>}>{children}</Suspense>
     </ErrorBoundary>
   );
 }
