@@ -6,6 +6,10 @@ import type { DiagnostikFall, Pruefpunkt } from './typen';
 const v = (basis: number, extra: Partial<{ proStunde: number; grenze: number; therapie: { flag: string; ziel: number; tauMin: number }[]; vorwerte: { minute: number; wert: number }[] }> = {}) => ({ basis, ...extra });
 const VORGESTERN = -2880;
 
+/** Echte, frei lizenzierte Bilder (CC BY-NC-SA 3.0, Radiopaedia, über den offenen Datensatz ieee8023/covid-chestxray-dataset). Zugeschnitten und verkleinert. */
+const RADIOPAEDIA = 'CC BY-NC-SA 3.0';
+
+
 /** Vorbereitung einer CT mit jodhaltigem Kontrastmittel. Fallabhängig: Metformin, Schwangerschaft, Transport. */
 function kmCt(o: { metformin?: boolean; gebaerfaehig?: boolean; instabil?: boolean }): Pruefpunkt[] {
   return [
@@ -74,6 +78,7 @@ export const FAELLE: DiagnostikFall[] = [
     bildgebung: [
       {
         serie: { id: 'sp-rx', titel: 'Röntgen-Thorax', untersuchung: 'Röntgen-Thorax p.a. im Stehen', quelle: { art: 'phantom', modalitaet: 'roentgen', variante: 'pneumonie' }, befunde: [{ id: 'infiltrat', x: 0.275, y: 0.56, r: 0.1, titel: 'Verschattung rechts basal', text: 'Unscharf begrenzte Verdichtung im rechten Unterfeld (im Bild links).' }], befundtext: 'Infiltrat im rechten Unterfeld, vereinbar mit Pneumonie. Kein Pneumothorax. Herz normal groß.' },
+        echt: { id: 'sp-rx-echt', titel: 'Röntgen-Thorax (echtes Bild)', untersuchung: 'Röntgen-Thorax a.p. im Sitzen (Vergleichsbild eines anderen Patienten)', quelle: { art: 'bilder', modalitaet: 'roentgen', basis: 'bildgebung/pneumonie-rx', dateien: ['rontgen-pa.jpg'], lizenz: RADIOPAEDIA, urheber: 'Case courtesy of Assoc Prof Frank Gaillard, Radiopaedia.org, rID: 11009', quelleUrl: 'https://radiopaedia.org/cases/pneumonia-7' }, befunde: [{ id: 'infiltrat', x: 0.27, y: 0.6, r: 0.15, titel: 'Konsolidierung rechts', text: 'Dichte Verschattung im rechten Mittel- und Unterfeld (im Bild links), die rechte Zwerchfellkontur ist nicht mehr abgrenzbar.' }], befundtext: 'Ausgedehnte Konsolidierung rechts mit Luftbronchogramm und Verlust der rechten Zwerchfellkontur, vereinbar mit einer Pneumonie im rechten Unterlappen. Echtes Vergleichsbild, nicht von Frau M.' },
         dauer: 30, befundNach: 30, kontrastmittel: false, vorbereitung: roentgen({}),
       },
       {
@@ -215,6 +220,7 @@ export const FAELLE: DiagnostikFall[] = [
           { id: 'herz', x: 0.55, y: 0.58, r: 0.17, titel: 'Vergrößertes Herz', text: 'Herzschatten breiter als die Hälfte des Brustkorbs.' },
           { id: 'erguss', x: 0.85, y: 0.66, r: 0.09, titel: 'Pleuraerguss', text: 'Stumpfer Rippen-Zwerchfell-Winkel mit nach außen ansteigendem Spiegel.' },
         ], befundtext: 'Kardiomegalie, zentrale Stauung mit Zeichnungsvermehrung um die Hili, Kerley-B-Linien, beidseitige Pleuraergüsse.' },
+        echt: { id: 'hi-rx-echt', titel: 'Röntgen-Thorax (echtes Bild)', untersuchung: 'Röntgen-Thorax p.a. (Vergleichsbild: Pleuraerguss eines anderen Patienten)', quelle: { art: 'bilder', modalitaet: 'roentgen', basis: 'bildgebung/erguss-rx', dateien: ['rontgen-pa.jpg'], lizenz: RADIOPAEDIA, urheber: 'Case courtesy of Dr Henry Knipe, Radiopaedia.org, rID: 44224', quelleUrl: 'https://radiopaedia.org/cases/parapneumonic-effusion-1' }, befunde: [{ id: 'erguss', x: 0.75, y: 0.55, r: 0.13, titel: 'Pleuraerguss links', text: 'Homogene Verschattung unten links (im Bild rechts) mit nach außen ansteigendem Rand (Meniskuszeichen), der Winkel zwischen Rippen und Zwerchfell ist verstrichen.' }], befundtext: 'Pleuraerguss links mit Meniskuszeichen. Das Bild zeigt einen Erguss bei Pneumonie, keine Herzinsuffizienz: das Herz ist hier normal groß. Zum Vergleich mit dem synthetischen Bild, nicht von Frau S.' },
         dauer: 20, befundNach: 30, kontrastmittel: false, vorbereitung: roentgen({ bett: true }),
       },
     ],

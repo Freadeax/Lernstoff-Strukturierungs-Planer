@@ -38,4 +38,11 @@ describe('Diagnostik-Lauf', () => {
     }
     throw new Error('kein Fall mit kritischem Laborwert gefunden');
   });
+
+  it('Befunde zeigen im echten Bild deckt nur dessen Befunde auf', () => {
+    const fall = FAELLE.find((f) => f.bildgebung.some((u) => u.echt && u.echt.befunde.length < u.serie.befunde.length))!;
+    const u = fall.bildgebung.find((x) => x.echt)!;
+    const l = fuehreAus(starte(fall), fall, { typ: 'aufdecken', serie: u.echt!.id });
+    expect(l.aufgedeckt.sort()).toEqual(u.echt!.befunde.map((b) => b.id).sort());
+  });
 });

@@ -77,7 +77,7 @@ export default function DiagnostikSeite() {
       )}
       {modus === 'lernen' && <Lernmodus />}
       {modus === 'material' && <EigeneBilder />}
-      <p className="muted dx-klein">Fiktive Lernfälle, didaktisch vereinfacht, fachlich ungeprüft. Synthetische Bilder sind schematisch. Echte Bilder stammen aus Wikimedia Commons mit angegebener Lizenz.</p>
+      <p className="muted dx-klein">Fiktive Lernfälle, didaktisch vereinfacht, fachlich ungeprüft. Synthetische Bilder sind schematisch. Echte Bilder sind frei lizenzierte Vergleichsbilder (Quelle und Lizenz unter dem Bild).</p>
     </section>
   );
 }

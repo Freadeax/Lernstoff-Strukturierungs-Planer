@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { existsSync } from 'node:fs';
 import { FAELLE } from './faelle';
 import { PARAMETER_NACH_ID } from '../../ui/sim/labor/parameter';
 import { deuteBga } from '../../ui/sim/labor/bga';
@@ -35,8 +36,14 @@ describe('Diagnostik-Fälle', () => {
 
   it('echte Bilder nur mit Lizenz, Urheber und Quelle', () => {
     for (const f of FAELLE) for (const u of f.bildgebung) {
-      const q = u.serie.quelle;
-      if (q.art === 'bilder') { expect(q.lizenz).toMatch(/CC|gemeinfrei|Public Domain/i); expect(q.urheber).not.toBe(''); expect(q.quelleUrl).toMatch(/^https:\/\//); }
+      for (const serie of [u.serie, u.echt]) {
+        const q = serie?.quelle;
+        if (q?.art !== 'bilder') continue;
+        expect(q.lizenz).toMatch(/CC|gemeinfrei|Public Domain/i); expect(q.urheber).not.toBe(''); expect(q.quelleUrl).toMatch(/^https:\/\//);
+        for (const d of q.dateien) expect(existsSync(`public/${q.basis}/${d}`), `${q.basis}/${d} fehlt`).toBe(true);
+        // Befunde im echten Bild tragen dieselbe ID wie im synthetischen, damit Fragen und Auswertung greifen.
+        for (const b of serie!.befunde) expect(u.serie.befunde.map((x) => x.id)).toContain(b.id);
+      }
     }
   });
 

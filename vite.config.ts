@@ -33,6 +33,11 @@ export default defineConfig({
           urlPattern: ({ url }) => url.pathname.includes('/tesseract/'),
           handler: 'CacheFirst',
           options: { cacheName: 'tesseract', expiration: { maxEntries: 10 } },
+        }, {
+          // Echte Röntgen-/CT-Bilder erst beim Ansehen laden, danach offline verfügbar.
+          urlPattern: ({ url }) => url.pathname.includes('/bildgebung/'),
+          handler: 'CacheFirst',
+          options: { cacheName: 'bildgebung', expiration: { maxEntries: 200 } },
         }],
       },
       manifest: {
