@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { SCENARIOS } from './catalog';
 import { start } from './engine';
-import { atemDauer, hautton, sprechblase, szene, VERWEILDAUER } from './szene';
+import { atemDauer, hautton, lage, lageVon, sprechblase, szene, VERWEILDAUER } from './szene';
 import { dispatch } from './testhilfe';
 import type { Session } from './types';
 
@@ -64,5 +64,21 @@ describe('Zimmerszene', () => {
     const id = sc.actions.find(a => a.id === 'lie_flat' || a.id === 'flat')!.id;
     const s = act(start(sc, 2), id);
     expect(['flach', 'sitzend']).toContain(szene(s).lage);
+  });
+  it('Lagerung: Oberkörper, Schocklage und Bein werden unterschieden', () => {
+    const l = (label: string) => lageVon({ id: 'x', label });
+    expect(l('Sofort flach hinlegen, Beine hoch')).toBe('schock');
+    expect(l('Flach lagern, Beine hoch, wenn sie schwindelig wird')).toBe('schock');
+    expect(l('Verband und Drainage kontrollieren, Bein hochlagern, Druckverband nach Standard')).toBe('bein');
+    expect(l('Atemerleichternde Position unterstützen und Flüssigkeitsbilanz beginnen')).toBe('erhoeht');
+    expect(l('Zum Schlafen flach hinlegen und beruhigen')).toBe('flach');
+    expect(l('Demenz heim: Oberkörper hoch lagern, Mund pflegen')).toBe('erhoeht');
+    expect(l('Beine vergleichen: Umfang, Farbe, Schmerz')).toBeUndefined();
+  });
+  it('Korrektur nach Flachlagerung hebt den Oberkörper wieder', () => {
+    let s = act(start(byId('nachtwache'), 2), 'flat');
+    expect(lage(s, false)).toBe('flach');
+    s = act(s, 'care');
+    expect(lage(s, false)).toBe('erhoeht');
   });
 });

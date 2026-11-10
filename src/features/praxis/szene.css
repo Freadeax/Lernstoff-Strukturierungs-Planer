@@ -47,6 +47,8 @@
 .szene__zzz { font: 700 18px var(--font-sans); fill: #555; }
 .szene__augen { animation: szene-blinzeln 5s infinite; transform-box: fill-box; transform-origin: center; }
 .szene__oberkoerper { transform-box: view-box; transform-origin: 450px 262px; transition: transform 1.4s var(--ease-standard); }
+.szene__buehne { position: relative; }
+.szene__beine { transform-box: view-box; transform-origin: 450px 262px; transition: transform 1.4s var(--ease-standard); }
 .szene__oberkoerper--sitz { transform-origin: 500px 268px; }
 .szene__brust { transform-box: fill-box; transform-origin: 50% 100%; animation: szene-atmen var(--atem) ease-in-out infinite; }
 .szene__o2 { animation: szene-einblenden .6s ease-out; }
@@ -162,6 +164,6 @@
 }
 /* Schmale Displays: Sprechblase als Leiste über den Orte-Knöpfen, damit nichts abgeschnitten wird. */
 @media (max-width: 560px) {
-  .szene__blase, .szene__blase.is-links, .szene__blase.is-rechts { left: var(--space-1) !important; right: var(--space-1); top: auto !important; bottom: calc(var(--control-h) + var(--space-3)); transform: none; max-width: none; }
+  .szene__blase, .szene__blase.is-links, .szene__blase.is-rechts { left: var(--space-1) !important; right: var(--space-1); top: auto !important; bottom: var(--space-1); transform: none; max-width: none; }
   .szene__blase::after { display: none; }
 }

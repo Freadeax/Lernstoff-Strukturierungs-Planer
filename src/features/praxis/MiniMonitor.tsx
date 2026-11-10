@@ -43,7 +43,7 @@ export function MiniMonitor({ aktiv, puls, spo2, af, alarm, ton = false }: Props
   useEffect(() => {
     const c = canvas.current; if (!c) return;
     const ctx = c.getContext('2d'); if (!ctx) return;
-    let breite = 0, hoehe = 0, x = 0, phase = 0, letzteZeit = 0, frame = 0, sichtbar = true;
+    let breite = 0, hoehe = 0, x = 0, phase = 0, rest = 0, letzteZeit = 0, frame = 0, sichtbar = true;
     let lastEkg = 0, lastPleth = 0, schlag = false;
     let audio: AudioContext | null = null;
     const farbe = () => getComputedStyle(c);
@@ -101,7 +101,8 @@ export function MiniMonitor({ aktiv, puls, spo2, af, alarm, ton = false }: Props
       const kurve = breite - zahlenBreite() - 4; if (kurve < 10) return;
       const tempo = Math.max(30, kurve / 3); // etwa drei Sekunden pro Durchlauf
       const herz = 60 / Math.min(180, Math.max(30, werte.current.puls));
-      const schritte = Math.max(1, Math.round(dt * tempo));
+      // Bruchteile von Pixeln aufsparen: Tempo und Herzfrequenz hängen so nicht von der Bildrate ab.
+      rest += dt * tempo; const schritte = Math.floor(rest); rest -= schritte;
       for (let i = 0; i < schritte; i++) {
         const altX = x; x += 1; phase += 1 / tempo / herz;
         if (phase >= 1) { phase -= 1; schlag = false; }
