@@ -27,6 +27,12 @@ Therapie-Flags passen zu Anordnungen, Fragen verweisen auf vorhandene Befunde, B
 
 - **Öffentlich** (`public/bildgebung/…`, Quelle `bilder`): nur frei lizenziert (CC BY, CC BY-SA, gemeinfrei) mit Urheber,
   Lizenz und Quell-URL. Keine Daten aus zugangsbeschränkten Datensätzen (MIMIC-IV/MIMIC-CXR), keine Bilder mit unklarer
-  Lizenz (MedPix je Bild prüfen).
+  Lizenz (MedPix je Bild prüfen). CC BY-NC-SA (z. B. Radiopaedia) passt, solange die App kostenlos und
+  nicht kommerziell bleibt; Änderungen (Zuschnitt, Verkleinerung) werden unter dem Bild genannt.
+- **Bisher eingebunden:** zwei Röntgenbilder aus Radiopaedia (CC BY-NC-SA 3.0), bezogen über den offenen Datensatz
+  [ieee8023/covid-chestxray-dataset](https://github.com/ieee8023/covid-chestxray-dataset), dessen `metadata.csv` Lizenz
+  und Urheber je Bild nennt: Pneumonie rechts (Gaillard, rID 11009) und Pleuraerguss links (Knipe, rID 44224).
+  Wikimedia Commons war aus der Entwicklungsumgebung nicht abrufbar (Drosselung).
+- Befunde im echten Bild tragen dieselbe ID wie im synthetischen Bild; ein Test prüft Lizenzfelder, Dateien und IDs.
 - **Privat** (Material-Repo, Ordner `bildgebung/<name>/serie.json` + Bilder): z. B. Unterrichtsmaterial. Die App lädt
   sie nur mit dem Zugang unter Material → Große Dateien auf dem Gerät, nie in den öffentlichen Build.

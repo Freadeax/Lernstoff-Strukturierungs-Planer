@@ -306,7 +306,7 @@ export function BildBetrachter({ serie, sichtbareBefunde = [], markierungen = []
         {werkzeug === 'lupe' && `Gedrückt halten und bewegen: Vergrößerung und Messwert in ${einheit === 'HU' ? 'Hounsfield-Einheiten' : 'Prozent Helligkeit'}.`}
         {werkzeug === 'markieren' && 'Tippe auf die Stelle, die du für auffällig hältst.'}
         {' '}{serie.quelle.art === 'phantom' ? 'Synthetisches Übungsbild, vereinfacht.'
-          : serie.quelle.art === 'bilder' ? <>Echtes Bild: {serie.quelle.urheber}, <a href={serie.quelle.quelleUrl} target="_blank" rel="noreferrer">{serie.quelle.lizenz}</a>{serie.quelle.dateien.length > 1 ? ', verkleinert' : ''}.</>
+          : serie.quelle.art === 'bilder' ? <>Echtes Bild: {serie.quelle.urheber}, <a href={serie.quelle.quelleUrl} target="_blank" rel="noreferrer">{serie.quelle.lizenz}</a>, zugeschnitten und verkleinert.</>
           : <>Privates Material: {serie.quelle.herkunft}{serie.quelle.lizenz ? ` (${serie.quelle.lizenz})` : ''}. Nur auf diesem Gerät, nicht weitergeben.</>}
       </p>
     </div>
