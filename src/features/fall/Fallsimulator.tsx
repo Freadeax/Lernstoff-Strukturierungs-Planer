@@ -8,6 +8,10 @@ import { useRoute } from '../../ui/shell/router';
 import { proThema } from '../lernplan/trainer';
 import { LernplanHinweis, useLernplanUebernahme } from '../lernplan/ui/LernplanHinweis';
 import { faelleZuKrankheit, KI_KRANKHEITEN } from '../krankheitsbilder/fallbezug';
+import { PatientenMonitor } from '../../ui/sim/PatientenMonitor';
+import { DEMO_SZENARIO, demoAbschluss, demoZug, istDemo } from './demo';
+import { Szene } from './Szene';
+import { szenenBild } from './szene';
 import {
   fallThemen, SETTING_LABEL, STUFE_LABEL, SZENARIEN, szenarioAusThema,
   type Setting, type Stufe, type Szenario,
@@ -68,6 +72,13 @@ function Start({ onStart, apiKey }: { onStart: (s: Szenario, stufe: Stufe) => vo
           Für den Simulator braucht die App deinen Claude-API-Schlüssel. <a href="#/einstellungen">Zu den Einstellungen</a>
         </div>
       )}
+      <div className="card fall__probe">
+        <div>
+          <strong>Probefall ohne KI</strong>
+          <p className="muted">Ein kurzer, fest geschriebener Nachtdienst-Fall mit Zimmerszene und Monitor. Läuft ohne Schlüssel und offline, zählt nicht für den Lernplan.</p>
+        </div>
+        <button type="button" className="primary" onClick={() => onStart(DEMO_SZENARIO, 1)}>Probefall starten</button>
+      </div>
       <div className="card fall__einstellungen">
         <span className="muted">Schwierigkeit</span>
         <div className="pills" role="group" aria-label="Schwierigkeit">
@@ -137,9 +148,18 @@ function Start({ onStart, apiKey }: { onStart: (s: Szenario, stufe: Stufe) => vo
 
 // ---------- Kurve (Seitenleiste) ----------
 
+/** ↑ oder ↓, wenn sich ein Messwert gegenüber dem letzten Zug verändert hat. */
+function trend(alt: string, neu: string): '↑' | '↓' | '' {
+  const zahl = (x: string) => Number(x.split('/')[0]!.replace(',', '.').replace(/[^\d.]/g, ''));
+  if (!alt.trim() || !neu.trim()) return '';
+  const a = zahl(alt), n = zahl(neu);
+  return Number.isFinite(a) && Number.isFinite(n) && a !== n ? (n > a ? '↑' : '↓') : '';
+}
+
 function Kurve({ fall }: { fall: Fall }) {
   const letzter = fall.runden.at(-1)?.zug;
   const v = letzter?.vitalwerte;
+  const vorher = fall.runden.at(-2)?.zug.vitalwerte;
   const score = v ? news2(v) : null;
   const verlauf = news2Verlauf(fall);
   const bearbeitet = new Set(fall.runden.filter((r) => r.eingabe !== undefined).map((r) => r.zug.schritt));
@@ -151,12 +171,19 @@ function Kurve({ fall }: { fall: Fall }) {
       </div>
       {letzter && <p className={`fall__zustand fall__zustand--${letzter.zustand}`}>Zustand: <strong>{ZUSTAND_LABEL[letzter.zustand]}</strong></p>}
       <dl className="fall__vital">
-        {VITAL.map(({ key, label, einheit }) => (
-          <div key={key} className={v?.[key] ? '' : 'is-leer'}>
-            <dt>{label}</dt>
-            <dd>{v?.[key] || '–'}{v?.[key] && einheit ? <small> {einheit}</small> : null}</dd>
-          </div>
-        ))}
+        {VITAL.map(({ key, label, einheit }) => {
+          const alt = vorher?.[key] ?? '', neu = v?.[key] ?? '';
+          const richtung = trend(alt, neu);
+          return (
+            <div key={`${key}-${neu}`} className={[neu ? '' : 'is-leer', alt !== neu && neu ? 'is-geaendert' : ''].join(' ')}>
+              <dt>{label}</dt>
+              <dd>
+                {neu || '–'}{neu && einheit ? <small> {einheit}</small> : null}
+                {richtung && <span className="fall__trendpfeil is-neu" aria-label={richtung === '↑' ? 'gestiegen' : 'gesunken'}>{richtung}</span>}
+              </dd>
+            </div>
+          );
+        })}
       </dl>
       {score && (score.fehlt.length
         ? <p className="muted fall__news">NEWS2: es fehlen {score.fehlt.join(', ')}.</p>
@@ -233,10 +260,10 @@ function Auswertung({ fall, onNeu, onNochmal }: { fall: Fall; onNeu: () => void;
 
 // ---------- Verlauf ----------
 
-function Verlauf({ fall }: { fall: Fall }) {
+function Verlauf({ fall, bis }: { fall: Fall; bis?: number }) {
   return (
     <ol className="fall__verlauf">
-      {fall.runden.map((r, i) => (
+      {fall.runden.slice(0, bis).map((r, i) => (
         <li key={i}>
           {r.eingabe !== undefined && <p className="fall__ich"><span className="visually-hidden">Du: </span>{r.eingabe}</p>}
           {r.zug.rueckmeldung.wertung !== 'keine' && r.zug.rueckmeldung.text && (
@@ -253,6 +280,41 @@ function Verlauf({ fall }: { fall: Fall }) {
     </ol>
   );
 }
+
+// ---------- Aktueller Zug: Rückmeldung und Untertitel ----------
+
+/** Die neue Situation erscheint Wort für Wort (bei reduzierter Bewegung sofort, per CSS). */
+function Untertitel({ uhrzeit, text }: { uhrzeit: string; text: string }) {
+  const woerter = text.split(/(\s+)/);
+  const schritt = Math.min(45, 2400 / Math.max(1, woerter.length / 2));
+  let n = 0;
+  return (
+    <p className="fall__untertitel" aria-live="polite">
+      {uhrzeit && <span className="fall__uhr">{uhrzeit} </span>}
+      {woerter.map((w, i) => (/\s+/.test(w) ? w : <span key={i} className="fall__wort" style={{ animationDelay: `${(n++) * schritt}ms` }}>{w}</span>))}
+    </p>
+  );
+}
+
+function AktuellerZug({ fall }: { fall: Fall }) {
+  const r = fall.runden.at(-1);
+  if (!r) return null;
+  const nr = fall.runden.length;
+  return (
+    <div className="fall__aktuell" key={nr}>
+      {r.eingabe !== undefined && <p className="fall__ich fall__rueck"><span className="visually-hidden">Du: </span>{r.eingabe}</p>}
+      {r.zug.rueckmeldung.wertung !== 'keine' && r.zug.rueckmeldung.text && (
+        <div className={`note fall__rueck ${WERTUNG_KLASSE[r.zug.rueckmeldung.wertung]}`}>
+          <strong>{WERTUNG_LABEL[r.zug.rueckmeldung.wertung]}</strong> <span className="muted">· {SCHRITT_LABEL[r.zug.schritt]}</span>
+          <br />{r.zug.rueckmeldung.text}
+        </div>
+      )}
+      <Untertitel uhrzeit={r.zug.uhrzeit} text={r.zug.situation} />
+    </div>
+  );
+}
+
+const warte = (ms: number) => new Promise((ok) => setTimeout(ok, ms));
 
 // ---------- Seite ----------
 
@@ -278,7 +340,8 @@ export default function Fallsimulator() {
   async function zug(f: Fall, text?: string) {
     setLaedt('zug'); setFehler('');
     try {
-      const z = await spieleZug(apiKey, f, modul, text);
+      // Probefall: kurze Pause, damit die Station sichtbar „reagiert“
+      const z = istDemo(f) ? (await warte(500), demoZug(f, text)) : await spieleZug(apiKey, f, modul, text);
       setFall({ ...f, runden: [...f.runden, { eingabe: text, zug: z }] });
       setEingabe('');
       requestAnimationFrame(() => inputRef.current?.focus({ preventScroll: true }));
@@ -293,6 +356,12 @@ export default function Fallsimulator() {
   async function beende(f: Fall) {
     setLaedt('auswertung'); setFehler('');
     try {
+      if (istDemo(f)) {
+        await warte(400);
+        const fertig = { ...f, abschluss: demoAbschluss(f) };
+        setFall(fertig); archiviere(fertig);
+        return;
+      }
       const abschluss = await werteAus(apiKey, f, modul);
       const fertig = { ...f, abschluss };
       setFall(fertig); archiviere(fertig);
@@ -317,6 +386,8 @@ export default function Fallsimulator() {
   }
 
   const letzter = fall?.runden.at(-1)?.zug;
+  const bild = useMemo(() => (fall ? szenenBild(fall) : null), [fall]);
+  const demo = fall ? istDemo(fall) : false;
   const entscheidungen = fall?.runden.filter((r) => r.eingabe).length ?? 0;
 
   return (
@@ -348,7 +419,20 @@ export default function Fallsimulator() {
             </div>
             <p className="muted">{fall.szenario.kurz}</p>
 
-            <Verlauf fall={fall} />
+            {bild && (
+              <div className="fall__buehne">
+                <Szene bild={bild} uhrzeit={letzter?.uhrzeit} />
+                <PatientenMonitor werte={bild.monitor} aktiv={bild.monitorAn} titel={bild.monitorAn ? `${letzter?.uhrzeit ?? ''} Uhr` : 'Noch nicht gemessen'} />
+              </div>
+            )}
+
+            {fall.runden.length > 1 && (
+              <details className="fall__verlauf-details">
+                <summary>Bisheriger Verlauf ({fall.runden.length - 1} {fall.runden.length === 2 ? 'Abschnitt' : 'Abschnitte'})</summary>
+                <Verlauf fall={fall} bis={-1} />
+              </details>
+            )}
+            <AktuellerZug fall={fall} />
 
             {laedt && (
               <p className="fall__laedt" role="status">
@@ -378,6 +462,7 @@ export default function Fallsimulator() {
                       ))}
                     </div>
                   )}
+                  {demo ? <p className="muted fall__demo-hinweis">Im Probefall wählst du aus den Vorschlägen. Mit KI-Schlüssel kannst du frei schreiben.</p> : <>
                   <label>
                     <span className="visually-hidden">Was tust du?</span>
                     <textarea ref={inputRef} rows={2} placeholder="Oder frei: Was tust du, was sagst du, was beobachtest du?" value={eingabe}
@@ -390,6 +475,7 @@ export default function Fallsimulator() {
                     <button type="button" className="ghost" onClick={() => void zug(fall, PRAXISANLEITUNG)}>Praxisanleitung fragen</button>
                     {entscheidungen >= 3 && <button type="button" className="ghost" onClick={() => void beende(fall)}>Fall beenden und auswerten</button>}
                   </div>
+                  </>}
                 </form>
               )
             )}

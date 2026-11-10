@@ -32,7 +32,8 @@
 .sim-monitor__status { padding: 0 8px; border-radius: 999px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; font-size: 11px; background: #ffffff1a; color: var(--sim-muted); }
 .sim-monitor__status.is-gelb { background: var(--sim-gelb); color: #1c1400; }
 .sim-monitor__status.is-rot { background: var(--sim-rot); color: #210404; animation: sim-blink 1s steps(1, end) infinite; }
-@keyframes sim-blink { 50% { opacity: .35; } }
+/* Blinken ohne Opazität: beide Zustände bleiben kontrastreich (axe misst auch mitten im Blinken) */
+@keyframes sim-blink { 50% { background: transparent; color: var(--sim-rot); box-shadow: inset 0 0 0 1px var(--sim-rot); } }
 
 .sim-monitor__raster {
   display: flex; flex-direction: column; gap: 4px;
