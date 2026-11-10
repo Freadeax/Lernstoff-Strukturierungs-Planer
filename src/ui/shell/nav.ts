@@ -54,6 +54,8 @@ export const NAV: NavItem[] = [
         id: 'praxis-gruppe', label: 'Praxis', icon: 'user', zu: true, children: [
           { id: 'praxis', label: 'Praxissimulator', path: '/lernen/praxis', icon: 'clipboard' },
           { id: 'fall', label: 'Fallsimulator', path: '/lernen/fall', icon: 'user' },
+          { id: 'diagnostik', label: 'Labor und Bildgebung', path: '/lernen/diagnostik', icon: 'flask' },
+          { id: 'labor', label: 'Labor-Trainer', path: '/lernen/labor', icon: 'pulse' },
           { id: 'notfall', label: 'Notfall-Trainer', path: '/lernen/notfall', icon: 'siren' },
           { id: 'assessment', label: 'Assessments', path: '/lernen/assessment', icon: 'gauge' },
           { id: 'pflegeplanung', label: 'Pflegeplanung', path: '/lernen/pflegeplanung', icon: 'clipboard' },

@@ -1,0 +1,52 @@
+/* Bildbetrachter: immer dunkel wie an der Befundstation. Eigene Variablen, tokens.css bleibt unberührt. */
+.bb {
+  --bb-bg: #05080a;
+  --bb-flaeche: #0d171c;
+  --bb-text: #d6e1e6;
+  --bb-muted: #8aa4ad;
+  --bb-akzent: #38bdf8;
+  --bb-gelb: #fbbf24;
+  display: flex; flex-direction: column; gap: 8px;
+  padding: 10px; border-radius: 14px;
+  background: var(--bb-bg); color: var(--bb-text);
+}
+.bb--vollbild {
+  position: fixed; inset: 0; z-index: 1000; border-radius: 0; overflow-y: auto;
+  padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+}
+.bb__kopf { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 0.8125rem; color: var(--bb-muted); }
+.bb__titel { min-width: 0; overflow-wrap: anywhere; }
+.bb__flaeche { position: relative; border-radius: 8px; overflow: hidden; background: #000; outline-offset: 2px; }
+.bb__flaeche:focus-visible { outline: 2px solid var(--bb-akzent); }
+.bb--vollbild .bb__flaeche { max-width: min(100%, calc(100dvh - 260px)); margin: 0 auto; width: 100%; }
+.bb__bild { display: block; width: 100%; height: auto; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.bb__bild--markieren { touch-action: manipulation; cursor: crosshair; }
+.bb__bild--blaettern { cursor: ns-resize; }
+.bb__bild--fenster { cursor: move; }
+.bb__bild--lupe { cursor: zoom-in; }
+.bb__ecke { position: absolute; font: 0.6875rem/1.3 ui-monospace, SFMono-Regular, Menlo, monospace; color: #9fe8c8; text-shadow: 0 1px 2px #000; pointer-events: none; }
+.bb__ecke--ol { left: 8px; top: 6px; }
+.bb__ecke--or { right: 8px; top: 6px; text-align: right; }
+.bb__ecke--ul { left: 8px; bottom: 6px; }
+.bb__ecke--ur { right: 8px; bottom: 6px; }
+.bb__messwert { position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); padding: 2px 10px; border-radius: 999px; background: #000c; color: var(--bb-gelb); font: 600 0.8125rem ui-monospace, Menlo, monospace; pointer-events: none; }
+.bb__laden { position: absolute; inset: 0; display: grid; place-items: center; color: var(--bb-muted); font-size: 0.875rem; padding: 12px; text-align: center; }
+.bb__schieber { display: flex; align-items: center; gap: 6px; }
+.bb__schieber input[type='range'] { flex: 1; min-width: 0; accent-color: var(--bb-akzent); height: 32px; }
+.bb__knopf, .bb__chip, .bb__werkzeuge button {
+  border: 1px solid #ffffff1f; background: var(--bb-flaeche); color: var(--bb-text);
+  border-radius: 10px; min-height: 36px; padding: 0 12px; font: inherit; font-size: 0.8125rem; font-weight: 600; cursor: pointer;
+}
+.bb__knopf[aria-pressed='true'], .bb__chip[aria-pressed='true'], .bb__werkzeuge button[aria-pressed='true'] { background: var(--bb-akzent); color: #021018; border-color: var(--bb-akzent); }
+.bb__knopf:focus-visible, .bb__chip:focus-visible, .bb__werkzeuge button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.bb__fenster { display: flex; flex-wrap: wrap; gap: 6px; }
+.bb__werkzeuge { display: grid; grid-template-columns: repeat(auto-fit, minmax(68px, 1fr)); gap: 6px; }
+.bb__werkzeuge button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 48px; font-size: 0.75rem; }
+.bb__werkzeuge button span { font-size: 1.1rem; line-height: 1; }
+.bb__befunde { margin: 0; padding: 8px 10px 8px 26px; border-radius: 10px; background: #2a210a; color: #fde68a; font-size: 0.8125rem; }
+.bb__befunde li + li { margin-top: 4px; }
+.bb__hinweis { margin: 0; font-size: 0.75rem; color: var(--bb-muted); }
+.bb__hinweis a { color: var(--bb-akzent); }
+@media (hover: hover) {
+  .bb__knopf:hover, .bb__chip:hover, .bb__werkzeuge button:hover { border-color: #ffffff55; }
+}

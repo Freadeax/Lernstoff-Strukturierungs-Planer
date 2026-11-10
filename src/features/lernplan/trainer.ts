@@ -22,13 +22,14 @@ import { HYGIENE_THEMA } from '../hygiene/aufgaben';
 import { THEMA as ANATOMIE_THEMA } from '../anatomie/aufgaben';
 import { ES_THEMA } from '../expertenstandards/aufgaben';
 import { THEMEN as NORMWERT_THEMEN } from '../normwerte/aufgaben';
+import { THEMEN as LABOR_THEMEN } from '../labortrainer/aufgaben';
 import { NOTFALL_THEMA } from '../notfall/aufgaben';
 import { AM_THEMA } from '../arzneimittel/aufgaben';
 import { PRAXIS_THEMEN } from '../praxis/themen';
 import { BEREICH_ZU_THEMA as RECHT_BEREICH } from '../recht/aufgaben';
 import { heute, leafTopics, logReview, TRAINER_NAME } from './store';
 
-export type TrainerId = 'rechnen' | 'duell' | 'fall' | 'uebergabe' | 'pflegeplanung' | 'sis' | 'mindmap' | 'bericht' | 'assessment' | 'krankheitsbilder' | 'selbsttest' | 'hygiene' | 'anatomie' | 'expertenstandards' | 'normwerte' | 'notfall' | 'arzneimittel' | 'praxis' | 'recht';
+export type TrainerId = 'rechnen' | 'duell' | 'fall' | 'uebergabe' | 'pflegeplanung' | 'sis' | 'mindmap' | 'bericht' | 'assessment' | 'krankheitsbilder' | 'selbsttest' | 'hygiene' | 'anatomie' | 'expertenstandards' | 'normwerte' | 'notfall' | 'arzneimittel' | 'praxis' | 'recht' | 'labor';
 
 export const TRAINER_LABEL = TRAINER_NAME as Record<TrainerId, string>;
 
@@ -124,6 +125,8 @@ export function uebungenFuer(topicId: string, modul: CatalogModule = pflegeModul
   if (topicId === NOTFALL_THEMA) out.push({ trainer: 'notfall', label: 'Notfall-Trainer', path: '/lernen/notfall' });
   if (topicId === AM_THEMA) out.push({ trainer: 'arzneimittel', label: 'Arzneimittel-Trainer', path: '/lernen/arzneimittel' });
   if (RECHT_BEREICH[topicId]) out.push({ trainer: 'recht', label: 'Recht-Trainer', path: `/lernen/recht?bereich=${RECHT_BEREICH[topicId]}` });
+  const laborBereich: Record<string, string> = { [LABOR_THEMEN.entnahme]: 'praeanalytik', [LABOR_THEMEN.atmung]: 'bga', [LABOR_THEMEN.blut]: 'befund', [LABOR_THEMEN.niere]: 'befund', [LABOR_THEMEN.diabetes]: 'befund', [LABOR_THEMEN.herz]: 'befund' };
+  if (laborBereich[topicId]) out.push({ trainer: 'labor', label: 'Labor-Trainer', path: `/lernen/labor?bereich=${laborBereich[topicId]}` });
   if (normBereich[topicId]) out.push({ trainer: 'normwerte', label: 'Normwerte-Trainer', path: `/lernen/normwerte?bereich=${normBereich[topicId]}` });
   for (const g of GRUPPEN.filter((x) => x.instrumente.some((i) => INSTRUMENTE[i].topicIds.includes(topicId)))) {
     out.push({ trainer: 'assessment', label: `Assessment üben (${g.label})`, path: `/lernen/assessment?gruppe=${g.id}&modus=faelle` });
