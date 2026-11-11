@@ -29,7 +29,7 @@ describe('Fachliche Freigabe je Fall im Fallsimulator (SIM-02)', () => {
     for (const s of alle) expect(kennzeichnung(freigabeFuerFall(s)), s.id).toMatch(/ungeprüft/);
     expect(alle.some((s) => istGeprueft(freigabeFuerFall(s)))).toBe(false);
   });
-  it('Kinderfälle: Alter erkannt, keine automatische Wertung und kein Messwert-Alarm', () => {
+  it('Kinderfälle: Alter erkannt, Freigabe offen, Alarm nach Kinderprofil statt Erwachsenen-Grenzen', () => {
     expect(alterAus('Ben, 7 Jahre, Kinderstation')).toBe(7);
     for (const id of ['demo-asthma', 'asthma-kind', 'fieberkrampf']) {
       const s = alle.find((x) => x.id === id)!;
@@ -39,11 +39,11 @@ describe('Fachliche Freigabe je Fall im Fallsimulator (SIM-02)', () => {
       expect(monitorGruppeVon(s), id).not.toBe('erwachsen');
     }
     expect(automatischeWertung(freigabeFuerFall(SZENARIEN.find((s) => s.id === 'sepsis')!))).toBe(true);
-    // SpO₂ 86 % wäre beim Erwachsenen rot; ohne Freigabe bleibt der Messwert beim Kind ohne Alarm.
+    // Puls 128 und AF 28 sind beim Erwachsenen rot, beim Schulkind (Kinderprofil) nicht.
     const fall = neuerFall(PROBEFAELLE.find((p) => p.szenario.id === 'demo-asthma')!.szenario, 1);
-    fall.runden.push({ zug: { uhrzeit: '15:00', situation: 'Ben atmet schnell.', zustand: 'verschlechtert', vitalwerte: { rr: '', puls: '130', af: '36', spo2: '86', sauerstoff: '', temp: '', bz: '', schmerz: '', bewusstsein: '' },
+    fall.runden.push({ zug: { uhrzeit: '15:00', situation: 'Ben atmet schnell.', zustand: 'verschlechtert', vitalwerte: { rr: '', puls: '128', af: '28', spo2: '97', sauerstoff: '', temp: '', bz: '', schmerz: '', bewusstsein: '' },
       optionen: [], schritt: 'einschaetzung', rueckmeldung: { wertung: 'keine', text: '' }, beendet: false } as never });
     expect(szenenBild(fall).alarm).toBe(true);
-    expect(szenenBild(fall, { messwertAlarm: false }).alarm).toBe(false);
+    expect(szenenBild(fall, { gruppe: monitorGruppeVon(fall.szenario) }).alarm).toBe(false);
   });
 });

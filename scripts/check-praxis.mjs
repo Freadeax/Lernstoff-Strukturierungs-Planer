@@ -228,10 +228,10 @@ try {
       await p2.getByRole('button', { name: 'Probefall starten: Das Spray hilft heute nicht', exact: true }).click();
       await p2.locator('.szene svg').waitFor();
       await p2.getByText(/gezeichnete Ersatzansicht/).waitFor();
-      // Freigabe (SIM-02): Lernziele am Start, Kennzeichnung am Entscheidungsort, Kinder-Monitor ohne Alarmwertung
+      // Freigabe (SIM-02): Lernziele am Start, Kennzeichnung am Entscheidungsort, Monitor mit Kinderprofil
       await p2.getByRole('region', { name: 'Lernziele und fachlicher Prüfstand' }).waitFor();
       await p2.locator('.fall__eingabe .freigabe-ort', { hasText: 'Fachlich ungeprüft' }).waitFor();
-      assert.equal(await p2.locator('.sim-monitor.is-alarm-rot').count(), 0);
+      await p2.locator('.sim-monitor__profil', { hasText: 'Kind 6–13' }).first().waitFor();
       await ctx.close();
     }
     // Notfall-Trainer: Reanimationsübung mit künstlicher Uhr (Zyklus 30 s ohne Warten).
@@ -261,6 +261,29 @@ try {
       await rea.getByRole('button', { name: 'Übung beenden', exact: true }).click();
       await rea.locator('.rea__ergebnis').waitFor();
       await rea.screenshot({ path: path.join(output, `rea-${width}.png`), fullPage: true });
+      // Profil Neugeborene: eigener Ablauf (Wärme, Blähen, Beatmen), 3:1 im Takt, Herzfrequenz statt Defi.
+      await rea.getByRole('button', { name: 'Anderes Szenario', exact: true }).click();
+      await rea.getByRole('radio', { name: /^Neugeborene/ }).check();
+      assert(await rea.getByRole('region', { name: 'Lernziele und fachlicher Prüfstand' }).isVisible(), 'Freigabe je Profil am Start');
+      assert.match(await rea.locator('.rea__leitlinie').textContent(), /Newborn.*2021/);
+      await rea.getByRole('button', { name: 'Übung starten', exact: true }).click();
+      await rea.getByRole('button', { name: /^Sofort mit Kompressionen/ }).click();
+      assert(await rea.locator('.rea__meldung.is-falsch').isVisible(), 'Neugeborenes: erst beatmen');
+      for (const l of [/^Abtrocknen/, /^Muskeltonus/, /^Kopf in Neutral/, /^5 Blähbeatmungen/, /^Brustkorbhebung/, /^Thoraxkompressionen 3:1/]) await rea.getByRole('button', { name: l }).click();
+      assert(await rea.locator('.rea-nls').isVisible(), 'Reanimationseinheit als Zeichnung');
+      for (let z = 0; z < 6; z++) {
+        for (let i = 0; i < 3; i++) { await rea.getByRole('button', { name: /^Drücken/ }).click(); await rea.clock.runFor(500); }
+        await rea.getByRole('button', { name: 'Beatmen', exact: true }).click(); await rea.clock.runFor(500);
+      }
+      assert(await rea.locator('.rea__rate.is-gut').isVisible(), '3:1 mit etwa 120 Ereignissen/min im Ziel');
+      await rea.clock.runFor(31000);
+      await rea.getByRole('button', { name: /^Unter 60\/min/ }).waitFor();
+      assert(await rea.locator('.rea-defi.is-monitor').isVisible(), 'Monitor zeigt Herzfrequenz');
+      assert(await rea.locator('.rea__schritte .freigabe-ort').isVisible(), 'Prüfstatus am Entscheidungsort');
+      const axeNeu = await new AxeBuilder({ page: rea }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+      audits.push({ width, name: 'Reanimation Neugeborene', violations: axeNeu.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => ({ html: n.html, summary: n.failureSummary })) })) });
+      await rea.getByRole('button', { name: /^Unter 60\/min/ }).click();
+      assert(await rea.getByText(/Adrenalin 20 µg\/kg/).count() === 0, 'Adrenalin erst nach der zweiten Kontrolle');
       await ctx.close();
     }
   }

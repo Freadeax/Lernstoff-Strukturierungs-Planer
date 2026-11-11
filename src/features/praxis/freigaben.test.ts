@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { gesamtAlarm, monitorGruppe } from '../../ui/sim/monitor';
 import { automatischeWertung, freigabeFehler, istGeprueft, kennzeichnung, pruefReihenfolge, type Freigabe } from '../../ui/sim/freigabe';
 import { SCENARIOS } from './catalog';
 import { FREIGABE_FAELLE, freigabeFuer } from './freigaben';
@@ -18,15 +19,19 @@ describe('Fachliche Freigabe je Praxisfall (SIM-02)', () => {
   it('nichts ist als geprüft markiert, solange keine Prüfung eingetragen ist', () => {
     for (const s of SCENARIOS) { expect(istGeprueft(freigabeFuer(s))).toBe(false); expect(kennzeichnung(freigabeFuer(s))).toMatch(/ungeprüft/); }
   });
-  it('Kinderfälle: keine automatische Erwachsenen-Wertung und kein NEWS2-Alarm', () => {
+  it('Kinderfälle: keine automatische Erwachsenen-Wertung; Alarm nach Kinderprofil statt NEWS2', () => {
     for (const id of ['kind', 'asthma']) {
       const sc = SCENARIOS.find(s => s.id === id)!;
       const f = freigabeFuer(sc)!;
       expect(f.zielgruppe).toBe('kinder');
       expect(automatischeWertung(f)).toBe(false);
       const s = dispatch(start(sc, 2), { type: 'action', id: 'monitor' });
-      expect(szene(s).alarm).toBe('kein');
+      const v = s.vitals;
+      const erwartet = gesamtAlarm({ puls: v.pulse, af: v.resp, spo2: v.spo2, sys: v.sys, dia: v.dia, temp: v.temp }, monitorGruppe(sc.age));
+      expect(szene(s).alarm, id).toBe(erwartet === 'ok' ? 'kein' : erwartet);
     }
+    // Ein 4-jähriges Kind mit Puls 130 ist nach Kinderprofil nicht rot, nach Erwachsenengrenzen schon.
+    expect(gesamtAlarm({ puls: 130, af: 26, spo2: 97, sys: 95, temp: 37 }, 'kleinkind')).not.toBe('rot');
     expect(automatischeWertung(freigabeFuer(SCENARIOS.find(s => s.id === 'nachtwache')!))).toBe(true);
   });
   it('Prüfreihenfolge: Medikamente und Notfall vor Fällen ohne Risiko', () => {

@@ -61,3 +61,11 @@
   .rea__haende, .rea__haende::after, .rea-defi, .rea-defi.is-laedt { animation: none; }
   .rea__zeiger { transition: none; }
 }
+/* Profile und Reanimationseinheit für Neugeborene (Zeichnung, kein Foto vorhanden). */
+.rea__profile label { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-1) var(--space-2); }
+.rea__leitlinie { font-size: var(--text-sm); }
+.rea-nls { position: relative; aspect-ratio: 16 / 9; border-radius: var(--radius-md); overflow: hidden; background: #e9eef2; }
+.rea-nls svg { display: block; width: 100%; height: 100%; }
+.rea__haende.is-daumen { width: 6%; }
+.rea-defi.is-monitor { background: #c9d3db; border-color: #2b3640; }
+.rea-defi.is-monitor .rea-defi__kopf { color: #1d262e; }
