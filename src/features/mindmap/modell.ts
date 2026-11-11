@@ -8,9 +8,13 @@ export interface Knoten { id: string; text: string; kinder: Knoten[] }
 export interface Mindmap {
   id: string;
   wurzel: Knoten;           // Text der Wurzel = Titel
-  topicId?: string;         // Thema im Katalog, dann zählt das Üben für den Lernplan
+  topicId?: string;         // Thema im Katalog (stabile ID, nicht der Name), dann zählt das Üben für den Lernplan
   erstellt: string;
   geaendert: string;
+  /** Datenformat der Mindmap; ältere Stände werden beim Laden angehoben (migriere). */
+  schema?: number;
+  /** Fassung: zählt bei jedem Speichern mit geändertem Inhalt hoch. */
+  rev?: number;
 }
 
 let zaehler = 0;
@@ -387,21 +391,97 @@ export function alsSvg(l: MindmapLayout): string {
 // ---------------------------------------------------------------- Speichern (dieses Gerät)
 
 const KEY = 'lernstoff.mindmaps';
+/** Frühere Fassungen je Mindmap, nur auf diesem Gerät (siehe NICHT_SICHERN). */
+export const VERLAUF_KEY = 'lernstoff.mindmaps.fassungen';
+export const SCHEMA = 2;
+export const MAX_FASSUNGEN = 8;
+/** Eine neue Fassung entsteht höchstens alle zwei Minuten, nicht bei jedem Tastendruck. */
+export const FASSUNG_ABSTAND_MS = 2 * 60_000;
+
+/** Repariert einen Knoten aus unsicherer Quelle: fehlende IDs, Texte oder Kinderlisten. */
+function knotenAus(v: unknown, tiefe = 0): Knoten | null {
+  if (!v || typeof v !== 'object' || tiefe > 40) return null;
+  const o = v as Record<string, unknown>;
+  const kinder = Array.isArray(o.kinder) ? o.kinder.map((k) => knotenAus(k, tiefe + 1)).filter((k): k is Knoten => !!k) : [];
+  return { id: typeof o.id === 'string' && o.id ? o.id : neueId(), text: typeof o.text === 'string' ? o.text : String(o.text ?? ''), kinder };
+}
+
+/** Hebt eine gespeicherte Mindmap auf das aktuelle Format (Schema 1 → 2: Fassung, reparierter Baum). */
+export function migriere(v: unknown): Mindmap | null {
+  if (!v || typeof v !== 'object') return null;
+  const o = v as Record<string, unknown>;
+  const wurzel = knotenAus(o.wurzel);
+  if (typeof o.id !== 'string' || !wurzel) return null;
+  const jetzt = new Date().toISOString();
+  return {
+    id: o.id, wurzel,
+    ...(typeof o.topicId === 'string' && o.topicId ? { topicId: o.topicId } : {}),
+    erstellt: typeof o.erstellt === 'string' ? o.erstellt : jetzt,
+    geaendert: typeof o.geaendert === 'string' ? o.geaendert : jetzt,
+    schema: SCHEMA, rev: typeof o.rev === 'number' && o.rev > 0 ? o.rev : 1,
+  };
+}
 
 export function ladeAlle(): Mindmap[] {
   try {
     const roh = JSON.parse(localStorage.getItem(KEY) ?? '[]') as unknown;
     if (!Array.isArray(roh)) return [];
-    return roh.filter((m): m is Mindmap => !!m && typeof m === 'object' && typeof (m as Mindmap).id === 'string' && !!(m as Mindmap).wurzel);
+    return roh.map(migriere).filter((m): m is Mindmap => !!m);
   } catch { return []; }
 }
 
-/** Speichert alle Mindmaps. Gibt false zurück, wenn der Speicher voll oder gesperrt ist. */
+export interface Fassung { rev: number; at: string; wurzel: Knoten; topicId?: string }
+type Fassungen = Record<string, Fassung[]>;
+
+function ladeFassungen(): Fassungen {
+  try { const v = JSON.parse(localStorage.getItem(VERLAUF_KEY) ?? '{}') as unknown; return v && typeof v === 'object' && !Array.isArray(v) ? v as Fassungen : {}; }
+  catch { return {}; }
+}
+
+/** Frühere Fassungen einer Mindmap, neueste zuerst. */
+export function fassungenVon(id: string): Fassung[] {
+  return (ladeFassungen()[id] ?? []).filter((f) => !!knotenAus(f.wurzel)).sort((a, b) => b.rev - a.rev);
+}
+
+const inhalt = (m: Pick<Mindmap, 'wurzel' | 'topicId'>) => JSON.stringify([m.wurzel, m.topicId ?? null]);
+
+/**
+ * Rein: neue Fassungsliste, wenn sich der Inhalt geändert hat. Die alte Fassung wird festgehalten,
+ * wenn die letzte festgehaltene älter als FASSUNG_ABSTAND_MS ist; höchstens MAX_FASSUNGEN je Mindmap.
+ */
+export function naechsteFassungen(liste: Fassung[], alt: Mindmap, jetzt = Date.now()): Fassung[] {
+  const letzte = liste.reduce<Fassung | undefined>((x, f) => (!x || f.rev > x.rev ? f : x), undefined);
+  if (letzte && jetzt - Date.parse(letzte.at) < FASSUNG_ABSTAND_MS) return liste;
+  if (letzte && inhalt(letzte) === inhalt(alt)) return liste;
+  const neu: Fassung = { rev: alt.rev ?? 1, at: new Date(jetzt).toISOString(), wurzel: alt.wurzel, ...(alt.topicId ? { topicId: alt.topicId } : {}) };
+  return [...liste.filter((f) => f.rev !== neu.rev), neu].sort((a, b) => b.rev - a.rev).slice(0, MAX_FASSUNGEN);
+}
+
+/**
+ * Speichert alle Mindmaps. Geänderte bekommen eine neue Fassungsnummer, die vorige Fassung landet im Verlauf.
+ * Gibt false zurück, wenn der Speicher voll oder gesperrt ist.
+ */
 export function speichereAlle(maps: Mindmap[]): boolean {
-  try { localStorage.setItem(KEY, JSON.stringify(maps)); return true; } catch { return false; }
+  try {
+    const vorher = new Map(ladeAlle().map((m) => [m.id, m]));
+    const fassungen = ladeFassungen();
+    let verlaufGeaendert = false;
+    const neu = maps.map((m) => {
+      const alt = vorher.get(m.id);
+      const basis = { ...m, schema: SCHEMA, rev: Math.max(m.rev ?? 1, alt?.rev ?? 1) };
+      if (!alt || inhalt(alt) === inhalt(m)) return basis;
+      const liste = naechsteFassungen(fassungen[m.id] ?? [], alt);
+      if (liste !== fassungen[m.id]) { fassungen[m.id] = liste; verlaufGeaendert = true; }
+      return { ...basis, rev: basis.rev + 1 };
+    });
+    for (const id of Object.keys(fassungen)) if (!maps.some((m) => m.id === id)) { delete fassungen[id]; verlaufGeaendert = true; }
+    localStorage.setItem(KEY, JSON.stringify(neu));
+    if (verlaufGeaendert) { try { localStorage.setItem(VERLAUF_KEY, JSON.stringify(fassungen)); } catch { /* Verlauf ist ein Zusatz */ } }
+    return true;
+  } catch { return false; }
 }
 
 export function neueMindmap(wurzel: Knoten, topicId?: string): Mindmap {
   const jetzt = new Date().toISOString();
-  return { id: neueId(), wurzel, ...(topicId ? { topicId } : {}), erstellt: jetzt, geaendert: jetzt };
+  return { id: neueId(), wurzel, ...(topicId ? { topicId } : {}), erstellt: jetzt, geaendert: jetzt, schema: SCHEMA, rev: 1 };
 }

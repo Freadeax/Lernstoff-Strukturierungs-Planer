@@ -17,6 +17,7 @@ const NICHT_SICHERN = new Set([
   'lernstoff.karten.offeneSitzung', // wird auf dem Gerät selbst nachgemeldet
   'lernstoff.fortschritt.erinnert', // Serien-Erinnerung: je Gerät einmal am Tag
   'lernstoff.lernplan.stand',  // gemerkter Tagesplan für „liegen geblieben“: je Gerät
+  'lernstoff.mindmaps.fassungen', // frühere Fassungen der Mindmaps: Rückgängig je Gerät
   'lernstoff.quiz.vertiefungOffen', // „Mehr verstehen“ auf- oder zugeklappt: Anzeige je Gerät
   'lernstoff.audio',           // Töne und Vorlesestimme: je Gerät
 ]);
