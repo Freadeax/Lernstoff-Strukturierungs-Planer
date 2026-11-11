@@ -39,7 +39,7 @@ const UNTERTITEL: Record<string, string> = {
 export default function UebenSeite() {
   return (
     <section className="page ueben">
-      <PageHeading eyebrow="Vom Verstehen zum Anwenden" title="Üben"
+      <PageHeading bild="ueben" eyebrow="Vom Verstehen zum Anwenden" title="Üben"
         description="Fachwissen festigen, in der Praxis anwenden, auf die Prüfung vorbereiten. Welche Übung zu einem Thema passt, steht auch auf jeder Themenseite." />
       <p className="note">Tägliche Wiederholung: <a href="#/lernen/karten">Karteikarten</a>. Geführt durch eine CE: <a href="#/lernen/ce">Curriculare Einheiten</a>.</p>
       {uebenGruppen().map((g) => (
