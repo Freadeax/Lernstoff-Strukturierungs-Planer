@@ -4,12 +4,18 @@
 #
 # Erlaubte Verbindungen: nur die eigene Adresse, die Claude-API (KI-Funktionen mit eigenem Schlüssel)
 # und die GitHub-API (private Material-Ablage). Neue Dienste hier UND in scripts/check-csp.mjs eintragen.
+#
+# Berechtigungen (Permissions-Policy): nur das Mikrofon ist für die eigene Adresse erlaubt. Es wird gebraucht für
+# die mündliche Prüfung (src/features/examen/Muendlich.tsx, Aufnahme per MediaRecorder) und das Diktat in der
+# Übergabe (src/features/uebergabe/diktat.ts, Web Speech API). Der Browser fragt trotzdem jedes Mal nach.
+# Die Kamera nutzt die App nicht (Fotos kommen über die Dateiauswahl, QR-Codes werden nur angezeigt), deshalb camera=().
+# Braucht eine neue Funktion eine Berechtigung, hier begründen und in scripts/check-csp.mjs mitprüfen.
 /*
   Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; style-src 'self'; img-src 'self' data: blob:; font-src 'self'; media-src 'self' blob:; connect-src 'self' blob: data: https://api.anthropic.com https://api.github.com https://uploads.github.com; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
   Referrer-Policy: no-referrer
-  Permissions-Policy: camera=(self), microphone=(self), geolocation=(), payment=(), usb=(), serial=(), bluetooth=(), interest-cohort=()
+  Permissions-Policy: camera=(), microphone=(self), geolocation=(), payment=(), usb=(), serial=(), bluetooth=(), interest-cohort=()
   Cross-Origin-Opener-Policy: same-origin
   Strict-Transport-Security: max-age=31536000
 
