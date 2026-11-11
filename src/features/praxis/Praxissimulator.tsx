@@ -13,6 +13,8 @@ import { blick, handlungenFuer, RAUM_ELEMENTE, raumElemente, type RaumElement } 
 import { News2Badge, VitalKurve } from './VitalKurve';
 import { Szene } from './Szene';
 import { PatientenMonitor } from '../../ui/sim/PatientenMonitor';
+import { HandlungsVideo } from '../../ui/sim/HandlungsVideo';
+import { HANDLUNGSVIDEOS, phasenBild, type HandlungsVideoId } from '../../ui/sim/handlungsvideos';
 import './szene.css';
 import { archive, download, parseScenario, readArchive, readSession, saveSession } from './storage';
 import { xapiDraft } from './tracking';
@@ -40,6 +42,17 @@ function Handlungen({ s, actions, send }: { s: Session; actions: Action[]; send:
   return <div className="praxis-actions">{actions.map(a => <button key={a.id} disabled={s.done.includes(a.id) && !a.repeatable} onClick={() => send({ type: 'action', id: a.id })}><span>{a.label}</span><small>{a.seconds < 60 ? `${a.seconds} s` : `${a.seconds / 60} min`}{a.delay ? ` · Befund +${a.delay / 60} min` : ''}{a.requires ? ' · Freigabe erforderlich' : ''}{s.done.includes(a.id) ? ' · durchgeführt' : ''}</small></button>)}</div>;
 }
 
+/** Pflegetechniken als Lernclip: nur ansehen, verändert den Fall nicht. */
+function Lernclips() {
+  const [offen, setOffen] = useState<HandlungsVideoId | null>(null);
+  return <div className="praxis-lernclips"><h5>Pflegetechniken ansehen</h5>
+    <div className="praxis-lernclips__liste">{(Object.keys(HANDLUNGSVIDEOS) as HandlungsVideoId[]).map(id => <button key={id} type="button" onClick={() => setOffen(id)}>
+      <img src={phasenBild(id, 0)} alt="" width={160} height={90} loading="lazy" /><span>{HANDLUNGSVIDEOS[id].titel}</span></button>)}</div>
+    <p className="muted">Ohne Zeitverbrauch und ohne Folgen im Fall.</p>
+    {offen && <HandlungsVideo id={offen} onClose={() => setOffen(null)} />}
+  </div>;
+}
+
 const ANSICHT_KEY = 'lernstoff.praxis.ansicht';
 function leseAnsicht(): 'raum' | 'liste' { try { return localStorage.getItem(ANSICHT_KEY) === 'liste' ? 'liste' : 'raum'; } catch { return 'raum'; } }
 
@@ -58,6 +71,7 @@ function Room({ s, send, element, ansicht, setAnsicht }: { s: Session; send: (c:
         <h4 id="praxis-element-titel">{info[element].label}</h4>
         <p className="praxis-blick">{blick(s, element)}</p>
         <Handlungen s={s} actions={handlungenFuer(s.scenario, element)} send={send} />
+        {element === 'wagen' && <Lernclips />}
       </section>
     </> : <div className="praxis-liste">{RAUM_ELEMENTE.map(e => <section key={e} aria-labelledby={`praxis-liste-${e}`}>
       <h4 id={`praxis-liste-${e}`}>{info[e].label} <small>· {info[e].zweck}</small></h4>

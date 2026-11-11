@@ -34,6 +34,11 @@ export default defineConfig({
           handler: 'CacheFirst',
           options: { cacheName: 'tesseract', expiration: { maxEntries: 10 } },
         }, {
+          // Handlungsvideos des Simulators erst beim Ansehen laden, danach offline verfügbar.
+          urlPattern: ({ url }) => url.pathname.includes('/sim-videos/'),
+          handler: 'CacheFirst',
+          options: { cacheName: 'sim-videos', expiration: { maxEntries: 30 } },
+        }, {
           // Echte Röntgen-/CT-Bilder erst beim Ansehen laden, danach offline verfügbar.
           urlPattern: ({ url }) => url.pathname.includes('/bildgebung/'),
           handler: 'CacheFirst',

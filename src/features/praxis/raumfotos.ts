@@ -1,0 +1,65 @@
+// Fotoansicht des Praxissimulators: welcher Raum aus dem Bildpaket zu welchem Fall gehört
+// und wo im Bild Patient, Monitor/Messgeräte, Material und Telefon liegen.
+// Koordinaten in Prozent der Bildbreite/-höhe (Bilder 16:9). Die Bilder selbst und die
+// Bildkomponente liegen gemeinsam für beide Simulatoren unter src/ui/sim (raumbilder.ts).
+
+import type { RaumElement } from './raum';
+
+export type Punkt = { x: number; y: number };
+/** Bildschirmfläche eines Monitors im Foto (relativ 0…1), für die Live-Anzeige. */
+export type Bildschirm = { x: number; y: number; width: number; height: number };
+export type Detail = { id: 'insulingabe' | 'kompressionsstrumpf'; label: string; punkt: Punkt };
+
+export type RaumFoto = {
+  /** ID aus dem Asset-Katalog, z. B. 12_station_kardiologie_monitoring */
+  id: string;
+  /** Variante, solange kein Monitoring angeschlossen ist (Raum 12 → 12a). */
+  ohneMonitor?: string;
+  nacht?: boolean;
+  orte: Record<RaumElement, Punkt>;
+  /** Bildschirm im Bild: dort läuft bei Monitoring der Live-Monitor. */
+  bildschirm?: Bildschirm;
+  /** Bezeichnungen, die im Foto genauer passen als die allgemeinen (z. B. Rufanlage statt Telefon). */
+  namen?: Partial<Record<RaumElement, string>>;
+  /** Zusätzliche Detailansichten (Lernclip, verändert den Fall nicht). */
+  details?: Detail[];
+};
+
+export const RAUMFOTOS: Record<string, RaumFoto> = {
+  wohnzimmer: { id: '07_ambulant_wohnzimmer_kompression', orte: { patient: { x: 22, y: 32 }, monitor: { x: 86, y: 70 }, wagen: { x: 95, y: 84 }, telefon: { x: 72, y: 26 } },
+    namen: { telefon: 'Diensthandy' }, details: [{ id: 'kompressionsstrumpf', label: 'Kompressionsstrumpf anziehen (Ablauf ansehen)', punkt: { x: 36, y: 74 } }] },
+  bad: { id: '08_ambulant_pflegebad', orte: { patient: { x: 88, y: 42 }, monitor: { x: 13, y: 74 }, wagen: { x: 49, y: 56 }, telefon: { x: 6, y: 90 } }, namen: { telefon: 'Diensthandy' } },
+  kueche: { id: '09_ambulant_kueche_diabetes', orte: { patient: { x: 73, y: 36 }, monitor: { x: 60, y: 84 }, wagen: { x: 43, y: 80 }, telefon: { x: 30, y: 78 } },
+    namen: { telefon: 'Diensthandy' }, details: [{ id: 'insulingabe', label: 'Insulin-Pen am Übungspad (Ablauf ansehen)', punkt: { x: 51, y: 79 } }] },
+  heimNacht: { id: '10_pflegeheim_nacht', nacht: true, orte: { patient: { x: 31, y: 40 }, monitor: { x: 10, y: 54 }, wagen: { x: 75, y: 57 }, telefon: { x: 21, y: 60 } }, namen: { telefon: 'Rufanlage und Diensttelefon' } },
+  speiseraum: { id: '11_pflegeheim_speiseraum', orte: { patient: { x: 16, y: 40 }, monitor: { x: 33, y: 72 }, wagen: { x: 50, y: 60 }, telefon: { x: 54, y: 34 } } },
+  kardiologie: { id: '12_station_kardiologie_monitoring', ohneMonitor: '12a_station_kardiologie_ohne_monitor', orte: { patient: { x: 28, y: 34 }, monitor: { x: 73, y: 44 }, wagen: { x: 74, y: 66 }, telefon: { x: 21, y: 24 } },
+    bildschirm: { x: 0.628, y: 0.0965, width: 0.201, height: 0.2 }, namen: { telefon: 'Rufanlage und Stationstelefon' } },
+  postop: { id: '13_station_postop', orte: { patient: { x: 77, y: 38 }, monitor: { x: 69, y: 30 }, wagen: { x: 92, y: 62 }, telefon: { x: 5, y: 40 } } },
+  isolation: { id: '14_station_isolation', orte: { patient: { x: 15, y: 40 }, monitor: { x: 39, y: 32 }, wagen: { x: 79, y: 38 }, telefon: { x: 94, y: 52 } } },
+  intensiv: { id: '15_intensiv_beatmung', orte: { patient: { x: 54, y: 40 }, monitor: { x: 90, y: 42 }, wagen: { x: 19, y: 34 }, telefon: { x: 72, y: 12 } },
+    bildschirm: { x: 0.81, y: 0.145, width: 0.18, height: 0.235 } },
+  triage: { id: '16_notaufnahme_triage', orte: { patient: { x: 40, y: 58 }, monitor: { x: 67, y: 44 }, wagen: { x: 36, y: 14 }, telefon: { x: 5, y: 46 } }, namen: { telefon: 'Arbeitsplatz und Telefon' } },
+  untersuchung: { id: '17_notaufnahme_untersuchung', orte: { patient: { x: 28, y: 40 }, monitor: { x: 43, y: 38 }, wagen: { x: 93, y: 62 }, telefon: { x: 76, y: 40 } },
+    bildschirm: { x: 0.404, y: 0.22, width: 0.072, height: 0.085 } },
+  schockraum: { id: '18_notaufnahme_schockraum_nacht', nacht: true, orte: { patient: { x: 42, y: 45 }, monitor: { x: 9, y: 40 }, wagen: { x: 90, y: 64 }, telefon: { x: 63, y: 30 } },
+    bildschirm: { x: 0.022, y: 0.155, width: 0.118, height: 0.17 } },
+};
+
+/** Fall → Raum. Fälle ohne Eintrag zeigen nur die Zeichnung. Neue Fälle hier eintragen (Test prüft das). */
+export const FALL_RAUM: Record<string, keyof typeof RAUMFOTOS> = {
+  hausbesuch: 'wohnzimmer', pflegeheim: 'speiseraum', nachtwache: 'kardiologie', zna: 'triage', its: 'intensiv',
+  kind: 'postop', psychiatrie: 'speiseraum', reha: 'bad', palliativ: 'heimNacht', sepsis: 'postop',
+  nachblutung: 'postop', schlaganfall: 'speiseraum', anaphylaxie: 'isolation', lungenembolie: 'kardiologie',
+  delir: 'heimNacht', asthma: 'untersuchung', demenz: 'speiseraum',
+};
+
+export function raumFotoFuer(fallId: string): RaumFoto | undefined {
+  const key = FALL_RAUM[fallId];
+  return key ? RAUMFOTOS[key] : undefined;
+}
+
+/** Welches Bild gerade gilt: ohne angeschlossenes Monitoring die Variante ohne Gerät. */
+export function bildFuer(raum: RaumFoto, monitoring: boolean): string {
+  return !monitoring && raum.ohneMonitor ? raum.ohneMonitor : raum.id;
+}
