@@ -81,6 +81,13 @@ Stationen buchen in den Lernplan (`werkbank/lernplan.ts`, Versuch-ID `werkbank:<
 Entnahme auf Blutentnahme, Verlauf auf das Thema des gesuchten Werts, Meldung auf Übergabe. `uebungenFuer` verlinkt
 die Stationen vom Lernplan aus.
 
+**Gemeinsamer Normwert-Vertrag:** Vitalwerte stehen in `src/ui/sim/vitalnormen.ts` (`VITALWERTE`, Normalbereich
+je Altersgruppe, `VITAL_SCHWELLEN`), Laborwerte in `labor/parameter.ts`. Die Fassade `src/ui/sim/normwerte.ts`
+(`normwert`, `normText`) verbindet beides. Der Normwerte-Trainer erzeugt seine Bereichsangaben daraus. Die
+Kurvenbänder (`normBand`) sind der Normalbereich. Bei Kindern beginnt Gelb am Monitor genau außerhalb dieses
+Bereichs. Bei Erwachsenen bleiben die Alarmfarben NEWS2 und warnen deshalb früher. Ein Test (normwerte.test.ts)
+hält Trainer, Labor und Monitor gleich.
+
 ## Echte Bilder
 
 - **Öffentlich** (`public/bildgebung/…`, Quelle `bilder`): nur frei lizenziert (CC BY, CC BY-SA, gemeinfrei) mit Urheber,
