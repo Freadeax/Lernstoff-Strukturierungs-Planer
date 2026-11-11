@@ -125,7 +125,7 @@ export function RaumBuehne({ raum, hotspots = [], monitor, monitorInhalt, fokus,
           )}
           {zeigeMonitor && r.monitor && (
             <MonitorFlaeche rechteck={r.monitor}>
-              {monitorInhalt ?? (mw && <PatientenMonitor werte={mw.werte} aktiv={mw.aktiv} ausText={mw.ausText} kompakt titel={mw.hinweis ?? monitor?.titel} className="raum-monitor__geraet" />)}
+              {monitorInhalt ?? (mw && <PatientenMonitor werte={mw.werte} aktiv={mw.aktiv} ausText={mw.ausText} titel={mw.hinweis ?? monitor?.titel} className="raum-monitor__geraet" />)}
             </MonitorFlaeche>
           )}
           <div className="raum-buehne__overlay">{children}</div>
