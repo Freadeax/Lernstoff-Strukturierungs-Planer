@@ -12,6 +12,8 @@ import { CHECKS, clinicalDebrief, clock, consciousness, debrief, dispatch, kette
 import { blick, handlungenFuer, RAUM_ELEMENTE, raumElemente, type RaumElement } from './raum';
 import { News2Badge, VitalKurve } from './VitalKurve';
 import { Szene } from './Szene';
+import { FotoSzene } from './FotoSzene';
+import { raumFotoFuer } from './raumfotos';
 import { PatientenMonitor } from '../../ui/sim/PatientenMonitor';
 import { HandlungsVideo } from '../../ui/sim/HandlungsVideo';
 import { HANDLUNGSVIDEOS, phasenBild, type HandlungsVideoId } from '../../ui/sim/handlungsvideos';
@@ -54,19 +56,21 @@ function Lernclips() {
 }
 
 const ANSICHT_KEY = 'lernstoff.praxis.ansicht';
-function leseAnsicht(): 'raum' | 'liste' { try { return localStorage.getItem(ANSICHT_KEY) === 'liste' ? 'liste' : 'raum'; } catch { return 'raum'; } }
+type Ansicht = 'foto' | 'raum' | 'liste';
+function leseAnsicht(): Ansicht { try { const a = localStorage.getItem(ANSICHT_KEY); return a === 'liste' || a === 'raum' ? a : 'foto'; } catch { return 'foto'; } }
 
 /**
  * Patientenzimmer: Patient, Monitor, Materialwagen und Telefon sind benutzbar. Ein Klick zeigt,
  * was man dort sofort wahrnimmt, und die Handlungen an diesem Element. Die Liste bietet dieselben
  * Elemente und Handlungen für Tastatur, Screenreader und kleine Displays.
  */
-function Room({ s, send, element, ansicht, setAnsicht }: { s: Session; send: (c: Command) => void; element: RaumElement; ansicht: 'raum' | 'liste'; setAnsicht: (a: 'raum' | 'liste') => void }) {
+function Room({ s, send, element, ansicht, setAnsicht }: { s: Session; send: (c: Command) => void; element: RaumElement; ansicht: Ansicht; setAnsicht: (a: Ansicht) => void }) {
+  const foto = !!raumFotoFuer(s.scenario.id);
   const info = raumElemente(s.scenario);
   return <div className="praxis-room">
     <div className="praxis-room__head"><p>{s.scenario.environment}</p>
-      <div className="praxis-ansicht" role="group" aria-label="Darstellung des Zimmers"><button aria-pressed={ansicht === 'raum'} onClick={() => setAnsicht('raum')}>Raum</button><button aria-pressed={ansicht === 'liste'} onClick={() => setAnsicht('liste')}>Liste</button></div></div>
-    {ansicht === 'raum' ? <>
+      <div className="praxis-ansicht" role="group" aria-label="Darstellung des Zimmers">{foto && <button aria-pressed={ansicht === 'foto'} onClick={() => setAnsicht('foto')}>Foto</button>}<button aria-pressed={ansicht === 'raum' || (ansicht === 'foto' && !foto)} onClick={() => setAnsicht('raum')}>Zeichnung</button><button aria-pressed={ansicht === 'liste'} onClick={() => setAnsicht('liste')}>Liste</button></div></div>
+    {ansicht !== 'liste' ? <>
       <section className="praxis-element" aria-labelledby="praxis-element-titel">
         <h4 id="praxis-element-titel">{info[element].label}</h4>
         <p className="praxis-blick">{blick(s, element)}</p>
@@ -246,9 +250,13 @@ export function Arbeitsplatz({ s, send, panel, setPanel, zeitraffer = 1 }: { s: 
   const last = [...s.events].reverse().find(e => e.kind !== 'state') ?? s.events.at(-1);
   const [element, setElement] = useState<RaumElement>('patient');
   const [ansicht, setAnsichtState] = useState(leseAnsicht);
-  const setAnsicht = (a: 'raum' | 'liste') => { setAnsichtState(a); try { localStorage.setItem(ANSICHT_KEY, a); } catch { /* nur Komfort */ } };
+  const setAnsicht = (a: Ansicht) => { setAnsichtState(a); try { localStorage.setItem(ANSICHT_KEY, a); } catch { /* nur Komfort */ } };
+  const foto = raumFotoFuer(s.scenario.id);
+  const fokussieren = (e: RaumElement) => { setElement(e); setPanel('Patientenzimmer'); };
   return <>
-    {ansicht === 'raum' && <Szene s={s} fokus={element} onFokus={e => { setElement(e); setPanel('Patientenzimmer'); }} zeitraffer={zeitraffer} />}
+    {ansicht !== 'liste' && (foto && ansicht === 'foto'
+      ? <FotoSzene s={s} raum={foto} fokus={element} onFokus={fokussieren} zeitraffer={zeitraffer} onZeichnung={() => setAnsicht('raum')} />
+      : <Szene s={s} fokus={element} onFokus={fokussieren} zeitraffer={zeitraffer} />)}
     <section className="praxis-monitor" aria-label="Vitalparameter"><div className="praxis-monitor__heading"><strong>{s.monitoring ? 'Kontinuierliches Monitoring' : s.measuredAt === null ? 'Noch keine Messung' : `Letzte Messung · ${clock(s.measuredAt)}`}</strong><span>SpO₂: LOINC 59408-5 · keine Alarmgrenzen für die pädiatrische Bewertung</span></div>
       {s.monitoring
         ? <><PatientenMonitor className="praxis-monitor__live" titel={`Monitor · ${clock(s.time)}`} werte={{ puls: s.measured.pulse ?? null, af: s.measured.resp ?? null, spo2: s.measured.spo2 ?? null, sys: s.measured.sys ?? null, dia: s.measured.dia ?? null, temp: s.measured.temp ?? null, avpu: consciousness(s), sauerstoff: s.oxygen ?? false }} />

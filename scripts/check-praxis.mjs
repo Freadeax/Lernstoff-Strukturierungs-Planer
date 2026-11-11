@@ -31,14 +31,23 @@ try {
     // Raumelemente: Antippen zeigt den ersten Blick (ohne Zeitverbrauch) und die Handlungen dort.
     assert(await page.locator('.praxis-element .praxis-blick').textContent().then(t => /Erster Blick: wach und ansprechbar, atmet sichtbar schnell/.test(t ?? '')));
     assert.equal(await page.locator('.praxis-clock strong').textContent(), '00:00:00', 'Hinsehen kostet keine Zeit');
-    // Animierte Zimmerszene: Patient, Pflegekraft und Orte als Knöpfe; Handlungen bewegen die Pflegekraft.
-    assert(await page.locator('.szene .szene__pflege').count() === 1, 'Pflegekraft in der Szene');
+    // Fotoansicht (Standard): Raumfoto zum Fall, ohne Monitoring die Variante ohne Gerät, Hotspots und Atemring.
+    await page.locator('.szene--foto .raum-buehne__bild').waitFor();
+    assert(/12a_station_kardiologie_ohne_monitor/.test(await page.locator('.szene--foto .raum-buehne__bild').getAttribute('src') ?? ''), 'Raum ohne Monitor vor dem Anschließen');
+    assert.equal(await page.locator('.szene--foto .raum-hotspot').count(), 4);
     assert.equal(await page.locator('.szene__orte .praxis-hotspot').count(), 4);
-    assert(await page.locator('.szene .szene__brust').count() >= 1, 'Patient atmet');
+    assert.equal(await page.locator('.szene--foto .foto__atem').count(), 1, 'Atemring am Patienten');
     await page.getByRole('button', { name: /^Monitor und Messgeräte/ }).click();
     await page.getByRole('button', { name: /Vitalparameter einschließlich BZ messen/ }).click();
     assert(await page.getByText('Letzte Messung · 00:01:00', { exact: true }).isVisible());
+    assert.equal(await page.locator('.foto__taetigkeit').count(), 1, 'Messen zeigt die Tätigkeit im Foto');
+    // Zeichnung: Patient, Pflegekraft und Orte als Knöpfe; Handlungen bewegen die Pflegekraft.
+    await page.getByRole('button', { name: 'Zeichnung', exact: true }).click();
+    assert(await page.locator('.szene .szene__pflege').count() === 1, 'Pflegekraft in der Szene');
+    assert(await page.locator('.szene .szene__brust').count() >= 1, 'Patient atmet');
     assert.equal(await page.locator('.szene__arbeit').count(), 1, 'Messen zeigt die Arbeitsanimation');
+    await audit('Zeichnung');
+    await page.getByRole('button', { name: 'Foto', exact: true }).click();
     // Lernclip am Materialwagen: Dialog mit Video/Phasen, verändert den Fall nicht.
     const uhrVorClip = await page.locator('.praxis-clock strong').textContent();
     await page.getByRole('button', { name: /^Materialwagen/ }).click();
@@ -59,7 +68,7 @@ try {
     assert.equal(await page.locator('.praxis-liste h4').count(), 4);
     assert.equal(await page.locator('.praxis-liste .praxis-actions button').count(), await page.evaluate(() => JSON.parse(localStorage.getItem('lernstoff.praxis.aktuell')).scenario.actions.length));
     await audit('Raumliste');
-    await page.getByRole('button', { name: 'Raum', exact: true }).click();
+    await page.getByRole('button', { name: 'Foto', exact: true }).click();
     await page.getByRole('button', { name: '+5 Minuten', exact: true }).click();
     assert(await page.locator('.praxis-news2 strong').first().textContent().then(t => /NEWS2 \d+/.test(t ?? '')));
     await page.getByRole('button', { name: 'Vitalkurve', exact: true }).click();
@@ -88,7 +97,8 @@ try {
     await page.getByRole('button', { name: 'Patientenzimmer', exact: true }).click();
     await page.getByRole('button', { name: /^Monitor und Messgeräte/ }).click();
     await page.getByRole('button', { name: /Kontinuierliches Monitoring anschließen/ }).click();
-    await page.locator('.szene__schirm canvas').waitFor();
+    await page.locator('.szene--foto .raum-monitor .sim-monitor').waitFor();
+    assert(/12_station_kardiologie_monitoring/.test(await page.locator('.szene--foto .raum-buehne__bild').getAttribute('src') ?? ''), 'Monitor im Foto nach dem Anschließen');
     assert(await page.locator('.praxis-monitor .sim-monitor').count() === 1, 'Live-Monitor bei Monitoring');
     await page.getByRole('button', { name: 'Dokumentation', exact: true }).click();
     await page.getByLabel('Verlaufsdokumentation', { exact: true }).fill('Patient mit Atemnot. Aufrechte Position unterstützt, ärztliches Team hinzugezogen. Wirkung weiter kontrollieren.');
