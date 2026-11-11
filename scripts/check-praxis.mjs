@@ -41,6 +41,9 @@ try {
     await page.getByRole('button', { name: /Vitalparameter einschließlich BZ messen/ }).click();
     assert(await page.getByText('Letzte Messung · 00:01:00', { exact: true }).isVisible());
     assert.equal(await page.locator('.foto__taetigkeit').count(), 1, 'Messen zeigt die Tätigkeit im Foto');
+    // Dein Auftrag: erster Schritt erledigt, Handlung ist der aktuelle Schritt.
+    assert(await page.locator('.praxis-auftrag li.is-erledigt', { hasText: 'Erster Blick' }).isVisible(), 'Auftrag: erster Blick erledigt');
+    assert(await page.locator('.praxis-auftrag li[aria-current="step"]', { hasText: 'Handlung auswählen' }).isVisible(), 'Auftrag: nächster Schritt');
     // Zeichnung: Patient, Pflegekraft und Orte als Knöpfe; Handlungen bewegen die Pflegekraft.
     await page.getByRole('button', { name: 'Zeichnung', exact: true }).click();
     assert(await page.locator('.szene .szene__pflege').count() === 1, 'Pflegekraft in der Szene');

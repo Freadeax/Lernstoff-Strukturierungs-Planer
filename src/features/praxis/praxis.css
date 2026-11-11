@@ -192,3 +192,26 @@
 .praxis-kette small { color: var(--color-text-muted); }
 .praxis-kette p { margin: 0; }
 @media (max-width: 560px) { .praxis-kette dl div { grid-template-columns: minmax(0, 1fr); gap: 0; } .praxis-hotspot { font-size: var(--text-xs); padding: 0 var(--space-2); min-height: 2.25rem; } }
+
+/* Bühne und „Dein Auftrag“ (Gestaltungsvorlage Praxissimulator): nebeneinander ab breiten Displays. */
+.praxis-buehne.mit-auftrag { display: grid; gap: var(--space-4); margin: var(--space-4) 0; }
+.praxis-buehne.mit-auftrag > .szene { margin: 0; }
+@media (min-width: 1100px) { .praxis-buehne.mit-auftrag { grid-template-columns: minmax(0, 2.2fr) minmax(16rem, 1fr); align-items: start; } }
+.praxis-auftrag { display: grid; gap: var(--space-3); align-content: start; padding: var(--space-4); border: 2px solid var(--color-ink); border-radius: var(--radius-lg, 14px); background: var(--color-surface); box-shadow: var(--shadow-hard-sm, none); }
+.praxis-auftrag h3, .praxis-auftrag h4 { margin: 0; }
+.praxis-auftrag h4 { margin-top: var(--space-2); }
+.praxis-auftrag__zeit { justify-self: start; margin: 0; padding: var(--space-1) var(--space-3); border: 2px solid var(--color-ink); border-radius: var(--radius-pill); background: #fff1c9; color: #3a2a00; font-weight: 700; font-size: var(--text-sm); font-variant-numeric: tabular-nums; }
+.praxis-auftrag__zeit.is-laeuft { background: var(--color-success-soft); color: var(--color-text); }
+.praxis-auftrag__ziel { margin: 0; font-size: var(--text-sm); color: var(--color-text-muted, var(--color-text)); }
+.praxis-auftrag__schritte { list-style: none; margin: 0; padding: 0; display: grid; }
+.praxis-auftrag__schritte li { display: flex; gap: var(--space-3); align-items: flex-start; padding: var(--space-2) 0; border-bottom: 1px solid var(--color-border); }
+.praxis-auftrag__schritte li > span:last-child { display: grid; gap: 2px; }
+.praxis-auftrag__schritte strong { font-weight: 600; }
+.praxis-auftrag__schritte small { font-size: var(--text-xs); color: var(--color-text-muted, var(--color-text)); }
+.praxis-auftrag__marke { flex: none; display: grid; place-items: center; width: 1.6rem; height: 1.6rem; border-radius: 999px; border: 2px solid var(--color-border); font-size: var(--text-xs); font-weight: 700; }
+.praxis-auftrag__schritte li.is-erledigt .praxis-auftrag__marke { background: #15803d; border-color: #15803d; color: #fff; }
+.praxis-auftrag__schritte li.is-aktuell .praxis-auftrag__marke { background: var(--color-sun); border-color: var(--color-ink); color: #16302b; }
+.praxis-auftrag__schritte li.is-erledigt strong { text-decoration: line-through; text-decoration-thickness: 1px; }
+.praxis-auftrag__ende { justify-self: start; }
+/* Arbeitsbereiche und Darstellung als Pillen (Gestaltungsvorlage). */
+.praxis .praxis-panels button, .praxis .praxis-ansicht button { border-radius: var(--radius-pill); }

@@ -13,6 +13,7 @@ import { blick, handlungenFuer, RAUM_ELEMENTE, raumElemente, type RaumElement } 
 import { News2Badge, VitalKurve } from './VitalKurve';
 import { Szene } from './Szene';
 import { FotoSzene } from './FotoSzene';
+import { auftragsSchritte } from './auftrag';
 import { raumFotoFuer } from './raumfotos';
 import { PatientenMonitor } from '../../ui/sim/PatientenMonitor';
 import { HandlungsVideo } from '../../ui/sim/HandlungsVideo';
@@ -245,8 +246,25 @@ function Entscheidung({ s, send }: { s: Session; send: (c: Command) => void }) {
   </section>;
 }
 
+/** „Dein Auftrag“ (Gestaltungsvorlage): Simulationszeit, vier Arbeitsschritte mit Stand, Weg zum Debriefing. */
+function Auftrag({ s, uhrLaeuft, onAbschluss }: { s: Session; uhrLaeuft: boolean; onAbschluss: () => void }) {
+  const schritte = auftragsSchritte(s);
+  const aktuell = schritte.findIndex(x => !x.erledigt);
+  return <aside className="praxis-auftrag" aria-labelledby="praxis-auftrag-titel">
+    <h3 id="praxis-auftrag-titel">Dein Auftrag</h3>
+    <p className={`praxis-auftrag__zeit ${uhrLaeuft ? 'is-laeuft' : ''}`}>Simulationszeit · {clock(s.time)} · {uhrLaeuft ? 'läuft' : 'pausiert'}</p>
+    <p className="praxis-auftrag__ziel">{s.scenario.recommendation}</p>
+    <ol className="praxis-auftrag__schritte">{schritte.map((x, i) => <li key={x.id} className={x.erledigt ? 'is-erledigt' : i === aktuell ? 'is-aktuell' : ''} aria-current={i === aktuell ? 'step' : undefined}>
+      <span className="praxis-auftrag__marke" aria-hidden="true">{x.erledigt ? '✓' : i + 1}</span>
+      <span><strong>{x.titel}</strong><span className="visually-hidden">{x.erledigt ? ' (erledigt)' : ' (offen)'}</span>{i === aktuell && <small>{x.hinweis}</small>}</span>
+    </li>)}</ol>
+    <h4>Nach dem Fall</h4>
+    <button type="button" className="praxis-auftrag__ende" onClick={onAbschluss}>Fall abschließen und Debriefing ansehen</button>
+  </aside>;
+}
+
 /** Ein Patient im Blick: Monitor, letzte Rückmeldung, Entscheidungsmoment, Arbeitsbereiche. Auch im Schichtmodus genutzt. */
-export function Arbeitsplatz({ s, send, panel, setPanel, zeitraffer = 1 }: { s: Session; send: (c: Command) => void; panel: Panel; setPanel: (p: Panel) => void; zeitraffer?: number }) {
+export function Arbeitsplatz({ s, send, panel, setPanel, zeitraffer = 1, uhrLaeuft, onAbschluss }: { s: Session; send: (c: Command) => void; panel: Panel; setPanel: (p: Panel) => void; zeitraffer?: number; uhrLaeuft?: boolean; onAbschluss?: () => void }) {
   const last = [...s.events].reverse().find(e => e.kind !== 'state') ?? s.events.at(-1);
   const [element, setElement] = useState<RaumElement>('patient');
   const [ansicht, setAnsichtState] = useState(leseAnsicht);
@@ -254,9 +272,12 @@ export function Arbeitsplatz({ s, send, panel, setPanel, zeitraffer = 1 }: { s: 
   const foto = raumFotoFuer(s.scenario.id);
   const fokussieren = (e: RaumElement) => { setElement(e); setPanel('Patientenzimmer'); };
   return <>
-    {ansicht !== 'liste' && (foto && ansicht === 'foto'
-      ? <FotoSzene s={s} raum={foto} fokus={element} onFokus={fokussieren} zeitraffer={zeitraffer} onZeichnung={() => setAnsicht('raum')} />
-      : <Szene s={s} fokus={element} onFokus={fokussieren} zeitraffer={zeitraffer} />)}
+    <div className={`praxis-buehne ${onAbschluss ? 'mit-auftrag' : ''}`}>
+      {ansicht !== 'liste' && (foto && ansicht === 'foto'
+        ? <FotoSzene s={s} raum={foto} fokus={element} onFokus={fokussieren} zeitraffer={zeitraffer} onZeichnung={() => setAnsicht('raum')} />
+        : <Szene s={s} fokus={element} onFokus={fokussieren} zeitraffer={zeitraffer} />)}
+      {onAbschluss && <Auftrag s={s} uhrLaeuft={!!uhrLaeuft} onAbschluss={onAbschluss} />}
+    </div>
     <section className="praxis-monitor" aria-label="Vitalparameter"><div className="praxis-monitor__heading"><strong>{s.monitoring ? 'Kontinuierliches Monitoring' : s.measuredAt === null ? 'Noch keine Messung' : `Letzte Messung · ${clock(s.measuredAt)}`}</strong><span>SpO₂: LOINC 59408-5 · keine Alarmgrenzen für die pädiatrische Bewertung</span></div>
       {s.monitoring
         ? <><PatientenMonitor className="praxis-monitor__live" titel={`Monitor · ${clock(s.time)}`} werte={{ puls: s.measured.pulse ?? null, af: s.measured.resp ?? null, spo2: s.measured.spo2 ?? null, sys: s.measured.sys ?? null, dia: s.measured.dia ?? null, temp: s.measured.temp ?? null, avpu: consciousness(s), sauerstoff: s.oxygen ?? false }} />
@@ -386,7 +407,7 @@ export default function Praxissimulator() {
           <button onClick={() => { setRunning(false); send({ type: 'finish' }); setPanel('Verlauf'); }}>Fall abschließen</button>
         </div>
         <p className="muted praxis-clockhint">Handlungen verbrauchen auch bei pausierter Uhr ihre angezeigte Simulationszeit. Beim Verlassen der Seite pausiert die Uhr. Tageswechsel erst nach Versorgung, SBAR und Abschluss offener Aufträge.</p>
-        <Arbeitsplatz s={s} send={send} panel={panel} setPanel={setPanel} zeitraffer={running ? speed : 1} />
+        <Arbeitsplatz s={s} send={send} panel={panel} setPanel={setPanel} zeitraffer={running ? speed : 1} uhrLaeuft={running} onAbschluss={() => { setRunning(false); send({ type: 'finish' }); setPanel('Verlauf'); }} />
       </> : <div className="card praxis-debrief"><span className="eyebrow">Debriefing</span><h3>Deine Entscheidungen im Rückblick</h3><p>{debrief(s).filter(c => c.met).length} von {s.scenario.criteria.length} Szenariokriterien erfüllt · {s.events.filter(e => e.kind === 'warning').length} Warnungen · {s.pending.length} offene Aufträge bei Abschluss.</p><p className="muted">Die Auswertung prüft ausgeführte Handlungen und Zeitpunkte. Sie ist kein Kompetenznachweis. Freitexte und klinische Angemessenheit müssen mit einer Lehrperson reflektiert werden.</p>
         <KernHinweis scenario={s.scenario} />
         <details className="praxis-legende"><summary>Was wurde wie bewertet?</summary><dl>

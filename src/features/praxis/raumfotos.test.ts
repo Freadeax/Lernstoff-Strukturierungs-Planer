@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { RAEUME } from '../../ui/sim/raeume/katalog';
 import { SCENARIOS } from './catalog';
 import { RAUM_ELEMENTE } from './raum';
-import { FALL_RAUM, RAUMFOTOS, raumFotoFuer } from './raumfotos';
+import { FALL_RAUM, laufendeVariante, RAUMFOTOS, raumFotoFuer } from './raumfotos';
 
 describe('Raumfotos', () => {
   it('jeder Fall hat einen Raum aus dem gemeinsamen Katalog', () => {
@@ -27,5 +27,12 @@ describe('Raumfotos', () => {
         expect(drin, `${k} ${p.x}/${p.y}`).toBe(false);
       }
     }
+  });
+  it('Asthma: Inhalation mit Spacer (21b) nur während der Maßnahme', () => {
+    const r = raumFotoFuer('asthma')!;
+    expect(laufendeVariante(r, {}, 600)).toBeUndefined();
+    expect(laufendeVariante(r, { orders: 600 }, 700)).toBe('21b_paediatrie_schulkind_spacer');
+    expect(laufendeVariante(r, { orders: 600 }, 600 + 15 * 60)).toBeUndefined();
+    expect(RAEUME['21b_paediatrie_schulkind_spacer'].monitor).toBeDefined();
   });
 });
