@@ -43,6 +43,8 @@ export interface PlannerConfig {
   exceptionNotes?: Record<string, string>;
   /** Eigene Lernminuten je Dienstplan-Vorlage (Frühdienst, Spätdienst …), sonst der Vorschlag aus alltag.ts. */
   shiftMinutes?: Partial<Record<SchichtId, number>>;
+  /** Lernbeginn „HH:MM“ für den Kalenderexport, je Dienstplan-Vorlage bzw. 'normal'. Leer = ganztägig. */
+  lernbeginn?: Partial<Record<SchichtId | 'normal', string>>;
 }
 
 export const DEFAULT_CONFIG: PlannerConfig = {

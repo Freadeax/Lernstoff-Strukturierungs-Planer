@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { buildPlan } from '..';
 import {
-  erklaereAenderung, istPlanStand, kompetenzUebersicht, planStand, schichtAusNotiz, schichtMinuten, verpassteBloecke, wendeDienstplanAn,
+  beginnAm, erklaereAenderung, istPlanStand, kompetenzUebersicht, planStand, schichtAusNotiz, schichtMinuten, verpassteBloecke, wendeDienstplanAn,
 } from '../alltag';
-import { faltZeile, icsText, planAlsIcs } from '../ics';
+import { faltZeile, icsText, planAlsIcs, planAlsIcsMitUids, zeitfenster } from '../ics';
 import type { TopicProgress } from '../progress';
 import { availability, baseInput, examA, topics } from './fixtures';
 
@@ -122,5 +122,46 @@ describe('Kalenderexport (.ics)', () => {
     const gefaltet = faltZeile(lang);
     expect(gefaltet.replace(/\r\n /g, '')).toBe(lang);
     for (const l of gefaltet.split('\r\n')) expect(new TextEncoder().encode(l).length).toBeLessThanOrEqual(75);
+  });
+});
+
+describe('Kalenderexport mit Uhrzeit, Sommerzeit und Neuimport', () => {
+  it('trägt Lerntage mit Uhrzeit in Europe/Berlin ein, Ende = Lernzeit + Pausen, mit VTIMEZONE', () => {
+    const plan = buildPlan(baseInput());
+    const tag = plan.days.find((d) => d.blocks.length)!;
+    const ics = planAlsIcs(plan, [], name, { beginn: (d) => (d === tag.date ? '18:00' : undefined), jetzt: new Date('2026-10-26T08:00:00Z') });
+    const ende = zeitfenster(tag.date, '18:00', tag.plannedMinutes + tag.pauseMinutes)!;
+    expect(ics).toContain(`DTSTART;TZID=Europe/Berlin:${tag.date.replace(/-/g, '')}T180000`);
+    expect(ics).toContain(`DTEND;TZID=Europe/Berlin:${ende.ende}`);
+    expect(ics).toContain('BEGIN:VTIMEZONE\r\nTZID:Europe/Berlin');
+    expect(ics).toContain('RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU');
+    // Andere Tage bleiben ganztägig
+    expect(ics).toMatch(/DTSTART;VALUE=DATE:/);
+  });
+
+  it('Lokalzeit bleibt am Tag der Zeitumstellung gleich, über Mitternacht geht es in den nächsten Tag', () => {
+    expect(zeitfenster('2026-10-25', '09:00', 90)).toEqual({ start: '20261025T090000', ende: '20261025T103000' });
+    expect(zeitfenster('2026-03-29', '01:30', 60)).toEqual({ start: '20260329T013000', ende: '20260329T023000' });
+    expect(zeitfenster('2026-11-01', '23:30', 45)).toEqual({ start: '20261101T233000', ende: '20261102T001500' });
+    expect(zeitfenster('2026-11-01', '25:00', 45)).toBeUndefined();
+  });
+
+  it('Neuimport: gleiche UIDs mit höherer SEQUENCE, weggefallene künftige Lerntage werden abgesagt', () => {
+    const plan = buildPlan(baseInput());
+    const a = planAlsIcsMitUids(plan, [examA], name, { jetzt: new Date('2026-10-26T08:00:00Z') });
+    const b = planAlsIcsMitUids(plan, [examA], name, { jetzt: new Date('2026-10-26T09:00:00Z'), frueher: [...a.uids, 'plan-2026-12-24@lernstoff-planer', 'plan-2026-01-01@lernstoff-planer'] });
+    const seq = (ics: string) => Number(/SEQUENCE:(\d+)/.exec(ics)![1]);
+    expect(seq(b.ics)).toBeGreaterThan(seq(a.ics));
+    expect(b.uids).toEqual(a.uids);
+    expect(b.ics).toContain('UID:plan-2026-12-24@lernstoff-planer');
+    expect(b.ics).toMatch(/UID:plan-2026-12-24@lernstoff-planer[\s\S]*?STATUS:CANCELLED/);
+    expect(b.ics).not.toContain('plan-2026-01-01');
+  });
+
+  it('Lernbeginn kommt aus der Vorlage des Tages, sonst aus dem normalen Tag', () => {
+    expect(beginnAm('Frühdienst', { frueh: '15:30', normal: '18:00' })).toBe('15:30');
+    expect(beginnAm(undefined, { normal: '18:00' })).toBe('18:00');
+    expect(beginnAm('Nachtdienst', { normal: '18:00' })).toBeUndefined();
+    expect(beginnAm(undefined, { normal: 'abc' })).toBeUndefined();
   });
 });

@@ -77,6 +77,14 @@ try {
     const ics = fs.readFileSync(await download.path(), 'utf8');
     assert.match(ics, /^BEGIN:VCALENDAR\r\n/);
     assert.match(ics, /SUMMARY:Prüfung: Testklausur Alltag/);
+    // Mit Uhrzeit: Lernbeginn setzen, erneut exportieren, Zeitzone und SEQUENCE prüfen
+    await page.getByRole('button', { name: 'Mit Uhrzeiten?' }).click();
+    await page.getByLabel('Normaler Tag').fill('18:00');
+    const [download2] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'In den Kalender (.ics)', exact: true }).click()]);
+    const ics2 = fs.readFileSync(await download2.path(), 'utf8');
+    assert.match(ics2, /BEGIN:VTIMEZONE\r\nTZID:Europe\/Berlin/);
+    assert.match(ics2, /DTSTART;TZID=Europe\/Berlin:\d{8}T180000/);
+    await axe(page, 'Kalenderexport mit Uhrzeit');
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Überlauf bei ${width}px`);
 
     // Material: schwer lesbare Seiten, Dubletten, Sprung zur Fundstelle, Original neben der Zusammenfassung
