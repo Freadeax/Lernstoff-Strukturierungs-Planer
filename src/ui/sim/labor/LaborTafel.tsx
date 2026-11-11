@@ -32,9 +32,11 @@ export interface LaborTafelProps {
   neuAb?: number;
   /** Nur diese Parameter zeigen (sonst alle mit Werten). */
   nur?: string[];
+  /** Kinder-Referenzbereiche verwenden, wo vorhanden. */
+  kind?: boolean;
 }
 
-export function LaborTafel({ reihen, geschlecht, startzeit, neuAb, nur }: LaborTafelProps) {
+export function LaborTafel({ reihen, geschlecht, startzeit, neuAb, nur, kind = false }: LaborTafelProps) {
   const ids = PARAMETER.map((p) => p.id).filter((id) => reihen[id]?.length && (!nur || nur.includes(id)));
   if (!ids.length) return <p className="muted">Noch keine Laborwerte. Fordere zuerst Werte an und nimm die Probe ab.</p>;
   const gruppen = [...new Set(ids.map((id) => parameter(id).gruppe))];
@@ -52,7 +54,7 @@ export function LaborTafel({ reihen, geschlecht, startzeit, neuAb, nur }: LaborT
                 const p = parameter(id);
                 const reihe = reihen[id];
                 const letzter = reihe[reihe.length - 1];
-                const flag = bewerte(p, letzter.wert, geschlecht);
+                const flag = bewerte(p, letzter.wert, geschlecht, kind);
                 const neu = neuAb !== undefined && letzter.ergebnis && letzter.minute >= neuAb;
                 const vorher = reihe.length > 1 ? reihe[reihe.length - 2] : undefined;
                 return (
@@ -66,7 +68,7 @@ export function LaborTafel({ reihen, geschlecht, startzeit, neuAb, nur }: LaborT
                       <span className="lt__wert">{formatWert(p, letzter.wert)}</span> <span className="lt__einheit">{p.einheit}</span>
                       {flag !== 'normal' && <span className={`lt__flag lt__flag--${flag}`} title={FLAG_TEXT[flag]}><span aria-hidden="true">{FLAG_KURZ[flag]}</span><span className="visually-hidden">{FLAG_TEXT[flag]}</span></span>}
                     </td>
-                    <td className="lt__ref">{formatReferenz(p, geschlecht)}</td>
+                    <td className="lt__ref">{formatReferenz(p, geschlecht, kind)}{kind && p.kind ? <span className="lt__einheit"> (Kind)</span> : null}</td>
                     <td className="lt__spark">{!p.stufen && <Verlauf punkte={reihe.map((r) => r.wert)} nachkomma={p.nachkomma} />}</td>
                   </tr>
                 );

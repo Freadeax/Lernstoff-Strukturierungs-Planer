@@ -3,7 +3,7 @@
 // Präanalytik kann ihn verfälschen, und das Ergebnis liegt erst nach Transport und Laufzeit vor.
 // Rein und deterministisch.
 
-import { bewerte, istKritisch, parameter, type Flag, type Geschlecht } from './parameter';
+import { bewerte, istKritisch, parameter, referenz, type Flag, type Geschlecht } from './parameter';
 import { benoetigteRoehrchen, fehlerAus, verfaelsche, type Abnahme, type PraeanalytikFehler } from './praeanalytik';
 
 export interface Therapie { flag: string; ziel: number; /** Zeitkonstante in Minuten (nach ~3 τ fast am Ziel) */ tauMin: number }
@@ -80,14 +80,14 @@ export interface AuftragsErgebnis { auftrag: Auftrag; fehler: PraeanalytikFehler
 /** Transportzeit ins Zentrallabor in Minuten. */
 export const TRANSPORT = { sofort: 15, liegen: 150 };
 
-export function werteAuftrag(auftrag: Auftrag, labor: Record<string, Verlauf>, flags: Flags, geschlecht: Geschlecht = 'w'): AuftragsErgebnis {
+export function werteAuftrag(auftrag: Auftrag, labor: Record<string, Verlauf>, flags: Flags, geschlecht: Geschlecht = 'w', kind = false): AuftragsErgebnis {
   const materialien = benoetigteRoehrchen(auftrag.parameter);
   const fehler = fehlerAus(auftrag.abnahme, materialien);
   const abgelehnt = fehler.some((f) => f.abgelehnt);
   const ergebnisse = auftrag.parameter.map((id): Ergebnis => {
     const p = parameter(id);
     const verlauf = labor[id];
-    const wahr = verlauf ? wahrerWert(verlauf, auftrag.minute, flags) : mitteDerReferenz(id, geschlecht);
+    const wahr = verlauf ? wahrerWert(verlauf, auftrag.minute, flags) : mitteDerReferenz(id, geschlecht, kind);
     const betroffen = fehler.filter((f) => f.wirkung.some((w) => w.id === id));
     let wert: number | undefined = p.ort === 'poct' ? wahr : verfaelsche(id, wahr, betroffen);
     if (p.stufen) wert = Math.max(0, Math.min(p.stufen.length - 1, Math.round(wert)));
@@ -97,16 +97,16 @@ export function werteAuftrag(auftrag: Auftrag, labor: Record<string, Verlauf>, f
     const nichtVerwertbar = p.ort !== 'poct' && (abgelehnt || citratAbgelehnt);
     const kommentar = p.ort === 'poct' ? undefined : (nichtVerwertbar ? fehler.find((f) => f.abgelehnt || (citratAbgelehnt && f.art === 'citrat'))?.laborKommentar : betroffen.map((f) => f.laborKommentar).filter(Boolean).join(' ') || undefined);
     if (nichtVerwertbar) return { parameter: id, wahr, flag: 'normal', fertig, kommentar, anruf: false, verfaelscht: false };
-    const flag = bewerte(p, wert, geschlecht);
+    const flag = bewerte(p, wert, geschlecht, kind);
     return { parameter: id, wert, wahr, flag, fertig, kommentar, anruf: p.ort === 'labor' && istKritisch(flag), verfaelscht: betroffen.length > 0 && Math.abs(wert - wahr) > 1e-9 };
   });
   return { auftrag, fehler: abgelehnt ? fehler.filter((f) => f.abgelehnt) : fehler, ergebnisse };
 }
 
-function mitteDerReferenz(id: string, g: Geschlecht): number {
+function mitteDerReferenz(id: string, g: Geschlecht, kind: boolean): number {
   const p = parameter(id);
   if (p.stufen) return 0;
-  const r = 'w' in p.referenz ? p.referenz[g] : p.referenz;
+  const r = referenz(p, g, kind);
   if (r.min !== undefined && r.max !== undefined) return (r.min + r.max) / 2;
   return r.max !== undefined ? r.max * 0.4 : (r.min ?? 0) * 1.3;
 }

@@ -88,3 +88,16 @@ describe('BGA-Deutung', () => {
     expect(d.kompensation).toBe(kompensation);
   });
 });
+
+describe('Kinder-Referenzbereiche', () => {
+  it('Kreatinin 0,7 mg/dl ist beim Erwachsenen normal, beim Kind erhöht', async () => {
+    const { bewerte, formatReferenz, parameter, istKind } = await import('./parameter');
+    const krea = parameter('krea');
+    expect(bewerte(krea, 0.7, 'w')).toBe('normal');
+    expect(bewerte(krea, 0.7, 'w', true)).toBe('hoch');
+    expect(formatReferenz(krea, 'w', true)).toBe('0,2–0,6');
+    // Ohne eigenen Kinderbereich gilt der Erwachsenenbereich
+    expect(bewerte(parameter('na'), 133, 'w', true)).toBe('niedrig');
+    expect(istKind(8)).toBe(true); expect(istKind(19)).toBe(false);
+  });
+});
