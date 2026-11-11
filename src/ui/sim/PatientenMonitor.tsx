@@ -69,9 +69,10 @@ function Kurve({ kanal, aktiv, klasse }: { kanal: Kanal; aktiv: boolean; klasse:
     const y = (wert: number) => hoehe / 2 - wert * (hoehe / 2 - 3) * kanalRef.current.amp();
     const farbeLesen = () => { farbe = getComputedStyle(canvas).color || farbe; };
     const groesse = () => {
-      const r = canvas.getBoundingClientRect();
+      // Layoutgröße statt getBoundingClientRect: in einer skalierten Raumszene (transform: scale)
+      // wäre die sichtbare Größe beim ersten Messen 0 und der ResizeObserver meldet keine Änderung.
       dpr = Math.min(2, window.devicePixelRatio || 1);
-      breite = Math.max(1, Math.round(r.width)); hoehe = Math.max(1, Math.round(r.height));
+      breite = Math.max(1, canvas.clientWidth); hoehe = Math.max(1, canvas.clientHeight);
       canvas.width = breite * dpr; canvas.height = hoehe * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.lineWidth = 1.6; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
