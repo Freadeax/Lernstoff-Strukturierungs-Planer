@@ -148,6 +148,19 @@ export function bereichVon(path: string): Bereich {
   return 'system';
 }
 
+/** Wo eine Seite im Menü liegt, zum Beispiel „Üben · Fachwissen“. Steht als Marke über dem Seitentitel. */
+export function gruppenPfad(path: string): string {
+  const suche = (items: NavItem[], spur: string[]): string[] | undefined => {
+    for (const i of items) {
+      if (i.path === path) return spur;
+      const tiefer = i.children && suche(i.children, [...spur, i.label]);
+      if (tiefer) return tiefer;
+    }
+    return undefined;
+  };
+  return (suche(NAV, []) ?? [BEREICH_NAME[bereichVon(path)]]).join(' · ') || BEREICH_NAME[bereichVon(path)];
+}
+
 /** Alte Pfade (vor dem Designsystem) weiterleiten. */
 export const REDIRECTS: Record<string, string> = {
   '/dokumente': '/material/dokumente',
