@@ -14,6 +14,7 @@ import { News2Badge, VitalKurve } from './VitalKurve';
 import { Szene } from './Szene';
 import { FotoSzene } from './FotoSzene';
 import { auftragsSchritte } from './auftrag';
+import { falltiefe, falltiefeText } from './falltiefe';
 import { freigabeFuer } from './freigaben';
 import { FreigabeHinweis } from '../../ui/sim/FreigabeHinweis';
 import { automatischeWertung } from '../../ui/sim/freigabe';
@@ -411,7 +412,7 @@ export default function Praxissimulator() {
         <div className="praxis-scenario__top"><span className="badge">{SETTINGS[scenario.setting]}</span><span className="muted" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span></div>
         <h3>{scenario.title}</h3><p>{scenario.situation}</p><small>{scenario.focus} · {scenario.kern ? <strong className="praxis-kernmarke">Kernfall · vollständig ausgearbeitet · Freigabe {scenario.kern.freigabe === 'erteilt' ? 'erteilt' : 'ausstehend'}</strong> : 'Szenariovorschau · fachlich ungeprüft'}</small>
         <FreigabeHinweis freigabe={freigabeFuer(scenario)} ort="start" />
-        {scenario.storyline?.length ? <small className="praxis-scenario__story">Verlauf mit {scenario.storyline.length} möglichen Ereignissen · Entscheidungen haben Folgen</small> : null}
+        <p className="praxis-scenario__tiefe"><strong>Falltiefe:</strong> {falltiefeText(falltiefe(scenario))}{scenario.storyline?.length ? ' · Entscheidungen haben Folgen' : ''}</p>
         <button className="primary" onClick={() => begin(scenario)}>Schicht übernehmen</button>
       </article>)}</div>
       <section className="praxis-schichtwahl card" aria-labelledby="schichtwahl"><span className="eyebrow">Neu · Schichtmodus</span><h2 id="schichtwahl">Mehrere Patienten, eine Uhr</h2><p>Übernimm zwei oder drei Patienten gleichzeitig. Während du bei einem bist, verändern sich die anderen weiter. Wer braucht dich zuerst? Was delegierst du? Am Ende zählt auch die Übergabe.</p>
