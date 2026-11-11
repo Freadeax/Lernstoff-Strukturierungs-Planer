@@ -4,6 +4,7 @@
 // Zeichnung; die Ortsleiste darunter ist der zugängliche Weg.
 
 import { useState, type CSSProperties } from 'react';
+import { monitorGruppe } from '../../ui/sim/monitor';
 import { RaumBuehne, type BuehnenMonitor, type Hotspot } from '../../ui/sim/raeume/RaumBuehne';
 import { RAEUME } from '../../ui/sim/raeume/katalog';
 import { HandlungsVideo } from '../../ui/sim/HandlungsVideo';
@@ -24,9 +25,9 @@ const TUER: Punkt = { x: 8, y: 42 };
 /** Monitorzustand am Gerät: läuft nur mit angeschlossenem Monitoring, sonst Raum ohne Monitor (12a, 20a, 21a) bzw. Standby. */
 export function fotoMonitor(s: Session, z: SzenenZustand, raum: RaumFoto): BuehnenMonitor {
   // Während einer Maßnahme (z. B. Inhalation, Raum 21b) steht das Gerät im Bild, also Standby statt Raum ohne Monitor.
-  if (!s.monitoring) return { werte: {}, zustand: RAEUME[raum.id].ohneMonitor && !laufendeVariante(raum, s.flags, s.time) ? 'abwesend' : 'standby' };
+  if (!s.monitoring) return { werte: {}, gruppe: monitorGruppe(s.scenario.age), zustand: RAEUME[raum.id].ohneMonitor && !laufendeVariante(raum, s.flags, s.time) ? 'abwesend' : 'standby' };
   return {
-    zustand: 'laeuft',
+    zustand: 'laeuft', gruppe: monitorGruppe(s.scenario.age),
     werte: { puls: s.measured.pulse ?? null, af: s.measured.resp ?? null, spo2: s.measured.spo2 ?? null, sys: s.measured.sys ?? null, dia: s.measured.dia ?? null, temp: s.measured.temp ?? null, avpu: consciousness(s), sauerstoff: z.sauerstoff },
   };
 }

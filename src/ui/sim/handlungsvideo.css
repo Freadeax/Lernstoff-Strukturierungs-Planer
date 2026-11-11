@@ -15,3 +15,19 @@
 @media (max-width: 560px) { .hvideo { padding: var(--space-3); } .hvideo__phasen button { flex: 1 1 45%; } }
 :root[data-motion='reduce'] .hvideo[open] { animation: none; }
 @media (prefers-reduced-motion: reduce) { .hvideo[open] { animation: none; } }
+.hvideo__kopf { flex-wrap: wrap; }
+.hvideo__kopf h2 { flex: 1 1 auto; }
+.hvideo__modus { display: inline-flex; gap: var(--space-1); margin-top: var(--space-3); }
+.hvideo__modus button[aria-pressed='true'] { background: var(--color-primary); color: var(--color-on-primary, #fff); }
+.hvideo__ersatz { margin: var(--space-2) 0 0; padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm, 6px); background: #fff8e1; color: #4a3300; border: 1px solid #e6c46a; font-size: var(--text-sm); }
+.hvideo__steuerung { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-3); }
+.hvideo__steuerung progress { flex: 1; height: .6rem; }
+.hvideo__schritt { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: var(--space-3); align-items: start; }
+.hvideo__text h3 { margin: var(--space-3) 0 var(--space-2); font-size: var(--text-lg); }
+.hvideo__text p { margin: 0; }
+.hvideo__blaettern { display: flex; gap: var(--space-2); margin-top: var(--space-3); }
+.hvideo__ohnebild { display: grid; place-items: center; height: 100%; margin: 0; padding: var(--space-3); color: #fff; text-align: center; }
+.hvideo__status { margin: var(--space-2) 0 0; font-size: var(--text-sm); font-weight: 600; }
+.hvideo__fallbox { margin-top: var(--space-3); padding: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface-2, var(--color-surface)); }
+.hvideo__fallbox h3 { margin: 0; font-size: var(--text-md, 1rem); }
+@media (max-width: 720px) { .hvideo__schritt { grid-template-columns: 1fr; } }
