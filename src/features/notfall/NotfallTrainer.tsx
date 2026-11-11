@@ -23,7 +23,7 @@ export default function NotfallTrainer() {
     <section className="page notfall">
       <div className="page__head">
         <h2>Notfall-Trainer</h2>
-        <p className="muted">Reanimation im Krankenhaus üben: erkennen, drücken im Takt, Rhythmus am Defibrillator einordnen, Schock mit kurzer Pause.</p>
+        <p className="muted">Reanimation üben, getrennt für Erwachsene, Kinder und Neugeborene: erkennen, im richtigen Verhältnis drücken und beatmen, Rhythmus oder Herzfrequenz einordnen.</p>
       </div>
       <Modi aktiv={modus} />
       <Reanimation />

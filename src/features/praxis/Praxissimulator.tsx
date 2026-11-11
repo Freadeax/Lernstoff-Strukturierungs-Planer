@@ -306,7 +306,7 @@ export function Arbeitsplatz({ s, send, panel, setPanel, zeitraffer = 1, uhrLaeu
         : <dl>{VITALS.map(v => <div key={v.key}><dt>{v.label}</dt><dd>{format(s.measured[v.key], v.key)}<small>{v.unit}</small></dd></div>)}</dl>}
       {automatischeWertung(freigabeFuer(s.scenario))
         ? <News2Badge point={s.monitoring && s.measuredAt !== null ? { at: s.measuredAt, vitals: s.vitals, avpu: consciousness(s), oxygen: s.oxygen ?? false } : s.chart?.at(-1)} />
-        : <div className="praxis-news2 is-empty"><strong>Keine automatische Wertung</strong><span>NEWS2 gilt nur für Erwachsene. Der Monitor nutzt das Kinderprofil seiner Altersgruppe (Quelle im Monitorkopf). Der Fall ist fachlich ungeprüft: Werte selbst mit Kinder-Normwerten einordnen.</span></div>}
+        : <div className="praxis-news2 is-empty"><strong>Kein NEWS2</strong><span>{s.scenario.age < 18 ? 'NEWS2 gilt nur für Erwachsene. Monitor und Alarmrand nutzen die Alarmgrenzen des Kinderprofils der Altersgruppe (Quelle im Monitorkopf). Profil und Fall sind fachlich ungeprüft: Farben sind ein Hinweis, die Einordnung bleibt deine.' : 'Für diesen Fall ist keine automatische Wertung freigegeben. Werte selbst einordnen.'}</span></div>}
     </section>
     <Entscheidung s={s} send={send} />
     <div className={`praxis-feedback ${last?.kind === 'warning' ? 'is-warning' : last?.kind === 'story' ? 'is-story' : ''}`} role="status" aria-live="polite" aria-atomic="true"><strong>{last?.title}</strong><p>{last?.detail}</p></div>
