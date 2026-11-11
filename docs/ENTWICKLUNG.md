@@ -62,6 +62,12 @@ begründet es im PR.
   `abschnitteAlsText`/`entschaerfe` verhindern, dass Quelltext einen Quellblock schließt, `rufeJson` prüft
   die Antwort gegen das Schema. Beim Import meldet `anweisungen.ts` Text, der wie eine KI-Anweisung aussieht.
   Testdokumente dazu: `import/grenzen.test.ts`, `zusammenfasser/fremde-daten.test.ts`.
+- Sicherungsdateien haben eigene Grenzen (`SICHERUNG_GRENZEN` in `src/core/sicherung.ts`): Dateigröße vor dem
+  Lesen (`leseSicherungsDatei`), entpackte Größe beim Entschlüsseln (`ENTPACKT_MAX`), Zeilen je Tabelle,
+  Primärschlüssel und Versionen in `lesePruefe`, bevor eine Transaktion beginnt. Vor jedem Einspielen entsteht
+  eine Rückfallsicherung; `vergleiche()` liefert die Vorschau (neu, neuer in der Datei, Konflikt, nur hier).
+  Abnahmefall zwei Geräte: `src/core/sicherung-zwei-geraete.test.ts`. Neue laufende Durchläufe (ein Objekt mit
+  `id` je Gerät) in `LAUFEND_LABEL` eintragen, damit die Vorschau sie benennt.
 
 ## PWA und Abhängigkeiten
 

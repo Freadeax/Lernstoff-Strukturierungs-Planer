@@ -6,6 +6,7 @@ import { istObjekt, storage } from '../../ui/lib/store';
 import { navigate, useRoute } from '../../ui/shell/router';
 import { AFB_LABEL, operatorAfb } from '../simulation/simulation';
 import { useDiktat } from '../uebergabe/diktat';
+import { DiktatFrage } from '../uebergabe/DiktatFrage';
 import { bewerteMuendlich, type KiMuendlich } from './claude';
 import { useExamensModul } from './modul';
 import {
@@ -351,6 +352,7 @@ function Durchlauf({ lauf, fall, setLauf, onFertig }: { lauf: Lauf; fall: Muendl
               placeholder="Stichpunkte nach dem Sprechen oder gleich diktieren" />
           </label>
           {diktat.zwischen && <p className="muted examen__klein" aria-live="polite">… {diktat.zwischen}</p>}
+          <DiktatFrage diktat={diktat} />
           <div className="examen__aufnahme">
             {diktat.moeglich && (diktat.aktiv
               ? <button type="button" className="small" onClick={diktat.stop}>Diktat beenden</button>

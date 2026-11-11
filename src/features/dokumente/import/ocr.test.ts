@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { afterAll, describe, expect, it } from 'vitest';
 import { importFile } from './pipeline';
 import { createTesseractEngine } from './ocr/tesseract';
+import type { Fingerprint } from './types';
 
 const langPath = fileURLToPath(new URL('../../../../node_modules/@tesseract.js-data/deu/4.0.0_best_int', import.meta.url));
 
@@ -51,4 +52,38 @@ describe('OCR', () => {
     expect(bild).not.toMatch(/Einschätzung des Risikos/);
     expect(r.chunks.filter((c) => c.origin !== 'ocr').map((c) => c.text).join(' ')).toMatch(/Einschätzung des Risikos/);
   }, 60_000);
+});
+
+describe('A-04 · Quellen (Website-Audit)', () => {
+  const engine = createTesseractEngine({ langPath, cache: false });
+  afterAll(async () => (await engine).terminate());
+  const datei = (name: string) => ({ name, bytes: new Uint8Array(readFileSync(new URL(`./__fixtures__/${name}`, import.meta.url))) });
+
+  it('Scan, natives PDF, neue Fassung und dieselbe Datei erneut: Bericht, Dublette, Fassung, Seiten und Leselücken stimmen', async () => {
+    const vorhanden: Array<Fingerprint & { kind?: string }> = [];
+    const merke = (r: Awaited<ReturnType<typeof importFile>>) => { vorhanden.push({ ...r.fingerprint, kind: r.document.kind }); return r; };
+
+    // natives PDF: Textebene, gedruckte Seitenzahlen, keine OCR
+    const nativ = merke(await importFile(datei('skript_v1.pdf'), { ocr: await engine, existing: vorhanden }));
+    expect(nativ.report).toMatchObject({ pages: 3, ocrPages: 0, printedPagesFound: 3, matches: [] });
+    expect(nativ.chunks.find((c) => c.text.includes('Atemfrequenz'))).toMatchObject({ page: 3, printedPage: '3' });
+
+    // fiktiver Scan: per OCR gelesen, Seitenposition und Sicherheit je Seite; unsichere Seiten wären als Leselücken gelistet
+    const scan = merke(await importFile(datei('scan.pdf'), { ocr: await engine, existing: vorhanden }));
+    expect(scan.report.ocrPages).toBe(1);
+    expect(scan.chunks[0]).toMatchObject({ page: 1 });
+    expect(scan.chunks[0]!.ocrConfidence).toBeGreaterThan(0.6);
+    expect(scan.report.lowConfidencePages).toEqual(scan.chunks.filter((c) => (c.ocrConfidence ?? 1) < 0.6).map((c) => c.page).filter((p, i, a) => a.indexOf(p) === i));
+
+    // neue Fassung desselben Skripts (Word, Auflage 2): als neue Version des PDFs erkannt, mit Unterschied
+    const v2 = await importFile(datei('skript_v2.docx'), { ocr: await engine, existing: vorhanden });
+    const m = v2.report.matches.find((x) => x.otherDocumentId === nativ.document.id)!;
+    expect(m.kind).toBe('neue-version');
+    expect(m.added?.join(' ')).toContain('Hautinspektion');
+    expect(v2.document.previousVersionId).toBe(nativ.document.id);
+
+    // dieselbe Datei noch einmal: Dublette, keine zweite Kopie
+    const nochmal = await importFile(datei('skript_v1.pdf'), { ocr: await engine, existing: vorhanden });
+    expect(nochmal.report.matches[0]).toMatchObject({ kind: 'gleiche-datei', otherDocumentId: nativ.document.id });
+  }, 90_000);
 });
