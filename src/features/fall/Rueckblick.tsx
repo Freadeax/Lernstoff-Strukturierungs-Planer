@@ -4,6 +4,8 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { PatientenMonitor } from '../../ui/sim/PatientenMonitor';
+import { automatischeWertung } from '../../ui/sim/freigabe';
+import { freigabeFuerFall, monitorGruppeVon } from './freigaben';
 import { wenigBewegung } from '../../ui/shell/session';
 import { FotoSzene } from './FotoSzene';
 import { fotoRaumFuer } from './fotoraeume';
@@ -35,11 +37,11 @@ const SPO2: Massstab = {
   baender: [{ von: 80, bis: 92, stufe: 'hoch' }, { von: 92, bis: 96, stufe: 'mittel' }, { von: 96, bis: 100, stufe: 'niedrig' }],
 };
 /** NEWS2, wenn es sich bilden lässt (Erwachsene); sonst die Sättigung (z. B. Kinder ohne Blutdruck). */
-export const massstabFuer = (punkte: Punkte): Massstab => (punkte.filter((p) => p.news !== null).length >= 2 ? NEWS : SPO2);
+export const massstabFuer = (punkte: Punkte, news = true): Massstab => (news && punkte.filter((p) => p.news !== null).length >= 2 ? NEWS : SPO2);
 
-function Verlaufskurve({ punkte, aktiv, onWahl }: { punkte: Punkte; aktiv: number; onWahl: (i: number) => void }) {
+function Verlaufskurve({ punkte, aktiv, onWahl, news }: { punkte: Punkte; aktiv: number; onWahl: (i: number) => void; news: boolean }) {
   const W = 600, H = 150, PAD = 30;
-  const m = massstabFuer(punkte);
+  const m = massstabFuer(punkte, news);
   const x = (i: number) => PAD + (punkte.length < 2 ? (W - 2 * PAD) / 2 : (i * (W - 2 * PAD)) / (punkte.length - 1));
   const y = (n: number) => H - PAD - ((Math.min(m.max, Math.max(m.min, n)) - m.min) / (m.max - m.min)) * (H - 2 * PAD);
   const linie = punkte.map((p, i) => { const w = m.wert(p); return w === null ? null : `${x(i)},${y(w)}`; }).filter(Boolean).join(' ');
@@ -65,7 +67,7 @@ function Verlaufskurve({ punkte, aktiv, onWahl }: { punkte: Punkte; aktiv: numbe
         {punkte.map((p, i) => (
           <li key={i}>
             <button type="button" aria-current={i === aktiv ? 'step' : undefined} className={`fall__rb-knopf fall__rb-knopf--${p.wertung}`}
-              aria-label={`Szene ${i + 1}, ${p.uhrzeit} Uhr${p.news !== null ? `, NEWS2 ${p.news}` : p.spo2 !== null ? `, SpO₂ ${p.spo2} %` : ''}${p.wertung !== 'keine' ? `, Entscheidung ${WERTUNG_LABEL[p.wertung]}` : ''}`}
+              aria-label={`Szene ${i + 1}, ${p.uhrzeit} Uhr${news && p.news !== null ? `, NEWS2 ${p.news}` : p.spo2 !== null ? `, SpO₂ ${p.spo2} %` : ''}${p.wertung !== 'keine' ? `, Entscheidung ${WERTUNG_LABEL[p.wertung]}` : ''}`}
               onClick={() => onWahl(i)}>
               {i + 1}
             </button>
@@ -81,7 +83,9 @@ export function Rueckblick({ fall }: { fall: Fall }) {
   const [i, setI] = useState(0);
   const [laeuft, setLaeuft] = useState(false);
   const punkte = useMemo(() => rueckblickPunkte(fall), [fall]);
-  const bild = useMemo(() => szenenBild({ ...fall, runden: fall.runden.slice(0, i + 1) }), [fall, i]);
+  const freigabe = freigabeFuerFall(fall.szenario);
+  const wertung = automatischeWertung(freigabe);
+  const bild = useMemo(() => szenenBild({ ...fall, runden: fall.runden.slice(0, i + 1) }, { messwertAlarm: wertung }), [fall, i, wertung]);
   const foto = fotoRaumFuer(fall.szenario.id, fall.szenario.setting, fall.szenario.kurz);
   const runde = fall.runden[i];
   useEffect(() => {
@@ -102,12 +106,12 @@ export function Rueckblick({ fall }: { fall: Fall }) {
           <button type="button" className="small" disabled={i >= n - 1} onClick={() => { setLaeuft(false); setI(i + 1); }}>Weiter</button>
         </div>
       </div>
-      <Verlaufskurve punkte={punkte} aktiv={i} onWahl={(k) => { setLaeuft(false); setI(k); }} />
+      <Verlaufskurve punkte={punkte} news={freigabe.zielgruppe === 'erwachsene'} aktiv={i} onWahl={(k) => { setLaeuft(false); setI(k); }} />
       <div className="fall__rb-buehne">
         {foto
           ? <FotoSzene raum={foto} bild={bild} uhrzeit={runde.zug.uhrzeit} onMarker={() => {}} ohneMarker fallback={<span>Raumfoto nicht verfügbar.</span>} />
           : <Szene bild={bild} raum={RAUM_FUER[fall.szenario.setting] ?? 'krankenhaus'} uhrzeit={runde.zug.uhrzeit} />}
-        <PatientenMonitor werte={bild.monitor} aktiv={bild.monitorAn} kompakt titel={`${runde.zug.uhrzeit} Uhr`} />
+        <PatientenMonitor werte={bild.monitor} aktiv={bild.monitorAn} gruppe={monitorGruppeVon(fall.szenario)} bewerten={wertung} kompakt titel={`${runde.zug.uhrzeit} Uhr`} />
       </div>
       <div className={`fall__rb-text ${wenigBewegung() ? '' : 'is-animiert'}`} key={i} aria-live="polite">
         <p className="muted">Szene {i + 1} von {n} · {runde.zug.uhrzeit} Uhr · Zustand: {ZUSTAND_LABEL[runde.zug.zustand]}</p>
