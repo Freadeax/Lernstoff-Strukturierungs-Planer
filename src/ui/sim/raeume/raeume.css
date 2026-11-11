@@ -33,6 +33,9 @@
   display: grid; place-items: center; cursor: pointer; box-shadow: none; color: inherit;
 }
 .raum-buehne .raum-hotspot, .raum-buehne .raum-hotspot:hover, .raum-buehne .raum-hotspot[aria-pressed='true'] { background: transparent; border: 0; box-shadow: none; }
+/* Globale Knopfregel (button:active → transform: none) darf Zentrierung und Zoom-Ausgleich nicht aufheben. */
+.raum-buehne .raum-hotspot:active:not(:disabled) { transform: translate(-50%, -50%) scale(calc(1 / var(--raum-zoom, 1))); }
+.raum-buehne .raum-hotspot:active:not(:disabled) > span { transform: scale(0.94); }
 .raum-hotspot > span {
   display: grid; place-items: center; min-width: 28px; height: 28px; padding: 0 6px; border-radius: 999px;
   background: var(--color-sun); color: #16302b; font-weight: 700; font-size: 0.85rem; line-height: 1;

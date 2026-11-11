@@ -4,7 +4,8 @@
 // zwischengespeichert (runtimeCaching in vite.config.ts).
 //
 // Koordinaten sind relativ zum Bild (0…1, x nach rechts, y nach unten). Die Hotspots sind
-// Vorschläge; jeder Simulator kann eigene übergeben. Vor Lerneinsatz fachlich prüfen
+// Vorschläge (Monitor-Hotspots sitzen unter dem Bildschirm, damit sie die Live-Werte nicht verdecken);
+// jeder Simulator kann eigene übergeben. Vor Lerneinsatz fachlich prüfen
 // (Gerätedetails, Kabelführung, Anatomie).
 
 export type RaumId =
@@ -111,7 +112,7 @@ const liste: Raum[] = [
     ohneMonitor: '12a_station_kardiologie_ohne_monitor',
     hotspots: [
       { id: 'patient', label: 'Patient', x: 0.31, y: 0.36 },
-      { id: 'monitor', label: 'Monitor', x: 0.73, y: 0.2 },
+      { id: 'monitor', label: 'Monitor', x: 0.73, y: 0.34 },
       { id: 'manschette', label: 'Blutdruckmanschette', x: 0.25, y: 0.62 },
       { id: 'fingersensor', label: 'Fingersensor', x: 0.56, y: 0.68 },
     ],
@@ -142,7 +143,7 @@ const liste: Raum[] = [
     monitor: { x: 0.367, y: 0.297, width: 0.054, height: 0.084 },
     hotspots: [
       { id: 'patient', label: 'Patient', x: 0.2, y: 0.46 },
-      { id: 'monitor', label: 'Monitor', x: 0.39, y: 0.34 },
+      { id: 'monitor', label: 'Monitor', x: 0.39, y: 0.43 },
       { id: 'haendehygiene', label: 'Händedesinfektion', x: 0.605, y: 0.38 },
       { id: 'schutzkleidung', label: 'Schutzkleidung im Vorraum', x: 0.9, y: 0.36 },
       { id: 'abwurf', label: 'Abwurf', x: 0.65, y: 0.68 },
@@ -165,7 +166,7 @@ const liste: Raum[] = [
     hotspots: [
       { id: 'patient', label: 'Patient im Gespräch', x: 0.43, y: 0.38 },
       { id: 'arbeitsplatz', label: 'Arbeitsplatz und Ersteinschätzung', x: 0.06, y: 0.45 },
-      { id: 'vitalzeichen', label: 'Vitalzeichengerät', x: 0.665, y: 0.4 },
+      { id: 'vitalzeichen', label: 'Vitalzeichengerät', x: 0.665, y: 0.45 },
       { id: 'liege', label: 'Untersuchungsstuhl', x: 0.57, y: 0.44 },
     ],
   }),
@@ -188,7 +189,7 @@ const liste: Raum[] = [
     hotspots: [
       { id: 'patient', label: 'Patient auf der Trage', x: 0.43, y: 0.47 },
       { id: 'rettungsdienst', label: 'Übergabe Rettungsdienst', x: 0.62, y: 0.34 },
-      { id: 'monitor', label: 'Monitor', x: 0.09, y: 0.25 },
+      { id: 'monitor', label: 'Monitor', x: 0.09, y: 0.39 },
       { id: 'defibrillator', label: 'Defibrillator', x: 0.21, y: 0.39 },
       { id: 'notfallwagen', label: 'Notfallwagen', x: 0.89, y: 0.6 },
     ],
