@@ -55,6 +55,9 @@ describe('Diagnostik-Lernereignis (SIM-05)', () => {
     for (const x of fe) {
       expect(x.id.startsWith('diagnostik:gastroenteritis-kind:')).toBe(true);
       expect(x.wiederholung.art).toBe('auswahl');
+      expect(x.fallId).toBe('gastroenteritis-kind');
+      expect(x.versuchId).toBe(versuchIdVon(l));
+      expect(x.kriterium).toBe('Befundverständnis');
       if (x.wiederholung.art === 'auswahl') expect(x.wiederholung.richtig.every((i) => i >= 0)).toBe(true);
     }
   });

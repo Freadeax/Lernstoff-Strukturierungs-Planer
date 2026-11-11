@@ -74,12 +74,12 @@ export function fehlerAusLauf(l: Lauf, fall: DiagnostikFall): NeuerFehler[] {
     if (!a || a.richtig) continue;
     if (f.art === 'wahl') {
       const richtig = f.optionen.map((o, i) => (o.richtig ? i : -1)).filter((i) => i >= 0);
-      out.push({ id: `diagnostik:${fall.id}:${f.id}`, quelle: 'diagnostik', topicIds: themen, titel: `Diagnostik · ${fall.titel}`, frage: f.frage, deineAntwort: a.wahl || '–',
+      out.push({ id: `diagnostik:${fall.id}:${f.id}`, quelle: 'diagnostik', kriterium: 'Befundverständnis', fallId: fall.id, versuchId: versuchIdVon(l), beleg: `Diagnostik-Fall „${fall.titel}“ (fiktiv)`, topicIds: themen, titel: `Diagnostik · ${fall.titel}`, frage: f.frage, deineAntwort: a.wahl || '–',
         loesung: f.optionen.filter((o) => o.richtig).map((o) => o.text).join(' / '), erklaerung: f.optionen.filter((o) => o.richtig).map((o) => o.warum),
         wiederholung: { art: 'auswahl', optionen: f.optionen.map((o) => o.text), richtig, mehrfach: richtig.length > 1 } });
     } else if (f.art === 'bga') {
       const optionen = [...STOERUNGEN];
-      out.push({ id: `diagnostik:${fall.id}:${f.id}`, quelle: 'diagnostik', topicIds: ['thema.ap.atmung', ...themen], titel: `BGA · ${fall.titel}`, frage: `${f.frage} Welche Störung liegt vor?`, deineAntwort: a.wahl || '–',
+      out.push({ id: `diagnostik:${fall.id}:${f.id}`, quelle: 'diagnostik', kriterium: 'Befundverständnis', fallId: fall.id, versuchId: versuchIdVon(l), beleg: `Diagnostik-Fall „${fall.titel}“ (fiktiv)`, topicIds: ['thema.ap.atmung', ...themen], titel: `BGA · ${fall.titel}`, frage: `${f.frage} Welche Störung liegt vor?`, deineAntwort: a.wahl || '–',
         loesung: f.kompensation === 'keine' ? `${f.stoerung}, nicht kompensiert` : `${f.stoerung}, ${f.kompensation} kompensiert`, erklaerung: [f.erklaerung],
         wiederholung: { art: 'auswahl', optionen, richtig: [optionen.indexOf(f.stoerung)], mehrfach: false } });
     }
