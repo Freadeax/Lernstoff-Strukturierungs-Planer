@@ -14,12 +14,12 @@ import type { ID } from '../../core/types';
 import type { AufgabenTyp, Stufe } from '../rechnen/aufgaben';
 import { istObjekt, storage } from '../../ui/lib/store';
 
-export type FehlerQuelle = 'rechnen' | 'duell' | 'simulation' | 'krankheitsbilder' | 'assessment' | 'hygiene' | 'anatomie' | 'expertenstandards' | 'normwerte' | 'notfall' | 'arzneimittel' | 'praxis' | 'recht' | 'labor';
+export type FehlerQuelle = 'rechnen' | 'duell' | 'simulation' | 'krankheitsbilder' | 'assessment' | 'hygiene' | 'anatomie' | 'expertenstandards' | 'normwerte' | 'notfall' | 'arzneimittel' | 'praxis' | 'recht' | 'labor' | 'diagnostik';
 
 export const QUELLE_LABEL: Record<FehlerQuelle, string> = {
   rechnen: 'Rechentrainer', duell: 'Fachbegriff-Duell', simulation: 'Prüfungssimulation', krankheitsbilder: 'Krankheitsbilder', assessment: 'Assessments',
   hygiene: 'Hygiene-Trainer', anatomie: 'Anatomie-Trainer', expertenstandards: 'Expertenstandards', normwerte: 'Normwerte',
-  notfall: 'Notfall-Trainer', arzneimittel: 'Arzneimittel-Trainer', praxis: 'Praxissimulator', recht: 'Recht-Trainer', labor: 'Labor-Trainer',
+  notfall: 'Notfall-Trainer', arzneimittel: 'Arzneimittel-Trainer', praxis: 'Praxissimulator', recht: 'Recht-Trainer', labor: 'Labor-Trainer', diagnostik: 'Diagnostik-Fälle',
 };
 
 /** Wie ein Eintrag wiederholt wird. */
@@ -136,7 +136,7 @@ export interface Ueberblick { offen: number; faellig: number; heuteNeu: number; 
 export function ueberblick(liste: Fehler[], jetzt = new Date()): Ueberblick {
   const t = tag(jetzt);
   const offen = liste.filter(istOffen);
-  const nachQuelle: Record<FehlerQuelle, number> = { rechnen: 0, duell: 0, simulation: 0, krankheitsbilder: 0, assessment: 0, hygiene: 0, anatomie: 0, expertenstandards: 0, normwerte: 0, notfall: 0, arzneimittel: 0, praxis: 0, recht: 0, labor: 0 };
+  const nachQuelle: Record<FehlerQuelle, number> = { rechnen: 0, duell: 0, simulation: 0, krankheitsbilder: 0, assessment: 0, hygiene: 0, anatomie: 0, expertenstandards: 0, normwerte: 0, notfall: 0, arzneimittel: 0, praxis: 0, recht: 0, labor: 0, diagnostik: 0 };
   for (const f of offen) nachQuelle[f.quelle] = (nachQuelle[f.quelle] ?? 0) + 1;
   return {
     offen: offen.length,

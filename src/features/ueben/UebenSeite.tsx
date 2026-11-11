@@ -7,6 +7,10 @@ import { ceListe } from '../ce/modell';
 import { DAUER_LABEL, OFFLINE_LABEL, passt, STUFE_LABEL, UEBUNG_INFO, zuordnung, type DauerFilter, type Filter } from './katalog';
 import { PageHeading } from '../../ui/PageHeading';
 import { uebenGruppen } from '../../ui/shell/nav';
+import { useRoute } from '../../ui/shell/router';
+
+/** Kurzname in der Adresse (?gruppe=…) je Bündel. */
+const KURZ: Record<string, string> = { fachwissen: 'fachwissen', 'praxis-gruppe': 'praxis', 'pruefung-gruppe': 'pruefung' };
 
 /** Kurzbeschreibung je Übung (Menü-ID), damit man ohne Ausprobieren weiß, was einen erwartet. */
 const TEXT: Record<string, string> = {
@@ -47,19 +51,26 @@ const modul = modules[0] as CatalogModule;
 
 /** „Üben“: alle Trainer in drei Bündeln statt einer langen Liste, mit Filtern und „Was landet wo“. */
 export default function UebenSeite() {
+  const { params } = useRoute();
+  const alle = uebenGruppen();
+  const wahl = alle.find((g) => KURZ[g.id] === params.get('gruppe'));
   const [f, setF] = useState<Filter>({});
   const z = useMemo(() => zuordnung(modul), []);
   const ces = useMemo(() => ceListe(modul).filter((c) => [...z.ce.values()].some((s) => s.has(c.id))), [z]);
   const faecher = useMemo(() => modul.subjects.filter((s) => [...z.fach.values()].some((x) => x.has(s.id))), [z]);
   const set = (p: Partial<Filter>) => setF((alt) => ({ ...alt, ...p }));
   const aktiv = !!(f.ce || f.fach || f.dauer || f.nurOffline || f.stufe);
-  const gruppen = uebenGruppen().map((g) => ({ ...g, children: g.children!.filter((t) => passt(t.id, f, z)) })).filter((g) => g.children.length);
+  const gruppen = (wahl ? [wahl] : alle).map((g) => ({ ...g, children: g.children!.filter((t) => passt(t.id, f, z)) })).filter((g) => g.children.length);
   const anzahl = gruppen.reduce((n, g) => n + g.children.length, 0);
   return (
     <section className="page ueben">
       <PageHeading bild="ueben" eyebrow="Vom Verstehen zum Anwenden" title="Üben"
         description="Fachwissen festigen, in der Praxis anwenden, auf die Prüfung vorbereiten. Welche Übung zu einem Thema passt, steht auch auf jeder Themenseite." />
       <p className="note">Tägliche Wiederholung: <a href="#/lernen/karten">Karteikarten</a>. Geführt durch eine CE: <a href="#/lernen/ce">Curriculare Einheiten</a>.</p>
+      <nav className="pills ueben__wahl" aria-label="Übungsart">
+        <a className="pill" href="#/lernen/ueben" aria-current={wahl ? undefined : 'true'}>Alle</a>
+        {alle.map((g) => <a key={g.id} className="pill" href={`#/lernen/ueben?gruppe=${KURZ[g.id]}`} aria-current={g === wahl ? 'true' : undefined}>{g.label}</a>)}
+      </nav>
       <div className="card ueben__filter" role="group" aria-label="Übungen filtern">
         <label>CE
           <select value={f.ce ?? ''} onChange={(e) => set({ ce: e.target.value || undefined })}>

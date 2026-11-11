@@ -117,8 +117,11 @@ describe('Datensicherung', () => {
     // „Alle Lerndaten löschen“ entfernt auch die Rückfallsicherung
     await loescheRueckfall(geraet);
     expect(await ladeRueckfall(geraet)).toBeUndefined();
-    // Zusammenführen braucht keine Rückfallsicherung
-    expect((await spieleEin(datei, 'zusammenfuehren', geraet)).rueckfall).toBeUndefined();
+    // Auch vor dem Zusammenführen entsteht eine Rückfallsicherung (Audit SEC-05)
+    const z = await spieleEin(datei, 'zusammenfuehren', geraet);
+    expect(z.rueckfall).toBeTruthy();
+    await stelleRueckfallWiederHer(geraet);
+    expect((await geraet.subjects.toArray()).map((x) => x.id)).toEqual(['alt']);
   });
 
   it('meldet Geräteeinträge, die nicht geschrieben werden konnten, statt sie still zu verlieren', async () => {

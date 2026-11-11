@@ -7,7 +7,7 @@ import type { Document } from '../../core/types';
 import skript from './abholen.py?raw';
 import {
   AblageFehler, ladeOriginal, formatGroesse, ladeHoch, ladeZiel, listeDateien, parseRepo, pruefeRepo, readmeText, richteEin,
-  speichereZiel, teilAnzahl, tokenDauerhaft, type AblageZiel, type Eintrag, type Fortschritt, type RepoInfo,
+  speichereZiel, teilAnzahl, tokenDauerhaft, tokenWarnungen, groessenHinweis, ablaufText, type AblageZiel, type Eintrag, type Fortschritt, type RepoInfo,
 } from './ablage';
 import './ablage.css';
 import { Field, useFormFeedback } from '../../ui/form/Field';
@@ -104,7 +104,7 @@ export default function Ablage() {
   }
 
   function trennen() {
-    if (!confirm('Token von diesem Gerät entfernen?')) return;
+    if (!confirm('Zugang vergessen? Token und Repository-Angabe werden von diesem Gerät entfernt. Der Token selbst bleibt gültig, bis du ihn in GitHub löschst oder er abläuft.')) return;
     speichereZiel(null); setZiel({ owner: '', repo: '', token: '' }); setRepoEingabe(''); setInfo(null); setListe([]);
   }
 
@@ -187,7 +187,13 @@ export default function Ablage() {
         {verbunden ? (
           <>
             <p>Verbunden mit <strong>{info!.vollerName}</strong> <span className="badge">privat</span></p>
-            <div className="row"><span className="muted">{tokenDauerhaft() ? 'Token ist auf diesem Gerät gespeichert.' : 'Token gilt nur für diese Sitzung und ist nach dem Schließen der App weg.'}</span><button className="small" onClick={trennen}>Trennen</button></div>
+            <div className="row"><span className="muted">{tokenDauerhaft()
+              ? 'Token dauerhaft gemerkt: liegt unverschlüsselt im Browser-Speicher dieser Website auf diesem Gerät, bis du ihn hier vergisst.'
+              : 'Token nur für diese Sitzung: liegt im Sitzungsspeicher und ist nach dem Schließen des Tabs bzw. der App weg.'}
+              {ablaufText(info!.ablauf) ? ` Der Token selbst gilt laut GitHub bis ${ablaufText(info!.ablauf)}.` : ''}</span>
+              <button className="small" onClick={trennen}>Zugang vergessen</button></div>
+            {tokenWarnungen(info!).map((w) => <p key={w} className="note warn" role="note">{w}</p>)}
+            <TokenWiderruf />
           </>
         ) : (
           <form className="form-stack" noValidate onSubmit={(e) => { e.preventDefault(); if (feedback.validate(e.currentTarget)) speichern(); }}>
@@ -252,6 +258,7 @@ export default function Ablage() {
               {!laeuft && wartend.length > 0 && (
                 <div className="note" role="note">
                   <strong>Bereit zum Übertragen</strong>
+                  {groessenHinweis(wartend.map((a) => a.datei)).map((h) => <p key={h} className="muted">{h}</p>)}
                   <p>{wartend.length} {wartend.length === 1 ? 'Datei' : 'Dateien'} ({formatGroesse(wartend.reduce((s, a) => s + a.datei.size, 0))}) gehen an das private Repository <code>{info!.vollerName}</code>. Vor jeder Datei prüft die App erneut, ob es privat ist.{verarbeiten ? ' Danach werden unterstützte Dateien auf diesem Gerät eingelesen.' : ''}</p>
                   <div className="row">
                     <button type="button" className="primary" onClick={() => void abarbeiten()}>{wartend.length === 1 ? 'Datei' : `${wartend.length} Dateien`} jetzt übertragen</button>
@@ -297,6 +304,21 @@ export default function Ablage() {
         </div>
       )}
     </section>
+  );
+}
+
+/** Widerruf und Erneuerung eines Tokens: was „Zugang vergessen“ nicht leistet. */
+export function TokenWiderruf() {
+  return (
+    <details className="ablage__hilfe">
+      <summary>Token widerrufen oder erneuern</summary>
+      <ul>
+        <li>„Zugang vergessen“ entfernt den Token nur von diesem Gerät. Gültig bleibt er, bis er abläuft oder du ihn löschst.</li>
+        <li>Löschen: github.com → Profilbild → <strong>Settings → Developer settings → Personal access tokens → Fine-grained tokens</strong> → Token öffnen → <strong>Delete</strong>. Sofort nötig, wenn ein Gerät verloren ging oder der Token irgendwo sichtbar war.</li>
+        <li>Erneuern: dort <strong>Regenerate token</strong> wählen oder einen neuen anlegen (nur dieses Repository, „Contents: Read and write“, kurze Laufzeit) und hier eintragen.</li>
+        <li>Der Token darf nur das private Material-Repository: kein Zugriff auf andere Repositories, keine Verwaltungsrechte, keine Workflows.</li>
+      </ul>
+    </details>
   );
 }
 

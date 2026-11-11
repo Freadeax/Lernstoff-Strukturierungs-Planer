@@ -67,3 +67,9 @@
 .bb__deutung { color: var(--bb-muted); }
 @media (prefers-reduced-motion: reduce) { .bb__fokus { transition: none; animation: none; } }
 :root[data-motion='reduce'] .bb__fokus { transition: none; animation: none; }
+
+/* Bildnachweis (SIM-08) */
+.bb__nachweis { display: grid; grid-template-columns: max-content 1fr; gap: 2px 12px; margin: 8px 0 0; font-size: 0.8125rem; }
+.bb__nachweis > div { display: contents; }
+.bb__nachweis dt { color: var(--color-text-muted); }
+.bb__nachweis dd { margin: 0; overflow-wrap: anywhere; }

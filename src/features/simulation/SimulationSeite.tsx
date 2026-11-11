@@ -21,6 +21,7 @@ import {
 } from './simulation';
 import { spiele } from '../../ui/audio/spieler';
 import { ergaenzeVerlauf, fortsetzen, uhrzeit, ladeEinstellungen, ladeLauf, ladeVerlauf, speichereEinstellungen, speichereLauf, type Einstellungen, type Lauf, type VerlaufEintrag } from './speicher';
+import { DatenHinweis } from '../../ui/DatenHinweis';
 
 const K = katalog(pflegeModule);
 const KB = [...K.kbName.entries()].map(([id, name]) => ({ id, code: name.split(' · ')[0]!, name: name.split(' · ')[1]! }));
@@ -154,8 +155,8 @@ function Einrichten({ onStart, saetze, exams, pools, verlauf }: { onStart: (l: L
         <div className="sim__zeile">
           <span className="muted">Modus</span>
           <div className="pills" role="radiogroup" aria-label="Modus">
-            <button type="button" className="pill" role="radio" aria-checked={(e.modus ?? 'pruefung') === 'pruefung'} aria-pressed={(e.modus ?? 'pruefung') === 'pruefung'} onClick={() => set({ modus: 'pruefung' })}>Zeitprüfung</button>
-            <button type="button" className="pill" role="radio" aria-checked={e.modus === 'lernen'} aria-pressed={e.modus === 'lernen'} onClick={() => set({ modus: 'lernen' })}>Lernmodus</button>
+            <button type="button" className="pill" role="radio" aria-checked={(e.modus ?? 'pruefung') === 'pruefung'} onClick={() => set({ modus: 'pruefung' })}>Zeitprüfung</button>
+            <button type="button" className="pill" role="radio" aria-checked={e.modus === 'lernen'} onClick={() => set({ modus: 'lernen' })}>Lernmodus</button>
           </div>
         </div>
         <div className="sim__zeile">
@@ -466,6 +467,7 @@ function Ergebnis({ lauf, setLauf, onNeu }: { lauf: Lauf; setLauf: (l: Lauf) => 
             <span>{a.offen} offene {a.offen === 1 ? 'Antwort ist' : 'Antworten sind'} noch nicht bewertet und fehlen im Ergebnis.</span>
             <button type="button" className="small primary" disabled={!!ki} onClick={mitClaude}>{ki ? `Claude bewertet … ${ki.fertig}/${ki.gesamt}` : 'Mit Claude bewerten'}</button>
             <span className="muted">oder unten bei jeder Frage selbst bewerten.</span>
+            {!ki && <DatenHinweis art="ki" kompakt detail="„Mit Claude bewerten“ sendet die offenen Fragen, deine Antworten und die Belegstellen an die Claude-API (mögliche API-Kosten)." />}
           </div>
         )}
       </div>

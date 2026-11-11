@@ -3,9 +3,43 @@
 // Gerät übertragen (iPhone ↔ iPad ↔ Rechner). Kein Server, die Datei gibt man selbst weiter.
 import Dexie, { type Table } from 'dexie';
 import { db, type LernstoffDB } from './db';
-import { verschluessele } from './sicherung-krypto';
+import { ENTPACKT_MAX, verschluessele } from './sicherung-krypto';
+import { BUILD_ID } from './build';
 
 export const SICHERUNG_FORMAT = 1;
+
+const MB = 1024 * 1024;
+
+/**
+ * Grenzen für Sicherungsdateien. Eine fremde oder präparierte Datei soll das Gerät nicht lahmlegen:
+ * Die Dateigröße wird vor dem Lesen geprüft, die entpackte Größe einer verschlüsselten Sicherung beim Entpacken
+ * (sicherung-krypto.ts), Zeilen und Geräteeinträge vor jeder Datenbank-Transaktion.
+ */
+export const SICHERUNG_GRENZEN = {
+  /** Sicherungsdatei auf dem Datenträger (verschlüsselt oder nicht). */
+  dateiBytes: 256 * MB,
+  /** Entpackter Inhalt einer verschlüsselten Sicherung. Darüber scheitern Browser ohnehin an der Textlänge. */
+  entpacktBytes: ENTPACKT_MAX,
+  /** Zeilen je Tabelle (echte Bestände liegen weit darunter, auch mit vielen Büchern). */
+  zeilenJeTabelle: 500_000,
+  /** Geräteeinträge (Trainer, Mindmaps, …): Anzahl und Länge je Eintrag. */
+  lokalEintraege: 500,
+  lokalZeichen: 20 * MB,
+} as const;
+
+export class SicherungZuGross extends Error {
+  constructor(message: string) { super(message); this.name = 'SicherungZuGross'; }
+}
+
+const mb = (n: number) => `${Math.round(n / MB)} MB`;
+
+/** Liest eine Sicherungsdatei erst, wenn ihre Größe unter der Grenze liegt. */
+export async function leseSicherungsDatei(f: Blob): Promise<string> {
+  if (f.size > SICHERUNG_GRENZEN.dateiBytes) {
+    throw new SicherungZuGross(`Die Datei ist ${mb(f.size)} groß. Sicherungen über ${mb(SICHERUNG_GRENZEN.dateiBytes)} werden zum Schutz des Geräts nicht geöffnet. Es wurde nichts verändert.`);
+  }
+  return f.text();
+}
 
 /** Geräteeinträge mit Geheimnissen oder reinem Bildschirmzustand gehören nicht in die Sicherung. */
 const NICHT_SICHERN = new Set([
@@ -34,6 +68,10 @@ export interface Sicherung {
   schema: number;
   exportedAt: string;
   geraet?: string;
+  /** App-Version (Commit), mit der die Sicherung erstellt wurde. */
+  build?: string;
+  /** Fachmodul und dessen Version, z. B. „pflege-generalistisch@0.1.0“. */
+  fachmodul?: string;
   data: Record<string, unknown[]>;
   /** Rohtexte der localStorage-Einträge (Mindmaps, Fallsimulator, Prüfungssimulation, …). */
   local?: Record<string, string>;
@@ -106,12 +144,13 @@ function lokaleEintraege(): Record<string, string> {
 }
 
 /** Komplette Sicherung: alle Tabellen und die Trainer-Einträge aus localStorage. */
-export async function erstelleSicherung(database: LernstoffDB = db): Promise<Sicherung> {
+export async function erstelleSicherung(database: LernstoffDB = db, meta: { fachmodul?: string } = {}): Promise<Sicherung> {
   const data: Record<string, unknown[]> = {};
   for (const table of database.tables) data[table.name] = kodiere(await table.toArray()) as unknown[];
   return {
     app: 'lernstoff-planer', format: SICHERUNG_FORMAT, schema: database.verno,
-    exportedAt: new Date().toISOString(), geraet: geraetName(), data, local: lokaleEintraege(),
+    exportedAt: new Date().toISOString(), geraet: geraetName(), build: BUILD_ID, ...(meta.fachmodul ? { fachmodul: meta.fachmodul } : {}),
+    data, local: lokaleEintraege(),
   };
 }
 
@@ -123,7 +162,12 @@ export interface Uebersicht {
   zeilen: Array<{ label: string; anzahl: number }>;
   exportedAt: string;
   geraet?: string;
+  build?: string;
+  fachmodul?: string;
+  schema: number;
   unbekannteTabellen: string[];
+  /** Geräteeinträge, die kein gültiges JSON sind. Sie werden nicht übernommen (lesbare Namen). */
+  lokalUngueltig: string[];
 }
 
 const LABEL: Record<string, string> = {
@@ -144,34 +188,158 @@ const LOKAL_LABEL: Record<string, string> = {
   'lernstoff.notfall.stand': 'Ergebnisse im Notfall-Trainer', 'lernstoff.arzneimittel.stand': 'Ergebnisse im Arzneimittel-Trainer',
   'lernstoff.recht.stand': 'Ergebnisse im Recht-Trainer', 'lernstoff.hoeren.stand': 'Ergebnisse im Hör-Trainer',
 };
+/** Laufende Durchläufe: ein Objekt je Gerät, beim Zusammenführen nie gemischt. */
+const LAUFEND_LABEL: Record<string, string> = {
+  'lernstoff.fall.aktuell': 'laufender Fall', 'lernstoff.praxis.aktuell': 'laufender Praxisfall', 'lernstoff.simulation.laufend': 'laufende Prüfungssimulation',
+};
 
-/** Liest eine Sicherungsdatei. Wirft mit verständlicher Meldung, wenn sie nicht passt. */
+const ganzzahl = (n: unknown): n is number => typeof n === 'number' && Number.isInteger(n);
+
+/**
+ * Liest eine Sicherungsdatei und prüft sie vollständig, bevor irgendetwas geschrieben wird:
+ * Herkunft, Format- und Datenbank-Version, je Tabelle Zeilenform, Zeilenzahl und Primärschlüssel,
+ * Geräteeinträge (Anzahl, Länge, JSON bei bekannten Trainerständen). Wirft mit verständlicher Meldung.
+ * Ungültige Geräteeinträge werden entfernt und in der Übersicht genannt, statt die ganze Sicherung abzulehnen.
+ */
 export function lesePruefe(text: string, database: LernstoffDB = db): { sicherung: Sicherung; uebersicht: Uebersicht } {
+  if (text.length > SICHERUNG_GRENZEN.entpacktBytes) throw new SicherungZuGross(`Die Sicherung ist über ${mb(SICHERUNG_GRENZEN.entpacktBytes)} groß und wird nicht geöffnet. Es wurde nichts verändert.`);
   let roh: unknown;
   try { roh = JSON.parse(text); } catch { throw new Error('Die Datei ist keine gültige Sicherung (kein JSON).'); }
   const s = roh as Partial<Sicherung>;
-  if (!s || s.app !== 'lernstoff-planer' || !s.data || typeof s.data !== 'object') throw new Error('Die Datei stammt nicht aus dem Lernstoff-Planer.');
+  if (!s || s.app !== 'lernstoff-planer' || !istObjekt(s.data)) throw new Error('Die Datei stammt nicht aus dem Lernstoff-Planer.');
   if (typeof s.schema !== 'number') throw new Error('In der Sicherung fehlt die Datenbank-Version.');
+  if (!ganzzahl(s.schema) || s.schema < 1) throw new Error('Die Datenbank-Version in der Sicherung ist ungültig.');
   if (s.schema > database.verno) throw new Error('Die Sicherung stammt aus einer neueren App-Version. Bitte die App neu laden (aktualisieren) und dann noch einmal einspielen.');
+  if (s.format !== undefined && (!ganzzahl(s.format) || s.format < 0)) throw new Error('Das Sicherungsformat ist ungültig.');
   if ((s.format ?? 0) > SICHERUNG_FORMAT) throw new Error('Das Sicherungsformat ist neuer als diese App. Bitte die App aktualisieren.');
-  const bekannt = new Set(database.tables.map((t) => t.name));
+  const tabellen = new Map(database.tables.map((t) => [t.name, t]));
   const unbekannteTabellen: string[] = [];
   for (const [name, rows] of Object.entries(s.data)) {
-    if (!bekannt.has(name)) { unbekannteTabellen.push(name); continue; }
-    if (!Array.isArray(rows) || rows.some((r) => !r || typeof r !== 'object')) throw new Error(`Die Tabelle „${name}“ in der Sicherung ist beschädigt.`);
+    const t = tabellen.get(name);
+    if (!t) { unbekannteTabellen.push(name); continue; }
+    if (!Array.isArray(rows) || rows.some((r) => !istObjekt(r))) throw new Error(`Die Tabelle „${LABEL[name] ?? name}“ in der Sicherung ist beschädigt.`);
+    if (rows.length > SICHERUNG_GRENZEN.zeilenJeTabelle) throw new SicherungZuGross(`Die Tabelle „${LABEL[name] ?? name}“ hat über ${SICHERUNG_GRENZEN.zeilenJeTabelle.toLocaleString('de-DE')} Einträge und wird nicht eingespielt.`);
+    const pk = t.schema.primKey;
+    if (!pk.auto && typeof pk.keyPath === 'string') {
+      const key = pk.keyPath;
+      const kaputt = (rows as Record<string, unknown>[]).findIndex((r) => !(typeof r[key] === 'string' && r[key] !== '') && typeof r[key] !== 'number');
+      if (kaputt >= 0) throw new Error(`Die Tabelle „${LABEL[name] ?? name}“ in der Sicherung ist beschädigt (Eintrag ${kaputt + 1} ohne gültige Kennung).`);
+    }
   }
-  if (s.local && (typeof s.local !== 'object' || Object.values(s.local).some((v) => typeof v !== 'string'))) throw new Error('Die Geräteeinträge in der Sicherung sind beschädigt.');
+  const lokalUngueltig: string[] = [];
+  if (s.local !== undefined) {
+    if (!istObjekt(s.local) || Object.values(s.local).some((v) => typeof v !== 'string')) throw new Error('Die Geräteeinträge in der Sicherung sind beschädigt.');
+    const eintraege = Object.entries(s.local as Record<string, string>);
+    if (eintraege.length > SICHERUNG_GRENZEN.lokalEintraege) throw new SicherungZuGross('Die Sicherung enthält ungewöhnlich viele Geräteeinträge und wird nicht eingespielt.');
+    const sauber: Record<string, string> = {};
+    for (const [k, v] of eintraege) {
+      if (!gehoertInSicherung(k)) continue;
+      if (v.length > SICHERUNG_GRENZEN.lokalZeichen) { lokalUngueltig.push(lokalLabel(k)); continue; }
+      if (k in LOKAL_LABEL || k in LAUFEND_LABEL) { try { JSON.parse(v); } catch { lokalUngueltig.push(lokalLabel(k)); continue; } }
+      sauber[k] = v;
+    }
+    s.local = sauber;
+  }
   const zeilen = Object.entries(LABEL).map(([t, label]) => ({ label, anzahl: (s.data![t] as unknown[] | undefined)?.length ?? 0 }));
-  for (const [k, label] of Object.entries(LOKAL_LABEL)) {
-    const v = s.local?.[k];
-    let n = 0;
-    try { const a = v ? JSON.parse(v) : []; n = Array.isArray(a) ? a.length : 0; } catch { /* zählt nicht */ }
-    zeilen.push({ label, anzahl: n });
-  }
+  for (const [k, label] of Object.entries(LOKAL_LABEL)) zeilen.push({ label, anzahl: lokalAnzahl(s.local?.[k]) });
+  for (const [k, label] of Object.entries(LAUFEND_LABEL)) zeilen.push({ label, anzahl: s.local?.[k] && s.local[k] !== 'null' ? 1 : 0 });
   return {
     sicherung: s as Sicherung,
-    uebersicht: { zeilen: zeilen.filter((z) => z.anzahl > 0), exportedAt: s.exportedAt ?? '', geraet: s.geraet, unbekannteTabellen },
+    uebersicht: {
+      zeilen: zeilen.filter((z) => z.anzahl > 0), exportedAt: s.exportedAt ?? '', geraet: s.geraet, schema: s.schema,
+      build: typeof s.build === 'string' ? s.build.slice(0, 80) : undefined, fachmodul: typeof s.fachmodul === 'string' ? s.fachmodul.slice(0, 80) : undefined,
+      unbekannteTabellen, lokalUngueltig,
+    },
   };
+}
+
+function lokalAnzahl(v: string | undefined): number {
+  if (!v) return 0;
+  try { const a = JSON.parse(v); return Array.isArray(a) ? a.length : 0; } catch { return 0; }
+}
+
+// ---------------------------------------------------------------- Vorschau: Vergleich mit diesem Gerät
+
+export interface VergleichZeile {
+  bereich: string;
+  /** Nur in der Datei: kommt dazu. */
+  neu: number;
+  /** In beiden, die Datei ist neuer: wird beim Zusammenführen ersetzt. */
+  neuerInDatei: number;
+  /** In beiden, verschieden, hier neuer oder ohne Zeitangabe: bleibt beim Zusammenführen wie hier (Konflikt). */
+  konflikt: number;
+  gleich: number;
+  /** Nur auf diesem Gerät: bleibt beim Zusammenführen, wird beim Ersetzen gelöscht. */
+  nurHier: number;
+}
+
+export type LokalVergleich = 'nur-datei' | 'gleich' | 'zusammenfuehren' | 'konflikt' | 'nur-hier';
+
+export interface Vergleich {
+  zeilen: VergleichZeile[];
+  lokal: Array<{ bereich: string; art: LokalVergleich; dazu?: number }>;
+}
+
+function leseLokal(k: string): string | null {
+  try { return localStorage.getItem(k); } catch { return null; }
+}
+
+/** Was passiert mit welchem Bereich? Gleiche Regeln wie beim Einspielen (neuerer gewinnt, Sitzungen werden nicht gemischt). */
+export function vergleicheLokal(lokal: string | null, fremd: string | undefined): { art: LokalVergleich; dazu?: number } {
+  if (fremd === undefined) return { art: 'nur-hier' };
+  if (lokal === null) return { art: 'nur-datei', dazu: lokalAnzahl(fremd) || undefined };
+  if (lokal === fremd) return { art: 'gleich' };
+  let a: unknown, b: unknown;
+  try { a = JSON.parse(lokal); b = JSON.parse(fremd); } catch { return { art: 'konflikt' }; }
+  if (signatur(a) === signatur(b)) return { art: 'gleich' };
+  if (istObjekt(a) && istObjekt(b) && typeof a.id === 'string' && typeof b.id === 'string' && a.id !== b.id) return { art: 'konflikt' };
+  const zusammen = fuehreWertZusammen(a, b);
+  if (signatur(zusammen) === signatur(a)) return { art: 'konflikt' };
+  const dazu = Array.isArray(zusammen) && Array.isArray(a) ? zusammen.length - a.length : undefined;
+  return { art: 'zusammenfuehren', dazu: dazu && dazu > 0 ? dazu : undefined };
+}
+
+export async function vergleiche(s: Sicherung, database: LernstoffDB = db): Promise<Vergleich> {
+  const zeilen: VergleichZeile[] = [];
+  for (const t of database.tables) {
+    const fremd = Array.isArray(s.data[t.name]) ? dekodiere(s.data[t.name]) as Record<string, unknown>[] : [];
+    const hierAnzahl = await t.count();
+    if (!fremd.length && !hierAnzahl) continue;
+    const z: VergleichZeile = { bereich: LABEL[t.name] ?? 'weitere Einträge', neu: 0, neuerInDatei: 0, konflikt: 0, gleich: 0, nurHier: 0 };
+    const pk = t.schema.primKey;
+    if (pk.auto || typeof pk.keyPath !== 'string') {
+      const hier = new Set((await t.toArray()).map((r) => signatur(ohneId(r as Record<string, unknown>))));
+      const dort = new Set(fremd.map((r) => signatur(ohneId(r))));
+      for (const sig of dort) { if (hier.has(sig)) z.gleich++; else z.neu++; }
+      for (const sig of hier) if (!dort.has(sig)) z.nurHier++;
+    } else {
+      const key = pk.keyPath;
+      const lokal = (await t.bulkGet(fremd.map((r) => r[key] as never))) as Array<Record<string, unknown> | undefined>;
+      fremd.forEach((r, i) => {
+        const l = lokal[i];
+        if (!l) z.neu++;
+        else if (signatur(l) === signatur(r)) z.gleich++;
+        else if (neuerer(l, r) === r) z.neuerInDatei++;
+        else z.konflikt++;
+      });
+      z.nurHier = Math.max(0, hierAnzahl - (fremd.length - z.neu));
+    }
+    const vorhanden = zeilen.find((x) => x.bereich === z.bereich);
+    if (vorhanden) for (const f of ['neu', 'neuerInDatei', 'konflikt', 'gleich', 'nurHier'] as const) vorhanden[f] += z[f];
+    else zeilen.push(z);
+  }
+  const lokal: Vergleich['lokal'] = [];
+  const schluessel = new Set([...Object.keys(s.local ?? {}), ...Object.keys(lokaleEintraege())]);
+  const bereiche = new Map<string, { bereich: string; art: LokalVergleich; dazu?: number }>();
+  for (const k of [...schluessel].sort()) {
+    if (!gehoertInSicherung(k)) continue;
+    const v = vergleicheLokal(leseLokal(k), s.local?.[k]);
+    if (v.art === 'gleich') continue;
+    const bereich = lokalLabel(k);
+    if (!bereiche.has(bereich)) bereiche.set(bereich, { bereich, ...v });
+  }
+  lokal.push(...bereiche.values());
+  return { zeilen, lokal };
 }
 
 // ---------------------------------------------------------------- Einspielen
@@ -238,14 +406,17 @@ export interface Ergebnis {
   neu: number; aktualisiert: number; tabellen: number;
   /** Geräteeinträge (Trainer, Mindmaps, …), die nicht geschrieben werden konnten, z. B. weil der Speicher voll ist. */
   lokalFehler: string[];
-  /** Zeitpunkt der Rückfallsicherung, die vor „Ersetzen“ angelegt wurde. */
+  /** Zeitpunkt der Rückfallsicherung, die vor dem Einspielen angelegt wurde. */
   rueckfall?: string;
+  /** Geräteeinträge, die übernommen wurden (lesbare Namen). */
+  lokalUebernommen: string[];
 }
 
 // ---------------------------------------------------------------- Rückfallsicherung
 
-// Vor „Ersetzen“ wird der bisherige Stand in einer eigenen kleinen Datenbank abgelegt. Sie wird beim Ersetzen
-// nicht geleert und gehört nicht in Sicherungen. So lässt sich ein versehentliches Ersetzen rückgängig machen.
+// Vor jedem Einspielen (Ersetzen und Zusammenführen) wird der bisherige Stand in einer eigenen kleinen Datenbank
+// abgelegt. Sie wird beim Ersetzen nicht geleert und gehört nicht in Sicherungen. So lässt sich ein versehentliches
+// Ersetzen oder ein unerwünschtes Zusammenführen rückgängig machen.
 class RueckfallDB extends Dexie {
   staende!: Table<{ id: string; at: string; text: string }, string>;
   constructor(name: string) { super(name); this.version(1).stores({ staende: 'id' }); }
@@ -269,7 +440,7 @@ export async function ladeRueckfall(database: LernstoffDB = db): Promise<{ at: s
   try { return await rueckfallDb(database).staende.get(RUECKFALL_ID); } catch { return undefined; }
 }
 
-/** Spielt den Stand vor dem letzten „Ersetzen“ wieder ein (der jetzige Stand wird dabei selbst zur Rückfallsicherung). */
+/** Spielt den Stand vor dem letzten Einspielen wieder ein (der jetzige Stand wird dabei selbst zur Rückfallsicherung). */
 export async function stelleRueckfallWiederHer(database: LernstoffDB = db): Promise<Ergebnis> {
   const r = await ladeRueckfall(database);
   if (!r) throw new Error('Es gibt keine Rückfallsicherung auf diesem Gerät.');
@@ -308,27 +479,27 @@ async function fuehreTabelleZusammen(table: Table, rows: Record<string, unknown>
 /**
  * Sicherung einspielen. „zusammenfuehren“ behält alles Vorhandene und ergänzt, was fehlt
  * (für iPhone ↔ iPad). „ersetzen“ löscht vorher alle Daten auf diesem Gerät.
+ * Vorher wird immer eine Rückfallsicherung angelegt (beim Wiederherstellen einer Rückfallsicherung wird der jetzige Stand zur neuen).
  */
 export async function spieleEin(s: Sicherung, modus: Modus, database: LernstoffDB = db): Promise<Ergebnis> {
   const tabellen = database.tables.filter((t) => Array.isArray(s.data[t.name]));
   let neu = 0, aktualisiert = 0;
-  // Ohne Rückfallsicherung wird nicht ersetzt: lieber abbrechen als Daten unwiederbringlich verlieren.
+  // Ohne Rückfallsicherung wird nichts eingespielt: lieber abbrechen als Daten unwiederbringlich verlieren.
   let rueckfall: string | undefined;
-  // Die bisherige Rückfallsicherung bleibt erhalten, bis das Ersetzen gelungen ist (z. B. beim Wiederherstellen
+  // Die bisherige Rückfallsicherung bleibt erhalten, bis das Einspielen gelungen ist (z. B. beim Wiederherstellen
   // eines größeren älteren Stands, das am Speicherplatz scheitert).
-  const vorherigerRueckfall = modus === 'ersetzen' ? await ladeRueckfall(database) : undefined;
-  if (modus === 'ersetzen') {
-    try { rueckfall = await legeRueckfallAn(database); }
-    catch (e) { throw new Error(`Vor dem Ersetzen konnte keine Rückfallsicherung angelegt werden (${e instanceof Error ? e.message : String(e)}). Es wurde nichts verändert.`); }
-  }
+  const vorherigerRueckfall = await ladeRueckfall(database);
+  try { rueckfall = await legeRueckfallAn(database); }
+  catch (e) { throw new Error(`Vor dem Einspielen konnte keine Rückfallsicherung angelegt werden (${e instanceof Error ? e.message : String(e)}). Es wurde nichts verändert.`); }
   try {
     await schreibeTabellen();
   } catch (e) {
     if (vorherigerRueckfall) await rueckfallDb(database).staende.put({ id: RUECKFALL_ID, ...vorherigerRueckfall }).catch(() => undefined);
     throw e;
   }
-  const lokalFehler = spieleLokalEin(s.local ?? {}, modus);
-  return { neu, aktualisiert, tabellen: tabellen.length, lokalFehler, rueckfall };
+  const { fehler: lokalFehler, geaendert } = spieleLokalEin(s.local ?? {}, modus);
+  const lokalUebernommen = [...new Set(geaendert.map(lokalLabel))];
+  return { neu, aktualisiert, tabellen: tabellen.length, lokalFehler, rueckfall, lokalUebernommen };
 
   async function schreibeTabellen() { await database.transaction('rw', database.tables, async () => {
     if (modus === 'ersetzen') await Promise.all(database.tables.map((t) => t.clear()));
@@ -342,9 +513,10 @@ export async function spieleEin(s: Sicherung, modus: Modus, database: LernstoffD
   }); }
 }
 
-/** Schreibt die Geräteeinträge. Liefert die Schlüssel, die nicht geschrieben werden konnten (Teilfehler). */
-function spieleLokalEin(local: Record<string, string>, modus: Modus): string[] {
+/** Schreibt die Geräteeinträge. Liefert die Schlüssel, die nicht geschrieben werden konnten (Teilfehler), und die geänderten. */
+function spieleLokalEin(local: Record<string, string>, modus: Modus): { fehler: string[]; geaendert: string[] } {
   const fehler: string[] = [];
+  const geaendert: string[] = [];
   try {
     if (modus === 'ersetzen') loescheLokaleEintraege();
   } catch { /* privater Modus: unten schlägt dann jedes Schreiben fehl und wird gemeldet */ }
@@ -352,18 +524,20 @@ function spieleLokalEin(local: Record<string, string>, modus: Modus): string[] {
     if (!gehoertInSicherung(k)) continue;
     try {
       const alt = localStorage.getItem(k);
-      if (modus === 'ersetzen' || alt === null) { localStorage.setItem(k, v); continue; }
+      if (modus === 'ersetzen' || alt === null) { localStorage.setItem(k, v); if (alt !== v) geaendert.push(k); continue; }
       let zusammen: string;
       try { zusammen = JSON.stringify(fuehreWertZusammen(JSON.parse(alt), JSON.parse(v))); }
       catch { continue; /* kein JSON: vorhandenen Wert behalten, das ist kein Fehler */ }
+      if (zusammen === alt) continue;
       localStorage.setItem(k, zusammen);
+      if (signatur(JSON.parse(zusammen)) !== signatur(JSON.parse(alt))) geaendert.push(k);
     } catch { fehler.push(k); }
   }
-  return fehler;
+  return { fehler, geaendert };
 }
 
 /** Lesbare Namen für Geräteeinträge (für Fehlermeldungen). */
-export const lokalLabel = (k: string) => LOKAL_LABEL[k] ?? k.replace(/^lernstoff\.|^duell\./, '');
+export const lokalLabel = (k: string) => LOKAL_LABEL[k] ?? LAUFEND_LABEL[k] ?? k.replace(/^lernstoff\.|^duell\./, '');
 
 /** Für „Alle Daten löschen“: die Trainer-Einträge in localStorage gleich mit entfernen. */
 export function loescheLokaleEintraege() {
@@ -392,8 +566,8 @@ export async function bitteUmDauerhaftenSpeicher(): Promise<boolean> {
 }
 
 /** Sicherung erstellen und weitergeben: Teilen-Menü (AirDrop, „In Dateien sichern“) oder Download. */
-export async function sichereUndGibWeiter(art: 'teilen' | 'datei' = 'datei', passwort?: string): Promise<'geteilt' | 'gespeichert' | 'abgebrochen'> {
-  const klar = JSON.stringify(await erstelleSicherung());
+export async function sichereUndGibWeiter(art: 'teilen' | 'datei' = 'datei', passwort?: string, meta: { fachmodul?: string } = {}): Promise<'geteilt' | 'gespeichert' | 'abgebrochen'> {
+  const klar = JSON.stringify(await erstelleSicherung(db, meta));
   const text = passwort ? await verschluessele(klar, passwort) : klar;
   const name = dateiName(new Date(), !!passwort);
   if (art === 'teilen') {

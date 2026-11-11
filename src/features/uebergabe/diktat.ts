@@ -51,6 +51,9 @@ export function useDiktat(onText: (text: string) => void) {
   const [fehler, setFehler] = useState('');
   const [lokal, setLokal] = useState(false);
   const [bestaetigt, setBestaetigt] = useState(diktatHinweisBestaetigt);
+  const bestaetigtRef = useRef(bestaetigt);
+  // Datenhinweis vor dem ersten Diktat, wenn die Erkennung nicht sicher auf dem Gerät läuft (Audit SEC-07)
+  const [frage, setFrage] = useState(false);
   const ref = useRef<Erkennung | null>(null);
   const cb = useRef(onText);
   cb.current = onText;
@@ -61,6 +64,8 @@ export function useDiktat(onText: (text: string) => void) {
   function start() {
     const K = klasse();
     if (!K) return;
+    if (!bestaetigtRef.current && !lokal) { setFrage(true); return; }
+    setFrage(false);
     setFehler('');
     const r = new K();
     r.lang = 'de-DE';
@@ -84,8 +89,10 @@ export function useDiktat(onText: (text: string) => void) {
 
   function stop() { ref.current?.stop(); }
 
-  function bestaetige() { bestaetigeDiktatHinweis(); setBestaetigt(true); }
+  function bestaetige() { bestaetigeDiktatHinweis(); bestaetigtRef.current = true; setBestaetigt(true); }
+  function bestaetigeUndStarte() { bestaetige(); start(); }
+  function frageSchliessen() { setFrage(false); }
 
   /** lokal: Erkennung läuft garantiert auf dem Gerät. bestaetigt: Hinweis zum Datenweg gesehen. */
-  return { moeglich: diktatMoeglich(), aktiv, zwischen, fehler, start, stop, lokal, bestaetigt: bestaetigt || lokal, bestaetige };
+  return { moeglich: diktatMoeglich(), aktiv, zwischen, fehler, start, stop, lokal, bestaetigt: bestaetigt || lokal, bestaetige, frage, bestaetigeUndStarte, frageSchliessen };
 }

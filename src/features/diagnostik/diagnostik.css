@@ -142,3 +142,4 @@
 /* Fallstart: Schritte dieses Falls untereinander */
 .dx-schritte--fall { flex-direction: column; align-items: flex-start; }
 .dx-start .dx-karte { display: grid; gap: 12px; }
+.dx-kriterien { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }

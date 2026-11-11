@@ -27,6 +27,7 @@ import { NOTFALL_THEMA } from '../notfall/aufgaben';
 import { AM_THEMA } from '../arzneimittel/aufgaben';
 import { PRAXIS_THEMEN } from '../praxis/themen';
 import { BEREICH_ZU_THEMA as RECHT_BEREICH } from '../recht/aufgaben';
+import { diagnostikFaelleZuThema } from '../diagnostik/themen';
 import { heute, leafTopics, logReview, TRAINER_NAME } from './store';
 
 export type TrainerId = 'diagnostik' | 'rechnen' | 'duell' | 'fall' | 'uebergabe' | 'pflegeplanung' | 'sis' | 'mindmap' | 'bericht' | 'assessment' | 'krankheitsbilder' | 'selbsttest' | 'hygiene' | 'anatomie' | 'expertenstandards' | 'normwerte' | 'notfall' | 'arzneimittel' | 'praxis' | 'recht' | 'labor';
@@ -128,6 +129,8 @@ export function uebungenFuer(topicId: string, modul: CatalogModule = pflegeModul
   if (RECHT_BEREICH[topicId]) out.push({ trainer: 'recht', label: 'Recht-Trainer', path: `/lernen/recht?bereich=${RECHT_BEREICH[topicId]}` });
   const laborBereich: Record<string, string> = { [LABOR_THEMEN.entnahme]: 'praeanalytik', [LABOR_THEMEN.atmung]: 'bga', [LABOR_THEMEN.blut]: 'befund', [LABOR_THEMEN.niere]: 'befund', [LABOR_THEMEN.diabetes]: 'befund', [LABOR_THEMEN.herz]: 'befund' };
   if (laborBereich[topicId]) out.push({ trainer: 'labor', label: 'Labor-Trainer', path: `/lernen/labor?bereich=${laborBereich[topicId]}` });
+  const dx = diagnostikFaelleZuThema(topicId);
+  if (dx.length) out.push({ trainer: 'diagnostik', label: dx.length > 1 ? `Diagnostik-Fälle (${dx.length})` : 'Diagnostik-Fall (Labor und Bildgebung)', path: dx.length > 1 ? '/lernen/diagnostik' : `/lernen/diagnostik?fall=${dx[0]}` });
   if (normBereich[topicId]) out.push({ trainer: 'normwerte', label: 'Normwerte-Trainer', path: `/lernen/normwerte?bereich=${normBereich[topicId]}` });
   for (const g of GRUPPEN.filter((x) => x.instrumente.some((i) => INSTRUMENTE[i].topicIds.includes(topicId)))) {
     out.push({ trainer: 'assessment', label: `Assessment üben (${g.label})`, path: `/lernen/assessment?gruppe=${g.id}&modus=faelle` });

@@ -74,6 +74,34 @@ export function mmProPixel(s: Bildserie, bild: { breite: number }): number | und
   return s.quelle.art === 'phantom' ? PHANTOM_FELD_MM[s.quelle.modalitaet] / bild.breite : undefined;
 }
 
+/** Höchstens so viele Bildpunkte je Bild (Schutz vor riesigen Dateien, etwa 16,7 Megapixel). */
+export const MAX_PIXEL = 4096 * 4096;
+
+/** Sind die Messwerte echte Hounsfield-Einheiten? Nur bei CT mit Rohdaten (Phantom oder 16-Bit-PNG). */
+export function hatHu(s: Bildserie, bild: { skala?: 'hu' | 'grau' } | null | undefined): boolean {
+  return s.quelle.modalitaet === 'ct' && (bild?.skala ?? (s.quelle.art === 'phantom' ? 'hu' : undefined)) === 'hu';
+}
+
+/** Gibt es einen belastbaren Maßstab für mm? Phantome: Übungsmaßstab; echte Bilder nur mit pixelMm. */
+export const istKalibriert = (s: Bildserie) => !!s.pixelMm || s.quelle.art === 'phantom';
+
+export interface BildNachweis { bildart: string; quelle: string; lizenz: string; bearbeitung: string; url?: string }
+
+/** Herkunftsangaben für Betrachter und Weitergabe (Audit SIM-08). */
+export function bildNachweis(s: Bildserie): BildNachweis {
+  const q = s.quelle;
+  const mod = q.modalitaet === 'ct' ? 'CT' : 'Röntgen';
+  if (q.art === 'phantom') return { bildart: `Synthetisches ${mod}-Übungsbild (am Rechner erzeugt, kein Patient)`, quelle: 'Lernstoff-Planer, eigenes Phantom', lizenz: 'frei nutzbar im Unterricht', bearbeitung: 'schematisch vereinfacht' };
+  if (q.art === 'bilder') return { bildart: `Echtes ${mod}-Bild, Vergleichsbild (nicht vom Fallpatienten)`, quelle: q.urheber, lizenz: q.lizenz, bearbeitung: q.bearbeitung ?? 'zugeschnitten und verkleinert', url: q.quelleUrl };
+  return { bildart: `Privates ${mod}-Material (nur auf diesem Gerät)`, quelle: q.herkunft, lizenz: q.lizenz || 'nicht angegeben, nicht weitergeben', bearbeitung: 'unverändert geladen', url: q.quelleUrl };
+}
+
+/** Eine Zeile zum Mitkopieren oder Drucken. */
+export const nachweisText = (s: Bildserie) => {
+  const n = bildNachweis(s);
+  return `${s.titel}: ${n.bildart}. Quelle: ${n.quelle}. Lizenz: ${n.lizenz}. Bearbeitung: ${n.bearbeitung}.${n.url ? ` ${n.url}` : ''}`;
+};
+
 export function anzahlSchichten(s: Bildserie): number {
   const q = s.quelle;
   if (q.art === 'phantom') return q.modalitaet === 'ct' ? q.schichten : 1;
@@ -119,6 +147,7 @@ export async function dekodierePng16(daten: ArrayBuffer): Promise<Rohbild | null
   if (b.length < 33 || SIGNATUR.some((v, i) => b[i] !== v)) return null;
   const dv = new DataView(daten);
   const breite = dv.getUint32(16), hoehe = dv.getUint32(20);
+  if (breite * hoehe > MAX_PIXEL) throw new Error(`Bild zu groß (${breite}×${hoehe} Bildpunkte, höchstens ${MAX_PIXEL / 1e6 | 0} Megapixel)`);
   // Bittiefe 16, Farbtyp 0 (Graustufen), ohne Interlace
   if (b[24] !== 16 || b[25] !== 0 || b[28] !== 0) return null;
   const teile: Uint8Array[] = [];
@@ -154,7 +183,7 @@ export async function dekodierePng16(daten: ArrayBuffer): Promise<Rohbild | null
     for (let xx = 0; xx < breite; xx++) werte[y * breite + xx] = Math.min(ROH_MAX, (akt[xx * 2] << 8) | akt[xx * 2 + 1]);
     vor.set(akt);
   }
-  return { breite, hoehe, werte };
+  return { breite, hoehe, werte, skala: 'hu' };
 }
 
 /** Lädt eine Bilddatei und wandelt sie in Grauwerte (0..4095). CT als 16-Bit-PNG bleibt in HU. */
@@ -173,6 +202,7 @@ async function ladeDatei(url: string, modalitaet?: Modalitaet): Promise<Rohbild>
   if (!url.startsWith('blob:')) img.crossOrigin = 'anonymous';
   img.src = url;
   try { await img.decode(); } finally { if (url.startsWith('blob:')) setTimeout(() => URL.revokeObjectURL(url), 0); }
+  if (img.naturalWidth * img.naturalHeight > MAX_PIXEL) throw new Error(`Bild zu groß (${img.naturalWidth}×${img.naturalHeight} Bildpunkte)`);
   const c = document.createElement('canvas');
   c.width = img.naturalWidth; c.height = img.naturalHeight;
   const ctx = c.getContext('2d', { willReadFrequently: true });
@@ -181,7 +211,8 @@ async function ladeDatei(url: string, modalitaet?: Modalitaet): Promise<Rohbild>
   const d = ctx.getImageData(0, 0, c.width, c.height).data;
   const werte = new Uint16Array(c.width * c.height);
   for (let i = 0, j = 0; i < werte.length; i++, j += 4) werte[i] = Math.round(((d[j] * 0.299 + d[j + 1] * 0.587 + d[j + 2] * 0.114) / 255) * ROH_MAX);
-  return { breite: c.width, hoehe: c.height, werte };
+  // 8-Bit-Bild: nur Helligkeit, auch bei CT keine HU
+  return { breite: c.width, hoehe: c.height, werte, skala: 'grau' };
 }
 
 export async function ladeSchicht(s: Bildserie, i: number): Promise<Rohbild> {
