@@ -21,6 +21,7 @@ import {
 } from './simulation';
 import { spiele } from '../../ui/audio/spieler';
 import { ergaenzeVerlauf, fortsetzen, uhrzeit, ladeEinstellungen, ladeLauf, ladeVerlauf, speichereEinstellungen, speichereLauf, type Einstellungen, type Lauf, type VerlaufEintrag } from './speicher';
+import { DatenHinweis } from '../../ui/DatenHinweis';
 
 const K = katalog(pflegeModule);
 const KB = [...K.kbName.entries()].map(([id, name]) => ({ id, code: name.split(' · ')[0]!, name: name.split(' · ')[1]! }));
@@ -466,6 +467,7 @@ function Ergebnis({ lauf, setLauf, onNeu }: { lauf: Lauf; setLauf: (l: Lauf) => 
             <span>{a.offen} offene {a.offen === 1 ? 'Antwort ist' : 'Antworten sind'} noch nicht bewertet und fehlen im Ergebnis.</span>
             <button type="button" className="small primary" disabled={!!ki} onClick={mitClaude}>{ki ? `Claude bewertet … ${ki.fertig}/${ki.gesamt}` : 'Mit Claude bewerten'}</button>
             <span className="muted">oder unten bei jeder Frage selbst bewerten.</span>
+            {!ki && <DatenHinweis art="ki" kompakt detail="„Mit Claude bewerten“ sendet die offenen Fragen, deine Antworten und die Belegstellen an die Claude-API (mögliche API-Kosten)." />}
           </div>
         )}
       </div>

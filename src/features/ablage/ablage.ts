@@ -25,7 +25,41 @@ export interface Manifest {
   teile: ManifestTeil[];
 }
 
-export interface RepoInfo { privat: boolean; branch: string; schreiben: boolean; leer: boolean; eingerichtet: boolean; vollerName: string }
+export interface RepoInfo {
+  privat: boolean; branch: string; schreiben: boolean; leer: boolean; eingerichtet: boolean; vollerName: string;
+  /** Der Token darf das Repo verwalten (Einstellungen, Sichtbarkeit, Löschen): mehr als nötig. */
+  admin?: boolean;
+  tokenArt?: TokenArt;
+  /** Berechtigungen eines klassischen Tokens laut GitHub (X-OAuth-Scopes), z. B. „repo, workflow“. */
+  scopes?: string;
+  /** Ablaufdatum des Tokens, falls GitHub es mitteilt. */
+  ablauf?: string;
+}
+
+export type TokenArt = 'fein' | 'klassisch' | 'unbekannt';
+
+/** Fine-grained Tokens beginnen mit github_pat_, klassische mit ghp_ (die gelten für alle Repos des Kontos). */
+export function tokenArt(token: string): TokenArt {
+  const t = token.trim();
+  if (t.startsWith('github_pat_')) return 'fein';
+  if (/^gh[pousr]_/.test(t)) return 'klassisch';
+  return 'unbekannt';
+}
+
+/** GitHub meldet das Ablaufdatum als „2026-12-01 10:00:00 UTC“. */
+export function ablaufText(roh: string | undefined): string | undefined {
+  if (!roh) return undefined;
+  const d = new Date(roh.trim().replace(/ UTC$/, 'Z').replace(' ', 'T'));
+  return Number.isNaN(d.getTime()) ? undefined : d.toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+/** Hinweise, wenn der Token mehr darf als nötig. Leere Liste: passt. */
+export function tokenWarnungen(i: Pick<RepoInfo, 'admin' | 'tokenArt' | 'scopes'>): string[] {
+  const w: string[] = [];
+  if (i.tokenArt === 'klassisch') w.push(`Das ist ein klassischer Token${i.scopes ? ` (${i.scopes})` : ''}. Er gilt für alle Repositories deines Kontos, nicht nur für die Ablage. Besser: einen Fine-grained Token nur für dieses Repository anlegen und den klassischen widerrufen.`);
+  if (i.admin) w.push('Der Token hat Verwaltungsrechte für das Repository (z. B. Sichtbarkeit ändern oder löschen). Für die Ablage reicht „Contents: Read and write“.');
+  return w;
+}
 
 export class AblageFehler extends Error {
   constructor(message: string, readonly status?: number) { super(message); }
@@ -41,6 +75,21 @@ export function ladeZiel(): AblageZiel {
   try { z = { ...z, ...JSON.parse(localStorage.getItem(KEY) ?? '{}') }; } catch { /* kaputt oder gesperrt */ }
   if (!z.token) { try { z.token = sessionStorage.getItem(SITZUNG) ?? ''; } catch { /* gesperrt */ } }
   return z;
+}
+
+/** „Zugang vergessen“: Token aus Sitzung und Gerät entfernen, Repo-Name bleibt stehen. */
+export function vergissToken() {
+  try { sessionStorage.removeItem(SITZUNG); } catch { /* gesperrt */ }
+  try {
+    const z = JSON.parse(localStorage.getItem(KEY) ?? '{}') as Partial<AblageZiel>;
+    if (z.token !== undefined) { delete z.token; localStorage.setItem(KEY, JSON.stringify(z)); }
+  } catch { /* kaputt oder gesperrt */ }
+}
+
+/** Wo liegt der Token gerade? */
+export function tokenOrt(): 'keiner' | 'sitzung' | 'dauerhaft' {
+  if (tokenDauerhaft()) return 'dauerhaft';
+  try { return sessionStorage.getItem(SITZUNG) ? 'sitzung' : 'keiner'; } catch { return 'keiner'; }
 }
 
 /** Liegt der Token dauerhaft auf dem Gerät? */
@@ -120,6 +169,21 @@ function base64Text(text: string): string {
   return base64(new TextEncoder().encode(text));
 }
 
+/** Grenze, bis zu der die App eine Datei wieder als Dokument einlesen kann (wie beim Import, siehe dokumente/import/grenzen.ts). */
+export const EINLESEN_MAX = 512 * 1024 * 1024;
+/** Ab hier lohnt beim Wiedereinlesen auf dem Handy ein WLAN. */
+export const MOBIL_GROSS = 100 * 1024 * 1024;
+
+/** Hinweis zur Größe direkt bei der Auswahl: Ablage geht immer, Wiedereinlesen hat Grenzen. */
+export function groessenHinweis(dateien: Array<{ name: string; size: number }>): string[] {
+  const out: string[] = [];
+  const zuGross = dateien.filter((d) => d.size > EINLESEN_MAX);
+  const gross = dateien.filter((d) => d.size > MOBIL_GROSS && d.size <= EINLESEN_MAX);
+  if (zuGross.length) out.push(`${zuGross.map((d) => d.name).join(', ')}: über ${formatGroesse(EINLESEN_MAX)}. Wird abgelegt (für Claude), kann in der App aber nicht als Dokument eingelesen werden.`);
+  if (gross.length) out.push(`${gross.map((d) => `${d.name} (${formatGroesse(d.size)})`).join(', ')}: Zum Wiedereinlesen auf iPhone oder iPad werden alle Teile heruntergeladen. Am besten im WLAN und mit genug freiem Speicher.`);
+  return out;
+}
+
 export function formatGroesse(bytes: number): string {
   if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
   if (bytes < 1024 ** 3) return `${(bytes / 1024 / 1024).toFixed(1).replace('.', ',')} MB`;
@@ -130,7 +194,7 @@ export function formatGroesse(bytes: number): string {
 
 type Fetch = typeof fetch;
 
-async function gh<T = unknown>(z: AblageZiel, pfad: string, init: RequestInit = {}, f: Fetch = fetch): Promise<T> {
+async function gh<T = unknown>(z: AblageZiel, pfad: string, init: RequestInit = {}, f: Fetch = fetch, kopf?: (h: Headers) => void): Promise<T> {
   let res: Response;
   try {
     res = await f(`${API}/repos/${z.owner}/${z.repo}${pfad}`, {
@@ -151,12 +215,13 @@ async function gh<T = unknown>(z: AblageZiel, pfad: string, init: RequestInit = 
     try { text = ((await res.json()) as { message?: string }).message ?? ''; } catch { /* kein JSON */ }
     throw new AblageFehler(fehlerText(res.status, text), res.status);
   }
+  kopf?.(res.headers);
   if (init.method === 'HEAD' || res.status === 204) return undefined as T;
   return (await res.json()) as T;
 }
 
 function fehlerText(status: number, text: string): string {
-  if (status === 401) return 'Der Token ist ungültig oder abgelaufen.';
+  if (status === 401) return 'Der Token ist ungültig, abgelaufen oder widerrufen. Erzeuge in GitHub einen neuen (Anleitung unter „So richtest du es ein“), trage ihn hier ein und lösche den alten.';
   if (status === 403) return `GitHub verweigert den Zugriff${text ? ` (${text})` : ''}. Hat der Token „Contents: Read and write“ für dieses Repo?`;
   if (status === 404) return 'Repo nicht gefunden. Name prüfen und ob der Token Zugriff auf genau dieses Repo hat.';
   return `GitHub-Fehler ${status}${text ? `: ${text}` : ''}`;
@@ -169,12 +234,19 @@ async function existiert(z: AblageZiel, pfad: string, f: Fetch): Promise<boolean
 
 /** Prüft Zugriff, ob das Repo privat ist und ob abholen.py schon darin liegt. */
 export async function pruefeRepo(z: AblageZiel, f: Fetch = fetch): Promise<RepoInfo> {
-  const r = await gh<{ private: boolean; default_branch: string; full_name: string; permissions?: { push?: boolean } }>(z, '', {}, f);
+  let scopes: string | undefined, ablauf: string | undefined;
+  const r = await gh<{ private: boolean; default_branch: string; full_name: string; permissions?: { push?: boolean; admin?: boolean } }>(z, '', {}, f, (h) => {
+    scopes = h.get('x-oauth-scopes') ?? undefined;
+    ablauf = h.get('github-authentication-token-expiration') ?? undefined;
+  });
   let leer = false;
   try { await gh(z, `/git/ref/heads/${r.default_branch}`, {}, f); }
   catch (e) { if (e instanceof AblageFehler && (e.status === 409 || e.status === 404)) leer = true; else throw e; }
   const eingerichtet = !leer && await existiert(z, `/contents/abholen.py?ref=${r.default_branch}`, f);
-  return { privat: r.private, branch: r.default_branch, schreiben: r.permissions?.push !== false, leer, eingerichtet, vollerName: r.full_name };
+  return {
+    privat: r.private, branch: r.default_branch, schreiben: r.permissions?.push !== false, leer, eingerichtet, vollerName: r.full_name,
+    admin: r.permissions?.admin === true, tokenArt: tokenArt(z.token), scopes: scopes || undefined, ablauf: ablauf || undefined,
+  };
 }
 
 /** Legt README.md und abholen.py an (beides klein, per Contents-API, geht auch im leeren Repo). */

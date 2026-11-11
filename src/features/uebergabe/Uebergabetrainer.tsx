@@ -11,6 +11,7 @@ import { ANLASS_LABEL, FAELLE, TEIL_HILFE, TEIL_LABEL, type Fall, type Teil } fr
 import { dauer, pruefe, TEILE, type Pruefergebnis, type PunktStatus, type TeilStatus } from './pruefung';
 import { bewerteMitClaude, type KiRueckmeldung } from './claude';
 import { useDiktat } from './diktat';
+import { DiktatFrage } from './DiktatFrage';
 
 type Modus = 'gefuehrt' | 'frei';
 type Felder = Record<Teil, string>;
@@ -127,7 +128,6 @@ export default function Uebergabetrainer() {
   const text = modus === 'frei' ? frei : TEILE.filter((t) => felder[t].trim()).map((t) => `${t}: ${felder[t].trim()}`).join('\n');
   const live = useMemo(() => pruefe(fall, text), [fall, text]);
 
-  const [diktatFrage, setDiktatFrage] = useState(false);
   const diktat = useDiktat((stueck) => {
     const ziel = modus === 'frei' ? 'frei' : fokus;
     const anhaengen = (alt: string) => (alt && !/\s$/.test(alt) ? `${alt} ${stueck}` : alt + stueck);
@@ -252,21 +252,13 @@ export default function Uebergabetrainer() {
             </div>
           )}
           {diktat.fehler && <div className="note warn" role="alert">{diktat.fehler}</div>}
-          {diktatFrage && !diktat.aktiv && (
-            <div className="note" role="dialog" aria-label="Hinweis zum Diktat">
-              <DatenHinweis art="diktat" className="ohne-rahmen" />
-              <div className="row">
-                <button type="button" className="primary" onClick={() => { diktat.bestaetige(); setDiktatFrage(false); diktat.start(); }}>Verstanden, Diktat starten</button>
-                <button type="button" className="ghost" onClick={() => setDiktatFrage(false)}>Lieber tippen</button>
-              </div>
-            </div>
-          )}
+          <DiktatFrage diktat={diktat} />
 
           <div className="row sbar__knoepfe">
             <button type="submit" className="primary" disabled={leer}>Prüfen</button>
             {diktat.moeglich && (
               <button type="button" className={diktat.aktiv ? 'danger' : undefined} aria-pressed={diktat.aktiv}
-                onClick={() => (diktat.aktiv ? diktat.stop() : diktat.bestaetigt ? diktat.start() : setDiktatFrage(true))}>
+                onClick={() => (diktat.aktiv ? diktat.stop() : diktat.start())}>
                 {diktat.aktiv ? 'Diktat beenden' : 'Sprechen'}
               </button>
             )}

@@ -26,6 +26,31 @@ async function strom(bytes: Uint8Array, t: CompressionStream | DecompressionStre
   return new Uint8Array(await new Response(new Blob([bytes as BlobPart]).stream().pipeThrough(t)).arrayBuffer());
 }
 
+/** Obergrenze für den entpackten Inhalt (Schutz vor „GZIP-Bomben“ in fremden Dateien). */
+export const ENTPACKT_MAX = 384 * 1024 * 1024;
+
+export class EntpacktZuGross extends Error {
+  constructor(max: number) { super(`Die Sicherung wäre entpackt über ${Math.round(max / 1024 / 1024)} MB groß und wird zum Schutz des Geräts nicht geöffnet. Es wurde nichts verändert.`); this.name = 'EntpacktZuGross'; }
+}
+
+/** Entpackt GZIP, liest aber höchstens `max` Bytes; darüber wird abgebrochen, ohne den Rest zu puffern. */
+async function entpackeBegrenzt(bytes: Uint8Array, max: number): Promise<Uint8Array> {
+  const reader = new Blob([bytes as BlobPart]).stream().pipeThrough(new DecompressionStream('gzip')).getReader();
+  const teile: Uint8Array[] = [];
+  let n = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    n += value.length;
+    if (n > max) { await reader.cancel().catch(() => undefined); throw new EntpacktZuGross(max); }
+    teile.push(value);
+  }
+  const out = new Uint8Array(n);
+  let pos = 0;
+  for (const t of teile) { out.set(t, pos); pos += t.length; }
+  return out;
+}
+
 async function schluessel(passwort: string, salz: Uint8Array, runden: number) {
   const basis = await crypto.subtle.importKey('raw', new TextEncoder().encode(passwort.normalize('NFC')), 'PBKDF2', false, ['deriveKey']);
   return crypto.subtle.deriveKey({ name: 'PBKDF2', hash: 'SHA-256', salt: salz as BufferSource, iterations: runden }, basis, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
@@ -60,7 +85,7 @@ export async function verschluessele(klartext: string, passwort: string, runden 
   return JSON.stringify({ verschluesselt: out.verschluesselt, app: out.app, exportedAt: out.exportedAt });
 }
 
-export async function entschluessele(text: string, passwort: string): Promise<string> {
+export async function entschluessele(text: string, passwort: string, max = ENTPACKT_MAX): Promise<string> {
   let s: VerschluesselteSicherung;
   try { s = JSON.parse(text) as VerschluesselteSicherung; } catch { throw new Error('Die Datei ist keine gültige Sicherung (kein JSON).'); }
   const v = s?.verschluesselt;
@@ -74,7 +99,8 @@ export async function entschluessele(text: string, passwort: string): Promise<st
   } catch { throw new FalschesPasswort(); }
   if (v.komprimiert) {
     if (typeof DecompressionStream === 'undefined') throw new Error('Dieser Browser kann die Sicherung nicht entpacken. Bitte Safari ab iOS 16.4 oder einen aktuellen Browser verwenden.');
-    bytes = await strom(bytes, new DecompressionStream('gzip'));
-  }
+    try { bytes = await entpackeBegrenzt(bytes, max); }
+    catch (e) { if (e instanceof EntpacktZuGross) throw e; throw new Error('Die Sicherung ließ sich nicht entpacken (beschädigt).'); }
+  } else if (bytes.length > max) throw new EntpacktZuGross(max);
   return new TextDecoder().decode(bytes);
 }

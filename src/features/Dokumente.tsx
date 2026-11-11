@@ -129,6 +129,8 @@ export function Dokumente() {
               <div>
                 {r.report.pages} Seiten{r.report.ocrPages ? `, davon ${r.report.ocrPages} per Texterkennung` : ''}
                 {r.report.chapters.length ? `, ${r.report.chapters.length} Kapitel` : ''}
+                {r.report.printedPagesFound ? `, gedruckte Seitenzahlen auf ${r.report.printedPagesFound} Seiten erkannt` : ''}
+                {r.report.lowConfidencePages.length > 0 && <div>⚠ Leselücken: schwer lesbar auf S. {r.report.lowConfidencePages.slice(0, 12).join(', ')}{r.report.lowConfidencePages.length > 12 ? ' …' : ''}. Vor dem Lernen mit dem Original vergleichen.</div>}
                 {r.report.warnings.map((w) => <div key={w}>⚠ {w}</div>)}
                 {r.report.matches.map((m) => <div key={m.otherDocumentId}>↔ {m.otherTitle}: {m.recommendation}</div>)}
               </div>
@@ -143,8 +145,11 @@ export function Dokumente() {
         <div key={d.id} className="card">
           <div className="row">
             <button className="link" aria-expanded={open === d.id} aria-controls={`document-${d.id}`} onClick={() => setOpen(open === d.id ? null : d.id)}>
-              <strong>{d.title}</strong> <span className="muted">{d.kind.toUpperCase()}</span>
+              <strong>{d.title}</strong> <span className="muted">{d.kind.toUpperCase()}{d.version > 1 ? ` · Fassung ${d.version}` : ''}</span>
             </button>
+            <span className={d.repository ? 'tag' : 'tag tag--warning'} title={d.repository ? `Ordner ${d.repository.ordner}` : undefined}>
+              {d.repository ? `Original im Repo ${d.repository.owner}/${d.repository.repo}` : 'Original nicht gespeichert, nur der Text'}
+            </span>
             <a className="button-link" href={`#/material/zusammenfassen?dokument=${encodeURIComponent(d.id)}`}>Wichtigste Inhalte zusammenfassen</a>
             <button className="danger small" aria-expanded={loeschen === d.id} onClick={() => setLoeschen(loeschen === d.id ? null : d.id)}>Löschen</button>
           </div>

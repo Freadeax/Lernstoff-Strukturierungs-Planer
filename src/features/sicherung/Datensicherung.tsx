@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { notify } from '../../ui/shell/notifications';
 import { relativeTime } from '../../ui/lib/time';
 import {
-  bitteUmDauerhaftenSpeicher, kannTeilen, ladeRueckfall, lesePruefe, leseMerker, lokalLabel, setzeMerker, sichereUndGibWeiter, spieleEin,
-  stelleRueckfallWiederHer, type Ergebnis, type Modus, type Sicherung, type Uebersicht,
+  bitteUmDauerhaftenSpeicher, kannTeilen, ladeRueckfall, lesePruefe, leseMerker, leseSicherungsDatei, lokalLabel, setzeMerker, sichereUndGibWeiter, spieleEin,
+  stelleRueckfallWiederHer, vergleiche, type Ergebnis, type Modus, type Sicherung, type Uebersicht, type Vergleich,
 } from '../../core/sicherung';
 import { entschluessele, istVerschluesselt, passwortProblem } from '../../core/sicherung-krypto';
 import { BUILD_ID } from '../../core/build';
@@ -14,7 +14,8 @@ const datum = (iso: string) => { try { return new Date(iso).toLocaleString('de-D
 
 function Erstellen({ onFertig }: { onFertig: () => void }) {
   const [busy, setBusy] = useState(false);
-  const [mitPasswort, setMitPasswort] = useState(false);
+  // Verschlüsselt ist der Standard (Audit SEC-05): Sicherungen gehen oft über Mail, Cloud oder Messenger.
+  const [mitPasswort, setMitPasswort] = useState(true);
   const [pw, setPw] = useState('');
   const [pw2, setPw2] = useState('');
   const teilen = kannTeilen();
@@ -24,7 +25,8 @@ function Erstellen({ onFertig }: { onFertig: () => void }) {
     if (!pwBereit) return;
     setBusy(true);
     try {
-      const r = await sichereUndGibWeiter(art, mitPasswort ? pw : undefined);
+      const fachmodul = await import('../../modules/pflege').then(({ pflegeModule: m }) => `${m.id}@${m.version}`).catch(() => undefined);
+      const r = await sichereUndGibWeiter(art, mitPasswort ? pw : undefined, { fachmodul });
       if (r !== 'abgebrochen') { notify('info', 'Sicherung erstellt', r === 'geteilt' ? 'Die Datei wurde weitergegeben.' : 'Die Datei liegt in deinen Downloads.'); void bitteUmDauerhaftenSpeicher(); }
       onFertig();
     } catch (e) {
@@ -38,7 +40,7 @@ function Erstellen({ onFertig }: { onFertig: () => void }) {
       <p className="muted">Nicht enthalten: dein API-Schlüssel und Zugangsdaten für „Große Dateien“. Die trägst du auf jedem Gerät selbst ein.</p>
       <label className="check">
         <input type="checkbox" checked={mitPasswort} disabled={busy} onChange={(e) => setMitPasswort(e.target.checked)} />
-        <span><strong>Mit Passwort verschlüsseln</strong> (empfohlen, wenn die Datei per Mail, Cloud oder USB-Stick weitergeht)<br />
+        <span><strong>Mit Passwort verschlüsseln</strong> (empfohlen, vor allem wenn die Datei per Mail, Cloud, Messenger oder USB-Stick weitergeht)<br />
           <span className="muted">Ohne das Passwort lässt sich die Datei nicht öffnen. Es wird nirgends gespeichert. Vergisst du es, ist die Sicherung verloren.</span></span>
       </label>
       {mitPasswort && (
@@ -52,14 +54,69 @@ function Erstellen({ onFertig }: { onFertig: () => void }) {
         {teilen && <button type="button" className="primary" disabled={busy || !pwBereit} onClick={() => los('teilen')}>Sichern und teilen …</button>}
         <button type="button" className={teilen ? '' : 'primary'} disabled={busy || !pwBereit} onClick={() => los('datei')}>{busy ? 'Wird erstellt …' : 'Als Datei speichern'}</button>
       </div>
-      {!mitPasswort && <p className="muted">Ohne Passwort ist die Datei lesbar für jeden, der sie bekommt (Lernstand, eigene Notizen, importierte Texte).</p>}
+      {!mitPasswort && <p className="note warn">Ohne Passwort ist die Datei lesbar für jeden, der sie bekommt, auch für Dienste, über die du sie verschickst (Lernstand, eigene Notizen, importierte Texte). Nur für die direkte Übertragung zwischen deinen eigenen Geräten, z. B. per AirDrop.</p>}
       {teilen && <p className="muted">„Teilen“ öffnet das Teilen-Menü: AirDrop an dein iPad, „In Dateien sichern“ (iCloud Drive) oder per Mail an dich selbst.</p>}
     </div>
   );
 }
 
-function Einspielen() {
+function Vorschau({ vergleich, modus }: { vergleich: Vergleich; modus: Modus }) {
+  const summe = (f: 'neu' | 'neuerInDatei' | 'konflikt' | 'nurHier') => vergleich.zeilen.reduce((n, z) => n + z[f], 0);
+  const konflikte = summe('konflikt') + vergleich.lokal.filter((l) => l.art === 'konflikt').length;
+  const nurHier = summe('nurHier');
+  return (
+    <div className="sicherung__vergleich">
+      <h4>Vergleich mit diesem Gerät</h4>
+      {vergleich.zeilen.length > 0 && (
+        <div className="sicherung__tabelle" tabIndex={0} role="region" aria-label="Vergleich je Bereich">
+          <table>
+            <thead><tr><th scope="col">Bereich</th><th scope="col">neu</th><th scope="col">neuer</th><th scope="col">Konflikt</th><th scope="col">{modus === 'ersetzen' ? 'gelöscht' : 'nur hier'}</th></tr></thead>
+            <tbody>{vergleich.zeilen.map((z) => (
+              <tr key={z.bereich}><th scope="row">{z.bereich}</th><td>{z.neu}</td><td>{z.neuerInDatei}</td><td className={z.konflikt ? 'sicherung__konflikt' : undefined}>{z.konflikt}</td><td className={modus === 'ersetzen' && z.nurHier ? 'sicherung__konflikt' : undefined}>{z.nurHier}</td></tr>
+            ))}</tbody>
+          </table>
+          <p className="muted sicherung__legende"><strong>neu</strong>: kommt dazu · <strong>neuer</strong>: in der Datei neuer, ersetzt den Stand hier · <strong>Konflikt</strong>: hier anders und nicht älter, {modus === 'ersetzen' ? 'wird beim Ersetzen mit dem älteren Stand der Datei überschrieben' : 'bleibt wie hier'} · <strong>{modus === 'ersetzen' ? 'gelöscht' : 'nur hier'}</strong>: {modus === 'ersetzen' ? 'gibt es nur auf diesem Gerät, wird beim Ersetzen gelöscht' : 'gibt es nur auf diesem Gerät, bleibt'}.</p>
+        </div>
+      )}
+      {vergleich.lokal.length > 0 && (
+        <ul className="sicherung__fakten">
+          {vergleich.lokal.map((l) => (
+            <li key={l.bereich}><strong>{l.bereich}</strong>: {
+              l.art === 'nur-datei' ? 'kommt dazu' :
+              l.art === 'nur-hier' ? (modus === 'ersetzen' ? 'wird gelöscht (nur auf diesem Gerät)' : 'bleibt (nur auf diesem Gerät)') :
+              l.art === 'zusammenfuehren' ? (modus === 'ersetzen' ? 'wird durch die Datei ersetzt' : `wird zusammengeführt${l.dazu ? `, ${l.dazu} kommen dazu` : ''}`) :
+              modus === 'ersetzen' ? 'wird durch die Datei ersetzt' : <span className="sicherung__konflikt">Konflikt: verschiedene Stände, der Stand dieses Geräts bleibt</span>
+            }</li>
+          ))}
+        </ul>
+      )}
+      {modus === 'zusammenfuehren'
+        ? <p className="muted">{konflikte ? `${konflikte} Konflikt${konflikte === 1 ? '' : 'e'}: Hier gibt es einen anderen, neueren oder gleich alten Stand. Er bleibt, der Stand aus der Datei wird nicht übernommen. ` : ''}Gelöschtes kommt beim Zusammenführen zurück, wenn es in der Datei noch steht. Wer auf einem Gerät aufgeräumt hat, spielt besser mit „Ersetzen“ ein.</p>
+        : <p className={nurHier || konflikte ? 'note warn' : 'muted'}>{nurHier ? `${nurHier} Einträge gibt es nur auf diesem Gerät. Sie werden gelöscht. ` : ''}{konflikte ? `${konflikte} Einträge sind hier neuer oder anders als in der Datei. Sie werden mit dem Stand der Datei überschrieben. ` : ''}{nurHier || konflikte ? 'Beides liegt danach in der Rückfallsicherung.' : 'Auf diesem Gerät geht nichts verloren, was nicht auch in der Datei steht.'}</p>}
+    </div>
+  );
+}
+
+function Ergebnisbericht({ fertig }: { fertig: Ergebnis & { modus: Modus } }) {
+  const teil = fertig.lokalFehler.length > 0;
+  return (
+    <div className={teil ? 'note warn' : 'note ok'} role="status">
+      <strong>{teil ? 'Teilweise eingespielt.' : 'Fertig.'}</strong>{' '}
+      {fertig.modus === 'ersetzen' ? `Datenbank ersetzt: ${fertig.neu} Einträge.` : `Datenbank zusammengeführt: ${fertig.neu} Einträge ergänzt, ${fertig.aktualisiert} durch neuere ersetzt.`}
+      <ul className="sicherung__fakten">
+        <li>Datenbank (Dokumente, Lernplan, Karteikarten, …): vollständig {fertig.modus === 'ersetzen' ? 'übernommen' : 'abgeglichen'}.{fertig.lokalUebernommen.length ? ` Geändert außerdem: ${fertig.lokalUebernommen.join(', ')}.` : ''}</li>
+        {teil && <li><strong>Nicht übernommen</strong> (Speicher voll oder gesperrt): {fertig.lokalFehler.map(lokalLabel).join(', ')}. Auf diesem Gerät gilt dafür noch der alte Stand{fertig.modus === 'ersetzen' ? ' bzw. nichts' : ''}.</li>}
+        {fertig.rueckfall && <li>Der Stand vor dem Einspielen liegt als <button type="button" className="link" onClick={() => document.getElementById('rueckfall')?.scrollIntoView({ behavior: 'smooth' })}>Rückfallsicherung</button> auf diesem Gerät. {teil ? 'Wenn dir der Teilstand nicht reicht: Speicher frei machen und die Datei noch einmal einspielen, oder unten „Diesen Stand wiederherstellen“ wählen.' : 'Unten lässt sich das Einspielen damit rückgängig machen.'}</li>}
+      </ul>
+      Damit alle Seiten den neuen Stand zeigen, lädt die App neu.
+      <div className="row"><button type="button" className="primary" onClick={() => location.reload()}>Jetzt neu laden</button></div>
+    </div>
+  );
+}
+
+function Einspielen({ onFertig }: { onFertig: () => void }) {
   const [datei, setDatei] = useState<{ name: string; sicherung: Sicherung; uebersicht: Uebersicht } | null>(null);
+  const [vergleich, setVergleich] = useState<Vergleich | null>(null);
   const [fehler, setFehler] = useState<string | null>(null);
   const [modus, setModus] = useState<Modus>('zusammenfuehren');
   const [busy, setBusy] = useState(false);
@@ -67,13 +124,19 @@ function Einspielen() {
   const [gesperrt, setGesperrt] = useState<{ name: string; text: string } | null>(null);
   const [pw, setPw] = useState('');
 
+  async function oeffne(name: string, text: string) {
+    const d = { name, ...lesePruefe(text) };
+    setDatei(d); setVergleich(null);
+    try { setVergleich(await vergleiche(d.sicherung)); } catch { /* Vorschau ist Komfort: Einspielen bleibt möglich */ }
+  }
+
   async function waehle(f: File | undefined) {
-    setFehler(null); setDatei(null); setFertig(null); setGesperrt(null); setPw('');
+    setFehler(null); setDatei(null); setVergleich(null); setFertig(null); setGesperrt(null); setPw('');
     if (!f) return;
     try {
-      const text = await f.text();
+      const text = await leseSicherungsDatei(f);
       if (istVerschluesselt(text)) { setGesperrt({ name: f.name, text }); return; }
-      setDatei({ name: f.name, ...lesePruefe(text) });
+      await oeffne(f.name, text);
     } catch (e) { setFehler(e instanceof Error ? e.message : String(e)); }
   }
 
@@ -82,7 +145,7 @@ function Einspielen() {
     setBusy(true); setFehler(null);
     try {
       const klar = await entschluessele(gesperrt.text, pw);
-      setDatei({ name: gesperrt.name, ...lesePruefe(klar) });
+      await oeffne(gesperrt.name, klar);
       setGesperrt(null); setPw('');
     } catch (e) { setFehler(e instanceof Error ? e.message : String(e)); }
     finally { setBusy(false); }
@@ -95,17 +158,19 @@ function Einspielen() {
     try {
       const e = await spieleEin(datei.sicherung, modus);
       setFertig({ ...e, modus });
-      setDatei(null);
+      setDatei(null); setVergleich(null);
+      onFertig();
       void bitteUmDauerhaftenSpeicher();
     } catch (err) {
       setFehler(`Einspielen fehlgeschlagen, es wurde nichts verändert: ${err instanceof Error ? err.message : String(err)}`);
     } finally { setBusy(false); }
   }
 
+  const u = datei?.uebersicht;
   return (
     <div className="card">
       <h3>Sicherung einspielen</h3>
-      <p>Hier holst du deinen Lernstand auf dieses Gerät, zum Beispiel vom iPhone aufs iPad.</p>
+      <p>Hier holst du deinen Lernstand auf dieses Gerät, zum Beispiel vom iPhone aufs iPad. Vor dem Einspielen siehst du, was dazukommt, was sich ändert und wo es Konflikte gibt.</p>
       <label className="upload">
         <input type="file" accept="application/json,.json" onChange={(e) => { void waehle(e.target.files?.[0]); e.target.value = ''; }} />
         Sicherungsdatei auswählen (lernstoff-sicherung-….json)
@@ -121,24 +186,20 @@ function Einspielen() {
         </form>
       )}
       {fehler && <p className="note warn" role="alert">{fehler}</p>}
-      {fertig && (
-        <div className={fertig.lokalFehler.length ? 'note warn' : 'note ok'} role="status">
-          <strong>{fertig.lokalFehler.length ? 'Teilweise eingespielt.' : 'Fertig.'}</strong>{' '}
-          {fertig.modus === 'ersetzen' ? `${fertig.neu} Einträge eingespielt.` : `${fertig.neu} Einträge ergänzt, ${fertig.aktualisiert} durch neuere ersetzt.`}
-          {fertig.lokalFehler.length > 0 && <> Nicht übernommen (Speicher voll oder gesperrt): {fertig.lokalFehler.map(lokalLabel).join(', ')}. Die Datenbank-Einträge sind vollständig.</>}
-          {fertig.rueckfall && <> Der vorherige Stand liegt als Rückfallsicherung auf diesem Gerät.</>}
-          {' '}Damit alle Seiten den neuen Stand zeigen, lädt die App neu.
-          <div className="row"><button type="button" className="primary" onClick={() => location.reload()}>Jetzt neu laden</button></div>
-        </div>
-      )}
-      {datei && (
+      {fertig && <Ergebnisbericht fertig={fertig} />}
+      {datei && u && (
         <div className="sicherung__vorschau">
           <p><strong>{datei.name}</strong><br />
-            <span className="muted">Erstellt {datum(datei.uebersicht.exportedAt)}{datei.uebersicht.geraet ? ` auf ${datei.uebersicht.geraet}` : ''}</span></p>
-          {datei.uebersicht.zeilen.length
-            ? <ul className="sicherung__liste">{datei.uebersicht.zeilen.map((z) => <li key={z.label}><span>{z.label}</span><strong>{z.anzahl}</strong></li>)}</ul>
+            <span className="muted">Erstellt {datum(u.exportedAt)}{u.geraet ? ` auf ${u.geraet}` : ''} · App-Version {u.build ?? 'unbekannt (ältere Sicherung)'}{u.fachmodul ? ` · Fachmodul ${u.fachmodul}` : ''} · Datenbank v{u.schema}{u.build && u.build !== BUILD_ID ? ` (dieses Gerät: ${BUILD_ID})` : ''}</span></p>
+          {u.zeilen.length
+            ? <ul className="sicherung__liste">{u.zeilen.map((z) => <li key={z.label}><span>{z.label}</span><strong>{z.anzahl}</strong></li>)}</ul>
             : <p className="muted">Die Sicherung enthält kaum Daten (nur Einstellungen).</p>}
-          {datei.uebersicht.unbekannteTabellen.length > 0 && <p className="muted">Nicht übernommen (unbekannt): {datei.uebersicht.unbekannteTabellen.join(', ')}</p>}
+          {(u.unbekannteTabellen.length > 0 || u.lokalUngueltig.length > 0) && (
+            <p className="note warn">Wird nicht übernommen: {[
+              ...u.unbekannteTabellen.map((t) => `${t} (unbekannt)`),
+              ...u.lokalUngueltig.map((t) => `${t} (beschädigt)`),
+            ].join(', ')}.</p>
+          )}
           <fieldset className="sicherung__modus">
             <legend>Wie einspielen?</legend>
             <label><input type="radio" name="modus" checked={modus === 'zusammenfuehren'} onChange={() => setModus('zusammenfuehren')} />
@@ -146,9 +207,11 @@ function Einspielen() {
             <label><input type="radio" name="modus" checked={modus === 'ersetzen'} onChange={() => setModus('ersetzen')} />
               <span><strong>Ersetzen</strong>: Dieses Gerät bekommt genau den Stand der Datei. Was nur hier gespeichert ist, wird gelöscht.</span></label>
           </fieldset>
+          {vergleich ? <Vorschau vergleich={vergleich} modus={modus} /> : <p className="muted">Vergleich mit diesem Gerät wird berechnet …</p>}
+          <p className="muted">Vor dem Einspielen legt die App den jetzigen Stand als Rückfallsicherung ab. Damit lässt sich das {modus === 'ersetzen' ? 'Ersetzen' : 'Zusammenführen'} rückgängig machen.</p>
           <div className="sicherung__knoepfe">
             <button type="button" className={modus === 'ersetzen' ? 'danger' : 'primary'} disabled={busy} onClick={los}>{busy ? 'Spielt ein …' : 'Einspielen'}</button>
-            <button type="button" className="ghost" disabled={busy} onClick={() => setDatei(null)}>Abbrechen</button>
+            <button type="button" className="ghost" disabled={busy} onClick={() => { setDatei(null); setVergleich(null); }}>Abbrechen</button>
           </div>
         </div>
       )}
@@ -200,7 +263,7 @@ function Rueckfall() {
   useEffect(() => { void ladeRueckfall().then((r) => setStand(r?.at ?? null)); }, []);
   if (!stand) return null;
   async function los() {
-    if (!confirm('Den Stand vor dem letzten „Ersetzen“ wiederherstellen? Der jetzige Stand wird dabei selbst zur Rückfallsicherung.')) return;
+    if (!confirm('Den Stand vor dem letzten Einspielen wiederherstellen? Der jetzige Stand wird dabei selbst zur Rückfallsicherung.')) return;
     setBusy(true);
     try {
       const e = await stelleRueckfallWiederHer();
@@ -210,9 +273,9 @@ function Rueckfall() {
     finally { setBusy(false); }
   }
   return (
-    <div className="card">
+    <div className="card" id="rueckfall">
       <h3>Rückfallsicherung</h3>
-      <p>Vor dem letzten „Ersetzen“ ({datum(stand)}) wurde der damalige Stand auf diesem Gerät abgelegt.</p>
+      <p>Vor dem letzten Einspielen ({datum(stand)}) wurde der damalige Stand auf diesem Gerät abgelegt. Damit machst du ein Einspielen rückgängig, auch ein teilweise gescheitertes.</p>
       <div className="sicherung__knoepfe"><button type="button" disabled={busy} onClick={los}>{busy ? 'Stellt wieder her …' : 'Diesen Stand wiederherstellen'}</button></div>
       {meldung && <p className="note" role="status">{meldung} <button type="button" className="link" onClick={() => location.reload()}>Neu laden</button></p>}
     </div>
@@ -220,7 +283,7 @@ function Rueckfall() {
 }
 
 export default function Datensicherung() {
-  const [, setN] = useState(0);
+  const [n, setN] = useState(0);
   useEffect(() => { setzeMerker({ hinweisGesehen: true }); }, []);
   return (
     <section className="page sicherung">
@@ -230,8 +293,8 @@ export default function Datensicherung() {
       </div>
       <Speicherstatus />
       <Erstellen onFertig={() => setN((n) => n + 1)} />
-      <Einspielen />
-      <Rueckfall />
+      <Einspielen onFertig={() => setN((x) => x + 1)} />
+      <Rueckfall key={n} />
     </section>
   );
 }

@@ -32,8 +32,10 @@ export const DATEN_TEXT: Record<DatenArt, { kurz: string; lang: string }> = {
   },
 };
 
-export function DatenHinweis({ art, detail, fiktiv = true, className = '' }: { art: DatenArt; detail?: string; fiktiv?: boolean; className?: string }) {
+export function DatenHinweis({ art, detail, fiktiv = true, className = '', kompakt = false }: { art: DatenArt; detail?: string; fiktiv?: boolean; className?: string; kompakt?: boolean }) {
   const t = DATEN_TEXT[art];
+  // Kompakt: eine Zeile an Stellen, die sich wiederholen (z. B. je Frage); gleiche Bezeichnung wie die lange Fassung.
+  if (kompakt) return <p className={`muted daten-hinweis daten-hinweis--kompakt ${className}`.trim()} role="note"><strong>{t.kurz}</strong>{detail ? ` ${detail}` : ''}</p>;
   return (
     <p className={`note daten-hinweis ${className}`.trim()} role="note">
       <strong>Datenhinweis: {t.kurz}</strong> {detail ? `${detail} ` : ''}{t.lang}{fiktiv ? ` ${FIKTIV}` : ''}

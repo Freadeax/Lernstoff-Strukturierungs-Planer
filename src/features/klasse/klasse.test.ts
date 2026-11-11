@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { gesamtQuote, kernpunkteAlsText, leseKernpunkte, pruefeAntwort } from './auswertung';
 import { abgabeText, ausBase64url, entpacke, fallLink, leseAbgaben, leseFall, packe, zuBase64url } from './kodierung';
-import { hatLoesung, klassenFassung, loesungsFassung, type Abgabe, type KlassenFall } from './typen';
+import { hatLoesung, klassenFassung, linkInhalt, loesungsFassung, type Abgabe, type KlassenFall } from './typen';
 import { leererFall, VORLAGEN } from './vorlagen';
 
 const fall: KlassenFall = {
@@ -191,5 +191,39 @@ describe('Grenzen für Klassen- und Abgabecodes', () => {
     // 20 MB Nullen, gepackt nur wenige KB: darf nicht vollständig entpackt werden
     const bombe = new Uint8Array(await new Response(new Blob([new Uint8Array(20 * 1024 * 1024)]).stream().pipeThrough(new CompressionStream('deflate-raw'))).arrayBuffer());
     await expect(entpacke('z' + zuBase64url(bombe))).rejects.toThrow(/entpackt zu groß/);
+  });
+});
+
+describe('A-06 · Klassenmodus (Website-Audit)', () => {
+  const code = (link: string) => new URLSearchParams(link.split('?')[1]).get('d')!;
+  const loesungsTexte = (f: KlassenFall) => f.aufgaben.flatMap((a) => [a.erwartung ?? '', ...(a.kernpunkte ?? []).flatMap((k) => [k.text, ...k.muster])]).filter((t) => t.trim().length > 3);
+
+  it('Klassenlink enthält bei keiner Vorlage eine Musterlösung', async () => {
+    const mitLoesung = [fall, ...VORLAGEN.map((v) => v.baue())].filter(hatLoesung);
+    expect(mitLoesung.length).toBeGreaterThan(3);
+    for (const f of mitLoesung) {
+      const roh = JSON.stringify(await entpacke(code(await fallLink(klassenFassung(f), 'https://example.org/'))));
+      expect(roh).not.toMatch(/"erwartung"|"kernpunkte"|"muster"/);
+      // Lösungstexte, die nicht ohnehin in Aufgabe oder Material stehen, tauchen im Klassenlink nicht auf
+      const sichtbar = JSON.stringify(klassenFassung(f));
+      for (const t of loesungsTexte(f)) if (!sichtbar.includes(t)) expect(roh).not.toContain(t);
+      expect(linkInhalt(f, 'klasse').ohne).toContain('Erwartungshorizont');
+      expect(linkInhalt(f, 'lehrkraft').enthaelt.join(' ')).toMatch(/Musterlösung/);
+      // Lehrkraft-Link enthält die Lösung sehr wohl: nur so ist der Test oben aussagekräftig
+      expect(JSON.stringify(await entpacke(code(await fallLink(f, 'https://example.org/', 'lehrkraft'))))).toMatch(/"erwartung"|"kernpunkte"/);
+    }
+  });
+
+  it('Link erzeugen, beantworten, zurücklesen: die Abgabe gehört zum richtigen Fall', async () => {
+    const zweiter: KlassenFall = { ...fall, id: 'zweiter1', titel: 'Herr Kaya, Diabetes' };
+    const erhalten = await leseFall(code(await fallLink(klassenFassung(fall), 'https://example.org/')));
+    const erhalten2 = await leseFall(code(await fallLink(klassenFassung(zweiter), 'https://example.org/')));
+    const a1: Abgabe = { v: 1, fallId: erhalten.id, titel: erhalten.titel, name: 'Lea K.', abgegeben: '2026-11-11T10:00:00.000Z', antworten: { a1: 'Sturzgefahr', a2: 'Schmerz erfassen' } };
+    const a2: Abgabe = { ...a1, fallId: erhalten2.id, titel: erhalten2.titel, name: 'Tom B.' };
+    const posteingang = `${await abgabeText(erhalten, a1)}\n\n> ${(await abgabeText(erhalten2, a2)).split('\n').join('\n> ')}`;
+    const { abgaben, fehler } = await leseAbgaben(posteingang);
+    expect(fehler).toEqual([]);
+    expect(abgaben.map((a) => [a.fallId, a.name])).toEqual([[fall.id, 'Lea K.'], [zweiter.id, 'Tom B.']]);
+    expect(abgaben[0]!.antworten.a1).toBe('Sturzgefahr');
   });
 });

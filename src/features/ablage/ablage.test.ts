@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import {
-  base64, gitBlobSha, ladeHoch, ladeOriginal, listeDateien, parseRepo, pruefeRepo, richteEin, sha256, sichererName, slug,
+  ablaufText, base64, gitBlobSha, groessenHinweis, tokenArt, tokenWarnungen, ladeHoch, ladeOriginal, listeDateien, parseRepo, pruefeRepo, richteEin, sha256, sichererName, slug,
   teilAnzahl, waehleOrdner, type AblageZiel, type Manifest,
 } from './ablage';
 
@@ -241,6 +241,22 @@ describe('Upload ins Material-Repo', () => {
     }) as typeof fetch;
     await ladeHoch(Z, datei('A.pdf', 10), { branch: 'main', vorhanden: [], fetch: f });
     expect(gh.files().has('dateien/a/manifest.json')).toBe(true);
+  });
+
+  it('erkennt Tokens, die mehr dürfen als nötig, und liest das Ablaufdatum (Audit SEC-02)', async () => {
+    expect(tokenArt('github_pat_abc')).toBe('fein');
+    expect(tokenArt('ghp_abc')).toBe('klassisch');
+    expect(tokenWarnungen({ tokenArt: 'fein', admin: false })).toEqual([]);
+    expect(tokenWarnungen({ tokenArt: 'klassisch', scopes: 'repo' })[0]).toMatch(/alle Repositories/);
+    expect(tokenWarnungen({ tokenArt: 'fein', admin: true })[0]).toMatch(/Verwaltungsrechte/);
+    expect(ablaufText('2026-12-01 10:00:00 UTC')).toBe('1. Dezember 2026');
+    expect(ablaufText('quatsch')).toBeUndefined();
+    const f = (async () => new Response(JSON.stringify({ private: true, default_branch: 'main', full_name: 'a/b', permissions: { push: true, admin: true } }), {
+      status: 200, headers: { 'x-oauth-scopes': 'repo, workflow', 'github-authentication-token-expiration': '2026-12-01 10:00:00 UTC' },
+    })) as unknown as typeof fetch;
+    const info = await pruefeRepo({ ...Z, token: 'ghp_x' }, f);
+    expect(info).toMatchObject({ admin: true, tokenArt: 'klassisch', scopes: 'repo, workflow', ablauf: '2026-12-01 10:00:00 UTC' });
+    expect(groessenHinweis([{ name: 'a.pdf', size: 600 * 1024 * 1024 }, { name: 'b.pdf', size: 150 * 1024 * 1024 }, { name: 'c.pdf', size: 1000 }])).toHaveLength(2);
   });
 
   it('meldet fehlende Rechte verständlich', async () => {
