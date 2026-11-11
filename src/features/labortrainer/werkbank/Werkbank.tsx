@@ -35,15 +35,8 @@ export default function Werkbank() {
           </button>
         ))}
       </div>
-      {station === 'entnahme' && (
-        <div className="wb-farbe" role="group" aria-label="Farbsystem der Röhrchen">
-          <span className="muted wb-klein">Kappenfarben:</span>
-          <button type="button" aria-pressed={farbsystem === 'eu'} onClick={() => farbe('eu')}>EU (z. B. Sarstedt)</button>
-          <button type="button" aria-pressed={farbsystem === 'iso'} onClick={() => farbe('iso')}>ISO/US (z. B. BD)</button>
-        </div>
-      )}
       <div role="tabpanel">
-        {station === 'entnahme' && <Entnahme farbsystem={farbsystem} />}
+        {station === 'entnahme' && <Entnahme farbsystem={farbsystem} setFarbsystem={farbe} />}
         {station === 'verlauf' && <Verlauf />}
         {station === 'meldung' && <Meldung />}
       </div>

@@ -6,20 +6,43 @@ import { Roehrchen } from '../../../ui/sim/labor/Roehrchen';
 import { formatWert, FLAG_TEXT, parameter, type Material } from '../../../ui/sim/labor/parameter';
 import { ROEHRCHEN, type Farbsystem } from '../../../ui/sim/labor/praeanalytik';
 import { wenigBewegung } from '../../../ui/shell/session';
-import { bewerteEntnahme, staender, SZENARIEN, VERWURF, zielFuellung, type EntnahmeEingabe, type EntnahmeErgebnis, type EntnahmeSzenario, type Platz } from './entnahme';
+import { bucheWerkbank, neueLaufId } from './lernplan';
+import { bewerteEntnahme, debrief, ENTNAHME_KRITERIEN, roehrchenFuer, staender, SZENARIEN, VERWURF, zielFuellung, type EntnahmeEingabe, type EntnahmeErgebnis, type EntnahmeSzenario, type Platz } from './entnahme';
 
 type Schritt = 'identitaet' | 'arm' | 'stau' | 'roehrchen' | 'abschluss' | 'ergebnis';
 
 const name = (p: Platz) => (p === VERWURF ? 'Verwurfröhrchen (leer)' : ROEHRCHEN[p].name);
 
-export function Entnahme({ farbsystem }: { farbsystem: Farbsystem }) {
-  const [szId, setSzId] = useState(SZENARIEN[0]!.id);
-  const sz = SZENARIEN.find((s) => s.id === szId)!;
-  return <EntnahmeLauf key={szId} sz={sz} farbsystem={farbsystem} wechseln={setSzId} />;
+export function Entnahme({ farbsystem, setFarbsystem }: { farbsystem: Farbsystem; setFarbsystem: (f: Farbsystem) => void }) {
+  const [lauf, setLauf] = useState(() => ({ sz: SZENARIEN[0]!.id, id: neueLaufId() }));
+  const sz = SZENARIEN.find((s) => s.id === lauf.sz)!;
+  return <EntnahmeLauf key={lauf.id} sz={sz} laufId={lauf.id} farbsystem={farbsystem} setFarbsystem={setFarbsystem} wechseln={(id) => setLauf({ sz: id, id: neueLaufId() })} />;
 }
 
-function EntnahmeLauf({ sz, farbsystem, wechseln }: { sz: EntnahmeSzenario; farbsystem: Farbsystem; wechseln: (id: string) => void }) {
+const FARB_HERKUNFT: Record<Farbsystem, { titel: string; text: string }> = {
+  eu: { titel: 'EU-Farben', text: 'Kappenfarben der in Deutschland verbreiteten Monovetten (z. B. Sarstedt): Herstellerkonvention, keine Norm.' },
+  iso: { titel: 'ISO/US-Farben', text: 'Kappenfarben nach ISO 6710 bzw. US-Vakuumröhrchen (z. B. BD Vacutainer), in vielen Ländern und manchen Häusern üblich.' },
+};
+
+/** Vor jeder Entnahme: Welches Farbsystem gilt, woher es kommt und welche Röhrchen hier gebraucht werden. */
+function FarbsystemKarte({ sz, farbsystem, setFarbsystem }: { sz: EntnahmeSzenario; farbsystem: Farbsystem; setFarbsystem: (f: Farbsystem) => void }) {
+  return (
+    <div className="wb-farbkarte" aria-labelledby="wb-farbe-titel">
+      <p id="wb-farbe-titel"><strong>Bevor du beginnst: Welche Kappenfarben gelten in deinem Haus?</strong></p>
+      <div className="wb-farbe" role="group" aria-label="Farbsystem der Röhrchen">
+        {(['eu', 'iso'] as const).map((f) => <button key={f} type="button" aria-pressed={farbsystem === f} onClick={() => setFarbsystem(f)}>{FARB_HERKUNFT[f].titel}</button>)}
+      </div>
+      <p className="muted wb-klein">{FARB_HERKUNFT[farbsystem].text} Die Farben sind nicht weltweit gleich: Maßgeblich sind Etikett und Hausstandard, nicht die Farbe allein.</p>
+      <ul className="wb-legende" aria-label="Röhrchen in dieser Situation">
+        {roehrchenFuer(sz).map((m) => <li key={m}><span className="wb-legende__farbe" style={{ background: ROEHRCHEN[m].farbe[farbsystem].hex }} aria-hidden="true" /> {ROEHRCHEN[m].name}: <strong>{ROEHRCHEN[m].farbe[farbsystem].name}</strong></li>)}
+      </ul>
+    </div>
+  );
+}
+
+function EntnahmeLauf({ sz, laufId, farbsystem, setFarbsystem, wechseln }: { sz: EntnahmeSzenario; laufId: string; farbsystem: Farbsystem; setFarbsystem: (f: Farbsystem) => void; wechseln: (id: string) => void }) {
   const [schritt, setSchritt] = useState<Schritt>('identitaet');
+  const [buchung, setBuchung] = useState<string>();
   const [identitaet, setIdentitaet] = useState<EntnahmeEingabe['identitaet']>();
   const [arm, setArm] = useState<'links' | 'rechts'>();
   const [stauStart, setStauStart] = useState<number>();
@@ -64,8 +87,11 @@ function EntnahmeLauf({ sz, farbsystem, wechseln }: { sz: EntnahmeSzenario; farb
   const auswerten = () => {
     const ende = stauEnde ?? Date.now();
     const e: EntnahmeEingabe = { identitaet: identitaet ?? 'keine', arm: arm ?? 'rechts', stauzeit: stauStart === undefined ? 0 : Math.round((ende - stauStart) / 1000), folge, fuellung, mischen: mischen ?? 'schwenken', transport: transport ?? 'sofort' };
-    setErgebnis(bewerteEntnahme(sz, e));
+    const erg = bewerteEntnahme(sz, e);
+    setErgebnis(erg);
     setSchritt('ergebnis');
+    void bucheWerkbank({ station: 'entnahme', szenario: sz.id, lauf: laufId, topicId: 'thema.ph.injektion', punkte: erg.punkte, max: erg.max,
+      kriterien: ENTNAHME_KRITERIEN.map((label, i) => ({ id: `entnahme-${i + 1}`, label, erfuellt: !!erg.checks[i] })) }).then(setBuchung);
   };
 
   return (
@@ -88,6 +114,7 @@ function EntnahmeLauf({ sz, farbsystem, wechseln }: { sz: EntnahmeSzenario; farb
         ))}
       </ol>
 
+      {schritt === 'identitaet' && <FarbsystemKarte sz={sz} farbsystem={farbsystem} setFarbsystem={setFarbsystem} />}
       {schritt === 'identitaet' && (
         <div className="wb-feld">
           <p>Du stehst am Bett. Wie stellst du sicher, dass es die richtige Person ist?</p>
@@ -172,20 +199,30 @@ function EntnahmeLauf({ sz, farbsystem, wechseln }: { sz: EntnahmeSzenario; farb
         </div>
       )}
 
-      {schritt === 'ergebnis' && ergebnis && <EntnahmeBefund e={ergebnis} />}
+      {schritt === 'ergebnis' && ergebnis && <EntnahmeBefund e={ergebnis} buchung={buchung} />}
       {schritt === 'ergebnis' && <button type="button" onClick={() => wechseln(SZENARIEN[(SZENARIEN.indexOf(sz) + 1) % SZENARIEN.length]!.id)}>Nächste Situation</button>}
     </section>
   );
 }
 
-function EntnahmeBefund({ e }: { e: EntnahmeErgebnis }) {
+function EntnahmeBefund({ e, buchung }: { e: EntnahmeErgebnis; buchung?: string }) {
+  const zeilen = debrief(e);
   return (
     <div className="wb-feld">
       <p className="wb-punkte"><strong>{e.punkte} von {e.max}</strong> Punkten bei der Entnahme.</p>
-      {e.fehler.length ? (
-        <ul className="wb-fehler">
-          {e.fehler.map((f) => <li key={f.art}><strong>{f.titel}:</strong> {f.folge}</li>)}
-        </ul>
+      {buchung && <p className="muted wb-klein">Lernplan (Injektionen, Infusionen und Blutentnahme): {buchung}</p>}
+      {zeilen.length ? (
+        <ol className="wb-debrief" aria-label="Nachbesprechung">
+          {zeilen.map((z) => (
+            <li key={z.art}>
+              <dl>
+                <div><dt>Fehlerursache</dt><dd><strong>{z.ursache}.</strong> {z.erklaerung}</dd></div>
+                <div><dt>Messwertänderung</dt><dd>{z.messwert}</dd></div>
+                <div><dt>Folgehandlung</dt><dd>{z.folge}</dd></div>
+              </dl>
+            </li>
+          ))}
+        </ol>
       ) : <p>Keine Präanalytikfehler: Die Werte entsprechen dem wahren Zustand.</p>}
       {e.hinweise.map((h) => <p key={h} className="wb-hinweis">{h}</p>)}
       <table className="wb-tabelle">

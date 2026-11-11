@@ -2,6 +2,7 @@
 // ärztlichen Rückruf richtig handeln.
 
 import { useState } from 'react';
+import { bucheWerkbank, neueLaufId, werkbankThema } from './lernplan';
 import { bewerteSbar, DOKU_FELDER, MELDUNGEN, type MeldungSzenario } from './meldung';
 
 type Schritt = 'anruf' | 'doku' | 'sbar' | 'bisdahin' | 'fertig';
@@ -21,6 +22,8 @@ function MeldungLauf({ sz, weiter }: { sz: MeldungSzenario; weiter: () => void }
   const [sbarGeprueft, setSbarGeprueft] = useState(false);
   const [bis, setBis] = useState<number>();
   const [punkte, setPunkte] = useState(0);
+  const [laufId] = useState(neueLaufId);
+  const [buchung, setBuchung] = useState<string>();
   const sbarWertung = sbarGeprueft ? bewerteSbar(sz, sbar) : undefined;
   // Bausteine gemischt, aber stabil je Szenario
   const [bausteine] = useState(() => [...sz.bausteine].sort((a, b) => a.text.localeCompare(b.text)));
@@ -93,13 +96,17 @@ function MeldungLauf({ sz, weiter }: { sz: MeldungSzenario; weiter: () => void }
               </button>
             ))}
           </div>
-          {bis !== undefined && <button type="button" className="primary" onClick={() => setSchritt('fertig')}>Abschließen</button>}
+          {bis !== undefined && <button type="button" className="primary" onClick={() => {
+            setSchritt('fertig');
+            void bucheWerkbank({ station: 'meldung', szenario: sz.id, lauf: laufId, topicId: werkbankThema('meldung'), punkte, max: 4, kriterien: [] }).then(setBuchung);
+          }}>Abschließen</button>}
         </div>
       )}
 
       {schritt === 'fertig' && (
         <div className="wb-feld">
           <p className="wb-punkte"><strong>{punkte} von 4</strong> Schritten sicher gelöst.</p>
+          {buchung && <p className="muted wb-klein">Lernplan (Übergabe und SBAR): {buchung}</p>}
           <p className="muted wb-klein">Merksatz: Zurücklesen, dokumentieren, sofort per SBAR melden, Weitergabe dokumentieren, bis zur ärztlichen Entscheidung beim Patienten bleiben.</p>
           <button type="button" className="primary" onClick={weiter}>Nächster Anruf</button>
         </div>

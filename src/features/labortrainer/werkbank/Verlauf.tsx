@@ -6,6 +6,7 @@ import { LaborTafel, type LaborReihen } from '../../../ui/sim/labor/LaborTafel';
 import { formatWert, parameter, referenz } from '../../../ui/sim/labor/parameter';
 import { VerlaufKurve } from '../../../ui/sim/labor/VerlaufKurve';
 import { VERLAEUFE, type VerlaufSzenario } from './verlauf';
+import { bucheWerkbank, neueLaufId, werkbankThema } from './lernplan';
 
 export function Verlauf() {
   const [i, setI] = useState(0);
@@ -16,6 +17,8 @@ export function Verlauf() {
 function VerlaufLauf({ sz, weiter, nr }: { sz: VerlaufSzenario; weiter: () => void; nr: number }) {
   const [wahl, setWahl] = useState<string>();
   const [handeln, setHandeln] = useState<number>();
+  const [laufId] = useState(neueLaufId);
+  const [buchung, setBuchung] = useState<string>();
   const reihen: LaborReihen = useMemo(() => Object.fromEntries(Object.entries(sz.werte).map(([id, w]) => [id, w.map((wert, k) => ({ minute: sz.zeiten[k]!, wert }))])), [sz]);
   const optionen = useMemo(() => {
     // feste, aber nicht immer gleiche Reihenfolge der Handlungsoptionen
@@ -46,12 +49,18 @@ function VerlaufLauf({ sz, weiter, nr }: { sz: VerlaufSzenario; weiter: () => vo
           <p>{sz.handeln.frage}</p>
           <div className="wb-optionen">
             {optionen.map((o, k) => (
-              <button key={o.text} type="button" disabled={handeln !== undefined} className={handeln !== undefined ? (o.richtig ? 'is-richtig' : k === handeln ? 'is-falsch' : '') : ''} onClick={() => setHandeln(k)}>
+              <button key={o.text} type="button" disabled={handeln !== undefined} className={handeln !== undefined ? (o.richtig ? 'is-richtig' : k === handeln ? 'is-falsch' : '') : ''} onClick={() => {
+                setHandeln(k);
+                const wertOk = wahl === sz.gesucht;
+                void bucheWerkbank({ station: 'verlauf', szenario: sz.id, lauf: laufId, topicId: werkbankThema('verlauf', sz.gesucht), punkte: (wertOk ? 1 : 0) + (o.richtig ? 1 : 0), max: 2,
+                  kriterien: [{ id: 'trend', label: 'Entscheidenden Wert erkannt', erfuellt: wertOk }, { id: 'handeln', label: 'Richtig gehandelt', erfuellt: o.richtig }] }).then(setBuchung);
+              }}>
                 {o.text}
                 {handeln !== undefined && (o.richtig || k === handeln) && <span className="wb-warum">{o.warum}</span>}
               </button>
             ))}
           </div>
+          {buchung && <p className="muted wb-klein">Lernplan: {buchung}</p>}
           {handeln !== undefined && <button type="button" className="primary" onClick={weiter}>Nächster Verlauf</button>}
         </div>
       )}
