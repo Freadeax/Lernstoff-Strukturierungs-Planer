@@ -94,7 +94,7 @@ export function Dokumente() {
 
   return (
     <section className="page">
-      <PageHeading eyebrow="Deine Wissensbasis" title="Alles beginnt mit guten Quellen."
+      <PageHeading bild="material" eyebrow="Deine Wissensbasis" title="Alles beginnt mit guten Quellen."
         description="Sammle Skripte, Arbeitsblätter und Notizen an einem Ort. Seiten und Textstellen bleiben nachvollziehbar."
         action={<a className="button-link" href="#/material/import"><Icon name="upload" size={18} /> Geführter Import</a>} />
       <div className="card form-card" aria-busy={!!busy}>

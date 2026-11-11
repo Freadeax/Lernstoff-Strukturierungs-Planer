@@ -50,7 +50,7 @@ export function Einstellungen() {
     catch { setSaveError('Die Daten konnten nicht vollständig gelöscht werden. Bitte versuche es erneut.'); }
   }
   return <section className="page">
-    <PageHeading eyebrow="Dein Arbeitsplatz" title="So lernst du am liebsten."
+    <PageHeading bild="system" eyebrow="Dein Arbeitsplatz" title="So lernst du am liebsten."
       description="KI-Unterstützung (optional), Zeitzone und deine Lerndaten." />
     <form className="card form-card" noValidate onSubmit={save}>
       <fieldset className="form-section">

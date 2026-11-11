@@ -47,6 +47,10 @@ Die wandernde Markierung im Menü misst den aktiven Eintrag (`useMarkierung` in 
 
 ---
 
+### Titelbilder
+
+Sechs Bereichsfotos liegen unter `public/titelbilder/` (1200 × 675, WebP, je 50 bis 100 KB) und werden für Offline vorab geladen (`titelbilder/*.webp` in `vite.config.ts`; andere WebP-Ordner bleiben beim Laufzeit-Cache). Baustein: `<Titelbild motiv="heute|lernen|material|ueben|simulation|system" />` aus `src/ui/Titelbild.tsx`, standardmäßig dekorativ (leerer Alternativtext), mit `beschreiben` kommt der Text aus dem Katalog. `PageHeading` nimmt `bild="…"` für die Einstiegsseiten der Bereiche. Neue Fotos zuerst auf diese Größe verkleinern.
+
 ## Überarbeitung: Lernarbeitsplatz (26. Oktober 2026)
 
 Hinweis: Palette und Formen dieses Abschnitts sind seit November 2026 durch „Farbfelder“ ersetzt, die Aussagen

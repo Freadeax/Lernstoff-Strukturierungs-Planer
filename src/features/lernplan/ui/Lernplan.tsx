@@ -28,7 +28,7 @@ export default function Lernplan() {
 
   return (
     <section className="page lernplan">
-      <PageHeading eyebrow="Schritt für Schritt" title="Dein Plan. Passend zu deinem Alltag."
+      <PageHeading bild="lernen" eyebrow="Schritt für Schritt" title="Dein Plan. Passend zu deinem Alltag."
         description="Prüfungstermine, verfügbare Zeit und echte Abfragen bestimmen deine nächsten Lerneinheiten." />
       <div className="pills lernplan__tabs" role="tablist" aria-label="Ansicht">
         {ANSICHTEN.map((a) => (

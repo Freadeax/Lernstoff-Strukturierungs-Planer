@@ -25,7 +25,8 @@ export default defineConfig({
       includeAssets: ['icon.svg', 'apple-touch-icon.png'],
       workbox: {
         // Lokal gebündelte Schriften bleiben auch ohne Verbindung verfügbar.
-        globPatterns: ['**/*.{js,wasm,css,html,svg,png,woff2}'],
+        // Titelbilder vorab laden (zusammen rund 430 KB); Raumfotos und Videos der Simulatoren bleiben beim Laufzeit-Cache.
+        globPatterns: ['**/*.{js,wasm,css,html,svg,png,woff2}', 'titelbilder/*.webp'],
         // Texterkennung (ca. 13 MB) nicht vorab laden, sondern beim ersten Gebrauch zwischenspeichern.
         globIgnores: ['tesseract/**'],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
