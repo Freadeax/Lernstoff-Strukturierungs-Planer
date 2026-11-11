@@ -286,6 +286,31 @@ try {
       assert(await rea.getByText(/Adrenalin 20 µg\/kg/).count() === 0, 'Adrenalin erst nach der zweiten Kontrolle');
       await ctx.close();
     }
+    // Notfall-Trainer: ABCDE-Übung (deterministisch, Zeit nur durch Handlungen).
+    {
+      const ctx = await browser.newContext({ viewport: { width, height: 1050 }, locale: 'de-DE', colorScheme: 'light' });
+      const ab = await ctx.newPage(); ab.on('pageerror', e => errors.push(e.message));
+      await ab.goto(base + '#/lernen/notfall?modus=abcde', { waitUntil: 'networkidle' });
+      await ab.getByRole('region', { name: 'Lernziele und fachlicher Prüfstand' }).waitFor();
+      await ab.getByRole('button', { name: 'Übung starten', exact: true }).click();
+      await ab.locator('.abcde__buehne img').first().waitFor();
+      await ab.getByRole('button', { name: /^Adrenalin/ }).click();
+      assert.match(await ab.locator('.abcde .rea__meldung').textContent(), /Noch nicht möglich/, 'Adrenalin erst nach Alarm');
+      await ab.getByRole('button', { name: /^Atemwege/ }).click();
+      assert.match(await ab.locator('.abcde .rea__meldung').textContent(), /Stridor/);
+      assert.match(await ab.locator('.abcde .rea__chip').first().textContent(), /00:20/, 'Befund kostet Zeit');
+      await ab.getByRole('button', { name: /^Notfallteam/ }).click();
+      await ab.getByRole('button', { name: /^Infusion sofort stoppen/ }).click();
+      assert(await ab.locator('.abcde .freigabe-ort').isVisible(), 'Prüfstatus beim Handeln');
+      const axe = await new AxeBuilder({ page: ab }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+      audits.push({ width, name: 'ABCDE', violations: axe.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => ({ html: n.html, summary: n.failureSummary })) })) });
+      // Auslöser gestoppt, Alarm, Adrenalin: stabilisiert, Auswertung erscheint.
+      await ab.getByRole('button', { name: /^Adrenalin/ }).click();
+      await ab.locator('.abcde__ergebnis').waitFor();
+      assert.match(await ab.locator('.abcde__ergebnis h4').textContent(), /Stabilisiert/);
+      assert(await ab.locator('.abcde__bewertung .is-offen').count() >= 1, 'Fehlende Einschätzung wird bewertet');
+      await ctx.close();
+    }
   }
   fs.writeFileSync(path.join(output, 'audit.json'), JSON.stringify({ audits, errors }, null, 2));
   console.log(JSON.stringify({ audits: audits.map(x => ({ width: x.width, name: x.name, violations: x.violations.map(v => v.id) })), errors }, null, 2));
