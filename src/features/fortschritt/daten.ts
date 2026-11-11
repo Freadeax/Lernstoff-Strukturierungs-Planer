@@ -54,7 +54,7 @@ async function lade(moduleId: string): Promise<FortschrittDaten> {
     skriptGelesen: [...new Set(skripte.filter((s) => (lesestaende[s.id]?.gelesen.length ?? 0) > 0).flatMap((s) => s.topicIds))],
     fakten: {
       studyLogs: data.studyLogs.map(({ topicId, date, minutes }) => ({ topicId, date, minutes })),
-      reviewLogs: data.reviewLogs.map(({ topicId, date, source, rating, scorePercent, trainer }) => ({ topicId, date, source, rating, scorePercent, trainer })),
+      reviewLogs: data.reviewLogs.map(({ topicId, date, source, rating, scorePercent, trainer, status, aussagekraft }) => ({ topicId, date, source, rating, scorePercent, trainer, ...(status ? { status } : {}), ...(aussagekraft ? { aussagekraft } : {}) })),
       kartenLogs: karten,
       availability: data.config.availability,
     },

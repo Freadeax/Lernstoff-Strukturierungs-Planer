@@ -29,7 +29,7 @@ import { PRAXIS_THEMEN } from '../praxis/themen';
 import { BEREICH_ZU_THEMA as RECHT_BEREICH } from '../recht/aufgaben';
 import { heute, leafTopics, logReview, TRAINER_NAME } from './store';
 
-export type TrainerId = 'rechnen' | 'duell' | 'fall' | 'uebergabe' | 'pflegeplanung' | 'sis' | 'mindmap' | 'bericht' | 'assessment' | 'krankheitsbilder' | 'selbsttest' | 'hygiene' | 'anatomie' | 'expertenstandards' | 'normwerte' | 'notfall' | 'arzneimittel' | 'praxis' | 'recht' | 'labor';
+export type TrainerId = 'diagnostik' | 'rechnen' | 'duell' | 'fall' | 'uebergabe' | 'pflegeplanung' | 'sis' | 'mindmap' | 'bericht' | 'assessment' | 'krankheitsbilder' | 'selbsttest' | 'hygiene' | 'anatomie' | 'expertenstandards' | 'normwerte' | 'notfall' | 'arzneimittel' | 'praxis' | 'recht' | 'labor';
 
 export const TRAINER_LABEL = TRAINER_NAME as Record<TrainerId, string>;
 
@@ -74,7 +74,7 @@ export function planeUebernahme(ergebnisse: ThemenErgebnis[], topics: Topic[], h
 }
 
 /** Speichert Trainer-Ergebnisse als Abfragen im Lernplan und sagt, was mit jedem Thema passiert ist. */
-export async function inLernplan(trainer: TrainerId, ergebnisse: ThemenErgebnis[], topics: Topic[] = pflegeModule.topics, date = heute()): Promise<Uebernahme[]> {
+export async function inLernplan(trainer: TrainerId, ergebnisse: ThemenErgebnis[], topics: Topic[] = pflegeModule.topics, date = heute(), versuchId?: string): Promise<Uebernahme[]> {
   if (!ergebnisse.length) return [];
   if (ergebnisse.some((e) => !Number.isFinite(e.scorePercent) || e.scorePercent < 0 || e.scorePercent > 100 || !Number.isInteger(e.anzahl) || e.anzahl < 1)) {
     throw new Error('Trainer-Ergebnisse brauchen 0 bis 100 Prozent und mindestens eine bewertete Aufgabe.');
@@ -87,7 +87,8 @@ export async function inLernplan(trainer: TrainerId, ergebnisse: ThemenErgebnis[
     const byId = new Map(topics.map((t) => [t.id, t]));
     for (const u of plan) {
       if (u.status !== 'gespeichert') continue;
-      await logReview(byId.get(u.topicId)!, 'trainer', { scorePercent: u.scorePercent }, date, trainer);
+      await logReview(byId.get(u.topicId)!, 'trainer', { scorePercent: u.scorePercent }, date, trainer,
+        versuchId ? { versuchId, herkunft: { modul: trainer }, status: 'abgeschlossen', aussagekraft: 'anwendung' } : {});
     }
     return plan;
   });
