@@ -49,3 +49,33 @@ und schreibt Projektdateien um, also nicht verwenden.
 setzt. Alle Browser-Prüfungen laufen damit unter der echten CSP, `scripts/check-csp.mjs` prüft zusätzlich alle
 Seiten und einen PDF-Scan-Import (pdf.js-Worker, Tesseract-WASM im Blob-Worker) auf Verstöße.
 Neue externe Dienste müssen in `connect-src` in `public/_headers` stehen, sonst blockiert der Browser sie.
+
+## Release prüfen (nach jedem Merge auf `main`)
+
+1. Cloudflare baut den Stand selbst (Dashboard → Workers & Pages → `lernstoff-planer` → Deployments, oder per API
+   `GET /accounts/{id}/pages/projects/lernstoff-planer/deployments`). Status muss `deploy: success` sein.
+2. **Build-ID vergleichen:** Einstellungen → „Über diese App“ (oder Datensicherung) zeigt `App-Version: <commit> · <datum>`.
+   Der Commit muss dem gemergten Stand von `main` entsprechen. Cloudflare setzt ihn aus `CF_PAGES_COMMIT_SHA`.
+3. **Header und Offline-Start live:**
+   ```bash
+   UI_BASE_URL=https://lernstoff-planer.pages.dev/ node scripts/check-csp.mjs
+   UI_BASE_URL=https://lernstoff-planer.pages.dev/ node scripts/check-offline.mjs
+   ```
+   `check-csp.mjs` prüft die Header am Hauptdokument, an `sw.js` und am Manifest (CSP, nosniff, Rahmen-Schutz,
+   Permissions-Policy, `no-cache` für Updates) und lädt danach alle Seiten und einen PDF-Scan-Import ohne CSP-Verstoß.
+   In Claude-Umgebungen mit Proxy zusätzlich `NODE_USE_ENV_PROXY=1 NODE_EXTRA_CA_CERTS=/root/.ccr/ca-bundle.crt` setzen.
+
+## Begründete Ausnahmen
+
+- **Mikrofon** ist für die eigene Adresse erlaubt (mündliche Prüfung, Diktat in der Übergabe), **Kamera** ist aus.
+  Begründung steht in `public/_headers`. Der Browser fragt vor jeder Mikrofonnutzung nach.
+- **`Access-Control-Allow-Origin: *`** setzt Cloudflare für die öffentlichen Dateien selbst. Das betrifft nur die
+  ohnehin öffentlichen App-Dateien. Lerndaten liegen im Browser (IndexedDB) und sind über HTTP gar nicht erreichbar.
+- **Netzwerk-Fehlerseiten** von Cloudflare (z. B. bei Störungen) kommen von Cloudflare, nicht aus der App.
+  Cloudflare verarbeitet dabei wie jeder Hoster IP-Adresse und Anfrage-Metadaten.
+- **`npm audit`: 4 niedrige Einträge zu `deepmerge`** (GHSA-gcqx-w48m-w2h4, Prototyp-Manipulation in `mergeObject`).
+  Kette: `vite-plugin-pwa` → `workbox-build` → `@rollup/plugin-node-resolve` → `deepmerge` 4.3.1. Es gibt keine
+  korrigierte Version; `npm audit fix --force` würde `vite-plugin-pwa` auf 0.2.1 zurückwerfen und die PWA zerlegen.
+  `deepmerge` läuft nur beim Bauen und verarbeitet dort ausschließlich unsere eigene `vite.config.ts`, nichts aus dem
+  Netz und keine Nutzereingaben. Es landet nicht in der ausgelieferten App. Bewertung: kein Handlungsbedarf, bei
+  jedem Update von `vite-plugin-pwa`/`workbox-build` erneut `npm audit` ansehen.

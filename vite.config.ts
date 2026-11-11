@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
@@ -17,6 +18,12 @@ function buildId(): string {
 
 export default defineConfig({
   base: './',
+  test: {
+    // Einzelne Tests (OCR, Diagnostik-Phantome, Prüfungssimulation, Fehlerheft) brauchen auf langsamen Rechnern
+    // oder bei vielen parallelen Workern mehr als die 5 s Standard. 20 s ist das im Audit stabil getestete Profil.
+    testTimeout: 20_000,
+    hookTimeout: 20_000,
+  },
   define: { __BUILD_ID__: JSON.stringify(process.env.LERNSTOFF_BUILD_ID || buildId()) },
   plugins: [
     react(),

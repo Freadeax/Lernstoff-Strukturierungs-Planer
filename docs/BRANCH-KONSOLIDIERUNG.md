@@ -48,7 +48,7 @@ Stand: 26. Oktober 2026. Ausgangspunkt: `4a9a1b1401e6dc16db034c7c4330eeacbc91524
 - main ist der einzige dauerhafte Branch und der Standardbranch.
 - Keine parallelen Release-, Publish- oder gh-pages-Branches nötig.
 - Vor Integration Tests und Produktionsbuild ausführen; Änderungen an der Oberfläche zusätzlich für Handy, iPad und Desktop prüfen.
-- GitHub Pages wird über `.github/workflows/pages.yml` nach einem Push auf main aktualisiert. Veröffentlichungsfehler sind im Actions-Lauf sichtbar; nach erfolgreichem Deployment die Live-Seite prüfen.
+- Veröffentlicht wird über Cloudflare Pages (baut jeden Push auf main, siehe `docs/HOSTING-CLOUDFLARE.md`). Die alte GitHub-Pages-Adresse wird bis zum Geräteumzug noch über `.github/workflows/pages.yml` aktualisiert. Nach jedem Deployment die Live-Seite prüfen.
 - Das private Material-Repository bleibt eigenständig. Keine Material-Originale oder Zugangsdaten in dieses öffentliche Repository aufnehmen.
 
 ## Validierung

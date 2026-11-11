@@ -2,6 +2,8 @@ import { lazy, Suspense, useState } from 'react';
 import { deleteAll } from '../core/db';
 import { loescheLokaleEintraege, loescheRueckfall } from '../core/sicherung';
 import { navigate } from '../ui/shell/router';
+import { BUILD_ID } from '../core/build';
+import { adressText, NEUE_ADRESSE } from '../core/hosting';
 import { apiKeyDauerhaft, getApiKey, setApiKey } from '../core/settings';
 import { Field, useFormFeedback } from '../ui/form/Field';
 import { PageHeading } from '../ui/PageHeading';
@@ -78,6 +80,15 @@ export function Einstellungen() {
       <p className="form-section__description">Deine Unterlagen und Lernergebnisse liegen in diesem Browser. Mit einer Sicherungsdatei kannst du sie aufbewahren oder auf ein anderes Gerät übertragen.</p>
       <div className="settings-data-actions"><button type="button" onClick={() => navigate('/system/sicherung')}><Icon name="save" size={18} /> Datensicherung öffnen</button></div>
       <div className="settings-danger"><h3>Lokale Lerndaten löschen</h3><p className="muted">Erstelle vorher eine Sicherung, wenn du deinen Lernstand behalten möchtest.</p><button type="button" className="danger" onClick={wipe}><Icon name="trash" size={16} /> Alle Lerndaten löschen</button></div>
+    </section>
+    <section className="card form-card" aria-labelledby="app-info-title">
+      <h2 id="app-info-title">Über diese App</h2>
+      <ul className="settings-app-info">
+        <li>App-Version: <code data-testid="build-id">{BUILD_ID}</code></li>
+        <li>Adresse: <strong>{adressText()}</strong></li>
+        {NEUE_ADRESSE && <li>Offizielle Adresse: <a className="text-link" href={NEUE_ADRESSE}>{NEUE_ADRESSE.replace(/^https:\/\//, '').replace(/\/$/, '')}</a></li>}
+      </ul>
+      <p className="muted">Jede Adresse hat ihren eigenen Speicher. Lernstand und Einstellungen wandern nur per Datensicherung von einer Adresse oder einem Gerät zum anderen. Die App-Version hilft, wenn du einen Fehler meldest.</p>
     </section>
   </section>;
 }
