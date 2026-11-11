@@ -75,7 +75,7 @@ function Vorschau({ vergleich, modus }: { vergleich: Vergleich; modus: Modus }) 
               <tr key={z.bereich}><th scope="row">{z.bereich}</th><td>{z.neu}</td><td>{z.neuerInDatei}</td><td className={z.konflikt ? 'sicherung__konflikt' : undefined}>{z.konflikt}</td><td className={modus === 'ersetzen' && z.nurHier ? 'sicherung__konflikt' : undefined}>{z.nurHier}</td></tr>
             ))}</tbody>
           </table>
-          <p className="muted sicherung__legende"><strong>neu</strong>: kommt dazu · <strong>neuer</strong>: in der Datei neuer, ersetzt den Stand hier · <strong>Konflikt</strong>: hier anders und nicht älter, bleibt wie hier · <strong>{modus === 'ersetzen' ? 'gelöscht' : 'nur hier'}</strong>: {modus === 'ersetzen' ? 'gibt es nur auf diesem Gerät, wird beim Ersetzen gelöscht' : 'gibt es nur auf diesem Gerät, bleibt'}.</p>
+          <p className="muted sicherung__legende"><strong>neu</strong>: kommt dazu · <strong>neuer</strong>: in der Datei neuer, ersetzt den Stand hier · <strong>Konflikt</strong>: hier anders und nicht älter, {modus === 'ersetzen' ? 'wird beim Ersetzen mit dem älteren Stand der Datei überschrieben' : 'bleibt wie hier'} · <strong>{modus === 'ersetzen' ? 'gelöscht' : 'nur hier'}</strong>: {modus === 'ersetzen' ? 'gibt es nur auf diesem Gerät, wird beim Ersetzen gelöscht' : 'gibt es nur auf diesem Gerät, bleibt'}.</p>
         </div>
       )}
       {vergleich.lokal.length > 0 && (
@@ -92,7 +92,7 @@ function Vorschau({ vergleich, modus }: { vergleich: Vergleich; modus: Modus }) 
       )}
       {modus === 'zusammenfuehren'
         ? <p className="muted">{konflikte ? `${konflikte} Konflikt${konflikte === 1 ? '' : 'e'}: Hier gibt es einen anderen, neueren oder gleich alten Stand. Er bleibt, der Stand aus der Datei wird nicht übernommen. ` : ''}Gelöschtes kommt beim Zusammenführen zurück, wenn es in der Datei noch steht. Wer auf einem Gerät aufgeräumt hat, spielt besser mit „Ersetzen“ ein.</p>
-        : <p className={nurHier ? 'note warn' : 'muted'}>{nurHier ? `${nurHier} Einträge gibt es nur auf diesem Gerät. Sie werden gelöscht, liegen aber danach in der Rückfallsicherung.` : 'Auf diesem Gerät geht nichts verloren, was nicht auch in der Datei steht.'}</p>}
+        : <p className={nurHier || konflikte ? 'note warn' : 'muted'}>{nurHier ? `${nurHier} Einträge gibt es nur auf diesem Gerät. Sie werden gelöscht. ` : ''}{konflikte ? `${konflikte} Einträge sind hier neuer oder anders als in der Datei. Sie werden mit dem Stand der Datei überschrieben. ` : ''}{nurHier || konflikte ? 'Beides liegt danach in der Rückfallsicherung.' : 'Auf diesem Gerät geht nichts verloren, was nicht auch in der Datei steht.'}</p>}
     </div>
   );
 }
