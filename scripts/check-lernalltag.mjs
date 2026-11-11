@@ -123,13 +123,30 @@ try {
     await page.locator('.thema__liste li', { hasText: 'Testdokument Pflege' }).waitFor({ state: 'detached' });
     await page.goto(base + '#/lernen/thema?id=thema.eigen.test-a', { waitUntil: 'networkidle' });
     await page.getByRole('heading', { name: 'Eigenes Thema verwalten' }).waitFor();
+    // Erst wenn Verknüpfungen und Themenauswahl geladen sind, rendert die Seite nicht mehr nach.
+    await page.locator('.thema__verwalten').getByText(/Verknüpft: [^…]/).waitFor();
+    await page.locator('.thema__verwalten select option[value="thema.eigen.test-b"]').waitFor({ state: 'attached' });
     await axe(page, 'Themenpflege');
     const nameFeld = page.getByLabel('Name', { exact: true });
-    await nameFeld.fill('Testthema Verbandwechsel');
+    const umbenennen = page.getByRole('button', { name: 'Umbenennen' });
+    // Füllen und Klicken zusammen wiederholen, falls ein spätes Nachladen das Feld zurückgesetzt hat.
+    for (let i = 0; i < 3 && !(await umbenennen.isEnabled()); i++) {
+      await nameFeld.fill('Testthema Verbandwechsel');
+      if (await umbenennen.isEnabled()) break;
+      await page.waitForTimeout(300);
+    }
     assert.equal(await nameFeld.inputValue(), 'Testthema Verbandwechsel');
-    await page.getByRole('button', { name: 'Umbenennen' }).click();
-    await page.getByRole('heading', { name: 'Testthema Verbandwechsel' }).waitFor({ timeout: 10000 })
-      .catch(async (e) => { throw new Error(`Umbenennen nicht sichtbar: ${await page.locator('.thema__verwalten').innerText()}\n${e.message}`); });
+    await umbenennen.click();
+    await page.locator('.thema__verwalten').getByText(/Umbenannt\.|gibt es schon/).first().waitFor({ timeout: 10000 }).catch(() => undefined);
+    await page.getByRole('heading', { name: 'Testthema Verbandwechsel' }).waitFor({ timeout: 15000 })
+      .catch(async (e) => {
+        const inDb = await page.evaluate(async () => {
+          const open = indexedDB.open('lernstoff-planer');
+          const db = await new Promise((resolve) => { open.onsuccess = () => resolve(open.result); });
+          return new Promise((resolve) => { const r = db.transaction('topics').objectStore('topics').get('thema.eigen.test-a'); r.onsuccess = () => resolve(r.result?.name); });
+        });
+        throw new Error(`Umbenennen nicht sichtbar (Name in der Datenbank: ${inDb}; Überschrift: ${await page.locator('h1').first().innerText().catch(() => '?')}): ${await page.locator('.thema__verwalten').innerText()}\n${e.message}`);
+      });
     await page.getByLabel('Zusammenführen mit').selectOption('thema.eigen.test-b');
     assert.match(await page.locator('.thema__verwalten').innerText(), /1 Prüfung, 1 Abfrage/);
     await page.getByRole('button', { name: 'Zusammenführen', exact: true }).click();

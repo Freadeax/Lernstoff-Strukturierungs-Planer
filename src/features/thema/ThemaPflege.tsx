@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ladeThemen } from '../../core/topics';
 import type { ID, Topic } from '../../core/types';
 import { navigate } from '../../ui/shell/router';
@@ -67,7 +67,14 @@ export function ThemaVerwalten({ topic, onGeaendert }: { topic: Topic; onGeaende
   const [busy, setBusy] = useState(false);
   const [meldung, setMeldung] = useState<{ text: string; warn?: boolean } | null>(null);
   const [dublette, setDublette] = useState<Topic | undefined>();
-  useEffect(() => { setName(topic.name); bezuegeVon(topic.id).then(setBezuege).catch(() => undefined); }, [topic.id, topic.name]);
+  // Neuer Name von außen (z. B. nach dem Umbenennen) übernehmen, aber nie mitten ins Tippen hinein überschreiben.
+  const bisher = useRef({ id: topic.id, name: topic.name });
+  useEffect(() => {
+    const alt = bisher.current;
+    bisher.current = { id: topic.id, name: topic.name };
+    setName((n) => (alt.id !== topic.id || n.trim() === alt.name || n.trim() === topic.name ? topic.name : n));
+  }, [topic.id, topic.name]);
+  useEffect(() => { bezuegeVon(topic.id).then(setBezuege).catch(() => undefined); }, [topic.id, topic.name]);
   const dubletten = useMemo(() => findeDubletten(topic, themen), [topic, themen]);
   if (!istEigenesThema(topic.id)) return null;
 
