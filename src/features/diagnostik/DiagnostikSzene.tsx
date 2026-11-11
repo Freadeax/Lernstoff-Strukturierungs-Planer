@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import { RaumBuehne, type Hotspot } from '../../ui/sim/raeume/RaumBuehne';
 import { RAEUME, raumFuerZustand } from '../../ui/sim/raeume/katalog';
+import { ortBeschreibung, ortTitel } from './fallstart';
 import { monitorGruppe, type MonitorWerte } from '../../ui/sim/monitor';
 import type { Befehl, MonitorStatus } from './lauf';
 import type { Reiter } from './FallAnsicht';
@@ -68,6 +69,8 @@ export function DiagnostikSzene({ fall, werte, status, senden, setReiter, telefo
     <div className="dx-szene">
       <RaumBuehne
         raum={fall.raum}
+        ort={ortTitel(fall)}
+        beschreibung={ortBeschreibung(fall)}
         hotspots={hotspots}
         monitor={{ werte, zustand: status === 'abwesend' ? 'abwesend' : status, ausfall: ['spo2'], gruppe: monitorGruppe(fall.patient.alter) }}
         fokus={fokus ? { ...fokus, zoom: 1.6 } : undefined}
@@ -76,7 +79,7 @@ export function DiagnostikSzene({ fall, werte, status, senden, setReiter, telefo
         {telefon && <p className="dx-szene__banner" role="presentation"><span aria-hidden="true">☎</span> Zentrallabor am Telefon</p>}
         {status === 'signalausfall' && <p className="dx-szene__banner is-gelb" role="presentation"><span aria-hidden="true">⚠</span> SpO₂: kein Signal</p>}
       </RaumBuehne>
-      <p className="muted dx-klein">{raum.titel}. {status === 'abwesend' ? 'Noch kein Monitor am Bett: mit + anschließen. ' : status === 'signalausfall' ? 'Die Sättigung fehlt am Monitor, EKG und Blutdruck laufen weiter: mit ! den Sensor prüfen. ' : ''}Nummern antippen führt zum passenden Bereich. KI-generiertes Szenenbild.</p>
+      <p className="muted dx-klein">{ortTitel(fall)}. {status === 'abwesend' ? 'Noch kein Monitor am Bett: mit + anschließen. ' : status === 'signalausfall' ? 'Die Sättigung fehlt am Monitor, EKG und Blutdruck laufen weiter: mit ! den Sensor prüfen. ' : ''}Nummern antippen führt zum passenden Bereich. KI-generiertes Szenenbild.</p>
     </div>
   );
 }

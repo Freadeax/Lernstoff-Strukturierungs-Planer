@@ -45,6 +45,14 @@ unter 1 Jahr Säugling, unter 6 Kleinkind, unter 14 Schulkind, sonst Erwachsene)
 Fälle: Asthmaanfall beim Schulkind (Max, 8 J., Raum 21; Monitor rot wegen SpO₂ 90 %, AF 34 gelb) und Exsikkose
 beim Kleinkind (Mia, 2 J., Raum 20; Puls 156 gelb, Kreatinin 0,7 nach Kinderprofil erhöht).
 
+**Fallstart und Freigabe (Audit SIM-02, SIM-03, Live-Funde 1 und 3):** `fallstart.ts` leitet die Schritte aus
+dem Fall selbst ab (Bildgebung nur, wenn der Fall welche hat) und zeigt vor dem Start Falltyp, ungefähre Dauer und
+Schwerpunkte. Zustände in der Liste: Starten, Fortsetzen, Auswertung ansehen, Neu beginnen. Jeder Versuch hat eine
+eigene Kennung (`Lauf.id`) und Nummer (`Lauf.versuch`), damit Auswertung und Lernereignis nicht vermischt werden.
+Der Ort in der Szene kommt aus `fall.bereich`, nicht aus dem Fachbereich des Raumfotos (`ortTitel`). `freigaben.ts`
+enthält je Fall Lernziele, Geltung, Quellen und Prüfstand (gemeinsames Modell `src/ui/sim/freigabe.ts`), angezeigt
+am Start und an Melde- und Befundentscheidungen.
+
 ## Echte Bilder
 
 - **Öffentlich** (`public/bildgebung/…`, Quelle `bilder`): nur frei lizenziert (CC BY, CC BY-SA, gemeinfrei) mit Urheber,

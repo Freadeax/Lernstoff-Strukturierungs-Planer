@@ -12,6 +12,10 @@ export interface LogEintrag { minute: number; text: string; art: 'system' | 'eig
 
 export interface Lauf {
   fallId: string;
+  /** Eindeutige Kennung dieses Versuchs (für Auswertung und Lernplan; ältere Läufe ohne). */
+  id?: string;
+  /** Wievielter Versuch an diesem Fall (1 = erster). */
+  versuch?: number;
   minute: number;
   flags: Flags;
   auftraege: Auftrag[];
@@ -53,8 +57,10 @@ export type Befehl =
 
 export const ZEIT = { abnahme: 8, poct: 3, sbar: 5 };
 
-export function starte(fall: DiagnostikFall): Lauf {
-  return { fallId: fall.id, minute: 0, flags: {}, auftraege: [], untersuchungen: [], tipps: {}, gefunden: [], aufgedeckt: [], quittiert: {}, massnahmen: [], antworten: {}, log: [{ minute: 0, art: 'system', text: `Fall übernommen: ${fall.patient.name}, ${fall.patient.alter} Jahre. ${fall.patient.anlass}` }] };
+const neueLaufId = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+
+export function starte(fall: DiagnostikFall, versuch = 1): Lauf {
+  return { fallId: fall.id, id: neueLaufId(), versuch, minute: 0, flags: {}, auftraege: [], untersuchungen: [], tipps: {}, gefunden: [], aufgedeckt: [], quittiert: {}, massnahmen: [], antworten: {}, log: [{ minute: 0, art: 'system', text: `Fall übernommen: ${fall.patient.name}, ${fall.patient.alter} Jahre. ${fall.patient.anlass}` }] };
 }
 
 const log = (l: Lauf, text: string, art: LogEintrag['art'] = 'system'): LogEintrag[] => [...l.log, { minute: l.minute, text, art }];

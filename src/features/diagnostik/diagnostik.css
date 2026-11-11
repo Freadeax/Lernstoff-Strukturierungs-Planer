@@ -138,3 +138,7 @@
 .dx-zeitleiste__meldung::before { background: var(--color-primary) !important; }
 .dx-zeitleiste__befund::before, .dx-zeitleiste__bild::before { background: var(--color-success) !important; }
 @media (max-width: 520px) { .dx-zeitleiste li { grid-template-columns: 3.2rem 1fr; } .dx-zeitleiste__art { display: none; } }
+
+/* Fallstart: Schritte dieses Falls untereinander */
+.dx-schritte--fall { flex-direction: column; align-items: flex-start; }
+.dx-start .dx-karte { display: grid; gap: 12px; }
