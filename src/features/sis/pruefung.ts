@@ -15,7 +15,7 @@ export const leereFelder = (): Felder => ({ B: '', TF1: '', TF2: '', TF3: '', TF
 export const leereMatrix = (): Matrix =>
   Object.fromEntries(RISIKEN.map((r) => [r, { themenfelder: [], welches: '' }])) as unknown as Matrix;
 
-export type PunktStatus = 'ok' | 'falsches-feld' | 'fehlt';
+export type PunktStatus = 'ok' | 'vertretbar' | 'falsches-feld' | 'fehlt';
 export type FeldStatus = 'vollstaendig' | 'teilweise' | 'fehlt';
 export interface PunktErgebnis { punkt: Kernpunkt; status: PunktStatus; gefundenIn?: Feld }
 export interface FeldErgebnis { feld: Feld; status: FeldStatus; punkte: PunktErgebnis[]; woerter: number }
@@ -61,6 +61,27 @@ function enthaelt(t: string, liste: string[]): string[] {
   return liste.filter((w) => t.includes(` ${w}`));
 }
 
+/** Fallinformation (Beobachtungen, Unterlagen) und Aussagen als vereinfachte Texte. */
+function fallTexte(fall: SisFall): string[] {
+  return [...fall.beobachtungen, ...fall.unterlagen.map((u) => u.wert), ...fall.gespraech.map((a) => a.text)].map(vereinfache);
+}
+
+/**
+ * Eigene Formulierung? true, wenn mindestens 12 aufeinanderfolgende Wörter außerhalb von Anführungszeichen
+ * wörtlich aus dem Fall stammen (Audit SIS: Fallinformation, Eigenperspektive und eigene Formulierung getrennt).
+ */
+export function uebernommen(text: string, quellen: string[], laenge = 12): boolean {
+  const ohneZitat = text.replace(/„[^“”"]*[“”"]|"[^"]*"|»[^«]*«/g, ' | ');
+  const w = vereinfache(ohneZitat).split(/\s+/).filter(Boolean);
+  for (let i = 0; i + laenge <= w.length; i++) {
+    const stueck = w.slice(i, i + laenge);
+    if (stueck.includes('|')) continue;
+    const s = stueck.join(' ');
+    if (quellen.some((q) => q.includes(s))) return true;
+  }
+  return false;
+}
+
 /** Matrix allein prüfen (auch für die Live-Anzeige). */
 export function pruefeMatrix(fall: SisFall, matrix: Matrix): MatrixErgebnis[] {
   return fall.matrix.map((zeile) => {
@@ -95,6 +116,9 @@ export function pruefeSis(fall: SisFall, felder: Felder, matrix: Matrix): SisErg
 
   const ergebnisse: PunktErgebnis[] = fall.kernpunkte.map((punkt) => {
     if (findeMuster(such[punkt.feld], punkt.muster) >= 0) return { punkt, status: 'ok' };
+    // Uneindeutige Zuordnung: fachlich vertretbares anderes Themenfeld zählt voll, mit Begründung.
+    const vertretbar = punkt.auchIn?.find((f) => findeMuster(such[f], punkt.muster) >= 0);
+    if (vertretbar) return { punkt, status: 'vertretbar', gefundenIn: vertretbar };
     const anders = FELDER.find((f) => f !== punkt.feld && findeMuster(such[f], punkt.muster) >= 0);
     return anders ? { punkt, status: 'falsches-feld', gefundenIn: anders } : { punkt, status: 'fehlt' };
   });
@@ -102,7 +126,7 @@ export function pruefeSis(fall: SisFall, felder: Felder, matrix: Matrix): SisErg
   const feldErgebnisse: FeldErgebnis[] = FELDER.map((feld) => {
     const punkte = ergebnisse.filter((e) => e.punkt.feld === feld);
     const pflicht = punkte.filter((e) => e.punkt.pflicht);
-    const okP = pflicht.filter((e) => e.status === 'ok').length;
+    const okP = pflicht.filter((e) => e.status === 'ok' || e.status === 'vertretbar').length;
     const irgendwas = punkte.some((e) => e.status !== 'fehlt');
     const status: FeldStatus = pflicht.length && okP === pflicht.length ? 'vollstaendig' : irgendwas ? 'teilweise' : 'fehlt';
     return { feld, status, punkte, woerter: woerter(felder[feld] ?? '') };
@@ -112,7 +136,7 @@ export function pruefeSis(fall: SisFall, felder: Felder, matrix: Matrix): SisErg
   for (const e of ergebnisse) {
     const w = e.punkt.pflicht ? 2 : 1;
     tMax += w;
-    tErr += e.status === 'ok' ? w : e.status === 'falsches-feld' ? w / 2 : 0;
+    tErr += e.status === 'ok' || e.status === 'vertretbar' ? w : e.status === 'falsches-feld' ? w / 2 : 0;
   }
   const m = pruefeMatrix(fall, matrix);
   const mMax = m.reduce((s, x) => s + x.max, 0);
@@ -137,6 +161,8 @@ export function pruefeSis(fall: SisFall, felder: Felder, matrix: Matrix): SisErg
   if (gefuellt >= 3 && mitSicht < Math.ceil(gefuellt / 2)) {
     hinweise.push('In den Themenfeldern fehlt oft die Sicht der Person und die Verständigung: Was wünscht sie, was lehnt sie ab, was wurde vereinbart?');
   }
+  const kopiert = THEMENFELDER.filter((t) => uebernommen(felder[t] ?? '', fallTexte(fall)));
+  if (kopiert.length) hinweise.push(`Themenfeld ${kopiert.map((t) => t.slice(2)).join(', ')}: Hier stehen längere Passagen wörtlich aus dem Fall. In den Themenfeldern steht deine eigene fachliche Formulierung; wörtliche Aussagen der Person gehören in Anführungszeichen.`);
   if (!matrixVollstaendig) hinweise.push('Die Risikomatrix ist nicht vollständig. Für jedes Risiko „ja“ oder „nein“ und „weitere Einschätzung notwendig“ angeben.');
   if (wertend.length) hinweise.push(`Wertende Begriffe gefunden (${wertend.join(', ')}). Beschreibe stattdessen sachlich, was du beobachtest.`);
 

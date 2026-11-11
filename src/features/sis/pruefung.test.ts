@@ -91,3 +91,38 @@ describe('Lernplan-Verknüpfung', async () => {
     expect(uebungenFuer('thema.gibtsnicht')).toEqual([]);
   });
 });
+
+describe('Uneindeutige Zuordnung, Fassung und eigene Formulierung (Audit SIS)', () => {
+  it('Testfall: Kontinenz in Themenfeld 3 statt 4 zählt mit Begründung voll', async () => {
+    const { SIS_FAELLE } = await import('./faelle');
+    const { pruefeSis, musterMatrix } = await import('./pruefung');
+    const fall = SIS_FAELLE.find((f) => f.id === 'sommer')!;
+    const felder = { ...fall.muster };
+    const satz = 'Kommt nicht immer rechtzeitig zur Toilette, Einlage nass, das ist ihr peinlich.';
+    felder.TF4 = felder.TF4.replace(/[^.]*(Toilette|Einlage)[^.]*\./gi, '');
+    felder.TF3 = `${felder.TF3} Harndrang durch die Entwässerung: ${satz}`;
+    const e = pruefeSis(fall, felder, musterMatrix(fall));
+    const p = e.felder.flatMap((f) => f.punkte).find((x) => x.punkt.id === 'tf4-kontinenz')!;
+    expect(p.status).toBe('vertretbar');
+    expect(p.gefundenIn).toBe('TF3');
+    expect(p.punkt.begruendung).toMatch(/TF3/);
+  });
+  it('jede alternative Zuordnung hat eine Begründung und nennt nicht das eigene Feld', async () => {
+    const { SIS_FAELLE } = await import('./faelle');
+    const alle = SIS_FAELLE.flatMap((f) => f.kernpunkte).filter((k) => k.auchIn);
+    expect(alle.length).toBeGreaterThanOrEqual(6);
+    for (const k of alle) { expect(k.begruendung?.length, k.id).toBeGreaterThan(30); expect(k.auchIn, k.id).not.toContain(k.feld); }
+  });
+  it('Versorgungsbereich und Formularfassung sind für beide Settings beschrieben', async () => {
+    const { SIS_FASSUNG } = await import('./faelle');
+    expect(SIS_FASSUNG.stationaer.tf6).toMatch(/Wohnen/);
+    expect(SIS_FASSUNG.ambulant.tf6).toMatch(/Haushalt/);
+  });
+  it('wörtlich übernommene Fallinformation wird erkannt, Zitate nicht', async () => {
+    const { uebernommen } = await import('./pruefung');
+    const quelle = ['sie geht mit dem rollator etwa 20 meter auf dem flur, dann wird sie unsicher und sucht halt'];
+    expect(uebernommen('Sie geht mit dem Rollator etwa 20 Meter auf dem Flur, dann wird sie unsicher.', quelle)).toBe(true);
+    expect(uebernommen('Sie sagt: „geht mit dem Rollator etwa 20 Meter auf dem Flur, dann wird sie unsicher“', quelle)).toBe(false);
+    expect(uebernommen('Rollator, nach etwa 20 m unsicher, sucht Halt.', quelle)).toBe(false);
+  });
+});

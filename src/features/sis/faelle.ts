@@ -62,7 +62,20 @@ export interface Kernpunkt {
   text: string;       // was erwartet wird, so wird es auch angezeigt
   muster: string[];
   pflicht: boolean;
+  /**
+   * Uneindeutige Zuordnung: Themenfelder, in denen der Punkt fachlich ebenfalls vertretbar steht.
+   * Dann zählt er voll, und die Auswertung zeigt die Begründung (Audit SIS).
+   */
+  auchIn?: Feld[];
+  begruendung?: string;
 }
+
+/** Abgebildete Formularfassung je Versorgungsbereich (Audit SIS: „Versorgungsbereich und Formularfassung kennzeichnen“). */
+export const SIS_FASSUNG: Record<Setting, { formular: string; tf6: string; hinweis: string }> = {
+  stationaer: { formular: 'SIS® stationär (Strukturmodell), Lehrfassung', tf6: 'Themenfeld 6: Wohnen/Häuslichkeit', hinweis: 'Hausversionen können in Feldnamen und Matrix abweichen; maßgeblich ist das Formular deiner Einrichtung.' },
+  ambulant: { formular: 'SIS® ambulant (Strukturmodell), Lehrfassung', tf6: 'Themenfeld 6: Haushaltsführung', hinweis: 'Hausversionen können in Feldnamen und Matrix abweichen; maßgeblich ist das Formular deines Dienstes.' },
+};
+export const SIS_QUELLE = { titel: 'Strukturmodell zur Entbürokratisierung der Pflegedokumentation (Ein-STEP), Informations- und Schulungsunterlagen', stand: 'Formularversion der Einrichtung' };
 
 export interface MatrixZeile {
   risiko: Risiko;
@@ -135,11 +148,11 @@ export const SIS_FAELLE: SisFall[] = [
       { id: 'tf2-sturz', feld: 'TF2', pflicht: true, text: 'Sturz in der Vorgeschichte, Angst vor erneutem Sturz', muster: ['sturz', 'gestuerzt', 'hingefallen', 'angst'] },
       { id: 'tf2-bett', feld: 'TF2', pflicht: false, text: 'Dreht sich im Bett selbst', muster: ['dreht', 'lagewechsel', 'positionswechsel', 'im bett selbst', 'selbststaendig im bett'] },
       { id: 'tf3-tep', feld: 'TF3', pflicht: true, text: 'Hüft-TEP links, nicht über 90 Grad beugen', muster: ['tep', 'hueft', '90'] },
-      { id: 'tf3-schmerz', feld: 'TF3', pflicht: true, text: 'Belastungsschmerz Hüfte NRS 4, fragt ungern nach Bedarfsmedikation', muster: ['schmerz'] },
+      { id: 'tf3-schmerz', feld: 'TF3', pflicht: true, text: 'Belastungsschmerz Hüfte NRS 4, fragt ungern nach Bedarfsmedikation', muster: ['schmerz'], auchIn: ['TF2'], begruendung: 'Schmerz ist krankheitsbezogen (TF3). Weil er vor allem beim Laufen auftritt, ist er in TF2 ebenfalls vertretbar.' },
       { id: 'tf3-diuretikum', feld: 'TF3', pflicht: false, text: 'Entwässerung (Torasemid) als Grund für häufigen Harndrang', muster: ['torasemid', 'diuret', 'entwaesser', 'wassertablette'] },
       { id: 'tf4-waschen', feld: 'TF4', pflicht: true, text: 'Wäscht Oberkörper selbst, braucht Hilfe am Unterkörper und an den Füßen', muster: ['oberkoerper', 'unterkoerper', 'fuesse', 'fuss', 'beine'] },
-      { id: 'tf4-trinken', feld: 'TF4', pflicht: true, text: 'Trinkt wenig (ca. 800 ml) aus Sorge vor nächtlichen Toilettengängen', muster: ['trink', '800'] },
-      { id: 'tf4-kontinenz', feld: 'TF4', pflicht: true, text: 'Kommt nicht immer rechtzeitig zur Toilette, Einlage, Scham', muster: ['einlage', 'toilette', 'inkontinen', 'harndrang', 'rechtzeitig', 'peinlich'] },
+      { id: 'tf4-trinken', feld: 'TF4', pflicht: true, text: 'Trinkt wenig (ca. 800 ml) aus Sorge vor nächtlichen Toilettengängen', muster: ['trink', '800'], auchIn: ['TF3'], begruendung: 'Trinken ist Selbstversorgung (TF4). Weil sie wegen des Harndrangs durch die Entwässerung wenig trinkt, ist auch TF3 vertretbar.' },
+      { id: 'tf4-kontinenz', feld: 'TF4', pflicht: true, text: 'Kommt nicht immer rechtzeitig zur Toilette, Einlage, Scham', muster: ['einlage', 'toilette', 'inkontinen', 'harndrang', 'rechtzeitig', 'peinlich'], auchIn: ['TF3'], begruendung: 'Kontinenz gehört zur Selbstversorgung (TF4). Wer den Harndrang als Folge der Entwässerung beschreibt, kann ihn auch in TF3 einordnen. Wichtig ist, dass er dokumentiert ist und die Matrix stimmt.' },
       { id: 'tf5-tochter', feld: 'TF5', pflicht: true, text: 'Tochter besucht dienstags und samstags', muster: ['tochter'] },
       { id: 'tf5-kirche', feld: 'TF5', pflicht: true, text: 'Kirchenchor und Gottesdienst sind wichtig', muster: ['chor', 'gottesdienst', 'kirche', 'glaube'] },
       { id: 'tf6-moebel', feld: 'TF6', pflicht: true, text: 'Eigener Sessel und Fotos ihres Mannes im Zimmer', muster: ['sessel', 'foto', 'eigene moebel'] },
@@ -201,7 +214,7 @@ export const SIS_FAELLE: SisFall[] = [
       { id: 'b-kochen', feld: 'B', pflicht: false, text: 'Kocht seit dem Tod seiner Frau nicht mehr richtig', muster: ['koche', 'gerda'] },
       { id: 'b-last', feld: 'B', pflicht: false, text: 'Will niemandem zur Last fallen', muster: ['last'] },
       { id: 'tf1-orientiert', feld: 'TF1', pflicht: true, text: 'Orientiert, liest mit Lesebrille, hört gut', muster: ['orientiert', 'klar', 'lesebrille'] },
-      { id: 'tf1-vergessen', feld: 'TF1', pflicht: true, text: 'Vergisst manchmal die Mittagstabletten', muster: ['vergisst', 'vergessen', 'vergesse', 'erinner'] },
+      { id: 'tf1-vergessen', feld: 'TF1', pflicht: true, text: 'Vergisst manchmal die Mittagstabletten', muster: ['vergisst', 'vergessen', 'vergesse', 'erinner'], auchIn: ['TF3'], begruendung: 'Vergessen ist eine kognitive Fähigkeit (TF1). Weil es um die Medikamente geht, ist auch TF3 (Umgang mit der Erkrankung) vertretbar.' },
       { id: 'tf2-treppe', feld: 'TF2', pflicht: true, text: 'Treppe (2. OG ohne Aufzug) kaum noch zu schaffen', muster: ['treppe', 'stockwerk', 'obergeschoss', 'aufzug'] },
       { id: 'tf2-schwindel', feld: 'TF2', pflicht: true, text: 'Schwindel beim nächtlichen Aufstehen', muster: ['schwindel', 'schwummrig'] },
       { id: 'tf2-moebel', feld: 'TF2', pflicht: false, text: 'Geht ohne Hilfsmittel, hält sich an Möbeln fest', muster: ['moebel', 'ohne hilfsmittel', 'festhalten', 'haelt sich'] },
@@ -210,7 +223,7 @@ export const SIS_FAELLE: SisFall[] = [
       { id: 'tf3-fuesse', feld: 'TF3', pflicht: true, text: 'Polyneuropathie: spürt die Füße kaum, Rötung an der rechten Großzehe', muster: ['grosszeh', 'polyneuropath', 'roetung', 'spuert'] },
       { id: 'tf3-herz', feld: 'TF3', pflicht: false, text: 'Herzinsuffizienz, Unterschenkel geschwollen, Kompressionsstrümpfe', muster: ['herzinsuff', 'herzschwaech', 'oedem', 'geschwollen', 'kompression'] },
       { id: 'tf4-essen', feld: 'TF4', pflicht: true, text: 'Isst unregelmäßig und einseitig (Brot, Dosen)', muster: ['brot', 'dose', 'unregelmaessig', 'einseitig', 'mahlzeit'] },
-      { id: 'tf4-strumpf', feld: 'TF4', pflicht: false, text: 'Braucht Hilfe bei den Kompressionsstrümpfen', muster: ['struempf', 'strumpf'] },
+      { id: 'tf4-strumpf', feld: 'TF4', pflicht: false, text: 'Braucht Hilfe bei den Kompressionsstrümpfen', muster: ['struempf', 'strumpf'], auchIn: ['TF3'], begruendung: 'Anziehen der Strümpfe ist Selbstversorgung (TF4). Als ärztlich verordnete Therapie ist auch TF3 vertretbar.' },
       { id: 'tf4-toilette', feld: 'TF4', pflicht: false, text: 'Kontinent, nachts mehrmals zur Toilette', muster: ['kontinent', 'toilette', 'nachts'] },
       { id: 'tf5-sohn', feld: 'TF5', pflicht: true, text: 'Sohn in Hamburg, ruft sonntags an', muster: ['sohn'] },
       { id: 'tf5-skat', feld: 'TF5', pflicht: true, text: 'Skatrunde aufgegeben, wenig Kontakte seit dem Tod der Frau', muster: ['skat', 'einsam', 'kontakt'] },
@@ -274,9 +287,9 @@ export const SIS_FAELLE: SisFall[] = [
       { id: 'tf1-orientierung', feld: 'TF1', pflicht: true, text: 'Zur Person orientiert, zu Zeit und Ort nicht', muster: ['orientiert', 'desorient', 'orientierung'] },
       { id: 'tf1-sprache', feld: 'TF1', pflicht: true, text: 'Versteht kurze Sätze, Wortfindungsstörungen', muster: ['kurze saetze', 'kurzen saetzen', 'worte', 'wortfind', 'versteht'] },
       { id: 'tf1-unruhe', feld: 'TF1', pflicht: false, text: 'Nachmittags zunehmend unruhig', muster: ['unruh', 'nachmittag'] },
-      { id: 'tf1-schmerz', feld: 'TF1', pflicht: false, text: 'Kann Schmerzen nicht sicher mitteilen', muster: ['nicht sagen', 'nicht mitteilen', 'nicht aeussern', 'nicht aeusser', 'kann es nicht', 'schmerz'] },
+      { id: 'tf1-schmerz', feld: 'TF1', pflicht: false, text: 'Kann Schmerzen nicht sicher mitteilen', muster: ['nicht sagen', 'nicht mitteilen', 'nicht aeussern', 'nicht aeusser', 'kann es nicht', 'schmerz'], auchIn: ['TF3'], begruendung: 'Schmerzen mitteilen ist Kommunikation (TF1). Der Schmerz selbst steht in TF3; beides ist vertretbar.' },
       { id: 'tf2-gehen', feld: 'TF2', pflicht: true, text: 'Geht viel umher, auf ebenem Boden sicher, Treppen unsicher', muster: ['umher', 'eben', 'treppe', 'laeuft', 'geht viel'] },
-      { id: 'tf2-hinlauf', feld: 'TF2', pflicht: true, text: 'Will nachts los, wurde zweimal von der Polizei gefunden (Hinlauftendenz)', muster: ['hinlauf', 'weglauf', 'polizei', 'will los', 'bushaltestelle'] },
+      { id: 'tf2-hinlauf', feld: 'TF2', pflicht: true, text: 'Will nachts los, wurde zweimal von der Polizei gefunden (Hinlauftendenz)', muster: ['hinlauf', 'weglauf', 'polizei', 'will los', 'bushaltestelle'], auchIn: ['TF1'], begruendung: 'Das Weglaufen zeigt sich in der Bewegung (TF2). Weil es aus der Desorientierung entsteht, ist auch TF1 vertretbar.' },
       { id: 'tf3-demenz', feld: 'TF3', pflicht: true, text: 'Demenz vom Alzheimer-Typ, mittelgradig', muster: ['demenz', 'alzheimer'] },
       { id: 'tf3-knie', feld: 'TF3', pflicht: true, text: 'Schmerzzeichen am rechten Knie (Gonarthrose), keine Schmerzmedikation', muster: ['knie', 'gonarthros', 'arthrose'] },
       { id: 'tf3-gewicht', feld: 'TF3', pflicht: false, text: 'Gewichtsverlust 4 kg in 3 Monaten, BMI 19', muster: ['4 kg', 'vier kilo', 'abgenommen', 'gewicht', 'bmi'] },
@@ -287,7 +300,7 @@ export const SIS_FAELLE: SisFall[] = [
       { id: 'tf5-lehrerin', feld: 'TF5', pflicht: true, text: 'Früher Grundschullehrerin, singt gern Volkslieder', muster: ['lehrerin', 'volkslied', 'sing'] },
       { id: 'tf5-besuch', feld: 'TF5', pflicht: true, text: 'Ehemann täglich nach dem Mittagessen, Tochter am Wochenende', muster: ['taeglich', 'jeden tag', 'tochter', 'wochenende'] },
       { id: 'tf6-rosen', feld: 'TF6', pflicht: true, text: 'Eigene Bettwäsche mit Rosen', muster: ['bettwaesche', 'rosen'] },
-      { id: 'tf6-nacht', feld: 'TF6', pflicht: false, text: 'Steht nachts auf', muster: ['nachts', 'nacht'] },
+      { id: 'tf6-nacht', feld: 'TF6', pflicht: false, text: 'Steht nachts auf', muster: ['nachts', 'nacht'], auchIn: ['TF1', 'TF2'], begruendung: 'Nächtliches Aufstehen ist eine Gewohnheit (TF6). Je nach Ursache ist auch TF1 (Unruhe) oder TF2 (Bewegung) vertretbar.' },
     ],
     matrix: [
       { risiko: 'dekubitus', vorhanden: 'nein', weitere: 'nein', themenfelder: [], begruendung: 'Wechselt ihre Position häufig selbst, Haut intakt. Den Gewichtsverlust im Blick behalten.' },
