@@ -1,0 +1,23 @@
+.sim-zustand { border: var(--border-card, 1px) solid var(--color-border); border-radius: var(--radius-md, 10px); background: var(--color-surface); padding: var(--space-2) var(--space-3); margin: var(--space-3) 0; }
+.sim-zustand summary { cursor: pointer; display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: baseline; }
+.sim-zustand__kurz { font-size: var(--text-sm); color: var(--color-text-muted, inherit); }
+.sim-zustand__raster { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: var(--space-3); margin-top: var(--space-2); }
+.sim-zustand__bereich h4 { margin: 0 0 var(--space-1); font-size: var(--text-sm); text-transform: uppercase; letter-spacing: 0.04em; }
+.sim-zustand__bereich ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; font-size: var(--text-sm); }
+.sim-zustand__bereich li { display: grid; grid-template-columns: 1rem 1fr; gap: var(--space-1); align-items: baseline; }
+.sim-zustand__bereich p { margin: 0; font-size: var(--text-sm); }
+.sim-zustand__label { font-weight: var(--weight-medium); }
+.sim-zustand__marke { display: inline-block; width: 0.6rem; height: 0.6rem; border-radius: 50%; background: var(--color-border); text-align: center; }
+li.is-normal > .sim-zustand__marke { background: var(--color-success); }
+li.is-achtung > .sim-zustand__marke { background: var(--color-warning); }
+li.is-kritisch > .sim-zustand__marke { background: var(--color-danger); }
+li.is-aus > .sim-zustand__marke { background: transparent; border: 1px solid var(--color-border-strong, var(--color-border)); }
+li.is-offen > .sim-zustand__marke, li.is-dringend > .sim-zustand__marke, li.is-erledigt > .sim-zustand__marke { width: auto; height: auto; background: none; border-radius: 0; font-weight: var(--weight-medium); }
+li.is-dringend > .sim-zustand__marke { color: var(--color-danger); }
+li.is-erledigt > .sim-zustand__marke { color: var(--color-success); }
+li.is-erledigt { color: var(--color-text-muted, inherit); }
+.sim-zustand__bereich.is-alarm h4 { color: var(--color-danger); }
+@media (prefers-reduced-motion: no-preference) {
+  .sim-zustand__bereich.is-alarm li.is-kritisch > .sim-zustand__marke { animation: sim-zustand-puls 1.2s ease-in-out infinite; }
+}
+@keyframes sim-zustand-puls { 50% { opacity: 0.35; } }

@@ -9,6 +9,8 @@ import { PRAXIS_THEMEN, praxisZuThema } from './themen';
 import { faelleZuKrankheit, krankheitenZuFall, PRAXIS_KRANKHEITEN } from '../krankheitsbilder/fallbezug';
 import { SCENARIOS, RESOURCES } from './catalog';
 import { praxisSbar } from './sbar';
+import { praxisZustand } from './zustand';
+import { ZustandsTafel } from '../../ui/sim/ZustandsTafel';
 import { SbarGrundkriterien } from '../uebergabe/Grundkriterien';
 import { CHECKS, clinicalDebrief, clock, consciousness, debrief, dispatch, ketten, replay, sbarPruefung, SOURCES, start, wegLabel } from './engine';
 import { blick, handlungenFuer, RAUM_ELEMENTE, raumElemente, type RaumElement } from './raum';
@@ -305,6 +307,7 @@ export function Arbeitsplatz({ s, send, panel, setPanel, zeitraffer = 1, uhrLaeu
         : <Szene s={s} fokus={element} onFokus={fokussieren} zeitraffer={zeitraffer} />)}
       {onAbschluss && <Auftrag s={s} uhrLaeuft={!!uhrLaeuft} onAbschluss={onAbschluss} />}
     </div>
+    <ZustandsTafel z={praxisZustand(s)} titel="Zustand im Zimmer" />
     <section className="praxis-monitor" aria-label="Vitalparameter"><div className="praxis-monitor__heading"><strong>{s.monitoring ? 'Kontinuierliches Monitoring' : s.measuredAt === null ? 'Noch keine Messung' : `Letzte Messung · ${clock(s.measuredAt)}`}</strong><span>SpO₂: LOINC 59408-5 · keine Alarmgrenzen für die pädiatrische Bewertung</span></div>
       {s.monitoring
         ? <><PatientenMonitor className="praxis-monitor__live" gruppe={monitorGruppe(s.scenario.age)} titel={`Monitor · ${clock(s.time)}`} werte={{ puls: s.measured.pulse ?? null, af: s.measured.resp ?? null, spo2: s.measured.spo2 ?? null, sys: s.measured.sys ?? null, dia: s.measured.dia ?? null, temp: s.measured.temp ?? null, avpu: consciousness(s), sauerstoff: s.oxygen ?? false }} />
