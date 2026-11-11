@@ -10,7 +10,8 @@ import { uhrzeit } from '../../ui/sim/labor/modell';
 import type { Farbsystem } from '../../ui/sim/labor/praeanalytik';
 import { LaborBereich } from './LaborBereich';
 import { FrageKarte, Rueckmeldung } from './FrageKarte';
-import { auswertung, fuehreAus, naechsterBefund, offeneAnrufe, offeneMeldungen, vitalwerte, type Befehl, type Lauf } from './lauf';
+import { auswertung, fuehreAus, monitorZustand, naechsterBefund, offeneAnrufe, offeneMeldungen, vitalwerte, type Befehl, type Lauf, type MonitorStatus } from './lauf';
+import { DiagnostikSzene } from './DiagnostikSzene';
 import type { DiagnostikFall, Untersuchung } from './typen';
 
 export const REITER = [
@@ -31,6 +32,7 @@ export function FallAnsicht({ fall, lauf, setLauf, zurueck, farbsystem, setFarbs
   const meldungen = lauf.beendet === undefined ? offeneMeldungen(lauf, fall) : [];
   const naechster = naechsterBefund(lauf, fall);
   const werte = vitalwerte(lauf, fall);
+  const status = monitorZustand(lauf, fall);
   const uhr = uhrzeit(fall.startzeit, lauf.minute);
 
   return (
@@ -40,6 +42,8 @@ export function FallAnsicht({ fall, lauf, setLauf, zurueck, farbsystem, setFarbs
         <h2 id="dx-fall-titel">{fall.titel}</h2>
         <p className="muted">{fall.bereich} · {fall.patient.name}, {fall.patient.alter} J. · <span className="dx-uhr" aria-label={`Simulierte Uhrzeit ${uhr}`}>{uhr}</span></p>
       </div>
+
+      <DiagnostikSzene fall={fall} werte={werte} status={status} senden={senden} setReiter={setReiter} telefon={anrufe.length > 0} />
 
       {anrufe.map(({ schluessel, ergebnis }) => {
         const p = parameter(ergebnis.parameter);
@@ -78,7 +82,7 @@ export function FallAnsicht({ fall, lauf, setLauf, zurueck, farbsystem, setFarbs
       </div>
 
       <div role="tabpanel" id={`dx-panel-${reiter}`} aria-labelledby={`dx-tab-${reiter}`} className="dx-panel">
-        {reiter === 'beobachtung' && <Beobachtung fall={fall} lauf={lauf} senden={senden} werte={werte} uhr={uhr} />}
+        {reiter === 'beobachtung' && <Beobachtung fall={fall} lauf={lauf} senden={senden} werte={werte} uhr={uhr} status={status} />}
         {reiter === 'labor' && <LaborBereich fall={fall} lauf={lauf} senden={senden} farbsystem={farbsystem} setFarbsystem={setFarbsystem} />}
         {reiter === 'bildgebung' && <Bildgebung fall={fall} lauf={lauf} senden={senden} />}
         {reiter === 'uebergabe' && <Uebergabe fall={fall} lauf={lauf} senden={senden} />}
@@ -88,13 +92,19 @@ export function FallAnsicht({ fall, lauf, setLauf, zurueck, farbsystem, setFarbs
   );
 }
 
-function Beobachtung({ fall, lauf, senden, werte, uhr }: { fall: DiagnostikFall; lauf: Lauf; senden: (b: Befehl) => void; werte: ReturnType<typeof vitalwerte>; uhr: string }) {
+function Beobachtung({ fall, lauf, senden, werte, uhr, status }: { fall: DiagnostikFall; lauf: Lauf; senden: (b: Befehl) => void; werte: ReturnType<typeof vitalwerte>; uhr: string; status: MonitorStatus }) {
   const [notiz, setNotiz] = useState('');
   const p = fall.patient;
   return (
     <div className="dx-spalten">
       <div>
-        <PatientenMonitor werte={werte} titel={`${uhr} · ${werte.sauerstoff ? 'mit O₂' : 'Raumluft'}`} />
+        <PatientenMonitor
+          werte={status === 'signalausfall' ? { ...werte, spo2: null } : werte}
+          aktiv={status !== 'abwesend'} ausText="Nicht angeschlossen"
+          titel={status === 'signalausfall' ? `${uhr} · SpO₂: kein Signal` : `${uhr} · ${werte.sauerstoff ? 'mit O₂' : 'Raumluft'}`}
+        />
+        {status === 'abwesend' && <button type="button" className="primary" disabled={lauf.beendet !== undefined} onClick={() => senden({ typ: 'monitor' })}>Monitor anschließen (~3 min)</button>}
+        {status === 'signalausfall' && <button type="button" className="primary" onClick={() => senden({ typ: 'sensor' })}>Fingersensor prüfen und neu anlegen</button>}
         <section className="card dx-karte">
           <h3>Patientin/Patient</h3>
           <p>{p.anlass}</p>
@@ -164,18 +174,39 @@ function UntersuchungKarte({ u, fall, lauf, senden }: { u: Untersuchung; fall: D
               <button type="button" className="pill" aria-pressed={ansicht === 'echt'} onClick={() => setAnsicht('echt')}>Echtes Bild (frei lizenziert)</button>
             </div>
           )}
-          <BildBetrachter
-            serie={serie}
-            sichtbareBefunde={sichtbar}
-            markierungen={tipps}
-            onTipp={serie.befunde.length ? (x, y, schicht) => senden({ typ: 'tipp', serie: serie.id, x, y, schicht, treffer: trifft(serie, schicht, x, y)?.id }) : undefined}
-          />
-          <div className="dx-zeile">
-            <span className="muted">{serie.befunde.filter((b) => lauf.gefunden.includes(b.id)).length} von {serie.befunde.length} Befunden selbst gefunden</span>
-            {serie.befunde.some((b) => !sichtbar.includes(b.id)) && <button type="button" onClick={() => senden({ typ: 'aufdecken', serie: serie.id })}>Befunde zeigen</button>}
+          <div className="dx-bildlayout">
+            <BildBetrachter
+              serie={serie}
+              sichtbareBefunde={sichtbar}
+              markierungen={tipps}
+              onTipp={serie.befunde.length ? (x, y, schicht) => senden({ typ: 'tipp', serie: serie.id, x, y, schicht, treffer: trifft(serie, schicht, x, y)?.id }) : undefined}
+            />
+            <aside className="dx-befundspalte" aria-label="Befund">
+              <h4>Befund</h4>
+              <section>
+                <h5>Serieninformationen</h5>
+                <p>{serie.untersuchung}{serie.quelle.art === 'phantom' && serie.quelle.modalitaet === 'ct' ? `, ${serie.quelle.schichten} Schichten${serie.schichtdicke ? ` à ${serie.schichtdicke} mm` : ''}` : ''}. {serie.quelle.art === 'phantom' ? 'Synthetisches Übungsbild.' : serie.quelle.art === 'bilder' ? 'Echtes Bild, Urheber und Lizenz unter dem Bild.' : 'Eigenes Material.'}</p>
+              </section>
+              <section>
+                <h5>Befundmarken</h5>
+                {sichtbar.length ? (
+                  <ul className="dx-marken">
+                    {serie.befunde.filter((b) => sichtbar.includes(b.id)).map((b) => <li key={b.id}><strong>{b.titel}</strong>{lauf.gefunden.includes(b.id) ? ' (selbst gefunden)' : ' (aufgedeckt)'}: {b.text}</li>)}
+                  </ul>
+                ) : <p className="muted">Noch keine. Tippe mit „Markieren“ auf eine auffällige Stelle.</p>}
+              </section>
+              <section>
+                <h5>Eigene Einordnung</h5>
+                <p>{serie.befunde.filter((b) => lauf.gefunden.includes(b.id)).length} von {serie.befunde.length} Befunden selbst gefunden, {(lauf.tipps[serie.id] ?? []).length} Markierungen gesetzt.</p>
+                {serie.befunde.some((b) => !sichtbar.includes(b.id)) && <button type="button" onClick={() => senden({ typ: 'aufdecken', serie: serie.id })}>Befunde zeigen</button>}
+              </section>
+              <section>
+                <h5>Rückmeldung der Radiologie</h5>
+                {befundDa ? <p className="dx-befundtext"><strong>{uhrzeit(fall.startzeit, ul.befundAb)}:</strong> {serie.befundtext}</p>
+                  : <p className="muted">Schriftlicher Befund folgt gegen {uhrzeit(fall.startzeit, ul.befundAb)}.</p>}
+              </section>
+            </aside>
           </div>
-          {befundDa ? <p className="dx-befundtext"><strong>Befund der Radiologie ({uhrzeit(fall.startzeit, ul.befundAb)}):</strong> {(ansicht === 'echt' && u.echt ? u.echt : u.serie).befundtext}</p>
-            : <p className="muted">Schriftlicher Befund der Radiologie folgt gegen {uhrzeit(fall.startzeit, ul.befundAb)}.</p>}
         </>
       )}
     </section>

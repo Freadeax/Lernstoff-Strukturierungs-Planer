@@ -7,6 +7,7 @@ import { navigate, useRoute } from '../../ui/shell/router';
 import { BildBetrachter } from '../../ui/sim/bildgebung/BildBetrachter';
 import type { Bildserie } from '../../ui/sim/bildgebung/serie';
 import type { Farbsystem } from '../../ui/sim/labor/praeanalytik';
+import { raumFuerZustand, raumUrl } from '../../ui/sim/raeume/katalog';
 import { FAELLE, FALL_NACH_ID } from './faelle';
 import { FallAnsicht } from './FallAnsicht';
 import { FrageKarte } from './FrageKarte';
@@ -57,11 +58,19 @@ export default function DiagnostikSeite() {
         <button type="button" role="tab" className="pill" aria-selected={modus === 'material'} onClick={() => navigate('/lernen/diagnostik?modus=material')}>Eigene Bilder</button>
       </div>
       {modus === 'faelle' && (
+        <ol className="dx-schritte" aria-label="So läuft ein Fall">
+          <li><span aria-hidden="true">1</span> Laborauftrag und Blutabnahme</li>
+          <li><span aria-hidden="true">2</span> Bildbetrachter: Schichten, Fenster, Lupe</li>
+          <li><span aria-hidden="true">3</span> Befund einordnen und weitergeben</li>
+        </ol>
+      )}
+      {modus === 'faelle' && (
         <ul className="dx-faelle">
           {FAELLE.map((f) => {
             const l = laeufe[f.id];
             return (
               <li key={f.id} className="card dx-fallkarte">
+                <img className="dx-fallkarte__bild" src={raumUrl(raumFuerZustand(f.raum, f.monitor?.start === 'abwesend' ? 'abwesend' : undefined))} alt="" width={1280} height={720} loading="lazy" decoding="async" />
                 <strong>{f.titel}</strong>
                 <span className="muted">{f.kurz}</span>
                 <span className="dx-klein muted">{f.bereich} · {f.bildgebung.length ? f.bildgebung.map((u) => u.serie.titel).join(', ') : 'ohne Bildgebung'}</span>

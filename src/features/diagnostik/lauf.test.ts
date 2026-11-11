@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { FAELLE } from './faelle';
-import { auswertung, ergebnisse, fuehreAus, offeneAnrufe, offeneMeldungen, starte, type Lauf } from './lauf';
+import { RAEUME } from '../../ui/sim/raeume/katalog';
+import { auswertung, ergebnisse, fuehreAus, monitorZustand, offeneAnrufe, offeneMeldungen, starte, type Lauf } from './lauf';
 import { STANDARD_ABNAHME } from '../../ui/sim/labor/praeanalytik';
 import type { DiagnostikFall } from './typen';
 
@@ -44,5 +45,23 @@ describe('Diagnostik-Lauf', () => {
     const u = fall.bildgebung.find((x) => x.echt)!;
     const l = fuehreAus(starte(fall), fall, { typ: 'aufdecken', serie: u.echt!.id });
     expect(l.aufgedeckt.sort()).toEqual(u.echt!.befunde.map((b) => b.id).sort());
+  });
+
+  it('Monitor anschließen, Fingersensor rutscht ab und wird neu angelegt', () => {
+    const fall = FAELLE.find((f) => f.monitor?.start === 'abwesend' && f.monitor.sensorAusfallNach)!;
+    let l = starte(fall);
+    expect(monitorZustand(l, fall)).toBe('abwesend');
+    expect(fuehreAus(l, fall, { typ: 'sensor' })).toBe(l);
+    l = fuehreAus(l, fall, { typ: 'monitor' });
+    expect(monitorZustand(l, fall)).toBe('laeuft');
+    l = fuehreAus(l, fall, { typ: 'warten', minuten: fall.monitor!.sensorAusfallNach! });
+    expect(monitorZustand(l, fall)).toBe('signalausfall');
+    l = fuehreAus(l, fall, { typ: 'sensor' });
+    expect(monitorZustand(l, fall)).toBe('laeuft');
+    expect(l.log.some((e) => e.text.includes('Fingersensor'))).toBe(true);
+  });
+
+  it('jeder Fall hat einen Raum aus dem Katalog', () => {
+    for (const f of FAELLE) expect(RAEUME[f.raum], f.id).toBeDefined();
   });
 });
