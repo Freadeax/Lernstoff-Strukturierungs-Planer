@@ -21,6 +21,24 @@ export type EvidenceSource =
   | 'trainer'
   | 'selbsteinschaetzung';
 
+/** Stand eines Lernversuchs. Nur abgeschlossene Versuche zählen als Nachweis. */
+export type VersuchStatus = 'abgeschlossen' | 'offen' | 'abgebrochen';
+
+/**
+ * Aussagekraft eines Ergebnisses:
+ * - abruf: aus dem Gedächtnis beantwortet (Karten, Quiz, Prüfungsfragen)
+ * - anwendung: in einem Fall oder Trainer bewertet angewendet
+ * - uebung: mit Hilfen, im Lernmodus oder als Wiederholung am selben Tag; wird protokolliert, zählt nicht
+ */
+export type Aussagekraft = 'abruf' | 'anwendung' | 'uebung';
+
+/** Woher ein Ergebnis stammt: Modul (Trainer, Karten, Simulation …), Fall/Karte/Fragensatz und bewertete Kriterien. */
+export interface Herkunft {
+  modul: string;
+  ref?: string;
+  kriterien?: Array<{ id: string; label?: string; erfuellt: boolean }>;
+}
+
 /** Ergebnis einer Abfrage zu einem Thema. Entweder `rating` oder `scorePercent` angeben. */
 export interface ReviewLog {
   topicId: ID;
@@ -29,6 +47,11 @@ export interface ReviewLog {
   rating?: Rating;
   /** 0–100, z. B. Anteil richtiger Antworten im Quiz. */
   scorePercent?: number;
+  /** Einheitliches Ergebnisformat (siehe ergebnis.ts). Fehlt bei älteren Einträgen: dann abgeschlossen. */
+  versuchId?: string;
+  herkunft?: Herkunft;
+  status?: VersuchStatus;
+  aussagekraft?: Aussagekraft;
 }
 
 /** Erarbeitungszeit, die tatsächlich in ein Thema geflossen ist (Lesen, Zusammenfassen, Üben). */
