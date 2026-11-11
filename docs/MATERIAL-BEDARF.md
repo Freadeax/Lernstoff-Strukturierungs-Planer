@@ -101,6 +101,7 @@ Hotspots und Monitorfläche sind optional; Claude misst sie sonst selbst nach.
 | Bildgebung echt | Röntgen Pneumonie rechts, Pleuraerguss links (Radiopaedia, CC BY-NC-SA) | `public/bildgebung/` |
 | Bildgebung synthetisch | CT/Röntgen-Phantome: Pneumonie, Lungenembolie, Pneumothorax, Erguss, Stauung | `src/ui/sim/bildgebung/phantom.ts` |
 | Monitor, Kurven, Alarmton | EKG/Pleth/AF-Kurven und Piepton werden im Code erzeugt | `src/ui/sim/PatientenMonitor.tsx`, `MiniMonitor.tsx` |
+| Töne und Geräusche (synthetisch) | Rückmeldetöne, Monitorpiep, Alarme rot/gelb/technisch, Telefon, Patientenruf, Pumpe, NIBP, Rea-Alarm, Defi, 5 Raumklänge, 5 Herz-, 4 Lungen-, 3 Darmgeräusche, Korotkow-Töne | `src/ui/audio/klaenge.ts`, `docs/AUDIO.md` |
 | App-Icons | SVG, 192, 512, maskable, Apple-Touch | `public/` |
 | Lernskripte | CE01–CE05, CE08, CE09, CE10 (Neugeborenes), LEB5 | Material-Repo `skripte/` |
 
@@ -312,17 +313,23 @@ Keine MIMIC- oder anderen zugangsbeschränkten Daten. Private Unterrichtsbilder 
 
 ## 9. Audio (P3, optional)
 
-Der Praxissimulator hat schon Felder für „Abhören“ (`listen`). Echte Töne machen das deutlich lebendiger.
-Nur mit Lizenz (z. B. CC BY) oder selbst aufgenommen am Simulator-Dummy.
+Seit 2026-11-11 erzeugt die App alle Töne selbst (`docs/AUDIO.md`): Monitor, Alarme, Telefon, Ruf, Raumklang
+und vereinfachte Herz-, Lungen- und Darmgeräusche im Hör-Trainer. **Nichts davon ist dringend.** Echte Aufnahmen
+würden nur die Körpergeräusche realistischer machen, denn synthetisch lassen sich Merkmale zeigen, aber nicht die
+Vielschichtigkeit echter Auskultation. Nur mit Lizenz (z. B. CC BY, CC0) oder selbst aufgenommen am Simulator-Dummy.
+Ablage: Material-Repo `audio/`, ein Clip je ID, Format siehe 0.2. Nach Lieferung wird der Clip im Hör-Trainer
+neben bzw. statt der Nachbildung eingebaut (Abspielen von Dateien ist noch nicht gebaut).
 
-| ID | Inhalt |
-| --- | --- |
-| `aus_lunge_*` | vesikulär, Giemen/Brummen (Asthma, COPD), feuchte Rasselgeräusche (Lungenödem, Pneumonie), Stridor (Pseudokrupp), abgeschwächt (Erguss, Pneumothorax) |
-| `aus_herz_*` | normale Herztöne, Tachykardie, Arrhythmie (Vorhofflimmern) |
-| `aus_darm_*` | normal, hochgestellt, Stille |
-| `rr_korotkow` | Korotkow-Töne für die manuelle RR-Messung |
-| `ruf_*` | Rufanlage, Telefon Station, Monitoralarm (gelb/rot nach Norm-Muster), Pumpenalarm, Beatmungsalarm |
-| `stimme_*` | kurze Patientensätze (Atemnot, Verwirrtheit, Schmerz), optional |
+| ID | Inhalt | Priorität | Ersetzt im Code |
+| --- | --- | --- | --- |
+| `aus_lunge_vesikulaer`, `aus_lunge_giemen`, `aus_lunge_rg_fein`, `aus_lunge_rg_grob`, `aus_lunge_stridor`, `aus_lunge_abgeschwaecht` | vesikulär, Giemen/Brummen (Asthma, COPD), fein- und grobblasige RG (Lungenödem, Pneumonie), Stridor (Pseudokrupp), abgeschwächt (Erguss, Pneumothorax; fehlt heute ganz) | P2 | `atem-*` |
+| `aus_herz_normal`, `aus_herz_tachy`, `aus_herz_aa`, `aus_herz_s3`, `aus_herz_systolikum` | normale Herztöne, Tachykardie, absolute Arrhythmie, 3. Herzton, Systolikum (Aortenstenose) | P2 | `herz-*` |
+| `aus_darm_normal`, `aus_darm_hoch`, `aus_darm_still` | normal, hochgestellt/klingend (mech. Ileus), Stille (je 60 s) | P3 | `darm-*` |
+| `rr_korotkow` | Korotkow-Töne einer echten manuellen RR-Messung mit bekanntem Wert (z. B. 140/85), ganze Ablasskurve | P2 | Hör-Trainer „Blutdruck nach Gehör“ |
+| `ger_beatmung_alarm`, `ger_absaugung` | Beatmungsgerät-Alarm, Absauggerät | P3 | fehlt heute |
+| `stimme_*` | kurze Patientensätze (Atemnot, Verwirrtheit, Schmerz, Kind weint), optional, nur mit Einwilligung der Sprechenden | P3 | Vorlesestimme |
+
+Nicht nötig (macht die App besser selbst): Monitorpiep, Alarmmelodien, Telefon, Rufanlage, Pumpenalarm, Raumklang, UI-Töne.
 
 ---
 

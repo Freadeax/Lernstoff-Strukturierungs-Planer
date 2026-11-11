@@ -170,7 +170,7 @@ try {
     await page.locator('.fall__foto img[src*="12_station_kardiologie_monitoring"]').waitFor();
     assert(await page.locator('.fall__foto .raum-monitor .sim-monitor').isVisible());
     await page.locator('.fall__option').first().waitFor();
-    await page.getByRole('button', { name: '1: Patient ansehen' }).click();
+    await page.getByRole('button', { name: '1: Herr K. ansehen' }).click();
     await page.getByRole('region', { name: /^1: Patient/ }).waitFor();
     await page.getByRole('button', { name: 'Übergabe', exact: true }).click();
     assert(await page.getByRole('button', { name: /^Ich übergebe nach SBAR/ }).isVisible());

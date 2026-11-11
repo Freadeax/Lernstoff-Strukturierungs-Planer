@@ -114,7 +114,6 @@
 /* Alarm blinkt über Rahmen und Hintergrund, nie über opacity (Text bleibt kontrastreich). */
 @keyframes szene-chipalarm { 50% { background: #7f1010; box-shadow: 0 0 0 2px #ff6b6b; } }
 .szene__chip.is-gelb { background: #8a6d00; }
-.szene__ton { position: absolute; right: var(--space-2); top: var(--space-2); min-height: 2rem !important; padding: 0 var(--space-2); font-size: var(--text-xs); border-radius: var(--radius-pill); }
 .szene__treffer rect { fill: transparent; cursor: pointer; }
 .szene__orte { display: flex; flex-wrap: wrap; gap: var(--space-2); padding: var(--space-2); background: var(--praxis-ink, #183e3a); }
 .szene .praxis-hotspot { position: static; transform: none; max-width: none; flex: 1 1 8rem; display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); background: rgb(255 255 255 / .1); color: #fff; border-color: rgb(255 255 255 / .25); box-shadow: none; }

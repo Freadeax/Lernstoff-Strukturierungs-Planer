@@ -11,6 +11,7 @@ import { useRoute } from '../../ui/shell/router';
 import { LernplanHinweis, useLernplanUebernahme } from '../lernplan/ui/LernplanHinweis';
 import { notiereFehler } from '../fehlerheft/fehlerheft';
 import { ausRechentrainer } from '../fehlerheft/quellen';
+import { spiele } from '../../ui/audio/spieler';
 
 type Modus = 'training' | 'pruefung';
 const PRUEFUNG_LAENGE = 10;
@@ -93,6 +94,7 @@ export default function Rechentrainer() {
     if (bewertung && bewertung !== 'leer') { neu(); return; }
     const b = bewerte(aufgabe, eingabe);
     if (b === 'leer') { setBewertung(b); return; }
+    if (modus !== 'pruefung') spiele(ok(b) ? 'richtig' : 'falsch');
     setStat((s) => zaehle(s, aufgabe.typ, ok(b)));
     if (!ok(b)) notiereFehler([ausRechentrainer(aufgabe, eingabe)]);
     if (modus === 'pruefung') {
