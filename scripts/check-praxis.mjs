@@ -318,6 +318,20 @@ try {
       audits.push({ width, name: 'Pflegebericht', violations: axe.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => ({ html: n.html, summary: n.failureSummary })) })) });
       await ctx.close();
     }
+    // SIS: Versorgungsbereich und Formularfassung, Eigenperspektive getrennt von Fallinformation, Personendaten-Warnung.
+    {
+      const ctx = await browser.newContext({ viewport: { width, height: 1050 }, locale: 'de-DE', colorScheme: 'light' });
+      const sis = await ctx.newPage(); sis.on('pageerror', e => errors.push(e.message));
+      await sis.goto(base + '#/lernen/sis', { waitUntil: 'networkidle' });
+      assert.match(await sis.locator('.sis__fassung').textContent(), /Versorgungsbereich.*Formular.*SIS® (stationär|ambulant)/);
+      assert(await sis.locator('.sis__block--eigen summary', { hasText: 'Eigenperspektive' }).isVisible());
+      assert(await sis.locator('.sis__block--fall summary', { hasText: 'Fallinformation' }).first().isVisible());
+      await sis.locator('.sis__panel textarea').first().fill('„Ich will nach Hause.“ Frau Petersen, Zimmer 4');
+      assert.match(await sis.locator('.personen-warnung').first().textContent(), /Zimmer 4/);
+      const axe = await new AxeBuilder({ page: sis }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+      audits.push({ width, name: 'SIS', violations: axe.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => ({ html: n.html, summary: n.failureSummary })) })) });
+      await ctx.close();
+    }
     // Notfall-Trainer: ABCDE-Übung (deterministisch, Zeit nur durch Handlungen).
     {
       const ctx = await browser.newContext({ viewport: { width, height: 1050 }, locale: 'de-DE', colorScheme: 'light' });

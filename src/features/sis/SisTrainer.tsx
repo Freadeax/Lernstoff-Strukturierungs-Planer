@@ -1,5 +1,6 @@
 import { storage } from '../../ui/lib/store';
 import { DatenHinweis } from '../../ui/DatenHinweis';
+import { PersonenWarnung, personenbezug } from '../../ui/PersonenWarnung';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import './sis.css';
 import { logActivity } from '../../core/activity';
@@ -8,7 +9,7 @@ import { navigate, useRoute } from '../../ui/shell/router';
 import { SIS_THEMA } from '../lernplan/trainer';
 import { LernplanHinweis, useLernplanUebernahme } from '../lernplan/ui/LernplanHinweis';
 import {
-  FELD_KURZ, FELDER, feldHilfe, feldLabel, MATRIX_FELDER, RISIKEN, RISIKO_LABEL, SETTING_LABEL, SIS_FAELLE, THEMENFELDER,
+  FELD_KURZ, FELDER, feldHilfe, feldLabel, MATRIX_FELDER, RISIKEN, RISIKO_LABEL, SETTING_LABEL, SIS_FAELLE, SIS_FASSUNG, THEMENFELDER,
   type Feld, type JaNein, type Loesung, type Risiko, type SisFall, type Themenfeld,
 } from './faelle';
 import {
@@ -44,7 +45,7 @@ function merkeBeste(fallId: string, prozent: number): Record<string, number> {
 
 const istLeer = (e: Entwurf) => FELDER.every((f) => !e.felder[f].trim()) && RISIKEN.every((r) => !e.matrix[r].vorhanden && !e.matrix[r].weitere);
 
-const PUNKT_ZEICHEN: Record<PunktStatus, string> = { ok: '✓', 'falsches-feld': '↔', fehlt: '✗' };
+const PUNKT_ZEICHEN: Record<PunktStatus, string> = { ok: '✓', vertretbar: '✓', 'falsches-feld': '↔', fehlt: '✗' };
 const FELD_STATUS: Record<FeldStatus, string> = { vollstaendig: 'vollständig', teilweise: 'teilweise', fehlt: 'fehlt' };
 const feldName = (f: Feld) => (f === 'B' ? 'Feld B' : `Themenfeld ${FELD_KURZ[f]}`);
 const loesungText = (l: Loesung) => (l === 'beides' ? 'ja oder nein' : l);
@@ -57,21 +58,24 @@ function Fallkarte({ fall }: { fall: SisFall }) {
       </div>
       <h3>{fall.titel}</h3>
       <p className="muted">{fall.anlass}</p>
+      <p className="sis__fassung"><strong>Versorgungsbereich:</strong> {SETTING_LABEL[fall.setting]} · <strong>Formular:</strong> {SIS_FASSUNG[fall.setting].formular} ({SIS_FASSUNG[fall.setting].tf6}). {SIS_FASSUNG[fall.setting].hinweis}</p>
       <dl className="sis__daten">
         {fall.person.map((d) => <div key={d.label}><dt>{d.label}</dt><dd>{d.wert}</dd></div>)}
       </dl>
-      <details open className="sis__block">
-        <summary>Erstgespräch</summary>
+      <details open className="sis__block sis__block--eigen">
+        <summary>Eigenperspektive: was die Person (und Angehörige) sagen</summary>
+        <p className="muted sis__quelle">Gehört wörtlich nach Feld B bzw. als Sicht der Person in die Themenfelder. Aussagen von Angehörigen kennzeichnen.</p>
         <ul className="sis__gespraech">
           {fall.gespraech.map((a, i) => <li key={i}><span className="sis__wer">{a.wer}</span> „{a.text}“</li>)}
         </ul>
       </details>
-      <details open className="sis__block">
-        <summary>Deine Beobachtungen</summary>
+      <details open className="sis__block sis__block--fall">
+        <summary>Fallinformation: deine Beobachtungen</summary>
+        <p className="muted sis__quelle">Grundlage deiner fachlichen Einschätzung. In die Themenfelder in eigenen Worten.</p>
         <ul>{fall.beobachtungen.map((b) => <li key={b}>{b}</li>)}</ul>
       </details>
-      <details className="sis__block">
-        <summary>Unterlagen</summary>
+      <details className="sis__block sis__block--fall">
+        <summary>Fallinformation: Unterlagen</summary>
         <dl className="sis__daten">
           {fall.unterlagen.map((d) => <div key={d.label}><dt>{d.label}</dt><dd>{d.wert}</dd></div>)}
         </dl>
@@ -165,7 +169,9 @@ function Ergebnis({ e, fall }: { e: SisErgebnis; fall: SisFall }) {
                     {p.punkt.text}
                     {!p.punkt.pflicht && <span className="muted"> (optional)</span>}
                     {p.status === 'falsches-feld' && <span className="muted"> · steht bei {feldName(p.gefundenIn!)}</span>}
-                    <span className="visually-hidden">: {p.status === 'ok' ? 'erfüllt' : p.status === 'fehlt' ? 'fehlt' : 'im falschen Feld'}</span>
+                    {p.status === 'vertretbar' && <span className="sis__vertretbar"> · steht bei {feldName(p.gefundenIn!)}, ebenfalls vertretbar: {p.punkt.begruendung}</span>}
+                    {p.status !== 'vertretbar' && p.punkt.auchIn && <span className="muted"> · auch in {p.punkt.auchIn.map(feldName).join(' oder ')} vertretbar</span>}
+                    <span className="visually-hidden">: {p.status === 'ok' ? 'erfüllt' : p.status === 'vertretbar' ? 'erfüllt in einem anderen, vertretbaren Feld' : p.status === 'fehlt' ? 'fehlt' : 'im falschen Feld'}</span>
                   </span>
                 </li>
               ))}
@@ -215,6 +221,7 @@ export default function SisTrainer() {
   const [ergebnis, setErgebnis] = useState<SisErgebnis | null>(null);
   const [ki, setKi] = useState<KiRueckmeldung | null>(null);
   const [kiLaeuft, setKiLaeuft] = useState(false);
+  const [kiGeprueft, setKiGeprueft] = useState(false);
   const [kiFehler, setKiFehler] = useState('');
   const [beste, setBeste] = useState(() => lese<Record<string, number>>(BESTE_KEY, {}));
   const [hilfe, setHilfe] = useState(false);
@@ -238,7 +245,7 @@ export default function SisTrainer() {
   const tfGefuellt = THEMENFELDER.filter((t) => felder[t].trim()).length;
   const matrixFertig = RISIKEN.filter((r) => matrix[r].vorhanden && matrix[r].weitere).length;
 
-  function zuruecksetzen() { setErgebnis(null); setKi(null); setKiFehler(''); lernplan.zuruecksetzen(); }
+  function zuruecksetzen() { setErgebnis(null); setKi(null); setKiFehler(''); setKiGeprueft(false); lernplan.zuruecksetzen(); }
 
   function waehleFall(id: string) {
     setFallId(id); setEntwurf(ladeEntwurf(id)); setAbschnitt('B'); zuruecksetzen();
@@ -286,6 +293,8 @@ export default function SisTrainer() {
   }
 
   const leer = istLeer(entwurf);
+  const erlaubteNamen = [...fall.person.map((d) => d.wert), ...fall.gespraech.map((a) => a.wer), ...fall.beobachtungen, ...fall.unterlagen.map((u) => u.wert)];
+  const personenFunde = personenbezug(FELDER.map((f) => felder[f]).join('\n'), erlaubteNamen).length > 0;
   const vollstaendig = FELDER.every((f) => felder[f].trim()) && matrixFertig === RISIKEN.length;
   const status = (f: Feld) => live.felder.find((x) => x.feld === f)!.status;
 
@@ -338,6 +347,8 @@ export default function SisTrainer() {
             </button>
           </div>
 
+          <p className="muted sis__eigen">Deine Formulierung: Feld B gibt die Sicht der Person wörtlich wieder, die Themenfelder enthalten deine fachliche Einschätzung und die Verständigung in eigenen Worten. Nur ausgedachte Übungsdaten eintragen.</p>
+          <PersonenWarnung text={FELDER.map((f) => felder[f]).join('\n')} erlaubt={erlaubteNamen} />
           {abschnitt === 'B' && (
             <div role="tabpanel" className="sis__panel">
               <label className="sis__feld">
@@ -389,11 +400,15 @@ export default function SisTrainer() {
             <div className="card">
               <div className="row">
                 {apiKey
-                  ? <button type="button" className="primary" onClick={fragClaude} disabled={kiLaeuft}>{kiLaeuft ? 'Claude liest …' : ki ? 'Noch einmal bewerten' : 'Ausführliche Rückmeldung von Claude'}</button>
+                  ? <button type="button" className="primary" onClick={fragClaude} disabled={kiLaeuft || (personenFunde && !kiGeprueft)}>{kiLaeuft ? 'Claude liest …' : ki ? 'Noch einmal bewerten' : 'Ausführliche Rückmeldung von Claude'}</button>
                   : <p className="muted">Für eine ausführliche Rückmeldung (Sicht der Person, fachliche Richtigkeit) einen API-Schlüssel hinterlegen. <button type="button" className="link" onClick={() => navigate('/einstellungen')}>Zu den Einstellungen</button></p>}
                 <button type="button" onClick={naechsterFall}>Nächster Fall</button>
               </div>
-              {apiKey && !ki && !kiLaeuft && <DatenHinweis art="ki" detail="Gesendet werden nur der Übungsfall und deine SIS." />}
+              {apiKey && !ki && !kiLaeuft && <>
+                <DatenHinweis art="ki" detail="Gesendet werden nur der Übungsfall und deine SIS." />
+                <PersonenWarnung text={FELDER.map((f) => felder[f]).join('\n')} erlaubt={erlaubteNamen} vorKi />
+                {personenFunde && <label className="sis__kibestaetigung"><input type="checkbox" checked={kiGeprueft} onChange={(e) => setKiGeprueft(e.target.checked)} /> Ich habe geprüft: Die SIS enthält nur ausgedachte Übungsdaten.</label>}
+              </>}
               {kiFehler && <div className="note warn" role="alert">{kiFehler}</div>}
               <details>
                 <summary>Beispiel-SIS ansehen</summary>
