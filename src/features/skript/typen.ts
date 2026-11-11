@@ -35,6 +35,11 @@ export interface Skript {
   abschnitte: Abschnitt[];
   /** Zugeordnete Katalogthemen. Aus dem Kopf der Datei (themen: …) oder vom Nutzer gesetzt. */
   topicIds: ID[];
+  /**
+   * Fachliche Freigabe aus dem Dateikopf (`freigabe: 2026-11-20, Praxisanleitung`). Fehlt sie, ist das Skript
+   * durch Belege gestützt, aber fachlich noch von niemandem geprüft.
+   */
+  freigabe?: { am: string; von: string };
   /** true, wenn der Nutzer die Themen von Hand geändert hat (dann überschreibt ein Neuimport sie nicht). */
   themenManuell?: boolean;
   hash: string;

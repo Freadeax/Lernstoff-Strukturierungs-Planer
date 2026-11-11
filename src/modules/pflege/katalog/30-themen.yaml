@@ -79,6 +79,7 @@ topics:
   - { id: thema.ph.periop,        parentId: thema.ph, name: "Prä- und postoperative Pflege", difficulty: 3, estimatedMinutes: 90, competencyIds: [kb.III.2, kb.III.3, ce.05] }
   - { id: thema.ph.palliativ,     parentId: thema.ph, name: "Palliativpflege und Sterbebegleitung", difficulty: 3, estimatedMinutes: 90, competencyIds: [kb.I.3, ce.08] }
   - { id: thema.ph.mund,          parentId: thema.ph, name: "Mundpflege und Mundgesundheit", difficulty: 1, estimatedMinutes: 45, referenceIds: [es.mundgesundheit] }
+  - { id: thema.ph.neugeborenes,  parentId: thema.ph, name: "Neugeborenes und Wochenbett (Anpassung, U1/APGAR, Pflege, Stillen)", difficulty: 2, estimatedMinutes: 90, prerequisites: [thema.ap.fortpflanzung], competencyIds: [kb.I.6, ce.10] }
 
   # ================= Prophylaxen und Risikoeinschätzung =================
   - { id: thema.pro, subjectId: fach.prophylaxen, name: "Prophylaxen und Risikoeinschätzung", difficulty: 2, competencyIds: [kb.I.2, ce.04], taskFormatIds: [format.prophylaxe] }
