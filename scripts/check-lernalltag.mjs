@@ -103,6 +103,46 @@ try {
     await axe(page, 'CE 10 Materialstand');
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Überlauf CE 10 bei ${width}px`);
 
+    // Themenpflege: falsche Zuordnung lösen, eigenes Thema umbenennen und mit Dublette zusammenführen
+    const fachId = catalog.topics.find((t) => t.id === blaetter[0]).subjectId;
+    await page.evaluate(async ({ fachId, katalogThema }) => {
+      const open = indexedDB.open('lernstoff-planer');
+      const db = await new Promise((resolve, reject) => { open.onsuccess = () => resolve(open.result); open.onerror = () => reject(open.error); });
+      const tx = db.transaction(['topics', 'documents', 'exams', 'reviewLogs'], 'readwrite');
+      tx.objectStore('topics').put({ id: 'thema.eigen.test-a', subjectId: fachId, name: 'Testthema Verband', prerequisites: [] });
+      tx.objectStore('topics').put({ id: 'thema.eigen.test-b', subjectId: fachId, name: 'Testthema Verbände', prerequisites: [] });
+      tx.objectStore('documents').put({ id: 'test.pflege', title: 'Testdokument Pflege', kind: 'pdf', subjectIds: [fachId], topicIds: ['thema.eigen.test-a', katalogThema], version: 1, contentHash: 'c-pflege', importedAt: new Date().toISOString() });
+      tx.objectStore('exams').put({ id: 'test.pflege.e', name: 'Testprüfung Pflege', date: '2099-01-01', subjectIds: [], topicIds: ['thema.eigen.test-a'] });
+      tx.objectStore('reviewLogs').add({ topicId: 'thema.eigen.test-a', date: new Date().toISOString().slice(0, 10), source: 'trainer', scorePercent: 80, at: new Date().toISOString() });
+      await new Promise((resolve, reject) => { tx.oncomplete = resolve; tx.onerror = () => reject(tx.error); });
+    }, { fachId, katalogThema: blaetter[0] });
+    await page.goto(base + `#/lernen/thema?id=${encodeURIComponent(blaetter[0])}`, { waitUntil: 'networkidle' });
+    const zeile = page.locator('.thema__liste li', { hasText: 'Testdokument Pflege' });
+    await zeile.getByText('Falsch zugeordnet?').click();
+    await zeile.getByRole('button', { name: 'Nicht zu diesem Thema' }).click();
+    await page.locator('.thema__liste li', { hasText: 'Testdokument Pflege' }).waitFor({ state: 'detached' });
+    await page.goto(base + '#/lernen/thema?id=thema.eigen.test-a', { waitUntil: 'networkidle' });
+    await page.getByRole('heading', { name: 'Eigenes Thema verwalten' }).waitFor();
+    await axe(page, 'Themenpflege');
+    await page.getByLabel('Name', { exact: true }).fill('Testthema Verbandwechsel');
+    await page.getByRole('button', { name: 'Umbenennen' }).click();
+    await page.getByRole('heading', { name: 'Testthema Verbandwechsel' }).waitFor();
+    await page.getByLabel('Zusammenführen mit').selectOption('thema.eigen.test-b');
+    assert.match(await page.locator('.thema__verwalten').innerText(), /1 Prüfung, 1 Abfrage/);
+    await page.getByRole('button', { name: 'Zusammenführen', exact: true }).click();
+    await page.getByRole('heading', { name: 'Testthema Verbände' }).waitFor();
+    const nachher = await page.evaluate(async () => {
+      const open = indexedDB.open('lernstoff-planer');
+      const db = await new Promise((resolve) => { open.onsuccess = () => resolve(open.result); });
+      const get = (store, key) => new Promise((resolve) => { const r = db.transaction(store).objectStore(store).get(key); r.onsuccess = () => resolve(r.result); });
+      const all = (store) => new Promise((resolve) => { const r = db.transaction(store).objectStore(store).getAll(); r.onsuccess = () => resolve(r.result); });
+      return { a: await get('topics', 'thema.eigen.test-a'), exam: await get('exams', 'test.pflege.e'), logs: (await all('reviewLogs')).filter((l) => l.topicId.startsWith('thema.eigen.test')).map((l) => l.topicId) };
+    });
+    assert.equal(nachher.a, undefined);
+    assert.deepEqual(nachher.exam.topicIds, ['thema.eigen.test-b']);
+    assert.deepEqual(nachher.logs, ['thema.eigen.test-b']);
+    assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Überlauf Themenpflege bei ${width}px`);
+
     // Material: schwer lesbare Seiten, Dubletten, Sprung zur Fundstelle, Original neben der Zusammenfassung
     const thema = blaetter[1];
     await page.evaluate(async ({ thema }) => {
@@ -159,7 +199,7 @@ try {
     await axe(page, 'Fortschritt');
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Überlauf bei ${width}px`);
     assert.deepEqual(errors, []);
-    console.log(`Lernalltag ${width}px: liegen gebliebene Blöcke, Dienstplan mit Vorschau, Kompetenzbereiche, Kalenderexport, CE-Matrix, Fundstelle, Original nebeneinander, Lese-/Dublettenhinweise, Fehlerheft-Rückwege, Lernstufen und WCAG bestanden.`);
+    console.log(`Lernalltag ${width}px: liegen gebliebene Blöcke, Dienstplan mit Vorschau, Kompetenzbereiche, Kalenderexport, CE-Matrix, Themenpflege, Fundstelle, Original nebeneinander, Lese-/Dublettenhinweise, Fehlerheft-Rückwege, Lernstufen und WCAG bestanden.`);
     await context.close();
   }
 } finally { await browser.close(); }

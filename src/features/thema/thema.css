@@ -7,3 +7,14 @@
 .thema__kopf h2 { font-size: 1.0625rem; margin: 0; }
 .thema__liste { margin: 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 8px; font-size: 0.8125rem; }
 @media (max-width: 760px) { .thema__lage { grid-template-columns: minmax(0, 1fr); } }
+
+/* Themenpflege: Zuordnung korrigieren, eigenes Thema verwalten */
+.thema__korrektur { margin-top: 4px; font-size: 0.8125rem; }
+.thema__korrektur > summary { cursor: pointer; color: var(--color-text-muted); min-height: 32px; display: inline-flex; align-items: center; }
+.thema__korrektur-inhalt { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-2); padding: var(--space-2) 0; }
+.thema__korrektur-inhalt .field { flex: 1 1 220px; min-width: 0; }
+.thema__korrektur-inhalt select, .thema__verwalten select { max-width: 100%; }
+.thema__verwalten { display: flex; flex-direction: column; gap: var(--space-2); }
+.thema__verwalten p { margin: 0; }
+.thema__zeile { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-2); }
+.thema__zeile .field { flex: 1 1 240px; min-width: 0; }
