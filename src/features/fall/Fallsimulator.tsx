@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { DatenHinweis } from '../../ui/DatenHinweis';
+import { Titelbild } from '../../ui/Titelbild';
 import './fall.css';
 import { logActivity } from '../../core/activity';
 import { getApiKey } from '../../core/settings';
@@ -476,6 +477,7 @@ export default function Fallsimulator() {
         <DatenHinweis art="ki" detail="Gesendet werden der erfundene Fall und deine Eingaben." />
       </div>
 
+      {!fall && <Titelbild motiv="simulation" sofort className="fall__titelbild" />}
       {!fall && <Start apiKey={apiKey} onStart={(s, st) => void starte(s, st)} />}
 
       {fall?.abschluss && (

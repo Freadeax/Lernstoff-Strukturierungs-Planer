@@ -259,3 +259,4 @@ a.pill { display: inline-flex; align-items: center; text-decoration: none; color
 @media (prefers-reduced-motion: reduce) { .fall__foto-alarm { animation: none; } }
 :root[data-motion='reduce'] .fall__foto-alarm { animation: none; }
 .fall__szenenwahl { display: grid; gap: var(--space-2); min-width: 0; }
+.fall__titelbild { max-width: 44rem; margin: 0 0 var(--space-3); }
