@@ -28,13 +28,14 @@ function baue(f: Fehler): Aufgabe2 {
 }
 
 /** Trainer auf dem gemeinsamen Übungskern: Quelle und Trainer heißen gleich. */
-const QUIZ_QUELLEN = new Set<FehlerQuelle>(['hygiene', 'anatomie', 'expertenstandards', 'normwerte', 'notfall', 'arzneimittel', 'recht']);
+const QUIZ_QUELLEN = new Set<FehlerQuelle>(['hygiene', 'anatomie', 'expertenstandards', 'normwerte', 'notfall', 'arzneimittel', 'recht', 'labor']);
 
 /** Wo man eine Aufgabe außerhalb des Fehlerhefts weiter üben kann. */
 function trainerLink(f: Fehler): { label: string; path: string } | null {
   const w = f.wiederholung;
   if (w.art === 'rechnen') return { label: 'Im Rechentrainer üben', path: `/lernen/rechnen?typen=${w.typ}` };
-  // kh:<fallId>:<aufgabeId>
+  // krankheitsbilder:detektiv.* (Detektiv-Runde) bzw. kh:<fallId>:<aufgabeId> (Fallaufgabe)
+  if (f.quelle === 'krankheitsbilder' && f.id.startsWith('krankheitsbilder:detektiv.')) return { label: 'Im Krankheitsbild-Detektiv üben', path: '/lernen/krankheitsbilder?ansicht=detektiv' };
   if (f.quelle === 'krankheitsbilder') return { label: 'Fall noch einmal bearbeiten', path: `/lernen/krankheitsbilder?fall=${encodeURIComponent(f.id.split(':')[1] ?? '')}` };
   // as:<vignettenId>:<itemId>
   if (f.quelle === 'assessment') return { label: 'Fall noch einmal einschätzen', path: `/lernen/assessment?modus=faelle&fall=${encodeURIComponent(f.id.split(':')[1] ?? '')}` };

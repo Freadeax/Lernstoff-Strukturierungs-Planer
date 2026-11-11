@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { pflegeModule } from '../../modules/pflege';
+import { ausSimulation } from '../fehlerheft/quellen';
 import type { FragenSatz, Pruefungsfrage } from '../zusammenfasser/typen';
 import {
-  auswerten, empfohleneMinuten, katalog, kompetenzbereiche, lernplanEintraege, materialFragen, note,
+  auswerten, empfohleneMinuten, fallSchritteZusammen, trainerFragen, katalog, kompetenzbereiche, lernplanEintraege, materialFragen, note,
   selbstWertung, stelleZusammen, uhr, verteile, werteAus, type Auswahl, type OffeneFrage, type SimFrage, type Wertung,
 } from './simulation';
 
@@ -122,5 +123,51 @@ describe('Wertung und Auswertung', () => {
     expect(uhr(65_000)).toBe('01:05');
     expect(uhr(2 * 3600_000)).toBe('2:00:00');
     expect(uhr(400)).toBe('00:01');
+  });
+});
+
+describe('Übungstrainer als Quelle', () => {
+  const pool = [{
+    quelle: 'hygiene' as const, name: 'Hygiene', aufgaben: [
+      { id: 'a1', art: 'auswahl' as const, topicIds: ['thema.ph.hygiene'], titel: 'Momente', frage: 'Wann?', erklaerung: ['Weil.'], optionen: ['x', 'y'], richtig: [0], mehrfach: false },
+      {
+        id: 'f1', art: 'fall' as const, topicIds: ['thema.ph.hygiene'], titel: 'Verbandwechsel', frage: 'Fall', erklaerung: ['E'], einstieg: 'Herr B.',
+        schritte: [
+          { lage: 'Lage 1', frage: 'Frage 1', optionen: ['a', 'b'], richtig: [1], mehrfach: false, warum: 'W1' },
+          { lage: 'Lage 2', frage: 'Frage 2', optionen: ['c', 'd', 'e'], richtig: [0, 2], mehrfach: true, warum: 'W2' },
+        ],
+      },
+      { id: 'z1', art: 'zuordnen' as const, topicIds: ['thema.ph.hygiene'], titel: 'Z', frage: 'Z', erklaerung: [], paare: [{ links: 'a', rechts: 'b' }] },
+    ],
+  }];
+
+  it('macht aus Auswahlaufgaben und Fallschritten Prüfungsfragen mit AFB nach Stufe', () => {
+    const f = trainerFragen(k, pool, () => true);
+    expect(f.map((x) => x.id)).toEqual(['trainer:hygiene:a1', 'trainer:hygiene:f1:1', 'trainer:hygiene:f1:2']);
+    expect(f[0]!.afb).toBe(1);
+    expect(f[2]!.afb).toBe(3);
+    expect(f[2]!.frage).toContain('Lage 1');
+    expect(f[2]!.frage).toContain('Lage 2');
+    expect(f[2]!.mehrfach).toBe(true);
+    expect(f[2]!.erklaerung).toBe('W2');
+    expect(trainerFragen(k, pool, (x) => x.afb === 1)).toHaveLength(1);
+  });
+
+  it('hält die Schritte eines Falls zusammen und in Reihenfolge', () => {
+    const ids = ['trainer:h:f1:2', 'glossar:x', 'trainer:h:f1:1', 'trainer:h:a1'].map((id) => ({ id }));
+    expect(fallSchritteZusammen(ids).map((x) => x.id)).toEqual(['trainer:h:f1:1', 'trainer:h:f1:2', 'glossar:x', 'trainer:h:a1']);
+  });
+
+  it('schreibt Fehler aus Trainerfragen ins Fehlerheft des Trainers, mit derselben ID wie im Trainer', () => {
+    const [, schritt] = trainerFragen(k, pool, () => true);
+    const fe = ausSimulation(schritt!, { wahl: [0] });
+    expect(fe?.quelle).toBe('hygiene');
+    expect(fe?.id).toBe('hygiene:f1:1');
+  });
+
+  it('nimmt Trainerfragen in die Zusammenstellung auf', () => {
+    const z = stelleZusammen(k, { ...basis, quellen: ['trainer'], anzahl: 3 }, [], pool);
+    expect(z.vorrat.trainer).toBe(3);
+    expect(z.fragen).toHaveLength(3);
   });
 });

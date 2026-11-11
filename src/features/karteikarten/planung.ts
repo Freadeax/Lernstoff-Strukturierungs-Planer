@@ -5,7 +5,7 @@ import type { ID } from '../../core/types';
 import { addDays, daysBetween } from '../lernplan/dates';
 import { initState, nextIntervalDays, retrievability, updateState } from '../lernplan/fsrs';
 import type { Rating } from '../lernplan/types';
-import type { Karte, KartenConfig, KartenLog, KartenStand } from './typen';
+import type { Karte, KartenConfig, KartenLog, KartenQuelle, KartenStand } from './typen';
 
 /** Neuer Lernstand nach einer Antwort. Fällig wird die Karte frühestens morgen. */
 export function bewerte(stand: KartenStand | undefined, cardId: ID, rating: Rating, heute: string, retention: number): KartenStand {
@@ -64,6 +64,8 @@ export interface SitzungsOptionen {
   ref?: ID;
   /** Auch noch nicht fällige Karten nehmen, wenn sonst nichts da ist (vorgezogene Wiederholung). */
   vorziehen?: boolean;
+  /** Nur Karten dieser Herkunft (Glossar, Steckbriefe, eigene …). Leer oder fehlend = alle. */
+  quellen?: KartenQuelle[];
 }
 
 export interface Sitzung { karten: Karte[]; faellig: number; neu: number; vorgezogen: number }
@@ -76,7 +78,8 @@ export interface Sitzung { karten: Karte[]; faellig: number; neu: number; vorgez
 export function stelleSitzungZusammen(alle: Karte[], staende: Map<ID, KartenStand>, o: SitzungsOptionen): Sitzung {
   const themen = o.themen?.length ? new Set(o.themen) : undefined;
   const gezielt = !!themen || !!o.ref;
-  const pool = alle.filter((k) => (!themen || k.topicIds.some((t) => themen.has(t))) && (!o.ref || k.ref === o.ref));
+  const quellen = o.quellen?.length ? new Set(o.quellen) : undefined;
+  const pool = alle.filter((k) => (!themen || k.topicIds.some((t) => themen.has(t))) && (!o.ref || k.ref === o.ref) && (!quellen || quellen.has(k.quelle)));
   const faellig: { k: Karte; r: number }[] = [];
   const neu: Karte[] = [];
   const spaeter: { k: Karte; due: string }[] = [];
@@ -102,6 +105,56 @@ export function stelleSitzungZusammen(alle: Karte[], staende: Map<ID, KartenStan
     karten.push(...v);
   }
   return { karten, faellig: alt.length, neu: frisch.length, vorgezogen };
+}
+
+// ---------------------------------------------------------------- Problemkarten
+
+/** Ab dieser Schwierigkeit (FSRS, 1 bis 10) gilt eine Karte als schwer. */
+export const SCHWER_AB = 8;
+/** Unter dieser Abrufwahrscheinlichkeit gilt eine gelernte Karte als wackelig. */
+export const WACKELIG_UNTER = 0.7;
+
+/**
+ * Problemkarte: schon gelernt, aber mindestens zweimal vergessen, sehr schwer oder heute kaum noch abrufbar.
+ * Ausgesetzte Karten zählen nicht.
+ */
+export function istProblem(s: KartenStand, heute: string): boolean {
+  if (s.ausgesetzt || s.reps === 0) return false;
+  return s.lapses >= 2 || s.difficulty >= SCHWER_AB || abruf(s, heute) < WACKELIG_UNTER;
+}
+
+/**
+ * Sitzung nur aus Problemkarten, die wackeligsten zuerst. Unabhängig vom Fälligkeitsdatum:
+ * Wer gezielt übt, festigt so die Karten, an denen er am häufigsten scheitert.
+ */
+export function problemSitzung(alle: Karte[], staende: Map<ID, KartenStand>, heute: string, max: number, quellen?: KartenQuelle[]): Sitzung {
+  const q = quellen?.length ? new Set(quellen) : undefined;
+  const liste = alle
+    .filter((k) => !q || q.has(k.quelle))
+    .map((k) => ({ k, s: staende.get(k.id) }))
+    .filter((x): x is { k: Karte; s: KartenStand } => !!x.s && istProblem(x.s, heute))
+    .sort((a, b) => abruf(a.s, heute) - abruf(b.s, heute) || b.s.lapses - a.s.lapses)
+    .slice(0, Math.max(1, max))
+    .map((x) => x.k);
+  const faellig = liste.filter((k) => staende.get(k.id)!.due <= heute).length;
+  return { karten: liste, faellig, neu: 0, vorgezogen: liste.length - faellig };
+}
+
+/** Längste Folge gewusster Karten (Gut oder Leicht) in einer Sitzung. */
+export function laengsteSerie(ratings: readonly Rating[]): number {
+  let best = 0;
+  let jetzt = 0;
+  for (const r of ratings) {
+    jetzt = r >= 3 ? jetzt + 1 : 0;
+    best = Math.max(best, jetzt);
+  }
+  return best;
+}
+
+/** Anteil gewusster Karten (Gut oder Leicht) beim ersten Versuch, in Prozent. */
+export function gewusstProzent(ersteRatings: readonly Rating[]): number {
+  if (!ersteRatings.length) return 0;
+  return Math.round((ersteRatings.filter((r) => r >= 3).length / ersteRatings.length) * 100);
 }
 
 /** Nach jeweils drei alten eine neue Karte, Reste hinten an. */

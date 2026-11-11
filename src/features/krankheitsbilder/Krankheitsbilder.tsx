@@ -11,6 +11,9 @@ import { LernplanHinweis, useLernplanUebernahme } from '../lernplan/ui/LernplanH
 import { FAELLE, type Fallaufgabe } from './faelle';
 import { faelleZuKrankheit, KI_KRANKHEITEN, PRAXIS_KRANKHEITEN } from './fallbezug';
 import { Vorlesen } from '../../ui/audio/Vorlesen';
+import { Runde } from '../quiz/Runde';
+import { runde } from '../quiz/quiz';
+import { detektivRunde, DETEKTIV_HINWEIS } from './detektiv';
 import {
   ABSCHNITTE, ASSESSMENT_GRUPPE, belegeFuer, belegQuote, bewerteFall, faelleZuThema, MIN_PRO_THEMA, mischung, passtZurSuche, vollstaendig,
   type Antworten, type FallErgebnis,
@@ -18,7 +21,7 @@ import {
 
 const ERLEDIGT_KEY = 'lernstoff.krankheitsbilder.erledigt';
 
-type Ansicht = 'steckbriefe' | 'faelle';
+type Ansicht = 'steckbriefe' | 'faelle' | 'detektiv' | 'vergleich';
 type Erledigt = Record<string, { datum: string; prozent: number }>;
 
 function ladeErledigt(): Erledigt {
@@ -34,12 +37,14 @@ const DRUGS = new Map((pflegeModule.drugProfiles ?? []).map((d) => [d.id, d]));
 const REFS = new Map((pflegeModule.references ?? []).map((r) => [r.id, r]));
 const THEMEN = new Map(pflegeModule.topics.map((t) => [t.id, t]));
 
-function gehe(p: { ansicht?: Ansicht; kb?: string; fall?: string; thema?: string }) {
+function gehe(p: { ansicht?: Ansicht; kb?: string; fall?: string; thema?: string; a?: string; b?: string }) {
   const q = new URLSearchParams();
   if (p.ansicht && p.ansicht !== 'steckbriefe') q.set('ansicht', p.ansicht);
   if (p.kb) q.set('kb', p.kb);
   if (p.fall) q.set('fall', p.fall);
   if (p.thema) q.set('thema', p.thema);
+  if (p.a) q.set('a', p.a);
+  if (p.b) q.set('b', p.b);
   const s = q.toString();
   navigate(`/lernen/krankheitsbilder${s ? `?${s}` : ''}`);
 }
@@ -228,6 +233,7 @@ function Steckbrief({ p }: { p: DiseaseProfile }) {
         {p.merksatz && <p className="note">Merksatz: {p.merksatz}</p>}
         <div className="row">
           <button type="button" className="primary small" onClick={() => navigate(`/lernen/karten?krankheit=${encodeURIComponent(p.id)}`)}>Mit Karteikarten lernen</button>
+          <button type="button" className="small" onClick={() => gehe({ ansicht: 'vergleich', a: p.id })}>Vergleichen mit …</button>
           <Vorlesen key={p.id} label="Steckbrief vorlesen" text={() => steckbriefText(p)} />
         </div>
       </article>
@@ -365,12 +371,123 @@ function Fall({ fall, onFertig, onZurueck, onWeiter }: {
   );
 }
 
+// ---------------------------------------------------------------- Detektiv
+
+const RUNDEN = [6, 9, 12];
+
+function Detektiv() {
+  const [anzahl, setAnzahl] = useState(9);
+  const [nr, setNr] = useState(0);
+  const [laeuft, setLaeuft] = useState(false);
+  const aufgaben = useMemo(() => runde(detektivRunde(PROFILE, anzahl), anzahl), [anzahl, nr]);
+  if (laeuft && aufgaben.length) {
+    return (
+      <Runde key={nr} aufgaben={aufgaben} quelle="krankheitsbilder" trainer="krankheitsbilder"
+        onNeu={() => setNr((n) => n + 1)} onEnde={() => setLaeuft(false)} />
+    );
+  }
+  return (
+    <div className="card kb__detektiv stack-2">
+      <h3>Krankheitsbild-Detektiv</h3>
+      <p>Du bekommst drei Beobachtungen und schließt auf das Krankheitsbild. Dazwischen ordnest du kurze Beschreibungen den passenden Krankheitsbildern zu. Jede Runde wird neu aus den {PROFILE.length} Steckbriefen gemischt, Namen im Text sind verdeckt.</p>
+      <div className="row kb__detektiv-wahl" role="group" aria-label="Aufgaben pro Runde">
+        <span className="muted">Aufgaben:</span>
+        {RUNDEN.map((n) => <button key={n} type="button" className="pill" aria-pressed={anzahl === n} onClick={() => setAnzahl(n)}>{n}</button>)}
+      </div>
+      <div className="row">
+        <button type="button" className="primary" onClick={() => { setNr((n) => n + 1); setLaeuft(true); }}>Runde starten</button>
+      </div>
+      <p className="muted kb__klein">{DETEKTIV_HINWEIS} Fehler landen im Fehlerheft, das Ergebnis je Thema im Lernplan.</p>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------- Vergleich
+
+/** Paare, die in Prüfung und Praxis oft verwechselt werden. */
+const PAARE: Array<[string, string]> = ([
+  ['kh.asthma', 'kh.copd'], ['kh.delir', 'kh.demenz'], ['kh.demenz', 'kh.depression'], ['kh.tvt', 'kh.pavk'],
+  ['kh.herzinfarkt', 'kh.lungenembolie'], ['kh.fieberkrampf', 'kh.epilepsie'], ['kh.pseudokrupp', 'kh.bronchiolitis'], ['kh.arthrose', 'kh.osteoporose'],
+] as Array<[string, string]>).filter(([a, b]) => PROFIL.has(a) && PROFIL.has(b));
+
+/** Kurzer Name für die Paar-Knöpfe: lange Namen durch ein kurzes Synonym (pAVK, TVT) ersetzen. */
+const kurzname = (p: DiseaseProfile) => {
+  const n = p.name.replace(/\s*\(.*?\)/, '');
+  return n.length > 22 ? p.synonyms?.find((x) => x.length <= 6) ?? n : n;
+};
+
+function VergleichSpalte({ p, id }: { p: DiseaseProfile; id: DiseaseSection }) {
+  if (id === 'definition') {
+    return (
+      <div className="kb__vgl-spalte">
+        <span className="kb__vgl-name">{p.name}</span>
+        <p>{p.definition}</p>
+        <Beleg p={p} abschnitt={id} />
+      </div>
+    );
+  }
+  const inhalt = id === 'prophylaxen' ? (p.prophylaxen ?? []).map((x) => `${THEMEN.get(x.topicId)?.name ?? x.topicId}: ${x.grund}`)
+    : (p[id] ?? []);
+  return (
+    <div className="kb__vgl-spalte">
+      <span className="kb__vgl-name">{p.name}</span>
+      {inhalt.length ? <ul className="kb__liste">{inhalt.map((x, i) => <li key={i}>{x}</li>)}</ul> : <p className="muted">Kein Eintrag.</p>}
+      <Beleg p={p} abschnitt={id} />
+    </div>
+  );
+}
+
+function Vergleich({ a, b }: { a?: DiseaseProfile; b?: DiseaseProfile }) {
+  const waehle = (seite: 'a' | 'b', id: string) => gehe({ ansicht: 'vergleich', a: seite === 'a' ? id : a?.id, b: seite === 'b' ? id : b?.id });
+  const auswahl = (seite: 'a' | 'b', wert?: DiseaseProfile) => (
+    <label className="field">{seite === 'a' ? 'Erstes Krankheitsbild' : 'Zweites Krankheitsbild'}
+      <select value={wert?.id ?? ''} onChange={(e) => waehle(seite, e.target.value)}>
+        <option value="">Bitte wählen</option>
+        {PROFILE.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+      </select>
+    </label>
+  );
+  return (
+    <div className="stack-2">
+      <div className="card stack-2">
+        <p>Zwei Krankheitsbilder Abschnitt für Abschnitt nebeneinander. Das hilft bei Bildern, die sich ähneln und in Prüfungen gern verwechselt werden.</p>
+        <div className="kb__vgl-wahl">{auswahl('a', a)}{auswahl('b', b)}</div>
+        <div className="row kb__vgl-paare" aria-label="Häufig verwechselt">
+          <span className="muted">Häufig verwechselt:</span>
+          {PAARE.map(([x, y]) => (
+            <button key={`${x}-${y}`} type="button" className="pill small" aria-pressed={a?.id === x && b?.id === y} onClick={() => gehe({ ansicht: 'vergleich', a: x, b: y })}>
+              {kurzname(PROFIL.get(x)!)} / {kurzname(PROFIL.get(y)!)}
+            </button>
+          ))}
+        </div>
+      </div>
+      {a && b && a.id !== b.id ? (
+        <div key={`${a.id}-${b.id}`} className="card kb__vgl m-stagger">
+          {ABSCHNITTE.filter((x) => x.id === 'definition' || (x.id === 'prophylaxen' ? a.prophylaxen?.length || b.prophylaxen?.length : a[x.id]?.length || b[x.id]?.length)).map((x) => (
+            <section key={x.id} className="kb__vgl-zeile">
+              <h3>{x.label}</h3>
+              <div className="kb__vgl-spalten"><VergleichSpalte p={a} id={x.id} /><VergleichSpalte p={b} id={x.id} /></div>
+            </section>
+          ))}
+          <div className="row">
+            <button type="button" className="small" onClick={() => gehe({ kb: a.id })}>Steckbrief {a.name}</button>
+            <button type="button" className="small" onClick={() => gehe({ kb: b.id })}>Steckbrief {b.name}</button>
+          </div>
+        </div>
+      ) : (
+        <p className="muted">{a && b ? 'Wähle zwei verschiedene Krankheitsbilder.' : 'Wähle zwei Krankheitsbilder oder ein häufig verwechseltes Paar.'}</p>
+      )}
+    </div>
+  );
+}
+
 // ---------------------------------------------------------------- Seite
 
 export default function Krankheitsbilder() {
   const { params } = useRoute();
   const fall = FAELLE.find((f) => f.id === params.get('fall'));
-  const ansicht: Ansicht = params.get('ansicht') === 'faelle' || fall ? 'faelle' : 'steckbriefe';
+  const roh = params.get('ansicht');
+  const ansicht: Ansicht = fall ? 'faelle' : roh === 'faelle' || roh === 'detektiv' || roh === 'vergleich' ? roh : 'steckbriefe';
   const profil = PROFIL.get(params.get('kb') ?? '');
   const thema = params.get('thema') ?? undefined;
   const [erledigt, setErledigt] = useState<Erledigt>(ladeErledigt);
@@ -405,10 +522,14 @@ export default function Krankheitsbilder() {
         <button type="button" role="tab" className="pill" aria-selected={ansicht === 'faelle'} onClick={() => gehe({ ansicht: 'faelle' })}>
           Fallaufgaben <span className="pill__count">{FAELLE.length}</span>
         </button>
+        <button type="button" role="tab" className="pill" aria-selected={ansicht === 'detektiv'} onClick={() => gehe({ ansicht: 'detektiv' })}>Detektiv</button>
+        <button type="button" role="tab" className="pill" aria-selected={ansicht === 'vergleich'} onClick={() => gehe({ ansicht: 'vergleich' })}>Vergleichen</button>
       </div>
 
       {ansicht === 'steckbriefe' && !profil && <Liste erledigt={erledigt} />}
       {ansicht === 'steckbriefe' && profil && <Steckbrief key={profil.id} p={profil} />}
+      {ansicht === 'detektiv' && <Detektiv />}
+      {ansicht === 'vergleich' && <Vergleich a={PROFIL.get(params.get('a') ?? '')} b={PROFIL.get(params.get('b') ?? '')} />}
       {ansicht === 'faelle' && !fall && <FallListe thema={thema} erledigt={erledigt} />}
       {ansicht === 'faelle' && fall && (
         <Fall key={fall.id} fall={fall} onFertig={fertig}

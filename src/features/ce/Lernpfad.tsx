@@ -1,11 +1,11 @@
 import { navigate } from '../../ui/shell/router';
 import { heute } from '../lernplan/store';
-import { setzeHaken, SCHRITT_LABEL, steckbriefHaken, type CePfad, type Haken, type Schritt, type ThemaFakten, type ThemaPfad } from './lernpfad';
+import { setzeHaken, SCHRITT_LABEL, SCHRITTE, steckbriefHaken, type CePfad, type Haken, type Schritt, type ThemaFakten, type ThemaPfad } from './lernpfad';
 
 const ZEICHEN: Record<Schritt['zustand'], string> = { erledigt: '✓', teilweise: '◐', offen: '○', entfaellt: '–' };
 const ZUSTAND_LABEL: Record<Schritt['zustand'], string> = { erledigt: 'erledigt', teilweise: 'angefangen', offen: 'offen', entfaellt: 'entfällt' };
 
-/** Fünf Punkte für die Zeile eines Themas: wie weit der Pfad ist, ohne ihn aufzuklappen. */
+/** Ein Punkt je Schritt für die Zeile eines Themas: wie weit der Pfad ist, ohne ihn aufzuklappen. */
 export function PfadPunkte({ pfad }: { pfad: ThemaPfad }) {
   return (
     <span className="pfad-punkte" role="img" aria-label={`Lernpfad: ${pfad.erledigt} von ${pfad.gesamt} Schritten erledigt`}>
@@ -17,7 +17,7 @@ export function PfadPunkte({ pfad }: { pfad: ThemaPfad }) {
 /** Die Schritte eines Themas als geordnete Liste mit Sprung zum jeweiligen Modul. */
 export function SchrittListe({ pfad, fakten, haken, onHaken }: { pfad: ThemaPfad; fakten: ThemaFakten; haken: Haken; onHaken: (h: Haken) => void }) {
   return (
-    <ol className="pfad">
+    <ol className="pfad m-stagger">
       {pfad.schritte.map((s, i) => {
         const naechster = pfad.naechster === s;
         return (
@@ -56,7 +56,7 @@ export function PfadKarte({ pfad, themaName, testbar, onTest }: { pfad: CePfad; 
       <div className="ce-pfad__kopf">
         <div>
           <h2>Dein Lernpfad</h2>
-          <p className="muted">Je Thema: {(['lesen', 'karten', 'steckbrief', 'fall', 'selbsttest'] as const).map((a) => SCHRITT_LABEL[a]).join(' → ')}</p>
+          <p className="muted">Je Thema: {SCHRITTE.map((a) => SCHRITT_LABEL[a]).join(' → ')}</p>
         </div>
         <div className="ce-pfad__zahl" aria-label={`${anteil} Prozent des Lernpfads erledigt`}><strong>{anteil} %</strong><span className="muted">{pfad.erledigt} / {pfad.gesamt} Schritte</span></div>
       </div>
