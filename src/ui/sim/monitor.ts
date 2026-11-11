@@ -1,6 +1,8 @@
 // Rechenteil des animierten Patientenmonitors: Kurvenformen und Alarmstufen.
 // Rein und ohne DOM, damit Praxis- und Fallsimulator dieselben Regeln teilen und sie testbar bleiben.
 
+import { vitalNormal } from './vitalnormen';
+
 /** Werte für den Monitor. null/undefined = nicht gemessen, dann zeigt der Monitor "--". */
 export interface MonitorWerte {
   puls?: number | null;
@@ -29,9 +31,16 @@ interface Grenzen { rotUnter?: number; gelbUnter?: number; gelbUeber?: number; r
  * Kinder-Alarmprofile (didaktisch): Puls, Atemfrequenz und systolischer Druck nach Altersband, angelehnt an
  * gängige pädiatrische Normwerttabellen und PEWS-Logik. SpO₂ und Temperatur wie bei Erwachsenen.
  */
-const KIND_GRENZEN: Record<'kleinkind' | 'schulkind', Partial<Record<MonitorParameter, Grenzen>>> = {
-  kleinkind: { puls: { rotUnter: 70, gelbUnter: 90, gelbUeber: 150, rotUeber: 170 }, af: { rotUnter: 15, gelbUnter: 20, gelbUeber: 40, rotUeber: 50 }, sys: { rotUnter: 70, gelbUnter: 80 } },
-  schulkind: { puls: { rotUnter: 60, gelbUnter: 70, gelbUeber: 130, rotUeber: 150 }, af: { rotUnter: 12, gelbUnter: 16, gelbUeber: 30, rotUeber: 40 }, sys: { rotUnter: 80, gelbUnter: 90 } },
+/** Rote Grenzen je Kindergruppe; gelb heißt außerhalb des Normalbereichs aus dem gemeinsamen Vertrag (vitalnormen.ts). */
+const KIND_ROT: Record<'kleinkind' | 'schulkind', Partial<Record<MonitorParameter, { rotUnter?: number; rotUeber?: number }>>> = {
+  kleinkind: { puls: { rotUnter: 70, rotUeber: 170 }, af: { rotUnter: 15, rotUeber: 50 }, sys: { rotUnter: 70 } },
+  schulkind: { puls: { rotUnter: 60, rotUeber: 150 }, af: { rotUnter: 12, rotUeber: 40 }, sys: { rotUnter: 80 } },
+};
+const kindGrenzen = (g: 'kleinkind' | 'schulkind', p: MonitorParameter): Grenzen | undefined => {
+  const rot = KIND_ROT[g][p];
+  if (!rot) return undefined;
+  const n = vitalNormal(p, g);
+  return { ...rot, gelbUnter: n?.min, gelbUeber: n?.max };
 };
 
 export interface AlarmProfil {
@@ -69,7 +78,7 @@ export function alarmStufe(p: MonitorParameter, n: number | null | undefined, gr
   if (!da(n)) return 'ok';
   if (gruppe === 'saeugling') return 'ok';
   if (gruppe !== 'erwachsen') {
-    const g = KIND_GRENZEN[gruppe][p];
+    const g = kindGrenzen(gruppe, p);
     if (g) return stufe(n, g);
   }
   switch (p) {
@@ -81,18 +90,9 @@ export function alarmStufe(p: MonitorParameter, n: number | null | undefined, gr
   }
 }
 
-/** Unauffälliger Bereich je Wert und Altersgruppe (für Kurvenbänder); undefined ohne Profil. */
+/** Normalbereich je Wert und Altersgruppe aus dem gemeinsamen Vertrag (für Kurvenbänder); undefined ohne Profil. */
 export function normBand(p: MonitorParameter, gruppe: MonitorGruppe = 'erwachsen'): { min?: number; max?: number } | undefined {
-  if (gruppe === 'saeugling') return undefined;
-  const g = gruppe !== 'erwachsen' ? KIND_GRENZEN[gruppe][p] : undefined;
-  if (g) return { min: g.gelbUnter, max: g.gelbUeber };
-  switch (p) {
-    case 'puls': return { min: 51, max: 90 };
-    case 'af': return { min: 12, max: 20 };
-    case 'spo2': return { min: 96 };
-    case 'sys': return { min: 111 };
-    case 'temp': return { min: 36.1, max: 38 };
-  }
+  return vitalNormal(p, gruppe);
 }
 
 /** Höchste Alarmstufe über alle gemessenen Werte; Bewusstsein ungleich A ist immer rot. */

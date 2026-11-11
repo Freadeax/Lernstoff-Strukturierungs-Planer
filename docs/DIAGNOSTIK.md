@@ -74,6 +74,20 @@ Ein öffentliches Repo wird abgelehnt. Er bleibt an das verbundene Ziel gebunden
 nichts mehr. Begrenzt sind Ordner, Bilder je Serie, Dateigröße, Größe der serie.json, Befundmarken und Texte.
 Marken außerhalb von 0..1 oder Schichtbereich werden verworfen. Die Seite lädt nur herunter, nie hoch.
 
+**Labor-Werkbank (Audit, Abschnitt 5):** Vor jeder Entnahme wählst du das Farbsystem. Dazu siehst du seine
+Herkunft (EU-Herstellerkonvention oder ISO 6710/US) und die Röhrchen der Situation in diesen Farben. Die
+Nachbesprechung trennt je Fehler Ursache, Messwertänderung und Folgehandlung (`debrief`, `FOLGEHANDLUNG`). Alle drei
+Stationen buchen in den Lernplan (`werkbank/lernplan.ts`, Versuch-ID `werkbank:<station>:<szenario>:<lauf>`):
+Entnahme auf Blutentnahme, Verlauf auf das Thema des gesuchten Werts, Meldung auf Übergabe. `uebungenFuer` verlinkt
+die Stationen vom Lernplan aus.
+
+**Gemeinsamer Normwert-Vertrag:** Vitalwerte stehen in `src/ui/sim/vitalnormen.ts` (`VITALWERTE`, Normalbereich
+je Altersgruppe, `VITAL_SCHWELLEN`), Laborwerte in `labor/parameter.ts`. Die Fassade `src/ui/sim/normwerte.ts`
+(`normwert`, `normText`) verbindet beides. Der Normwerte-Trainer erzeugt seine Bereichsangaben daraus. Die
+Kurvenbänder (`normBand`) sind der Normalbereich. Bei Kindern beginnt Gelb am Monitor genau außerhalb dieses
+Bereichs. Bei Erwachsenen bleiben die Alarmfarben NEWS2 und warnen deshalb früher. Ein Test (normwerte.test.ts)
+hält Trainer, Labor und Monitor gleich.
+
 ## Echte Bilder
 
 - **Öffentlich** (`public/bildgebung/…`, Quelle `bilder`): nur frei lizenziert (CC BY, CC BY-SA, gemeinfrei) mit Urheber,

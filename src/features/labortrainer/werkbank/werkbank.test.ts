@@ -1,8 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { PARAMETER_NACH_ID } from '../../../ui/sim/labor/parameter';
 import { ROEHRCHEN } from '../../../ui/sim/labor/praeanalytik';
-import { bewerteEntnahme, roehrchenFuer, staender, SZENARIEN, VERWURF, zielFuellung, type EntnahmeEingabe, type EntnahmeSzenario, type Platz } from './entnahme';
+import { bewerteEntnahme, debrief, ENTNAHME_KRITERIEN, FOLGEHANDLUNG, roehrchenFuer, staender, SZENARIEN, VERWURF, zielFuellung, type EntnahmeEingabe, type EntnahmeSzenario, type Platz } from './entnahme';
 import { VERLAEUFE } from './verlauf';
+import { werkbankErgebnis, werkbankThema } from './lernplan';
+import { pruefeErgebnis } from '../../lernplan/ergebnis';
+import { pflegeModule } from '../../../modules/pflege';
+import { leafTopics } from '../../lernplan/store';
 import { bewerteSbar, DOKU_FELDER, MELDUNGEN } from './meldung';
 
 const sz = (id: string) => SZENARIEN.find((s) => s.id === id)!;
@@ -105,5 +109,40 @@ describe('Werkbank: kritischen Wert melden', () => {
       const unvollstaendig = bewerteSbar(m, ideal.slice(0, 2));
       expect(unvollstaendig.hinweise.join(' ')).toMatch(/fehlt/);
     }
+  });
+});
+
+describe('Werkbank: Nachbesprechung und Lernplan (Audit Abschnitt 5)', () => {
+  it('Debrief trennt Fehlerursache, Messwertänderung und Folgehandlung', () => {
+    const s = sz('aufnahme');
+    const e = bewerteEntnahme(s, { ...richtig(s), arm: 'links', stauzeit: 90 });
+    const d = debrief(e);
+    expect(d.map((z) => z.art)).toEqual(expect.arrayContaining(['infusion', 'stauung']));
+    const inf = d.find((z) => z.art === 'infusion')!;
+    expect(inf.ursache).toMatch(/Infusionsarm/);
+    expect(inf.messwert).toMatch(/Glukose .*→/);
+    expect(inf.folge).toBe(FOLGEHANDLUNG.infusion);
+    for (const z of d) expect(z.folge).not.toBe(z.erklaerung);
+  });
+  it('abgelehnte Probe: kein Wert statt Messwertänderung', () => {
+    const s = sz('aufnahme');
+    const d = debrief(bewerteEntnahme(s, { ...richtig(s), identitaet: 'keine' }));
+    expect(d.find((z) => z.art === 'identitaet')!.messwert).toMatch(/abgelehnt/);
+    const d2 = debrief(bewerteEntnahme(s, { ...richtig(s), identitaet: 'keine', arm: 'links' }));
+    expect(d2.find((z) => z.art === 'infusion')!.messwert).toMatch(/nicht sichtbar.*Glukose/);
+  });
+  it('jede Fehlerart hat eine Folgehandlung, Kriterien passen zu den Punkten', () => {
+    for (const f of Object.values(FOLGEHANDLUNG)) expect(f.length).toBeGreaterThan(20);
+    const s = sz('gerinnung');
+    expect(bewerteEntnahme(s, richtig(s)).checks).toHaveLength(ENTNAHME_KRITERIEN.length);
+  });
+  it('Lernplan: gültiges Ergebnis mit eigener Versuch-ID und Thema aus dem Katalog', () => {
+    const blaetter = new Set(leafTopics(pflegeModule.topics).map((t) => t.id));
+    for (const st of ['entnahme', 'meldung'] as const) expect(blaetter.has(werkbankThema(st))).toBe(true);
+    for (const v of VERLAEUFE) expect(blaetter.has(werkbankThema('verlauf', v.gesucht)), v.id).toBe(true);
+    const e = werkbankErgebnis({ station: 'entnahme', szenario: 'aufnahme', lauf: 'x1', topicId: werkbankThema('entnahme'), punkte: 6, max: 8, kriterien: [] });
+    expect(pruefeErgebnis(e)).toBeUndefined();
+    expect(e.versuchId).toBe('werkbank:entnahme:aufnahme:x1');
+    expect(e.ergebnisse[0]!.scorePercent).toBe(75);
   });
 });

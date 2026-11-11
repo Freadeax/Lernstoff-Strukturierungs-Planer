@@ -112,6 +112,10 @@ export function gruppenRang(g: string): string {
 
 // ---------------------------------------------------------------- Abschnitte
 
+/** Stabiler Schlüssel eines Abschnitts: die Nummer aus der Überschrift, sonst der Titel. Bleibt gleich, wenn davor ein Abschnitt dazukommt. */
+export const abschnittSchluessel = (a: { nummer?: string; titel: string }) =>
+  a.nummer ? `nr:${a.nummer}` : `titel:${a.titel.normalize('NFKC').toLocaleLowerCase('de').replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '')}`;
+
 /** „1 · Expertenstandard [D, S. 17]“ → Nummer, Titel ohne Beleg, Belege der Überschrift. */
 export function leseUeberschrift(text: string, bekannte?: Set<string>): { nummer?: string; titel: string; belege: SkriptBeleg[] } {
   const belege = findeBelege(text, bekannte);
