@@ -22,9 +22,18 @@ export type RaumId =
   | '16_notaufnahme_triage'
   | '17_notaufnahme_untersuchung'
   | '18_notaufnahme_schockraum_nacht'
-  | '19_krankenhaus_materialraum';
+  | '19_krankenhaus_materialraum'
+  | '20_paediatrie_kleinkind'
+  | '20a_paediatrie_kleinkind_ohne_monitor'
+  | '20m_paediatrie_kleinkind_monitor_verbunden'
+  | '20n_paediatrie_kleinkind_nacht'
+  | '20f_paediatrie_kleinkind_fieberkrampf'
+  | '21_paediatrie_schulkind'
+  | '21a_paediatrie_schulkind_ohne_monitor'
+  | '21b_paediatrie_schulkind_spacer'
+  | '21m_paediatrie_schulkind_monitor_verbunden';
 
-export type RaumBereich = 'Ambulante Pflege' | 'Pflegeheim' | 'Station' | 'Intensivstation' | 'Notaufnahme' | 'Krankenhaus';
+export type RaumBereich = 'Ambulante Pflege' | 'Pflegeheim' | 'Station' | 'Intensivstation' | 'Notaufnahme' | 'Krankenhaus' | 'Pädiatrie';
 
 /** Rechteck relativ zum Bild (0…1). */
 export interface Rechteck { x: number; y: number; width: number; height: number }
@@ -47,11 +56,41 @@ export interface Raum {
   ohneMonitor?: RaumId;
   /** Gleicher Raum mit Monitor (Gegenstück zu ohneMonitor). */
   mitMonitor?: RaumId;
+  /** Gleicher Raum mit angeschlossenem Sensor am Patienten (für „Überwachung läuft“, z. B. 20 → 20m). */
+  verbunden?: RaumId;
+  /** Gleicher Raum bei Nacht (gleicher Bildausschnitt). */
+  nacht?: RaumId;
   hotspots: HotspotVorschlag[];
 }
 
 const B = 1280, H = 720;
 const raum = (r: Omit<Raum, 'datei' | 'breite' | 'hoehe'>): Raum => ({ ...r, datei: `raeume/${r.id}.webp`, breite: B, hoehe: H });
+
+// Pädiatrie aus der ersten Materiallieferung (11.11.2026, docs/MATERIAL-BEDARF.md, KI-generiert).
+// Alle Varianten haben denselben Bildausschnitt, Hotspots gelten daher für die ganze Raumfamilie.
+const KLEINKIND_MONITOR: Rechteck = { x: 0.762, y: 0.1052, width: 0.1764, height: 0.1722 };
+const kleinkindHotspots = (mitWagen: boolean, clipAmKind = false): HotspotVorschlag[] => [
+  { id: 'kind', label: 'Kind', x: 0.45, y: 0.4 },
+  { id: 'mutter', label: 'Mutter', x: 0.19, y: 0.3 },
+  { id: 'trinkbecher', label: 'Trinkbecher', x: 0.05, y: 0.56 },
+  { id: 'thermometer', label: 'Fieberthermometer', x: 0.11, y: 0.65 },
+  { id: 'rufanlage', label: 'Rufanlage', x: 0.55, y: 0.85 },
+  ...(mitWagen ? [
+    { id: 'monitor', label: 'Monitorwagen', x: 0.86, y: 0.55 },
+    { id: 'manschette', label: 'Kindermanschette', x: 0.82, y: 0.45 },
+    clipAmKind ? { id: 'fingerclip', label: 'Fingerclip am Kind', x: 0.45, y: 0.56 } : { id: 'fingerclip', label: 'Fingerclip', x: 0.89, y: 0.47 },
+  ] : []),
+];
+const SCHULKIND_MONITOR: Rechteck = { x: 0.8002, y: 0.1488, width: 0.1663, height: 0.1637 };
+const schulkindHotspots = (mitWagen: boolean, spacerAmKind = false, clipAmKind = false): HotspotVorschlag[] => [
+  { id: 'kind', label: 'Kind', x: 0.42, y: 0.3 },
+  { id: 'mutter', label: 'Mutter', x: 0.17, y: 0.25 },
+  { id: 'sauerstoff', label: 'Sauerstoff-Wandanschluss mit Flowmeter', x: 0.6, y: 0.25 },
+  { id: 'rufanlage', label: 'Rufanlage', x: 0.52, y: 0.87 },
+  spacerAmKind ? { id: 'spacer', label: 'Dosieraerosol mit Spacer und Maske', x: 0.39, y: 0.42 } : { id: 'spacer', label: 'Dosieraerosol und Spacer', x: 0.24, y: 0.72 },
+  ...(mitWagen ? [{ id: 'monitor', label: 'Monitorwagen', x: 0.88, y: 0.53 }] : []),
+  ...(clipAmKind ? [{ id: 'fingerclip', label: 'Fingerclip am Kind', x: 0.43, y: 0.63 }] : []),
+];
 
 const liste: Raum[] = [
   raum({
@@ -204,6 +243,60 @@ const liste: Raum[] = [
       { id: 'arbeitsplatz', label: 'Arbeitsplatz', x: 0.78, y: 0.37 },
     ],
   }),
+  raum({
+    id: '20_paediatrie_kleinkind', bereich: 'Pädiatrie', titel: 'Kinderstation · Kleinkind mit Mutter',
+    beschreibung: 'Kinderzimmer auf Station: ein Mädchen liegt mit Stofftier im Gitterbett, die Mutter sitzt daneben. Links Nachttisch mit Trinkbecher und Thermometer, rechts ein Monitorwagen mit Kindermanschette und Fingerclip auf der Ablage.',
+    monitor: KLEINKIND_MONITOR, ohneMonitor: '20a_paediatrie_kleinkind_ohne_monitor', verbunden: '20m_paediatrie_kleinkind_monitor_verbunden', nacht: '20n_paediatrie_kleinkind_nacht',
+    hotspots: kleinkindHotspots(true),
+  }),
+  raum({
+    id: '20a_paediatrie_kleinkind_ohne_monitor', bereich: 'Pädiatrie', titel: 'Kinderstation · ohne Monitor',
+    beschreibung: 'Dasselbe Kinderzimmer ohne Monitorwagen: das Mädchen im Gitterbett, die Mutter daneben, Trinkbecher und Thermometer auf dem Nachttisch.',
+    mitMonitor: '20_paediatrie_kleinkind',
+    hotspots: kleinkindHotspots(false),
+  }),
+  raum({
+    id: '20m_paediatrie_kleinkind_monitor_verbunden', bereich: 'Pädiatrie', titel: 'Kinderstation · Monitor angeschlossen',
+    beschreibung: 'Dasselbe Kinderzimmer, der Fingerclip sitzt am Kind und ist mit dem Monitorwagen verbunden.',
+    monitor: KLEINKIND_MONITOR, ohneMonitor: '20a_paediatrie_kleinkind_ohne_monitor', nacht: '20n_paediatrie_kleinkind_nacht',
+    hotspots: kleinkindHotspots(true, true),
+  }),
+  raum({
+    id: '20n_paediatrie_kleinkind_nacht', bereich: 'Pädiatrie', titel: 'Kinderstation · Nacht',
+    beschreibung: 'Dasselbe Kinderzimmer bei gedimmtem Nachtlicht: das Mädchen im Gitterbett, die Mutter daneben, rechts der Monitorwagen.',
+    monitor: KLEINKIND_MONITOR,
+    hotspots: kleinkindHotspots(true),
+  }),
+  raum({
+    id: '20f_paediatrie_kleinkind_fieberkrampf', bereich: 'Pädiatrie', titel: 'Kinderstation · Kleinkind nach Fieberkrampf',
+    beschreibung: 'Dasselbe Kinderzimmer mit einem jüngeren Mädchen, wach und erschöpft im Gitterbett. Die Mutter sitzt besorgt daneben, rechts der Monitorwagen.',
+    monitor: KLEINKIND_MONITOR,
+    hotspots: kleinkindHotspots(true),
+  }),
+  raum({
+    id: '21_paediatrie_schulkind', bereich: 'Pädiatrie', titel: 'Kinderstation · Schulkind mit Atemnot',
+    beschreibung: 'Kinderzimmer auf Station: ein Junge sitzt angestrengt aufrecht im Bett, die Mutter daneben. Vorn auf dem Tisch Dosieraerosol mit Spacer, an der Wand ein Sauerstoffanschluss mit Flowmeter, rechts ein Monitorwagen.',
+    monitor: SCHULKIND_MONITOR, ohneMonitor: '21a_paediatrie_schulkind_ohne_monitor', verbunden: '21m_paediatrie_schulkind_monitor_verbunden',
+    hotspots: schulkindHotspots(true),
+  }),
+  raum({
+    id: '21a_paediatrie_schulkind_ohne_monitor', bereich: 'Pädiatrie', titel: 'Kinderstation · Schulkind ohne Monitor',
+    beschreibung: 'Dasselbe Zimmer ohne Monitorwagen: der Junge sitzt im Bett, die Mutter daneben, Spacer auf dem Tisch.',
+    mitMonitor: '21_paediatrie_schulkind',
+    hotspots: schulkindHotspots(false),
+  }),
+  raum({
+    id: '21b_paediatrie_schulkind_spacer', bereich: 'Pädiatrie', titel: 'Kinderstation · Inhalation mit Spacer',
+    beschreibung: 'Dasselbe Zimmer: der Junge inhaliert mit Maske über den Spacer, die Mutter sitzt daneben.',
+    monitor: SCHULKIND_MONITOR, ohneMonitor: '21a_paediatrie_schulkind_ohne_monitor',
+    hotspots: schulkindHotspots(true, true),
+  }),
+  raum({
+    id: '21m_paediatrie_schulkind_monitor_verbunden', bereich: 'Pädiatrie', titel: 'Kinderstation · Schulkind am Monitor',
+    beschreibung: 'Dasselbe Zimmer, der Fingerclip sitzt am Jungen und ist mit dem Monitorwagen verbunden.',
+    monitor: SCHULKIND_MONITOR, ohneMonitor: '21a_paediatrie_schulkind_ohne_monitor',
+    hotspots: schulkindHotspots(true, false, true),
+  }),
 ];
 
 export const RAEUME: Record<RaumId, Raum> = Object.fromEntries(liste.map((r) => [r.id, r])) as Record<RaumId, Raum>;
@@ -218,7 +311,10 @@ export type MonitorZustand = 'abwesend' | 'standby' | 'laeuft' | 'signalausfall'
 /** Welches Bild zeigt den Raum im gewünschten Monitorzustand? (abwesend → Variante ohne Monitor, falls vorhanden) */
 export function raumFuerZustand(id: RaumId, zustand?: MonitorZustand): RaumId {
   const r = RAEUME[id];
+  if (!zustand) return id;
   if (zustand === 'abwesend') return r.ohneMonitor ?? id;
-  if (zustand && r.mitMonitor) return r.mitMonitor;
-  return id;
+  const mit = r.mitMonitor ?? id;
+  // Läuft die Überwachung, zeigt eine vorhandene Variante den Sensor am Patienten.
+  if (zustand === 'laeuft' || zustand === 'signalausfall') return RAEUME[mit].verbunden ?? mit;
+  return mit;
 }

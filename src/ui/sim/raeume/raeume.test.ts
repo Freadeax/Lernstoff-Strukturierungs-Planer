@@ -7,7 +7,7 @@ const imBild = (n: number) => n >= 0 && n <= 1;
 
 describe('Raumkatalog', () => {
   it('jedes Bild existiert, hat Beschreibung und gültige Koordinaten', () => {
-    expect(RAUM_IDS.length).toBe(14);
+    expect(RAUM_IDS.length).toBe(23);
     for (const id of RAUM_IDS) {
       const r = RAEUME[id];
       expect(existsSync(`public/${r.datei}`), r.datei).toBe(true);
@@ -26,6 +26,26 @@ describe('Raumkatalog', () => {
     expect(raumFuerZustand('12_station_kardiologie_monitoring', 'abwesend')).toBe('12a_station_kardiologie_ohne_monitor');
     expect(raumFuerZustand('12a_station_kardiologie_ohne_monitor', 'laeuft')).toBe('12_station_kardiologie_monitoring');
     expect(raumFuerZustand('17_notaufnahme_untersuchung', 'abwesend')).toBe('17_notaufnahme_untersuchung');
+  });
+
+  it('Kinderzimmer: ohne Wagen, Wagen in Bereitschaft, Sensor am Kind', () => {
+    expect(raumFuerZustand('20_paediatrie_kleinkind', 'abwesend')).toBe('20a_paediatrie_kleinkind_ohne_monitor');
+    expect(raumFuerZustand('20_paediatrie_kleinkind', 'standby')).toBe('20_paediatrie_kleinkind');
+    expect(raumFuerZustand('20_paediatrie_kleinkind', 'laeuft')).toBe('20m_paediatrie_kleinkind_monitor_verbunden');
+    expect(raumFuerZustand('20a_paediatrie_kleinkind_ohne_monitor', 'laeuft')).toBe('20m_paediatrie_kleinkind_monitor_verbunden');
+    expect(raumFuerZustand('21_paediatrie_schulkind', 'abwesend')).toBe('21a_paediatrie_schulkind_ohne_monitor');
+    expect(raumFuerZustand('21_paediatrie_schulkind', 'laeuft')).toBe('21m_paediatrie_schulkind_monitor_verbunden');
+    expect(raumFuerZustand('20f_paediatrie_kleinkind_fieberkrampf', 'laeuft')).toBe('20f_paediatrie_kleinkind_fieberkrampf');
+  });
+
+  it('Varianten verweisen auf vorhandene Räume, Hotspots liegen nicht auf dem Bildschirm', () => {
+    for (const id of RAUM_IDS) {
+      const r = RAEUME[id];
+      for (const v of [r.ohneMonitor, r.mitMonitor, r.verbunden, r.nacht]) if (v) expect(RAEUME[v], `${id} → ${v}`).toBeDefined();
+      if (!r.monitor) continue;
+      const m = r.monitor;
+      for (const h of r.hotspots) expect(h.x > m.x && h.x < m.x + m.width && h.y > m.y && h.y < m.y + m.height, `${id}/${h.id}`).toBe(false);
+    }
   });
 });
 

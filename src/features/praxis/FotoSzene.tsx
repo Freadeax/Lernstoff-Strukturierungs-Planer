@@ -5,6 +5,7 @@
 
 import { useState, type CSSProperties } from 'react';
 import { RaumBuehne, type BuehnenMonitor, type Hotspot } from '../../ui/sim/raeume/RaumBuehne';
+import { RAEUME } from '../../ui/sim/raeume/katalog';
 import { HandlungsVideo } from '../../ui/sim/HandlungsVideo';
 import type { HandlungsVideoId } from '../../ui/sim/handlungsvideos';
 import { consciousness } from './engine';
@@ -20,9 +21,9 @@ const TAETIGKEIT: Record<HandlungsArt, string> = {
 /** Tür bzw. Eingang: liegt in keinem Foto fest, daher am linken Rand. */
 const TUER: Punkt = { x: 8, y: 42 };
 
-/** Monitorzustand am Gerät: läuft nur mit angeschlossenem Monitoring, sonst Standby bzw. Raum ohne Monitor (12a). */
+/** Monitorzustand am Gerät: läuft nur mit angeschlossenem Monitoring, sonst Raum ohne Monitor (12a, 20a, 21a) bzw. Standby. */
 export function fotoMonitor(s: Session, z: SzenenZustand, raum: RaumFoto): BuehnenMonitor {
-  if (!s.monitoring) return { werte: {}, zustand: raum.id === '12_station_kardiologie_monitoring' ? 'abwesend' : 'standby' };
+  if (!s.monitoring) return { werte: {}, zustand: RAEUME[raum.id].ohneMonitor ? 'abwesend' : 'standby' };
   return {
     zustand: 'laeuft',
     werte: { puls: s.measured.pulse ?? null, af: s.measured.resp ?? null, spo2: s.measured.spo2 ?? null, sys: s.measured.sys ?? null, dia: s.measured.dia ?? null, temp: s.measured.temp ?? null, avpu: consciousness(s), sauerstoff: z.sauerstoff },
@@ -52,13 +53,15 @@ export function FotoSzene({ s, raum, fokus, onFokus, zeitraffer, onZeichnung }: 
 
   const ort = (q: RaumElement | 'tuer' | 'pflege'): Punkt => q === 'tuer' ? TUER : q === 'pflege' ? raum.orte[z.handlung?.element ?? fokus] : raum.orte[q];
   const anker = blase ? ort(blase.quelle) : undefined;
-  const nachtFilter = z.nacht && !raum.nacht;
+  // Nachts das echte Nachtfoto, wenn es eins gibt (20n), sonst der abgedunkelte Filter.
+  const nachtFoto = z.nacht ? RAEUME[raum.id].nacht : undefined;
+  const nachtFilter = z.nacht && !raum.nacht && !nachtFoto;
   const klassen = ['szene', 'szene--foto', `is-alarm-${z.alarm}`, z.komplikation ? 'is-komplikation' : ''].filter(Boolean).join(' ');
 
   return <div className={klassen} style={{ '--atem': `${z.atemSek.toFixed(2)}s` } as CSSProperties}>
     <div className="szene__buehne">
       <RaumBuehne
-        raum={raum.id} hotspots={hotspots} monitor={fotoMonitor(s, z, raum)}
+        raum={nachtFoto ?? raum.id} hotspots={hotspots} monitor={fotoMonitor(s, z, raum)}
         fallback={<div className="foto__fallback"><p>Das Raumfoto ist noch nicht geladen (zum Beispiel offline beim ersten Aufruf).</p><button type="button" onClick={onZeichnung}>Zeichnung zeigen</button></div>}
       >
         {nachtFilter && <span className="foto__nacht" aria-hidden="true" />}

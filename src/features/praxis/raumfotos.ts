@@ -35,15 +35,19 @@ export const RAUMFOTOS: Record<string, RaumFoto> = {
   intensiv: { id: '15_intensiv_beatmung', orte: { patient: { x: 54, y: 40 }, monitor: { x: 90, y: 42 }, wagen: { x: 19, y: 34 }, telefon: { x: 72, y: 12 } } },
   triage: { id: '16_notaufnahme_triage', orte: { patient: { x: 40, y: 58 }, monitor: { x: 67, y: 44 }, wagen: { x: 36, y: 14 }, telefon: { x: 5, y: 46 } }, namen: { telefon: 'Arbeitsplatz und Telefon' } },
   untersuchung: { id: '17_notaufnahme_untersuchung', orte: { patient: { x: 28, y: 40 }, monitor: { x: 43, y: 38 }, wagen: { x: 93, y: 62 }, telefon: { x: 76, y: 40 } } },
+  kleinkind: { id: '20_paediatrie_kleinkind', orte: { patient: { x: 45, y: 40 }, monitor: { x: 86, y: 56 }, wagen: { x: 9, y: 62 }, telefon: { x: 55, y: 86 } },
+    namen: { wagen: 'Nachttisch mit Trinkbecher und Thermometer', telefon: 'Rufanlage' } },
+  schulkind: { id: '21_paediatrie_schulkind', orte: { patient: { x: 42, y: 32 }, monitor: { x: 88, y: 54 }, wagen: { x: 24, y: 72 }, telefon: { x: 52, y: 88 } },
+    namen: { wagen: 'Tisch mit Dosieraerosol und Spacer', telefon: 'Rufanlage' } },
   schockraum: { id: '18_notaufnahme_schockraum_nacht', nacht: true, orte: { patient: { x: 42, y: 45 }, monitor: { x: 9, y: 40 }, wagen: { x: 90, y: 64 }, telefon: { x: 63, y: 30 } } },
 };
 
 /** Fall → Raum. Fälle ohne Eintrag zeigen nur die Zeichnung. Neue Fälle hier eintragen (Test prüft das). */
 export const FALL_RAUM: Record<string, keyof typeof RAUMFOTOS> = {
   hausbesuch: 'wohnzimmer', pflegeheim: 'speiseraum', nachtwache: 'kardiologie', zna: 'triage', its: 'intensiv',
-  kind: 'postop', psychiatrie: 'speiseraum', reha: 'bad', palliativ: 'heimNacht', sepsis: 'postop',
+  kind: 'kleinkind', psychiatrie: 'speiseraum', reha: 'bad', palliativ: 'heimNacht', sepsis: 'postop',
   nachblutung: 'postop', schlaganfall: 'speiseraum', anaphylaxie: 'isolation', lungenembolie: 'kardiologie',
-  delir: 'heimNacht', asthma: 'untersuchung', demenz: 'speiseraum',
+  delir: 'heimNacht', asthma: 'schulkind', demenz: 'speiseraum',
 };
 
 export function raumFotoFuer(fallId: string): RaumFoto | undefined {

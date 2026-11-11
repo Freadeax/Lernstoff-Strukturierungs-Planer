@@ -11,7 +11,8 @@ import type { RaumId } from '../../ui/sim/raeume/katalog';
 export type FotoRaumId = Extract<RaumId,
   | '07_ambulant_wohnzimmer_kompression' | '08_ambulant_pflegebad'
   | '10_pflegeheim_nacht' | '11_pflegeheim_speiseraum'
-  | '12_station_kardiologie_monitoring' | '13_station_postop'>;
+  | '12_station_kardiologie_monitoring' | '13_station_postop'
+  | '20f_paediatrie_kleinkind_fieberkrampf' | '21_paediatrie_schulkind'>;
 
 export interface FotoMarker extends Marker { x: number; y: number }
 export interface FotoRaum { id: FotoRaumId; titel: string; marker: FotoMarker[]; /** Foto zeigt schon Nacht */ nacht?: boolean; /** Raum hat einen Monitor im Bild */ monitor?: boolean }
@@ -50,6 +51,22 @@ export const FOTORAEUME: Record<FotoRaumId, FotoRaum> = {
       { id: 'rollstuhl', nr: 3, name: 'Rollstuhl', ort: 'wagen', x: 0.06, y: 0.82 },
     ],
   },
+  '20f_paediatrie_kleinkind_fieberkrampf': {
+    id: '20f_paediatrie_kleinkind_fieberkrampf', titel: 'Kinderzimmer auf Station', monitor: true,
+    marker: [
+      { id: 'patient', nr: 1, name: 'Kind', ort: 'bett', x: 0.45, y: 0.4 },
+      { id: 'monitor', nr: 2, name: 'Monitor und Messgeräte', ort: 'monitor', x: 0.86, y: 0.55 },
+      { id: 'nachttisch', nr: 3, name: 'Nachttisch mit Trinkbecher und Thermometer', ort: 'wagen', x: 0.09, y: 0.62 },
+    ],
+  },
+  '21_paediatrie_schulkind': {
+    id: '21_paediatrie_schulkind', titel: 'Kinderzimmer mit Sauerstoffanschluss', monitor: true,
+    marker: [
+      { id: 'patient', nr: 1, name: 'Kind', ort: 'bett', x: 0.42, y: 0.32 },
+      { id: 'monitor', nr: 2, name: 'Monitor und Messgeräte', ort: 'monitor', x: 0.88, y: 0.53 },
+      { id: 'nachttisch', nr: 3, name: 'Tisch mit Dosieraerosol und Spacer', ort: 'wagen', x: 0.24, y: 0.72 },
+    ],
+  },
   '07_ambulant_wohnzimmer_kompression': {
     id: '07_ambulant_wohnzimmer_kompression', titel: 'Wohnzimmer beim Hausbesuch',
     marker: [
@@ -86,15 +103,16 @@ const RAUM_FUER_FALL: Record<string, FotoRaumId> = {
   'sturz-nacht': '10_pflegeheim_nacht',
   dekubitus: '08_ambulant_pflegebad',
   copd: '07_ambulant_wohnzimmer_kompression',
+  fieberkrampf: '20f_paediatrie_kleinkind_fieberkrampf',
+  'asthma-kind': '21_paediatrie_schulkind',
 };
 
 const RAUM_FUER_SETTING: Partial<Record<Setting, FotoRaumId>> = {
   krankenhaus: '13_station_postop', langzeit: '10_pflegeheim_nacht', ambulant: '07_ambulant_wohnzimmer_kompression',
-  // Pädiatrie: die Fotos zeigen Erwachsene, dort bleibt die gezeichnete Szene.
+  paediatrie: '21_paediatrie_schulkind',
 };
 
 export function fotoRaumFuer(szenarioId: string, setting: Setting): FotoRaum | null {
-  if (setting === 'paediatrie') return null;
   const id = RAUM_FUER_FALL[szenarioId] ?? RAUM_FUER_SETTING[setting];
   return id ? FOTORAEUME[id] : null;
 }
