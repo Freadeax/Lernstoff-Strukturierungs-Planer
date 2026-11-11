@@ -154,8 +154,8 @@ function Einrichten({ onStart, saetze, exams, pools, verlauf }: { onStart: (l: L
         <div className="sim__zeile">
           <span className="muted">Modus</span>
           <div className="pills" role="radiogroup" aria-label="Modus">
-            <button type="button" className="pill" role="radio" aria-checked={(e.modus ?? 'pruefung') === 'pruefung'} aria-pressed={(e.modus ?? 'pruefung') === 'pruefung'} onClick={() => set({ modus: 'pruefung' })}>Zeitprüfung</button>
-            <button type="button" className="pill" role="radio" aria-checked={e.modus === 'lernen'} aria-pressed={e.modus === 'lernen'} onClick={() => set({ modus: 'lernen' })}>Lernmodus</button>
+            <button type="button" className="pill" role="radio" aria-checked={(e.modus ?? 'pruefung') === 'pruefung'} onClick={() => set({ modus: 'pruefung' })}>Zeitprüfung</button>
+            <button type="button" className="pill" role="radio" aria-checked={e.modus === 'lernen'} onClick={() => set({ modus: 'lernen' })}>Lernmodus</button>
           </div>
         </div>
         <div className="sim__zeile">
