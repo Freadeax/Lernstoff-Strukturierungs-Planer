@@ -320,3 +320,11 @@ a.pill { display: inline-flex; align-items: center; text-decoration: none; color
 @keyframes fall-chip-rein { from { transform: translateY(-120%); } to { transform: none; } }
 @keyframes fall-klingeln { 0%, 60%, 100% { transform: rotate(0); } 10%, 30%, 50% { transform: rotate(-4deg); } 20%, 40% { transform: rotate(4deg); } }
 @media (prefers-reduced-motion: reduce) { .fall__foto-atem, .fall__foto-chip.is-neu, .fall__foto-chip.is-klingeln { animation: none; } }
+.fall__erklaerung h3 { margin: 0 0 var(--space-1); }
+.fall__erklaerung p { margin: 0 0 var(--space-2); }
+.fall__erklaerung ul { margin: var(--space-1) 0 var(--space-2); }
+.fall__probe-info { display: grid; gap: var(--space-1); }
+.fall__ki-hinweis { margin: 0; }
+.fall__weiter ul { margin: var(--space-1) 0 0; padding-left: 1.2rem; }
+.fall__weiter li { margin-bottom: var(--space-1); }
+.fall__ersatz { margin: 0; font-size: var(--text-sm); }

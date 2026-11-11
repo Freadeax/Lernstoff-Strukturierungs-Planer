@@ -59,7 +59,7 @@
 .sim-monitor__wert.is-temp { color: var(--sim-temp); }
 .sim-monitor__wert.is-gelb strong { color: var(--sim-gelb); }
 .sim-monitor__wert.is-rot { background: var(--sim-rot-bg); animation: sim-wertblink 1s steps(1, end) infinite; }
-.sim-monitor__wert.is-rot strong, .sim-monitor__wert.is-rot .sim-monitor__label { color: #fff; }
+.sim-monitor__wert.is-rot strong, .sim-monitor__wert.is-rot .sim-monitor__label, .sim-monitor__wert.is-rot small { color: #fff; }
 @keyframes sim-wertblink { 50% { background: transparent; } }
 
 .sim-monitor__unten { display: flex; flex-wrap: wrap; gap: 4px 14px; padding-top: 4px; border-top: 1px solid #ffffff14; }

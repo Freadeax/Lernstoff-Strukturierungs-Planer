@@ -1,0 +1,9 @@
+/* Offline-Paket (siehe OfflinePaket.tsx) */
+.offline-paket { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-2); font-size: var(--text-sm); }
+.offline-paket__chip { display: inline-block; padding: 0.1rem 0.55rem; border-radius: 999px; font-weight: 700; border: 1.5px solid var(--color-ink); }
+.offline-paket--vollstaendig .offline-paket__chip { background: var(--color-success-soft); }
+.offline-paket--ersatzansicht .offline-paket__chip { background: var(--color-warning-soft); }
+.offline-paket--online .offline-paket__chip { background: var(--color-info-soft); }
+.offline-paket__text { flex-basis: 100%; }
+.offline-paket__fortschritt { display: inline-flex; align-items: center; gap: var(--space-1); }
+.offline-paket__fehler { flex-basis: 100%; color: var(--color-danger); }
