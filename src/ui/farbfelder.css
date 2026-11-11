@@ -71,6 +71,9 @@ select:focus-visible, input:not([type='checkbox']):not([type='radio']):not([type
 .header-context { gap: 10px; font-size: 0.8125rem; }
 .header-context__bereich { display: inline-block; padding: 3px 10px; border: 1.5px solid var(--color-ink); border-radius: 8px; background: var(--area); color: var(--color-on-accent); font-weight: 700; font-size: 0.6875rem; letter-spacing: 0.6px; text-transform: uppercase; }
 .header-context strong { font-weight: 700; overflow: hidden; text-overflow: ellipsis; }
+/* Lange Seitennamen bei großer Schrift: der Name kürzt sich, die Knöpfe behalten ihre Größe und bleiben im Bild. */
+.header-context { min-width: 0; } .header-context strong { min-width: 0; }
+.shell__header > button, .shell__search, .shell__actions { flex-shrink: 0; }
 .omnibar__trigger { border: 2px solid var(--color-outline); border-radius: 12px; background: var(--color-surface); box-shadow: var(--shadow-hard-sm); font-size: 0.8125rem; }
 @media (hover: hover) { .omnibar__trigger:hover:not(:disabled) { background: var(--color-surface); transform: translate(-1px, -1px); box-shadow: var(--shadow-hard); } }
 .omnibar__kbd { border-width: 1.5px; border-radius: 6px; font-weight: 600; }
@@ -84,7 +87,7 @@ select:focus-visible, input:not([type='checkbox']):not([type='radio']):not([type
 .section-heading h2 { font-family: var(--font-display); font-size: 1.75rem; font-weight: 500; letter-spacing: -0.5px; margin-top: 8px; }
 .page__head > h2, .page > h2 { letter-spacing: -0.03em; }
 /* Seiten ohne eigene Marke bekommen ihren Platz im Menü als Marke (App.tsx setzt --kopf-marke), damit alle Seitenköpfe gleich aufgebaut sind. */
-.page__head { position: relative; padding-top: 38px; margin-bottom: 14px; row-gap: 12px; }
+.page__head { position: relative; padding-top: 2.375rem; margin-bottom: 14px; row-gap: 12px; }
 .page__head::before, .page-heading:not(:has(.eyebrow)) > div:first-child::before { content: var(--kopf-marke, none); width: fit-content; max-width: 100%; padding: 4px 10px; border-radius: 7px; background: var(--area); color: var(--color-on-accent); font-size: 0.6875rem; font-weight: 700; letter-spacing: 1.2px; line-height: 1.5; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .page__head::before { position: absolute; top: 0; left: 0; }
 .page-heading:not(:has(.eyebrow)) > div:first-child::before { display: block; }
@@ -194,7 +197,7 @@ dialog { border: 2px solid var(--color-outline); }
   .shell__tabbar { --color-text: var(--sidebar-text); --color-focus: var(--color-sun); background: var(--sidebar-bg); border-top: 2px solid var(--color-ink); padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); -webkit-backdrop-filter: none; backdrop-filter: none; }
   .shell__tabbar::before { content: ''; position: absolute; top: 6px; left: 6px; width: calc((100% - 12px) / var(--tab-n, 5)); height: 54px; border-radius: 14px; background: var(--mark-bg); box-shadow: var(--mark-shadow); transform: translateX(calc(var(--tab-i, 0) * 100%)); }
   .shell__tabbar[data-aktiv='nein']::before { opacity: 0; }
-  .tab { position: relative; min-height: 54px; border-radius: 14px; color: var(--sidebar-muted); font-size: 0.6875rem; font-weight: 600; }
+  .tab { position: relative; min-height: 54px; border-radius: 14px; color: var(--sidebar-muted); min-width: 0; font-size: min(0.6875rem, 3.4vw); font-weight: 600; }
   .tab--active { background: none; color: var(--color-on-accent); font-weight: 700; }
   .header-context__bereich { display: none; }
   .header-context > svg { display: none; }

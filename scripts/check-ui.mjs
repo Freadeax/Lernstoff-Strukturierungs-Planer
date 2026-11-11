@@ -103,6 +103,10 @@ const futureDate = new Date(Date.now() + 21 * 86400000).toISOString().slice(0, 1
     if(route==='/')await mp.screenshot({path:'dashboard-mobile.png',fullPage:true});
     if(route==='/material/import')await mp.screenshot({path:'import-mobile.png',fullPage:true});
   }
+  // 200 % Schrift am iPhone: Kopfleiste und untere Leiste bleiben im Bild, auch bei langem Seitennamen.
+  await mp.goto(base+'#/lernen/expertenstandards',{waitUntil:'networkidle'});await mp.evaluate(()=>document.documentElement.style.setProperty('font-size','200%','important'));await mp.waitForTimeout(300);
+  assert.deepEqual(await mp.evaluate(()=>{const h=document.querySelector('.shell__header');const t=[...document.querySelectorAll('.shell__tabbar .tab')];return [h.scrollWidth-h.clientWidth,document.documentElement.scrollWidth-innerWidth,[...h.querySelectorAll('button')].filter(b=>b.offsetWidth&&b.getBoundingClientRect().right>innerWidth).length,t.filter(e=>e.scrollWidth>e.clientWidth+1).length];}),[0,0,0,0],'200 % Schrift: Kopfleiste und Tabs ohne Überlauf');
+  await mp.evaluate(()=>document.documentElement.style.removeProperty('font-size'));
   assert.equal(await mp.locator('.shell__sidebar').evaluate(e=>getComputedStyle(e).visibility), 'hidden');
   await mp.getByRole('button',{name:'Alle Bereiche',exact:true}).click();assert(await mp.locator('.shell__sidebar.is-open').isVisible());
   assert(await mp.locator('main').evaluate(e=>e.inert));
