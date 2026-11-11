@@ -38,6 +38,14 @@ Therapie-Flags passen zu Anordnungen, Fragen verweisen auf vorhandene Befunde, B
   [ieee8023/covid-chestxray-dataset](https://github.com/ieee8023/covid-chestxray-dataset), dessen `metadata.csv` Lizenz
   und Urheber je Bild nennt: Pneumonie rechts (Gaillard, rID 11009) und Pleuraerguss links (Knipe, rID 44224).
   Wikimedia Commons war aus der Entwicklungsumgebung nicht abrufbar (Drosselung).
+- **Von Philipp geliefert (2026-11-11, Materialliste):** Spontanpneumothorax links (Hellerhoff, Wikimedia Commons,
+  CC BY-SA 3.0, als JPEG gespeichert) und eine CT-Pulmonalisangiographie aus CAD-PE Fall 001 (Germán González Serrano,
+  über das CADS-Dataset, CC BY 4.0): 32 axiale Schichten à 1 mm, oben und unten beschnitten. Beide Befundmarken sind
+  fachlich noch ungeprüft.
+- **CT als 16-Bit-PNG:** Pixelwert = HU + 1024 (wie die Rohwerte der Phantome). `dekodierePng16` in `serie.ts` liest
+  solche Dateien verlustfrei (eigener PNG-Dekoder mit `DecompressionStream`), damit Fenster und HU-Messung echt sind.
+  Andere CT-Bilder (8 Bit) laufen weiter über den normalen Bildpfad. `public/bildgebung/` wird nicht vorab gecacht,
+  sondern beim ersten Ansehen (CacheFirst).
 - Befunde im echten Bild tragen dieselbe ID wie im synthetischen Bild; ein Test prüft Lizenzfelder, Dateien und IDs.
 - **Privat** (Material-Repo, Ordner `bildgebung/<name>/serie.json` + Bilder): z. B. Unterrichtsmaterial. Die App lädt
   sie nur mit dem Zugang unter Material → Große Dateien auf dem Gerät, nie in den öffentlichen Build.
