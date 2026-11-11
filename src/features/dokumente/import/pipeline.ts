@@ -6,7 +6,6 @@ import type { OcrEngine } from './ocr/engine';
 import { PAGE_CONFIDENCE_MIN } from './ocr/engine';
 import { extractDocx } from './extract/docx';
 import { extractPptx } from './extract/pptx';
-import { extractPdf } from './extract/pdf';
 import { chunkPages } from './chunk';
 import { markiereMerkkaesten } from './extract/merkkasten';
 import { leseBildtext } from './ocr/bildtext';
@@ -72,6 +71,8 @@ export async function importFile(file: InputFile, ctxIn: ImportContext = {}): Pr
   let images = new Map<number, Uint8Array>();
   switch (detected.kind) {
     case 'pdf': {
+      // pdf.js (rund 400 KB) erst laden, wenn wirklich ein PDF kommt: eigener Chunk, Import-Chunk bleibt unter 500 KB
+      const { extractPdf } = await import('./extract/pdf');
       const r = await extractPdf(file.bytes, { render: !!(ctx.ocr || ctx.handwritingOcr), renderImages: !!ctx.ocr, signal });
       ex = r;
       images = r.pageImages;

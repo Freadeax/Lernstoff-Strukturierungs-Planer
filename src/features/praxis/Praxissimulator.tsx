@@ -14,6 +14,9 @@ import { News2Badge, VitalKurve } from './VitalKurve';
 import { Szene } from './Szene';
 import { FotoSzene } from './FotoSzene';
 import { auftragsSchritte } from './auftrag';
+import { freigabeFuer } from './freigaben';
+import { FreigabeHinweis } from '../../ui/sim/FreigabeHinweis';
+import { automatischeWertung } from '../../ui/sim/freigabe';
 import { Portraet } from '../../ui/sim/Portraet';
 import { personFuer } from '../../ui/sim/personen';
 import { raumFotoFuer } from './raumfotos';
@@ -111,6 +114,7 @@ function MedicationForm({ med, s, send }: { med: Medication; s: Session; send: (
     </div>
     <fieldset><legend>8-R-Sicherheitsprüfung</legend>{CHECKS.map((label, i) => <label className="praxis-check" key={label}><input type="checkbox" checked={checks[i]} onChange={e => setChecks(checks.map((c, j) => j === i ? e.target.checked : c))} />{label}</label>)}</fieldset>
     <details><summary>Rechenhilfe</summary><p>Volumen (ml) = angeordnete Dosis ({med.unit}) ÷ Konzentration ({med.unit}/ml). Allergien und Organfunktion müssen zusätzlich klinisch geprüft werden; der Rechner bestimmt keine passende Dosis.</p></details>
+    <FreigabeHinweis freigabe={freigabeFuer(s.scenario)} ort="entscheidung" />
     <button className="primary" disabled={s.done.includes(`med:${med.id}`)}>Geprüfte Gabe durchführen</button>
     <p className="muted">Fehlerhafte Eingaben werden abgefangen und im Debriefing aufgeführt. Auswahlmöglichkeiten bedeuten keine Freigabe aller Applikationswege.</p>
   </form>;
@@ -249,6 +253,7 @@ function Entscheidung({ s, send }: { s: Session; send: (c: Command) => void }) {
     <p>{event.detail}</p>
     <div className="praxis-decision__choices">{event.choices.map(c => <button key={c.id} onClick={() => send({ type: 'choose', event: event.id, choice: c.id })}>{c.label}</button>)}</div>
     <p className="muted">Wähle, wie du reagierst. Die Folgen zeigen sich im weiteren Verlauf; die Begründung steht im Debriefing.</p>
+    <FreigabeHinweis freigabe={freigabeFuer(s.scenario)} ort="entscheidung" />
   </section>;
 }
 
@@ -261,6 +266,7 @@ function Auftrag({ s, uhrLaeuft, onAbschluss }: { s: Session; uhrLaeuft: boolean
   const aktuell = schritte.findIndex(x => !x.erledigt);
   return <aside className="praxis-auftrag" aria-labelledby="praxis-auftrag-titel">
     <h3 id="praxis-auftrag-titel">Dein Auftrag</h3>
+    <FreigabeHinweis freigabe={freigabeFuer(s.scenario)} ort="chip" />
     {person && <Portraet person={person} zustand={zustand} groesse={56} mitName className="praxis-auftrag__person" />}
     <p className={`praxis-auftrag__zeit ${uhrLaeuft ? 'is-laeuft' : ''}`}>Simulationszeit · {clock(s.time)} · {uhrLaeuft ? 'läuft' : 'pausiert'}</p>
     <p className="praxis-auftrag__ziel">{s.scenario.recommendation}</p>
@@ -296,7 +302,9 @@ export function Arbeitsplatz({ s, send, panel, setPanel, zeitraffer = 1, uhrLaeu
         ? <><PatientenMonitor className="praxis-monitor__live" titel={`Monitor · ${clock(s.time)}`} werte={{ puls: s.measured.pulse ?? null, af: s.measured.resp ?? null, spo2: s.measured.spo2 ?? null, sys: s.measured.sys ?? null, dia: s.measured.dia ?? null, temp: s.measured.temp ?? null, avpu: consciousness(s), sauerstoff: s.oxygen ?? false }} />
           <dl className="praxis-monitor__rest">{VITALS.filter(v => v.key === 'glucose' || v.key === 'pain').map(v => <div key={v.key}><dt>{v.label}</dt><dd>{format(s.measured[v.key], v.key)}<small>{v.unit}</small></dd></div>)}</dl></>
         : <dl>{VITALS.map(v => <div key={v.key}><dt>{v.label}</dt><dd>{format(s.measured[v.key], v.key)}<small>{v.unit}</small></dd></div>)}</dl>}
-      <News2Badge point={s.monitoring && s.measuredAt !== null ? { at: s.measuredAt, vitals: s.vitals, avpu: consciousness(s), oxygen: s.oxygen ?? false } : s.chart?.at(-1)} />
+      {automatischeWertung(freigabeFuer(s.scenario))
+        ? <News2Badge point={s.monitoring && s.measuredAt !== null ? { at: s.measuredAt, vitals: s.vitals, avpu: consciousness(s), oxygen: s.oxygen ?? false } : s.chart?.at(-1)} />
+        : <div className="praxis-news2 is-empty"><strong>Keine automatische Wertung</strong><span>NEWS2 und die Alarmfarben am Monitor gelten für Erwachsene. Für Kinder ist noch kein geprüftes Profil hinterlegt: Werte selbst mit Kinder-Normwerten einordnen.</span></div>}
     </section>
     <Entscheidung s={s} send={send} />
     <div className={`praxis-feedback ${last?.kind === 'warning' ? 'is-warning' : last?.kind === 'story' ? 'is-story' : ''}`} role="status" aria-live="polite" aria-atomic="true"><strong>{last?.title}</strong><p>{last?.detail}</p></div>
@@ -401,6 +409,7 @@ export default function Praxissimulator() {
       <div className="praxis-scenarios">{sichtbar.filter(x => setting === 'alle' || (setting === 'kern' ? !!x.kern : x.setting === setting)).map((scenario, index) => <article className="card praxis-scenario" key={scenario.id}>
         <div className="praxis-scenario__top"><span className="badge">{SETTINGS[scenario.setting]}</span><span className="muted" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span></div>
         <h3>{scenario.title}</h3><p>{scenario.situation}</p><small>{scenario.focus} · {scenario.kern ? <strong className="praxis-kernmarke">Kernfall · vollständig ausgearbeitet · Freigabe {scenario.kern.freigabe === 'erteilt' ? 'erteilt' : 'ausstehend'}</strong> : 'Szenariovorschau · fachlich ungeprüft'}</small>
+        <FreigabeHinweis freigabe={freigabeFuer(scenario)} ort="start" />
         {scenario.storyline?.length ? <small className="praxis-scenario__story">Verlauf mit {scenario.storyline.length} möglichen Ereignissen · Entscheidungen haben Folgen</small> : null}
         <button className="primary" onClick={() => begin(scenario)}>Schicht übernehmen</button>
       </article>)}</div>

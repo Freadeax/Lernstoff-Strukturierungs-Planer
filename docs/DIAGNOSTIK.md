@@ -28,10 +28,22 @@ Eintrag in `src/features/diagnostik/faelle.ts` (Format `typen.ts`). `faelle.test
 Therapie-Flags passen zu Anordnungen, Fragen verweisen auf vorhandene Befunde, BGA-Lösung stimmt mit der Deutung
 überein, und jede Befundmarke liegt dort, wo sich das Phantom vom Normalbefund unterscheidet.
 
-**Kinderfälle:** Ist die Patientin oder der Patient jünger als 14 Jahre (`istKind`), gelten im Labor die
-Kinder-Referenzbereiche (`kind` in `parameter.ts`, bisher Leukozyten, Hb, Kreatinin, Harnstoff; sonst der
-Erwachsenenbereich), die Tafel zeigt dann „(Kind)“. Fälle: Asthmaanfall beim Schulkind (Raum 21) und Exsikkose
-beim Kleinkind (Raum 20). Die Monitor-Alarmgrenzen sind weiter die für Erwachsene.
+**Kinderprofile (Audit SIM-01):** Die Altersgruppe kommt aus dem Alter (`altersgruppe` bzw. `monitorGruppe`:
+unter 1 Jahr Säugling, unter 6 Kleinkind, unter 14 Schulkind, sonst Erwachsene).
+
+- *Labor* (`parameter.ts`): `kind` ist je Parameter entweder ein Bereich je Altersgruppe (Leukozyten, Hb,
+  Kreatinin, Harnstoff) oder `'wie-erwachsen'`, wenn der Erwachsenenbereich ab 1 Jahr übernommen werden darf
+  (Elektrolyte, BGA, BZ, CRP/PCT, Gerinnung, Thrombozyten, Urin-Stix, Blutkultur). Fehlt `kind`, wertet die App
+  Kinderwerte **nicht** automatisch: Flag `unbewertet` („?“), kein kritischer Anruf, Referenz „kein Kinderprofil“.
+  Säuglinge haben bisher gar kein Profil. Unter der Tafel stehen Profil und Herkunft (`KINDERPROFIL_QUELLE`).
+- *Monitor* (`monitor.ts`): `alarmStufe(p, n, gruppe)` und `gesamtAlarm(w, gruppe)` nutzen für Kleinkind und
+  Schulkind eigene Grenzen für Puls, Atemfrequenz und systolischen Druck, SpO₂ und Temperatur wie bei
+  Erwachsenen. `alarmProfil(gruppe)` liefert Label und Quelle für die Anzeige, `normBand` die Bänder der
+  Verlaufskurven. Säuglinge: keine Färbung, „kein Profil“ am Monitor.
+- Alle Werte sind didaktische Richtwerte, gerundet und fachlich ungeprüft; lokale Grenzen gehen vor.
+
+Fälle: Asthmaanfall beim Schulkind (Max, 8 J., Raum 21; Monitor rot wegen SpO₂ 90 %, AF 34 gelb) und Exsikkose
+beim Kleinkind (Mia, 2 J., Raum 20; Puls 156 gelb, Kreatinin 0,7 nach Kinderprofil erhöht).
 
 ## Echte Bilder
 

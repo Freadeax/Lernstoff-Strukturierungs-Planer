@@ -163,7 +163,7 @@ export const FOTORAEUME: Record<FotoRaumId, FotoRaum> = {
 };
 
 /** Fester Raum je Fall; Fälle ohne Eintrag bekommen den Raum ihres Settings. */
-const RAUM_FUER_FALL: Record<string, FotoRaumId> = {
+export const RAUM_FUER_FALL: Record<string, FotoRaumId> = {
   'demo-atemnot': '12_station_kardiologie_monitoring',
   'demo-hypo': '26h_pflegeheim_zimmer_hypoglykaemie',
   'demo-nachblutung': '13_station_postop',
@@ -188,7 +188,7 @@ const RAUM_FUER_FALL: Record<string, FotoRaumId> = {
   'asthma-kind': '21_paediatrie_schulkind',
 };
 
-const RAUM_FUER_SETTING: Partial<Record<Setting, FotoRaumId>> = {
+export const RAUM_FUER_SETTING: Partial<Record<Setting, FotoRaumId>> = {
   krankenhaus: '13_station_postop', langzeit: '10_pflegeheim_nacht', ambulant: '07_ambulant_wohnzimmer_kompression',
   paediatrie: '21_paediatrie_schulkind',
 };

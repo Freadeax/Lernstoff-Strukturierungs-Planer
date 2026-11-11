@@ -1,7 +1,7 @@
 // Labor im Fall: Werte anfordern, Probe abnehmen (Präanalytik als Entscheidungen), Eingang und Kumulativbefund.
 
 import { useMemo, useState } from 'react';
-import { GRUPPEN, istKind, PARAMETER, parameter, type Gruppe } from '../../ui/sim/labor/parameter';
+import { GRUPPEN, altersgruppe, PARAMETER, parameter, type Gruppe } from '../../ui/sim/labor/parameter';
 import { benoetigteRoehrchen, reihenfolgeFehler, ROEHRCHEN, STANDARD_ABNAHME, venoes, type Abnahme, type Farbsystem } from '../../ui/sim/labor/praeanalytik';
 import { uhrzeit, vorZeit, type Prioritaet } from '../../ui/sim/labor/modell';
 import { VerlaufKurve } from '../../ui/sim/labor/VerlaufKurve';
@@ -158,7 +158,7 @@ export function LaborBereich({ fall, lauf, senden, farbsystem, setFarbsystem }: 
 
       <section className="card dx-karte" aria-labelledby="dx-kumulativ">
         <h3 id="dx-kumulativ">Kumulativbefund</h3>
-        <LaborTafel reihen={reihen} geschlecht={fall.patient.geschlecht} startzeit={fall.startzeit} neuAb={neuAb} kind={istKind(fall.patient.alter)} />
+        <LaborTafel reihen={reihen} geschlecht={fall.patient.geschlecht} startzeit={fall.startzeit} neuAb={neuAb} gruppe={altersgruppe(fall.patient.alter)} />
         <TrendAnsicht fall={fall} lauf={lauf} reihen={reihen} />
       </section>
     </div>
@@ -180,7 +180,7 @@ function TrendAnsicht({ fall, lauf, reihen }: { fall: DiagnostikFall; lauf: Lauf
         <select value={id} onChange={(e) => setWahl(e.target.value)}>{ids.map((x) => <option key={x} value={x}>{parameter(x).name}</option>)}</select>
       </label>
       <VerlaufKurve key={`${id}-${reihen[id]!.length}`} name={p.name} einheit={p.einheit} punkte={reihen[id]!.map((r) => ({ minute: r.minute, wert: r.wert }))}
-        band={referenz(p, fall.patient.geschlecht, istKind(fall.patient.alter))} format={(v) => formatWert(p, v)} zeitText={zeit} marken={marken} />
+        band={referenz(p, fall.patient.geschlecht, altersgruppe(fall.patient.alter))} format={(v) => formatWert(p, v)} zeitText={zeit} marken={marken} />
     </div>
   );
 }

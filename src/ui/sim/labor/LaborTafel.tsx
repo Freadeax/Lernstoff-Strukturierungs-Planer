@@ -3,7 +3,7 @@
 // (nicht bei „Bewegung reduzieren“). Der Verlauf ist Schmuck, die Zahlen stehen in der Tabelle.
 
 import { Fragment } from 'react';
-import { bewerte, FLAG_KURZ, FLAG_TEXT, formatReferenz, formatWert, GRUPPEN, parameter, PARAMETER, type Geschlecht } from './parameter';
+import { bewerte, FLAG_KURZ, FLAG_TEXT, formatReferenz, formatWert, GRUPPEN, hatProfil, KINDERPROFIL_QUELLE, ALTERSGRUPPE_TEXT, parameter, PARAMETER, type Altersgruppe, type Geschlecht } from './parameter';
 import { uhrzeit, vorZeit, type Ergebnis } from './modell';
 import './labor.css';
 
@@ -32,11 +32,11 @@ export interface LaborTafelProps {
   neuAb?: number;
   /** Nur diese Parameter zeigen (sonst alle mit Werten). */
   nur?: string[];
-  /** Kinder-Referenzbereiche verwenden, wo vorhanden. */
-  kind?: boolean;
+  /** Altersgruppe für die Referenzbereiche; Kinder ohne Profil werden nicht automatisch bewertet. */
+  gruppe?: Altersgruppe;
 }
 
-export function LaborTafel({ reihen, geschlecht, startzeit, neuAb, nur, kind = false }: LaborTafelProps) {
+export function LaborTafel({ reihen, geschlecht, startzeit, neuAb, nur, gruppe = 'erwachsen' }: LaborTafelProps) {
   const ids = PARAMETER.map((p) => p.id).filter((id) => reihen[id]?.length && (!nur || nur.includes(id)));
   if (!ids.length) return <p className="muted">Noch keine Laborwerte. Fordere zuerst Werte an und nimm die Probe ab.</p>;
   const gruppen = [...new Set(ids.map((id) => parameter(id).gruppe))];
@@ -54,7 +54,7 @@ export function LaborTafel({ reihen, geschlecht, startzeit, neuAb, nur, kind = f
                 const p = parameter(id);
                 const reihe = reihen[id];
                 const letzter = reihe[reihe.length - 1];
-                const flag = bewerte(p, letzter.wert, geschlecht, kind);
+                const flag = bewerte(p, letzter.wert, geschlecht, gruppe);
                 const neu = neuAb !== undefined && letzter.ergebnis && letzter.minute >= neuAb;
                 const vorher = reihe.length > 1 ? reihe[reihe.length - 2] : undefined;
                 return (
@@ -68,7 +68,7 @@ export function LaborTafel({ reihen, geschlecht, startzeit, neuAb, nur, kind = f
                       <span className="lt__wert">{formatWert(p, letzter.wert)}</span> <span className="lt__einheit">{p.einheit}</span>
                       {flag !== 'normal' && <span className={`lt__flag lt__flag--${flag}`} title={FLAG_TEXT[flag]}><span aria-hidden="true">{FLAG_KURZ[flag]}</span><span className="visually-hidden">{FLAG_TEXT[flag]}</span></span>}
                     </td>
-                    <td className="lt__ref">{formatReferenz(p, geschlecht, kind)}{kind && p.kind ? <span className="lt__einheit"> (Kind)</span> : null}</td>
+                    <td className="lt__ref">{formatReferenz(p, geschlecht, gruppe)}{gruppe !== 'erwachsen' && hatProfil(p, gruppe) ? <span className="lt__einheit"> ({p.kind === 'wie-erwachsen' ? 'wie Erw.' : 'Kind'})</span> : null}</td>
                     <td className="lt__spark">{!p.stufen && <Verlauf punkte={reihe.map((r) => r.wert)} nachkomma={p.nachkomma} />}</td>
                   </tr>
                 );
@@ -77,6 +77,15 @@ export function LaborTafel({ reihen, geschlecht, startzeit, neuAb, nur, kind = f
           ))}
         </tbody>
       </table>
+      {gruppe !== 'erwachsen' && (
+        <p className="lt__profil" role="note">
+          <strong>Kinderprofil: {ALTERSGRUPPE_TEXT[gruppe]}.</strong>{' '}
+          {gruppe === 'saeugling'
+            ? 'Für Säuglinge gibt es hier kein Profil. Die Werte werden nicht automatisch bewertet (?).'
+            : 'Werte ohne Kinderprofil sind mit ? markiert und werden nicht automatisch bewertet.'}{' '}
+          {KINDERPROFIL_QUELLE}
+        </p>
+      )}
     </div>
   );
 }

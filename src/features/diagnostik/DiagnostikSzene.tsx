@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { RaumBuehne, type Hotspot } from '../../ui/sim/raeume/RaumBuehne';
 import { RAEUME, raumFuerZustand } from '../../ui/sim/raeume/katalog';
-import type { MonitorWerte } from '../../ui/sim/monitor';
+import { monitorGruppe, type MonitorWerte } from '../../ui/sim/monitor';
 import type { Befehl, MonitorStatus } from './lauf';
 import type { Reiter } from './FallAnsicht';
 import type { DiagnostikFall } from './typen';
@@ -69,7 +69,7 @@ export function DiagnostikSzene({ fall, werte, status, senden, setReiter, telefo
       <RaumBuehne
         raum={fall.raum}
         hotspots={hotspots}
-        monitor={{ werte, zustand: status === 'abwesend' ? 'abwesend' : status, ausfall: ['spo2'] }}
+        monitor={{ werte, zustand: status === 'abwesend' ? 'abwesend' : status, ausfall: ['spo2'], gruppe: monitorGruppe(fall.patient.alter) }}
         fokus={fokus ? { ...fokus, zoom: 1.6 } : undefined}
         fallback={<p>Raumbild nicht geladen. Der Fall funktioniert trotzdem über die Reiter unten.</p>}
       >

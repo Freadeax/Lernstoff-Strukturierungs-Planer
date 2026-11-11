@@ -6,7 +6,7 @@
 import { useEffect, useRef, useState } from 'react';
 import './sim.css';
 import { wenigBewegung } from '../shell/session';
-import { alarmStufe, anzeige, atmung, ekg, gesamtAlarm, pleth, proSekunde, type Alarm, type MonitorWerte } from './monitor';
+import { alarmProfil, alarmStufe, anzeige, atmung, ekg, gesamtAlarm, pleth, proSekunde, type Alarm, type MonitorGruppe, type MonitorWerte } from './monitor';
 
 export type { MonitorWerte } from './monitor';
 
@@ -21,6 +21,8 @@ export interface PatientenMonitorProps {
   /** Text, wenn aktiv=false (Standard „Kein Signal“), z. B. „Standby“. */
   ausText?: string;
   className?: string;
+  /** Altersgruppe für die Alarmgrenzen (Standard Erwachsene). Bei Kindern zeigt der Monitor das Profil an. */
+  gruppe?: MonitorGruppe;
 }
 
 // Systemeinstellung oder App-Schalter „Bewegung reduzieren“ (data-motion="reduce")
@@ -138,9 +140,11 @@ function Wert({ label, wert, einheit, alarm, nachkomma = 0, klasse, klein }: {
   );
 }
 
-export function PatientenMonitor({ werte, kompakt = false, aktiv = true, titel, ausText = 'Kein Signal', className = '' }: PatientenMonitorProps) {
+export function PatientenMonitor({ werte, kompakt = false, aktiv = true, titel, ausText = 'Kein Signal', className = '', gruppe = 'erwachsen' }: PatientenMonitorProps) {
   const w = werte;
-  const alarm = aktiv ? gesamtAlarm(w) : 'ok';
+  const profil = alarmProfil(gruppe);
+  const st = (p: Parameters<typeof alarmStufe>[0], n: number | null | undefined): Alarm => (aktiv ? alarmStufe(p, n, gruppe) : 'ok');
+  const alarm = aktiv ? gesamtAlarm(w, gruppe) : 'ok';
   const spo2Amp = typeof w.spo2 === 'number' && w.spo2 < 90 ? 0.6 : 0.9;
   const kanalEkg: Kanal = { fn: ekg, rate: () => proSekunde(w.puls, 20), amp: () => 0.9 };
   const kanalPleth: Kanal = { fn: pleth, rate: () => (typeof w.spo2 === 'number' ? proSekunde(w.puls ?? 75, 20) : 0), amp: () => spo2Amp };
@@ -152,14 +156,16 @@ export function PatientenMonitor({ werte, kompakt = false, aktiv = true, titel, 
     `Herzfrequenz ${anzeige(w.puls)}`, `SpO₂ ${anzeige(w.spo2)} %`, `Atemfrequenz ${anzeige(w.af)}`,
     !kompakt && `Blutdruck ${bd}`, !kompakt && `Temperatur ${anzeige(w.temp, 1)} °C`,
     alarm === 'rot' ? 'Alarm: kritischer Wert' : alarm === 'gelb' ? 'Hinweis: auffälliger Wert' : '',
+    gruppe !== 'erwachsen' && profil.label,
   ].filter(Boolean).join(', ');
 
   return (
     <div className={`sim-monitor ${kompakt ? 'is-kompakt' : ''} ${aktiv ? '' : 'is-aus'} is-alarm-${alarm} ${className}`.trim()} role="group" aria-label="Patientenmonitor">
       <span className="sim-sr">{aktiv ? zusammenfassung : `Monitor: ${ausText}`}</span>
-      {(titel || alarm !== 'ok' || !aktiv) && (
+      {(titel || alarm !== 'ok' || !aktiv || gruppe !== 'erwachsen') && (
         <div className="sim-monitor__kopf" aria-hidden="true">
           <span>{titel}</span>
+          {gruppe !== 'erwachsen' && <span className={`sim-monitor__profil ${profil.bewertet ? '' : 'is-offen'}`} title={profil.quelle}>{profil.bewertet ? profil.label.replace('Alarmgrenzen ', '') : 'kein Profil'}</span>}
           {!aktiv ? <span className="sim-monitor__status">{ausText}</span>
             : alarm === 'rot' ? <span className="sim-monitor__status is-rot">Alarm</span>
               : alarm === 'gelb' ? <span className="sim-monitor__status is-gelb">Hinweis</span> : null}
@@ -168,28 +174,28 @@ export function PatientenMonitor({ werte, kompakt = false, aktiv = true, titel, 
       <div className="sim-monitor__raster" aria-hidden="true">
         <div className="sim-monitor__zeile">
           <Kurve kanal={kanalEkg} aktiv={aktiv} klasse="is-ekg" />
-          <Wert label="HF" wert={aktiv ? w.puls : null} einheit="/min" alarm={aktiv ? alarmStufe('puls', w.puls) : 'ok'} klasse="is-ekg" />
+          <Wert label="HF" wert={aktiv ? w.puls : null} einheit="/min" alarm={st('puls', w.puls)} klasse="is-ekg" />
         </div>
         {kompakt ? (
           <div className="sim-monitor__unten">
-            <Wert label="SpO₂" wert={aktiv ? w.spo2 : null} einheit="%" alarm={aktiv ? alarmStufe('spo2', w.spo2) : 'ok'} klasse="is-pleth" />
-            <Wert label="AF" wert={aktiv ? w.af : null} einheit="/min" alarm={aktiv ? alarmStufe('af', w.af) : 'ok'} klasse="is-atmung" />
+            <Wert label="SpO₂" wert={aktiv ? w.spo2 : null} einheit="%" alarm={st('spo2', w.spo2)} klasse="is-pleth" />
+            <Wert label="AF" wert={aktiv ? w.af : null} einheit="/min" alarm={st('af', w.af)} klasse="is-atmung" />
           </div>
         ) : (
           <>
             <div className="sim-monitor__zeile">
               <Kurve kanal={kanalPleth} aktiv={aktiv} klasse="is-pleth" />
-              <Wert label="SpO₂" wert={aktiv ? w.spo2 : null} einheit="%" alarm={aktiv ? alarmStufe('spo2', w.spo2) : 'ok'} klasse="is-pleth" klein={aktiv && w.sauerstoff ? 'mit O₂' : undefined} />
+              <Wert label="SpO₂" wert={aktiv ? w.spo2 : null} einheit="%" alarm={st('spo2', w.spo2)} klasse="is-pleth" klein={aktiv && w.sauerstoff ? 'mit O₂' : undefined} />
             </div>
             <div className="sim-monitor__zeile">
               <Kurve kanal={kanalAtmung} aktiv={aktiv} klasse="is-atmung" />
-              <Wert label="AF" wert={aktiv ? w.af : null} einheit="/min" alarm={aktiv ? alarmStufe('af', w.af) : 'ok'} klasse="is-atmung" />
+              <Wert label="AF" wert={aktiv ? w.af : null} einheit="/min" alarm={st('af', w.af)} klasse="is-atmung" />
             </div>
             <div className="sim-monitor__unten">
-              <div className={`sim-monitor__wert is-nibp is-${aktiv ? alarmStufe('sys', w.sys) : 'ok'}`}>
+              <div className={`sim-monitor__wert is-nibp is-${st('sys', w.sys)}`}>
                 <span className="sim-monitor__label">NIBP</span><strong>{aktiv ? bd : '--/--'}</strong><small>mmHg</small>
               </div>
-              <Wert label="Temp." wert={aktiv ? w.temp : null} einheit="°C" nachkomma={1} alarm={aktiv ? alarmStufe('temp', w.temp) : 'ok'} klasse="is-temp" />
+              <Wert label="Temp." wert={aktiv ? w.temp : null} einheit="°C" nachkomma={1} alarm={st('temp', w.temp)} klasse="is-temp" />
               <div className={`sim-monitor__wert is-avpu is-${aktiv && avpu && avpu !== 'A' ? 'rot' : 'ok'}`}>
                 <span className="sim-monitor__label">ACVPU</span><strong>{aktiv && avpu ? avpu : '-'}</strong>
               </div>

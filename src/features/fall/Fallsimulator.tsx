@@ -19,6 +19,8 @@ import { demoAbschluss, demoZug, istDemo, PROBEFAELLE } from './demo';
 import { Szene } from './Szene';
 import { Rueckblick } from './Rueckblick';
 import { abhoerBefund } from './abhoeren';
+import { OfflinePaket } from '../../ui/sim/OfflinePaket';
+import { fallOfflineBedarf } from './offlinebedarf';
 import { HoerBeispiel } from '../../ui/audio/HoerBeispiel';
 import { FotoSzene } from './FotoSzene';
 import { fotoRaumFuer } from './fotoraeume';
@@ -87,6 +89,19 @@ function Start({ onStart, apiKey }: { onStart: (s: Szenario, stufe: Stufe) => vo
           Für den Simulator braucht die App deinen Claude-API-Schlüssel. <a href="#/einstellungen">Zu den Einstellungen</a>
         </div>
       )}
+      <section className="card fall__erklaerung" aria-labelledby="fall-erkl-titel">
+        <h3 id="fall-erkl-titel">Ein kurzer Entscheidungsfall</h3>
+        <p>Ein Patient, eine Situation, etwa <strong>10 bis 15 Minuten</strong> und <strong>4 bis 8 Entscheidungen</strong>. Du schaust dich im Zimmer um, misst, hörst ab und entscheidest. Danach gibt es eine Auswertung und einen Rückblick Szene für Szene.</p>
+        <details>
+          <summary>Wonach bewertet wird</summary>
+          <ul>
+            <li><strong>Jede Entscheidung</strong>: gut, teilweise, ungünstig oder gefährlich, mit kurzer Begründung.</li>
+            <li><strong>Pflegeprozess</strong>: {SCHRITTE.map((x) => SCHRITT_LABEL[x]).join(', ')}. Jeder Schritt wird als stark, in Ordnung, Lücke oder nicht bearbeitet eingeordnet.</li>
+            <li><strong>Gesamt</strong>: sicher, überwiegend sicher, teilweise sicher oder unsicher. Eine gefährliche Entscheidung verhindert „sicher“.</li>
+          </ul>
+        </details>
+        <p className="muted">Für eine ganze Schicht mit Uhr, Geräten, Aufträgen und mehreren Patienten gibt es den <a href="#/lernen/praxis">Praxissimulator</a>.</p>
+      </section>
       <section className="card fall__probe" aria-labelledby="fall-probe-titel">
         <div>
           <strong id="fall-probe-titel">Probefälle ohne KI</strong>
@@ -95,7 +110,10 @@ function Start({ onStart, apiKey }: { onStart: (s: Szenario, stufe: Stufe) => vo
         <ul className="fall__probe-liste">
           {PROBEFAELLE.map((p, i) => (
             <li key={p.szenario.id}>
-              <span><strong>{p.szenario.titel.replace(/^Probefall: /, '')}</strong> <span className="muted">· {SETTING_LABEL[p.szenario.setting]}</span></span>
+              <span className="fall__probe-info">
+                <span><strong>{p.szenario.titel.replace(/^Probefall: /, '')}</strong> <span className="muted">· {SETTING_LABEL[p.szenario.setting]}</span></span>
+                <OfflinePaket bedarf={fallOfflineBedarf(p.szenario)} kompakt />
+              </span>
               <button type="button" className={i === 0 ? 'primary' : ''} aria-label={`Probefall starten: ${p.szenario.titel.replace(/^Probefall: /, '')}`}
                 onClick={() => onStart(p.szenario, 1)}>Starten</button>
             </li>
@@ -111,6 +129,7 @@ function Start({ onStart, apiKey }: { onStart: (s: Szenario, stufe: Stufe) => vo
         </div>
       </div>
 
+      <p className="muted fall__ki-hinweis">Die Fälle unten spielt Claude frei aus. Sie brauchen eine Internetverbindung; Raumfotos, die du schon gesehen hast, bleiben offline auf dem Gerät.</p>
       <div className="fall__szenarien">
         {szenarien.map((s) => (
           <button key={s.id} type="button" className="card fall__szenario" disabled={!apiKey} onClick={() => onStart(s, stufe)}>
@@ -261,12 +280,7 @@ function Auswertung({ fall, onNeu, onNochmal }: { fall: Fall; onNeu: () => void;
             <div><h4>Das nächste Mal</h4><ul>{a.verbesserungen.map((x, i) => <li key={i}>{x}</li>)}</ul></div>
           </div>
           {a.musterloesung && <details><summary>Idealer Ablauf</summary><p>{a.musterloesung}</p></details>}
-          {a.themen.length > 0 && (
-            <>
-              <h4>Zum Wiederholen</h4>
-              <div className="pills">{a.themen.map((id) => <a key={id} className="pill" href="#/lernen/themen">{themaName(id)}</a>)}</div>
-            </>
-          )}
+          <Weiterlernen fall={fall} themen={a.themen} />
         </>
       ) : <p className="muted">Dieser Fall wurde ohne Auswertung beendet.</p>}
       {fall.runden.length > 1 && <Rueckblick fall={fall} />}
@@ -279,6 +293,34 @@ function Auswertung({ fall, onNeu, onNochmal }: { fall: Fall; onNeu: () => void;
         <button type="button" onClick={onNochmal}>Diesen Fall noch einmal</button>
       </div>
     </div>
+  );
+}
+
+// ---------- Rückweg zu Theorie und Wiederholung ----------
+
+/** Krankheitsbilder zu Probefällen (KI-Fälle über KI_KRANKHEITEN) */
+const PROBE_KRANKHEITEN: Record<string, string[]> = {
+  'demo-atemnot': ['kh.herzinsuffizienz'], 'demo-hypo': ['kh.diabetes-typ2'], 'demo-asthma': ['kh.asthma'],
+};
+
+function Weiterlernen({ fall, themen }: { fall: Fall; themen: string[] }) {
+  const ids = [...new Set([...themen, ...fall.szenario.topicIds])].filter((id) => modul.topics.some((t) => t.id === id));
+  const kh = (KI_KRANKHEITEN[fall.szenario.id] ?? PROBE_KRANKHEITEN[fall.szenario.id] ?? [])
+    .map((id) => modul.diseaseProfiles?.find((p) => p.id === id)).filter((p): p is NonNullable<typeof p> => !!p);
+  if (!ids.length && !kh.length) return null;
+  return (
+    <section className="fall__weiter" aria-labelledby="fall-weiter-titel">
+      <h4 id="fall-weiter-titel">Weiterlernen</h4>
+      {kh.length > 0 && <p>Krankheitsbild nachlesen: {kh.map((p, i) => <span key={p.id}>{i > 0 && ' · '}<a href={`#/lernen/krankheitsbilder?kb=${encodeURIComponent(p.id)}`}>{p.name}</a></span>)}</p>}
+      <ul>
+        {ids.map((t) => (
+          <li key={t}>
+            <a href={`#/lernen/thema?id=${encodeURIComponent(t)}`}>{themaName(t)}</a>
+            <span className="fall__weiter-links"> · <a href={`#/lernen/karten?thema=${encodeURIComponent(t)}`}>Karteikarten</a> · <a href={`#/lernen/skript?thema=${encodeURIComponent(t)}`}>Skript</a></span>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
@@ -503,6 +545,7 @@ export default function Fallsimulator() {
   const [kamera, setKamera] = useState<Fokus | null>(null);
   const fotoRaum = fall ? fotoRaumFuer(fall.szenario.id, fall.szenario.setting, fall.szenario.kurz) : null;
   const [gezeichnet, setGezeichnet] = useState(false);
+  const [fotoFehlt, setFotoFehlt] = useState(false);
   const zeigeFoto = !!fotoRaum && !gezeichnet;
   const person = fall ? personFuer('fall', fall.szenario.id) : null;
   const portraetZustand: PortraetZustand = bild?.zustand === 'kritisch' ? 'kritisch' : bild?.zustand === 'verschlechtert' ? 'angestrengt' : 'stabil';
@@ -548,6 +591,7 @@ export default function Fallsimulator() {
               <button type="button" className="ghost" onClick={abbrechen}>Abbrechen</button>
             </div>
             <p className="muted">{fall.szenario.kurz}</p>
+            <OfflinePaket bedarf={fallOfflineBedarf(fall.szenario)} kompakt />
 
             {bild && (
               <div className="fall__buehne">
@@ -555,10 +599,12 @@ export default function Fallsimulator() {
                   {zeigeFoto && fotoRaum ? (
                     <FotoSzene raum={fotoRaum} bild={bild} uhrzeit={letzter?.uhrzeit} fokus={kamera ?? undefined} aktiverMarker={marker?.id ?? null}
                       onMarker={(m) => waehleMarker(marker?.id === m.id ? null : m)}
+                      onError={() => { setGezeichnet(true); setFotoFehlt(true); }}
                       fallback={<span>Das Raumfoto lädt gerade nicht. <button type="button" onClick={() => setGezeichnet(true)}>Gezeichnete Ansicht zeigen</button></span>} />
                   ) : (
                     <Szene bild={bild} raum={raum} uhrzeit={letzter?.uhrzeit} fokus={kamera ?? undefined} aktiverMarker={marker?.id ?? null} onMarker={(m) => waehleMarker(marker?.id === m.id ? null : m)} />
                   )}
+                  {fotoFehlt && gezeichnet && <p className="muted fall__ersatz" role="status">Das Raumfoto ist gerade nicht verfügbar (offline?). Du siehst die gezeichnete Ersatzansicht.</p>}
                   {fotoRaum && (
                     <button type="button" className="ghost fall__ansicht" onClick={() => { setGezeichnet(!gezeichnet); setMarker(null); }}>
                       {gezeichnet ? 'Fotoansicht' : 'Gezeichnete Ansicht'}

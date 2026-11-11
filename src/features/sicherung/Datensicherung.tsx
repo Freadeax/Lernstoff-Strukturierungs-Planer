@@ -7,6 +7,7 @@ import {
 } from '../../core/sicherung';
 import { entschluessele, istVerschluesselt, passwortProblem } from '../../core/sicherung-krypto';
 import { BUILD_ID } from '../../core/build';
+import { adressText } from '../../core/hosting';
 import './sicherung.css';
 
 const datum = (iso: string) => { try { return new Date(iso).toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' }); } catch { return iso; } };
@@ -175,6 +176,7 @@ function Speicherstatus() {
       <ul className="sicherung__fakten">
         <li>Letzte Sicherung: <strong>{merker.zuletzt ? `${relativeTime(merker.zuletzt)} (${datum(merker.zuletzt)})` : 'noch keine'}</strong></li>
         <li>App-Version: <code>{BUILD_ID}</code></li>
+        <li>Adresse: <strong>{adressText()}</strong> (Daten gelten nur für diese Adresse)</li>
         {st?.belegt !== undefined && <li>Belegter Speicher: {(st.belegt / 1024 / 1024).toFixed(1)} MB</li>}
         {st?.dauerhaft !== undefined && <li>Vor automatischem Aufräumen geschützt: {st.dauerhaft ? 'ja' : 'nein'}{!st.dauerhaft && <> · <button type="button" className="link" onClick={async () => setSt({ ...st, dauerhaft: await bitteUmDauerhaftenSpeicher() })}>Schutz anfragen</button></>}</li>}
       </ul>

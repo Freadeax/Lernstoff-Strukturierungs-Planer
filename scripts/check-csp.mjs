@@ -16,7 +16,16 @@ const kopf = (await fetch(base)).headers;
 const csp = kopf.get('content-security-policy') ?? '';
 assert(csp.includes("frame-ancestors 'none'"), `CSP mit frame-ancestors (UI_BASE_URL muss serve-dist.mjs sein): ${csp || 'fehlt'}`);
 for (const [k, v] of [['x-content-type-options', 'nosniff'], ['x-frame-options', 'DENY'], ['referrer-policy', 'no-referrer']]) assert.equal(kopf.get(k), v, k);
-assert(kopf.get('permissions-policy')?.includes('geolocation=()'), 'Permissions-Policy');
+const rechte = kopf.get('permissions-policy') ?? '';
+assert(rechte.includes('geolocation=()') && rechte.includes('camera=()') && rechte.includes('microphone=(self)'),
+  `Permissions-Policy (Kamera aus, Mikrofon nur eigene Adresse): ${rechte || 'fehlt'}`);
+// Nicht nur das Hauptdokument: Service Worker und Manifest brauchen dieselben Schutzheader und no-cache für Updates
+for (const pfad of ['sw.js', 'manifest.webmanifest']) {
+  const h = (await fetch(base + pfad)).headers;
+  assert.equal(h.get('x-content-type-options'), 'nosniff', `${pfad}: nosniff`);
+  assert(h.get('content-security-policy')?.includes("frame-ancestors 'none'"), `${pfad}: CSP`);
+  assert(/no-cache/.test(h.get('cache-control') ?? ''), `${pfad}: Cache-Control no-cache (${h.get('cache-control')})`);
+}
 
 const browser = await chromium.launch({ ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH } : {}), headless: true });
 const verstoesse = [];
