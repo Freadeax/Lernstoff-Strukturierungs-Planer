@@ -7,10 +7,11 @@ import { BildBetrachter } from '../../ui/sim/bildgebung/BildBetrachter';
 import { anzahlSchichten, trifft, type Bildserie } from '../../ui/sim/bildgebung/serie';
 import { formatWert, FLAG_TEXT, parameter } from '../../ui/sim/labor/parameter';
 import { uhrzeit } from '../../ui/sim/labor/modell';
+import { VerlaufKurve } from '../../ui/sim/labor/VerlaufKurve';
 import type { Farbsystem } from '../../ui/sim/labor/praeanalytik';
 import { LaborBereich } from './LaborBereich';
 import { FrageKarte, Rueckmeldung } from './FrageKarte';
-import { auswertung, fuehreAus, monitorZustand, naechsterBefund, offeneAnrufe, offeneMeldungen, vitalwerte, type Befehl, type Lauf, type MonitorStatus } from './lauf';
+import { auswertung, fuehreAus, vitalReihe, zeitleiste, type ZeitArt, monitorZustand, naechsterBefund, offeneAnrufe, offeneMeldungen, vitalwerte, type Befehl, type Lauf, type MonitorStatus } from './lauf';
 import { DiagnostikSzene } from './DiagnostikSzene';
 import type { DiagnostikFall, Untersuchung } from './typen';
 import { SimTon } from '../../ui/audio/SimTon';
@@ -288,6 +289,7 @@ function Auswertung({ fall, lauf, senden }: { fall: DiagnostikFall; lauf: Lauf; 
             <h3>Rückmeldung</h3>
             <ul className="dx-punkte">{punkte.map((p, i) => <li key={i}><Rueckmeldung richtig={p.ok} text={`${p.titel}: ${p.text}`} /></li>)}</ul>
           </section>
+          <Zeitleiste fall={fall} lauf={lauf} />
           <section className="card dx-karte">
             <h3>Auflösung: {fall.aufloesung.diagnose}</h3>
             <p>{fall.aufloesung.kernaussage}</p>
@@ -298,5 +300,43 @@ function Auswertung({ fall, lauf, senden }: { fall: DiagnostikFall; lauf: Lauf; 
         </>
       )}
     </div>
+  );
+}
+
+const ZEIT_ART: Record<ZeitArt, string> = { start: 'Start', monitor: 'Monitor', abnahme: 'Labor', befund: 'Befund', kritisch: 'Kritisch', bild: 'Bild', meldung: 'Meldung', massnahme: 'Maßnahme', eigen: 'Notiz', ende: 'Ende' };
+const VITAL: { k: 'puls' | 'sys' | 'spo2' | 'af'; name: string; einheit: string; band: { min?: number; max?: number } }[] = [
+  { k: 'puls', name: 'Puls', einheit: '/min', band: { min: 60, max: 100 } },
+  { k: 'sys', name: 'Blutdruck systolisch', einheit: 'mmHg', band: { min: 100, max: 140 } },
+  { k: 'spo2', name: 'SpO₂', einheit: '%', band: { min: 94, max: 100 } },
+  { k: 'af', name: 'Atemfrequenz', einheit: '/min', band: { min: 12, max: 20 } },
+];
+
+/** Auswertung: was wann geschah und wie sich der Zustand unter den Maßnahmen entwickelt hat. */
+function Zeitleiste({ fall, lauf }: { fall: DiagnostikFall; lauf: Lauf }) {
+  const eintraege = zeitleiste(lauf, fall);
+  const [vital, setVital] = useState<typeof VITAL[number]['k']>('puls');
+  const v = VITAL.find((x) => x.k === vital)!;
+  const marken = lauf.massnahmen.map((m) => ({ minute: m.minute, text: fall.anordnungen.find((a) => a.id === m.id)?.label ?? m.id }));
+  const kind = fall.patient.alter < 14;
+  return (
+    <section className="card dx-karte" aria-labelledby="dx-zeitleiste">
+      <h3 id="dx-zeitleiste">Dein Ablauf</h3>
+      <ol className="dx-zeitleiste">
+        {eintraege.map((e, i) => (
+          <li key={i} className={`dx-zeitleiste__${e.art}`}>
+            <span className="dx-zeitleiste__zeit">{uhrzeit(fall.startzeit, e.minute)}</span>
+            <span className="dx-zeitleiste__art">{ZEIT_ART[e.art]}</span>
+            <span>{e.text}</span>
+          </li>
+        ))}
+      </ol>
+      <h4>So hat sich der Zustand entwickelt</h4>
+      <div className="pills" role="group" aria-label="Vitalwert wählen">
+        {VITAL.map((x) => <button key={x.k} type="button" className="pill" aria-pressed={x.k === vital} onClick={() => setVital(x.k)}>{x.name}</button>)}
+      </div>
+      <VerlaufKurve key={vital} name={v.name} einheit={v.einheit} punkte={vitalReihe(lauf, fall, vital)} band={kind ? undefined : v.band}
+        format={(n) => String(Math.round(n))} zeitText={(m) => uhrzeit(fall.startzeit, m)} marken={marken} />
+      <p className="muted dx-klein">Die gestrichelten Linien sind deine Maßnahmen. {kind ? 'Bei Kindern gelten altersabhängige Normwerte, deshalb ohne grünes Band.' : 'Grün: üblicher Bereich bei Erwachsenen.'}</p>
+    </section>
   );
 }

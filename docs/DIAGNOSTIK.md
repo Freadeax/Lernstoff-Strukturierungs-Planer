@@ -73,3 +73,9 @@ Alle Fälle sind fiktiv und fachlich ungeprüft vereinfacht.
 - **Hervorhebung:** `BildBetrachter` nimmt `hervorhebung` (normierter Bereich) und `werkzeugVorschlag`; der Rahmen wandert animiert (bei „Bewegung reduzieren“ ohne Animation).
 - **Röntgen systematisch** (`#/lernen/diagnostik?modus=befundung`): Technik, A Atemweg, B Lunge und Pleura, C Herz mit eigener Messung des Herz-Thorax-Quotienten, D Zwerchfell, E Rest, Gesamtbild. Schritte je Phantom-Variante in `befundung.ts` (gemeinsamer Baustein, auch für andere Module nutzbar).
 - **Nebeneinander:** In Fällen mit echtem Vergleichsbild zeigt „Nebeneinander“ synthetisches und echtes Bild gleichzeitig.
+
+## Verläufe, Zeitleiste, neue Fälle
+
+- **Verlaufskurve** (`src/ui/sim/labor/VerlaufKurve.tsx`, gemeinsamer Baustein): animierte Linie mit Referenzband und Ereignismarken. Im Labor-Reiter jedes Falls („Verlauf als Kurve“, Marken = eigene Maßnahmen) und in der Labor-Werkbank.
+- **Auswertung „Dein Ablauf“:** `zeitleiste(lauf, fall)` baut aus Aufträgen, Befundzeiten, Anrufen, Meldungen, Untersuchungen, Maßnahmen und eigenen Notizen eine Zeitleiste; `vitalReihe` zeigt Puls, Blutdruck, SpO₂ und Atemfrequenz über den Fall mit den Maßnahmen als Marken.
+- **Neue Fälle:** `gi-blutung` (Hb-Verlauf, Harnstoff, Kreuzblut vor EK), `hyperkaliaemie` (Kalium-Verlauf, Bradykardie, Calcium vor Glukose-Insulin, BGA), `akutes-nierenversagen` (Kreatinin-Verlauf, Oligurie, Röntgen mit Überwässerung, Zufuhr stoppen vor Diuretikum).

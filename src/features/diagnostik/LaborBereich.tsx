@@ -3,7 +3,9 @@
 import { useMemo, useState } from 'react';
 import { GRUPPEN, istKind, PARAMETER, parameter, type Gruppe } from '../../ui/sim/labor/parameter';
 import { benoetigteRoehrchen, reihenfolgeFehler, ROEHRCHEN, STANDARD_ABNAHME, venoes, type Abnahme, type Farbsystem } from '../../ui/sim/labor/praeanalytik';
-import { uhrzeit, type Prioritaet } from '../../ui/sim/labor/modell';
+import { uhrzeit, vorZeit, type Prioritaet } from '../../ui/sim/labor/modell';
+import { VerlaufKurve } from '../../ui/sim/labor/VerlaufKurve';
+import { formatWert, referenz } from '../../ui/sim/labor/parameter';
 import { LaborTafel } from '../../ui/sim/labor/LaborTafel';
 import { Roehrchen } from '../../ui/sim/labor/Roehrchen';
 import type { Material } from '../../ui/sim/labor/parameter';
@@ -157,7 +159,28 @@ export function LaborBereich({ fall, lauf, senden, farbsystem, setFarbsystem }: 
       <section className="card dx-karte" aria-labelledby="dx-kumulativ">
         <h3 id="dx-kumulativ">Kumulativbefund</h3>
         <LaborTafel reihen={reihen} geschlecht={fall.patient.geschlecht} startzeit={fall.startzeit} neuAb={neuAb} kind={istKind(fall.patient.alter)} />
+        <TrendAnsicht fall={fall} lauf={lauf} reihen={reihen} />
       </section>
+    </div>
+  );
+}
+
+/** Verlauf eines Parameters als Kurve, mit den Maßnahmen als Marken. */
+function TrendAnsicht({ fall, lauf, reihen }: { fall: DiagnostikFall; lauf: Lauf; reihen: ReturnType<typeof befundReihen> }) {
+  const ids = PARAMETER.map((p) => p.id).filter((id) => (reihen[id]?.length ?? 0) >= 2);
+  const [wahl, setWahl] = useState('');
+  if (!ids.length) return <p className="muted dx-klein">Sobald ein Wert zweimal bestimmt wurde, kannst du hier seinen Verlauf als Kurve ansehen.</p>;
+  const id = ids.includes(wahl) ? wahl : ids[0]!;
+  const p = parameter(id);
+  const zeit = (m: number) => (m < 0 ? vorZeit(m) : uhrzeit(fall.startzeit, m));
+  const marken = lauf.massnahmen.map((m) => ({ minute: m.minute, text: fall.anordnungen.find((a) => a.id === m.id)?.label ?? m.id }));
+  return (
+    <div className="dx-trend">
+      <label className="dx-zeile">Verlauf als Kurve:
+        <select value={id} onChange={(e) => setWahl(e.target.value)}>{ids.map((x) => <option key={x} value={x}>{parameter(x).name}</option>)}</select>
+      </label>
+      <VerlaufKurve key={`${id}-${reihen[id]!.length}`} name={p.name} einheit={p.einheit} punkte={reihen[id]!.map((r) => ({ minute: r.minute, wert: r.wert }))}
+        band={referenz(p, fall.patient.geschlecht, istKind(fall.patient.alter))} format={(v) => formatWert(p, v)} zeitText={zeit} marken={marken} />
     </div>
   );
 }

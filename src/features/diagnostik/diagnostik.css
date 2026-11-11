@@ -125,3 +125,16 @@
 .dx-vergleich { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
 .dx-vergleich figure { margin: 0; display: grid; gap: 6px; }
 .dx-vergleich figcaption { font-size: var(--text-sm); color: var(--color-text-muted); }
+
+/* Zeitleiste und Trends */
+.dx-trend { display: grid; gap: 8px; margin-top: 12px; }
+.dx-zeitleiste { list-style: none; margin: 0 0 12px; padding: 0 0 0 14px; border-left: 2px solid var(--color-border-strong); display: grid; gap: 6px; }
+.dx-zeitleiste li { position: relative; display: grid; grid-template-columns: 3.4rem 5.5rem 1fr; gap: 6px; align-items: baseline; font-size: var(--text-sm); }
+.dx-zeitleiste li::before { content: ''; position: absolute; left: -21px; top: 0.35em; width: 10px; height: 10px; border-radius: 999px; background: var(--color-border-strong); }
+.dx-zeitleiste__zeit { font-variant-numeric: tabular-nums; font-weight: 600; }
+.dx-zeitleiste__art { color: var(--color-text-muted); }
+.dx-zeitleiste__kritisch::before { background: var(--color-danger) !important; }
+.dx-zeitleiste__massnahme::before { background: var(--color-warning) !important; }
+.dx-zeitleiste__meldung::before { background: var(--color-primary) !important; }
+.dx-zeitleiste__befund::before, .dx-zeitleiste__bild::before { background: var(--color-success) !important; }
+@media (max-width: 520px) { .dx-zeitleiste li { grid-template-columns: 3.2rem 1fr; } .dx-zeitleiste__art { display: none; } }

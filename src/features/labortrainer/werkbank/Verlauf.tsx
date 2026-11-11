@@ -4,7 +4,7 @@
 import { useMemo, useState } from 'react';
 import { LaborTafel, type LaborReihen } from '../../../ui/sim/labor/LaborTafel';
 import { formatWert, parameter, referenz } from '../../../ui/sim/labor/parameter';
-import { wenigBewegung } from '../../../ui/shell/session';
+import { VerlaufKurve } from '../../../ui/sim/labor/VerlaufKurve';
 import { VERLAEUFE, type VerlaufSzenario } from './verlauf';
 
 export function Verlauf() {
@@ -59,34 +59,8 @@ function VerlaufLauf({ sz, weiter, nr }: { sz: VerlaufSzenario; weiter: () => vo
   );
 }
 
-/** Verlaufskurve eines Parameters mit Referenzband; die Linie zeichnet sich einmal von links nach rechts. */
+/** Verlaufskurve eines Laborparameters (gemeinsamer Baustein VerlaufKurve). */
 export function Kurve({ id, werte, zeiten, geschlecht }: { id: string; werte: number[]; zeiten: number[]; geschlecht: 'w' | 'm' }) {
   const p = parameter(id);
-  const r = referenz(p, geschlecht);
-  const W = 320, H = 150, L = 44, R = 24, O = 14, U = 26;
-  const alle = [...werte, ...(r.min !== undefined ? [r.min] : []), ...(r.max !== undefined ? [r.max] : [])];
-  const lo = Math.min(...alle), hi = Math.max(...alle), pad = (hi - lo) * 0.12 || 1;
-  const y = (v: number) => O + (1 - (v - (lo - pad)) / (hi - lo + 2 * pad)) * (H - O - U);
-  const t0 = zeiten[0]!, t1 = zeiten[zeiten.length - 1]!;
-  const x = (t: number) => L + ((t - t0) / (t1 - t0 || 1)) * (W - L - R);
-  const pfad = werte.map((v, k) => `${k ? 'L' : 'M'}${x(zeiten[k]!).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
-  const ruhig = wenigBewegung();
-  const tag = (t: number) => (t === 0 ? 'heute' : `${Math.round(t / 1440)} d`);
-  return (
-    <figure className="wb-kurve">
-      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`${p.name}: ${werte.map((v) => formatWert(p, v)).join(', ')} ${p.einheit}`}>
-        {(r.min !== undefined || r.max !== undefined) && (
-          <rect x={L} width={W - L - R} y={y(r.max ?? hi + pad)} height={Math.max(0, y(r.min ?? lo - pad) - y(r.max ?? hi + pad))} className="wb-kurve__band" />
-        )}
-        <line x1={L} x2={L} y1={O} y2={H - U} className="wb-kurve__achse" />
-        <line x1={L} x2={W - R} y1={H - U} y2={H - U} className="wb-kurve__achse" />
-        {zeiten.map((t) => <text key={t} x={x(t)} y={H - 8} textAnchor="middle" className="wb-kurve__text">{tag(t)}</text>)}
-        <text x={L - 6} y={y(hi) + 4} textAnchor="end" className="wb-kurve__text">{formatWert(p, hi)}</text>
-        <text x={L - 6} y={y(lo) + 4} textAnchor="end" className="wb-kurve__text">{formatWert(p, lo)}</text>
-        <path d={pfad} className={`wb-kurve__linie ${ruhig ? '' : 'is-zeichnen'}`} pathLength={1} />
-        {werte.map((v, k) => <circle key={k} cx={x(zeiten[k]!)} cy={y(v)} r={3.5} className="wb-kurve__punkt" style={{ animationDelay: ruhig ? undefined : `${(k / Math.max(1, werte.length - 1)) * 1.1}s` }} />)}
-      </svg>
-      <figcaption className="muted wb-klein">{p.name} ({p.einheit || 'ohne Einheit'}), grün hinterlegt: Referenzbereich</figcaption>
-    </figure>
-  );
+  return <VerlaufKurve name={p.name} einheit={p.einheit} punkte={werte.map((wert, k) => ({ minute: zeiten[k]!, wert }))} band={referenz(p, geschlecht)} format={(v) => formatWert(p, v)} zeitText={(t) => (t === 0 ? 'heute' : `${Math.round(t / 1440)} d`)} />;
 }
