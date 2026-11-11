@@ -1,6 +1,9 @@
 import { BOARD_COLUMNS, orderBetween, type BoardColumn, type BoardEntry } from '../../core/board';
 
-export interface Card { id: string; name: string; fach: string; fachId: string; difficulty?: number; minutes?: number; column: BoardColumn; order: number }
+import type { MasteryStatus } from '../../core/types';
+
+/** wissen: Wissensstand aus Abfragen (Lernplan), bewusst getrennt vom Arbeitsstand = Spalte. */
+export interface Card { id: string; name: string; fach: string; fachId: string; difficulty?: number; minutes?: number; wissen?: MasteryStatus; column: BoardColumn; order: number }
 export type Columns = Record<BoardColumn, Card[]>;
 
 const IMPLICIT = 1_000_000;

@@ -46,3 +46,28 @@ async function maxOrder(column: BoardColumn): Promise<number> {
   const all = await db.board.where('column').equals(column).toArray();
   return all.reduce((m, e) => Math.max(m, e.order), 0);
 }
+
+/** Vorheriger Stand je Thema, um eine Verschiebung rückgängig zu machen (undefined = war nie auf dem Board). */
+export type BoardSnapshot = Array<{ topicId: string; entry?: BoardEntry }>;
+
+/**
+ * Mehrere Themen in einem Zug verschieben und den vorherigen Stand zurückgeben.
+ * Die Reihenfolge der Auswahl bleibt erhalten: Die Themen landen nacheinander am Ende der Zielspalte.
+ */
+export async function moveTopicsMitStand(ids: Array<{ topicId: string; name?: string }>, column: BoardColumn): Promise<BoardSnapshot> {
+  const vorher: BoardSnapshot = (await db.board.bulkGet(ids.map((x) => x.topicId))).map((entry, i) => ({ topicId: ids[i]!.topicId, ...(entry ? { entry } : {}) }));
+  let order = (await maxOrder(column)) + 1000;
+  await moveTopics(ids.map((x) => ({ topicId: x.topicId, column, name: x.name, order: (order += 1000) })));
+  return vorher;
+}
+
+/** Verschiebung zurücknehmen: alter Platz wieder her, Themen ohne früheren Eintrag fallen zurück in den Pool. */
+export async function stelleBoardWiederHer(stand: BoardSnapshot) {
+  await db.transaction('rw', [db.board, db.activity], async () => {
+    for (const s of stand) {
+      if (s.entry) await db.board.put(s.entry);
+      else await db.board.delete(s.topicId);
+    }
+    await logActivity({ kind: 'lernstand', severity: 'info', title: `Verschieben rückgängig: ${stand.length === 1 ? '1 Thema' : `${stand.length} Themen`}` });
+  });
+}

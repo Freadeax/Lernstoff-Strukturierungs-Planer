@@ -524,6 +524,22 @@
 .kcard__move select { position: absolute; inset: 0; opacity: 0; min-height: 0 !important; width: 100%; cursor: pointer; }
 .kcard__move { width: var(--control-h-sm); height: var(--control-h-sm); justify-content: center; border-radius: var(--radius-xs); }
 @media (hover: hover) { .kcard__move:hover { background: var(--color-surface-sunken); } }
+/* Board: Pfeilknöpfe statt Ziehen, Mehrfachauswahl, Wissensstand getrennt vom Arbeitsstand */
+.kcard.is-selected { border-color: var(--color-primary); box-shadow: 0 0 0 2px var(--color-primary-soft); }
+.kcard__wahl { flex: 0 0 auto; display: flex; align-items: center; justify-content: center; width: var(--space-5); min-height: 44px; }
+.kcard__wahl input { width: 20px; height: 20px; }
+.kcard__schritte { flex: 0 0 auto; display: flex; flex-direction: column; gap: 2px; }
+.kcard__schritte .icon { width: 36px; height: 36px; min-height: 36px; }
+button.kcard__wissen { margin-top: var(--space-1); min-height: 28px; padding: 0 var(--space-2); border: 1px solid var(--color-border); font-size: var(--text-xs); color: var(--color-text); cursor: pointer; }
+.tag--wissen-offen { background: var(--color-surface-sunken); }
+.board__legende { margin: 0 0 var(--space-2); font-size: var(--text-sm); }
+.board__werkzeuge { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2); }
+.board__ziel { display: flex; align-items: center; gap: var(--space-1); font-size: var(--text-sm); }
+.board__ziel select { min-height: var(--control-h-sm); }
+.board__anzahl { font-size: var(--text-sm); font-variant-numeric: tabular-nums; }
+.board__undo { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2); padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); background: var(--color-info-soft); font-size: var(--text-sm); }
+.board__undo > span { flex: 1 1 12rem; }
+button.board__alle { font-size: var(--text-xs); }
 
 /* ---------- Assistent ---------- */
 .wizard { display: flex; flex-direction: column; gap: var(--space-3); }
