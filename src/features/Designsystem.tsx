@@ -10,6 +10,8 @@ import { WizardView } from '../widgets/wizard/ImportWizard';
 import { mockBoard, mockChart, mockFeed, mockKpis, mockThemen, mockWizard } from '../widgets/mocks';
 import { notify } from '../ui/shell/notifications';
 import { Icon } from '../ui/icons';
+import { RaumBuehne } from '../ui/sim/raeume/RaumBuehne';
+import { RAEUME, RAUM_IDS, type MonitorZustand, type RaumId } from '../ui/sim/raeume/katalog';
 
 type Lab = 'kpi' | 'chart' | 'feed' | 'themen' | 'board' | 'wizard';
 type LabState = 'ideal' | 'loading' | 'empty' | 'error' | 'partial' | 'interaktiv';
@@ -203,6 +205,45 @@ export default function Designsystem() {
           <span className="badge badge--stalled"><span className="badge__dot" />Gestört</span>
         </div>
       </div>
+
+      <RaumDemo />
     </section>
+  );
+}
+
+const ZUSTAENDE: { id: MonitorZustand | 'ausfall'; label: string }[] = [
+  { id: 'laeuft', label: 'Überwachung läuft' }, { id: 'standby', label: 'Standby' },
+  { id: 'ausfall', label: 'Signalausfall SpO₂' }, { id: 'abwesend', label: 'Ohne Monitor' },
+];
+
+/** Gemeinsame Raumbühne der Simulatoren zum Ausprobieren: Räume, Hotspots, Monitorzustände, Kamerafokus. */
+function RaumDemo() {
+  const [raum, setRaum] = useState<RaumId>('12_station_kardiologie_monitoring');
+  const [zustand, setZustand] = useState<MonitorZustand | 'ausfall'>('laeuft');
+  const [fokus, setFokus] = useState<{ x: number; y: number } | null>(null);
+  const [gewaehlt, setGewaehlt] = useState<string | null>(null);
+  const r = RAEUME[raum];
+  const hotspots = r.hotspots.map((h) => ({ ...h, gedrueckt: gewaehlt === h.id, onClick: () => { setGewaehlt(h.id); setFokus((f) => (f ? null : { x: h.x, y: h.y })); } }));
+  return (
+    <div className="card" style={{ marginTop: '1.5rem' }}>
+      <h3>Raumbühne der Simulatoren</h3>
+      <p className="muted">Raumfotos aus Philipps Komplettpaket (KI-generiert, fachlich noch ungeprüft). Hotspots antippen zoomt hinein, nochmal antippen zoomt zurück. Baustein: <code>src/ui/sim/raeume</code>.</p>
+      <label className="field">Raum{' '}
+        <select value={raum} onChange={(e) => { setRaum(e.target.value as RaumId); setFokus(null); setGewaehlt(null); }}>
+          {RAUM_IDS.map((id) => <option key={id} value={id}>{RAEUME[id].bereich} · {RAEUME[id].titel}</option>)}
+        </select>
+      </label>
+      {r.monitor && (
+        <div className="pills" role="group" aria-label="Monitorzustand">
+          {ZUSTAENDE.map((z) => <button key={z.id} type="button" className="pill" aria-pressed={zustand === z.id} onClick={() => setZustand(z.id)}>{z.label}</button>)}
+        </div>
+      )}
+      <RaumBuehne
+        raum={raum} hotspots={hotspots} fokus={fokus ? { ...fokus, zoom: 1.8 } : undefined}
+        monitor={r.monitor || r.ohneMonitor ? { werte: { puls: 108, spo2: 92, af: 22, sys: 104, dia: 62, temp: 38.4 }, zustand: zustand === 'ausfall' ? 'signalausfall' : zustand, ausfall: ['spo2'] } : undefined}
+        fallback={<p>Bild nicht geladen (offline?).</p>}
+      />
+      <p className="muted" role="status">{gewaehlt ? `Gewählt: ${r.hotspots.find((h) => h.id === gewaehlt)?.label ?? ''}` : 'Noch nichts gewählt.'}</p>
+    </div>
   );
 }
