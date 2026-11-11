@@ -13,6 +13,7 @@ import {
   type Altersgruppe, type Impuls, type ImpulsCheck, type MuendlicherFall, type Versorgung,
 } from './muendlich';
 import { ergaenzeMuendlich, ladeMuendlich, type MuendlichEintrag, type Termine } from './speicher';
+import { spiele } from '../../ui/audio/spieler';
 
 const ALLE_FAELLE: MuendlicherFall[] = [...MUENDLICHE_FAELLE, ...faelleAusKrankheitsbildern()];
 const KB_KURZ: Record<Impuls['kb'], string> = { 'kb.III': 'III · Team und Kontext', 'kb.IV': 'IV · Recht und Ethik', 'kb.V': 'V · Wissenschaft und Berufsrolle' };
@@ -285,6 +286,9 @@ function Durchlauf({ lauf, fall, setLauf, onFertig }: { lauf: Lauf; fall: Muendl
   };
 
   const vorbereitungRest = Math.max(0, Math.round((lauf.vorbereitungBis - jetzt) / 1000));
+  // Ende der Vorbereitungszeit hörbar machen (man schaut beim Vorbereiten aufs Papier, nicht auf die Uhr)
+  const vorbereitungVorbei = lauf.phase === 'vorbereitung' && vorbereitungRest === 0;
+  useEffect(() => { if (vorbereitungVorbei) spiele('zeit'); }, [vorbereitungVorbei]);
   const sprechRest = lauf.sprechenAb ? Math.round((lauf.sprechenAb + lauf.sprechMinuten * 60_000 - jetzt) / 1000) : lauf.sprechMinuten * 60;
   const impulsZeit = lauf.impulsAb ? Math.round((jetzt - lauf.impulsAb) / 1000) + (imp ? lauf.checks[imp.id]?.sekunden ?? 0 : 0) : 0;
 

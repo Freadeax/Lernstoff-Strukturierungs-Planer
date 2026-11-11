@@ -19,6 +19,7 @@ import {
   selbstWertung, stelleZusammen, uhr, werteAus,
   type Afb, type Antwort, type Auswertung, type Gruppe, type OffeneFrage, type Quelle, type SimFrage, type Wertung,
 } from './simulation';
+import { spiele } from '../../ui/audio/spieler';
 import { ergaenzeVerlauf, ladeEinstellungen, ladeLauf, ladeVerlauf, speichereEinstellungen, speichereLauf, type Einstellungen, type Lauf, type VerlaufEintrag } from './speicher';
 
 const K = katalog(pflegeModule);
@@ -487,6 +488,7 @@ export default function Simulation() {
     const wertungen = Object.fromEntries(lauf.fragen.map((f) => [f.id, werteAus(f, lauf.antworten[f.id])]));
     const fertig: Lauf = { ...lauf, abgegeben: jetzt, automatisch, wertungen };
     setLauf(fertig);
+    spiele(automatisch ? 'zeit' : 'fertig');
     const a = auswerten(K, fertig.fragen, wertungen);
     notiereFehler(lauf.fragen.filter((f) => wertungen[f.id]?.art === 'auto' && wertungen[f.id]?.richtig === false)
       .flatMap((f) => ausSimulation(f, lauf.antworten[f.id]) ?? []));

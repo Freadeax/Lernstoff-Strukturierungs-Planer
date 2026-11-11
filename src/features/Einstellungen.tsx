@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { deleteAll } from '../core/db';
 import { loescheLokaleEintraege, loescheRueckfall } from '../core/sicherung';
 import { navigate } from '../ui/shell/router';
@@ -9,6 +9,9 @@ import { Icon } from '../ui/icons';
 import { useStore } from '../ui/lib/store';
 import { timeZones } from '../ui/lib/time';
 import { filterStore, setzeZeitzone } from '../widgets/filter/filterStore';
+
+// Töne und Vorlesen: eigener Baustein, erst beim Öffnen der Einstellungen geladen (Startgröße).
+const Klangeinstellungen = lazy(() => import('../ui/audio/Klangeinstellungen'));
 
 /** Zeitzone für Kalendertage (Lernserie, Verlauf, Kennzahlen). Selten nötig, daher hier statt in der Filterleiste. */
 function Zeitzone() {
@@ -51,7 +54,7 @@ export function Einstellungen() {
   }
   return <section className="page">
     <PageHeading bild="system" eyebrow="Dein Arbeitsplatz" title="So lernst du am liebsten."
-      description="KI-Unterstützung (optional), Zeitzone und deine Lerndaten." />
+      description="KI-Unterstützung (optional), Töne und Vorlesen, Zeitzone und deine Lerndaten." />
     <form className="card form-card" noValidate onSubmit={save}>
       <fieldset className="form-section">
         <legend>KI-Unterstützung (optional)</legend>
@@ -68,6 +71,7 @@ export function Einstellungen() {
       <p className="form-feedback" role="status">{saved ? key.trim() ? (merken ? 'Schlüssel auf diesem Gerät gespeichert.' : 'Schlüssel für diese Sitzung gespeichert.') : 'Schlüssel von diesem Gerät entfernt.' : ''}</p>
       {saveError && <p className="field-error" role="alert">{saveError}</p>}
     </form>
+    <Suspense fallback={null}><Klangeinstellungen /></Suspense>
     <Zeitzone />
     <section className="card form-card" aria-labelledby="my-data-title">
       <h2 id="my-data-title">Deine Daten. In deiner Hand.</h2>

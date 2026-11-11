@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { wenigBewegung } from '../../ui/shell/session';
+import { spiele } from '../../ui/audio/spieler';
 
 /** true bei reduzierter Bewegung: Systemeinstellung oder App-Einstellung (data-motion="reduce"). */
 export function useReducedMotion(): boolean {
@@ -47,7 +48,6 @@ export function MiniMonitor({ aktiv, puls, spo2, af, alarm, ton = false }: Props
     const ctx = c.getContext('2d'); if (!ctx) return;
     let breite = 0, hoehe = 0, x = 0, phase = 0, rest = 0, letzteZeit = 0, frame = 0, sichtbar = true;
     let lastEkg = 0, lastPleth = 0, schlag = false;
-    let audio: AudioContext | null = null;
     const farbe = () => getComputedStyle(c);
     const groesse = () => {
       const r = c.getBoundingClientRect(); const dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -72,13 +72,8 @@ export function MiniMonitor({ aktiv, puls, spo2, af, alarm, ton = false }: Props
     const yEkg = (v: number) => hoehe * 0.42 - v * hoehe * 0.3;
     const yPleth = (v: number) => hoehe * 0.92 - v * hoehe * 0.28;
     const piep = () => {
-      if (!werte.current.ton) return;
-      try {
-        audio ??= new AudioContext();
-        const o = audio.createOscillator(), g = audio.createGain();
-        o.frequency.value = 600 + Math.max(0, werte.current.spo2 - 80) * 12; g.gain.value = 0.04;
-        o.connect(g).connect(audio.destination); o.start(); o.stop(audio.currentTime + 0.07);
-      } catch { /* Ton ist nur Komfort */ }
+      // Gemeinsamer Audio-Baustein: beachtet Einstellungen (Ton aus) und iOS-Freigabe.
+      if (werte.current.ton) spiele('monitor-piep', { spo2: werte.current.spo2 });
     };
     const standbild = () => {
       groesse(); const kurve = breite - zahlenBreite() - 4;
@@ -126,7 +121,7 @@ export function MiniMonitor({ aktiv, puls, spo2, af, alarm, ton = false }: Props
     io?.observe(c);
     const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(() => { groesse(); zahlen(); }) : null;
     ro?.observe(c);
-    return () => { cancelAnimationFrame(frame); io?.disconnect(); ro?.disconnect(); void audio?.close(); };
+    return () => { cancelAnimationFrame(frame); io?.disconnect(); ro?.disconnect(); };
   }, [aktiv, reduziert]);
 
   return <canvas ref={canvas} className="szene__bildschirm" aria-hidden="true" />;

@@ -15,6 +15,10 @@ import { Szene } from './Szene';
 import { FotoSzene } from './FotoSzene';
 import { raumFotoFuer } from './raumfotos';
 import { PatientenMonitor } from '../../ui/sim/PatientenMonitor';
+import { SimTon } from '../../ui/audio/SimTon';
+import { klangZuBefund, raumFuerSetting } from '../../ui/audio/klaenge';
+import { HoerBeispiel } from '../../ui/audio/HoerBeispiel';
+import { szene as szenenZustand } from './szene';
 import { HandlungsVideo } from '../../ui/sim/HandlungsVideo';
 import { HANDLUNGSVIDEOS, phasenBild, type HandlungsVideoId } from '../../ui/sim/handlungsvideos';
 import './szene.css';
@@ -253,7 +257,10 @@ export function Arbeitsplatz({ s, send, panel, setPanel, zeitraffer = 1 }: { s: 
   const setAnsicht = (a: Ansicht) => { setAnsichtState(a); try { localStorage.setItem(ANSICHT_KEY, a); } catch { /* nur Komfort */ } };
   const foto = raumFotoFuer(s.scenario.id);
   const fokussieren = (e: RaumElement) => { setElement(e); setPanel('Patientenzimmer'); };
+  const z = szenenZustand(s);
   return <>
+    <div className="audio-simton"><SimTon raum={raumFuerSetting(s.scenario.setting)} telefon={z.telefonKlingelt} alarm={z.alarm}
+      monitor={s.monitoring ? { puls: s.measured.pulse, spo2: s.measured.spo2, aktiv: true } : null} /></div>
     {ansicht !== 'liste' && (foto && ansicht === 'foto'
       ? <FotoSzene s={s} raum={foto} fokus={element} onFokus={fokussieren} zeitraffer={zeitraffer} onZeichnung={() => setAnsicht('raum')} />
       : <Szene s={s} fokus={element} onFokus={fokussieren} zeitraffer={zeitraffer} />)}
@@ -266,6 +273,7 @@ export function Arbeitsplatz({ s, send, panel, setPanel, zeitraffer = 1 }: { s: 
     </section>
     <Entscheidung s={s} send={send} />
     <div className={`praxis-feedback ${last?.kind === 'warning' ? 'is-warning' : last?.kind === 'story' ? 'is-story' : ''}`} role="status" aria-live="polite" aria-atomic="true"><strong>{last?.title}</strong><p>{last?.detail}</p></div>
+    {last?.detail === s.scenario.findings.listen && klangZuBefund(last.detail) && <div className="audio-simton"><HoerBeispiel key={last.id} id={klangZuBefund(last.detail)!} p={{ af: s.vitals.resp }} label="Befund anhören" /><span className="audio-simton__status">Vereinfachte Nachbildung, mehr im <a href="#/lernen/hoeren">Hör-Trainer</a>.</span></div>}
     {s.pending.length > 0 && <details className="praxis-pending"><summary>{s.pending.length} offene Aufträge / Wirkungen</summary><ul>{s.pending.map(p => <li key={p.id}>{p.title} · fällig bei {clock(p.due)} (noch {Math.max(0, Math.ceil((p.due - s.time) / 60))} min)</li>)}</ul></details>}
     <nav className="praxis-panels" aria-label="Arbeitsbereich">{PANELS.map(p => <button key={p} aria-pressed={panel === p} onClick={() => setPanel(p)}>{p}</button>)}</nav>
     <div className="praxis-workspace">
@@ -375,7 +383,7 @@ export default function Praxissimulator() {
       </section>
       <Editor onStart={begin} />
       {readArchive().length > 0 && <details className="card"><summary>Abgeschlossene Übungen auf diesem Gerät</summary><ul>{readArchive().map(previous => <li key={previous.id}><button onClick={() => { setSession(previous); archivedRef.current = previous.id; }}>{previous.scenario.title} · {clock(previous.time)}</button></li>)}</ul><p className="muted">Die letzten zehn Abschlüsse bleiben im lokalen Archiv. Sie sind auch in der allgemeinen Datensicherung enthalten.</p></details>}
-      <details className="card"><summary>Funktionsumfang und nächste Ausbauschritte</summary><p>Kernfälle: je ein vollständig ausgearbeiteter Fall für Normalstation, Notaufnahme und ambulante Pflege mit Ketten von Beobachtung zu Entscheidung, alternativen richtigen Wegen und Angabe, was nur auf Vorliegen und was inhaltlich geprüft wird. Die fachliche Freigabe durch eine Pflegefachperson steht aus.</p><p>Enthalten: {SCENARIOS.length} Lehrszenarien mit klinischem Verlauf (Komplikationen, Angehörige, Visite, Telefonate), Fehlhandlungen mit Folgen, NEWS2-Verlaufskurve mit Bewusstsein und Sauerstoff, Entscheidungsmomente mit verzweigtem Verlauf, Schichtmodus mit mehreren Patienten gleichzeitig, verzögerte Diagnostik, strukturierte Gespräche, Untersuchungsbefunde als Text, Pflegehandlungen, eine Furosemid-Rechenübung, SBAR, Dokumentation, Ereignisverlauf und JSON-Werkstatt.</p><p>Noch ausstehend: fachliche Freigabe der Kernfälle, Orbit-Kamera für die Raumansicht, fachlich validierte Dosis- und Interaktionsmodelle, Kreislaufstillstand und Reanimation, echte EKG-/Bilddaten, DICOM, Audios, formale MTS-/ESI-Triage, VR, Konten, serverseitiges RBAC, verschlüsselte mandantenfähige Speicherung und xAPI-/SCORM-Anbindung.</p><p>Der <a href="#/lernen/fall">Text-Fallsimulator</a> bleibt ein separates Angebot.</p></details>
+      <details className="card"><summary>Funktionsumfang und nächste Ausbauschritte</summary><p>Kernfälle: je ein vollständig ausgearbeiteter Fall für Normalstation, Notaufnahme und ambulante Pflege mit Ketten von Beobachtung zu Entscheidung, alternativen richtigen Wegen und Angabe, was nur auf Vorliegen und was inhaltlich geprüft wird. Die fachliche Freigabe durch eine Pflegefachperson steht aus.</p><p>Enthalten: {SCENARIOS.length} Lehrszenarien mit klinischem Verlauf (Komplikationen, Angehörige, Visite, Telefonate), Fehlhandlungen mit Folgen, NEWS2-Verlaufskurve mit Bewusstsein und Sauerstoff, Entscheidungsmomente mit verzweigtem Verlauf, Schichtmodus mit mehreren Patienten gleichzeitig, verzögerte Diagnostik, strukturierte Gespräche, Untersuchungsbefunde als Text, Pflegehandlungen, eine Furosemid-Rechenübung, SBAR, Dokumentation, Ereignisverlauf und JSON-Werkstatt.</p><p>Noch ausstehend: fachliche Freigabe der Kernfälle, Orbit-Kamera für die Raumansicht, fachlich validierte Dosis- und Interaktionsmodelle, Kreislaufstillstand und Reanimation, echte EKG-/Bilddaten, DICOM, echte Auskultationsaufnahmen, formale MTS-/ESI-Triage, VR, Konten, serverseitiges RBAC, verschlüsselte mandantenfähige Speicherung und xAPI-/SCORM-Anbindung.</p><p>Der <a href="#/lernen/fall">Text-Fallsimulator</a> bleibt ein separates Angebot.</p></details>
     </>}
     {s && !(schicht && schichtOffen) && <>
       <header className="praxis-sessionhead"><div><span className="eyebrow">{SETTINGS[s.scenario.setting]} · Ausbildungsjahr {s.level}</span><h2 ref={headingRef} tabIndex={-1}>{s.scenario.title}</h2><p>{s.scenario.patient}, {s.scenario.age} Jahre · {s.scenario.weight} kg</p><small>Modell {s.scenario.model.version} · {s.scenario.kern ? 'Kernfall · fachliche Freigabe ausstehend' : 'fachlich ungeprüft'} · Seed {s.seed}</small></div><div className="praxis-clock"><span>Simulationszeit</span><strong>{clock(s.time)}</strong><span>{active ? running ? 'Uhr läuft' : 'Uhr pausiert' : 'Fall beendet'}</span></div></header>
