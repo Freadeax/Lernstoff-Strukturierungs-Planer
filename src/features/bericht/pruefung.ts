@@ -11,7 +11,12 @@ export interface Fund { art: FundArt; wort: string; start: number; ende: number 
 export interface PunktErgebnis { punkt: Kernpunkt; ok: boolean }
 export interface BausteinErgebnis { baustein: Baustein; punkte: PunktErgebnis[]; status: 'vollstaendig' | 'teilweise' | 'fehlt' | 'leer' }
 
+/** Fallunabhängige Grundkriterien eines Eintrags (Audit Pflegebericht). Reine Stichwortprüfung. */
+export type GrundId = 'zeit' | 'fakten' | 'massnahme' | 'wirkung';
+export interface Grundkriterium { id: GrundId; label: string; ok: boolean; hinweis: string }
+
 export interface BerichtErgebnis {
+  grund: Grundkriterium[];
   bausteine: BausteinErgebnis[];
   funde: Fund[];
   wertfrei: boolean;
@@ -66,6 +71,28 @@ export function markiere(text: string, funde: Fund[]): { text: string; fund?: Fu
   return out;
 }
 
+const ZEIT = /\d{1,2}[:.]\d{2}|\d{1,2}\s*uhr|(?<!\p{L})(?:seit|ab|bis|nach|vor|um|gegen|innerhalb)\s+(?:\d+|einer|eine|zwei|drei|einigen)\s*(?:min|minute|minuten|std|stunde|stunden|tag|tagen)?|(?<!\p{L})(?:frühdienst|spätdienst|nachtdienst|morgens|mittags|abends|nachts)(?!\p{L})/iu;
+// Messbare oder beobachtbare Angaben: Zahl mit Einheit oder wörtliche Rede.
+const FAKT = /\d+(?:[.,]\d+)?\s*(?:mmhg|\/min|°c|%|ml|l|mg\/dl|mmol|kg|cm|mal|löffel|bissen|tasse|tassen|becher|glas|gläser|portion|von 10|\/10)(?!\p{L})|[„"»“]/iu;
+const MASSNAHME = /(?<!\p{L})(?:gegeben|verabreicht|angeboten|angereicht|gelagert|umgelagert|mobilisiert|begleitet|gemessen|kontrolliert|informiert|verständigt|angerufen|durchgeführt|gewechselt|versorgt|unterstützt|abgesaugt|eingerieben|aufgesetzt|hingesetzt|beruhigt|erklärt|angeleitet|getrunken lassen|gereicht|ermöglicht|geholt|ausgezogen|angezogen|geduscht|gewaschen|verbunden|gekühlt|zugedeckt|geöffnet|abgesetzt|gestoppt|eingesetzt|appliziert|injiziert|inhaliert|aufgeholfen|verbandwechsel|nachgesehen)(?!\p{L})/iu;
+const WIRKUNG = /(?<!\p{L})(?:danach|anschließend|daraufhin|im anschluss|nach\s+\d+\s*(?:min|minuten|std|stunden)|wirkung|wirkt|reagiert|ruhiger|entspannt|schläft|schlief|besser|gebessert|unverändert|nicht verändert|weiterhin|nachgelassen|gesunken|gestiegen|bleibt|blieb|lehnt|lehnte)(?!\p{L})/iu;
+
+// Reaktion der Person nach der Maßnahme: Wirkungswort, neue Uhrzeit, beobachtbares Verhalten oder wörtliche Aussage.
+const REAKTION = /(?<!\p{L})(?:gegessen|getrunken|geht|ging|sitzt|saß|liegt|schläft|schlafend|gelingt|gelang|sagt|sagte|nrs\s*\d)(?!\p{L})|\d{1,2}[:.]\d{2}|\d{1,2}\s*uhr|[„"»“]/iu;
+
+/** Grundkriterien: Zeitbezug, beobachtbare Fakten, Maßnahme und Wirkung (Wirkung nach der Maßnahme). */
+export function grundkriterien(text: string): Grundkriterium[] {
+  const t = text.trim();
+  const m = MASSNAHME.exec(t);
+  const danach = m ? t.slice(m.index + m[0].length) : '';
+  return [
+    { id: 'zeit', label: 'Zeitbezug', ok: ZEIT.test(t), hinweis: 'Wann wurde beobachtet oder gehandelt? Uhrzeit oder Zeitraum nennen.' },
+    { id: 'fakten', label: 'Beobachtbare Fakten', ok: FAKT.test(t), hinweis: 'Messwerte, Mengen oder wörtliche Aussagen statt Eindrücken.' },
+    { id: 'massnahme', label: 'Maßnahme', ok: !!m, hinweis: 'Was hast du getan? Die Maßnahme ausdrücklich nennen.' },
+    { id: 'wirkung', label: 'Wirkung nach der Maßnahme', ok: !!m && (WIRKUNG.test(danach) || REAKTION.test(danach)), hinweis: 'Wie hat die Person auf die Maßnahme reagiert? Nach der Maßnahme beschreiben, was sich verändert hat.' },
+  ];
+}
+
 export function pruefeBericht(fall: BerichtFall, text: string): BerichtErgebnis {
   const such = suchtext(vereinfache(text));
   const ergebnisse = fall.kernpunkte.map((punkt) => ({ punkt, ok: findeMuster(such, punkt.muster) >= 0 }));
@@ -101,7 +128,7 @@ export function pruefeBericht(fall: BerichtFall, text: string): BerichtErgebnis 
   }
 
   return {
-    bausteine, funde, wertfrei, woerter,
+    grund: grundkriterien(text), bausteine, funde, wertfrei, woerter,
     prozent: woerter ? Math.round((erreicht / max) * 100) : 0,
     pflichtFehlend: ergebnisse.filter((e) => e.punkt.pflicht && !e.ok).map((e) => e.punkt),
     hinweise,

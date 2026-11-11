@@ -1,5 +1,6 @@
 import { storage } from '../../ui/lib/store';
 import { DatenHinweis } from '../../ui/DatenHinweis';
+import { PersonenWarnung, personenbezug } from '../../ui/PersonenWarnung';
 import { useEffect, useRef, useState } from 'react';
 import './bericht.css';
 import { logActivity } from '../../core/activity';
@@ -73,13 +74,24 @@ function Ergebnis({ e, text }: { e: BerichtErgebnis; text: string }) {
         <h3>Checkliste: {e.prozent} %</h3>
         <span className="muted">{e.woerter} Wörter · {e.wertfrei ? 'sachlich' : 'enthält Wertungen'}</span>
       </div>
-      <div className={`bericht__balken bericht__balken--${stufe}`} role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={e.prozent}>
+      <div className={`bericht__balken bericht__balken--${stufe}`} role="progressbar" aria-label="Checkliste erfüllt" aria-valuemin={0} aria-valuemax={100} aria-valuenow={e.prozent}>
         <span style={{ width: `${e.prozent}%` }} />
       </div>
       <div className="bericht__deintext">
         <h4>Dein Eintrag</h4>
         <p className="pre"><Markiert text={text} /></p>
       </div>
+      <section className="bericht__grund" aria-labelledby="bericht-grund">
+        <h4 id="bericht-grund">Grundkriterien</h4>
+        <ul>
+          {e.grund.map((g) => (
+            <li key={g.id} className={g.ok ? 'is-ok' : 'is-fehlt'}>
+              <span className="bericht__zeichen" aria-hidden="true">{g.ok ? '✓' : '✗'}</span>
+              <span><strong>{g.label}</strong>{g.ok ? '' : `: ${g.hinweis}`}<span className="visually-hidden">: {g.ok ? 'erfüllt' : 'fehlt'}</span></span>
+            </li>
+          ))}
+        </ul>
+      </section>
       {e.hinweise.map((h) => <div key={h} className="note warn">{h}</div>)}
       <div className="bericht__bausteine">
         {e.bausteine.filter((b) => b.status !== 'leer').map((b) => (
@@ -105,6 +117,7 @@ function KiErgebnis({ r }: { r: KiRueckmeldung }) {
   return (
     <div className="card bericht__ki" aria-live="polite">
       <div className="bericht__kopf"><h3>Rückmeldung von Claude</h3><span className="bericht__note">Note {r.note}</span></div>
+      <p className="bericht__ki-marke">KI-Zusatzfeedback: getrennt von der Code-Prüfung oben, fließt nicht in die Checkliste ein.</p>
       {r.sachlich && <p>{r.sachlich}</p>}
       {r.umformulieren.length > 0 && (
         <div className="note"><strong>Besser so</strong>
@@ -128,6 +141,7 @@ export default function Berichttrainer() {
   const [geprueft, setGeprueft] = useState('');
   const [ki, setKi] = useState<KiRueckmeldung | null>(null);
   const [kiLaeuft, setKiLaeuft] = useState(false);
+  const [kiGeprueft, setKiGeprueft] = useState(false);
   const [kiFehler, setKiFehler] = useState('');
   const [beste, setBeste] = useState(() => lese<Record<string, number>>(BESTE_KEY, {}));
   const [hilfe, setHilfe] = useState(false);
@@ -147,7 +161,7 @@ export default function Berichttrainer() {
     zuruecksetzen();
   });
 
-  function zuruecksetzen() { setErgebnis(null); setKi(null); setKiFehler(''); lernplan.zuruecksetzen(); }
+  function zuruecksetzen() { setErgebnis(null); setKi(null); setKiFehler(''); setKiGeprueft(false); lernplan.zuruecksetzen(); }
   function waehleFall(id: string) { diktat.stop(); setFallId(id); setText(ladeEntwurf(id)); zuruecksetzen(); }
 
   function pruefen() {
@@ -179,6 +193,7 @@ export default function Berichttrainer() {
   }
 
   const leer = !text.trim();
+  const personenFunde = personenbezug(geprueft, [fall.person, ...fall.szene]).length > 0;
   const woerter = text.split(/\s+/).filter(Boolean).length;
 
   return (
@@ -217,11 +232,13 @@ export default function Berichttrainer() {
             <h3>Dein Eintrag</h3>
             <span className="muted">{woerter} Wörter</span>
           </div>
+          <p className="muted bericht__feldhinweis" id="bericht-datenhinweis">Nur ausgedachte Übungsdaten: keine echten Namen, Geburtsdaten oder Zimmernummern.</p>
           <label className="bericht__feld">
             <span className="visually-hidden">Berichtseintrag</span>
-            <textarea rows={9} value={text} placeholder={'Uhrzeit: Beobachtung. Sie sagt: „…“ Maßnahme. Wirkung. Informiert: …'}
+            <textarea rows={9} value={text} aria-describedby="bericht-datenhinweis" placeholder={'Uhrzeit: Beobachtung. Sie sagt: „…“ Maßnahme. Wirkung. Informiert: …'}
               onChange={(e) => { setText(e.target.value); zuruecksetzen(); }} />
           </label>
+          <PersonenWarnung text={text} erlaubt={[fall.person, ...fall.szene]} />
           {diktat.aktiv && <div className="note" role="status">Hört zu … {diktat.zwischen && <em>{diktat.zwischen}</em>}</div>}
           {diktat.fehler && <div className="note warn" role="alert">{diktat.fehler}</div>}
           <DiktatFrage diktat={diktat} />
@@ -248,11 +265,15 @@ export default function Berichttrainer() {
             <div className="card">
               <div className="row">
                 {apiKey
-                  ? <button type="button" className="primary" onClick={fragClaude} disabled={kiLaeuft}>{kiLaeuft ? 'Claude liest …' : ki ? 'Noch einmal bewerten' : 'Ausführliche Rückmeldung von Claude'}</button>
+                  ? <button type="button" className="primary" onClick={fragClaude} disabled={kiLaeuft || (personenFunde && !kiGeprueft)}>{kiLaeuft ? 'Claude liest …' : ki ? 'Noch einmal bewerten' : 'Ausführliche Rückmeldung von Claude'}</button>
                   : <p className="muted">Für eine ausführliche Rückmeldung mit Umformulierungen einen API-Schlüssel hinterlegen. <button type="button" className="link" onClick={() => navigate('/einstellungen')}>Zu den Einstellungen</button></p>}
                 <button type="button" onClick={naechsterFall}>Nächster Fall</button>
               </div>
-              {apiKey && !ki && !kiLaeuft && <DatenHinweis art="ki" detail="Gesendet werden nur der Übungsfall und dein Text." />}
+              {apiKey && !ki && !kiLaeuft && <>
+                <DatenHinweis art="ki" detail="Gesendet werden nur der Übungsfall und dein Text." />
+                <PersonenWarnung text={geprueft} erlaubt={[fall.person, ...fall.szene]} vorKi />
+                {personenFunde && <label className="bericht__kibestaetigung"><input type="checkbox" checked={kiGeprueft} onChange={(e) => setKiGeprueft(e.target.checked)} /> Ich habe geprüft: Der Text enthält nur ausgedachte Übungsdaten.</label>}
+              </>}
               {kiFehler && <div className="note warn" role="alert">{kiFehler}</div>}
               <details>
                 <summary>Beispiel-Eintrag ansehen</summary>

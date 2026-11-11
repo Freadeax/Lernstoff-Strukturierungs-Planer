@@ -159,7 +159,7 @@ export const BERICHT_FAELLE: BerichtFall[] = [
       { id: 'vw', baustein: 'massnahme', pflicht: true, text: 'Verbandwechsel nach Wundplan, Foto', muster: ['wundplan', 'foto', 'verbandwechsel'] },
       { id: 'expertin', baustein: 'weitergabe', pflicht: true, text: 'Wundexpertin informiert', muster: ['wundexpert', 'wundmanag', 'experti'] },
     ],
-    muster: '10:00 Uhr Verbandwechsel rechter Unterschenkel nach Wundplan. Wunde 3 x 2 cm, gelblicher Belag, Wundrand ca. 1 cm gerötet, riecht süßlich, mäßig Exsudat. Frau Becker sagt beim Abnehmen des Verbandes: „Au, das brennt“, NRS 4. Foto für die Wunddokumentation gemacht. Wundexpertin telefonisch informiert, kommt morgen mit.',
+    muster: '10:00 Uhr Verbandwechsel rechter Unterschenkel nach Wundplan. Wunde 3 x 2 cm, gelblicher Belag, Wundrand ca. 1 cm gerötet, riecht süßlich, mäßig Exsudat. Frau Becker sagt beim Abnehmen des Verbandes: „Au, das brennt“, NRS 4. Foto für die Wunddokumentation gemacht. Wunde nach Wundplan versorgt, danach sagt sie: „Jetzt brennt es weniger.“ Wundexpertin telefonisch informiert, kommt morgen mit.',
   },
   {
     id: 'tochter',
