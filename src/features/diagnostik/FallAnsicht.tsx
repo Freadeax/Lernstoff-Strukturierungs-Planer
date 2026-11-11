@@ -4,7 +4,7 @@
 import { useMemo, useState } from 'react';
 import { PatientenMonitor } from '../../ui/sim/PatientenMonitor';
 import { BildBetrachter } from '../../ui/sim/bildgebung/BildBetrachter';
-import { trifft, type Bildserie } from '../../ui/sim/bildgebung/serie';
+import { anzahlSchichten, trifft, type Bildserie } from '../../ui/sim/bildgebung/serie';
 import { formatWert, FLAG_TEXT, parameter } from '../../ui/sim/labor/parameter';
 import { uhrzeit } from '../../ui/sim/labor/modell';
 import type { Farbsystem } from '../../ui/sim/labor/praeanalytik';
@@ -185,7 +185,7 @@ function UntersuchungKarte({ u, fall, lauf, senden }: { u: Untersuchung; fall: D
               <h4>Befund</h4>
               <section>
                 <h5>Serieninformationen</h5>
-                <p>{serie.untersuchung}{serie.quelle.art === 'phantom' && serie.quelle.modalitaet === 'ct' ? `, ${serie.quelle.schichten} Schichten${serie.schichtdicke ? ` à ${serie.schichtdicke} mm` : ''}` : ''}. {serie.quelle.art === 'phantom' ? 'Synthetisches Übungsbild.' : serie.quelle.art === 'bilder' ? 'Echtes Bild, Urheber und Lizenz unter dem Bild.' : 'Eigenes Material.'}</p>
+                <p>{serie.untersuchung}{serie.quelle.modalitaet === 'ct' ? `, ${anzahlSchichten(serie)} Schichten${serie.schichtdicke ? ` à ${serie.schichtdicke} mm` : ''}` : ''}. {serie.quelle.art === 'phantom' ? 'Synthetisches Übungsbild.' : serie.quelle.art === 'bilder' ? 'Echtes Bild, Urheber und Lizenz unter dem Bild.' : 'Eigenes Material.'}</p>
               </section>
               <section>
                 <h5>Befundmarken</h5>

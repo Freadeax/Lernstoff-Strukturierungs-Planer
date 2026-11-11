@@ -12,6 +12,8 @@ export type BildQuelle =
     /** Pfad relativ zur App (public/) oder absolute https-URL. */
     basis: string; dateien: string[];
     lizenz: string; urheber: string; quelleUrl: string;
+    /** Was am Original verändert wurde (Lizenzhinweis). Fehlt: „zugeschnitten und verkleinert“. */
+    bearbeitung?: string;
   }
   | {
     /** Bilder aus dem privaten Material-Repo (nur mit Zugang auf diesem Gerät, nie im öffentlichen Build). */
@@ -95,8 +97,66 @@ let materialLader: MaterialLader | null = null;
 /** Die App meldet hier, wie Dateien aus dem privaten Material-Repo geholt werden. */
 export function setzeMaterialLader(f: MaterialLader | null) { materialLader = f; }
 
-/** Lädt eine Bilddatei und wandelt sie in Grauwerte (0..4095). */
-async function ladeDatei(url: string): Promise<Rohbild> {
+/**
+ * Liest ein 16-Bit-Graustufen-PNG (CT-Schichten mit Pixelwert = HU + 1024) verlustfrei.
+ * Der Browser würde beim Zeichnen auf ein Canvas auf 8 Bit reduzieren, dann ginge die
+ * HU-Fensterung verloren. Gibt null zurück, wenn die Datei kein solches PNG ist.
+ */
+export async function dekodierePng16(daten: ArrayBuffer): Promise<Rohbild | null> {
+  const b = new Uint8Array(daten);
+  const SIGNATUR = [137, 80, 78, 71, 13, 10, 26, 10];
+  if (b.length < 33 || SIGNATUR.some((v, i) => b[i] !== v)) return null;
+  const dv = new DataView(daten);
+  const breite = dv.getUint32(16), hoehe = dv.getUint32(20);
+  // Bittiefe 16, Farbtyp 0 (Graustufen), ohne Interlace
+  if (b[24] !== 16 || b[25] !== 0 || b[28] !== 0) return null;
+  const teile: Uint8Array[] = [];
+  for (let pos = 8; pos + 8 <= b.length;) {
+    const laenge = dv.getUint32(pos);
+    const typ = String.fromCharCode(b[pos + 4], b[pos + 5], b[pos + 6], b[pos + 7]);
+    if (typ === 'IDAT') teile.push(b.subarray(pos + 8, pos + 8 + laenge));
+    if (typ === 'IEND') break;
+    pos += 12 + laenge;
+  }
+  const strom = new Blob(teile as BlobPart[]).stream().pipeThrough(new DecompressionStream('deflate'));
+  const roh = new Uint8Array(await new Response(strom).arrayBuffer());
+  const zeile = breite * 2;
+  if (roh.length < hoehe * (zeile + 1)) throw new Error('PNG unvollständig');
+  const bpp = 2;
+  const akt = new Uint8Array(zeile), vor = new Uint8Array(zeile);
+  const werte = new Uint16Array(breite * hoehe);
+  for (let y = 0; y < hoehe; y++) {
+    const start = y * (zeile + 1), filter = roh[start];
+    for (let i = 0; i < zeile; i++) {
+      const x = roh[start + 1 + i];
+      const a = i >= bpp ? akt[i - bpp] : 0, o = vor[i], c = i >= bpp ? vor[i - bpp] : 0;
+      let v = x;
+      if (filter === 1) v = x + a;
+      else if (filter === 2) v = x + o;
+      else if (filter === 3) v = x + ((a + o) >> 1);
+      else if (filter === 4) {
+        const p = a + o - c, pa = Math.abs(p - a), pb = Math.abs(p - o), pc = Math.abs(p - c);
+        v = x + (pa <= pb && pa <= pc ? a : pb <= pc ? o : c);
+      }
+      akt[i] = v & 255;
+    }
+    for (let xx = 0; xx < breite; xx++) werte[y * breite + xx] = Math.min(ROH_MAX, (akt[xx * 2] << 8) | akt[xx * 2 + 1]);
+    vor.set(akt);
+  }
+  return { breite, hoehe, werte };
+}
+
+/** Lädt eine Bilddatei und wandelt sie in Grauwerte (0..4095). CT als 16-Bit-PNG bleibt in HU. */
+async function ladeDatei(url: string, modalitaet?: Modalitaet): Promise<Rohbild> {
+  if (modalitaet === 'ct' && typeof DecompressionStream === 'function') {
+    try {
+      const antwort = await fetch(url);
+      if (antwort.ok) {
+        const bild = await dekodierePng16(await antwort.arrayBuffer());
+        if (bild) { if (url.startsWith('blob:')) URL.revokeObjectURL(url); return bild; }
+      }
+    } catch { /* weiter mit dem normalen Bildpfad */ }
+  }
   const img = new Image();
   img.decoding = 'async';
   if (!url.startsWith('blob:')) img.crossOrigin = 'anonymous';
@@ -123,10 +183,10 @@ export async function ladeSchicht(s: Bildserie, i: number): Promise<Rohbild> {
   if (q.art === 'material') {
     if (!materialLader) throw new Error('Material-Repo ist auf diesem Gerät nicht verbunden (Material → Große Dateien).');
     const blob = await materialLader(`${q.ordner.replace(/\/$/, '')}/${datei}`);
-    return merke(key, await ladeDatei(URL.createObjectURL(blob)));
+    return merke(key, await ladeDatei(URL.createObjectURL(blob), q.modalitaet));
   }
   const url = /^https:\/\//.test(q.basis) ? `${q.basis.replace(/\/$/, '')}/${datei}` : `${import.meta.env.BASE_URL}${q.basis.replace(/^\/|\/$/g, '')}/${datei}`;
-  return merke(key, await ladeDatei(url));
+  return merke(key, await ladeDatei(url, q.modalitaet));
 }
 
 /** Befunde, die auf Schicht i sichtbar sind. */

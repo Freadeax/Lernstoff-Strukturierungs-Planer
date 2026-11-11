@@ -159,6 +159,13 @@ export const FAELLE: DiagnostikFall[] = [
     bildgebung: [
       {
         serie: { id: 'le-ct', titel: 'CT-Angiographie', untersuchung: 'CT-Thorax mit Kontrastmittel (CT-Pulmonalisangiographie)', quelle: { art: 'phantom', modalitaet: 'ct', variante: 'lungenembolie', schichten: 40, kontrast: true }, schichtdicke: 5, befunde: [{ id: 'thrombus', schichten: [14, 19], x: 0.45, y: 0.48, r: 0.06, titel: 'Füllungsdefekt rechte Pulmonalarterie', text: 'Das Kontrastmittel macht Gefäße hell; der Thrombus ist eine dunkle Aussparung im hellen Gefäß.' }], befundtext: 'Zentrale Lungenembolie der rechten Pulmonalarterie. Rechtes Herz leicht erweitert. Kein Infiltrat.' },
+        echt: {
+          id: 'le-ct-echt', titel: 'CT-Angiographie (echte Serie)', untersuchung: 'CT-Pulmonalisangiographie (Vergleichsserie eines anderen Patienten)',
+          quelle: { art: 'bilder', modalitaet: 'ct', basis: 'bildgebung/lungenembolie-ct', dateien: Array.from({ length: 32 }, (_, i) => `schicht-${String(i + 1).padStart(2, '0')}.png`), lizenz: 'CC BY 4.0', urheber: 'Germán González Serrano, CAD-PE Fall 001 (über CADS-Dataset)', quelleUrl: 'https://huggingface.co/datasets/huggingface/CADS-dataset/blob/main/0012_cad_pe/README_0012_cad_pe.md', bearbeitung: 'Ausschnitt von 32 Schichten, oben und unten beschnitten' },
+          schichtdicke: 1,
+          befunde: [{ id: 'thrombus', schichten: [9, 15], x: 0.431, y: 0.47, r: 0.06, titel: 'Füllungsdefekt zentral, rechtsseitiger Anteil', text: 'Dunkle Aussparung im kontrastierten Gefäß an der Aufzweigung der Pulmonalarterien, rechts (im Bild links). Im Weichteilfenster am deutlichsten.' }],
+          befundtext: 'Zentral betonte Lungenembolie mit Füllungsdefekten an der Aufzweigung der Pulmonalarterien. Echte Vergleichsserie aus einem frei lizenzierten Datensatz, nicht von Herrn K. Befundmarke aus der Segmentierung des Datensatzes abgeleitet, fachlich noch ungeprüft.',
+        },
         dauer: 35, befundNach: 20, kontrastmittel: true, vorbereitung: kmCt({ metformin: true, instabil: true }),
       },
     ],
@@ -280,6 +287,7 @@ export const FAELLE: DiagnostikFall[] = [
     bildgebung: [
       {
         serie: { id: 'pt-rx', titel: 'Röntgen-Thorax', untersuchung: 'Röntgen-Thorax p.a. im Stehen', quelle: { art: 'phantom', modalitaet: 'roentgen', variante: 'pneumothorax' }, befunde: [{ id: 'pleuralinie', x: 0.84, y: 0.42, r: 0.09, titel: 'Pneumothorax links', text: 'Feine Pleuralinie, außerhalb davon keine Lungengefäße mehr: dort ist nur Luft.' }], befundtext: 'Mantelpneumothorax links, Lunge etwa 3 cm von der Thoraxwand abgehoben. Keine Mediastinalverlagerung.' },
+        echt: { id: 'pt-rx-echt', titel: 'Röntgen-Thorax (echtes Bild)', untersuchung: 'Röntgen-Thorax p.a. (Vergleichsbild: Spontanpneumothorax eines anderen jungen Mannes)', quelle: { art: 'bilder', modalitaet: 'roentgen', basis: 'bildgebung/pneumothorax-rx', dateien: ['rontgen-pa.jpg'], lizenz: 'CC BY-SA 3.0', urheber: 'Hellerhoff, Wikimedia Commons', quelleUrl: 'https://commons.wikimedia.org/wiki/File:10-01-Pneumothorax.png', bearbeitung: 'als JPEG gespeichert' }, befunde: [{ id: 'pleuralinie', x: 0.83, y: 0.27, r: 0.1, titel: 'Pneumothorax links', text: 'Feine Pleuralinie im linken Oberfeld (im Bild rechts oben), außerhalb davon keine Lungengefäße mehr. Mit „Kontrast“ und Lupe besser zu sehen.' }], befundtext: 'Spontanpneumothorax links: abgehobene Pleuralinie im Ober- und Mittelfeld, lateral davon keine Gefäßzeichnung. Keine Mediastinalverlagerung. Echtes Vergleichsbild, nicht von Herrn P., Befundmarke fachlich noch ungeprüft.' },
         dauer: 20, befundNach: 15, kontrastmittel: false, vorbereitung: roentgen({}),
       },
       {
