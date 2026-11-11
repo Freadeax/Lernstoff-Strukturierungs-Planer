@@ -7,7 +7,7 @@ Modularer Lernstoff-Planer: Lernmaterial importieren, quellengetreu zusammenfass
 - **Quelle vor KI:** Jede fachliche Aussage ist mit Dokument, Seite und Zitat belegt. Unbelegtes wird markiert.
 - **Fachneutraler Kern:** Pflegespezifisches steckt im Fachmodul `src/modules/pflege`.
 - **Lokal zuerst:** Alle Daten liegen auf dem Gerät (IndexedDB). Funktioniert offline.
-- **Ein gemeinsamer Stand:** Entwicklung und Veröffentlichung gehen ausschließlich von `main` aus. Tests laufen lokal mit `npm test`; GitHub Actions baut und veröffentlicht die Website.
+- **Ein gemeinsamer Stand:** Entwicklung und Veröffentlichung gehen ausschließlich von `main` aus. Geprüft wird lokal mit `npm run check`; Cloudflare Pages baut und veröffentlicht jeden Stand von `main` unter https://lernstoff-planer.pages.dev/.
 
 ## Auf dem Rechner starten
 

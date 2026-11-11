@@ -160,6 +160,11 @@ try {
     await page.goto(base + '#/lernen/fall', { waitUntil: 'networkidle' });
     await page.getByRole('heading', { name: 'Fallbeispiel-Simulator', exact: true }).waitFor();
     // Probefall ohne KI: Szene und Monitor laufen, eine Entscheidung bewegt Figur und Werte
+    // Offline-Paket: erst Ersatzansicht, nach dem Laden vollständig
+    const ersterProbefall = page.locator('.fall__probe-liste li').first();
+    await ersterProbefall.getByText('Offline mit Ersatzansicht').waitFor();
+    await ersterProbefall.getByRole('button', { name: 'Für offline laden' }).click();
+    await ersterProbefall.getByText('Offline vollständig').waitFor({ timeout: 20000 });
     await page.getByRole('button', { name: 'Probefall starten: Atemnot in der Nacht', exact: true }).click();
     await page.locator('.fall__option').first().waitFor();
     // Fotoraum (Kardiologie): vor der Messung Variante ohne Monitor, danach Live-Monitor im Bild
@@ -200,7 +205,19 @@ try {
     assert(await page.locator('.fall__rueckblick .fall__rb-eingabe').isVisible(), 'Rückblick zeigt Entscheidung');
     await page.waitForTimeout(600);
     await audit('Fallsimulator Rückblick'); await page.screenshot({ path: path.join(output, `fall-rueckblick-${width}.png`), fullPage: true });
+    assert(await page.getByRole('heading', { name: 'Weiterlernen' }).isVisible(), 'Rückweg zu Theorie');
     await context.close();
+    // Fehlendes Medium: Raumfoto blockiert (ohne Service Worker, damit die Sperre greift) → gezeichnete Ersatzansicht
+    {
+      const ctx = await browser.newContext({ viewport: { width, height: 1050 }, locale: 'de-DE', colorScheme: 'light', serviceWorkers: 'block' });
+      const p2 = await ctx.newPage(); p2.on('pageerror', e => errors.push(e.message));
+      await p2.route('**/raeume/21*', (r) => r.abort());
+      await p2.goto(base + '#/lernen/fall', { waitUntil: 'networkidle' });
+      await p2.getByRole('button', { name: 'Probefall starten: Das Spray hilft heute nicht', exact: true }).click();
+      await p2.locator('.szene svg').waitFor();
+      await p2.getByText(/gezeichnete Ersatzansicht/).waitFor();
+      await ctx.close();
+    }
     // Notfall-Trainer: Reanimationsübung mit künstlicher Uhr (Zyklus 30 s ohne Warten).
     {
       const ctx = await browser.newContext({ viewport: { width, height: 1050 }, locale: 'de-DE', colorScheme: 'light' });

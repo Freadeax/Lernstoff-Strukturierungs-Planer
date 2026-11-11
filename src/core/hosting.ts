@@ -8,3 +8,14 @@ export function mussUmziehen(host = typeof location !== 'undefined' ? location.h
   if (!neu) return false;
   try { return ALTE_HOSTS.includes(host) && new URL(neu).hostname !== host; } catch { return false; }
 }
+
+/** Welche Adresse ist das? Für die sichtbare Angabe in Einstellungen und Datensicherung (Daten gelten je Adresse). */
+export function adressArt(host = typeof location !== 'undefined' ? location.hostname : '', neu: string = NEUE_ADRESSE): 'offiziell' | 'alt' | 'andere' {
+  try { if (neu && new URL(neu).hostname === host) return 'offiziell'; } catch { /* leer */ }
+  return ALTE_HOSTS.includes(host) ? 'alt' : 'andere';
+}
+
+export function adressText(host = typeof location !== 'undefined' ? location.hostname : ''): string {
+  const art = adressArt(host);
+  return `${host || 'unbekannt'} · ${art === 'offiziell' ? 'offizielle Adresse' : art === 'alt' ? 'alte Adresse, bitte umziehen' : 'Test- oder Entwicklungsadresse'}`;
+}
