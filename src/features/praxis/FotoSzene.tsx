@@ -10,7 +10,7 @@ import { HandlungsVideo } from '../../ui/sim/HandlungsVideo';
 import type { HandlungsVideoId } from '../../ui/sim/handlungsvideos';
 import { consciousness } from './engine';
 import { RAUM_ELEMENTE, raumElemente, type RaumElement } from './raum';
-import type { Punkt, RaumFoto } from './raumfotos';
+import { laufendeVariante, type Punkt, type RaumFoto } from './raumfotos';
 import { szene, type HandlungsArt, type SzenenZustand } from './szene';
 import { BLASEN_TITEL, OrteLeiste, StatusChips, useBlase } from './Szene';
 import type { Session } from './types';
@@ -23,7 +23,8 @@ const TUER: Punkt = { x: 8, y: 42 };
 
 /** Monitorzustand am Gerät: läuft nur mit angeschlossenem Monitoring, sonst Raum ohne Monitor (12a, 20a, 21a) bzw. Standby. */
 export function fotoMonitor(s: Session, z: SzenenZustand, raum: RaumFoto): BuehnenMonitor {
-  if (!s.monitoring) return { werte: {}, zustand: RAEUME[raum.id].ohneMonitor ? 'abwesend' : 'standby' };
+  // Während einer Maßnahme (z. B. Inhalation, Raum 21b) steht das Gerät im Bild, also Standby statt Raum ohne Monitor.
+  if (!s.monitoring) return { werte: {}, zustand: RAEUME[raum.id].ohneMonitor && !laufendeVariante(raum, s.flags, s.time) ? 'abwesend' : 'standby' };
   return {
     zustand: 'laeuft',
     werte: { puls: s.measured.pulse ?? null, af: s.measured.resp ?? null, spo2: s.measured.spo2 ?? null, sys: s.measured.sys ?? null, dia: s.measured.dia ?? null, temp: s.measured.temp ?? null, avpu: consciousness(s), sauerstoff: z.sauerstoff },
@@ -61,7 +62,7 @@ export function FotoSzene({ s, raum, fokus, onFokus, zeitraffer, onZeichnung }: 
   return <div className={klassen} style={{ '--atem': `${z.atemSek.toFixed(2)}s` } as CSSProperties}>
     <div className="szene__buehne">
       <RaumBuehne
-        raum={nachtFoto ?? raum.id} hotspots={hotspots} monitor={fotoMonitor(s, z, raum)}
+        raum={nachtFoto ?? laufendeVariante(raum, s.flags, s.time) ?? raum.id} hotspots={hotspots} monitor={fotoMonitor(s, z, raum)}
         fallback={<div className="foto__fallback"><p>Das Raumfoto ist noch nicht geladen (zum Beispiel offline beim ersten Aufruf).</p><button type="button" onClick={onZeichnung}>Zeichnung zeigen</button></div>}
       >
         {nachtFilter && <span className="foto__nacht" aria-hidden="true" />}

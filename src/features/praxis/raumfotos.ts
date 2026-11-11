@@ -18,6 +18,8 @@ export type RaumFoto = {
   namen?: Partial<Record<RaumElement, string>>;
   /** Zusätzliche Detailansichten (Lernclip, verändert den Fall nicht). */
   details?: Detail[];
+  /** Bildvariante, solange eine Maßnahme läuft (z. B. 21b Inhalation, nachdem die Anordnung vorliegt). */
+  waehrend?: { id: RaumId; flag: string; minuten: number };
 };
 
 export const RAUMFOTOS: Record<string, RaumFoto> = {
@@ -38,7 +40,8 @@ export const RAUMFOTOS: Record<string, RaumFoto> = {
   kleinkind: { id: '20_paediatrie_kleinkind', orte: { patient: { x: 45, y: 40 }, monitor: { x: 86, y: 56 }, wagen: { x: 9, y: 62 }, telefon: { x: 55, y: 86 } },
     namen: { wagen: 'Nachttisch mit Trinkbecher und Thermometer', telefon: 'Rufanlage' } },
   schulkind: { id: '21_paediatrie_schulkind', orte: { patient: { x: 42, y: 32 }, monitor: { x: 88, y: 54 }, wagen: { x: 24, y: 72 }, telefon: { x: 52, y: 88 } },
-    namen: { wagen: 'Tisch mit Dosieraerosol und Spacer', telefon: 'Rufanlage' } },
+    namen: { wagen: 'Tisch mit Dosieraerosol und Spacer', telefon: 'Rufanlage' },
+    waehrend: { id: '21b_paediatrie_schulkind_spacer', flag: 'orders', minuten: 15 } },
   schockraum: { id: '18_notaufnahme_schockraum_nacht', nacht: true, orte: { patient: { x: 42, y: 45 }, monitor: { x: 9, y: 40 }, wagen: { x: 90, y: 64 }, telefon: { x: 63, y: 30 } } },
 };
 
@@ -53,4 +56,11 @@ export const FALL_RAUM: Record<string, keyof typeof RAUMFOTOS> = {
 export function raumFotoFuer(fallId: string): RaumFoto | undefined {
   const key = FALL_RAUM[fallId];
   return key ? RAUMFOTOS[key] : undefined;
+}
+
+/** Gilt gerade eine Bildvariante für eine laufende Maßnahme? Liefert deren Raum. */
+export function laufendeVariante(raum: RaumFoto, flags: Record<string, number>, zeit: number): RaumId | undefined {
+  const w = raum.waehrend; if (!w) return undefined;
+  const seit = flags[w.flag];
+  return seit !== undefined && zeit >= seit && zeit - seit < w.minuten * 60 ? w.id : undefined;
 }
