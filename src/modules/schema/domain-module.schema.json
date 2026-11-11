@@ -140,7 +140,8 @@
               "id": { "$ref": "#/$defs/id" },
               "parentId": { "$ref": "#/$defs/id" },
               "code": { "type": "string" },
-              "name": { "type": "string" }
+              "name": { "type": "string" },
+              "abschnitte": { "type": "array", "items": { "enum": ["ad12", "ad3"] }, "description": "Ausbildungsdrittel einer CE: ad12 = 1./2. Drittel, ad3 = 3. Drittel" }
             },
             "additionalProperties": false
           }

@@ -65,7 +65,7 @@ export function eindeutig(belege: SkriptBeleg[]): SkriptBeleg[] {
 
 // ---------------------------------------------------------------- Kopf
 
-interface Kopf { themen: string[]; gruppe?: string; titel?: string }
+interface Kopf { themen: string[]; gruppe?: string; titel?: string; freigabe?: { am: string; von: string } }
 
 function leseKopf(text: string): { kopf: Kopf; rest: string } {
   const kopf: Kopf = { themen: [] };
@@ -78,6 +78,10 @@ function leseKopf(text: string): { kopf: Kopf; rest: string } {
     if (z[1] === 'themen') kopf.themen = wert.replace(/^\[|\]$/g, '').split(',').map((s) => s.trim().replace(/^["']|["']$/g, '')).filter(Boolean);
     if (z[1] === 'gruppe') kopf.gruppe = wert.replace(/^["']|["']$/g, '');
     if (z[1] === 'titel') kopf.titel = wert.replace(/^["']|["']$/g, '');
+    if (z[1] === 'freigabe') {
+      const f = wert.replace(/^["']|["']$/g, '').match(/^(\d{4}-\d{2}-\d{2})\s*,\s*(.+)$/);
+      if (f) kopf.freigabe = { am: f[1]!, von: f[2]!.trim() };
+    }
   }
   return { kopf, rest: text.slice(m[0].length) };
 }
@@ -179,7 +183,7 @@ export function parseSkript(datei: string, markdown: string, o: ParseOptionen): 
   const jetzt = o.jetzt ?? new Date().toISOString();
   return {
     id: skriptId(datei), datei, gruppe: kopf.gruppe ? normalisiereGruppe(kopf.gruppe) : gruppe, titel,
-    einleitung, quellen, abschnitte, topicIds: kopf.themen, hash: inhaltsHash(text),
+    einleitung, quellen, abschnitte, topicIds: kopf.themen, ...(kopf.freigabe ? { freigabe: kopf.freigabe } : {}), hash: inhaltsHash(text),
     herkunft: o.herkunft, importiert: jetzt, geaendert: jetzt,
   };
 }
