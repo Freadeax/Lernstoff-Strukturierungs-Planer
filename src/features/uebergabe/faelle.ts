@@ -152,7 +152,7 @@ R: Bitte kommen Sie in den nächsten 10 Minuten und sehen ihn sich an. Soll ich 
     muster: `S: Guten Abend, mein Name ist Jonas Peters, Auszubildender im Seniorenzentrum, Wohnbereich 2. Es geht um Frau Ingrid Mahler, 81 Jahre. Sie hatte eben eine Unterzuckerung.
 B: Sie hat einen insulinpflichtigen Diabetes Typ 2 und eine leichte Demenz. Um 18 Uhr hat sie 18 IE Mischinsulin bekommen, aber das Abendessen kaum gegessen.
 A: Um 20:15 war sie kaltschweißig, Blutzucker 48 mg/dl, wach und ansprechbar. Ich habe 20 g Traubenzucker gegeben. Um 20:30 lag der Blutzucker bei 92, sie schwitzt weniger. Sie ist jetzt stabil.
-R: Können Sie bitte die Insulindosis überprüfen, falls sie abends wenig isst? Ich schlage vor, ich messe um 22 Uhr und nachts noch einmal. Ist das so in Ordnung? Ich melde mich, wenn der Wert unter 70 fällt.`,
+R: Können Sie bitte heute noch die Insulindosis überprüfen, falls sie abends wenig isst? Ich schlage vor, ich messe um 22 Uhr und nachts noch einmal. Ist das so in Ordnung? Ich melde mich, wenn der Wert unter 70 fällt.`,
   },
   {
     id: 'sturz',
@@ -257,8 +257,8 @@ R: Bitte kommen Sie sofort. Soll ich Furosemid i.v. vorbereiten und den Sauersto
     ],
     muster: `S: Ich übergebe Lena Hoffmann, 4 Jahre, Zimmer 9. Sie hat eine Gastroenteritis und ist im Moment stabil.
 B: Sie ist heute um 11 Uhr mit einer leichten Exsikkose gekommen, die Mutter ist bei ihr. Aufnahmegewicht 15,2 kg, vor einer Woche waren es zu Hause 16 kg.
-A: Die Infusion mit Vollelektrolytlösung läuft mit 60 ml/h über die Braunüle links, ohne Probleme. Seit 15 Uhr kein Erbrechen mehr, zweimal dünner Stuhl. Letzte nasse Windel um 19:30. Sie hat seit Aufnahme 250 ml getrunken. Um 20 Uhr 37,8 Grad, Puls 110, sie ist munterer als mittags.
-R: Bitte das Trinkprotokoll und die Ausscheidung weiterführen und auf die nächste nasse Windel achten. Morgen um 6 Uhr wiegen, das Labor ist für morgen früh angemeldet.`,
+A: Die Infusion mit Vollelektrolytlösung läuft mit 60 ml/h über die Braunüle links, ohne Probleme. Seit 15 Uhr kein Erbrechen mehr, zweimal dünner Stuhl. Letzte nasse Windel um 19:30. Sie hat seit Aufnahme 250 ml getrunken. Um 20 Uhr 37,8 Grad, Puls 110, sie ist munterer als mittags. Ich schätze den Verlauf als gebessert ein.
+R: Bitte das Trinkprotokoll und die Ausscheidung weiterführen und auf die nächste nasse Windel achten. Morgen um 6 Uhr wiegen, das Labor ist für morgen früh angemeldet. Hast du noch Fragen zu Lena?`,
   },
   {
     id: 'schmerz',
@@ -355,7 +355,7 @@ R: Könnten Sie bitte heute noch einen Hausbesuch machen? Ich kann eine Urinprob
     ],
     muster: `S: Hier ist Ben Yilmaz, Pflege in Ausbildung, Station 1C, Zimmer 8. Wir haben einen Verdacht auf Schlaganfall bei Frau Monika Lang, 63 Jahre.
 B: Symptombeginn 14:20 Uhr, da war sie noch unauffällig. Sie liegt seit gestern wegen entgleistem Bluthochdruck bei uns und nimmt keine Blutverdünnung.
-A: Der rechte Mundwinkel hängt, der rechte Arm sinkt ab, die Sprache ist verwaschen. Blutdruck 190/105, Puls 84, Sättigung 96 %, Blutzucker 112.
-R: Bitte kommen Sie sofort, sie braucht schnell ein CT und die Stroke-Unit. Ich bleibe bei ihr und halte sie nüchtern.`,
+A: Der rechte Mundwinkel hängt, der rechte Arm sinkt ab, die Sprache ist verwaschen. Blutdruck 190/105, Puls 84, Sättigung 96 %, Blutzucker 112. Ich vermute einen Schlaganfall, die Zeichen bestehen erst seit wenigen Minuten.
+R: Bitte kommen Sie sofort, sie braucht schnell ein CT und die Stroke-Unit. Ich bleibe bei ihr und halte sie nüchtern. Ich wiederhole: Sie kommen sofort, ich bereite den Transport zum CT vor.`,
   },
 ];

@@ -3,7 +3,8 @@
 
 import { useState } from 'react';
 import { bucheWerkbank, neueLaufId, werkbankThema } from './lernplan';
-import { bewerteSbar, DOKU_FELDER, MELDUNGEN, type MeldungSzenario } from './meldung';
+import { bewerteSbar, DOKU_FELDER, grundkriterienMeldung, meldungsAnlass, MELDUNGEN, type MeldungSzenario } from './meldung';
+import { SbarGrundkriterien } from '../../uebergabe/Grundkriterien';
 
 type Schritt = 'anruf' | 'doku' | 'sbar' | 'bisdahin' | 'fertig';
 
@@ -81,6 +82,7 @@ function MeldungLauf({ sz, weiter }: { sz: MeldungSzenario; weiter: () => void }
           {!sbarGeprueft ? <button type="button" disabled={!sbar.length} onClick={() => { setSbarGeprueft(true); const w = bewerteSbar(sz, sbar); if (w.punkte === w.max) setPunkte((p) => p + 1); }}>Meldung prüfen</button>
             : <>
               <p className={sbarWertung!.punkte === sbarWertung!.max ? 'wb-gut' : 'wb-hinweis'}>{sbarWertung!.punkte} von {sbarWertung!.max} Punkten. {sbarWertung!.hinweise.join(' ')}</p>
+              <SbarGrundkriterien anlass={meldungsAnlass(sz)} ergebnis={grundkriterienMeldung(sz, sbar)} titel="Gemeinsame SBAR-Grundkriterien" />
               <button type="button" className="primary" onClick={() => setSchritt('bisdahin')}>Weiter</button>
             </>}
         </div>

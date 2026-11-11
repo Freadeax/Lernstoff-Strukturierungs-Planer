@@ -5,7 +5,7 @@
 // 2. Fallbezug: ob die wichtigen Informationen, Probleme, Ressourcen und Maßnahmen der Fallvorlage
 //    vorkommen (Stichwortsuche wie im Übergabe-Trainer).
 import { findeMuster, suchtext, vereinfache } from '../uebergabe/pruefung';
-import type { Erwartung, ErwartetesProblem, PlanFall } from './faelle';
+import type { Alternative, Erwartung, ErwartetesProblem, PlanFall } from './faelle';
 import { PFLICHT, SCHRITTE, SCHRITT_LABEL, type Plan, type Schritt } from './plan';
 
 export type Schwere = 'fehler' | 'warnung' | 'hinweis';
@@ -30,12 +30,36 @@ export interface SchrittErgebnis {
 
 export interface Fallbezug {
   info: Treffer[];
-  probleme: (Treffer<ErwartetesProblem> & { artPasst: boolean; massnahme: boolean })[];
+  probleme: ProblemTreffer[];
   ressourcen: Treffer[];
 }
 
+export interface ProblemTreffer extends Treffer<ErwartetesProblem> {
+  artPasst: boolean;
+  /** Andere Einstufung als erwartet, aber fachlich vertretbar (Begründung aus der Fallvorlage). */
+  artVertretbar?: string;
+  massnahme: boolean;
+  /** Getroffen wurde nicht die Hauptmaßnahme, sondern eine tragfähige Alternative. */
+  alternative?: Alternative;
+}
+
+export type RasterId = 'problem' | 'ressourcen' | 'ziel' | 'massnahme' | 'evaluation';
+
+/** Bewertungsraster: was je Bereich geprüft wird. Wird vor der Prüfung und im Ergebnis gezeigt. */
+export const RASTER: { id: RasterId; label: string; kriterien: string[] }[] = [
+  { id: 'problem', label: 'Problem', kriterien: ['PESR vollständig (bei Risiko ohne S)', 'Pflegeproblem statt medizinischer Diagnose', 'Einstufung aktuell oder Risiko passt', 'wichtige Probleme des Falls erkannt'] },
+  { id: 'ressourcen', label: 'Ressourcen', kriterien: ['R je Problem ausgefüllt', 'Ressourcen aus dem Fall genutzt (Person, Umfeld, Hilfsmittel)'] },
+  { id: 'ziel', label: 'Ziel', kriterien: ['je Problem ein Ziel', 'aus Sicht der Person formuliert', 'beobachtbar oder messbar', 'mit Überprüfungszeitpunkt'] },
+  { id: 'massnahme', label: 'Maßnahme', kriterien: ['je Ziel eine Maßnahme', 'was, wie, wann, wer', 'begründet', 'passt fachlich zum Problem (auch tragfähige Alternativen zählen)'] },
+  { id: 'evaluation', label: 'Evaluation', kriterien: ['je Ziel bewertet', 'Beobachtung oder Wert als Beleg', 'Anpassung, wenn nicht erreicht'] },
+];
+
+export interface RasterZeile { id: RasterId; label: string; prozent: number; offen: string[]; vertretbar: string[] }
+
 export interface Pruefergebnis {
   prozent: number;
+  /** Ergebnis je Rasterzeile (Problem, Ressourcen, Ziel, Maßnahme, Evaluation). */
+  raster: RasterZeile[];
   schritte: SchrittErgebnis[];
   befunde: Befund[];
   fallbezug: Fallbezug | null;  // null beim eigenen Fall
@@ -137,17 +161,23 @@ export function pruefe(fall: PlanFall, plan: Plan): Pruefergebnis {
 
   const alleP = probleme.map((p) => ({ p, t: suchtext(vereinfache(p.p)) }));
   const massnahmenText = suchtext(vereinfache(massnahmen.map((m) => [m.was, m.wie, m.wann, m.begruendung].join(' ')).join('\n')));
-  const problemTreffer = mitErwartung ? fall.probleme.map((erwartung) => {
+  const problemTreffer: ProblemTreffer[] = mitErwartung ? fall.probleme.map((erwartung) => {
     const hit = alleP.find((x) => findeMuster(x.t, erwartung.muster) >= 0);
+    const andereArt = !!hit && hit.p.art !== erwartung.art;
+    const haupt = findeMuster(massnahmenText, erwartung.massnahmen.muster) >= 0;
+    const alternative = haupt ? undefined : erwartung.alternativen?.find((a) => findeMuster(massnahmenText, a.muster) >= 0);
     return {
       erwartung, gefunden: !!hit,
-      artPasst: !hit || hit.p.art === erwartung.art,
-      massnahme: findeMuster(massnahmenText, erwartung.massnahmen.muster) >= 0,
+      artPasst: !andereArt || !!erwartung.auchArt,
+      ...(andereArt && erwartung.auchArt ? { artVertretbar: erwartung.auchArt } : {}),
+      massnahme: haupt || !!alternative,
+      ...(alternative ? { alternative } : {}),
     };
   }) : [];
   const ressourcenTreffer = mitErwartung ? treffer(fall.ressourcen, `${probleme.map((p) => p.r).join('\n')}\n${infoText}`) : [];
   for (const t of problemTreffer) {
     if (!t.gefunden && t.erwartung.pflicht) pesr.hinweis({ regelId: 'pp.fall.problem', schwere: 'hinweis', text: `Im Fall steckt noch ein wichtiges Problem: ${t.erwartung.text}.` });
+    if (t.artVertretbar) pesr.hinweis({ regelId: 'pp.fall.art-vertretbar', schwere: 'hinweis', text: `„${t.erwartung.text}“: andere Einstufung als im Muster, aber vertretbar. ${t.artVertretbar}` });
     if (t.gefunden && !t.artPasst) pesr.hinweis({ regelId: 'pp.fall.art', schwere: 'hinweis', text: `„${t.erwartung.text}“ ist hier eher ${t.erwartung.art === 'risiko' ? 'eine Risikodiagnose' : 'ein aktuelles Problem'}.` });
   }
 
@@ -240,11 +270,27 @@ export function pruefe(fall: PlanFall, plan: Plan): Pruefergebnis {
     return { schritt: s, pflicht, bewertet: pflicht || !leerSchritt[s], prozent: prozentVon(anteil[s]), befunde };
   });
 
+  // --- Raster: gleiche Teilergebnisse, nach Problem, Ressourcen, Ziel, Maßnahme, Evaluation geordnet
+  const rFelder = probleme.length ? probleme.filter((p) => !leer(p.r)).length / probleme.length : 0;
+  const offen = (s: Schritt, pruef: (b: Befund) => boolean) => schritte.find((x) => x.schritt === s)!.befunde.filter((b) => b.schwere !== 'hinweis' || b.regelId.startsWith('pp.fall')).filter(pruef).map((b) => b.text);
+  const istR = (b: Befund) => /R \(Ressourcen\)/.test(b.text);
+  const raster: RasterZeile[] = [
+    { id: 'problem', prozent: probleme.length === 0 ? 0 : prozentVon(mitErwartung ? 0.6 * pesrStruktur + 0.4 * abdeckung(problemTreffer) : pesrStruktur),
+      offen: offen('probleme', (b) => !istR(b) && b.regelId !== 'pp.fall.art-vertretbar'), vertretbar: problemTreffer.filter((t) => t.artVertretbar).map((t) => `${t.erwartung.text}: ${t.artVertretbar}`) },
+    { id: 'ressourcen', prozent: probleme.length === 0 ? 0 : prozentVon(mitErwartung ? 0.5 * rFelder + 0.5 * abdeckung(ressourcenTreffer) : rFelder),
+      offen: [...offen('probleme', istR), ...ressourcenTreffer.filter((t) => !t.gefunden && t.erwartung.pflicht).map((t) => `Ressource aus dem Fall: ${t.erwartung.text}`)], vertretbar: [] },
+    { id: 'ziel', prozent: prozentVon(anteil.ziele), offen: offen('ziele', () => true), vertretbar: [] },
+    { id: 'massnahme', prozent: prozentVon(anteil.massnahmen), offen: offen('massnahmen', () => true),
+      vertretbar: problemTreffer.filter((t) => t.alternative).map((t) => `${t.erwartung.text}: „${t.alternative!.text}“. ${t.alternative!.begruendung}`) },
+    { id: 'evaluation', prozent: prozentVon(anteil.evaluation), offen: offen('evaluation', () => true), vertretbar: [] },
+  ].map((z) => ({ ...z, label: RASTER.find((r) => r.id === z.id)!.label })) as RasterZeile[];
+
   let summe = 0; let gewichte = 0;
   for (const s of schritte) { if (!s.pflicht) continue; summe += s.prozent * GEWICHT[s.schritt]; gewichte += GEWICHT[s.schritt]; }
 
   return {
     prozent: gewichte ? Math.round(summe / gewichte) : 0,
+    raster,
     schritte,
     befunde: schritte.flatMap((s) => s.befunde),
     fallbezug: mitErwartung ? { info: infoTreffer, probleme: problemTreffer, ressourcen: ressourcenTreffer } : null,

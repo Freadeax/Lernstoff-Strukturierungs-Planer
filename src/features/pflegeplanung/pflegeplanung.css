@@ -108,3 +108,23 @@
   .pp__zweier { grid-template-columns: minmax(0, 1fr); }
   .pp__steplabel { font-size: 0.625rem; }
 }
+
+/* Bewertungsraster: Problem, Ressourcen, Ziel, Maßnahme, Evaluation */
+.pp__rastervorab { margin-top: var(--space-2); }
+.pp__raster { display: grid; gap: var(--space-2); margin: var(--space-2) 0 var(--space-3); }
+.pp__rasterzeile { display: grid; grid-template-columns: 7.5rem 3.5rem 1fr; gap: var(--space-2); align-items: start; padding: var(--space-2); border-radius: var(--radius-sm); border-left: 4px solid var(--color-border); background: var(--color-surface-sunken); }
+.pp__rasterzeile.is-gut { border-left-color: var(--color-success); }
+.pp__rasterzeile.is-mittel { border-left-color: var(--color-warning); }
+.pp__rasterzeile.is-schwach { border-left-color: var(--color-danger); }
+.pp__rasterlabel { font-weight: var(--weight-medium); }
+.pp__rasterwert { font-variant-numeric: tabular-nums; }
+.pp__rasterinfo { font-size: var(--text-sm); display: grid; gap: var(--space-1); }
+.pp__offen { margin: 0; padding-left: 1.1rem; }
+.pp__vertretbar { margin: 0; color: var(--color-text); }
+.pp__horizontmass { display: block; font-size: var(--text-sm); margin-left: 1.2rem; }
+.pp__kitrenn { margin-top: 0; }
+.pp__kibestaetigung { display: flex; gap: var(--space-2); align-items: flex-start; font-size: var(--text-sm); }
+@media (max-width: 560px) {
+  .pp__rasterzeile { grid-template-columns: 1fr auto; }
+  .pp__rasterinfo { grid-column: 1 / -1; }
+}

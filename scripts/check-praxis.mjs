@@ -332,6 +332,39 @@ try {
       audits.push({ width, name: 'SIS', violations: axe.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => ({ html: n.html, summary: n.failureSummary })) })) });
       await ctx.close();
     }
+    // Pflegeplanung: Raster vor der Prüfung und im Ergebnis, Personendaten-Warnung am Feld, KI getrennt.
+    {
+      const ctx = await browser.newContext({ viewport: { width, height: 1050 }, locale: 'de-DE', colorScheme: 'light' });
+      const pp = await ctx.newPage(); pp.on('pageerror', e => errors.push(e.message));
+      await pp.goto(base + '#/lernen/pflegeplanung', { waitUntil: 'networkidle' });
+      await pp.locator('.pp__rastervorab summary').click();
+      assert.match(await pp.locator('.pp__rastervorab').textContent(), /Problem.*Ressourcen.*Ziel.*Maßnahme.*Evaluation/s);
+      await pp.locator('.pp__eingabe textarea').first().fill('Herr Krause aus Zimmer 4 sagt, er hat Schmerzen.');
+      assert.match(await pp.locator('.pp__eingabe .personen-warnung').textContent(), /Zimmer 4/);
+      await pp.getByRole('button', { name: 'Jetzt auswerten' }).click();
+      await pp.locator('.pp__raster').waitFor();
+      assert.equal(await pp.locator('.pp__rasterzeile').count(), 5);
+      assert.match(await pp.locator('.pp__ergebnis h3').textContent(), /Code-Prüfung/);
+      const axe = await new AxeBuilder({ page: pp }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+      audits.push({ width, name: 'Pflegeplanung', violations: axe.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => ({ html: n.html, summary: n.failureSummary })) })) });
+      await ctx.close();
+    }
+    // Übergabe: gemeinsame SBAR-Grundkriterien mit Rufanlass aus den Fallereignissen.
+    {
+      const ctx = await browser.newContext({ viewport: { width, height: 1050 }, locale: 'de-DE', colorScheme: 'light' });
+      const ue = await ctx.newPage(); ue.on('pageerror', e => errors.push(e.message));
+      await ue.goto(base + '#/lernen/uebergabe', { waitUntil: 'networkidle' });
+      const felder = ue.locator('.sbar__feld textarea');
+      const texte = ['Hier ist Mara, Station 4B, Herr Berger ist neu verwirrt und hat Fieber.', 'Hemikolektomie vor 2 Tagen, Penicillin-Allergie.', 'Temperatur 38,9, Puls 118, RR 92/55. Ich vermute eine Sepsis.', 'Bitte kommen Sie sofort. Soll ich Blutkulturen vorbereiten?'];
+      for (let i = 0; i < 4; i++) await felder.nth(i).fill(texte[i]);
+      await ue.getByRole('button', { name: 'Prüfen', exact: true }).click();
+      await ue.locator('.sbar-grund').waitFor();
+      assert.equal(await ue.locator('.sbar-grund__liste li').count(), 6);
+      assert.match(await ue.locator('.sbar-grund__anlass').textContent(), /Priorität\s*sofort/);
+      const axe = await new AxeBuilder({ page: ue }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+      audits.push({ width, name: 'Übergabe', violations: axe.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => ({ html: n.html, summary: n.failureSummary })) })) });
+      await ctx.close();
+    }
     // Notfall-Trainer: ABCDE-Übung (deterministisch, Zeit nur durch Handlungen).
     {
       const ctx = await browser.newContext({ viewport: { width, height: 1050 }, locale: 'de-DE', colorScheme: 'light' });

@@ -8,6 +8,8 @@ import { session as shellSession } from '../../ui/shell/session';
 import { PRAXIS_THEMEN, praxisZuThema } from './themen';
 import { faelleZuKrankheit, krankheitenZuFall, PRAXIS_KRANKHEITEN } from '../krankheitsbilder/fallbezug';
 import { SCENARIOS, RESOURCES } from './catalog';
+import { praxisSbar } from './sbar';
+import { SbarGrundkriterien } from '../uebergabe/Grundkriterien';
 import { CHECKS, clinicalDebrief, clock, consciousness, debrief, dispatch, ketten, replay, sbarPruefung, SOURCES, start, wegLabel } from './engine';
 import { blick, handlungenFuer, RAUM_ELEMENTE, raumElemente, type RaumElement } from './raum';
 import { News2Badge, VitalKurve } from './VitalKurve';
@@ -197,13 +199,17 @@ function KettenAnsicht({ s }: { s: Session }) {
   </div>;
 }
 
-/** SBAR in Kernfällen: Stichwortprüfung. Ausdrücklich keine Sinnprüfung. */
+/** SBAR: gemeinsame Grundkriterien für alle Fälle, in Kernfällen zusätzlich Stichworte je Feld. Keine Sinnprüfung. */
 function SbarInhalt({ s }: { s: Session }) {
   const p = sbarPruefung(s);
-  if (!p.checks.length) return null;
+  const g = praxisSbar(s);
+  if (!p.vorhanden && !g.anlass) return null;
   return <div className="praxis-sbar-inhalt"><h4>SBAR-Inhalt</h4>
-    <p><span className="praxis-pruefart">Geprüft: Stichworte je Feld, keine Sinnprüfung</span> {p.vorhanden ? `${p.checks.filter(c => c.met).length} von ${p.checks.length} erwarteten Inhalten gefunden.` : 'Keine SBAR-Übergabe abgegeben.'}</p>
-    {p.vorhanden && <ul>{p.checks.map(c => <li key={c.label}>{c.met ? '✓' : '○'} {c.label}</li>)}</ul>}
+    {p.vorhanden ? <SbarGrundkriterien anlass={g.anlass} ergebnis={g.ergebnis ?? undefined} titel="Gemeinsame SBAR-Grundkriterien" /> : <><p>Keine SBAR-Übergabe abgegeben. Aus deinem Verlauf wäre diese Meldung angezeigt gewesen:</p><SbarGrundkriterien anlass={g.anlass} titel="Erwarteter Anlass" /></>}
+    {p.checks.length > 0 && p.vorhanden && <>
+      <p><span className="praxis-pruefart">Fallbezogen: Stichworte je Feld, keine Sinnprüfung</span> {`${p.checks.filter(c => c.met).length} von ${p.checks.length} erwarteten Inhalten gefunden.`}</p>
+      <ul>{p.checks.map(c => <li key={c.label}>{c.met ? '✓' : '○'} {c.label}</li>)}</ul>
+    </>}
     <p className="muted">Ob die Aussagen stimmen und gut formuliert sind, kann nur eine Lehrperson beurteilen.</p></div>;
 }
 

@@ -1,0 +1,14 @@
+.sbar-grund { display: grid; gap: var(--space-2); margin: var(--space-3) 0; }
+.sbar-grund h4 { margin: 0; }
+.sbar-grund__anlass { display: grid; gap: var(--space-1); margin: 0; padding: var(--space-2); border-radius: var(--radius-sm); background: var(--color-surface-sunken); font-size: var(--text-sm); }
+.sbar-grund__anlass > div { display: grid; grid-template-columns: 7rem 1fr; gap: var(--space-2); }
+.sbar-grund__anlass dt { font-weight: var(--weight-medium); }
+.sbar-grund__anlass dd { margin: 0; }
+.sbar-grund__prio { font-weight: var(--weight-medium); }
+.sbar-grund__prio.is-sofort { color: var(--color-danger); }
+.sbar-grund__liste { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-1); font-size: var(--text-sm); }
+.sbar-grund__liste li { display: grid; grid-template-columns: 1.4rem 1fr; gap: var(--space-1); }
+.sbar-grund__liste li.is-ok > span:first-child { color: var(--color-success); }
+.sbar-grund__liste li.is-fehlt > span:first-child { color: var(--color-danger); }
+.sbar-grund__quelle, .sbar-grund__fuss { margin: 0; font-size: var(--text-sm); }
+@media (max-width: 480px) { .sbar-grund__anlass > div { grid-template-columns: 1fr; } }

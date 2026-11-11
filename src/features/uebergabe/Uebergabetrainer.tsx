@@ -11,6 +11,9 @@ import { ANLASS_LABEL, FAELLE, TEIL_HILFE, TEIL_LABEL, type Fall, type Teil } fr
 import { dauer, pruefe, TEILE, type Pruefergebnis, type PunktStatus, type TeilStatus } from './pruefung';
 import { bewerteMitClaude, type KiRueckmeldung } from './claude';
 import { useDiktat } from './diktat';
+import { EREIGNISSE } from './ereignisse';
+import { felderAusText, pruefeGrundkriterien, rufanlass } from './grundkriterien';
+import { SbarGrundkriterien } from './Grundkriterien';
 import { DiktatFrage } from './DiktatFrage';
 
 type Modus = 'gefuehrt' | 'frei';
@@ -58,7 +61,7 @@ function Ergebnis({ e }: { e: Pruefergebnis }) {
         <h3>Checkliste: {e.prozent} %</h3>
         <span className="muted">{e.woerter} Wörter · gesprochen etwa {dauer(e.sekunden)}</span>
       </div>
-      <div className={`sbar__balken sbar__balken--${stufe}`} role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={e.prozent}>
+      <div className={`sbar__balken sbar__balken--${stufe}`} role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={e.prozent} aria-label="Ergebnis der Kernpunkt-Prüfung">
         <span style={{ width: `${e.prozent}%` }} />
       </div>
       <div className="sbar__teile">
@@ -277,6 +280,9 @@ export default function Uebergabetrainer() {
         {ergebnis && (
           <>
             <Ergebnis e={ergebnis} />
+            <div className="card">
+              <SbarGrundkriterien anlass={rufanlass(EREIGNISSE[fall.id] ?? [])} ergebnis={pruefeGrundkriterien(felderAusText(text), rufanlass(EREIGNISSE[fall.id] ?? []))} />
+            </div>
             <LernplanHinweis uebernahme={lernplan.uebernahme} fehler={lernplan.fehler} />
             <div className="card">
               <div className="row">
