@@ -6,6 +6,7 @@ import type { Bildserie } from '../../ui/sim/bildgebung/serie';
 import type { Verlauf } from '../../ui/sim/labor/modell';
 import type { Geschlecht } from '../../ui/sim/labor/parameter';
 import type { Stoerung, Kompensation } from '../../ui/sim/labor/bga';
+import type { RaumId } from '../../ui/sim/raeume/katalog';
 
 export type VitalKey = 'puls' | 'af' | 'spo2' | 'sys' | 'dia' | 'temp';
 
@@ -55,6 +56,10 @@ export interface DiagnostikFall {
   kurz: string;
   bereich: string;
   startzeit: string;
+  /** Raumfoto als Szene (src/ui/sim/raeume). */
+  raum: RaumId;
+  /** Monitor am Bett: zu Beginn nicht angeschlossen (Raum 12 → 12a) und/oder Fingersensor rutscht nach so vielen Minuten ab. */
+  monitor?: { start: 'abwesend' | 'laeuft'; sensorAusfallNach?: number };
   patient: {
     name: string; alter: number; geschlecht: Geschlecht; gewicht: number;
     anlass: string; vorgeschichte: string[]; medikamente: string[]; allergien: string;

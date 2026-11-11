@@ -39,12 +39,14 @@ function roentgen(o: { gebaerfaehig?: boolean; bett?: boolean }): Pruefpunkt[] {
 export const FAELLE: DiagnostikFall[] = [
   {
     id: 'sepsis-pneumonie',
+    raum: '12_station_kardiologie_monitoring',
+    monitor: { start: 'abwesend', sensorAusfallNach: 25 },
     titel: 'Fieber, Atemnot, verwirrt',
     kurz: 'Pneumonie mit Sepsisverdacht: Laktat, Blutkulturen vor Antibiose, Röntgen und CT',
     bereich: 'Innere Station, Frühdienst',
     startzeit: '07:40',
     patient: {
-      name: 'Frau Herta M.', alter: 78, geschlecht: 'w', gewicht: 64,
+      name: 'Herr Heinz M.', alter: 78, geschlecht: 'm', gewicht: 72,
       anlass: 'Seit gestern Husten mit gelblichem Auswurf, heute früh verwirrt, 39,1 °C, atmet schnell.',
       vorgeschichte: ['Diabetes mellitus Typ 2', 'Arterielle Hypertonie', 'Leichte Niereninsuffizienz'],
       medikamente: ['Metformin 1000 mg 1-0-1', 'Ramipril 5 mg 1-0-0'], allergien: 'keine bekannt',
@@ -78,7 +80,7 @@ export const FAELLE: DiagnostikFall[] = [
     bildgebung: [
       {
         serie: { id: 'sp-rx', titel: 'Röntgen-Thorax', untersuchung: 'Röntgen-Thorax p.a. im Stehen', quelle: { art: 'phantom', modalitaet: 'roentgen', variante: 'pneumonie' }, befunde: [{ id: 'infiltrat', x: 0.275, y: 0.56, r: 0.1, titel: 'Verschattung rechts basal', text: 'Unscharf begrenzte Verdichtung im rechten Unterfeld (im Bild links).' }], befundtext: 'Infiltrat im rechten Unterfeld, vereinbar mit Pneumonie. Kein Pneumothorax. Herz normal groß.' },
-        echt: { id: 'sp-rx-echt', titel: 'Röntgen-Thorax (echtes Bild)', untersuchung: 'Röntgen-Thorax a.p. im Sitzen (Vergleichsbild eines anderen Patienten)', quelle: { art: 'bilder', modalitaet: 'roentgen', basis: 'bildgebung/pneumonie-rx', dateien: ['rontgen-pa.jpg'], lizenz: RADIOPAEDIA, urheber: 'Case courtesy of Assoc Prof Frank Gaillard, Radiopaedia.org, rID: 11009', quelleUrl: 'https://radiopaedia.org/cases/pneumonia-7' }, befunde: [{ id: 'infiltrat', x: 0.27, y: 0.6, r: 0.15, titel: 'Konsolidierung rechts', text: 'Dichte Verschattung im rechten Mittel- und Unterfeld (im Bild links), die rechte Zwerchfellkontur ist nicht mehr abgrenzbar.' }], befundtext: 'Ausgedehnte Konsolidierung rechts mit Luftbronchogramm und Verlust der rechten Zwerchfellkontur, vereinbar mit einer Pneumonie im rechten Unterlappen. Echtes Vergleichsbild, nicht von Frau M.' },
+        echt: { id: 'sp-rx-echt', titel: 'Röntgen-Thorax (echtes Bild)', untersuchung: 'Röntgen-Thorax a.p. im Sitzen (Vergleichsbild eines anderen Patienten)', quelle: { art: 'bilder', modalitaet: 'roentgen', basis: 'bildgebung/pneumonie-rx', dateien: ['rontgen-pa.jpg'], lizenz: RADIOPAEDIA, urheber: 'Case courtesy of Assoc Prof Frank Gaillard, Radiopaedia.org, rID: 11009', quelleUrl: 'https://radiopaedia.org/cases/pneumonia-7' }, befunde: [{ id: 'infiltrat', x: 0.27, y: 0.6, r: 0.15, titel: 'Konsolidierung rechts', text: 'Dichte Verschattung im rechten Mittel- und Unterfeld (im Bild links), die rechte Zwerchfellkontur ist nicht mehr abgrenzbar.' }], befundtext: 'Ausgedehnte Konsolidierung rechts mit Luftbronchogramm und Verlust der rechten Zwerchfellkontur, vereinbar mit einer Pneumonie im rechten Unterlappen. Echtes Vergleichsbild, nicht von Herrn M.' },
         dauer: 30, befundNach: 30, kontrastmittel: false, vorbereitung: roentgen({}),
       },
       {
@@ -88,17 +90,17 @@ export const FAELLE: DiagnostikFall[] = [
           { id: 'metall', text: 'Metall im Untersuchungsbereich entfernt', noetig: true, warum: 'Streifenartefakte.' },
           { id: 'monitor', text: 'Transport mit Monitor und Begleitung', noetig: true, warum: 'Sepsisverdacht, niedriger Blutdruck: instabil, nie allein transportieren.' },
           { id: 'niere', text: 'Aktuelles Kreatinin/eGFR liegt vor', noetig: false, warum: 'Ohne Kontrastmittel nicht nötig, auch wenn der Wert hier ohnehin wichtig ist.' },
-          { id: 'nuechtern', text: 'Patientin nüchtern lassen', noetig: false, warum: 'Nicht nötig; bei Fieber und Sepsis zählt jede Flüssigkeit.' },
+          { id: 'nuechtern', text: 'Patient nüchtern lassen', noetig: false, warum: 'Nicht nötig; bei Fieber und Sepsis zählt jede Flüssigkeit.' },
         ],
       },
     ],
     sbar: [
-      { id: 's1', text: 'S: Frau M., 78, zunehmende Atemnot, verwirrt, Verdacht auf Sepsis', relevant: true },
+      { id: 's1', text: 'S: Herr M., 78, zunehmende Atemnot, verwirrt, Verdacht auf Sepsis', relevant: true },
       { id: 'b1', text: 'B: Diabetes, Niereninsuffizienz, nimmt Metformin', relevant: true },
       { id: 'a1', text: 'A: AF 26, SpO₂ 89 %, RR 98/58, Puls 112, 39,1 °C', relevant: true },
       { id: 'a2', text: 'A: Laktat erhöht, CRP und Leukozyten erhöht', relevant: true },
       { id: 'a3', text: 'A: Röntgen mit Verschattung rechts basal', relevant: true },
-      { id: 'x1', text: 'Sie hat heute kaum gefrühstückt', relevant: false },
+      { id: 'x1', text: 'Er hat heute kaum gefrühstückt', relevant: false },
       { id: 'x2', text: 'Die Tochter ruft am Nachmittag an', relevant: false },
       { id: 'r1', text: 'R: Bitte kommen Sie sofort, ich brauche Anordnungen für Sauerstoff, Volumen und Antibiose', relevant: true },
     ],
@@ -125,6 +127,7 @@ export const FAELLE: DiagnostikFall[] = [
   },
   {
     id: 'lungenembolie',
+    raum: '13_station_postop',
     titel: 'Plötzliche Atemnot nach Knie-OP',
     kurz: 'Lungenembolie: D-Dimere, BGA, CT-Angiographie mit Kontrastmittel-Vorbereitung',
     bereich: 'Unfallchirurgie, Spätdienst',
@@ -188,6 +191,7 @@ export const FAELLE: DiagnostikFall[] = [
   },
   {
     id: 'herzinsuffizienz',
+    raum: '18_notaufnahme_schockraum_nacht',
     titel: 'Wasser in den Beinen, kaum Luft',
     kurz: 'Dekompensierte Herzinsuffizienz: NT-proBNP, Kalium-Falle durch Hämolyse, Röntgen mit Stauung',
     bereich: 'Pflegeheim → Notaufnahme',
@@ -252,6 +256,8 @@ export const FAELLE: DiagnostikFall[] = [
   },
   {
     id: 'pneumothorax',
+    raum: '17_notaufnahme_untersuchung',
+    monitor: { start: 'laeuft', sensorAusfallNach: 40 },
     titel: 'Stich in der Brust beim Sport',
     kurz: 'Spontanpneumothorax: Röntgen-Pleuralinie und CT, Lupe und Fensterung',
     bereich: 'Notaufnahme, Nachtdienst',
@@ -311,13 +317,14 @@ export const FAELLE: DiagnostikFall[] = [
   },
   {
     id: 'ketoazidose',
+    raum: '16_notaufnahme_triage',
     titel: 'Erbrechen, Durst, tiefe Atmung',
     kurz: 'Diabetische Ketoazidose: BZ kritisch, BGA, Urinstix, Kalium fällt unter Insulin',
     bereich: 'Notaufnahme, Frühdienst',
     startzeit: '06:50',
     patient: {
-      name: 'Lea T.', alter: 19, geschlecht: 'w', gewicht: 54,
-      anlass: 'Seit zwei Tagen Magen-Darm-Infekt, Insulin weggelassen „weil sie nichts gegessen hat“. Jetzt schläfrig, tiefe schnelle Atmung, Geruch nach Aceton.',
+      name: 'Leon T.', alter: 19, geschlecht: 'm', gewicht: 66,
+      anlass: 'Seit zwei Tagen Magen-Darm-Infekt, Insulin weggelassen „weil er nichts gegessen hat“. Jetzt schläfrig, tiefe schnelle Atmung, Geruch nach Aceton.',
       vorgeschichte: ['Diabetes mellitus Typ 1 seit 8 Jahren'], medikamente: ['Insulin glargin abends', 'Insulin lispro zu den Mahlzeiten'], allergien: 'keine bekannt',
       infusion: 'NaCl 0,9 % am rechten Handrücken',
     },
@@ -338,11 +345,11 @@ export const FAELLE: DiagnostikFall[] = [
     empfohlen: ['bz', 'ph', 'pco2', 'hco3', 'k', 'na', 'krea', 'u-keton'],
     bildgebung: [],
     sbar: [
-      { id: 's1', text: 'S: Lea T., 19, Typ-1-Diabetes, schläfrig, Kussmaul-Atmung', relevant: true },
+      { id: 's1', text: 'S: Leon T., 19, Typ-1-Diabetes, schläfrig, Kussmaul-Atmung', relevant: true },
       { id: 'b1', text: 'B: Insulin seit zwei Tagen ausgelassen, Erbrechen', relevant: true },
       { id: 'a1', text: 'A: BZ 486 mg/dl, pH 7,12, HCO₃⁻ 8,5, Ketone +++', relevant: true },
       { id: 'a2', text: 'A: Puls 124, RR 96/54, Kalium 5,4', relevant: true },
-      { id: 'x1', text: 'Sie hat ihr Ladegerät für die Insulinpumpe nicht dabei', relevant: false },
+      { id: 'x1', text: 'Er hat sein Ladegerät für die Insulinpumpe nicht dabei', relevant: false },
       { id: 'r1', text: 'R: Bitte sofort kommen, Verdacht auf Ketoazidose; Anordnung für Volumen und Insulin?', relevant: true },
     ],
     anordnungen: [
@@ -358,7 +365,7 @@ export const FAELLE: DiagnostikFall[] = [
         { text: 'Laborfehler durch Hämolyse', richtig: false, warum: 'Hämolyse macht Kalium falsch hoch, nicht niedrig.' },
         { text: 'Kalium wird mit dem Atem abgegeben', richtig: false, warum: 'Über die Atmung wird CO₂ abgegeben, kein Kalium.' },
       ] },
-      { id: 'ka-f3', art: 'wahl', frage: 'Der kapilläre BZ zeigt 486 mg/dl, Lea hat eine Glukose-haltige Infusion am selben Arm laufen. Was beachtest du bei der Abnahme?', optionen: [
+      { id: 'ka-f3', art: 'wahl', frage: 'Der kapilläre BZ zeigt 486 mg/dl, Leon hat eine Glukose-haltige Infusion am selben Arm laufen. Was beachtest du bei der Abnahme?', optionen: [
         { text: 'Am anderen Arm abnehmen bzw. den Finger der Gegenseite nehmen', richtig: true, warum: 'Infusionslösung verfälscht Glukose und Elektrolyte; immer am Gegenarm abnehmen.' },
         { text: 'Infusion kurz schneller laufen lassen, dann abnehmen', richtig: false, warum: 'Das verdünnt die Probe noch mehr.' },
         { text: 'Egal, der Wert ist sowieso hoch', richtig: false, warum: 'Auch hohe Werte steuern die Insulindosis; falsche Werte gefährden.' },

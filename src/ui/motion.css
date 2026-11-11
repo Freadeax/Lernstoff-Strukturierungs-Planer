@@ -67,6 +67,8 @@
 .header-context strong { animation: m-rise var(--dur-normal) var(--ease-out) backwards; }
 :where(.grid12) > * { animation: m-rise var(--dur-slow) var(--ease-out) backwards; animation-delay: calc(var(--i, 0) * var(--stagger) + 120ms); }
 :where(.tool-grid, .ueben__liste, .today-start) > * { animation: m-pop var(--dur-slow) var(--ease-spring) backwards; animation-delay: calc(var(--i, 0) * var(--stagger) + 160ms); }
+.page-heading__bild { animation: m-pop var(--dur-slower) var(--ease-spring) 120ms backwards; transition: rotate var(--dur-normal) var(--ease-spring), transform var(--dur-normal) var(--ease-spring); }
+@media (hover: hover) { .page-heading__bild:hover { rotate: -1deg; transform: scale(1.03); } }
 .route-laden { display: flex; align-items: center; gap: 6px; padding: var(--space-4) 0; }
 .route-laden > span { width: 10px; height: 10px; border-radius: 3px; background: var(--color-sun); border: 1.5px solid var(--color-outline); animation: m-dots 900ms var(--ease-standard) infinite; }
 .route-laden > span:nth-child(2) { background: var(--color-coral); animation-delay: 120ms; }

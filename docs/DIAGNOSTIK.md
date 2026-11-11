@@ -1,5 +1,10 @@
 # Diagnostik: Labor und Bildgebung
 
+![Ablauf eines Diagnostik-Falls: Labor anfordern, Probe und Präanalytik, Befund und Kumulativverlauf; Bildserie öffnen, Schichten, Fenster und Lupe; beides führt zu Befund einordnen](bilder/ablauf-diagnostik.png)
+
+**Räume:** Jeder Fall hat ein Raumfoto aus dem gemeinsamen Baustein (`src/ui/sim/raeume`, siehe [RAEUME.md](RAEUME.md)). Die Hotspots führen in den passenden Reiter. Im Sepsis-Fall muss erst der Monitor angeschlossen werden (Raum 12a → 12). In zwei Fällen rutscht nach einiger Zeit der Fingersensor ab: SpO₂ fällt aus, EKG und Blutdruck laufen weiter.
+
+
 Seite `#/lernen/diagnostik` (Fälle, Lernmodus „Befund lesen“, eigene Bilder) und Labor-Trainer `#/lernen/labor`.
 
 ## Bausteine (für alle Simulatoren)

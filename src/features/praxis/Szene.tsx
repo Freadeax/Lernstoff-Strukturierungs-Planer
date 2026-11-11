@@ -12,7 +12,7 @@ const ANKER: Record<Exclude<BlasenQuelle, 'pflege'>, { x: number; y: number }> =
 };
 const FIGUR_X = [205, 135, 270];
 /** Kopfzeile der Sprechblase. Der Ereignistitel steht bereits in der Rückmeldung darunter. */
-const BLASEN_TITEL = { rede: 'Patient/in', warn: 'Achtung', story: 'Ereignis', info: 'Rückmeldung' } as const;
+export const BLASEN_TITEL = { rede: 'Patient/in', warn: 'Achtung', story: 'Ereignis', info: 'Rückmeldung' } as const;
 /** Klickflächen in der Zeichnung (x, y, Breite, Höhe). Die Knöpfe unter der Szene sind der zugängliche Weg. */
 const TREFFER: Record<RaumElement, number[]> = { telefon: [120, 140, 70, 70], monitor: [580, 80, 135, 95], wagen: [670, 230, 110, 110], patient: [250, 170, 320, 130] };
 
@@ -107,9 +107,32 @@ function Arbeit({ z, bett }: { z: SzenenZustand; bett: boolean }) {
   </g>;
 }
 
+/** Zugänglicher Weg zu den vier Orten im Zimmer (unter Zeichnung und Foto). */
+export function OrteLeiste({ s, fokus, onFokus, nummern = false }: { s: Session; fokus: RaumElement; onFokus: (e: RaumElement) => void; nummern?: boolean }) {
+  const info = raumElemente(s.scenario);
+  return <div className="szene__orte" role="group" aria-label="Wohin gehst du?">
+    {RAUM_ELEMENTE.map((e, i) => <button key={e} type="button" className="praxis-hotspot" aria-pressed={fokus === e} aria-label={`${info[e].label}: ${info[e].zweck}`} onClick={() => onFokus(e)}>{nummern ? <span className="szene__ort-nummer" aria-hidden="true">{i + 1}</span> : <span className={`szene__ort-symbol is-${e}`} aria-hidden="true" />}{info[e].kurz}</button>)}
+  </div>;
+}
+
+/** Statuschips oben links: Zeitraffer, Monitoralarm, wer im Zimmer ist. */
+export function StatusChips({ z, zeitraffer }: { z: SzenenZustand; zeitraffer: number }) {
+  return <div className="szene__status" aria-hidden="true">
+    {zeitraffer > 1 && <span className="szene__chip">Zeitraffer {zeitraffer}×</span>}
+    {z.alarm !== 'kein' && <span className={`szene__chip is-${z.alarm}`}>Monitoralarm</span>}
+    {z.figuren.map(f => <span key={f.art} className="szene__chip">{f.label} im Zimmer</span>)}
+  </div>;
+}
+
+/** Sprechblase blendet nach einigen Sekunden aus; ein neues Ereignis zeigt eine neue. */
+export function useBlase(z: SzenenZustand) {
+  const [sichtbar, setSichtbar] = useState(true);
+  useEffect(() => { setSichtbar(true); const t = window.setTimeout(() => setSichtbar(false), 9000); return () => clearTimeout(t); }, [z.blase?.id]);
+  return sichtbar ? z.blase : undefined;
+}
+
 export function Szene({ s, fokus, onFokus, zeitraffer }: { s: Session; fokus: RaumElement; onFokus: (e: RaumElement) => void; zeitraffer: number }) {
   const z = szene(s);
-  const info = raumElemente(s.scenario);
   const bett = !z.zuhause;
   // Die Pflegekraft geht zum zuletzt angetippten Element oder dorthin, wo zuletzt gehandelt wurde.
   const [ziel, setZiel] = useState<RaumElement | 'tuer'>(z.handlung?.element ?? fokus);
@@ -124,13 +147,10 @@ export function Szene({ s, fokus, onFokus, zeitraffer }: { s: Session; fokus: Ra
     return () => clearTimeout(t);
   }, [ziel]);
 
-  // Sprechblase blendet nach einigen Sekunden aus; ein neues Ereignis zeigt eine neue.
-  const [blaseSichtbar, setBlaseSichtbar] = useState(true);
-  useEffect(() => { setBlaseSichtbar(true); const t = window.setTimeout(() => setBlaseSichtbar(false), 9000); return () => clearTimeout(t); }, [z.blase?.id]);
 
   const [ton, setTon] = useState(false);
   const pflegeX = STANDORT[ziel];
-  const blase = blaseSichtbar ? z.blase : undefined;
+  const blase = useBlase(z);
   const anker = blase ? (blase.quelle === 'pflege' ? { x: (pflegeX / 800) * 100, y: 52 } : ANKER[blase.quelle]) : undefined;
   const stunden = z.wanduhr / 3600, minuten = (z.wanduhr % 3600) / 60;
   const klassen = ['szene', z.nacht ? 'is-nacht' : '', `is-alarm-${z.alarm}`, z.komplikation ? 'is-komplikation' : ''].filter(Boolean).join(' ');
@@ -222,14 +242,8 @@ export function Szene({ s, fokus, onFokus, zeitraffer }: { s: Session; fokus: Ra
       <span>{blase.ton === 'rede' ? `„${blase.text}“` : blase.text}</span>
     </div>}
     </div>
-    <div className="szene__orte" role="group" aria-label="Wohin gehst du?">
-      {RAUM_ELEMENTE.map(e => <button key={e} type="button" className="praxis-hotspot" aria-pressed={fokus === e} aria-label={`${info[e].label}: ${info[e].zweck}`} onClick={() => onFokus(e)}><span className={`szene__ort-symbol is-${e}`} aria-hidden="true" />{info[e].kurz}</button>)}
-    </div>
-    <div className="szene__status" aria-hidden="true">
-      {zeitraffer > 1 && <span className="szene__chip">Zeitraffer {zeitraffer}×</span>}
-      {z.alarm !== 'kein' && <span className={`szene__chip is-${z.alarm}`}>Monitoralarm</span>}
-      {z.figuren.map(f => <span key={f.art} className="szene__chip">{f.label} im Zimmer</span>)}
-    </div>
+    <OrteLeiste s={s} fokus={fokus} onFokus={onFokus} />
+    <StatusChips z={z} zeitraffer={zeitraffer} />
     {z.monitorVorhanden && z.monitoring && <button type="button" className="szene__ton" aria-pressed={ton} onClick={() => setTon(!ton)}>{ton ? 'Monitorton aus' : 'Monitorton an'}</button>}
   </div>;
 }

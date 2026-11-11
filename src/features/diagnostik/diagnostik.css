@@ -81,3 +81,29 @@
 .dx-fortschritt i.is-falsch { background: var(--color-danger); }
 .dx-fortschritt i.is-jetzt { background: var(--color-primary); }
 .dx-seite pre { white-space: pre-wrap; font-size: 0.75rem; background: var(--color-surface-sunken); padding: 8px; border-radius: 8px; }
+
+/* Raumszene über den Reitern */
+.dx-szene { margin: 0.75rem 0; }
+.dx-szene .raum-buehne { max-width: 900px; }
+.dx-szene__banner {
+  position: absolute; left: 2%; margin: 0; padding: 0.3rem 0.6rem; border-radius: 999px;
+  background: #b3261e; color: #fff; font-weight: 700; font-size: 0.85rem; border: 2px solid #16302b;
+  top: 3%;
+}
+.dx-szene__banner.is-gelb { background: var(--color-sun); color: #16302b; top: auto; bottom: 4%; }
+
+/* Bildgebung: Bild links, Befund rechts (ab Tablet quer), darunter auf dem Handy */
+.dx-bildlayout { display: grid; gap: 1rem; }
+@media (min-width: 1000px) { .dx-bildlayout { grid-template-columns: minmax(0, 2fr) minmax(16rem, 1fr); align-items: start; } }
+.dx-befundspalte { border: 2px solid var(--color-ink); border-radius: var(--radius-lg, 14px); padding: 0.75rem 1rem; background: var(--color-surface); }
+.dx-befundspalte h4 { margin: 0 0 0.5rem; font-family: var(--font-display, inherit); font-size: 1.3rem; }
+.dx-befundspalte section { border-top: 1px solid var(--color-outline); padding: 0.5rem 0; }
+.dx-befundspalte h5 { margin: 0 0 0.25rem; font-size: 0.95rem; }
+.dx-befundspalte p { margin: 0 0 0.4rem; }
+.dx-marken { margin: 0; padding-left: 1.1rem; }
+.dx-marken li { margin-bottom: 0.3rem; }
+
+.dx-fallkarte__bild { width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; border-radius: var(--radius-md, 10px); border: 2px solid var(--color-ink); margin-bottom: 4px; background: #1b2422; }
+.dx-schritte { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; padding: 0; margin: 0.75rem 0; }
+.dx-schritte li { display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; border: 2px solid var(--color-ink); border-radius: 12px; background: var(--color-surface); font-weight: 600; }
+.dx-schritte span { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 8px; background: var(--tile-2, #cfe6fb); color: #16302b; }

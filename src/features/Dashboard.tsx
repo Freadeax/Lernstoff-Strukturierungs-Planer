@@ -20,7 +20,7 @@ export function Dashboard() {
   const date = new Intl.DateTimeFormat('de-DE', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'Europe/Berlin' }).format(new Date());
   return (
     <section className="page dashboard">
-      <PageHeading eyebrow={date} title="Ein klarer Kopf. Ein guter Plan."
+      <PageHeading bild="heute" eyebrow={date} title="Ein klarer Kopf. Ein guter Plan."
         description="Dein Lernstoff, deine nächsten Schritte und Raum für Fortschritt."
         action={<a className="button-link primary" href="#/material/import"><Icon name="plus" size={18} /> Material hinzufügen</a>} />
       <HeuteKarte />
