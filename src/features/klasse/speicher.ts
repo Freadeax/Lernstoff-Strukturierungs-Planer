@@ -65,6 +65,12 @@ export function nimmAbgabenAuf(neue: Abgabe[]): { neu: number; ersetzt: number; 
   schreibe(ABGABEN, alle);
   return { neu, ersetzt, doppelt };
 }
+/** Alle eingelesenen Abgaben eines Falls löschen (personenbezogene Daten nach der Bewertung entfernen). */
+export function loescheAbgaben(fallId: string) {
+  const alle = alleAbgaben();
+  delete alle[fallId];
+  schreibe(ABGABEN, alle);
+}
 export function entferneAbgabe(fallId: string, name: string) {
   const alle = alleAbgaben();
   alle[fallId] = (alle[fallId] ?? []).filter((x) => x.name !== name);

@@ -73,3 +73,29 @@ export function neueId(laenge = 8): string {
   const r = crypto.getRandomValues(new Uint8Array(laenge));
   return Array.from(r, (b) => z[b % z.length]).join('');
 }
+
+export type LinkZiel = 'klasse' | 'loesung' | 'lehrkraft';
+
+export const LINK_LABEL: Record<LinkZiel, string> = {
+  klasse: 'Klassenlink (für Lernende)',
+  loesung: 'Lösungslink (für Lernende, erst nach der Frist)',
+  lehrkraft: 'Lehrkraft-Link (nur für Lehrkräfte)',
+};
+
+/**
+ * Welche Felder ein Link enthält und welche nicht, vor dem Teilen angezeigt (Audit SEC-06).
+ * Muss zu klassenFassung/loesungsFassung passen; der Test „A-06“ prüft das am kodierten Link.
+ */
+export function linkInhalt(fall: KlassenFall, ziel: LinkZiel): { enthaelt: string[]; ohne: string[] } {
+  const enthaelt = [
+    `Titel, Ausgangssituation${fall.material.length ? ` und ${fall.material.length} Abschnitt${fall.material.length === 1 ? '' : 'e'} Fallmaterial` : ''}`,
+    `${fall.aufgaben.length} Aufgabe${fall.aufgaben.length === 1 ? '' : 'n'}${fall.aufgaben.some((a) => a.hinweis) ? ' mit Hinweisen' : ''}`,
+  ];
+  if (fall.von) enthaelt.push(`Name der Lehrkraft (${fall.von})`);
+  if (fall.abgabeAn) enthaelt.push(`Abgabe-Adresse (${fall.abgabeAn})`);
+  if (fall.frist) enthaelt.push('Frist');
+  const loesung = hatLoesung(fall);
+  if (ziel === 'klasse') return { enthaelt, ohne: loesung ? ['Erwartungshorizont', 'Kernpunkte (Checkliste)'] : [] };
+  if (loesung) enthaelt.push('Erwartungshorizont und Kernpunkte (Musterlösung)');
+  return { enthaelt, ohne: [] };
+}
