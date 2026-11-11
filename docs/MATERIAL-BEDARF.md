@@ -1,6 +1,6 @@
 # Materialbedarf: Grafiken, Medien und Texte, die die App noch braucht
 
-Stand: 11.11.2026 (Lieferungen 1 und 2 eingetragen), geprüft gegen `main` (Commit `ad9a096`, nach PR #95 bis #98), den Projektordner,
+Stand: 11.11.2026 (Lieferungen 1 und 2 eingetragen, Website-Audit SIM-06), geprüft gegen `main` (Commit `3af8530`, nach PR #122), den Projektordner,
 das **Visualpaket** und das **Pflegesimulator-Komplettpaket v2**. Diese Liste ist die Bestellliste für die
 nächste Materiallieferung. Jede Position hat eine feste ID, damit Dateien eindeutig zugeordnet werden können.
 
@@ -12,6 +12,9 @@ nächste Materiallieferung. Jede Position hat eine feste ID, damit Dateien einde
 
 **Spalte „Wer“**: **L** = bitte liefern (KI-Bild, Foto, Video), **F** = frei lizenziert suchen und liefern
 (mit Lizenzangaben), **C** = Claude kann es selbst im Code erzeugen (SVG, synthetisch), braucht nur dein OK.
+
+**Status je Datei:** Was schon in der App liegt, wo es erscheint, ob es fachlich geprüft und offline verfügbar ist,
+steht automatisch erzeugt in [`docs/ASSET-STATUS.md`](ASSET-STATUS.md) (Test hält die Liste aktuell).
 
 ---
 
@@ -78,9 +81,19 @@ kleinere Pakete kannst du hier im Projekt hochladen.
   "ki_generiert": true,
   "lizenz": "eigene KI-Erzeugung",
   "urheber": "Philipp",
-  "quelle": null
+  "quelle": null,
+  "zustand": { "monitor": "laeuft", "nacht": false, "massnahme": null },
+  "freigabe": null
 }
 ```
+
+- **Gleiche IDs überall:** Fotos, Varianten und Animationen tragen dieselbe Asset-ID im Dateinamen, im Katalog und in
+  `faelle` (z. B. `21b_paediatrie_schulkind_spacer` gehört zu `praxis:asthma`). Fall-IDs wie in Anhang A.
+- **`zustand`** sagt, welche Zustandsregel das Bild auswählt: `monitor` (`abwesend`, `standby`, `laeuft`,
+  `signalausfall`), `nacht`, `massnahme` (z. B. `orders`, `niedrigbett`). Regeln: `docs/RAEUME.md`.
+- **Lizenz und Freigabe pro Datei:** `lizenz`/`urheber` sind Pflicht. `freigabe` bleibt `null`, bis jemand das Motiv
+  fachlich geprüft hat; dann `{ "am": "JJJJ-MM-TT", "von": "Rolle" }`. Die App trägt sie in
+  `src/features/assetstatus/freigaben.ts` ein.
 
 Hotspots und Monitorfläche sind optional; Claude misst sie sonst selbst nach.
 
@@ -90,7 +103,8 @@ Hotspots und Monitorfläche sind optional; Claude misst sie sonst selbst nach.
 
 | Bereich | Vorhanden | Ort |
 | --- | --- | --- |
-| Raumfotos | 14 Szenen 07–19 inkl. 12a (ohne Monitor) aus Komplettpaket v2 | `public/raeume/`, Katalog `src/ui/sim/raeume/katalog.ts` |
+| Raumfotos | 34 Bilder: 14 Szenen 07–19 inkl. 12a aus Komplettpaket v2, dazu 20 Pädiatrie-, Heim- und Stationsbilder aus Lieferung 1 und 2 (Abschnitt 1.1/1.2) | `public/raeume/`, Katalog `src/ui/sim/raeume/katalog.ts` |
+| Patientenporträts | Mila (2) und Ben (7), je nur Zustand „stabil“ | `public/personen/`, `src/ui/sim/personen.ts` |
 | Raum-Grundentwürfe | 6 Referenzbilder 01–06 (mit eingebrannten Menüs, nur Vorlage) | Projektordner `pflegesimulator-referenz/bilder/` |
 | Handlungsanimationen | Insulin-Pen, Kompressionsstrumpf (MP4 + 4 Phasenbilder) | `public/sim-videos/` |
 | Titelbilder | 6 Bereichsmotive (Heute, Lernorganisation, Material, Trainer, Simulation, System) | `public/titelbilder/` (PR #98) |
@@ -110,8 +124,8 @@ Hotspots und Monitorfläche sind optional; Claude misst sie sonst selbst nach.
 | Position | Geliefert | Stand |
 | --- | --- | --- |
 | `20_paediatrie_kleinkind` | Grundbild, `20a` ohne Monitor, `20m` Sensor am Kind, `20n` Nacht, `20f` Fieberkrampf (Lina) | in der App (PR #103): Praxis `kind`, Fall `fieberkrampf` |
-| `21_paediatrie_schulkind` | Grundbild, `21a` ohne Monitor, `21b` Inhalation mit Spacer, `21m` Sensor am Kind | in der App (PR #103): Praxis `asthma`, Fall `asthma-kind`; `21b` noch keiner Handlung zugeordnet |
-| Porträts | `praxis-kind_stabil`, `praxis-asthma_stabil` | im Projektordner, noch ohne Verwendung; Zustände `angestrengt`/`kritisch` fehlen |
+| `21_paediatrie_schulkind` | Grundbild, `21a` ohne Monitor, `21b` Inhalation mit Spacer, `21m` Sensor am Kind | in der App (PR #103): Praxis `asthma` (21b erscheint 15 Minuten nach der Anordnung), Fall `asthma-kind` |
+| Porträts | `praxis-kind_stabil`, `praxis-asthma_stabil` | in der App: Praxis `kind`/`asthma`, Fall `asthma-kind`; Zustände `angestrengt`/`kritisch` fehlen |
 | `ct_lungenembolie` | 32 Schichten CTPA, CAD-PE 001, CC BY 4.0, 16-Bit-PNG | in der App (PR #105): Diagnostik `lungenembolie`, 16-Bit-Dekoder mit echter HU-Fensterung |
 | `rx_pneumothorax` | Spontanpneumothorax links, Hellerhoff, CC BY-SA 3.0 | in der App (PR #105): Diagnostik `pneumothorax`, Befundmarke neu vermessen |
 | `txt_ce10` (Teil) | Lernskript Neugeborenes (LEB 6) | Material-Repo: Original unter `dateien/`, Skript `skripte/CE10-Neugeborenes.md` |
@@ -181,6 +195,30 @@ Aus `docs/PRAXISSIMULATOR.md` (Einsatzgebiete, P2 „Versorgungsverlauf“). Gle
 
 Wichtig: **exakt gleicher Bildausschnitt** wie das Grundbild (am besten mit demselben Ausgangsbild erzeugen).
 
+### 3.0 Zuerst: Zustandslücken in Fällen, die es schon gibt (Website-Audit SIM-06)
+
+Vor neuen Räumen bitte die Bilder liefern, mit denen schon laufende Fälle ihren Zustand sichtbar wechseln. Die App
+wählt die Variante selbst aus Zustandsregeln (Gerät aus/an, Sensor angelegt/abgefallen, Tag/Nacht, Maßnahme). Fehlt
+das Bild, fällt sie auf ein Ersatzbild zurück. Die vollständige, automatisch erzeugte Lückenliste steht in
+[`docs/ASSET-STATUS.md`](ASSET-STATUS.md); die wichtigsten:
+
+| ID | Grundbild | Änderung | Zustandsregel | Fälle |
+| --- | --- | --- | --- | --- |
+| `21s_paediatrie_schulkind_sensor_ab` | 21 | Fingersensor liegt neben der Hand, Kabel hängt lose | `sensorAb` (Signalausfall) | Diagnostik `asthma-kind`, Praxis `asthma` |
+| `20s_paediatrie_kleinkind_sensor_ab` | 20 | Sensor am Fuß gelöst | `sensorAb` | Praxis `kind` |
+| `30s_station_zimmer_frau_sensor_ab` | 30 | Fingerclip abgefallen | `sensorAb` | Praxis/Fall `anaphylaxie` |
+| `12m_station_kardiologie_verbunden` + `12s` | 12 | Elektroden und Fingerclip sichtbar angelegt / Clip abgefallen | `verbunden` / `sensorAb` | Praxis `nachtwache`, `lungenembolie`; Diagnostik (2 Fälle) |
+| `21n_paediatrie_schulkind_nacht` | 21 | Nachtlicht, Kind schläft halb sitzend | `nacht` | Praxis `asthma` im Nachtdienst |
+| `12n`, `13n` | 12, 13 | Nachtvariante | `nacht` | Praxis `nachtwache` (2 Uhr), Diagnostik postoperativ |
+| `21c_paediatrie_schulkind_nach_inhalation` | 21 | Kind sitzt entspannter, Spacer weggelegt | Maßnahme `orders` beendet | Praxis `asthma`: sichtbare Besserung nach der Inhalation |
+| `30c_station_zimmer_frau_nach_adrenalin` | 30 | Beine hochgelagert, Infusion läuft, Gesicht weniger gerötet | Maßnahme | Praxis/Fall `anaphylaxie` |
+| `20g_paediatrie_kleinkind_fieberkrampf_seitenlage` | 20f | Kind in stabiler Seitenlage nach dem Krampf | Maßnahme | Fall `fieberkrampf` |
+| Porträts `angestrengt`, `kritisch` | Mila, Ben | gleiche Person, gleicher Ausschnitt | Patientenzustand | Fall `asthma-kind`, Praxis `kind`/`asthma` |
+
+Die Inhalation mit Spacer (`21b`) ist schon im passenden Fall eingebunden (Praxis `asthma`). Nicht erreichbar sind
+derzeit nur `14_station_isolation`, `19_krankenhaus_materialraum` und `26_pflegeheim_zimmer_tag` (kein Fall nutzt sie;
+14 und 19 brauchen die Varianten `14a`/`19a` unten, 26 ist Grundbild zu 26a/26b).
+
 | ID | Grundbild | Änderung | Wofür |
 | --- | --- | --- | --- |
 | `13a_station_postop_ohne_monitor` | 13 postop | Monitor und Sensoren weg | „Monitor anschließen“ wie bei 12/12a (Diagnostik `lungenembolie`, Praxis `nachblutung`) |
@@ -242,6 +280,11 @@ die Fallsimulator- und Diagnostikfälle danach (P3).
 ---
 
 ## 6. Handlungsanimationen (P2, wichtigste zuerst)
+
+**Hinweis zur nächsten Welle (Audit):** Welle 1 und 2 sind gegen `public/raeume/`, `public/personen/`,
+`public/sim-videos/` und die Fallkataloge geprüft (Ergebnis: `docs/ASSET-STATUS.md`). Neue Animationen bitte mit
+derselben Fall-ID wie das Foto liefern, in dem sie spielen (z. B. `dosieraerosol_spacer` zu `21b`/Praxis `asthma`),
+und je Datei Lizenz und fachliche Freigabe angeben (Abschnitt 0.4). Zuerst die Zustandslücken aus Abschnitt 3.0.
 
 Format wie vorhanden: MP4 6–15 s ohne Ton + **4 Phasenbilder** mit Namen. Dateiname
 `animationen/<id>.mp4` und `animationen/<id>-1.webp` … `-4.webp`. Keine Dosen, keine Präparatenamen im Bild.
@@ -368,7 +411,8 @@ Nicht nötig (macht die App besser selbst): Monitorpiep, Alarmmelodien, Telefon,
 5. ~~`26_pflegeheim_zimmer_tag` + `26a`~~ geliefert 11.11. (5 Heimfälle ohne passendes Zimmer)
 6. ~~`30_station_zimmer_frau` + `30b`~~ geliefert 11.11. (Anaphylaxie, Sepsis)
 7. ~~`27_station_zweibett_nacht`~~ geliefert 11.11. (Delir)
-8. `22_psychiatrie_aufenthaltsraum` + `23_psychiatrie_rueckzugsraum`
+8. **Zustandslücken aus Abschnitt 3.0** (Sensor ab, Nacht, Bilder nach der Maßnahme, Porträtzustände)
+8a. `22_psychiatrie_aufenthaltsraum` + `23_psychiatrie_rueckzugsraum`
 9. `24_reha_zimmer`
 10. `25_hospiz_zimmer`
 11. `28_ambulant_schlafzimmer` und `29_ambulant_wohnzimmer_copd`

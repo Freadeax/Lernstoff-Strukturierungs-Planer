@@ -69,6 +69,8 @@ export interface Raum {
   mitMonitor?: RaumId;
   /** Gleicher Raum mit angeschlossenem Sensor am Patienten (für „Überwachung läuft“, z. B. 20 → 20m). */
   verbunden?: RaumId;
+  /** Gleicher Raum mit abgefallenem oder gelöstem Sensor (für „Signalausfall“); bisher nicht geliefert. */
+  sensorAb?: RaumId;
   /** Gleicher Raum bei Nacht (gleicher Bildausschnitt). */
   nacht?: RaumId;
   hotspots: HotspotVorschlag[];
@@ -412,13 +414,41 @@ export const raumUrl = (id: RaumId) => `${import.meta.env.BASE_URL}${RAEUME[id].
 /** Monitorzustände wie in Philipps Anleitung. */
 export type MonitorZustand = 'abwesend' | 'standby' | 'laeuft' | 'signalausfall';
 
-/** Welches Bild zeigt den Raum im gewünschten Monitorzustand? (abwesend → Variante ohne Monitor, falls vorhanden) */
-export function raumFuerZustand(id: RaumId, zustand?: MonitorZustand): RaumId {
-  const r = RAEUME[id];
-  if (!zustand) return id;
-  if (zustand === 'abwesend') return r.ohneMonitor ?? id;
-  const mit = r.mitMonitor ?? id;
-  // Läuft die Überwachung, zeigt eine vorhandene Variante den Sensor am Patienten.
-  if (zustand === 'laeuft' || zustand === 'signalausfall') return RAEUME[mit].verbunden ?? mit;
+/** Zustandsregeln für Bildvarianten (docs/RAEUME.md, Abschnitt Zustandsregeln). */
+export interface RaumZustand {
+  /** Gerät aus/an, Sensor angelegt oder abgefallen */
+  monitor?: MonitorZustand;
+  /** Tag/Nacht: true wählt die Nachtvariante, falls geliefert */
+  nacht?: boolean;
+}
+
+/**
+ * Welches Bild zeigt den Raum im gewünschten Zustand?
+ * 1. Nacht: Nachtvariante desselben Ausschnitts (z. B. 20 → 20n), sonst bleibt das Tagbild (Simulator legt Filter darüber).
+ * 2. Gerät abwesend: Variante ohne Monitor (12 → 12a).
+ * 3. Gerät an/Standby: Variante mit Monitor (12a → 12).
+ * 4. Überwachung läuft: Sensor am Patienten, falls geliefert (20 → 20m).
+ * 5. Signalausfall: Sensor abgefallen, falls geliefert; sonst wie „läuft“ (der Monitor zeigt den Ausfall).
+ * Patientenzustand und Maßnahmen wählen die Simulatoren über ihre Zuordnung (z. B. Praxis `waehrend`: 21 → 21b).
+ */
+export function raumFuerZustand(id: RaumId, zustand?: MonitorZustand | RaumZustand): RaumId {
+  const z: RaumZustand = typeof zustand === 'object' ? zustand : { monitor: zustand };
+  const basis = z.nacht ? RAEUME[id].nacht ?? id : id;
+  const r = RAEUME[basis];
+  if (!z.monitor) return basis;
+  if (z.monitor === 'abwesend') return r.ohneMonitor ?? basis;
+  const mit = r.mitMonitor ?? basis;
+  if (z.monitor === 'laeuft') return RAEUME[mit].verbunden ?? mit;
+  if (z.monitor === 'signalausfall') return RAEUME[mit].sensorAb ?? RAEUME[mit].verbunden ?? mit;
   return mit;
+}
+
+/** Alle Bilder, die die Zustandsregeln von einem Raum aus erreichen (inklusive des Raums selbst). */
+export function raumVarianten(id: RaumId, zustaende: readonly MonitorZustand[] = ['abwesend', 'standby', 'laeuft', 'signalausfall'], nacht = true): RaumId[] {
+  const set = new Set<RaumId>([id]);
+  for (const n of nacht ? [false, true] : [false]) {
+    set.add(raumFuerZustand(id, { nacht: n }));
+    for (const m of zustaende) set.add(raumFuerZustand(id, { monitor: m, nacht: n }));
+  }
+  return [...set];
 }
