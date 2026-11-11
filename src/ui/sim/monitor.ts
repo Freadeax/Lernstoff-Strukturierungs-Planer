@@ -19,12 +19,59 @@ export type MonitorParameter = 'puls' | 'af' | 'spo2' | 'sys' | 'temp';
 
 const da = (n: number | null | undefined): n is number => typeof n === 'number' && Number.isFinite(n);
 
+/** Altersgruppe wie bei den Laborwerten (Typ aus labor/parameter, hier gespiegelt, damit der Monitor ohne Laborteil auskommt). */
+export type MonitorGruppe = 'erwachsen' | 'saeugling' | 'kleinkind' | 'schulkind';
+
+/** Grenzen je Wert: Werte < rotUnter oder > rotUeber = rot, < gelbUnter oder > gelbUeber = gelb. */
+interface Grenzen { rotUnter?: number; gelbUnter?: number; gelbUeber?: number; rotUeber?: number }
+
 /**
- * Alarmstufe je Wert, angelehnt an die NEWS2-Bänder: 3 Punkte = rot, 1–2 Punkte = gelb.
+ * Kinder-Alarmprofile (didaktisch): Puls, Atemfrequenz und systolischer Druck nach Altersband, angelehnt an
+ * gängige pädiatrische Normwerttabellen und PEWS-Logik. SpO₂ und Temperatur wie bei Erwachsenen.
+ */
+const KIND_GRENZEN: Record<'kleinkind' | 'schulkind', Partial<Record<MonitorParameter, Grenzen>>> = {
+  kleinkind: { puls: { rotUnter: 70, gelbUnter: 90, gelbUeber: 150, rotUeber: 170 }, af: { rotUnter: 15, gelbUnter: 20, gelbUeber: 40, rotUeber: 50 }, sys: { rotUnter: 70, gelbUnter: 80 } },
+  schulkind: { puls: { rotUnter: 60, gelbUnter: 70, gelbUeber: 130, rotUeber: 150 }, af: { rotUnter: 12, gelbUnter: 16, gelbUeber: 30, rotUeber: 40 }, sys: { rotUnter: 80, gelbUnter: 90 } },
+};
+
+export interface AlarmProfil {
+  gruppe: MonitorGruppe;
+  /** false: kein freigegebenes Profil, der Monitor färbt nicht und wertet nicht automatisch. */
+  bewertet: boolean;
+  /** Kurzlabel am Monitor, z. B. „Alarmgrenzen Kind 6–13 J.“ */
+  label: string;
+  /** Herkunft und Messkontext für die Anzeige am Entscheidungspunkt. */
+  quelle: string;
+}
+
+const QUELLE_ERW = 'Angelehnt an die NEWS2-Bänder (Royal College of Physicians 2017). Didaktische Anzeige, keine Gerätelogik; lokale Alarmgrenzen gehen vor.';
+const QUELLE_KIND = 'Puls, Atemfrequenz und systolischer Druck nach Altersband, angelehnt an pädiatrische Normwerttabellen und PEWS-Logik; SpO₂ und Temperatur wie bei Erwachsenen. Ruhewerte im Wachzustand, fachlich ungeprüft; lokale Alarmgrenzen und ärztliche Vorgaben gehen vor.';
+
+export function alarmProfil(gruppe: MonitorGruppe = 'erwachsen'): AlarmProfil {
+  switch (gruppe) {
+    case 'erwachsen': return { gruppe, bewertet: true, label: 'Alarmgrenzen Erwachsene (NEWS2)', quelle: QUELLE_ERW };
+    case 'schulkind': return { gruppe, bewertet: true, label: 'Alarmgrenzen Kind 6–13 J.', quelle: QUELLE_KIND };
+    case 'kleinkind': return { gruppe, bewertet: true, label: 'Alarmgrenzen Kind 1–5 J.', quelle: QUELLE_KIND };
+    case 'saeugling': return { gruppe, bewertet: false, label: 'Kein Alarmprofil für Säuglinge', quelle: 'Für Säuglinge gibt es hier kein freigegebenes Profil. Der Monitor färbt die Werte nicht; beurteile sie nach den Vorgaben deiner Station.' };
+  }
+}
+
+const stufe = (n: number, g: Grenzen): Alarm =>
+  (g.rotUnter !== undefined && n < g.rotUnter) || (g.rotUeber !== undefined && n > g.rotUeber) ? 'rot'
+    : (g.gelbUnter !== undefined && n < g.gelbUnter) || (g.gelbUeber !== undefined && n > g.gelbUeber) ? 'gelb' : 'ok';
+
+/**
+ * Alarmstufe je Wert. Erwachsene: angelehnt an die NEWS2-Bänder (3 Punkte = rot, 1–2 Punkte = gelb).
+ * Kinder: eigenes Profil je Altersgruppe; Säuglinge ohne Profil bleiben ungefärbt ('ok').
  * Didaktische Anzeige, keine Gerätelogik; lokale Alarmgrenzen gehen vor.
  */
-export function alarmStufe(p: MonitorParameter, n: number | null | undefined): Alarm {
+export function alarmStufe(p: MonitorParameter, n: number | null | undefined, gruppe: MonitorGruppe = 'erwachsen'): Alarm {
   if (!da(n)) return 'ok';
+  if (gruppe === 'saeugling') return 'ok';
+  if (gruppe !== 'erwachsen') {
+    const g = KIND_GRENZEN[gruppe][p];
+    if (g) return stufe(n, g);
+  }
   switch (p) {
     case 'puls': return n <= 40 || n > 130 ? 'rot' : n <= 50 || n > 90 ? 'gelb' : 'ok';
     case 'af': return n <= 8 || n >= 25 ? 'rot' : n <= 11 || n >= 21 ? 'gelb' : 'ok';
@@ -34,12 +81,32 @@ export function alarmStufe(p: MonitorParameter, n: number | null | undefined): A
   }
 }
 
+/** Unauffälliger Bereich je Wert und Altersgruppe (für Kurvenbänder); undefined ohne Profil. */
+export function normBand(p: MonitorParameter, gruppe: MonitorGruppe = 'erwachsen'): { min?: number; max?: number } | undefined {
+  if (gruppe === 'saeugling') return undefined;
+  const g = gruppe !== 'erwachsen' ? KIND_GRENZEN[gruppe][p] : undefined;
+  if (g) return { min: g.gelbUnter, max: g.gelbUeber };
+  switch (p) {
+    case 'puls': return { min: 51, max: 90 };
+    case 'af': return { min: 12, max: 20 };
+    case 'spo2': return { min: 96 };
+    case 'sys': return { min: 111 };
+    case 'temp': return { min: 36.1, max: 38 };
+  }
+}
+
 /** Höchste Alarmstufe über alle gemessenen Werte; Bewusstsein ungleich A ist immer rot. */
-export function gesamtAlarm(w: MonitorWerte): Alarm {
-  const stufen: Alarm[] = (['puls', 'af', 'spo2', 'sys', 'temp'] as const).map((p) => alarmStufe(p, w[p]));
+export function gesamtAlarm(w: MonitorWerte, gruppe: MonitorGruppe = 'erwachsen'): Alarm {
+  const stufen: Alarm[] = (['puls', 'af', 'spo2', 'sys', 'temp'] as const).map((p) => alarmStufe(p, w[p], gruppe));
   const avpu = w.avpu?.trim().toUpperCase().charAt(0);
   if (avpu && avpu !== 'A') stufen.push('rot');
   return stufen.includes('rot') ? 'rot' : stufen.includes('gelb') ? 'gelb' : 'ok';
+}
+
+/** Altersgruppe aus dem Alter in Jahren (wie labor/parameter.altersgruppe). */
+export function monitorGruppe(alter: number | null | undefined): MonitorGruppe {
+  if (!da(alter)) return 'erwachsen';
+  return alter < 1 ? 'saeugling' : alter < 6 ? 'kleinkind' : alter < 14 ? 'schulkind' : 'erwachsen';
 }
 
 /** Zahl aus Text wie "135/85", "38,4" oder "92 %". */

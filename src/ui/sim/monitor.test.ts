@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { alarmStufe, anzeige, atmung, blutdruck, ekg, gesamtAlarm, pleth, proSekunde, zahl } from './monitor';
+import { alarmProfil, alarmStufe, anzeige, monitorGruppe, normBand, atmung, blutdruck, ekg, gesamtAlarm, pleth, proSekunde, zahl } from './monitor';
 
 describe('Monitor-Rechnung', () => {
   it('stuft Werte nach NEWS2-Bändern ein', () => {
@@ -45,5 +45,30 @@ describe('Monitor-Rechnung', () => {
     expect(proSekunde(900)).toBeCloseTo(220 / 60);
     expect(anzeige(null)).toBe('--');
     expect(anzeige(37.25, 1)).toBe('37,3');
+  });
+});
+
+describe('Kinder-Alarmprofile (SIM-01)', () => {
+  it('Puls 120 ist beim Erwachsenen gelb, beim Kleinkind unauffällig', () => {
+    expect(alarmStufe('puls', 120)).toBe('gelb');
+    expect(alarmStufe('puls', 120, 'kleinkind')).toBe('ok');
+    expect(alarmStufe('puls', 156, 'kleinkind')).toBe('gelb');
+    expect(alarmStufe('puls', 175, 'kleinkind')).toBe('rot');
+    expect(alarmStufe('af', 28, 'kleinkind')).toBe('ok');
+    expect(alarmStufe('af', 34, 'schulkind')).toBe('gelb');
+    expect(alarmStufe('sys', 95, 'schulkind')).toBe('ok');
+    expect(alarmStufe('sys', 95)).toBe('gelb');
+    expect(alarmStufe('spo2', 90, 'schulkind')).toBe('rot');
+  });
+  it('Säuglinge: kein Profil, keine Färbung', () => {
+    expect(alarmProfil('saeugling').bewertet).toBe(false);
+    expect(gesamtAlarm({ puls: 200, af: 70, spo2: 80 }, 'saeugling')).toBe('ok');
+    expect(normBand('puls', 'saeugling')).toBeUndefined();
+  });
+  it('Altersgruppe und Profiltexte', () => {
+    expect(monitorGruppe(0.5)).toBe('saeugling'); expect(monitorGruppe(4)).toBe('kleinkind');
+    expect(monitorGruppe(7)).toBe('schulkind'); expect(monitorGruppe(40)).toBe('erwachsen'); expect(monitorGruppe(undefined)).toBe('erwachsen');
+    for (const g of ['erwachsen', 'kleinkind', 'schulkind', 'saeugling'] as const) expect(alarmProfil(g).quelle.length).toBeGreaterThan(40);
+    expect(normBand('puls', 'schulkind')).toEqual({ min: 70, max: 130 });
   });
 });
