@@ -3,8 +3,9 @@ import '../lernplan/ui/lernplan.css';
 import '../ce/ce.css';
 import './thema.css';
 import { useEffect, useMemo, useState } from 'react';
+import { liveQuery } from 'dexie';
 import { db } from '../../core/db';
-import type { Document, ID, Summary } from '../../core/types';
+import type { Document, ID, Summary, Topic } from '../../core/types';
 import type { CatalogModule, CatalogTopic } from '../../modules/catalog-types';
 import { getModule, modules } from '../../modules/registry';
 import { PageHeading } from '../../ui/PageHeading';
@@ -21,12 +22,14 @@ import { uebungenFuer } from '../lernplan/trainer';
 import { blockTitel, inTagen, kurzDatum, STATUS_LABEL } from '../lernplan/ui/format';
 import { usePlan } from '../lernplan/ui/usePlan';
 import { kartenLage, naechsterBlock } from './thema';
+import { istEigenesThema } from './pflege';
+import { ThemaVerwalten, ZuordnungKorrigieren } from './ThemaPflege';
 
 const zaehl = (n: number, eins: string, viele: string) => `${n} ${n === 1 ? eins : viele}`;
 const enc = encodeURIComponent;
 
 /** Dokumente und Zusammenfassungen, die diesem Thema zugeordnet sind. */
-function useQuellen(topicId: ID) {
+function useQuellen(topicId: ID, stand = 0) {
   const [q, setQ] = useState<{ docs: Document[]; summaries: Summary[] } | null>(null);
   useEffect(() => {
     let aktiv = true;
@@ -34,8 +37,19 @@ function useQuellen(topicId: ID) {
       .then(([docs, summaries]) => { if (aktiv) setQ({ docs, summaries }); })
       .catch(() => { if (aktiv) setQ({ docs: [], summaries: [] }); });
     return () => { aktiv = false; };
-  }, [topicId]);
+  }, [topicId, stand]);
   return q;
+}
+
+/** Eigenes Thema live aus der Datenbank: Nach Umbenennen, Zusammenführen oder frischem Anlegen sofort aktuell. */
+function useEigenesThema(topicId: ID) {
+  const [t, setT] = useState<{ id: ID; topic?: Topic } | null>(null);
+  useEffect(() => {
+    if (!istEigenesThema(topicId)) { setT({ id: topicId }); return; }
+    const sub = liveQuery(() => db.topics.get(topicId)).subscribe({ next: (topic) => setT({ id: topicId, topic }), error: () => setT({ id: topicId }) });
+    return () => sub.unsubscribe();
+  }, [topicId]);
+  return t?.id === topicId ? t : null;
 }
 
 function Abschnitt({ titel, children, aktion }: { titel: string; children: React.ReactNode; aktion?: React.ReactNode }) {
@@ -57,9 +71,11 @@ export default function ThemaSeite() {
   const moduleId = useStore(session, (s) => s.moduleId);
   const modul = (getModule(moduleId) ?? modules[0]) as CatalogModule;
   const liste = useMemo(() => ceListe(modul), [modul]);
-  const { ctx } = usePlan();
-  const { daten, setHaken } = useGeraeteDaten(modul);
-  const quellen = useQuellen(id);
+  const { ctx, retry } = usePlan();
+  const { daten, setHaken, neuLaden } = useGeraeteDaten(modul);
+  const [quellenStand, setQuellenStand] = useState(0);
+  const quellen = useQuellen(id, quellenStand);
+  const nachKorrektur = () => { setQuellenStand((n) => n + 1); neuLaden(); };
   // Bei Themenwechsel (nur der Parameter ändert sich, die Seite bleibt) neu filtern.
   const [fehlerStand, setFehlerStand] = useState(0);
   useEffect(() => {
@@ -69,7 +85,8 @@ export default function ThemaSeite() {
   }, []);
   const fehler = useMemo(() => ladeFehler().filter((f) => istOffen(f) && f.topicIds.includes(id)), [id, fehlerStand]);
 
-  const topic = (modul.topics.find((t) => t.id === id) ?? ctx?.topics.get(id)) as CatalogTopic | undefined;
+  const eigen = useEigenesThema(id);
+  const topic = (modul.topics.find((t) => t.id === id) ?? eigen?.topic ?? (istEigenesThema(id) ? undefined : ctx?.topics.get(id))) as CatalogTopic | undefined;
   const ce = useMemo(() => (topic ? ceZuThema(modul, id, liste) : undefined), [topic, modul, id, liste]);
   const eintrag: CeThema | undefined = useMemo(() => {
     if (!topic) return undefined;
@@ -87,7 +104,7 @@ export default function ThemaSeite() {
   }, [eintrag, modul, daten, ctx, ce, id]);
   const pfad = useMemo(() => (fakten ? themaPfad(fakten) : undefined), [fakten]);
 
-  if (!id || (!topic && ctx)) {
+  if (!id || (!topic && ctx && (!istEigenesThema(id) || eigen))) {
     return (
       <section className="page">
         <PageHeading title="Thema nicht gefunden" description="Wähle ein Thema aus der Themenliste oder über eine curriculare Einheit." />
@@ -145,10 +162,12 @@ export default function ThemaSeite() {
         {!quellen ? <p className="muted" role="status">Quellen werden geladen …</p> : (
           <ul className="thema__liste">
             {fakten.skripte.map((s) => (
-              <li key={s.id}><button type="button" className="link" onClick={() => navigate(`/lernen/skript?id=${enc(s.id)}`)}>{s.titel}</button><span className="muted"> · Skript, {s.gelesen} von {zaehl(s.abschnitte, 'Abschnitt', 'Abschnitten')} gelesen</span></li>
+              <li key={s.id}><button type="button" className="link" onClick={() => navigate(`/lernen/skript?id=${enc(s.id)}`)}>{s.titel}</button><span className="muted"> · Skript, {s.gelesen} von {zaehl(s.abschnitte, 'Abschnitt', 'Abschnitten')} gelesen</span>
+                <ZuordnungKorrigieren art="skript" quelleId={s.id} topicId={id} onFertig={nachKorrektur} /></li>
             ))}
             {quellen.docs.map((d) => (
-              <li key={d.id}><span>{d.title}</span><span className="muted"> · Dokument</span> <button type="button" className="link" onClick={() => navigate(`/material/zusammenfassen?dokument=${enc(d.id)}`)}>Zusammenfassen</button></li>
+              <li key={d.id}><span>{d.title}</span><span className="muted"> · Dokument</span> <button type="button" className="link" onClick={() => navigate(`/material/zusammenfassen?dokument=${enc(d.id)}`)}>Zusammenfassen</button>
+                <ZuordnungKorrigieren art="dokument" quelleId={d.id} topicId={id} fachId={topic.subjectId} onFertig={nachKorrektur} /></li>
             ))}
             {quellen.summaries.length > 0 && (
               <li><button type="button" className="link" onClick={() => navigate('/material/dokumente')}>{zaehl(quellen.summaries.length, 'Zusammenfassung', 'Zusammenfassungen')}</button><span className="muted"> mit Belegen bis zur Originalstelle{quellen.summaries.some((s) => s.needsReview) ? ', teils zur Prüfung markiert' : ''}</span></li>
@@ -164,6 +183,8 @@ export default function ThemaSeite() {
             {fehler.length > 5 && <li className="muted">und {fehler.length - 5} weitere</li>}</ul>
           : <p className="muted">Keine offenen Fehler zu diesem Thema.</p>}
       </Abschnitt>
+
+      <ThemaVerwalten topic={topic} onGeaendert={retry} />
 
       {uebungen.length > 0 && (
         <Abschnitt titel="Passende Übungen">
