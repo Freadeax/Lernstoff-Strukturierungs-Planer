@@ -22,6 +22,15 @@ describe('Diagnostik-Fälle', () => {
     }
   });
 
+  it('Sauerstoff nutzt das Flag o2 (Monitor zeigt „mit O₂“), BZ und Plasmaglukose reagieren gleich', () => {
+    for (const f of FAELLE) {
+      for (const a of f.anordnungen) if (/sauerstoff/i.test(a.label)) expect(a.flag, `${f.id}: ${a.id}`).toBe('o2');
+      const flagsVon = (id: string) => (f.labor[id]?.therapie ?? []).map((t) => t.flag).sort();
+      if (f.labor.bz && f.labor.glukose) expect(flagsVon('glukose'), f.id).toEqual(flagsVon('bz'));
+      if (f.labor.bz?.therapie?.length) expect(f.labor.glukose, `${f.id}: glukose fehlt`).toBeDefined();
+    }
+  });
+
   it('Fragen verweisen auf vorhandene Serien und Befunde; BGA-Lösungen passen zur Deutung', () => {
     for (const f of FAELLE) for (const q of f.fragen) {
       if (q.art === 'befund') {
