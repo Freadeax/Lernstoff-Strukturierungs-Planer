@@ -3,7 +3,7 @@
 
 import type { ID } from '../../core/types';
 import type { Karte, KartenBeleg } from '../karteikarten/typen';
-import { belegText, eindeutig, findeBelege } from './parser';
+import { abschnittSchluessel, belegText, eindeutig, findeBelege } from './parser';
 import type { Abschnitt, Skript, SkriptBeleg } from './typen';
 
 const MAX_PUNKTE = 6;
@@ -78,6 +78,8 @@ export function kartenAusAbschnitt(skript: Skript, abschnitt: Abschnitt, subject
   const kopf = abschnitt.kopfBelege ?? [];
   const basis = { quelle: 'zusammenfassung' as const, topicIds: skript.topicIds, subjectIds, ref: `skript:${skript.id}` };
   const titel = `${skript.titel} › ${abschnitt.titel}`;
+  // Nummer statt Reihenfolge in der ID: Kommt vorne ein Abschnitt dazu, überschreiben neue Karten keine alten.
+  const schluessel = abschnittSchluessel(abschnitt).replace(/^nr:/, 'n');
   const ps = punkte(abschnitt.markdown, bekannte, kopf).filter((p) => p.belege.length);
   const out: Karte[] = [];
   // Punkte unter derselben Zwischenüberschrift bilden eine Karte, sonst fehlt der Zusammenhang
@@ -93,7 +95,7 @@ export function kartenAusAbschnitt(skript: Skript, abschnitt: Abschnitt, subject
     for (let i = 0; i < teile; i++) {
       const stueck = g.ps.slice(i * MAX_PUNKTE, (i + 1) * MAX_PUNKTE);
       out.push({
-        ...basis, id: `skr:${skript.id}:${abschnitt.id}:${gi + 1}${teile > 1 ? `.${i + 1}` : ''}`, art: 'Abschnitt → Kernaussagen',
+        ...basis, id: `skr:${skript.id}:${schluessel}:${gi + 1}${teile > 1 ? `.${i + 1}` : ''}`, art: 'Abschnitt → Kernaussagen',
         vorne: `${frage}${teile > 1 ? ` (Teil ${i + 1} von ${teile})` : ''}: Was gehört dazu?`, hinten: '',
         liste: stueck.map((p) => (p.unterpunkt ? `– ${p.text}` : p.text)),
         belege: eindeutig(stueck.flatMap((p) => p.belege)).map((b) => alsKartenBeleg(skript.id, b)),
@@ -104,9 +106,24 @@ export function kartenAusAbschnitt(skript: Skript, abschnitt: Abschnitt, subject
     const belege = d.belege.length ? d.belege : kopf;
     if (!belege.length) return;
     out.push({
-      ...basis, id: `skd:${skript.id}:${abschnitt.id}:${i + 1}`, art: 'Definition', vorne: `Was ist ${d.begriff}?`, hinten: d.text,
+      ...basis, id: `skd:${skript.id}:${schluessel}:${i + 1}`, art: 'Definition', vorne: `Was ist ${d.begriff}?`, hinten: d.text,
       belege: eindeutig(belege).map((b) => alsKartenBeleg(skript.id, b)),
     });
   });
   return out;
+}
+
+/**
+ * Beim erneuten Übernehmen: Karte mit gleicher Herkunft, Art und Vorderseite behält ihre bisherige ID
+ * und damit ihren Lernstand (auch Karten aus älteren Fassungen mit alter ID-Form).
+ */
+export function behalteKartenIds(neu: Karte[], vorhandene: Karte[]): Karte[] {
+  const alt = new Map(vorhandene.map((k) => [`${k.ref}|${k.art}|${k.vorne}`, k.id]));
+  const vergeben = new Set<string>();
+  return neu.map((k) => {
+    const id = alt.get(`${k.ref}|${k.art}|${k.vorne}`);
+    if (!id || vergeben.has(id)) return k;
+    vergeben.add(id);
+    return { ...k, id };
+  });
 }

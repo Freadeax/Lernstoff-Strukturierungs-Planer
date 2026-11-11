@@ -5,7 +5,9 @@ import { navigate, useRoute } from '../../../ui/shell/router';
 import { notify } from '../../../ui/shell/notifications';
 import { logStudy } from '../../lernplan/store';
 import { uebernehme } from '../../karteikarten/store';
-import { kartenAusAbschnitt } from '../karten';
+import { db } from '../../../core/db';
+import { behalteKartenIds, kartenAusAbschnitt } from '../karten';
+import { findeAbschnitt, pruefeAbschnitt, pruefeSkript, pruefungText } from '../pruefung';
 import { belegText, gruppenRang, leseMinuten } from '../parser';
 import { begriffe, suche } from '../suche';
 import { mitOberthemen } from '../themen';
@@ -23,6 +25,9 @@ import './skript.css';
 const topics = new Map<ID, Topic>(pflegeModule.topics.map((t) => [t.id, t]));
 const blaetter = pflegeModule.topics.filter((t) => !pflegeModule.topics.some((k) => k.parentId === t.id));
 const fachVon = (topicIds: ID[]) => [...new Set(topicIds.map((id) => topics.get(id)?.subjectId).filter((x): x is ID => !!x))];
+
+/** Link auf einen Abschnitt: mit Nummer (stabil über Fassungen hinweg), sonst mit Reihenfolge-ID. */
+const zuAbschnitt = (a?: Pick<Abschnitt, 'id' | 'nummer'>) => (a?.nummer ? { nr: a.nummer } : { a: a?.id });
 
 const pfad = (p: Record<string, string | undefined>) => {
   const q = new URLSearchParams(Object.entries(p).filter((e): e is [string, string] => !!e[1]));
@@ -101,7 +106,7 @@ function Uebersicht({ skripte, staende, thema, onNeu }: { skripte: SkriptT[]; st
           <ul className="sk-treffer">
             {treffer.map((tr) => (
               <li key={`${tr.skript.id}-${tr.abschnitt.id}`}>
-                <a href={`#${pfad({ id: tr.skript.id, a: tr.abschnitt.id, q })}`}>
+                <a href={`#${pfad({ id: tr.skript.id, ...zuAbschnitt(tr.abschnitt), q })}`}>
                   <span className="sk-treffer__wo">{tr.skript.gruppe} · {tr.skript.titel}</span>
                   <strong>{tr.abschnitt.nummer ? `${tr.abschnitt.nummer} · ` : ''}{tr.abschnitt.titel}</strong>
                   <span className="muted">{tr.ausschnitt}</span>
@@ -221,11 +226,28 @@ function Lernzeit({ skript, sekunden, gesamtSek }: { skript: SkriptT; sekunden: 
   );
 }
 
-function Leser({ skript, aId, q, staende, onNeu, setStaende }: {
-  skript: SkriptT; aId?: string; q?: string; staende: Record<string, Lesestand>;
+/** Belegprüfung des ganzen Skripts: fehlende Quellen und fehlende Seiten getrennt, dazu frühere Fassungen. */
+function BelegPruefung({ skript, texte }: { skript: SkriptT; texte: string[] }) {
+  const fassungen = skript.fassungen ?? [];
+  return (
+    <details className="sk-pruefung" open={texte.length > 0}>
+      <summary>Belegprüfung: {texte.length ? `${texte.length} ${texte.length === 1 ? 'Hinweis' : 'Hinweise'}` : 'alle Belege mit Quelle und Seite'}</summary>
+      {texte.length ? <ul>{texte.map((t) => <li key={t}>{t}</li>)}</ul> : <p className="muted">Jeder Beleg nennt eine Quelle aus dem Verzeichnis und eine Seite.</p>}
+      <p className="muted">
+        Fassung vom {skript.geaendert.slice(0, 10)}{skript.freigabe ? ` · fachlich freigegeben am ${skript.freigabe.am} (${skript.freigabe.von})` : ' · fachlich ungeprüft'}.
+        {fassungen.length > 0 && ` Frühere Fassungen: ${fassungen.map((f) => `${f.stand.slice(0, 10)} (${f.abschnitte.length} Abschnitte)`).join(', ')}. Links mit Abschnittsnummer aus diesen Fassungen führen weiter zum passenden Abschnitt.`}
+      </p>
+    </details>
+  );
+}
+
+function Leser({ skript, aId, nr, q, staende, onNeu, setStaende }: {
+  skript: SkriptT; aId?: string; nr?: string; q?: string; staende: Record<string, Lesestand>;
   onNeu: () => void; setStaende: (s: Record<string, Lesestand>) => void;
 }) {
-  const index = Math.max(0, skript.abschnitte.findIndex((a) => a.id === aId));
+  const fund = useMemo(() => findeAbschnitt(skript, { nr, a: aId }), [skript, nr, aId]);
+  const index = Math.max(0, skript.abschnitte.findIndex((a) => a.id === fund.abschnitt?.id));
+  const pruefung = useMemo(() => pruefeSkript(skript), [skript]);
   const a: Abschnitt | undefined = skript.abschnitte[index];
   const st = staende[skript.id];
   const gelesen = new Set(st?.gelesen ?? []);
@@ -239,7 +261,7 @@ function Leser({ skript, aId, q, staende, onNeu, setStaende }: {
 
   const quellen = new Map(skript.quellen.map((x) => [x.kuerzel, x.text]));
   const k: MdKontext = { bekannte: new Set(quellen.keys()), onBeleg: setBeleg, hervorheben: q ? begriffe(q) : [] };
-  const geh = (i: number) => navigate(pfad({ id: skript.id, a: skript.abschnitte[i]?.id, q }));
+  const geh = (i: number) => navigate(pfad({ id: skript.id, ...zuAbschnitt(skript.abschnitte[i]), q }));
   const { gelesen: anzahl, gesamt } = anteil(skript, st);
   const karten = a ? kartenAusAbschnitt(skript, a, fachVon(skript.topicIds)) : [];
 
@@ -254,19 +276,20 @@ function Leser({ skript, aId, q, staende, onNeu, setStaende }: {
         <ol>
           {skript.abschnitte.map((x, i) => (
             <li key={x.id} className={i === index ? 'is-current' : undefined}>
-              <a href={`#${pfad({ id: skript.id, a: x.id, q })}`} aria-current={i === index ? 'page' : undefined}>
+              <a href={`#${pfad({ id: skript.id, ...zuAbschnitt(x), q })}`} aria-current={i === index ? 'page' : undefined}>
                 <span className="sk-toc__haken" aria-label={gelesen.has(x.id) ? 'gelesen' : undefined}>{gelesen.has(x.id) ? '✓' : ''}</span>
                 {x.nummer ? `${x.nummer} · ` : ''}{x.titel}
               </a>
             </li>
           ))}
         </ol>
-        <select className="sk-toc__mobil" value={a?.id} onChange={(e) => navigate(pfad({ id: skript.id, a: e.target.value, q }))} aria-label="Abschnitt wählen">
+        <select className="sk-toc__mobil" value={a?.id} onChange={(e) => navigate(pfad({ id: skript.id, ...zuAbschnitt(skript.abschnitte.find((x) => x.id === e.target.value)), q }))} aria-label="Abschnitt wählen">
           {skript.abschnitte.map((x) => <option key={x.id} value={x.id}>{gelesen.has(x.id) ? '✓ ' : ''}{x.nummer ? `${x.nummer} · ` : ''}{x.titel}</option>)}
         </select>
       </nav>
 
       <article className="sk-text">
+        {fund.hinweis && <p className="note warn sk-fassung-hinweis" role="status">{fund.hinweis}</p>}
         {index === 0 && (
           <>
             {skript.einleitung && <div className="sk-einleitung"><Markdown text={skript.einleitung} k={k} /></div>}
@@ -275,6 +298,7 @@ function Leser({ skript, aId, q, staende, onNeu, setStaende }: {
               <dl>{skript.quellen.map((x) => <div key={x.kuerzel}><dt>[{x.kuerzel}]</dt><dd>{x.text}</dd></div>)}</dl>
               <p className="muted">Seite = Seite in deinem Material, wie in der Quellenliste angegeben. ⚠ markiert Stellen, die nicht im Material stehen.</p>
             </details>
+            <BelegPruefung skript={skript} texte={pruefungText(pruefung)} />
             <ThemenWahl skript={skript} onNeu={onNeu} />
           </>
         )}
@@ -287,6 +311,10 @@ function Leser({ skript, aId, q, staende, onNeu, setStaende }: {
               ca. {leseMinuten(a.woerter)} Min.
               {!!a.belege.length && ` · Belege: ${[...new Set(a.belege.map((b) => b.kuerzel))].join(', ')}`}
               {!!a.luecken && ` · ${a.luecken} ⚠ nicht belegt`}
+              {(() => { const p = pruefeAbschnitt(a, new Set(quellen.keys())); return <>
+                {!!p.ohneQuelle.length && <span className="sk-warn"> · Quelle fehlt: {p.ohneQuelle.map((x) => `[${x}]`).join(', ')}</span>}
+                {!!p.ohneSeite.length && <span className="sk-warn"> · Seite fehlt: {p.ohneSeite.map((x) => `[${x}]`).join(', ')}</span>}
+              </>; })()}
               {' '}<Vorlesen key={a.id} label="Abschnitt vorlesen" text={() => `${a.titel}. ${markdownAlsText(a.markdown)}`} />
             </p>
             <Markdown text={a.markdown} k={k} />
@@ -309,7 +337,7 @@ function Leser({ skript, aId, q, staende, onNeu, setStaende }: {
             </label>
             <div className="sk-aktionen__knoepfe">
               <button type="button" className="small" disabled={!karten.length} onClick={async () => {
-                try { await uebernehme(karten, `${skript.titel} › ${a.titel}`); notify('info', `${karten.length} Karteikarten übernommen`, 'Sie liegen jetzt bei deinen Karteikarten, mit Beleg auf der Rückseite.'); }
+                try { await uebernehme(behalteKartenIds(karten, await db.karten.where('ref').equals(`skript:${skript.id}`).toArray()), `${skript.titel} › ${a.titel}`); notify('info', `${karten.length} Karteikarten übernommen`, 'Sie liegen jetzt bei deinen Karteikarten, mit Beleg auf der Rückseite.'); }
                 catch (e) { notify('critical', 'Nicht übernommen', e instanceof Error ? e.message : String(e)); }
               }}>{karten.length ? `${karten.length} Karteikarten übernehmen` : 'Keine belegten Punkte für Karten'}</button>
               {skript.topicIds[0] && (
@@ -365,7 +393,7 @@ export default function Skript() {
       {!skripte && !fehler && <p className="muted">Lädt …</p>}
       {skripte && id && !skript && <p className="note warn">Dieses Skript liegt nicht auf diesem Gerät. <a href={`#${pfad({})}`}>Zur Übersicht</a></p>}
       {skripte && skript && (
-        <Leser skript={skript} aId={params.get('a') ?? staende[skript.id]?.zuletzt} q={params.get('q') ?? undefined} staende={staende} onNeu={neuLaden} setStaende={setStaende} />
+        <Leser skript={skript} nr={params.get('nr') ?? undefined} aId={params.get('a') ?? staende[skript.id]?.zuletzt} q={params.get('q') ?? undefined} staende={staende} onNeu={neuLaden} setStaende={setStaende} />
       )}
       {skripte && !id && !skripte.length && (
         <>
