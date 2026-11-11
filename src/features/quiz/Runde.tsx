@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from 'react';
+import { useMemo, useRef, useState, type ReactNode } from 'react';
 import { Ergebnisring } from '../../ui/Ergebnisring';
 import './quiz.css';
 import {
@@ -288,11 +288,16 @@ export function Runde({ aufgaben, quelle, trainer, figuren = {}, minProThema = 3
   const [serie, setSerie] = useState(0);
   const [besteSerie, setBesteSerie] = useState(0);
   const lernplan = useLernplanUebernahme(trainer);
+  // Schutz gegen doppeltes Absenden: jede Aufgabe wird einmal bewertet, die Runde einmal abgeschlossen
+  const rundeId = useRef(`${quelle}:runde:${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`);
+  const bewertetBei = useRef(-1);
+  const abgeschlossen = useRef(false);
   const a = aufgaben[i];
   const fertig = ergebnisse.length === aufgaben.length && !geprueft;
 
   function pruefen() {
-    if (!a) return;
+    if (!a || bewertetBei.current === i) return;
+    bewertetBei.current = i;
     const b = bewerte(a, antwort);
     spiele(b.richtig ? 'richtig' : b.punkte > 0 ? 'teilweise' : 'falsch');
     setGeprueft(b);
@@ -300,18 +305,20 @@ export function Runde({ aufgaben, quelle, trainer, figuren = {}, minProThema = 3
     const neu = b.richtig ? serie + 1 : 0;
     setSerie(neu); setBesteSerie((x) => Math.max(x, neu));
     const fehler = alsFehler(a, antwort, quelle);
-    if (fehler.length) notiereFehler(fehler);
+    if (fehler.length) notiereFehler(fehler.map((f) => ({ ...f, versuchId: `${rundeId.current}:${i}` })));
   }
 
   function weiter() {
     setGeprueft(null);
     const naechste = aufgaben[i + 1];
     if (naechste) { setAntwort(leereAntwort(naechste)); setI(i + 1); return; }
+    if (abgeschlossen.current) return;
+    abgeschlossen.current = true;
     const punkte = ergebnisse.reduce((s, e) => s + e.b.punkte / e.b.max, 0);
     const prozent = Math.round((punkte / Math.max(1, ergebnisse.length)) * 100);
     spiele(prozent >= 90 ? 'erfolg' : 'fertig');
     onFertig?.({ punkte: ergebnisse.reduce((s, e) => s + e.b.punkte, 0), max: ergebnisse.reduce((s, e) => s + e.b.max, 0), prozent, richtig: ergebnisse.filter((e) => e.b.richtig).length, anzahl: ergebnisse.length });
-    lernplan.uebernimm(proThema(ergebnisse.map((e) => alsTreffer(e.a, e.b)), minProThema));
+    lernplan.uebernimm(proThema(ergebnisse.map((e) => alsTreffer(e.a, e.b)), minProThema), rundeId.current);
   }
 
   if (fertig) {

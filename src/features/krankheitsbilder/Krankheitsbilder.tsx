@@ -296,12 +296,15 @@ function Fall({ fall, onFertig, onZurueck, onWeiter }: {
     });
   }
 
+  // Ein Fallaufruf = ein Versuch: Doppelklick auf „Auswerten“ bucht nicht doppelt.
+  const versuchId = useMemo(() => `krankheitsbilder:${fall.id}:${Date.now().toString(36)}`, [fall]);
   function auswerten() {
+    if (ergebnis) return;
     const e = bewerteFall(fall, antworten, p);
     setErgebnis(e);
     notiereFehler(e.zeilen.filter((z) => !z.richtig).map((z) => ausKrankheitsbild(fall, z.aufgabe, z.gewaehlt, p)));
     onFertig(fall, e);
-    lernplan.uebernimm(proThema(e.treffer, MIN_PRO_THEMA));
+    lernplan.uebernimm(proThema(e.treffer, MIN_PRO_THEMA), versuchId);
   }
 
   return (

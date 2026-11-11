@@ -105,9 +105,11 @@ export async function uebernehme(karten: Karte[], titel: string) {
  * Sitzungsende: je Thema mit mindestens drei Karten ein Abfrageergebnis an den Lernplan
  * (Quelle „Karteikarten“, zählt als echter Nachweis). Nur Themen, die der Lernplan kennt.
  */
-export async function schliesseSitzungAb(antworten: Pick<KartenLog, 'cardId' | 'rating' | 'topicIds'>[], topics: Map<ID, Topic>, tag = heute()): Promise<ThemenErgebnis[]> {
+export async function schliesseSitzungAb(antworten: Pick<KartenLog, 'cardId' | 'rating' | 'topicIds'>[], topics: Map<ID, Topic>, tag = heute(), sitzungId?: string): Promise<ThemenErgebnis[]> {
   const ergebnisse = ergebnisseJeThema(antworten, new Set(topics.keys()));
-  for (const e of ergebnisse) await logReview(topics.get(e.topicId)!, 'karteikarten', { scorePercent: e.scorePercent }, tag);
+  // Mit Sitzungskennung zählt jedes Thema einmal, auch wenn das Melden nach einem Fehler oder Reload wiederholt wird
+  for (const e of ergebnisse) await logReview(topics.get(e.topicId)!, 'karteikarten', { scorePercent: e.scorePercent }, tag, undefined,
+    sitzungId ? { versuchId: sitzungId, herkunft: { modul: 'karteikarten', ref: e.topicId }, status: 'abgeschlossen', aussagekraft: 'abruf' } : undefined);
   const karten = new Set(antworten.map((a) => a.cardId)).size;
   const gewusst = antworten.filter((a) => a.rating >= 3).length;
   if (karten) {
@@ -125,8 +127,8 @@ type Antwort = Pick<KartenLog, 'cardId' | 'rating' | 'topicIds'>;
 const OFFEN = 'lernstoff.karten.offeneSitzung';
 
 /** Antworten der laufenden Sitzung merken, damit ihr Ergebnis auch ohne „Fertig“ im Lernplan ankommt. */
-export function merkeOffeneSitzung(antworten: Antwort[], tag: string) {
-  try { localStorage.setItem(OFFEN, JSON.stringify({ tag, antworten })); } catch { /* privater Modus */ }
+export function merkeOffeneSitzung(antworten: Antwort[], tag: string, sitzungId?: string) {
+  try { localStorage.setItem(OFFEN, JSON.stringify({ tag, antworten, sitzungId })); } catch { /* privater Modus */ }
 }
 export function vergissOffeneSitzung() {
   try { localStorage.removeItem(OFFEN); } catch { /* privater Modus */ }
@@ -137,10 +139,11 @@ export function vergissOffeneSitzung() {
  * trotzdem an den Lernplan melden. Der Merker wird vorher entfernt, damit nichts doppelt zählt.
  */
 export async function schliesseOffeneSitzungAb(topics: Map<ID, Topic>): Promise<ThemenErgebnis[] | null> {
-  let offen: { tag: string; antworten: Antwort[] } | null = null;
+  let offen: { tag: string; antworten: Antwort[]; sitzungId?: string } | null = null;
   try { offen = JSON.parse(localStorage.getItem(OFFEN) ?? 'null'); } catch { offen = null; }
   vergissOffeneSitzung();
   if (!offen || !Array.isArray(offen.antworten) || !offen.antworten.length) return null;
-  try { return await schliesseSitzungAb(offen.antworten, topics, offen.tag); }
-  catch (e) { merkeOffeneSitzung(offen.antworten, offen.tag); throw e; }
+  const sitzungId = typeof offen.sitzungId === 'string' ? offen.sitzungId : undefined;
+  try { return await schliesseSitzungAb(offen.antworten, topics, offen.tag, sitzungId); }
+  catch (e) { merkeOffeneSitzung(offen.antworten, offen.tag, sitzungId); throw e; }
 }

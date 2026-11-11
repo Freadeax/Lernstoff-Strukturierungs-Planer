@@ -118,3 +118,7 @@
 .steckbrief__inhalt p { margin: 0; }
 .steckbrief__suche { flex: 1 1 18rem; margin: 0; }
 .steckbrief__suche input { width: 100%; }
+
+/* Getrennte Einstiege: fällig, neu, gemischt */
+.karten__einstiege { display: flex; flex-wrap: wrap; gap: var(--space-2); justify-content: center; }
+.karten__thema { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2); }

@@ -66,6 +66,8 @@ export interface SitzungsOptionen {
   vorziehen?: boolean;
   /** Nur Karten dieser Herkunft (Glossar, Steckbriefe, eigene …). Leer oder fehlend = alle. */
   quellen?: KartenQuelle[];
+  /** Nur fällige Wiederholungen oder nur neue Karten (getrennte Einstiege). Fehlend = gemischt. */
+  nur?: 'faellig' | 'neu';
 }
 
 export interface Sitzung { karten: Karte[]; faellig: number; neu: number; vorgezogen: number }
@@ -94,8 +96,8 @@ export function stelleSitzungZusammen(alle: Karte[], staende: Map<ID, KartenStan
   const max = Math.max(1, o.config.sitzungsGroesse);
   // Im Themenmodus gilt das Tageslimit nicht: wer gezielt ein Thema übt, will alle Karten sehen.
   const neuErlaubt = gezielt ? max : Math.max(0, o.config.neueProTag - o.neueHeuteSchon);
-  const alt = faellig.slice(0, max).map((x) => x.k);
-  const frisch = neu.slice(0, Math.min(neuErlaubt, max - alt.length));
+  const alt = o.nur === 'neu' ? [] : faellig.slice(0, max).map((x) => x.k);
+  const frisch = o.nur === 'faellig' ? [] : neu.slice(0, Math.min(neuErlaubt, max - alt.length));
   const karten = einstreuen(alt, frisch);
   let vorgezogen = 0;
   if (!karten.length && o.vorziehen) {
