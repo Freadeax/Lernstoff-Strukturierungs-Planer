@@ -1,12 +1,14 @@
 import { TrainerSeite } from '../quiz/TrainerSeite';
 import { navigate, useRoute } from '../../ui/shell/router';
 import { AUFGABEN, BEREICHE } from './aufgaben';
+import { ABCDE } from './ABCDE';
 import { Reanimation } from './Reanimation';
 import './notfall.css';
 
 const MODI = [
   { id: 'fragen', label: 'Wissensfragen' },
   { id: 'rea', label: 'Reanimation üben' },
+  { id: 'abcde', label: 'ABCDE-Notfall' },
 ] as const;
 type Modus = typeof MODI[number]['id'];
 
@@ -18,7 +20,18 @@ function Modi({ aktiv }: { aktiv: Modus }) {
 
 export default function NotfallTrainer() {
   const { params } = useRoute();
-  const modus: Modus = params.get('modus') === 'rea' ? 'rea' : 'fragen';
+  const p = params.get('modus');
+  const modus: Modus = p === 'rea' || p === 'abcde' ? p : 'fragen';
+  if (modus === 'abcde') return (
+    <section className="page notfall">
+      <div className="page__head">
+        <h2>Notfall-Trainer</h2>
+        <p className="muted">Akute Notfälle nach dem ABCDE-Schema: einschätzen, Hilfe holen, handeln und die Wirkung erneut prüfen.</p>
+      </div>
+      <Modi aktiv={modus} />
+      <ABCDE />
+    </section>
+  );
   if (modus === 'rea') return (
     <section className="page notfall">
       <div className="page__head">

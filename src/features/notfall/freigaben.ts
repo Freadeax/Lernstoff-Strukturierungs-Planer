@@ -37,3 +37,23 @@ export const PROFIL_FREIGABE: Record<ProfilId, Freigabe> = {
     pruefpunkte: [ERC_2025, 'Toleranz 100–140 Ereignisse/min ist didaktisch, keine Leitlinienangabe', 'Adrenalin 20 µg/kg über Nabelvene', 'Frühgeborene sind nicht abgebildet'],
   },
 };
+
+/** ABCDE-Notfallübung: Freigabe je Notfall (Erwachsene). */
+const ABCDE_QUELLE: Quelle = { titel: 'Resuscitation Council UK: The ABCDE approach', stand: '2021' };
+const ABCDE_VERLAUF = [{ datum: '2026-11-11', text: 'ABCDE-Übung angelegt, Freigabe ausstehend' }];
+const abcde = (geltung: string, lernziele: string[], quellen: Quelle[], pruefpunkte: string[], risiken: Freigabe['risiken'] = ['notfall', 'medikament']): Freigabe => ({
+  status: 'ungeprueft', zielgruppe: 'erwachsene', geltung, prueferrolle: 'Pflegefachperson mit Praxisanleitung und ärztliche Durchsicht (Notfallmedizin)',
+  lernziele, quellen: [ABCDE_QUELLE, ...quellen], aenderungen: ABCDE_VERLAUF, risiken, pruefpunkte: ['Werteverlauf ist ein didaktisches Modell, keine validierte Physiologie', ...pruefpunkte],
+});
+
+export const NOTFALL_FREIGABE: Record<string, Freigabe> = {
+  anaphylaxie: abcde('Erwachsene, Normalstation, ab 2. Ausbildungsjahr',
+    ['Anaphylaxie an A-, B- oder C-Problem plus Hautzeichen erkennen', 'Auslöser stoppen, Hilfe holen, Adrenalin i.m. als erste Wahl', 'Lagerung nach Atemnot und Kreislauf wählen'],
+    [{ titel: 'Resuscitation Council UK: Emergency treatment of anaphylaxis', stand: '2021' }], ['Adrenalin 0,5 mg i.m. und Wiederholung nach 5 Minuten', 'Lagerung bei Atemnot vs. Schock']),
+  hypoglykaemie: abcde('Erwachsene, stationäre Langzeitpflege, Nachtdienst, ab 1. Ausbildungsjahr',
+    ['Bei Bewusstseinsstörung immer Blutzucker messen', 'Bei eingetrübtem Bewusstsein nichts oral geben', 'Glukagon nur nach ärztlichem Notfallplan, Notruf absetzen'],
+    [{ titel: 'JBDS: The hospital management of hypoglycaemia in adults with diabetes', stand: '2023' }], ['Glukagon-Dosis und Applikationsweg nach Präparat', 'BZ-Grenzen der Bewusstseinsstufen (Modell)']),
+  sepsis: abcde('Erwachsene, Notaufnahme, ab 2. Ausbildungsjahr',
+    ['Sepsis an Fieber, Atemfrequenz, Blutdruck und neuer Verwirrtheit erkennen', 'Sofort eskalieren, Blutkulturen vor Antibiose', 'Volumen und Antibiose in der ersten Stunde'],
+    [{ titel: 'Surviving Sepsis Campaign: International Guidelines', stand: '2021' }], ['qSOFA nur als Warnzeichen, nicht als Diagnose', 'Volumenmenge nach Anordnung']),
+};
