@@ -2,6 +2,8 @@
 // Beobachtung, Labor, Bildgebung, Übergabe, Auswertung.
 
 import { diagnostikSbar } from './sbar';
+import { diagnostikZustand } from './zustand';
+import { ZustandsTafel } from '../../ui/sim/ZustandsTafel';
 import { SbarGrundkriterien } from '../uebergabe/Grundkriterien';
 import { useEffect, useMemo, useState } from 'react';
 import { bucheErgebnis, buchungsText } from '../lernplan/ergebnis';
@@ -100,6 +102,8 @@ export function FallAnsicht({ fall, lauf, setLauf, zurueck, farbsystem, setFarbs
           </button>
         ))}
       </div>
+
+      <ZustandsTafel z={diagnostikZustand(lauf, fall)} titel="Zustand am Bett" />
 
       <div role="tabpanel" id={`dx-panel-${reiter}`} aria-labelledby={`dx-tab-${reiter}`} className="dx-panel">
         {reiter === 'beobachtung' && <Beobachtung fall={fall} lauf={lauf} senden={senden} werte={werte} uhr={uhr} status={status} />}

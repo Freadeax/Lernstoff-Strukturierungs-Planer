@@ -115,6 +115,10 @@ try {
     await page.locator('.szene--foto .raum-monitor .sim-monitor').waitFor();
     assert(/12_station_kardiologie_monitoring/.test(await page.locator('.szene--foto .raum-buehne__bild').getAttribute('src') ?? ''), 'Monitor im Foto nach dem Anschließen');
     assert(await page.locator('.praxis-monitor .sim-monitor').count() === 1, 'Live-Monitor bei Monitoring');
+    // SIM-07: einheitliche Zustandstafel zeigt den angeschlossenen Monitor und alle fünf Bereiche.
+    await page.locator('.sim-zustand summary').click();
+    assert.equal(await page.locator('.sim-zustand__bereich').count(), 5, 'Zustandstafel mit fünf Bereichen');
+    assert.match(await page.locator('.sim-zustand__bereich[aria-label="Geräte"]').textContent(), /Monitor\s*läuft/);
     await page.getByRole('button', { name: 'Dokumentation', exact: true }).click();
     await page.getByLabel('Verlaufsdokumentation', { exact: true }).fill('Patient mit Atemnot. Aufrechte Position unterstützt, ärztliches Team hinzugezogen. Wirkung weiter kontrollieren.');
     await page.getByRole('button', { name: 'Pflegebericht speichern · 1 min', exact: true }).click();
