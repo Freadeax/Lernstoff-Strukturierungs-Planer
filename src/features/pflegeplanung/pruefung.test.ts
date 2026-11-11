@@ -196,3 +196,50 @@ describe('Claude-Rückmeldung', () => {
     expect(() => leseRueckmeldung('kein json', [])).toThrow();
   });
 });
+
+describe('Raster und tragfähige Alternativen', () => {
+  it('Raster hat Problem, Ressourcen, Ziel, Maßnahme, Evaluation in dieser Reihenfolge', () => {
+    const e = pruefe(fall('huefte'), guterPlan());
+    expect(e.raster.map((z) => z.id)).toEqual(['problem', 'ressourcen', 'ziel', 'massnahme', 'evaluation']);
+    for (const z of e.raster) expect(z.prozent, z.id).toBeGreaterThan(50);
+    expect(pruefe(fall('huefte'), leererPlan()).raster.every((z) => z.prozent === 0)).toBe(true);
+  });
+  it('fehlendes R landet in der Ressourcen-Zeile, nicht bei Problem', () => {
+    const plan = guterPlan();
+    plan.probleme[0]!.r = '';
+    const e = pruefe(fall('huefte'), plan);
+    const r = e.raster.find((z) => z.id === 'ressourcen')!;
+    expect(r.offen.some((t) => t.includes('R (Ressourcen)'))).toBe(true);
+    expect(e.raster.find((z) => z.id === 'problem')!.offen.some((t) => t.includes('R (Ressourcen)'))).toBe(false);
+  });
+  it('alternative Maßnahme zählt und nennt die Begründung', () => {
+    const plan = guterPlan();
+    const m = plan.massnahmen[0]!;
+    m.was = 'Hüfte kühlen, schmerzarm positionieren'; m.wie = 'Kühlpack in Tuch'; m.begruendung = 'lindert Schmerz';
+    const e = pruefe(fall('huefte'), plan);
+    const t = e.fallbezug!.probleme.find((x) => x.erwartung.id === 'schmerz')!;
+    expect(t.massnahme).toBe(true);
+    expect(t.alternative?.text).toMatch(/kühlen/);
+    expect(e.raster.find((z) => z.id === 'massnahme')!.vertretbar.join(' ')).toMatch(/Expertenstandard Schmerzmanagement/);
+    expect(e.befunde.some((b) => b.regelId === 'pp.fall.massnahme' && b.text.includes('Akute Schmerzen'))).toBe(false);
+  });
+  it('andere Einstufung mit Begründung gilt als vertretbar, ohne Begründung nicht', () => {
+    const plan = guterPlan();
+    plan.probleme.push({ ...neuesProblem('risiko'), p: 'Gefahr einer Obstipation', e: 'aufgrund Bettruhe', s: '', r: 'trinkt nach Aufforderung' });
+    const e = pruefe(fall('huefte'), plan);
+    const t = e.fallbezug!.probleme.find((x) => x.erwartung.id === 'obstipation')!;
+    expect(t.artPasst).toBe(true);
+    expect(t.artVertretbar).toMatch(/Stuhlgang/);
+    expect(e.befunde.some((b) => b.regelId === 'pp.fall.art-vertretbar')).toBe(true);
+    // Sturzgefahr als aktuelles Problem: kein Muster dafür, bleibt ein Hinweis
+    plan.probleme[1]!.art = 'aktuell';
+    const t2 = pruefe(fall('huefte'), plan).fallbezug!.probleme.find((x) => x.erwartung.id === 'sturz')!;
+    expect(t2.artPasst).toBe(false);
+  });
+  it('Alternativen und Begründungen sind vollständig', () => {
+    for (const f of FAELLE) for (const p of f.probleme) {
+      for (const a of p.alternativen ?? []) { expect(a.muster.length, `${f.id}/${p.id}`).toBeGreaterThan(0); expect(a.begruendung.length).toBeGreaterThan(30); }
+      if (p.auchArt) expect(p.auchArt.length).toBeGreaterThan(30);
+    }
+  });
+});

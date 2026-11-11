@@ -13,7 +13,8 @@ import {
   SCHRITTE, SCHRITT_HILFE, SCHRITT_KURZ, SCHRITT_LABEL,
   type Erreicht, type Evaluation, type Massnahme, type Plan, type Problem, type Schritt, type Ziel,
 } from './plan';
-import { pruefe, type Befund, type Pruefergebnis, type Schwere } from './pruefung';
+import { pruefe, RASTER, type Befund, type Pruefergebnis, type RasterZeile, type Schwere } from './pruefung';
+import { PersonenWarnung, personenbezug } from '../../ui/PersonenWarnung';
 import { bewerteMitClaude, type KiRueckmeldung } from './claude';
 import { lernplanErgebnisse } from './lernplan';
 
@@ -70,7 +71,7 @@ function Fallkarte({ fall, verlaufZeigen, eigen, setEigen }: {
 }) {
   if (eigen && setEigen) {
     return (
-      <div className="card pp__fall">
+      <div className="card pp__fall" tabIndex={0} role="region" aria-label="Eigener Fall">
         <h3>Eigener Fall</h3>
         <Feld label="Fallbeschreibung" zeilen={8} wert={eigen.text} onChange={(text) => setEigen({ ...eigen, text })}
           hinweis="Fall aus dem Unterricht oder einer Prüfung einfügen. Keine echten Namen oder Patientendaten." />
@@ -81,7 +82,7 @@ function Fallkarte({ fall, verlaufZeigen, eigen, setEigen }: {
     );
   }
   return (
-    <div className="card pp__fall">
+    <div className="card pp__fall" tabIndex={0} role="region" aria-label="Fallbeschreibung">
       <div className="pp__kopf">
         <span className={`badge badge--demo pp__setting pp__setting--${fall.setting}`}>{SETTING_LABEL[fall.setting]}</span>
         <span className="muted">{fall.bereich}</span>
@@ -239,13 +240,56 @@ function EvaluationEditor({ plan, setze, verlauf }: { plan: Plan; setze: Setze; 
 
 // ---------- Auswertung ----------
 
+/** Alle Freitexte der Planung, für die Warnung vor echten Personendaten. */
+function planText(p: Plan): string {
+  return [p.subjektiv, p.objektiv, ...p.probleme.flatMap((x) => [x.p, x.e, x.s, x.r]), ...p.ziele.flatMap((z) => [z.text, z.termin]),
+    ...p.massnahmen.flatMap((m) => [m.was, m.wie, m.wann, m.wer, m.begruendung]), p.bericht,
+    ...Object.values(p.evaluation).flatMap((e) => [e.begruendung, e.anpassung])].filter(Boolean).join('\n');
+}
+
+/** Bewertungsraster vor der Prüfung: was je Bereich zählt. */
+function RasterVorab() {
+  return (
+    <details className="pp__rastervorab">
+      <summary>Bewertungsraster ansehen</summary>
+      <dl className="pp__hilfe">
+        {RASTER.map((r) => <div key={r.id}><dt>{r.label}</dt><dd>{r.kriterien.join(' · ')}</dd></div>)}
+      </dl>
+      <p className="muted">Gibt es mehrere fachlich tragfähige Lösungen, zählen auch die anderen. Das Ergebnis nennt dann die Begründung.</p>
+    </details>
+  );
+}
+
+function RasterErgebnis({ raster }: { raster: RasterZeile[] }) {
+  return (
+    <div className="pp__raster" role="table" aria-label="Bewertungsraster">
+      <div role="rowgroup">
+        {raster.map((z) => (
+          <div key={z.id} role="row" className={`pp__rasterzeile is-${stufe(z.prozent)}`}>
+            <span role="rowheader" className="pp__rasterlabel">{z.label}</span>
+            <span role="cell" className="pp__rasterwert">{z.prozent} %</span>
+            <div role="cell" className="pp__rasterinfo">
+              <span className="muted">{RASTER.find((r) => r.id === z.id)!.kriterien.join(' · ')}</span>
+              {z.offen.length > 0 && <ul className="pp__offen">{z.offen.slice(0, 3).map((t) => <li key={t}>{t}</li>)}{z.offen.length > 3 && <li className="muted">und {z.offen.length - 3} weitere</li>}</ul>}
+              {z.vertretbar.map((t) => <p key={t} className="pp__vertretbar"><strong>Auch fachlich tragfähig:</strong> {t}</p>)}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function Ergebnis({ e }: { e: Pruefergebnis }) {
   return (
     <div className="card pp__ergebnis" aria-live="polite">
-      <div className="pp__kopf"><h3>Checkliste: {e.prozent} %</h3><span className="muted">offline geprüft</span></div>
-      <div className={`pp__balken pp__balken--${stufe(e.prozent)}`} role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={e.prozent}>
+      <div className="pp__kopf"><h3>Code-Prüfung: {e.prozent} %</h3><span className="muted">Checkliste, offline ohne KI</span></div>
+      <div className={`pp__balken pp__balken--${stufe(e.prozent)}`} role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={e.prozent} aria-label="Ergebnis der Code-Prüfung">
         <span style={{ width: `${e.prozent}%` }} />
       </div>
+      <h4>Raster: Problem, Ressourcen, Ziel, Maßnahme, Evaluation</h4>
+      <RasterErgebnis raster={e.raster} />
+      <h4>Je Schritt</h4>
       <div className="pp__schritte">
         {e.schritte.filter((s) => s.bewertet).map((s) => (
           <section key={s.schritt} className={`pp__schritt is-${stufe(s.prozent)}`}>
@@ -265,6 +309,11 @@ function Ergebnis({ e }: { e: Pruefergebnis }) {
                   <span aria-hidden="true">{t.gefunden ? '✓' : '✗'}</span> {t.erwartung.text}
                   <span className="muted"> ({t.erwartung.art === 'risiko' ? 'Risiko' : 'aktuell'}{t.erwartung.pflicht ? '' : ', optional'})</span>
                   <span className="visually-hidden">{t.gefunden ? ': erkannt' : ': nicht erkannt'}</span>
+                  {t.artVertretbar && <span className="pp__vertretbar"> Deine Einstufung ist ebenfalls vertretbar.</span>}
+                  <span className="pp__horizontmass">Maßnahme: {t.erwartung.massnahmen.text}{t.alternative ? '' : t.massnahme ? ' ✓' : ''}</span>
+                  {t.erwartung.alternativen?.map((a) => (
+                    <span key={a.text} className="pp__horizontmass">Auch tragfähig: {a.text}{t.alternative === a ? ' ✓ (deine Wahl)' : ''}. <span className="muted">{a.begruendung}</span></span>
+                  ))}
                 </li>
               ))}</ul>
             </div>
@@ -283,7 +332,7 @@ function Ergebnis({ e }: { e: Pruefergebnis }) {
           </div>
         </details>
       )}
-      <p className="muted">Die Checkliste prüft Aufbau, Formulierung und Stichworte. Sie erkennt nicht jede Formulierung und nicht, ob eine Maßnahme fachlich richtig ist. Dafür gibt es die Rückmeldung von Claude.</p>
+      <p className="muted">Die Checkliste prüft Aufbau, Formulierung und Stichworte. Sie erkennt nicht jede Formulierung und nicht, ob eine Maßnahme fachlich richtig ist. Dafür gibt es das KI-Zusatzfeedback von Claude, das getrennt angezeigt wird.</p>
     </div>
   );
 }
@@ -292,7 +341,8 @@ function KiErgebnis({ r }: { r: KiRueckmeldung }) {
   const regelName = (id: string) => pflegeModule.checkRules.find((x) => x.id === id)?.description ?? id;
   return (
     <div className="card pp__ki" aria-live="polite">
-      <div className="pp__kopf"><h3>Rückmeldung von Claude: {r.prozent} %</h3><span className="pp__note">Note {r.note}</span></div>
+      <div className="pp__kopf"><h3>KI-Zusatzfeedback von Claude: {r.prozent} %</h3><span className="pp__note">Note {r.note}</span></div>
+      <p className="muted pp__kitrenn">Zusätzlich zur Code-Prüfung, getrennt bewertet. Die Prozentzahl oben bleibt unverändert.</p>
       <div className="pp__schritte">
         {r.schritte.filter((s) => s.kommentar).map((s) => (
           <section key={s.schritt} className={`pp__schritt is-${stufe(s.prozent)}`}>
@@ -336,6 +386,7 @@ export default function Pflegeplanung() {
   const [ki, setKi] = useState<KiRueckmeldung | null>(null);
   const [kiLaeuft, setKiLaeuft] = useState(false);
   const [kiFehler, setKiFehler] = useState('');
+  const [kiGeprueft, setKiGeprueft] = useState(false);
   const [beste, setBeste] = useState(() => lese<Record<string, number>>(BESTE_KEY, {}));
   const [hilfe, setHilfe] = useState(false);
   const ergebnisRef = useRef<HTMLDivElement>(null);
@@ -400,6 +451,8 @@ export default function Pflegeplanung() {
   // Live nur Aufbau und Formulierung zeigen; was im Fall fehlt, erst bei der Auswertung
   const liveBefunde = live_s(schritt).befunde.filter((b) => !b.regelId.startsWith('pp.fall'));
   const verlaufGesehen = idx >= SCHRITTE.indexOf('evaluation') || !!ergebnis;
+  const erlaubteNamen = [fall.person, fall.text, fall.verlauf, fall.beispiel];
+  const personenFunde = personenbezug(planText(plan), erlaubteNamen).length > 0;
 
   return (
     <section className="page pp">
@@ -429,6 +482,7 @@ export default function Pflegeplanung() {
             {SCHRITTE.map((s, i) => <div key={s}><dt>{i + 1}. {SCHRITT_LABEL[s]}</dt><dd>{SCHRITT_HILFE[s]}</dd></div>)}
           </dl>
         )}
+        <RasterVorab />
       </div>
 
       <div className="pp__layout">
@@ -466,6 +520,7 @@ export default function Pflegeplanung() {
           {schritt === 'massnahmen' && <MassnahmenEditor plan={plan} setze={setze} />}
           {schritt === 'durchfuehrung' && <BerichtEditor plan={plan} setze={setze} />}
           {schritt === 'evaluation' && <EvaluationEditor plan={plan} setze={setze} verlauf={fall.verlauf} />}
+          <PersonenWarnung text={planText(plan)} erlaubt={erlaubteNamen} />
 
           {hatInhalt(plan, schritt) && liveBefunde.length > 0 && (
             <details className="pp__livebefunde">
@@ -492,13 +547,17 @@ export default function Pflegeplanung() {
             <div className="card">
               <div className="row">
                 {apiKey
-                  ? <button type="button" className="primary" onClick={fragClaude} disabled={kiLaeuft}>{kiLaeuft ? 'Claude liest …' : ki ? 'Noch einmal bewerten' : 'Fachliche Rückmeldung von Claude'}</button>
+                  ? <button type="button" className="primary" onClick={fragClaude} disabled={kiLaeuft || (personenFunde && !kiGeprueft)}>{kiLaeuft ? 'Claude liest …' : ki ? 'KI-Zusatzfeedback erneut' : 'KI-Zusatzfeedback von Claude'}</button>
                   : <p className="muted">Für eine fachliche Rückmeldung (prüft auch, ob Maßnahmen richtig sind und zum Fall passen) einen API-Schlüssel hinterlegen. <button type="button" className="link" onClick={() => navigate('/einstellungen')}>Zu den Einstellungen</button></p>}
                 <button type="button" onClick={melden} disabled={!!lernplan.uebernahme}>
                   {lernplan.uebernahme ? 'An den Lernplan übergeben' : 'Fertig: Ergebnis in den Lernplan'}
                 </button>
               </div>
-              {apiKey && !ki && !kiLaeuft && <DatenHinweis art="ki" detail="Gesendet werden nur der Fall und deine Planung." />}
+              {apiKey && !ki && !kiLaeuft && <>
+                <DatenHinweis art="ki" detail="Gesendet werden nur der Fall und deine Planung." />
+                <PersonenWarnung text={planText(plan)} erlaubt={erlaubteNamen} vorKi />
+                {personenFunde && <label className="pp__kibestaetigung"><input type="checkbox" checked={kiGeprueft} onChange={(e) => setKiGeprueft(e.target.checked)} /> Ich habe geprüft: Die Planung enthält nur ausgedachte Übungsdaten.</label>}
+              </>}
               {kiFehler && <div className="note warn" role="alert">{kiFehler}</div>}
               {!lernplan.uebernahme && (
                 <p className="muted">

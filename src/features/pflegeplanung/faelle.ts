@@ -20,7 +20,13 @@ export interface ErwartetesProblem extends Erwartung {
   art: ProblemArt;
   /** Passende Maßnahmen (Stichworte); eine Fundstelle in irgendeiner Maßnahme genügt. */
   massnahmen: { text: string; muster: string[] };
+  /** Andere fachlich tragfähige Maßnahmen: zählen wie die Hauptmaßnahme, das Ergebnis nennt die Begründung. */
+  alternativen?: Alternative[];
+  /** Begründung, warum auch die andere Einstufung (aktuell statt Risiko oder umgekehrt) vertretbar ist. */
+  auchArt?: string;
 }
+
+export interface Alternative { text: string; muster: string[]; begruendung: string }
 
 export interface PlanFall {
   id: string;
@@ -77,19 +83,19 @@ export const FAELLE: PlanFall[] = [
     ],
     probleme: [
       { id: 'schmerz', art: 'aktuell', pflicht: true, text: 'Akute Schmerzen bei Bewegung',
-        muster: ['schmerz'], massnahmen: { text: 'Analgetikum vor Mobilisation, Schmerzeinschätzung mit NRS', muster: ['analget', 'schmerzmittel', 'metamizol', 'piritramid', 'bedarf', 'vor der mobilis', 'nrs', 'schmerzeinsch', 'schmerzerfass'] } },
+        muster: ['schmerz'], massnahmen: { text: 'Analgetikum vor Mobilisation, Schmerzeinschätzung mit NRS', muster: ['analget', 'schmerzmittel', 'metamizol', 'piritramid', 'bedarf', 'vor der mobilis', 'nrs', 'schmerzeinsch', 'schmerzerfass'] }, alternativen: [{ text: 'Nicht-medikamentös: kühlen, schmerzarm positionieren, Bewegung in schmerzarmen Phasen', muster: ['kuehl', 'kaelte', 'schmerzarm', 'schmerzarme'], begruendung: 'Ergänzt die Analgesie. Der Expertenstandard Schmerzmanagement sieht nicht-medikamentöse Maßnahmen ausdrücklich vor.' }] },
       { id: 'mobilitaet', art: 'aktuell', pflicht: true, text: 'Beeinträchtigte Mobilität',
         muster: ['mobil', 'beweg', 'gehen', 'gehfaeh', 'laufen', 'transfer', 'aufstehen'], massnahmen: { text: 'Mobilisation mit Rollator, schrittweise steigern', muster: ['mobilis', 'rollator', 'gehwagen', 'gehstrecke', 'aufstehen', 'bettkante', 'physio'] } },
       { id: 'sturz', art: 'risiko', pflicht: true, text: 'Sturzgefahr',
-        muster: ['sturz'], massnahmen: { text: 'Sturzprophylaxe: Klingel, festes Schuhwerk, Bett tief, Begleitung', muster: ['klingel', 'schuh', 'bett tief', 'niedrig', 'begleit', 'stolper', 'sturzprophyl', 'hilfsmittel'] } },
+        muster: ['sturz'], massnahmen: { text: 'Sturzprophylaxe: Klingel, festes Schuhwerk, Bett tief, Begleitung', muster: ['klingel', 'schuh', 'bett tief', 'niedrig', 'begleit', 'stolper', 'sturzprophyl', 'hilfsmittel'] }, alternativen: [{ text: 'Über das Sturzrisiko informieren, Hilfe holen üben', muster: ['sturzrisiko besprech', 'sturzrisiko erklaer', 'informier', 'aufklaer', 'hilfe holen', 'hilfe rufen'], begruendung: 'Information und Beratung sind im Expertenstandard Sturzprophylaxe eigene Maßnahmen.' }] },
       { id: 'dekubitus', art: 'risiko', pflicht: true, text: 'Dekubitusgefahr',
         muster: ['dekubitus', 'druckgeschw', 'haut'], massnahmen: { text: 'Positionswechsel, Hautinspektion, Druckentlastung', muster: ['lagerung', 'positionswechsel', 'umlager', 'druckentlast', 'hautinspekt', 'haut kontroll', 'fingertest', 'weichlager', 'mikrolager'] } },
       { id: 'thrombose', art: 'risiko', pflicht: true, text: 'Thrombosegefahr',
         muster: ['thrombo'], massnahmen: { text: 'Bewegungsübungen, Kompression, Antikoagulation nach AVO', muster: ['ats', 'kompression', 'strumpf', 'heparin', 'antikoag', 'fusswipp', 'venenpump', 'bewegungsueb', 'sprunggelenk'] } },
       { id: 'obstipation', art: 'aktuell', pflicht: false, text: 'Obstipation',
-        muster: ['obstipation', 'verstopf', 'stuhl', 'darm'], massnahmen: { text: 'Flüssigkeit, Bewegung, Abführmittel nach AVO, Stuhlprotokoll', muster: ['abfuehr', 'laxan', 'macrogol', 'stuhlprotokoll', 'kolonmassage', 'ballast', 'trinkmenge', 'trinken'] } },
+        muster: ['obstipation', 'verstopf', 'stuhl', 'darm'], massnahmen: { text: 'Flüssigkeit, Bewegung, Abführmittel nach AVO, Stuhlprotokoll', muster: ['abfuehr', 'laxan', 'macrogol', 'stuhlprotokoll', 'kolonmassage', 'ballast', 'trinkmenge', 'trinken'] }, alternativen: [{ text: 'Toilettengang zu festen Zeiten, Intimsphäre sichern, Toilettenstuhl', muster: ['feste zeiten', 'festen zeiten', 'intimsph', 'toilettenstuhl', 'nachtstuhl', 'privatsph'], begruendung: 'Gewohnte Abläufe und Privatsphäre fördern die Darmentleerung, gerade nach einer Operation.' }], auchArt: 'Seit der Aufnahme zwei Tage ohne Stuhlgang ist noch keine sichere Obstipation. Als „Gefahr einer Obstipation“ mit klaren Kriterien ist es ebenfalls tragfähig.' },
       { id: 'fluessigkeit', art: 'risiko', pflicht: false, text: 'Gefahr eines Flüssigkeitsdefizits',
-        muster: ['fluessigkeit', 'dehydr', 'exsikk', 'trink'], massnahmen: { text: 'Getränke in Reichweite, Trinkplan, Ein- und Ausfuhr', muster: ['trinkplan', 'reichweite', 'bilanz', 'ein- und ausfuhr', 'einfuhr', 'trinkprotokoll', 'getraenk'] } },
+        muster: ['fluessigkeit', 'dehydr', 'exsikk', 'trink'], massnahmen: { text: 'Getränke in Reichweite, Trinkplan, Ein- und Ausfuhr', muster: ['trinkplan', 'reichweite', 'bilanz', 'ein- und ausfuhr', 'einfuhr', 'trinkprotokoll', 'getraenk'] }, auchArt: '„Trinkt wenig“ ohne gemessene Menge ist eher ein Risiko. Wer die geringe Trinkmenge als bestehendes Defizit begründet, liegt auch vertretbar.' },
     ],
     ressourcen: [
       { id: 'motiviert', text: 'Motiviert, will zurück in den Garten', muster: ['motiv', 'garten', 'will', 'moechte', 'wunsch'], pflicht: true },
@@ -143,9 +149,9 @@ Maßnahme: Bett in tiefster Position, Klingel und Rollator in Reichweite (bei je
     ],
     probleme: [
       { id: 'ernaehrung', art: 'aktuell', pflicht: true, text: 'Mangelernährung',
-        muster: ['ernaehr', 'nahrung', 'gewicht', 'essen', 'isst', 'mangel', 'unterernaehr'], massnahmen: { text: 'Fingerfood, kleine Portionen, Vorlieben, Wunschkost, Gewicht wöchentlich', muster: ['fingerfood', 'eat by walking', 'im gehen', 'kleine portion', 'zwischenmahlzeit', 'hochkalor', 'anreicher', 'vorlieb', 'wunsch', 'suess', 'gewicht', 'wiegen', 'ernaehrungsprotokoll', 'tellerprotokoll'] } },
+        muster: ['ernaehr', 'nahrung', 'gewicht', 'essen', 'isst', 'mangel', 'unterernaehr'], massnahmen: { text: 'Fingerfood, kleine Portionen, Vorlieben, Wunschkost, Gewicht wöchentlich', muster: ['fingerfood', 'eat by walking', 'im gehen', 'kleine portion', 'zwischenmahlzeit', 'hochkalor', 'anreicher', 'vorlieb', 'wunsch', 'suess', 'gewicht', 'wiegen', 'ernaehrungsprotokoll', 'tellerprotokoll'] }, alternativen: [{ text: 'Ruhige Essumgebung, kontrastreiches Geschirr, beim Essen begleiten', muster: ['ruhige umgebung', 'ruhigen umgebung', 'essumgebung', 'kontrast', 'farbig', 'begleitet essen', 'beim essen begleit', 'gemeinsam essen', 'gemeinsame mahlzeit'], begruendung: 'Die Gestaltung der Essumgebung ist im Expertenstandard Ernährungsmanagement vorgesehen, bei Demenz besonders wirksam.' }] },
       { id: 'fluessigkeit', art: 'risiko', pflicht: true, text: 'Gefahr eines Flüssigkeitsdefizits',
-        muster: ['fluessigkeit', 'dehydr', 'exsikk', 'trink'], massnahmen: { text: 'Getränke regelmäßig anbieten, Trinkprotokoll', muster: ['trinkprotokoll', 'trinkplan', 'anbieten', 'stuendlich', 'jede stunde', 'getraenk', 'bilanz'] } },
+        muster: ['fluessigkeit', 'dehydr', 'exsikk', 'trink'], massnahmen: { text: 'Getränke regelmäßig anbieten, Trinkprotokoll', muster: ['trinkprotokoll', 'trinkplan', 'anbieten', 'stuendlich', 'jede stunde', 'getraenk', 'bilanz'] }, auchArt: '900 ml am Tag liegen unter dem üblichen Bedarf. Als bestehendes Flüssigkeitsdefizit ist es mit dieser Trinkmenge ebenso begründbar.' },
       { id: 'sturz', art: 'risiko', pflicht: true, text: 'Sturzgefahr (nachts)',
         muster: ['sturz'], massnahmen: { text: 'Orientierungslicht, Wege frei, feste Schuhe, Toilettengang begleiten', muster: ['licht', 'nachtlicht', 'beleucht', 'schuh', 'stolper', 'toilettengang', 'begleit', 'sensormatte', 'hueftprotektor', 'bett tief'] } },
       { id: 'orientierung', art: 'aktuell', pflicht: false, text: 'Beeinträchtigte Orientierung, Unruhe',
@@ -198,7 +204,7 @@ Maßnahme: Zu jeder Mahlzeit Fingerfood in kleinen Portionen anbieten, das sie i
       { id: 'wissen', art: 'aktuell', pflicht: true, text: 'Fehlendes Wissen und Können zur Insulintherapie',
         muster: ['wissen', 'kenntnis', 'umgang', 'selbstmanage', 'insulin', 'injektion', 'spritz', 'informations'], massnahmen: { text: 'Schulung Pen-Technik, Blutzucker selbst messen, Schritt für Schritt üben', muster: ['schul', 'anleit', 'beratung', 'ueben', 'pen', 'demonstr', 'selbst messen', 'bz-messung', 'blutzuckermess', 'tagebuch'] } },
       { id: 'angst', art: 'aktuell', pflicht: true, text: 'Angst vor dem Spritzen',
-        muster: ['angst', 'nadel', 'furcht'], massnahmen: { text: 'Gespräch, Angst ernst nehmen, kurze Nadel zeigen, erst am Übungskissen', muster: ['gespraech', 'ernst nehmen', 'uebungskissen', 'kissen', 'nadel zeigen', 'kurze nadel', 'zuerst', 'begleit', 'ermutig'] } },
+        muster: ['angst', 'nadel', 'furcht'], massnahmen: { text: 'Gespräch, Angst ernst nehmen, kurze Nadel zeigen, erst am Übungskissen', muster: ['gespraech', 'ernst nehmen', 'uebungskissen', 'kissen', 'nadel zeigen', 'kurze nadel', 'zuerst', 'begleit', 'ermutig'] }, alternativen: [{ text: 'Ehefrau einbeziehen, Pflege spritzt zuerst, dann schrittweise selbst', muster: ['ehefrau', 'frau einbez', 'angehoerig', 'schrittweise', 'nach und nach'], begruendung: 'Bezugspersonen und ein schrittweiser Übergang bauen Angst ab; die Ehefrau will ohnehin dabei sein.' }] },
       { id: 'hypo', art: 'risiko', pflicht: true, text: 'Gefahr einer Hypoglykämie',
         muster: ['hypo', 'unterzucker', 'blutzucker', 'bz'], massnahmen: { text: 'Zeichen der Unterzuckerung schulen, Traubenzucker dabei, BZ-Kontrollen', muster: ['traubenzucker', 'zeichen', 'symptom', 'kohlenhydrat', 'bz-kontroll', 'blutzuckerkontroll', 'bz messen', 'mahlzeit'] } },
       { id: 'fuss', art: 'risiko', pflicht: true, text: 'Gefahr eines diabetischen Fußsyndroms (Hautschädigung)',
@@ -247,7 +253,7 @@ Maßnahme: Lesebrille von der Ehefrau mitbringen lassen; täglich vor dem Frühs
     ],
     probleme: [
       { id: 'atmung', art: 'aktuell', pflicht: true, text: 'Atemnot bei Belastung',
-        muster: ['atem', 'luft', 'dyspnoe', 'gasaustausch', 'sauerstoff'], massnahmen: { text: 'Lippenbremse, atemerleichternde Sitzpositionen, O₂ nach AVO', muster: ['lippenbremse', 'kutschersitz', 'torwart', 'atemerleicht', 'sauerstoff', 'o2', 'atemuebung', 'atemtherap'] } },
+        muster: ['atem', 'luft', 'dyspnoe', 'gasaustausch', 'sauerstoff'], massnahmen: { text: 'Lippenbremse, atemerleichternde Sitzpositionen, O₂ nach AVO', muster: ['lippenbremse', 'kutschersitz', 'torwart', 'atemerleicht', 'sauerstoff', 'o2', 'atemuebung', 'atemtherap'] }, alternativen: [{ text: 'Frischluft, Belastung dosieren, Tätigkeiten mit Pausen planen', muster: ['frischluft', 'fenster', 'ventilator', 'dosier', 'energiespar', 'tempo'], begruendung: 'Dosierte Belastung und Frischluft lindern Atemnot im Alltag. Sauerstoff bleibt ärztliche Anordnung.' }] },
       { id: 'selbstversorgung', art: 'aktuell', pflicht: true, text: 'Eingeschränkte Selbstversorgung (Körperpflege)',
         muster: ['selbstversorg', 'koerperpflege', 'waschen', 'anziehen', 'duschen', 'kleiden'], massnahmen: { text: 'Duschhocker, Pausen einplanen, Hilfe bei Beinen und Rücken', muster: ['duschhocker', 'hocker', 'sitzen', 'pausen', 'pause', 'badewannenbrett', 'unterstuetz', 'teilweise uebernahme', 'hilfsmittel'] } },
       { id: 'sekret', art: 'aktuell', pflicht: false, text: 'Erschwertes Abhusten (Sekretstau)',
@@ -301,9 +307,9 @@ Maßnahme: Bei jedem Einsatz vor dem Duschen Sauerstoff nach AVO anlegen, Duschh
     ],
     probleme: [
       { id: 'fluessigkeit', art: 'aktuell', pflicht: true, text: 'Flüssigkeitsdefizit',
-        muster: ['fluessigkeit', 'dehydr', 'exsikk', 'wasserhaushalt', 'trink'], massnahmen: { text: 'Orale Rehydratation in kleinen Mengen, Bilanz, Windeln wiegen, Gewicht täglich', muster: ['rehydrat', 'ors', 'elektrolytl', 'teeloeffel', 'kleine schluck', 'kleinen mengen', 'loeffel', 'bilanz', 'windel wiegen', 'windeln wiegen', 'gewicht', 'trinkprotokoll', 'strohhalm', 'becher'] } },
+        muster: ['fluessigkeit', 'dehydr', 'exsikk', 'wasserhaushalt', 'trink'], massnahmen: { text: 'Orale Rehydratation in kleinen Mengen, Bilanz, Windeln wiegen, Gewicht täglich', muster: ['rehydrat', 'ors', 'elektrolytl', 'teeloeffel', 'kleine schluck', 'kleinen mengen', 'loeffel', 'bilanz', 'windel wiegen', 'windeln wiegen', 'gewicht', 'trinkprotokoll', 'strohhalm', 'becher'] }, alternativen: [{ text: 'Getränke nach Vorliebe verdünnt, Wassereis, spielerisch trinken', muster: ['wassereis', 'eis am stiel', 'verduenn', 'apfelsaft', 'spielerisch', 'vorlieb'], begruendung: 'Kinder trinken eher, was sie mögen. Verdünnter Apfelsaft ist bei leichter Austrocknung eine anerkannte Alternative; bei deutlichem Defizit bleibt ORS erste Wahl.' }] },
       { id: 'haut', art: 'risiko', pflicht: true, text: 'Gefahr einer Hautschädigung im Windelbereich',
-        muster: ['haut', 'windel', 'dermatitis', 'intertrigo', ' po ', 'gesaess'], massnahmen: { text: 'Häufig wickeln, sanft reinigen, Zinkpaste, Luft an die Haut', muster: ['wickeln', 'windelwechsel', 'zink', 'schutzcreme', 'hautschutz', 'luft', 'trocken tupf', 'reinig', 'inspekt'] } },
+        muster: ['haut', 'windel', 'dermatitis', 'intertrigo', ' po ', 'gesaess'], massnahmen: { text: 'Häufig wickeln, sanft reinigen, Zinkpaste, Luft an die Haut', muster: ['wickeln', 'windelwechsel', 'zink', 'schutzcreme', 'hautschutz', 'luft', 'trocken tupf', 'reinig', 'inspekt'] }, auchArt: 'Der Po ist bereits gerötet. Als beginnende Hautschädigung (aktuelles Problem) ist es genauso begründbar.' },
       { id: 'fieber', art: 'aktuell', pflicht: false, text: 'Erhöhte Körpertemperatur',
         muster: ['fieber', 'temperatur', 'hypertherm'], massnahmen: { text: 'Temperatur messen, leichte Kleidung, Fiebersenkung nach AVO', muster: ['temperatur mess', 'temperaturkontroll', 'fieber mess', 'leichte kleid', 'wadenwick', 'antipyret', 'paracetamol', 'ibuprofen'] } },
       { id: 'angst', art: 'aktuell', pflicht: true, text: 'Angst in fremder Umgebung',

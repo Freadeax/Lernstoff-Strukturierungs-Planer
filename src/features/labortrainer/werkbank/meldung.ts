@@ -1,6 +1,9 @@
 // Kritischen Wert melden: Anruf des Labors annehmen, zurücklesen, dokumentieren und per SBAR
 // ärztlich weitergeben. Jeder Schritt ist eine Entscheidung mit Rückmeldung.
 
+import { felderAusBausteinen, pruefeGrundkriterien, rufanlass, type GrundErgebnis, type Rufanlass } from '../../uebergabe/grundkriterien';
+import { vereinfache } from '../../uebergabe/pruefung';
+
 export interface SbarBaustein { id: string; teil: 'S' | 'B' | 'A' | 'R' | 'x'; text: string }
 
 export interface MeldungSzenario {
@@ -42,7 +45,7 @@ export const MELDUNGEN: MeldungSzenario[] = [
     bausteine: [
       { id: 's', teil: 'S', text: 'Hier Pflegefachkraft Station 4, ich rufe an wegen Herrn Brandt, Zimmer 12: Kalium 6,9 mmol/l, vom Labor als kritisch gemeldet.' },
       { id: 'b', teil: 'B', text: 'Chronische Niereninsuffizienz, nimmt Ramipril, gestern Kalium 5,6.' },
-      { id: 'a', teil: 'A', text: 'Er ist wach, Puls 52 und unregelmäßig, RR 118/70, klagt über schwere Beine.' },
+      { id: 'a', teil: 'A', text: 'Er ist wach, Puls 52 und unregelmäßig, RR 118/70, klagt über schwere Beine. Ich befürchte Rhythmusstörungen.' },
       { id: 'r', teil: 'R', text: 'Bitte kommen Sie sofort. Soll ich ein EKG schreiben und den Monitor anschließen?' },
       { id: 'x1', teil: 'x', text: 'Er hat sich heute über das Mittagessen beschwert.' },
       { id: 'x2', teil: 'x', text: 'Die Nachtschicht war sehr unruhig.' },
@@ -66,7 +69,7 @@ export const MELDUNGEN: MeldungSzenario[] = [
     bausteine: [
       { id: 's', teil: 'S', text: 'Frau Lange, Zimmer 5: Labor meldet Glukose 38 mg/dl, kapillär eben 41 mg/dl, sie ist schläfrig und schwitzig.' },
       { id: 'b', teil: 'B', text: 'Diabetes Typ 2, Mischinsulin morgens, heute kaum gefrühstückt.' },
-      { id: 'a', teil: 'A', text: 'Erweckbar, kann nicht sicher schlucken, Puls 104, RR 150/80.' },
+      { id: 'a', teil: 'A', text: 'Erweckbar, kann nicht sicher schlucken, Puls 104, RR 150/80. Ich vermute eine schwere Unterzuckerung mit Aspirationsgefahr.' },
       { id: 'r', teil: 'R', text: 'Bitte sofort kommen; Glukose i. v. nach Notfallstandard vorbereitet. Wie soll ich mit dem Insulin weiter verfahren?' },
       { id: 'x1', teil: 'x', text: 'Ihre Tochter hat gestern angerufen.' },
       { id: 'x2', teil: 'x', text: 'Sie mag keinen Tee.' },
@@ -90,7 +93,7 @@ export const MELDUNGEN: MeldungSzenario[] = [
     bausteine: [
       { id: 's', teil: 'S', text: 'Herr Frey, Zimmer 8, Tag 1 nach Darm-OP: Hb 6,4 g/dl, gestern 10,2.' },
       { id: 'b', teil: 'B', text: 'Elektive Hemikolektomie gestern, Heparin s. c., keine Vorerkrankungen bekannt.' },
-      { id: 'a', teil: 'A', text: 'Blass, Puls 118, RR 96/58, in der Drainage seit zwei Stunden 300 ml frisches Blut.' },
+      { id: 'a', teil: 'A', text: 'Blass, Puls 118, RR 96/58, in der Drainage seit zwei Stunden 300 ml frisches Blut. Ich befürchte eine Nachblutung mit beginnendem Schock.' },
       { id: 'r', teil: 'R', text: 'Bitte sofort kommen. Soll ich Kreuzblut abnehmen und den zweiten Zugang vorbereiten?' },
       { id: 'x1', teil: 'x', text: 'Er möchte gern ein Einzelzimmer.' },
       { id: 'x2', teil: 'x', text: 'Der Fernseher im Zimmer geht nicht.' },
@@ -117,4 +120,15 @@ export function bewerteSbar(s: MeldungSzenario, auswahl: string[]): { punkte: nu
   if (!ordnungOk && !fehlend.length) hinweise.push('Reihenfolge S, B, A, R: erst Anlass, dann Hintergrund, dann deine Einschätzung, zuletzt die konkrete Bitte.');
   const punkte = (relevant.length - fehlend.length) + (ordnungOk ? 2 : 0) + (unnoetig.length ? 0 : 1);
   return { punkte, max: relevant.length + 3, hinweise };
+}
+
+/** Rufanlass der Meldung: der kritische Laborwert ist das auslösende Ereignis (gemeinsame SBAR-Grundkriterien). */
+export function meldungsAnlass(s: MeldungSzenario): Rufanlass {
+  return rufanlass([{ stufe: 'kritisch', text: `Kritischer Laborwert: ${s.wert}`, muster: [vereinfache(s.wert.split(' ')[0]!)] }])!;
+}
+
+/** Gewählte Bausteine gegen die gemeinsamen SBAR-Grundkriterien prüfen. */
+export function grundkriterienMeldung(s: MeldungSzenario, auswahl: string[]): GrundErgebnis[] {
+  const { felder, ballast } = felderAusBausteinen(auswahl.map((id) => s.bausteine.find((b) => b.id === id)!).filter(Boolean));
+  return pruefeGrundkriterien(felder, meldungsAnlass(s), { ballast });
 }

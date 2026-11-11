@@ -1,6 +1,8 @@
 // Ein laufender Diagnostik-Fall mit derselben Leiste wie die Raumsimulation:
 // Beobachtung, Labor, Bildgebung, Übergabe, Auswertung.
 
+import { diagnostikSbar } from './sbar';
+import { SbarGrundkriterien } from '../uebergabe/Grundkriterien';
 import { useEffect, useMemo, useState } from 'react';
 import { bucheErgebnis, buchungsText } from '../lernplan/ergebnis';
 import { notiereFehler } from '../fehlerheft/fehlerheft';
@@ -339,6 +341,10 @@ function Auswertung({ fall, lauf, senden }: { fall: DiagnostikFall; lauf: Lauf; 
           <section className="card dx-karte">
             <h3>Rückmeldung</h3>
             <ul className="dx-punkte">{punkte.map((p, i) => <li key={i}><Rueckmeldung richtig={p.ok} text={`${p.titel}: ${p.text}`} /></li>)}</ul>
+          </section>
+          <section className="card dx-karte">
+            <h3>SBAR-Gespräch</h3>
+            {(() => { const g = diagnostikSbar(lauf, fall); return <SbarGrundkriterien anlass={g.anlass} {...(g.ergebnis ? { ergebnis: g.ergebnis } : {})} titel={g.ergebnis ? 'Gemeinsame SBAR-Grundkriterien' : 'Kein Anruf: erwarteter Anlass'} />; })()}
           </section>
           <Zeitleiste fall={fall} lauf={lauf} />
           <section className="card dx-karte">
