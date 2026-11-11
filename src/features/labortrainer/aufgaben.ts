@@ -2,7 +2,8 @@
 // Röhrchenreihenfolge, Fehlerquellen und BGA-Regeln kommen aus denselben Bausteinen wie die
 // Diagnostik-Station (src/ui/sim/labor), damit Trainer und Simulator nicht auseinanderlaufen.
 
-import type { Aufgabe, AuswahlAufgabe } from '../quiz/quiz';
+import { mitVertiefung, type Aufgabe, type AuswahlAufgabe } from '../quiz/quiz';
+import { VERTIEFUNG } from './vertiefung';
 import { ROEHRCHEN } from '../../ui/sim/labor/praeanalytik';
 import { deuteBga, type Bga } from '../../ui/sim/labor/bga';
 
@@ -144,5 +145,5 @@ export const BEREICHE: Bereich[] = [
   { id: 'befund', label: 'Befunde einordnen', kurz: 'Kritische Werte, CRP, Laktat, Troponin, D-Dimere', wissen: ['Kritischer Wert: zurücklesen, dokumentieren, sofort melden.', 'Verlauf zählt mehr als ein Einzelwert.', 'Vor Kontrastmittel: Niere, Schilddrüse, Allergien, Metformin.'] },
 ];
 
-export const AUFGABEN: Record<BereichId, Aufgabe[]> = { praeanalytik, bga, befund };
+export const AUFGABEN: Record<BereichId, Aufgabe[]> = mitVertiefung({ praeanalytik, bga, befund }, VERTIEFUNG);
 export const ALLE_AUFGABEN: Aufgabe[] = Object.values(AUFGABEN).flat();

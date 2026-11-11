@@ -2,7 +2,8 @@
 // Grundlage: Veröffentlichungen des DNQP (Hochschule Osnabrück) und die Standardübersicht im Katalog (es.*).
 // Nur gesicherte Kernaussagen, keine Detailzahlen, die sich mit Aktualisierungen ändern können.
 
-import type { Aufgabe, AuswahlAufgabe } from '../quiz/quiz';
+import { mitVertiefung, type Aufgabe, type AuswahlAufgabe } from '../quiz/quiz';
+import { VERTIEFUNG } from './vertiefung';
 
 export const ES_THEMA = 'thema.qw.expertenstandards';
 
@@ -175,5 +176,5 @@ export const BEREICHE: Bereich[] = [
   },
 ];
 
-export const AUFGABEN: Record<BereichId, Aufgabe[]> = { aufbau, prophylaxe, versorgung };
+export const AUFGABEN: Record<BereichId, Aufgabe[]> = mitVertiefung({ aufbau, prophylaxe, versorgung }, VERTIEFUNG);
 export const ALLE_AUFGABEN: Aufgabe[] = Object.values(AUFGABEN).flat();

@@ -5,6 +5,7 @@ import { pflegeModule } from '../../modules/pflege';
 import { bewerte, erzeuge, zahl, type Aufgabe } from '../rechnen/aufgaben';
 import { uebungenFuer } from '../lernplan/trainer';
 import { Rueckwege } from './Rueckwege';
+import { FachListe } from '../quiz/FachText';
 import {
   auswahlRichtig, BEHOBEN_NACH, faellig, heutigerTag, istOffen, ladeFehler, mischeAuswahl, nachThema, QUELLE_LABEL,
   speichereFehler, ueberblick, wiederholt, type Fehler, type FehlerQuelle, type Wiederholung,
@@ -66,7 +67,7 @@ function Eintrag({ f, onEntfernen }: { f: Fehler; onEntfernen: () => void }) {
         <p>{f.frage}</p>
         <p className="muted">Deine Antwort: {f.deineAntwort}</p>
         <p>Richtig: <strong>{f.loesung}</strong></p>
-        {f.erklaerung.length > 0 && <ol className="fehlerheft__weg">{f.erklaerung.map((s, i) => <li key={i}>{s}</li>)}</ol>}
+        {f.erklaerung.length > 0 && <FachListe texte={f.erklaerung} className="fehlerheft__weg" nummeriert />}
         <div className="row">
           {link && <a className="button-link" href={`#${link.path}`}>{link.label}</a>}
           <button type="button" className="ghost" onClick={onEntfernen}>Aus dem Fehlerheft entfernen</button>
@@ -168,7 +169,7 @@ function Wiederholen({ aufgaben, onAntwort, onEnde }: {
             : ' Klappt es an einem anderen Tag noch einmal, ist der Fehler behoben.')}
           {a.art === 'rechnen'
             ? <ol className="fehlerheft__weg">{a.aufgabe.schritte.map((s, k) => <li key={k}>{s}</li>)}<li>Ergebnis: <strong>{zahl(a.aufgabe.loesung)} {a.aufgabe.einheit}</strong></li></ol>
-            : a.fehler.erklaerung.length > 0 && <ol className="fehlerheft__weg">{a.fehler.erklaerung.map((s, k) => <li key={k}>{s}</li>)}</ol>}
+            : a.fehler.erklaerung.length > 0 && <FachListe texte={a.fehler.erklaerung} className="fehlerheft__weg" nummeriert />}
         </div>
       )}
 

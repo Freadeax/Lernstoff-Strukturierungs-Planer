@@ -2,7 +2,8 @@
 // Grundlage: Leitlinien des European Resuscitation Council (ERC 2021, Basic Life Support Erwachsene)
 // und gängige Lehrbuchinhalte. Interne Notfallabläufe der Einrichtung gehen vor.
 
-import type { Aufgabe, AuswahlAufgabe } from '../quiz/quiz';
+import { mitVertiefung, type Aufgabe, type AuswahlAufgabe } from '../quiz/quiz';
+import { VERTIEFUNG } from './vertiefung';
 
 export const NOTFALL_THEMA = 'thema.beo.notfall';
 
@@ -125,5 +126,5 @@ export const BEREICHE: Bereich[] = [
   },
 ];
 
-export const AUFGABEN: Record<BereichId, Aufgabe[]> = { bls, abcde, situationen };
+export const AUFGABEN: Record<BereichId, Aufgabe[]> = mitVertiefung({ bls, abcde, situationen }, VERTIEFUNG);
 export const ALLE_AUFGABEN: Aufgabe[] = Object.values(AUFGABEN).flat();
