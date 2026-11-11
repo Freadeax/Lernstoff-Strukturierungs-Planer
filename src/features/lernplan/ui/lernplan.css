@@ -184,3 +184,7 @@
 .today-start a > svg:last-child { margin-left: auto; flex-shrink: 0; }
 .today-start__icon { display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: 36px; height: 36px; border-radius: 9px; border: 1px solid var(--focus-line); }
 @media (max-width: 760px) { .today-focus--start { grid-template-columns: minmax(0, 1fr); } }
+.kalender-export { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.kalender-export__zeiten { flex-basis: 100%; display: grid; gap: var(--space-2); grid-template-columns: repeat(auto-fill, minmax(min(100%, 12rem), 1fr)); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: var(--space-2) var(--space-3); }
+.kalender-export__zeiten > p, .kalender-export__zeiten > legend { grid-column: 1 / -1; margin: 0; }
+.kalender-export__zeile { display: flex; flex-direction: column; gap: var(--space-1); }

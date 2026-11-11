@@ -36,6 +36,16 @@ export function schichtMinuten(id: SchichtId, eigene?: Partial<Record<SchichtId,
   return typeof m === 'number' && Number.isFinite(m) && m >= 0 ? Math.round(m) : SCHICHT_VORLAGEN.find((v) => v.id === id)!.minuten;
 }
 
+/** Vorgeschlagener Lernbeginn je Vorlage für den Kalender (Nachtdienst: kein Lernblock). */
+export const BEGINN_VORSCHLAG: Partial<Record<SchichtId | 'normal', string>> = { frueh: '15:30', spaet: '09:00', schule: '17:00', frei: '10:00' };
+
+/** Lernbeginn eines Tages: Vorlage aus der Notiz (z. B. „Frühdienst“), sonst der normale Beginn; leer = ganztägig. */
+export function beginnAm(notiz: string | undefined, eigene: Partial<Record<SchichtId | 'normal', string>> | undefined): string | undefined {
+  const id = schichtAusNotiz(notiz) ?? 'normal';
+  const wert = eigene && id in eigene ? eigene[id] : undefined;
+  return wert && /^([01]\d|2[0-3]):[0-5]\d$/.test(wert) ? wert : undefined;
+}
+
 /** Welche Vorlage passt zu einem eingetragenen Ausnahmetag? Erkennt die Notiz (z. B. „Frühdienst“). */
 export function schichtAusNotiz(notiz: string | undefined): SchichtId | undefined {
   if (!notiz) return undefined;
