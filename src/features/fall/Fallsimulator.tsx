@@ -21,7 +21,6 @@ import { Rueckblick } from './Rueckblick';
 import { abhoerBefund } from './abhoeren';
 import { OfflinePaket } from '../../ui/sim/OfflinePaket';
 import { FreigabeHinweis } from '../../ui/sim/FreigabeHinweis';
-import { automatischeWertung } from '../../ui/sim/freigabe';
 import { freigabeFuerFall, monitorGruppeVon } from './freigaben';
 import { fallOfflineBedarf } from './offlinebedarf';
 import { HoerBeispiel } from '../../ui/audio/HoerBeispiel';
@@ -545,8 +544,8 @@ export default function Fallsimulator() {
     rundenAnzahl.current = n;
   }, [fall?.runden.length]); // eslint-disable-line react-hooks/exhaustive-deps
   const freigabe = fall ? freigabeFuerFall(fall.szenario) : undefined;
-  const wertung = automatischeWertung(freigabe);
-  const bild = useMemo(() => (fall ? szenenBild(fall, { messwertAlarm: wertung }) : null), [fall, wertung]);
+  const gruppe = fall ? monitorGruppeVon(fall.szenario) : 'erwachsen';
+  const bild = useMemo(() => (fall ? szenenBild(fall, { gruppe }) : null), [fall, gruppe]);
   const raum: Raum = fall ? RAUM_FUER[fall.szenario.setting] ?? 'krankenhaus' : 'krankenhaus';
   // Marker oder Raumübersicht steuern die Kamera, bis der nächste Zug kommt
   const [marker, setMarker] = useState<Marker | null>(null);
@@ -620,11 +619,11 @@ export default function Fallsimulator() {
                     </button>
                   )}
                 </div>
-                <PatientenMonitor werte={bild.monitor} aktiv={bild.monitorAn} gruppe={monitorGruppeVon(fall.szenario)} bewerten={wertung} titel={bild.monitorAn ? `${letzter?.uhrzeit ?? ''} Uhr` : 'Noch nicht gemessen'} />
+                <PatientenMonitor werte={bild.monitor} aktiv={bild.monitorAn} gruppe={gruppe} titel={bild.monitorAn ? `${letzter?.uhrzeit ?? ''} Uhr` : 'Noch nicht gemessen'} />
                 <div className="audio-simton">
                   <SimTon raum={raumFuerSetting(fotoRaum?.id ?? fall.szenario.setting)} telefon={bild.telefon && !letzter?.beendet}
                     monitor={{ puls: bild.monitor.puls, spo2: bild.monitor.spo2, aktiv: bild.monitorAn && !letzter?.beendet }}
-                    alarm={bild.monitorAn && wertung ? gesamtAlarm(bild.monitor, monitorGruppeVon(fall.szenario)) : 'ok'} />
+                    alarm={bild.monitorAn ? gesamtAlarm(bild.monitor, gruppe) : 'ok'} />
                   {letzter && <Vorlesen key={fall.runden.length} label="Situation vorlesen"
                     text={() => [letzter.rueckmeldung.text, letzter.situation].filter(Boolean).join(' ')} />}
                 </div>

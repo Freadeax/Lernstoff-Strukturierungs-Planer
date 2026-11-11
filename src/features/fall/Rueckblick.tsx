@@ -4,7 +4,6 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { PatientenMonitor } from '../../ui/sim/PatientenMonitor';
-import { automatischeWertung } from '../../ui/sim/freigabe';
 import { freigabeFuerFall, monitorGruppeVon } from './freigaben';
 import { wenigBewegung } from '../../ui/shell/session';
 import { FotoSzene } from './FotoSzene';
@@ -84,8 +83,8 @@ export function Rueckblick({ fall }: { fall: Fall }) {
   const [laeuft, setLaeuft] = useState(false);
   const punkte = useMemo(() => rueckblickPunkte(fall), [fall]);
   const freigabe = freigabeFuerFall(fall.szenario);
-  const wertung = automatischeWertung(freigabe);
-  const bild = useMemo(() => szenenBild({ ...fall, runden: fall.runden.slice(0, i + 1) }, { messwertAlarm: wertung }), [fall, i, wertung]);
+  const gruppe = monitorGruppeVon(fall.szenario);
+  const bild = useMemo(() => szenenBild({ ...fall, runden: fall.runden.slice(0, i + 1) }, { gruppe }), [fall, i, gruppe]);
   const foto = fotoRaumFuer(fall.szenario.id, fall.szenario.setting, fall.szenario.kurz);
   const runde = fall.runden[i];
   useEffect(() => {
@@ -111,7 +110,7 @@ export function Rueckblick({ fall }: { fall: Fall }) {
         {foto
           ? <FotoSzene raum={foto} bild={bild} uhrzeit={runde.zug.uhrzeit} onMarker={() => {}} ohneMarker fallback={<span>Raumfoto nicht verfügbar.</span>} />
           : <Szene bild={bild} raum={RAUM_FUER[fall.szenario.setting] ?? 'krankenhaus'} uhrzeit={runde.zug.uhrzeit} />}
-        <PatientenMonitor werte={bild.monitor} aktiv={bild.monitorAn} gruppe={monitorGruppeVon(fall.szenario)} bewerten={wertung} kompakt titel={`${runde.zug.uhrzeit} Uhr`} />
+        <PatientenMonitor werte={bild.monitor} aktiv={bild.monitorAn} gruppe={gruppe} kompakt titel={`${runde.zug.uhrzeit} Uhr`} />
       </div>
       <div className={`fall__rb-text ${wenigBewegung() ? '' : 'is-animiert'}`} key={i} aria-live="polite">
         <p className="muted">Szene {i + 1} von {n} · {runde.zug.uhrzeit} Uhr · Zustand: {ZUSTAND_LABEL[runde.zug.zustand]}</p>
