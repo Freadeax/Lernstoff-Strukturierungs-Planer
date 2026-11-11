@@ -51,3 +51,5 @@ python3 abholen.py <ordner>         # -> ausgabe/<Originalname>, Prüfsummen gep
 
 So werden nur die Manifeste und die gewünschte Datei geladen. `abholen.py` liegt im
 Material-Repo und hier unter `src/features/ablage/abholen.py`.
+
+Was an Bildern, Medien und Texten noch fehlt: [MATERIAL-BEDARF.md](MATERIAL-BEDARF.md).
