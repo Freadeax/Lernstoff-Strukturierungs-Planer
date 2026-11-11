@@ -273,3 +273,50 @@ export function letzterWert(l: Lauf, fall: DiagnostikFall, id: string): { wert: 
   const w = r[r.length - 1].wert;
   return { wert: w, flag: bewerte(parameter(id), w, fall.patient.geschlecht, istKind(fall.patient.alter)) };
 }
+
+export type ZeitArt = 'start' | 'abnahme' | 'befund' | 'kritisch' | 'bild' | 'meldung' | 'massnahme' | 'monitor' | 'eigen' | 'ende';
+export interface ZeitEintrag { minute: number; art: ZeitArt; text: string }
+
+/** Zeitleiste für die Auswertung: aus den strukturierten Daten des Laufs, chronologisch. */
+export function zeitleiste(l: Lauf, fall: DiagnostikFall): ZeitEintrag[] {
+  const bis = l.beendet ?? l.minute;
+  const z: ZeitEintrag[] = [{ minute: 0, art: 'start', text: `Fall übernommen: ${fall.patient.name}` }];
+  if (l.monitorAn !== undefined) z.push({ minute: l.monitorAn, art: 'monitor', text: 'Monitor angeschlossen' });
+  if (l.sensorNeu !== undefined) z.push({ minute: l.sensorNeu, art: 'monitor', text: 'Fingersensor neu angelegt' });
+  for (const a of ergebnisse(l, fall)) {
+    const namen = a.auftrag.parameter.map((id) => parameter(id).kurz).join(', ');
+    z.push({ minute: a.auftrag.minute, art: 'abnahme', text: `${a.auftrag.prioritaet === 'notfall' ? 'Notfalllabor' : 'Routinelabor'}: ${namen}${a.fehler.length ? ` (Präanalytik: ${a.fehler.map((f) => f.titel).join(', ')})` : ''}` });
+    const fertig = [...new Set(a.ergebnisse.map((e) => e.fertig))].filter((t) => t <= bis);
+    for (const t of fertig) {
+      const da = a.ergebnisse.filter((e) => e.fertig === t);
+      const auffaellig = da.filter((e) => e.wert !== undefined && e.flag !== 'normal').map((e) => `${parameter(e.parameter).kurz} ${e.flag.includes('kritisch') ? '!!' : e.flag === 'hoch' ? '↑' : '↓'}`);
+      z.push({ minute: t, art: 'befund', text: `Befund da: ${da.map((e) => parameter(e.parameter).kurz).join(', ')}${auffaellig.length ? ` · auffällig: ${auffaellig.join(', ')}` : ''}` });
+    }
+    for (const e of a.ergebnisse) {
+      const k = anrufSchluessel(e, a.auftrag);
+      if (e.anruf && e.fertig <= bis) z.push({ minute: e.fertig, art: 'kritisch', text: `Labor ruft an: ${parameter(e.parameter).name} kritisch` });
+      if (l.quittiert[k] !== undefined) z.push({ minute: l.quittiert[k]!, art: 'kritisch', text: `${parameter(e.parameter).name} zurückgelesen und dokumentiert` });
+      if (l.gemeldet?.[k] !== undefined) z.push({ minute: l.gemeldet[k]!, art: 'meldung', text: `${parameter(e.parameter).name} ärztlich nachgemeldet` });
+    }
+  }
+  for (const u of l.untersuchungen) {
+    const s = untersuchungVon(fall, u.serie)?.serie;
+    z.push({ minute: u.start, art: 'bild', text: `${s?.titel ?? 'Bildgebung'}: los zur Untersuchung` });
+    if (u.befundAb <= bis) z.push({ minute: u.befundAb, art: 'bild', text: `${s?.titel ?? 'Bildgebung'}: schriftlicher Befund` });
+  }
+  if (l.sbar) z.push({ minute: l.sbar.minute, art: 'meldung', text: 'SBAR an Ärztin/Arzt, Anordnungen erhalten' });
+  for (const m of l.massnahmen) z.push({ minute: m.minute, art: 'massnahme', text: fall.anordnungen.find((a) => a.id === m.id)?.label ?? m.id });
+  for (const e of l.log) if (e.art === 'eigen') z.push({ minute: e.minute, art: 'eigen', text: e.text });
+  if (l.beendet !== undefined) z.push({ minute: l.beendet, art: 'ende', text: 'Fall beendet' });
+  const rang: Record<ZeitArt, number> = { start: 0, monitor: 1, abnahme: 2, bild: 3, befund: 4, kritisch: 5, meldung: 6, massnahme: 7, eigen: 8, ende: 9 };
+  return z.filter((e) => e.minute <= bis).sort((a, b) => a.minute - b.minute || rang[a.art] - rang[b.art]);
+}
+
+/** Wahrer Verlauf eines Vitalwerts von Minute 0 bis jetzt, in festen Schritten (für die Auswertung). */
+export function vitalReihe(l: Lauf, fall: DiagnostikFall, k: keyof DiagnostikFall['vital'], punkte = 13): { minute: number; wert: number }[] {
+  const bis = Math.max(1, l.beendet ?? l.minute);
+  return Array.from({ length: punkte }, (_, i) => {
+    const t = Math.round((bis * i) / (punkte - 1));
+    return { minute: t, wert: wahrerWert(fall.vital[k], t, l.flags) };
+  });
+}

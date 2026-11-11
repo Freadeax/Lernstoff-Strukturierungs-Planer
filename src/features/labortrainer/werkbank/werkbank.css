@@ -57,19 +57,6 @@
 .wb-tabelle th, .wb-tabelle td { text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--color-border); }
 .wb-tabelle tr.is-falsch td { background: var(--color-danger-soft); }
 
-/* Kurve */
-.wb-kurve { margin: 0; }
-.wb-kurve svg { width: 100%; max-width: 480px; height: auto; display: block; }
-.wb-kurve__band { fill: var(--color-success-soft); }
-.wb-kurve__achse { stroke: var(--color-border-strong); stroke-width: 1; }
-.wb-kurve__text { fill: var(--color-text-muted); font-size: 10px; }
-.wb-kurve__linie { fill: none; stroke: var(--color-primary); stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
-.wb-kurve__linie.is-zeichnen { stroke-dasharray: 1; stroke-dashoffset: 1; animation: wb-zeichnen 1.2s ease-out forwards; }
-.wb-kurve__punkt { fill: var(--color-primary); }
-.wb-kurve__linie.is-zeichnen ~ .wb-kurve__punkt { opacity: 0; animation: wb-auftauchen 0.25s ease-out forwards; }
-@keyframes wb-zeichnen { to { stroke-dashoffset: 0; } }
-@keyframes wb-auftauchen { to { opacity: 1; } }
-
 /* Meldung */
 .wb-telefon { display: flex; gap: var(--space-2); align-items: flex-start; padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); background: var(--color-surface-sunken); }
 .wb-telefon p { margin: 0; }
@@ -85,6 +72,6 @@
 .wb-sbar__teil { font-weight: var(--weight-medium); min-width: 1.2em; color: var(--color-primary); }
 
 @media (prefers-reduced-motion: reduce) {
-  .wb-kurve__linie.is-zeichnen, .wb-kurve__linie.is-zeichnen ~ .wb-kurve__punkt, .wb-telefon__symbol { animation: none; stroke-dashoffset: 0; opacity: 1; }
+  .wb-telefon__symbol { animation: none; }
 }
-:root[data-motion='reduce'] .wb-telefon__symbol, :root[data-motion='reduce'] .wb-kurve__linie.is-zeichnen ~ .wb-kurve__punkt { animation: none; opacity: 1; }
+:root[data-motion='reduce'] .wb-telefon__symbol { animation: none; }

@@ -65,3 +65,28 @@ describe('Diagnostik-Lauf', () => {
     for (const f of FAELLE) expect(RAEUME[f.raum], f.id).toBeDefined();
   });
 });
+
+describe('Zeitleiste und Vitalverlauf', () => {
+  it('ordnet Abnahme, Befund, SBAR und Maßnahme zeitlich, Vitalwerte reagieren auf Therapie', async () => {
+    const { FAELLE } = await import('./faelle');
+    const { starte, fuehreAus, zeitleiste, vitalReihe } = await import('./lauf');
+    const { STANDARD_ABNAHME } = await import('../../ui/sim/labor/praeanalytik');
+    const fall = FAELLE.find((f) => f.id === 'ketoazidose')!;
+    let l = starte(fall);
+    l = fuehreAus(l, fall, { typ: 'labor', parameter: ['k', 'bz'], prioritaet: 'notfall', abnahme: { ...STANDARD_ABNAHME } });
+    l = fuehreAus(l, fall, { typ: 'warten', minuten: 60 });
+    l = fuehreAus(l, fall, { typ: 'sbar', fakten: ['s1'] });
+    l = fuehreAus(l, fall, { typ: 'massnahme', id: 'volumen' });
+    l = fuehreAus(l, fall, { typ: 'warten', minuten: 120 });
+    l = fuehreAus(l, fall, { typ: 'beenden' });
+    const z = zeitleiste(l, fall);
+    const arten = z.map((e) => e.art);
+    expect(arten[0]).toBe('start');
+    expect(arten.at(-1)).toBe('ende');
+    for (const a of ['abnahme', 'befund', 'meldung', 'massnahme'] as const) expect(arten).toContain(a);
+    expect(z.every((e, i) => i === 0 || e.minute >= z[i - 1]!.minute)).toBe(true);
+    expect(arten.indexOf('abnahme')).toBeLessThan(arten.indexOf('befund'));
+    const puls = vitalReihe(l, fall, 'puls');
+    expect(puls[0]!.wert).toBeGreaterThan(puls.at(-1)!.wert);
+  });
+});

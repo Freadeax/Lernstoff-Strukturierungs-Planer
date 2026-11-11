@@ -28,3 +28,22 @@
 .roehrchen__blut { position: absolute; left: 3px; right: 3px; bottom: 3px; height: var(--fuellung, 0%); background: #8b1414; border-radius: 0 0 10px 10px; transition: height 600ms ease; }
 @media (prefers-reduced-motion: reduce) { .roehrchen__blut { transition: none; } }
 .roehrchen__name { font-size: 0.6875rem; max-width: 72px; text-align: center; line-height: 1.2; color: var(--color-text-muted); }
+
+/* Verlaufskurve */
+.vk { margin: 0; }
+.vk svg { width: 100%; max-width: 520px; height: auto; display: block; }
+.vk__band { fill: var(--color-success-soft); }
+.vk__achse { stroke: var(--color-border-strong); stroke-width: 1; }
+.vk__text { fill: var(--color-text-muted); font-size: 10px; }
+.vk__linie { fill: none; stroke: var(--color-primary); stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
+.vk__linie.is-zeichnen { stroke-dasharray: 1; stroke-dashoffset: 1; animation: vk-zeichnen 1.2s ease-out forwards; }
+.vk__punkt { fill: var(--color-primary); }
+.vk__punkt.is-zeichnen { opacity: 0; animation: vk-auftauchen 0.25s ease-out forwards; }
+.vk__marke line { stroke: var(--color-warning); stroke-width: 1.4; stroke-dasharray: 3 3; }
+.vk__marke text { fill: var(--color-warning); font-size: 10px; font-weight: 700; }
+.vk__titel { font-size: var(--text-sm); color: var(--color-text-muted); }
+.vk__marken { margin: 4px 0 0; padding-left: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 2px 12px; }
+@keyframes vk-zeichnen { to { stroke-dashoffset: 0; } }
+@keyframes vk-auftauchen { to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .vk__linie.is-zeichnen, .vk__punkt.is-zeichnen { animation: none; stroke-dashoffset: 0; opacity: 1; } }
+:root[data-motion='reduce'] .vk__linie.is-zeichnen, :root[data-motion='reduce'] .vk__punkt.is-zeichnen { animation: none; stroke-dashoffset: 0; opacity: 1; }
