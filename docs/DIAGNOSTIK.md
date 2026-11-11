@@ -54,3 +54,15 @@ beim Kleinkind (Raum 20). Die Monitor-Alarmgrenzen sind weiter die für Erwachse
 - Befunde im echten Bild tragen dieselbe ID wie im synthetischen Bild; ein Test prüft Lizenzfelder, Dateien und IDs.
 - **Privat** (Material-Repo, Ordner `bildgebung/<name>/serie.json` + Bilder): z. B. Unterrichtsmaterial. Die App lädt
   sie nur mit dem Zugang unter Material → Große Dateien auf dem Gerät, nie in den öffentlichen Build.
+
+## Labor-Werkbank (`#/lernen/labor?modus=werkbank`)
+
+Drei interaktive Stationen neben den Quizrunden des Labor-Trainers, als eigener Chunk nachgeladen
+(`src/features/labortrainer/werkbank`). Die Logik liegt in reinen Modulen mit Tests
+(`entnahme.ts`, `verlauf.ts`, `meldung.ts`, `werkbank.test.ts`).
+
+- **Blutentnahme:** Identität, Arm (Infusionsarm sichtbar), Stauen mit laufender Stauzeit (Warnung über 60 s), Röhrchen in selbst gewählter Reihenfolge in den Halter stecken, Füllanimation durch das Vakuum (bei „Bewegung reduzieren“ sofort voll), Flügelkanüle mit Verwurfröhrchen, mischen, Transport. Der Befund zeigt wahre und gemessene Werte; Fehlerregeln aus `src/ui/sim/labor/praeanalytik.ts`.
+- **Kumulativbefund:** Verlauf über mehrere Tage in der `LaborTafel`, den entscheidenden Wert wählen, dann zeichnet sich die Kurve mit Referenzband, danach Handlungsfrage.
+- **Kritischer Wert:** Anruf des Labors, zurücklesen, Telefonnotiz, SBAR-Meldung aus Bausteinen (Reihenfolge und Unwichtiges werden bewertet), richtig handeln bis zum ärztlichen Eintreffen.
+
+Alle Fälle sind fiktiv und fachlich ungeprüft vereinfacht.

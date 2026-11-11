@@ -143,4 +143,68 @@ export const VERTIEFUNG: Record<string, string[]> = {
     'Typisch für die Ketoazidose sind Durst, viel Wasserlassen, Übelkeit, Bauchschmerzen und eine schnelle Verschlechterung. Sie tritt vor allem bei Typ-1-Diabetes auf, etwa bei vergessenem Insulin oder Infekten.',
     'Bei Typ-2-Diabetes droht eher das hyperosmolare Koma: sehr hohe Blutzucker, starke Austrocknung, aber kaum Ketone. Auch dabei ist der Flüssigkeitsmangel lebensgefährlich.',
   ],
+  'pa.fluegel': [
+    "Flügelkanülen werden bei schwierigen oder dünnen Venen genutzt. Der Schlauch enthält einige Zehntelmilliliter Luft, die das erste Vakuumröhrchen ansaugt.",
+    "Bei Blutkulturen mit Flügelkanüle kommt deshalb die aerobe Flasche zuerst: so landet die Luft aus dem Schlauch nicht in der anaeroben Flasche.",
+  ],
+  'pa.mischen': [
+    "Jeder Zusatz muss sich sofort mit dem Blut verbinden. Die Herstellerangaben nennen meist fünf bis zehn Mal Schwenken.",
+    "Kleine Gerinnsel im EDTA-Röhrchen verbrauchen Thrombozyten: der Befund zeigt dann eine falsch niedrige Thrombozytenzahl.",
+  ],
+  'pa.faust': [
+    "Bei Muskelarbeit strömt Kalium aus den Muskelzellen ins Blut. Zusammen mit langem Stauen ist das eine häufige Ursache scheinbar hoher Kaliumwerte.",
+    "Ein unerwartet hoher Kaliumwert ohne Hämolyse sollte deshalb immer auch an die Abnahmetechnik denken lassen, bevor behandelt wird.",
+  ],
+  'pa.beschriften': [
+    "Viele Häuser nutzen Barcode-Etiketten und mobile Scanner am Bett. Das senkt Verwechslungen, ersetzt aber nicht die offene Frage nach Name und Geburtsdatum.",
+    "Proben ohne eindeutige Zuordnung werden vom Labor nicht bearbeitet. Eine Neuentnahme ist unangenehm, aber sicherer als ein vertauschter Befund.",
+  ],
+  'pa.nuechtern': [
+    "Auch Kaffee, Rauchen und körperliche Anstrengung können Werte verändern. Deshalb finden Routineabnahmen meist morgens vor dem Frühstück statt.",
+    "Bei Menschen mit Diabetes muss die Nüchternphase mit der Insulingabe abgestimmt sein, sonst droht eine Unterzuckerung.",
+  ],
+  'bga.niere': [
+    "Die gesunde Niere scheidet täglich Säuren aus und bildet neues Bikarbonat. Fällt sie aus, sammeln sich Säuren an: metabolische Azidose.",
+    "Die Lunge kompensiert durch schnelleres und tieferes Atmen. Gleichzeitig steigt oft das Kalium, weil Säure Kalium aus den Zellen verdrängt.",
+  ],
+  'bga.diuretika': [
+    "Schleifen- und Thiaziddiuretika führen zu Verlusten von Wasser, Chlorid und Kalium. Die Niere hält im Gegenzug Bikarbonat zurück.",
+    "Die Lunge kompensiert eine Alkalose durch flachere Atmung, das CO₂ steigt leicht. Diese Kompensation ist begrenzt, weil der Körper Sauerstoff braucht.",
+  ],
+  'bga.po2': [
+    "Der pO₂ zeigt, wie viel Sauerstoff im arteriellen Blut gelöst ist. Die Sättigung (SpO₂) hängt über die Sauerstoffbindungskurve davon ab.",
+    "Die Kurve ist oben flach und fällt unter etwa 60 mmHg steil: kleine Verschlechterungen führen dann zu großen Sättigungsabfällen.",
+  ],
+  'bga.laktat': [
+    "Laktat entsteht, wenn Zellen ohne genug Sauerstoff Energie gewinnen müssen. Erhöhte Werte sind ein Zeichen, dass Gewebe zu wenig durchblutet ist.",
+    "In Sepsis-Leitlinien wird Laktat zu Beginn und im Verlauf gemessen. Ein fallender Wert spricht für eine bessere Gewebedurchblutung.",
+  ],
+  'bf.verlauf-hb': [
+    "Im Kumulativbefund stehen die Werte mehrerer Tage nebeneinander. So erkennt man Trends, die ein einzelner Wert nicht zeigt.",
+    "Harnstoff steigt bei oberer GI-Blutung oft an, weil das Blut im Darm wie Eiweiß verdaut wird. Das Kreatinin bleibt dabei oft gleich.",
+  ],
+  'bf.natrium': [
+    "Natrium bestimmt, wie Wasser zwischen Zellen und Blut verteilt ist. Sinkt es, strömt Wasser in die Zellen, besonders gefährlich im Gehirn.",
+    "Häufige Ursachen im Alter sind Diuretika, Antidepressiva und Herz- oder Niereninsuffizienz. Verwirrtheit, Stürze und Übelkeit können frühe Zeichen sein.",
+  ],
+  'bf.thrombo': [
+    "HIT ist eine Immunreaktion gegen Heparin, die typischerweise 5 bis 14 Tage nach Beginn auftritt. Paradoxerweise führt sie nicht zu Blutungen, sondern zu Thrombosen.",
+    "Deshalb werden Thrombozyten unter Heparin regelmäßig kontrolliert. Ein Abfall um mehr als die Hälfte ist ein Warnzeichen.",
+  ],
+  'bf.inr': [
+    "Der INR misst, wie stark die Gerinnung durch Vitamin-K-Antagonisten gehemmt ist. Viele Medikamente und Nahrungsmittel mit Vitamin K verändern den Wert.",
+    "Bei erhöhtem INR sind Stürze, Injektionen in den Muskel und Rasur mit Klinge riskant. Blutungszeichen: Hämatome, Nasenbluten, roter oder schwarzer Stuhl, Blut im Urin.",
+  ],
+  'bf.glukose-hypo': [
+    "Typische Zeichen einer Hypoglykämie sind Schwitzen, Zittern, Heißhunger, Herzklopfen, Verwirrtheit bis zur Bewusstlosigkeit. Bei älteren Menschen sind die Zeichen oft weniger deutlich.",
+    "Nach der Gabe von Kohlenhydraten wird nach etwa 15 Minuten nachgemessen. Bei Bewusstlosigkeit gibt ärztliches Personal Glukose in die Vene.",
+  ],
+  'bf.rueckruf': [
+    "Kritische Werte (Panikwerte) sind Grenzen, ab denen sofort gehandelt werden muss. Jedes Labor hat eine eigene Liste, etwa für Kalium, Natrium, Glukose oder Hb.",
+    "Die Meldung an die Ärztin oder den Arzt folgt am besten dem SBAR-Schema: Situation, Hintergrund, Einschätzung, Empfehlung.",
+  ],
+  'bf.pct': [
+    "Procalcitonin ist eine Vorstufe eines Hormons, das bei bakteriellen Infektionen im ganzen Körper gebildet wird. Es steigt nach wenigen Stunden.",
+    "Auch nach großen OPs, Verbrennungen oder Traumen kann PCT steigen, ohne dass eine Infektion vorliegt. Deshalb zählt immer das Gesamtbild.",
+  ],
 };

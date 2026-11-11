@@ -1,0 +1,90 @@
+/* Labor-Werkbank: Stationen Blutentnahme, Kumulativbefund, kritischer Wert */
+.wb { display: grid; gap: var(--space-3); }
+.wb-reiter { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--space-2); }
+.wb-reiter button { display: grid; gap: 2px; text-align: left; justify-content: start; justify-items: start; padding: var(--space-2) var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-surface); color: var(--color-text); }
+.wb-reiter button.is-aktiv { border-color: var(--color-primary); background: var(--color-primary-soft); }
+.wb-farbe { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.wb-farbe button[aria-pressed='true'], .wb-knoepfe button[aria-pressed='true'] { border-color: var(--color-primary); background: var(--color-primary-soft); }
+.wb-station { display: grid; gap: var(--space-3); }
+.wb-kopf { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: var(--space-2); }
+.wb-kopf h3 { margin: 0; }
+.wb-klein { font-size: var(--text-sm); }
+.wb-wahl { display: flex; gap: var(--space-2); align-items: center; flex-wrap: wrap; }
+.wb-patient { padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); background: var(--color-surface-sunken); }
+.wb-schritte { display: flex; flex-wrap: wrap; gap: var(--space-1); list-style: none; padding: 0; margin: 0; font-size: var(--text-sm); }
+.wb-schritte li { padding: 2px var(--space-2); border-radius: 999px; background: var(--color-surface-sunken); color: var(--color-text-muted); }
+.wb-schritte li.is-jetzt { background: var(--color-primary-soft); color: var(--color-text); font-weight: var(--weight-medium); }
+.wb-feld { display: grid; gap: var(--space-2); }
+.wb-feld > p { margin: 0; }
+.wb-knoepfe { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.wb-knoepfe button.is-richtig, .wb-optionen button.is-richtig { border-color: var(--color-success); background: var(--color-success-soft); }
+.wb-knoepfe button.is-falsch, .wb-optionen button.is-falsch { border-color: var(--color-danger); background: var(--color-danger-soft); }
+.wb-optionen { display: grid; gap: var(--space-2); }
+.wb-optionen button { text-align: left; display: grid; gap: var(--space-1); justify-content: start; justify-items: start; }
+.wb-warum { font-size: var(--text-sm); color: var(--color-text-muted); }
+.wb-gut { color: var(--color-success); }
+.wb-hinweis { color: var(--color-text); border-left: 3px solid var(--color-warning); padding-left: var(--space-2); }
+
+/* Arme */
+.wb-arme { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--space-2); }
+.wb-arm { display: grid; gap: var(--space-1); justify-items: center; padding: var(--space-2); }
+.wb-arm svg { width: 100%; max-width: 200px; height: auto; }
+.wb-arm svg.is-gespiegelt { transform: scaleX(-1); }
+.wb-arm__haut { fill: #e8c4a8; stroke: #b08468; stroke-width: 1.2; }
+.wb-arm__vene { fill: none; stroke: #5b6fb3; stroke-width: 2.4; stroke-linecap: round; opacity: 0.8; }
+.wb-arm__infusion rect { fill: #fff; stroke: #888; }
+.wb-arm__infusion path { stroke: #7aa7d8; stroke-width: 2; fill: none; }
+
+/* Stau und Röhrchen */
+.wb-stau { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); background: var(--color-surface-sunken); }
+.wb-stau.is-warn { background: var(--color-danger-soft); border: 1px solid var(--color-danger); }
+.wb-regal { display: flex; flex-wrap: wrap; gap: var(--space-2); padding: var(--space-2); border-radius: var(--radius-sm); background: var(--color-surface-sunken); }
+.wb-roehrchen { position: relative; display: grid; justify-items: center; gap: 2px; padding: var(--space-1) var(--space-2); min-width: 64px; background: var(--color-surface); }
+.wb-roehrchen:disabled { opacity: 0.85; }
+.wb-nr { display: inline-grid; place-items: center; min-width: 1.4em; height: 1.4em; border-radius: 999px; background: var(--color-primary); color: #fff; font-size: var(--text-sm); }
+.wb-roehrchen .wb-nr { position: absolute; top: 2px; right: 2px; }
+.wb-verwurf { display: block; width: 16px; height: 56px; border: 2px dashed var(--color-border-strong); border-radius: 3px 3px 8px 8px; }
+.wb-verwurf.is-gross { width: 28px; height: 110px; }
+.wb-halter { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; min-height: 140px; padding: var(--space-2) var(--space-3); border: 1px dashed var(--color-border-strong); border-radius: var(--radius-sm); }
+.wb-halter p { margin: 0; flex: 1; min-width: 140px; }
+.wb-halter__roehrchen .roehrchen { transform: scale(1.6); transform-origin: left center; margin-right: 24px; }
+
+/* Befund */
+.wb-punkte { font-size: 1.1em; margin: 0; }
+.wb-fehler { margin: 0; padding-left: 1.2em; }
+.wb-fehler li { margin-bottom: var(--space-1); }
+.wb-tabelle { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
+.wb-tabelle th, .wb-tabelle td { text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--color-border); }
+.wb-tabelle tr.is-falsch td { background: var(--color-danger-soft); }
+
+/* Kurve */
+.wb-kurve { margin: 0; }
+.wb-kurve svg { width: 100%; max-width: 480px; height: auto; display: block; }
+.wb-kurve__band { fill: var(--color-success-soft); }
+.wb-kurve__achse { stroke: var(--color-border-strong); stroke-width: 1; }
+.wb-kurve__text { fill: var(--color-text-muted); font-size: 10px; }
+.wb-kurve__linie { fill: none; stroke: var(--color-primary); stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
+.wb-kurve__linie.is-zeichnen { stroke-dasharray: 1; stroke-dashoffset: 1; animation: wb-zeichnen 1.2s ease-out forwards; }
+.wb-kurve__punkt { fill: var(--color-primary); }
+.wb-kurve__linie.is-zeichnen ~ .wb-kurve__punkt { opacity: 0; animation: wb-auftauchen 0.25s ease-out forwards; }
+@keyframes wb-zeichnen { to { stroke-dashoffset: 0; } }
+@keyframes wb-auftauchen { to { opacity: 1; } }
+
+/* Meldung */
+.wb-telefon { display: flex; gap: var(--space-2); align-items: flex-start; padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); background: var(--color-surface-sunken); }
+.wb-telefon p { margin: 0; }
+.wb-telefon__symbol { font-size: 1.5em; line-height: 1; animation: wb-klingeln 0.6s ease-in-out 3; }
+@keyframes wb-klingeln { 25% { transform: rotate(-14deg); } 75% { transform: rotate(14deg); } }
+.wb-checks { display: grid; gap: var(--space-1); }
+.wb-check { display: flex; gap: var(--space-2); align-items: center; padding: 4px var(--space-2); border-radius: var(--radius-sm); }
+.wb-check.is-richtig { background: var(--color-success-soft); }
+.wb-check.is-falsch { background: var(--color-danger-soft); }
+.wb-sbar { margin: 0; padding-left: 0; list-style: none; display: grid; gap: var(--space-1); }
+.wb-sbar li { display: flex; gap: var(--space-2); padding: 4px var(--space-2); border-radius: var(--radius-sm); background: var(--color-surface-sunken); }
+.wb-sbar li.is-falsch { background: var(--color-danger-soft); }
+.wb-sbar__teil { font-weight: var(--weight-medium); min-width: 1.2em; color: var(--color-primary); }
+
+@media (prefers-reduced-motion: reduce) {
+  .wb-kurve__linie.is-zeichnen, .wb-kurve__linie.is-zeichnen ~ .wb-kurve__punkt, .wb-telefon__symbol { animation: none; stroke-dashoffset: 0; opacity: 1; }
+}
+:root[data-motion='reduce'] .wb-telefon__symbol, :root[data-motion='reduce'] .wb-kurve__linie.is-zeichnen ~ .wb-kurve__punkt { animation: none; opacity: 1; }
