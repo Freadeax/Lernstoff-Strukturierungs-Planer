@@ -162,6 +162,10 @@ input[aria-invalid='true'], select[aria-invalid='true'], textarea[aria-invalid='
 .settings-app-info { margin: 0 0 12px; padding-left: 1.2em; display: grid; gap: 6px; overflow-wrap: anywhere; }
 .settings-danger { border-top: 1px solid var(--color-border); margin-top: 24px; padding-top: 24px; }
 .settings-danger p { margin-bottom: 14px; }
+.settings-loeschen { margin: 0 0 16px; }
+.settings-loeschen dt { font-weight: var(--weight-bold); margin-top: 12px; }
+.settings-loeschen dd { margin: 4px 0 0; color: var(--color-text-muted, inherit); }
+.settings-zugaenge { padding-left: 1.2em; display: grid; gap: 8px; margin-bottom: 16px; }
 :root .pruefung-form__zeile, :root .ausnahme-form { display: grid; grid-template-columns: minmax(0, 1fr); max-width: 720px; gap: 4px; }
 :root .pruefung-form { max-width: 820px; }
 :root .wochentage { display: flex; flex-direction: column; max-width: 560px; gap: 0; }

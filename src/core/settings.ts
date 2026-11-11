@@ -23,3 +23,9 @@ export function setApiKey(value: string, dauerhaft = false) {
   if (!v) return;
   try { (dauerhaft ? localStorage : sessionStorage).setItem(KEY, v); } catch { /* Speicher gesperrt */ }
 }
+
+/** Wo liegt der Schlüssel gerade? Für die Anzeige in den Einstellungen. */
+export function apiKeyOrt(): 'keiner' | 'sitzung' | 'dauerhaft' {
+  if (lies(() => localStorage)) return 'dauerhaft';
+  return lies(() => sessionStorage) ? 'sitzung' : 'keiner';
+}
