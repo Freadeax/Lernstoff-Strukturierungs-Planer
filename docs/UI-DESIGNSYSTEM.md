@@ -47,6 +47,10 @@ Die wandernde Markierung im Menü misst den aktiven Eintrag (`useMarkierung` in 
 
 ---
 
+### Seitenkopf
+
+Jede Seite hat denselben Kopf: Marke, großer Titel, Einleitung. Seiten mit `PageHeading` setzen die Marke über `eyebrow`. Alle anderen (`.page__head` mit `h2`, oder `PageHeading` ohne `eyebrow`) bekommen automatisch ihren Platz im Menü als Marke, zum Beispiel „Üben · Fachwissen“: `gruppenPfad()` in `nav.ts`, von `App.tsx` als `--kopf-marke` gesetzt, Darstellung in `farbfelder.css`. Neue Seiten brauchen dafür nichts zu tun.
+
 ### Titelbilder
 
 Sechs Bereichsfotos liegen unter `public/titelbilder/` (1200 × 675, WebP, je 50 bis 100 KB) und werden für Offline vorab geladen (`titelbilder/*.webp` in `vite.config.ts`; andere WebP-Ordner bleiben beim Laufzeit-Cache). Baustein: `<Titelbild motiv="heute|lernen|material|ueben|simulation|system" />` aus `src/ui/Titelbild.tsx`, standardmäßig dekorativ (leerer Alternativtext), mit `beschreiben` kommt der Text aus dem Katalog. `PageHeading` nimmt `bild="…"` für die Einstiegsseiten der Bereiche. Neue Fotos zuerst auf diese Größe verkleinern.

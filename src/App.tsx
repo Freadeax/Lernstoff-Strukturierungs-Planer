@@ -1,7 +1,7 @@
 import { lazy, useEffect } from 'react';
 import { Shell } from './ui/shell/Shell';
 import { navigate, useRoute } from './ui/shell/router';
-import { REDIRECTS } from './ui/shell/nav';
+import { REDIRECTS, gruppenPfad } from './ui/shell/nav';
 import { PageBoundary } from './ui/shell/PageBoundary';
 import { WidgetGrid } from './ui/widget/Dashboard';
 import { WIDGETS } from './widgets/registry';
@@ -122,5 +122,5 @@ export function App() {
   // Schlüssel je Seite: beim Seitenwechsel wird der Rahmen neu aufgebaut, die Einblend-Animation läuft erneut.
   // Unterseiten des Klassenmodus teilen sich einen Schlüssel, damit ihr Zustand erhalten bleibt.
   const seite = path.startsWith('/lernen/klasse') ? '/lernen/klasse' : path;
-  return <Shell><PageBoundary path={path}><div className="route" key={seite}><View /></div></PageBoundary></Shell>;
+  return <Shell><PageBoundary path={path}><div className="route" key={seite} style={{ '--kopf-marke': JSON.stringify(gruppenPfad(seite)) } as React.CSSProperties}><View /></div></PageBoundary></Shell>;
 }

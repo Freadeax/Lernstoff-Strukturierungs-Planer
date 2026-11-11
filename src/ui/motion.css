@@ -62,8 +62,8 @@
 /* ---------- Seitenwechsel: Inhalte der Seite erscheinen nacheinander ---------- */
 /* :where hält die Spezifität bei null, eigene Animationen der Module gewinnen immer. */
 :where(.route > .page) > * { animation: m-rise var(--dur-slow) var(--ease-spring) backwards; animation-delay: calc(var(--i, 0) * var(--stagger)); }
-.page-heading h1 { animation: m-wipe-up var(--dur-slower) var(--ease-out) backwards; }
-.page-heading .eyebrow, .header-context__bereich { animation: m-pop var(--dur-slow) var(--ease-spring) backwards; }
+.page-heading h1, .page__head > h2 { animation: m-wipe-up var(--dur-slower) var(--ease-out) backwards; }
+.page-heading .eyebrow, .page__head::before, .header-context__bereich { animation: m-pop var(--dur-slow) var(--ease-spring) backwards; }
 .header-context strong { animation: m-rise var(--dur-normal) var(--ease-out) backwards; }
 :where(.grid12) > * { animation: m-rise var(--dur-slow) var(--ease-out) backwards; animation-delay: calc(var(--i, 0) * var(--stagger) + 120ms); }
 :where(.tool-grid, .ueben__liste, .today-start) > * { animation: m-pop var(--dur-slow) var(--ease-spring) backwards; animation-delay: calc(var(--i, 0) * var(--stagger) + 160ms); }
