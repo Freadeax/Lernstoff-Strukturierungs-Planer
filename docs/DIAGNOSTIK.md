@@ -63,6 +63,17 @@ Versuch-ID gemerkt (`lernstoff.diagnostik.buchungen`), Wiederöffnen und Neulade
 die nach dem Abschluss beantwortet werden, ändern die Buchung nicht. Alte Läufe ohne ID werden nicht gebucht. Der
 Lernplan verlinkt passende Fälle über `uebungenFuer`.
 
+**Bildnachweis und Messgrenzen (Audit SIM-08):** Unter jedem Bild stehen Bildart, Quelle, Lizenz, Bearbeitung und
+was die Messung bedeutet (`bildNachweis`, `nachweisText` in serie.ts). Strecken werden nur in mm angegeben, wenn
+ein Maßstab da ist (`istKalibriert`): Phantome haben einen Übungsmaßstab, echte Bilder brauchen `pixelMm`. HU gibt
+es nur bei CT mit Rohdaten (`hatHu`, `Rohbild.skala`), also beim Phantom oder beim 16-Bit-PNG. Ein 8-Bit-CT-Bild
+zeigt nur die Helligkeit in Prozent. Bilder über 16,7 Megapixel werden abgelehnt (`MAX_PIXEL`).
+
+**Privater Bildlader (Audit SEC-03, material.ts):** Der Lader prüft einmal je Verbindung, ob das Repo privat ist.
+Ein öffentliches Repo wird abgelehnt. Er bleibt an das verbundene Ziel gebunden: Wird das Ziel geändert, lädt er
+nichts mehr. Begrenzt sind Ordner, Bilder je Serie, Dateigröße, Größe der serie.json, Befundmarken und Texte.
+Marken außerhalb von 0..1 oder Schichtbereich werden verworfen. Die Seite lädt nur herunter, nie hoch.
+
 ## Echte Bilder
 
 - **Öffentlich** (`public/bildgebung/…`, Quelle `bilder`): nur frei lizenziert (CC BY, CC BY-SA, gemeinfrei) mit Urheber,
