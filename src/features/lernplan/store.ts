@@ -14,8 +14,11 @@ import {
   DEFAULT_SETTINGS,
   resolveSettings,
   topicMinutes,
+  type Aussagekraft,
   type Availability,
   type CardEvidence,
+  type Herkunft,
+  type VersuchStatus,
   type EvidenceSource,
   type PlannerInput,
   type PlannerSettings,
@@ -63,7 +66,7 @@ export const SOURCE_LABEL: Record<EvidenceSource, string> = {
 
 /** Anzeigenamen der Übungstrainer (Schlüssel wie TrainerId in trainer.ts). */
 export const TRAINER_NAME: Record<string, string> = {
-  rechnen: 'Rechentrainer', duell: 'Fachbegriff-Duell', fall: 'Fallsimulator', uebergabe: 'Übergabe-Trainer', pflegeplanung: 'Pflegeplanung', sis: 'SIS-Trainer', mindmap: 'Mindmap', bericht: 'Pflegebericht-Trainer', assessment: 'Assessment-Rechner', krankheitsbilder: 'Krankheitsbilder', selbsttest: 'CE-Selbsttest', hygiene: 'Hygiene-Trainer', anatomie: 'Anatomie-Trainer', expertenstandards: 'Expertenstandards-Trainer', normwerte: 'Normwerte-Trainer', notfall: 'Notfall-Trainer', arzneimittel: 'Arzneimittel-Trainer', praxis: 'Praxissimulator', recht: 'Recht-Trainer', labor: 'Labor-Trainer',
+  rechnen: 'Rechentrainer', duell: 'Fachbegriff-Duell', fall: 'Fallsimulator', uebergabe: 'Übergabe-Trainer', pflegeplanung: 'Pflegeplanung', sis: 'SIS-Trainer', mindmap: 'Mindmap', bericht: 'Pflegebericht-Trainer', assessment: 'Assessment-Rechner', krankheitsbilder: 'Krankheitsbilder', selbsttest: 'CE-Selbsttest', hygiene: 'Hygiene-Trainer', anatomie: 'Anatomie-Trainer', expertenstandards: 'Expertenstandards-Trainer', normwerte: 'Normwerte-Trainer', notfall: 'Notfall-Trainer', arzneimittel: 'Arzneimittel-Trainer', praxis: 'Praxissimulator', recht: 'Recht-Trainer', diagnostik: 'Diagnostik', labor: 'Labor-Trainer',
 };
 
 export const RATING_LABEL: Record<Rating, string> = { 1: 'Vergessen', 2: 'Schwer', 3: 'Gut', 4: 'Leicht' };
@@ -118,7 +121,7 @@ export function assembleInput(d: PlannerData): PlannerInput {
   // Was heute schon gelernt oder abgefragt wurde, verbraucht heutige Zeit. Sonst würde der Plan
   // nach jedem erledigten Block den Tag erneut vollständig füllen.
   const doneToday = d.studyLogs.filter((l) => l.date === d.today).reduce((s, l) => s + l.minutes, 0)
-    + d.reviewLogs.filter((l) => l.date === d.today).length * settings.reviewMinutes;
+    + d.reviewLogs.filter((l) => l.date === d.today && (!l.status || l.status === 'abgeschlossen')).length * settings.reviewMinutes;
   const availability: Availability = doneToday > 0
     ? { ...d.config.availability, exceptions: { ...d.config.availability.exceptions, [d.today]: Math.max(0, availableMinutes(d.config.availability, d.today) - doneToday) } }
     : d.config.availability;
@@ -128,7 +131,7 @@ export function assembleInput(d: PlannerData): PlannerInput {
     topics: d.topics,
     exams: d.exams,
     studyLogs: [...d.studyLogs.map(({ topicId, date, minutes }) => ({ topicId, date, minutes })), ...synthetic],
-    reviewLogs: d.reviewLogs.map(({ topicId, date, source, rating, scorePercent }) => ({ topicId, date, source, rating, scorePercent })),
+    reviewLogs: d.reviewLogs.map(({ topicId, date, source, rating, scorePercent, status, aussagekraft }) => ({ topicId, date, source, rating, scorePercent, ...(status ? { status } : {}), ...(aussagekraft ? { aussagekraft } : {}) })),
     availability,
     relevance,
     examWeights: d.config.examWeights,
@@ -217,20 +220,51 @@ export async function logStudy(topic: Topic, minutes: number, date = heute()) {
   await logActivity({ kind: 'lernplan', severity: 'info', ref: topic.id, title: `${minutes} Min. gelernt: ${topic.name}` });
 }
 
-/** Abfrageergebnis speichern. Selbsteinschätzungen werden gespeichert, zählen aber nicht als Nachweis. */
-export async function logReview(topic: Topic, source: EvidenceSource, result: { rating?: Rating; scorePercent?: number }, date = heute(), trainer?: string) {
+/** Zusatzangaben des einheitlichen Ergebnisformats (siehe ergebnis.ts). */
+export interface ReviewMeta { versuchId?: string; herkunft?: Herkunft; status?: VersuchStatus; aussagekraft?: Aussagekraft }
+
+/** gespeichert = neu; aktualisiert = offener Versuch abgeschlossen bzw. abgebrochen; schon_gebucht = derselbe Versuch zählt nicht doppelt. */
+export type BuchungsStatus = 'gespeichert' | 'aktualisiert' | 'schon_gebucht';
+
+/**
+ * Abfrageergebnis speichern. Selbsteinschätzungen werden gespeichert, zählen aber nicht als Nachweis.
+ * Mit `meta.versuchId` ist das Speichern idempotent: Derselbe Versuch wird je Thema nur einmal gebucht
+ * (Reload, Doppelklick, zweiter Tab). Ein offener Versuch darf später abgeschlossen oder abgebrochen werden.
+ */
+export async function logReview(topic: Topic, source: EvidenceSource, result: { rating?: Rating; scorePercent?: number }, date = heute(), trainer?: string, meta: ReviewMeta = {}): Promise<BuchungsStatus> {
   if (evidenceRating({ topicId: topic.id, date, source: 'quiz', ...result }) === undefined
     || (result.scorePercent !== undefined && (!Number.isFinite(result.scorePercent) || result.scorePercent < 0 || result.scorePercent > 100))) {
     throw new Error('Abfrage braucht eine gültige Bewertung oder 0 bis 100 Prozent.');
   }
-  await db.reviewLogs.add({ topicId: topic.id, date, source, ...result, at: new Date().toISOString(), ...(trainer ? { trainer } : {}) });
+  const zeile: StoredReviewLog = {
+    topicId: topic.id, date, source, ...result, at: new Date().toISOString(), ...(trainer ? { trainer } : {}),
+    ...(meta.versuchId ? { versuchId: meta.versuchId } : {}), ...(meta.herkunft ? { herkunft: meta.herkunft } : {}),
+    ...(meta.status ? { status: meta.status } : {}), ...(meta.aussagekraft ? { aussagekraft: meta.aussagekraft } : {}),
+  };
+  const status = await db.transaction('rw', db.reviewLogs, db.activity, async (): Promise<BuchungsStatus> => {
+    if (meta.versuchId) {
+      const alt = await db.reviewLogs.where('topicId').equals(topic.id).filter((l) => l.versuchId === meta.versuchId).first();
+      if (alt) {
+        if (!alt.status || alt.status === 'abgeschlossen' || alt.status === 'abgebrochen') return 'schon_gebucht';
+        await db.reviewLogs.update(alt.id!, { ...zeile, date: alt.date === date ? date : zeile.date });
+        return 'aktualisiert';
+      }
+    }
+    await db.reviewLogs.add(zeile);
+    return 'gespeichert';
+  });
+  if (status === 'schon_gebucht') return status;
+  const zaehlt = evidenceRating(zeile) !== undefined;
   const was = result.rating ? RATING_LABEL[result.rating] : `${result.scorePercent} %`;
   await logActivity({
     kind: 'lernplan', ref: topic.id,
-    severity: source !== 'selbsteinschaetzung' && (result.rating === 1 || (result.scorePercent ?? 100) < 50) ? 'warning' : 'info',
-    title: `Abfrage ${topic.name}: ${was}`,
-    detail: source === 'selbsteinschaetzung' ? 'Selbsteinschätzung, zählt nicht als Nachweis' : trainer ? `${SOURCE_LABEL[source]}: ${TRAINER_NAME[trainer] ?? trainer}` : SOURCE_LABEL[source],
+    severity: zaehlt && (result.rating === 1 || (result.scorePercent ?? 100) < 50) ? 'warning' : 'info',
+    title: `${meta.status === 'offen' ? 'Versuch begonnen' : meta.status === 'abgebrochen' ? 'Versuch abgebrochen' : 'Abfrage'} ${topic.name}: ${was}`,
+    detail: source === 'selbsteinschaetzung' ? 'Selbsteinschätzung, zählt nicht als Nachweis'
+      : !zaehlt ? 'Protokolliert, zählt nicht als Nachweis (Übung, offen oder abgebrochen)'
+      : trainer ? `${SOURCE_LABEL[source]}: ${TRAINER_NAME[trainer] ?? trainer}` : SOURCE_LABEL[source],
   });
+  return status;
 }
 
 /** Wissensstand eines Themas aus den gespeicherten Fakten (für Landkarte und Board). */

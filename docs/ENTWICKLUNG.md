@@ -83,3 +83,12 @@ begründet es im PR.
   Elemente ohne Button (z. B. Tabellenzeilen) brauchen `tabIndex={0}` und Enter/Leertaste. Schriftgrößen nur in rem.
 - `npm run test:lernalltag` prüft Dienstplan, liegen gebliebene Blöcke, Kompetenzbereiche, Kalenderexport,
   Fundstelle, Original neben der Zusammenfassung, Lese-/Dublettenhinweise, Fehlerheft-Rückwege und Lernstufen.
+
+## Lernergebnisse an den Lernplan melden
+
+Neue Module melden Ergebnisse über `bucheErgebnis` aus `src/features/lernplan/ergebnis.ts` (oder `logReview(…, meta)`
+bzw. `inLernplan(…, versuchId)` für einfache Trainer). Pflichtangaben: `versuchId` (`<modul>:<ref>:<lauf>`, stabil je
+Versuch), `herkunft` (Modul, Fall/Karte, optional bewertete Kriterien), `status` (abgeschlossen/offen/abgebrochen),
+`aussagekraft` (abruf/anwendung/uebung) und die Ergebnisse je Thema. Dieselbe versuchId zählt je Thema nur einmal;
+offen, abgebrochen und uebung werden protokolliert, zählen aber nicht (`evidenceRating`). Je Modul, Thema und Tag
+zählt nur der erste abgeschlossene Versuch, weitere werden als Übung protokolliert.
