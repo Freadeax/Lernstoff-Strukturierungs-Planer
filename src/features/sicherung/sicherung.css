@@ -12,3 +12,11 @@
 .sicherung__passwort { display: grid; gap: var(--space-2); margin-top: var(--space-2); max-width: 28rem; }
 .sicherung__passwort label, .sicherung__vorschau > label { display: grid; gap: var(--space-1); font-weight: var(--weight-bold); }
 .sicherung__passwort input, .sicherung__vorschau input[type="password"] { width: 100%; }
+.sicherung__vergleich { margin-top: var(--space-3); }
+.sicherung__vergleich h4 { margin: 0 0 var(--space-2); }
+.sicherung__tabelle { overflow-x: auto; }
+.sicherung__tabelle table { border-collapse: collapse; width: 100%; font-size: var(--text-sm, 0.875rem); }
+.sicherung__tabelle th, .sicherung__tabelle td { padding: var(--space-1); border-bottom: 1px solid var(--color-border); text-align: right; white-space: nowrap; }
+.sicherung__tabelle th[scope="row"], .sicherung__tabelle thead th:first-child { text-align: left; white-space: normal; }
+.sicherung__konflikt { color: var(--color-warning); font-weight: var(--weight-bold); }
+.sicherung__legende { font-size: var(--text-sm, 0.875rem); margin-top: var(--space-1); }

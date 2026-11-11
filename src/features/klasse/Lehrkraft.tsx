@@ -5,9 +5,20 @@ import { gesamtQuote, pruefeAntwort } from './auswertung';
 import { FallAnsicht } from './FallAnsicht';
 import { qrPfad, QrVollbild } from './qr';
 import { fallLink, leseAbgaben } from './kodierung';
-import { abgabenZu, entferneAbgabe, loescheEigenen, nimmAbgabenAuf } from './speicher';
+import { abgabenZu, entferneAbgabe, loescheAbgaben, loescheEigenen, nimmAbgabenAuf } from './speicher';
 import { appBasis, dateiname, datumText, fristText, kopiere, speichereDatei, teile } from './teilen';
-import { hatLoesung, klassenFassung, loesungsFassung, type Abgabe, type KlassenFall } from './typen';
+import { hatLoesung, klassenFassung, LINK_LABEL, linkInhalt, loesungsFassung, type Abgabe, type KlassenFall, type LinkZiel } from './typen';
+
+/** Vor dem Teilen: was steckt in diesem Link, was nicht (Audit SEC-06). */
+function LinkInhalt({ fall, ziel }: { fall: KlassenFall; ziel: LinkZiel }) {
+  const { enthaelt, ohne } = linkInhalt(fall, ziel);
+  return (
+    <p className="muted klasse__inhalt">
+      <strong>{ziel === 'klasse' ? `${LINK_LABEL.klasse} enthält` : 'Enthält'}:</strong> {enthaelt.join(' · ')}.
+      {ohne.length > 0 && <> <strong>Nicht enthalten:</strong> {ohne.join(', ')}.</>}
+    </p>
+  );
+}
 import { DatenHinweis } from '../../ui/DatenHinweis';
 
 /** Übersicht eines verteilten Falls: Link teilen, Abgaben einlesen und vergleichen. */
@@ -94,16 +105,18 @@ export function Lehrkraft({ fall }: { fall: KlassenFall }) {
         </div>
         {links && !qrMoeglich && <p className="muted">Für einen QR-Code ist der Link zu lang. Den Fall kürzen oder den Link teilen.</p>}
         {zeigeQr && links && <QrVollbild text={links.klasse} titel={fall.titel} onClose={() => setZeigeQr(false)} />}
+        <LinkInhalt fall={fall} ziel="klasse" />
         {links && <p className="muted">Länge des Links: {links.klasse.length.toLocaleString('de-DE')} Zeichen{links.klasse.length > 6000 ? '. Sehr lang: Wenn ein Programm ihn abschneidet, den Fall kürzen.' : '.'} {hatLoesung(fall) ? 'Ohne Lösung.' : ''}</p>}
         <DatenHinweis art="teilen" />
         {links?.loesung && (
           <div className="note" role="note">
-            <strong>Lösung getrennt verteilen</strong>
+            <strong>{LINK_LABEL.loesung}</strong>
             <p>Der Link oben enthält keine Lösung. Erst nach der Frist diesen Lösungslink an die Klasse geben: Wer schon abgegeben hat, sieht dann den Erwartungshorizont und die Checkliste zu den eigenen Antworten.</p>
             <div className="row klasse__knoepfe">
               <button type="button" onClick={() => links.loesung && teile({ title: `Lösung: ${fall.titel}`, text: `${fall.titel}: Lösung zum Vergleich mit deiner Abgabe.`, url: links.loesung }, 'Lösungslink')}>Lösungslink teilen …</button>
               <button type="button" className="ghost" onClick={() => links.loesung && kopiere(links.loesung, 'Lösungslink')}>Lösungslink kopieren</button>
             </div>
+            <LinkInhalt fall={fall} ziel="loesung" />
           </div>
         )}
         <details className="klasse__block">
@@ -114,7 +127,8 @@ export function Lehrkraft({ fall }: { fall: KlassenFall }) {
             <button type="button" className="ghost" onClick={() => setZeigeFall((x) => !x)}>{zeigeFall ? 'Fall ausblenden' : 'Fall ansehen'}</button>
             <button type="button" className="danger small" onClick={loeschen}>Löschen</button>
           </div>
-          <p className="muted">Der Lehrkraft-Link enthält den Fall mit Lösung, um ihn auf einem anderen Gerät oder für Kolleginnen und Kollegen zu öffnen. Nicht an die Klasse geben.</p>
+          <p className="muted"><strong>{LINK_LABEL.lehrkraft}</strong>: der Fall mit Lösung, um ihn auf einem anderen Gerät oder für Kolleginnen und Kollegen zu öffnen. Nicht an die Klasse geben.</p>
+          <LinkInhalt fall={fall} ziel="lehrkraft" />
         </details>
       </div>
 
@@ -184,6 +198,8 @@ export function Lehrkraft({ fall }: { fall: KlassenFall }) {
 
           <details className="klasse__block">
             <summary>Abgaben verwalten</summary>
+            <p className="muted">Abgaben enthalten Namen und Antworten der Lernenden und liegen nur in diesem Browser. Zum Aufbewahren „Als Tabelle (CSV)“ sichern, nach der Bewertung hier löschen. Sie sind auch in Datensicherungen dieses Geräts enthalten.</p>
+            <div className="row"><button type="button" className="danger small" onClick={() => { if (confirm(`Alle ${sortiert.length} Abgaben zu „${fall.titel}“ von diesem Gerät löschen?`)) { loescheAbgaben(fall.id); setAbgaben(abgabenZu(fall.id)); } }}>Alle Abgaben dieses Falls löschen</button></div>
             <ul className="klasse__liste">
               {sortiert.map((a) => (
                 <li key={a.name}>

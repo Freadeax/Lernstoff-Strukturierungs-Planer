@@ -11,6 +11,7 @@ import { bewerteAntwort, bewerteMc, type AntwortBewertung } from '../pruefung';
 import type { BelegJson, FragenSatz, Pruefungsfrage } from '../typen';
 import { Belegstelle } from './Belegstelle';
 import { LaufInfo } from './LaufInfo';
+import { DatenHinweis } from '../../../ui/DatenHinweis';
 
 const TYP = { offen: 'Offene Frage', mc_einfach: 'Multiple Choice (eine richtig)', mc_mehrfach: 'Multiple Choice (mehrere richtig)', fall: 'Fallfrage' };
 const FEHLERART = { begriff: 'Fachbegriff', zahl: 'Zahl/Einheit', ablauf: 'Ablauf', begruendung: 'Begründung', operator: 'Operator', inhalt: 'Inhalt' };
@@ -64,6 +65,7 @@ function Frage({ f, nr, chunkMap, titles, onErgebnis }: { f: Pruefungsfrage; nr:
           <button className="primary" disabled={busy || (istMc ? !gewaehlt.length : !text.trim())} onClick={bewerte}>{busy ? 'Wird bewertet …' : 'Antwort prüfen'}</button>
         </div>
       )}
+      {!fertig && !istMc && <DatenHinweis art="ki" kompakt detail="Zum Bewerten gehen Frage, deine Antwort und die Belegstellen aus deinen Quellen an die Claude-API (mögliche API-Kosten)." />}
       {error && <div className="note warn">{error}</div>}
       {mc && <div className={`note ${mc.richtig ? 'ok' : 'warn'}`}>{mc.richtig ? 'Richtig.' : 'Nicht ganz.'} {mc.punkte} von {mc.max} Punkten.</div>}
       {bewertung && (

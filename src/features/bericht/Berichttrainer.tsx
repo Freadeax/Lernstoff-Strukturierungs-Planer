@@ -8,6 +8,7 @@ import { navigate, useRoute } from '../../ui/shell/router';
 import { BERICHT_THEMA } from '../lernplan/trainer';
 import { LernplanHinweis, useLernplanUebernahme } from '../lernplan/ui/LernplanHinweis';
 import { useDiktat } from '../uebergabe/diktat';
+import { DiktatFrage } from '../uebergabe/DiktatFrage';
 import { BAUSTEIN_KURZ, BAUSTEIN_LABEL, BAUSTEINE, BERICHT_FAELLE, BEREICH_LABEL, type BerichtFall } from './faelle';
 import { markiere, pruefeBericht, sprachpruefung, type BerichtErgebnis, type FundArt } from './pruefung';
 import { bewerteMitClaude, type KiRueckmeldung } from './claude';
@@ -223,6 +224,7 @@ export default function Berichttrainer() {
           </label>
           {diktat.aktiv && <div className="note" role="status">Hört zu … {diktat.zwischen && <em>{diktat.zwischen}</em>}</div>}
           {diktat.fehler && <div className="note warn" role="alert">{diktat.fehler}</div>}
+          <DiktatFrage diktat={diktat} />
           <div className="row bericht__knoepfe">
             <button type="submit" className="primary" disabled={leer}>Prüfen</button>
             {diktat.moeglich && (
