@@ -3,7 +3,9 @@
 // Sauerstoff, wer im Raum ist), ohne Zahlen zu verraten. Zahlen gibt es weiterhin
 // nur über Messen bzw. Monitoring. Keine Seiteneffekte, damit die Szene testbar bleibt.
 
+import { automatischeWertung } from '../../ui/sim/freigabe';
 import { RESOURCES } from './catalog';
+import { freigabeFuer } from './freigaben';
 import { consciousness, news2Of } from './engine';
 import { elementVon, type RaumElement } from './raum';
 import type { Avpu } from './news2';
@@ -150,7 +152,8 @@ export function szene(s: Session): SzenenZustand {
 
   const punkt = { vitals: v, avpu, oxygen: s.oxygen ?? false };
   const risiko = news2Of(punkt).risiko;
-  const alarm: Alarm = !s.monitoring ? 'kein' : risiko === 'hoch' || risiko === 'mittel' ? 'rot' : risiko === 'niedrig-mittel' ? 'gelb' : 'kein';
+  // Kinder ohne geprüftes Profil: keine Erwachsenen-Alarmlogik (NEWS2) – Audit SIM-01/02.
+  const alarm: Alarm = !s.monitoring || !automatischeWertung(freigabeFuer(s.scenario)) ? 'kein' : risiko === 'hoch' || risiko === 'mittel' ? 'rot' : risiko === 'niedrig-mittel' ? 'gelb' : 'kein';
 
   return {
     zuhause, monitorVorhanden: r.monitor, monitoring: s.monitoring, nacht,
