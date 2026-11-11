@@ -7,6 +7,7 @@ import { runde, type Aufgabe } from './quiz';
 import { Runde, type Figur, type RundenErgebnis } from './Runde';
 import type { FehlerQuelle } from '../fehlerheft/fehlerheft';
 import type { TrainerId } from '../lernplan/trainer';
+import { FachListe } from './FachText';
 
 export interface TrainerBereich { id: string; label: string; kurz: string; wissen: string[] }
 
@@ -94,7 +95,8 @@ export function TrainerSeite({ titel, intro, hinweis, pfad, quelle, bereiche, au
             {info && info.wissen.length > 0 && (
               <details className="qz-seite__wissen">
                 <summary>Kurz wiederholen, bevor es losgeht</summary>
-                <ul>{info.wissen.map((w) => <li key={w}>{w}</li>)}</ul>
+                <FachListe texte={info.wissen} />
+                <p className="muted qz-seite__tipp">Unterstrichene Fachbegriffe antippen für eine Kurzdefinition.</p>
               </details>
             )}
             <div className="qz-seite__start">

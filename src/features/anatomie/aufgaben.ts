@@ -1,7 +1,8 @@
 // Anatomie-Trainer: Abbildungen beschriften, Wege in die richtige Reihenfolge bringen, Funktionen zuordnen.
 // Inhalte sind Grundlagenwissen aus Anatomie und Physiologie (Lehrbuchstand), schematisch vereinfacht.
 
-import type { Aufgabe, AuswahlAufgabe } from '../quiz/quiz';
+import { mitVertiefung, type Aufgabe, type AuswahlAufgabe } from '../quiz/quiz';
+import { VERTIEFUNG } from './vertiefung';
 
 export type BereichId = 'herz' | 'atmung' | 'niere' | 'verdauung' | 'bewegung' | 'nerven' | 'sinne' | 'haut' | 'hormone';
 export interface Bereich { id: BereichId; label: string; kurz: string; wissen: string[] }
@@ -454,5 +455,5 @@ export const BEREICHE: Bereich[] = [
   },
 ];
 
-export const AUFGABEN: Record<BereichId, Aufgabe[]> = { herz, atmung, niere, verdauung, bewegung, nerven, sinne, haut: hautAufgaben, hormone };
+export const AUFGABEN: Record<BereichId, Aufgabe[]> = mitVertiefung({ herz, atmung, niere, verdauung, bewegung, nerven, sinne, haut: hautAufgaben, hormone }, VERTIEFUNG);
 export const ALLE_AUFGABEN: Aufgabe[] = Object.values(AUFGABEN).flat();

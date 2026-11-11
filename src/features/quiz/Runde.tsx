@@ -7,6 +7,8 @@ import {
 import { notiereFehler, type FehlerQuelle } from '../fehlerheft/fehlerheft';
 import { proThema, type TrainerId } from '../lernplan/trainer';
 import { LernplanHinweis, useLernplanUebernahme } from '../lernplan/ui/LernplanHinweis';
+import { storage } from '../../ui/lib/store';
+import { BegriffListe, FachListe, ThemenLinks } from './FachText';
 
 /** Eine Abbildung zum Beschriften: Zeichnung ohne Nummern, die Marken legt die Runde darüber. */
 export interface Figur { viewBox: string; beschreibung: string; zeichnung: ReactNode }
@@ -125,6 +127,45 @@ function Beschriften({ a, figur, zu, setZu, b }: {
   );
 }
 
+// ---------------------------------------------------------------- Mehr verstehen
+
+const OFFEN_KEY = 'lernstoff.quiz.vertiefungOffen';
+
+/** Texte einer Aufgabe, in denen Fachbegriffe stehen können. Nach dem Prüfen ist alles sichtbar. */
+function aufgabenTexte(a: Aufgabe): string[] {
+  const teile = a.art === 'auswahl' ? a.optionen : a.art === 'reihenfolge' ? a.schritte : a.marken.flatMap((m) => [m.label, m.hinweis]);
+  return [a.frage, ...teile, ...a.erklaerung, ...(a.vertiefung ?? [])];
+}
+
+/**
+ * Aufklappbare Vertiefung nach dem Prüfen: Hintergrund, Fachbegriffe der Aufgabe, Themenlinks.
+ * Erst nach dem Prüfen, damit Definitionen keine Antwort vorwegnehmen. Bleibt offen, wenn man sie einmal geöffnet hat.
+ */
+function MehrVerstehen({ a }: { a: Aufgabe }) {
+  const [offen, setOffen] = useState(() => storage.read<boolean>(OFFEN_KEY, false));
+  const texte = useMemo(() => aufgabenTexte(a), [a]);
+  return (
+    <details
+      className="qz-vertiefung" open={offen}
+      onToggle={(e) => { const o = (e.currentTarget as HTMLDetailsElement).open; if (o !== offen) { setOffen(o); storage.write(OFFEN_KEY, o); } }}
+    >
+      <summary>Mehr verstehen</summary>
+      {a.vertiefung && a.vertiefung.length > 0 && (
+        <>
+          <h4>Hintergrund</h4>
+          <FachListe texte={a.vertiefung} className="qz-vertiefung__text" />
+        </>
+      )}
+      <BegriffListe texte={texte} />
+      <ThemenLinks topicIds={a.topicIds} />
+      <p className="qz-vertiefung__beleg muted">
+        Ergänzendes Lehrbuchwissen ohne Beleg aus deinem Material. Bei Abweichungen gelten der aktuelle Standard,
+        dein Unterricht und die Vorgaben deiner Einrichtung.
+      </p>
+    </details>
+  );
+}
+
 // ---------------------------------------------------------------- Runde
 
 function leereAntwort(a: Aufgabe): Antwort {
@@ -224,8 +265,9 @@ export function Runde({ aufgaben, quelle, trainer, figuren = {}, minProThema = 3
         <>
           <div className={`note ${geprueft.richtig ? 'ok' : 'warn'}`} role="status">
             <strong>{geprueft.richtig ? 'Richtig.' : geprueft.punkte > 0 ? `Teilweise richtig: ${geprueft.punkte} von ${geprueft.max}.` : 'Leider falsch.'}</strong>
-            <ul className="qz__erklaerung">{a.erklaerung.map((t) => <li key={t}>{t}</li>)}</ul>
+            <FachListe texte={a.erklaerung} className="qz__erklaerung" />
           </div>
+          <MehrVerstehen a={a} />
           <div className="row">
             <button type="button" className="primary" onClick={weiter}>{i + 1 < aufgaben.length ? 'Weiter' : 'Auswertung'}</button>
           </div>

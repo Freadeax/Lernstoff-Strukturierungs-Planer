@@ -1,4 +1,5 @@
-// Gemeinsamer Kern für offline-Übungsrunden (Hygiene-Trainer, Anatomie-Trainer).
+// Gemeinsamer Kern für offline-Übungsrunden (Hygiene-, Anatomie-, Normwerte-, Notfall-, Arzneimittel-,
+// Expertenstandards-, Labor- und Recht-Trainer).
 // Drei Aufgabenarten: Auswahl, Reihenfolge, Abbildung beschriften.
 // Alles hier ist rein und testbar; Speichern und Oberfläche liegen in Runde.tsx und den Seiten.
 //
@@ -19,6 +20,11 @@ interface Basis {
   frage: string;
   /** Begründung, wird nach dem Prüfen gezeigt. */
   erklaerung: string[];
+  /**
+   * „Mehr verstehen“: Hintergrund, Zusammenhang und Praxisbezug über die Begründung hinaus.
+   * Wird nach dem Prüfen aufklappbar gezeigt und wandert mit ins Fehlerheft.
+   */
+  vertiefung?: string[];
 }
 
 export interface AuswahlAufgabe extends Basis {
@@ -105,6 +111,34 @@ export function runde(aufgaben: readonly Aufgabe[], anzahl: number, zufall: () =
   return mische(auswahl, zufall).map((a) => mischeOptionen(a, zufall));
 }
 
+/**
+ * Hängt die Vertiefungstexte (je Aufgaben-ID) an die Aufgaben eines Trainers.
+ * Getrennte Dateien halten die Aufgaben kurz; pruefeVertiefung() findet verwaiste oder fehlende Einträge.
+ */
+export function mitVertiefung<K extends string>(aufgaben: Record<K, Aufgabe[]>, vertiefung: Readonly<Record<string, readonly string[]>>): Record<K, Aufgabe[]> {
+  const out = {} as Record<K, Aufgabe[]>;
+  for (const k of Object.keys(aufgaben) as K[]) {
+    out[k] = aufgaben[k].map((a) => (vertiefung[a.id] ? { ...a, vertiefung: [...vertiefung[a.id]!] } : a));
+  }
+  return out;
+}
+
+/** Baufehler der Vertiefung: fehlend, verwaist, leer oder bloße Wiederholung der Erklärung. */
+export function pruefeVertiefung(aufgaben: readonly Aufgabe[], vertiefung: Readonly<Record<string, readonly string[]>>): string[] {
+  const out: string[] = [];
+  const ids = new Set(aufgaben.map((a) => a.id));
+  for (const id of Object.keys(vertiefung)) if (!ids.has(id)) out.push(`${id}: Vertiefung ohne Aufgabe`);
+  for (const a of aufgaben) {
+    const v = vertiefung[a.id];
+    if (!v?.length) { out.push(`${a.id}: keine Vertiefung`); continue; }
+    for (const t of v) {
+      if (t.trim().length < 40) out.push(`${a.id}: Vertiefung zu kurz („${t}“)`);
+      if (a.erklaerung.includes(t)) out.push(`${a.id}: Vertiefung wiederholt die Erklärung`);
+    }
+  }
+  return out;
+}
+
 // ---------------------------------------------------------------- Bewerten
 
 export function bewerte(a: Aufgabe, antwort: Antwort): Bewertung {
@@ -159,13 +193,14 @@ export function alsFehler(a: Aufgabe, antwort: Antwort, quelle: FehlerQuelle): N
   const b = bewerte(a, antwort);
   if (b.richtig) return [];
   const id = `${quelle}:${a.id}`;
+  const erklaerung = [...a.erklaerung, ...(a.vertiefung ?? [])];
   if (a.art === 'auswahl') {
     const wahl = antwort.art === 'auswahl' ? antwort.wahl : [];
     return [{
       id, quelle, topicIds: a.topicIds, titel: a.titel, frage: a.frage,
       deineAntwort: wahl.length ? wahl.map((i) => a.optionen[i]).join(' · ') : 'keine Antwort',
       loesung: a.richtig.map((i) => a.optionen[i]).join(' · '),
-      erklaerung: a.erklaerung,
+      erklaerung,
       wiederholung: { art: 'auswahl', optionen: a.optionen, richtig: a.richtig, mehrfach: a.mehrfach },
     }];
   }
@@ -181,7 +216,7 @@ export function alsFehler(a: Aufgabe, antwort: Antwort, quelle: FehlerQuelle): N
       id, quelle, topicIds: a.topicIds, titel: a.titel, frage,
       deineAntwort: folge.join(' → ') || '–',
       loesung: a.schritte.join(' → '),
-      erklaerung: a.erklaerung,
+      erklaerung,
       wiederholung: { art: 'auswahl', optionen, richtig: [0], mehrfach: false },
     }];
   }
