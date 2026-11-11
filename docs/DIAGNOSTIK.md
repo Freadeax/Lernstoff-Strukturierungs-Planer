@@ -53,6 +53,16 @@ Der Ort in der Szene kommt aus `fall.bereich`, nicht aus dem Fachbereich des Rau
 enthält je Fall Lernziele, Geltung, Quellen und Prüfstand (gemeinsames Modell `src/ui/sim/freigabe.ts`), angezeigt
 am Start und an Melde- und Befundentscheidungen.
 
+**Lernkreislauf (Audit SIM-05):** Ein beendeter Versuch wird einmal als Lernereignis gebucht
+(`lernereignis.ts`, `bucheErgebnis` aus dem Lernplan). Die Versuch-ID lautet `diagnostik:<fallId>:<laufId>`.
+Die Kriterien werden getrennt bewertet: Präanalytik, kritische Meldung, SBAR, Vorbereitung und Befundverständnis.
+Die Themen stehen in `themen.ts`: Präanalytik geht auf Injektion/Blutentnahme, Meldung und SBAR auf Übergabe,
+die Vorbereitung auf prä-/postoperative Pflege und das Befundverständnis auf die Krankheitsthemen des Falls.
+Falsch beantwortete Lernfragen (Auswahl, BGA) landen im Fehlerheft (Quelle `diagnostik`). Die Buchung wird je
+Versuch-ID gemerkt (`lernstoff.diagnostik.buchungen`), Wiederöffnen und Neuladen buchen also nicht doppelt. Fragen,
+die nach dem Abschluss beantwortet werden, ändern die Buchung nicht. Alte Läufe ohne ID werden nicht gebucht. Der
+Lernplan verlinkt passende Fälle über `uebungenFuer`.
+
 ## Echte Bilder
 
 - **Öffentlich** (`public/bildgebung/…`, Quelle `bilder`): nur frei lizenziert (CC BY, CC BY-SA, gemeinfrei) mit Urheber,

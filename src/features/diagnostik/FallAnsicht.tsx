@@ -1,7 +1,12 @@
 // Ein laufender Diagnostik-Fall mit derselben Leiste wie die Raumsimulation:
 // Beobachtung, Labor, Bildgebung, Übergabe, Auswertung.
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { bucheErgebnis, buchungsText } from '../lernplan/ergebnis';
+import { notiereFehler } from '../fehlerheft/fehlerheft';
+import { storage } from '../../ui/lib/store';
+import { navigate } from '../../ui/shell/router';
+import { fehlerAusLauf, kriterien, lernereignis, versuchIdVon } from './lernereignis';
 import { PatientenMonitor } from '../../ui/sim/PatientenMonitor';
 import { BildBetrachter } from '../../ui/sim/bildgebung/BildBetrachter';
 import { anzahlSchichten, trifft, type Bildserie } from '../../ui/sim/bildgebung/serie';
@@ -277,6 +282,43 @@ function Uebergabe({ fall, lauf, senden }: { fall: DiagnostikFall; lauf: Lauf; s
   );
 }
 
+const BUCHUNG_KEY = 'lernstoff.diagnostik.buchungen';
+
+/**
+ * Bucht einen beendeten Versuch genau einmal in Lernplan und Fehlerheft (Audit SIM-05). Merkt sich die
+ * Buchung je Versuch-ID, damit Wiederöffnen und Neuladen nichts doppelt zählen; der Lernplan selbst
+ * lehnt dieselbe Versuch-ID ein zweites Mal ebenfalls ab.
+ */
+function LernplanKarte({ fall, lauf }: { fall: DiagnostikFall; lauf: Lauf }) {
+  const versuchId = versuchIdVon(lauf);
+  const [text, setText] = useState<string | undefined>(() => (versuchId ? storage.read<Record<string, string>>(BUCHUNG_KEY, {})[versuchId] : undefined));
+  const ks = kriterien(lauf, fall);
+  useEffect(() => {
+    if (!versuchId || text !== undefined) return;
+    const e = lernereignis(lauf, fall);
+    const merken = (t: string) => { storage.write(BUCHUNG_KEY, { ...storage.read<Record<string, string>>(BUCHUNG_KEY, {}), [versuchId]: t }); setText(t); };
+    notiereFehler(fehlerAusLauf(lauf, fall));
+    if (!e) { merken('Keine Lernplan-Themen für diesen Fall.'); return; }
+    bucheErgebnis(e).then((b) => merken(buchungsText(b))).catch(() => setText('Lernplan nicht erreichbar, bitte später erneut öffnen.'));
+    // nur einmal je Versuch
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [versuchId]);
+  return (
+    <section className="card dx-karte" aria-labelledby="dx-lernplan">
+      <h3 id="dx-lernplan">Kriterien und Lernplan</h3>
+      <ul className="dx-kriterien">
+        {ks.map((k) => <li key={k.id}><Rueckmeldung richtig={k.erfuellt} text={`${k.label}: ${k.ok} von ${k.gesamt}`} /></li>)}
+      </ul>
+      <p className="muted dx-klein">
+        {!versuchId ? 'Dieser Versuch stammt aus einer älteren Version und wird nicht in den Lernplan gebucht. Mit „Neu beginnen“ zählt der nächste Versuch.'
+          : text ?? 'Wird in den Lernplan übernommen …'}
+        {versuchId && ` Versuch ${lauf.versuch ?? 1}. Lernfragen, die du nach dem Abschluss beantwortest, ändern diese Buchung nicht.`}
+      </p>
+      <div className="dx-zeile"><button type="button" onClick={() => navigate('/lernen/fehler')}>Zum Fehlerheft</button><button type="button" onClick={() => navigate('/lernen/plan')}>Zum Lernplan</button></div>
+    </section>
+  );
+}
+
 function Auswertung({ fall, lauf, senden }: { fall: DiagnostikFall; lauf: Lauf; senden: (b: Befehl) => void }) {
   const punkte = auswertung(lauf, fall);
   return (
@@ -293,6 +335,7 @@ function Auswertung({ fall, lauf, senden }: { fall: DiagnostikFall; lauf: Lauf; 
         </section>
       ) : (
         <>
+          <LernplanKarte fall={fall} lauf={lauf} />
           <section className="card dx-karte">
             <h3>Rückmeldung</h3>
             <ul className="dx-punkte">{punkte.map((p, i) => <li key={i}><Rueckmeldung richtig={p.ok} text={`${p.titel}: ${p.text}`} /></li>)}</ul>
