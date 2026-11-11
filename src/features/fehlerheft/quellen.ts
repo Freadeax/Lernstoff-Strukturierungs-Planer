@@ -12,7 +12,7 @@ import type { Vignette } from '../assessment/vignetten';
 import type { VignettenErgebnis } from '../assessment/bewertung';
 import type { Scenario } from '../praxis/types';
 import { PRAXIS_THEMEN } from '../praxis/themen';
-import type { NeuerFehler } from './fehlerheft';
+import type { FehlerQuelle, NeuerFehler } from './fehlerheft';
 
 const STUFE_LABEL: Record<Stufe, string> = { 1: 'Einstieg', 2: 'Station', 3: 'Profi' };
 const THEMA = Object.fromEntries(TYPEN.map((t) => [t.typ, t.thema])) as Record<AufgabenTyp, string>;
@@ -57,9 +57,12 @@ export function ausSimulation(f: SimFrage, a: SimAntwort | undefined): NeuerFehl
   }
   if (f.art !== 'auswahl') return null;
   const wahl = a?.wahl ?? [];
-  const id = f.id.startsWith('glossar:') ? begriffId(f.id.slice('glossar:'.length)) : `simulation:${f.id}`;
+  // Trainer-Aufgaben landen beim Trainer selbst (gleiche ID wie im Trainer), damit „Meine Schwachstellen“ sie findet.
+  const trainer = f.id.startsWith('trainer:') ? f.id.slice('trainer:'.length) : '';
+  const trainerQuelle = trainer ? trainer.slice(0, trainer.indexOf(':')) as FehlerQuelle : undefined;
+  const id = trainer ? trainer : f.id.startsWith('glossar:') ? begriffId(f.id.slice('glossar:'.length)) : `simulation:${f.id}`;
   return {
-    id, quelle: 'simulation', topicIds: f.topicId ? [f.topicId] : [],
+    id, quelle: trainerQuelle ?? 'simulation', topicIds: f.topicId ? [f.topicId] : [],
     titel: f.hinweis ?? 'Prüfungsfrage',
     frage: f.frage,
     deineAntwort: wahl.length ? wahl.map((i) => f.optionen[i] ?? '').join(' · ') : 'keine Antwort',

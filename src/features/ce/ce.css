@@ -33,7 +33,7 @@
 .ce-pfad__zahl strong { font-size: 1.5rem; line-height: 1.1; color: var(--color-primary); }
 .ce-pfad__zahl span { font-size: var(--text-sm); }
 .ce-pfad__balken { height: 8px; border-radius: var(--radius-pill, 999px); background: var(--color-surface-sunken); overflow: hidden; }
-.ce-pfad__balken > span { display: block; height: 100%; background: var(--color-primary); border-radius: inherit; transition: width .3s ease; }
+.ce-pfad__balken > span { display: block; height: 100%; background: var(--color-primary); border-radius: inherit; transition: width var(--dur-slow) var(--ease-out); transform-origin: left; animation: m-grow-x var(--dur-slower) var(--ease-out) backwards; }
 .ce-pfad__weiter { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2); padding: var(--space-3); border-radius: var(--radius-md, 8px); background: var(--color-primary-soft); }
 .ce-pfad__weiter > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1 1 200px; }
 .ce-pfad__weiter strong { overflow-wrap: anywhere; }
@@ -52,7 +52,8 @@
 .pfad__marke { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: var(--text-sm); font-weight: 600; border: 2px solid var(--color-border); background: var(--color-surface); color: var(--color-text-muted); }
 .pfad__schritt--erledigt .pfad__marke { background: var(--color-success); border-color: var(--color-success); color: #fff; }
 .pfad__schritt--teilweise .pfad__marke { border-color: var(--color-warning); color: var(--color-warning); }
-.pfad__schritt--weiter .pfad__marke { border-color: var(--color-primary); color: var(--color-primary); box-shadow: 0 0 0 3px var(--color-primary-soft); }
+.pfad__schritt--weiter .pfad__marke { border-color: var(--color-primary); color: var(--color-primary); box-shadow: 0 0 0 3px var(--color-primary-soft); animation: m-pop var(--dur-slow) var(--ease-spring) 200ms backwards; }
+.pfad__schritt--erledigt .pfad__marke { animation: m-pop var(--dur-slow) var(--ease-spring) backwards; }
 .pfad__schritt--entfaellt strong { color: var(--color-text-muted); font-weight: 500; }
 .pfad__schritt--entfaellt .pfad__marke { border-style: dashed; }
 .pfad__text { display: flex; flex-direction: column; min-width: 0; font-size: var(--text-sm); }

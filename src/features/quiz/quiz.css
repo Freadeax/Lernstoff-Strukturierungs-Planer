@@ -1,7 +1,7 @@
 /* Übungsrunden (Hygiene-, Anatomie-Trainer). Nur Tokens aus src/ui/tokens.css. */
 .qz__kopf { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
 .qz__fortschritt { width: 100%; height: 6px; margin: var(--space-2) 0; accent-color: var(--color-primary); }
-.qz__frage { margin: var(--space-2) 0; font-size: var(--text-lg); line-height: var(--leading-normal); }
+.qz__frage { margin: var(--space-2) 0; font-size: var(--text-lg); line-height: var(--leading-normal); white-space: pre-line; }
 
 .qz__optionen { border: 0; padding: 0; margin: 0 0 var(--space-3); display: grid; gap: var(--space-2); }
 .qz__option {
@@ -100,6 +100,7 @@
 .qz-vertiefung h4 { margin: var(--space-2) 0 var(--space-1); font-size: var(--text-md); }
 .qz-vertiefung__text { margin: 0; padding-left: 1.2em; display: grid; gap: var(--space-1); }
 .qz-vertiefung__begriffe ul { margin: 0; padding-left: 1.2em; display: grid; gap: var(--space-2); font-size: var(--text-sm); }
+details.qz-vertiefung__begriffe summary { cursor: pointer; font-weight: var(--weight-medium); min-height: 44px; display: flex; align-items: center; }
 .qz-vertiefung__themen { margin: var(--space-2) 0 0; }
 .qz-vertiefung__beleg { margin: var(--space-2) 0 0; font-size: var(--text-sm); }
 .qz-seite__tipp { font-size: var(--text-sm); margin: var(--space-1) 0 0; }
@@ -145,15 +146,6 @@
 
 /* Auswertung */
 .qz__ende-kopf { display: flex; gap: var(--space-3); align-items: center; flex-wrap: wrap; margin-bottom: var(--space-2); }
-.qz__ring { width: 120px; height: 120px; flex: none; transform: rotate(-90deg); }
-.qz__ring text { transform: rotate(90deg); transform-origin: 60px 60px; font-size: 1.4rem; font-weight: 700; fill: var(--color-text); }
-.qz__ring circle { fill: none; stroke-width: 12; }
-.qz__ring-spur { stroke: var(--color-surface-sunken); }
-.qz__ring-wert { stroke-linecap: round; animation: qz-ring var(--dur-slower) var(--ease-out) backwards; }
-.qz__ring-wert.is-gut { stroke: var(--color-success); }
-.qz__ring-wert.is-mittel { stroke: var(--color-warning); }
-.qz__ring-wert.is-schwach { stroke: var(--color-danger); }
-@keyframes qz-ring { from { stroke-dasharray: 0 100; } }
 .qz__stufen { list-style: none; padding: 0; margin: 0 0 var(--space-3); display: grid; gap: var(--space-1); }
 .qz__stufen li { display: grid; grid-template-columns: 7rem minmax(0, 1fr) auto; gap: var(--space-2); align-items: center; font-size: var(--text-sm); }
 .qz__stufen-balken { height: 8px; border-radius: 4px; background: var(--color-surface-sunken); overflow: hidden; }

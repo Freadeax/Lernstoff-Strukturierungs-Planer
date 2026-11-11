@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { pflegeModule } from '../../modules/pflege';
 import type { Karte } from '../karteikarten/typen';
 import type { DayPlan } from '../lernplan/scheduler';
-import { cePfad, ceWoche, themaPfad, type ThemaFakten } from './lernpfad';
+import { cePfad, ceWoche, themaPfad, UEBEN_GUT_AB, type ThemaFakten } from './lernpfad';
 import { ceListe } from './modell';
 import { baueCePruefung, ceVonPruefung, cePruefungsId, findeCePruefung, istCePruefung, themenAbgleich } from './pruefung';
 import { FRAGEN_JE_THEMA, stelleTestZusammen, testbareThemen, werteAus } from './selbsttest';
@@ -15,7 +15,7 @@ const basis = (p: Partial<ThemaFakten> = {}): ThemaFakten => ({
 describe('Lernpfad je Thema', () => {
   it('ohne Material: nur Lesen und Selbsttest, Lesen ist der nächste Schritt', () => {
     const p = themaPfad(basis({ testZiel: '/lernen/mindmap?thema=t1' }));
-    expect(p.schritte.map((s) => s.zustand)).toEqual(['offen', 'entfaellt', 'entfaellt', 'entfaellt', 'offen']);
+    expect(p.schritte.map((s) => s.zustand)).toEqual(['offen', 'entfaellt', 'entfaellt', 'entfaellt', 'entfaellt', 'offen']);
     expect(p.gesamt).toBe(2);
     expect(p.naechster?.art).toBe('lesen');
     expect(p.naechster?.ziel).toBe('/lernen/skript?thema=t1');
@@ -47,9 +47,21 @@ describe('Lernpfad je Thema', () => {
     expect(bisTest.erledigt).toBe(4);
   });
 
+  it('Üben im Trainer: offen ohne Ergebnis, wiederholen unter der Grenze, erledigt darüber, vor dem Selbsttest', () => {
+    const trainer = [{ label: 'Hygiene-Trainer', path: '/lernen/hygiene' }];
+    const f = basis({ erarbeitet: true, testZiel: '/x', uebungen: { trainer } });
+    const p = themaPfad(f);
+    expect(p.naechster).toMatchObject({ art: 'ueben', zustand: 'offen', ziel: '/lernen/hygiene' });
+    expect(themaPfad({ ...f, uebungen: { trainer, ergebnis: UEBEN_GUT_AB - 1 } }).schritte[4]!.zustand).toBe('teilweise');
+    const gut = themaPfad({ ...f, uebungen: { trainer, ergebnis: 90 } });
+    expect(gut.schritte[4]).toMatchObject({ zustand: 'erledigt' });
+    expect(gut.naechster?.art).toBe('selbsttest');
+    expect(themaPfad({ ...f, uebungen: { trainer: [] } }).schritte[4]!.zustand).toBe('entfaellt');
+  });
+
   it('Selbsttest erst mit „sicher“ erledigt, Abfragen ohne Sicherheit heißen wiederholen', () => {
-    expect(themaPfad(basis({ tests: 2, status: 'unsicher', testZiel: '/x' })).schritte[4]!.zustand).toBe('teilweise');
-    expect(themaPfad(basis({ tests: 3, status: 'sicher' })).schritte[4]!.zustand).toBe('erledigt');
+    expect(themaPfad(basis({ tests: 2, status: 'unsicher', testZiel: '/x' })).schritte[5]!.zustand).toBe('teilweise');
+    expect(themaPfad(basis({ tests: 3, status: 'sicher' })).schritte[5]!.zustand).toBe('erledigt');
   });
 
   it('CE-Pfad: angefangene Themen zuerst fertig machen', () => {

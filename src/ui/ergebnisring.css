@@ -1,0 +1,10 @@
+/* Ergebnisring (src/ui/Ergebnisring.tsx). Nur Tokens, Animation über stroke-dasharray, bei reduzierter Bewegung aus (motion.css). */
+.ergebnisring { width: 120px; height: 120px; flex: none; transform: rotate(-90deg); }
+.ergebnisring text { transform: rotate(90deg); transform-origin: 60px 60px; font-size: 1.4rem; font-weight: 700; fill: var(--color-text); }
+.ergebnisring circle { fill: none; stroke-width: 12; }
+.ergebnisring__spur { stroke: var(--color-surface-sunken); }
+.ergebnisring__wert { stroke-linecap: round; animation: ergebnisring var(--dur-slower) var(--ease-out) backwards; }
+.ergebnisring__wert.is-gut { stroke: var(--color-success); }
+.ergebnisring__wert.is-mittel { stroke: var(--color-warning); }
+.ergebnisring__wert.is-schwach { stroke: var(--color-danger); }
+@keyframes ergebnisring { from { stroke-dasharray: 0 100; } }
