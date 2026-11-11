@@ -39,6 +39,18 @@ try {
     await page.getByRole('button', { name: /Vitalparameter einschließlich BZ messen/ }).click();
     assert(await page.getByText('Letzte Messung · 00:01:00', { exact: true }).isVisible());
     assert.equal(await page.locator('.szene__arbeit').count(), 1, 'Messen zeigt die Arbeitsanimation');
+    // Lernclip am Materialwagen: Dialog mit Video/Phasen, verändert den Fall nicht.
+    const uhrVorClip = await page.locator('.praxis-clock strong').textContent();
+    await page.getByRole('button', { name: /^Materialwagen/ }).click();
+    await page.locator('.praxis-lernclips button', { hasText: 'Kompressionsstrumpf' }).click();
+    await page.locator('dialog.hvideo[open]').waitFor();
+    assert(await page.locator('dialog.hvideo video, dialog.hvideo img').count() >= 1, 'Clip zeigt Video oder Phasenbild');
+    await page.getByRole('button', { name: /Zwischenzustand/ }).click();
+    assert(await page.locator('dialog.hvideo img[alt^="Phase 3 von 4"]').isVisible(), 'Phasenbild 3');
+    await audit('Lernclip');
+    await page.locator('dialog.hvideo').getByRole('button', { name: 'Schließen', exact: true }).click();
+    assert.equal(await page.locator('dialog.hvideo[open]').count(), 0);
+    assert.equal(await page.locator('.praxis-clock strong').textContent(), uhrVorClip, 'Clip kostet keine Zeit');
     await page.getByRole('button', { name: /^Stationstelefon/ }).click();
     await page.getByRole('button', { name: /Qualifiziertes Team hinzuziehen/ }).click();
     await page.getByRole('button', { name: /Ärztliche Rücksprache und Anordnung/ }).click();
