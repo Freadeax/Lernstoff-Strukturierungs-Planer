@@ -27,13 +27,15 @@ interface Props {
   minProThema?: number;
   /** Quelle, Stand und Geltung je Aufgabe (siehe grundlage.ts). */
   grundlage?: Grundlage;
+  /** Weiterführende Links nach dem Prüfen. */
+  weiter?: (a: Aufgabe) => Array<{ label: string; path: string }>;
 }
 
 type Stand = Record<string, { datum: string; prozent: number }>;
 const MIX = 'mix';
 const SCHWACH = 'schwach';
 
-export function TrainerSeite({ titel, intro, hinweis, pfad, quelle, bereiche, aufgaben, figuren, proRunde = 8, minProThema = 3, grundlage }: Props) {
+export function TrainerSeite({ titel, intro, hinweis, pfad, quelle, bereiche, aufgaben, figuren, proRunde = 8, minProThema = 3, grundlage, weiter }: Props) {
   const { params } = useRoute();
   const key = `lernstoff.${quelle}.stand`;
   const [stand, setStand] = useState<Stand>(() => storage.read<Stand>(key, {}));
@@ -87,7 +89,7 @@ export function TrainerSeite({ titel, intro, hinweis, pfad, quelle, bereiche, au
 
       {laeuft && liste.length ? (
         <Runde
-          key={`${bereich}-${stufe}-${nr}`} aufgaben={liste} quelle={quelle} trainer={quelle} figuren={figuren} minProThema={minProThema} grundlage={grundlage}
+          key={`${bereich}-${stufe}-${nr}`} aufgaben={liste} quelle={quelle} trainer={quelle} figuren={figuren} minProThema={minProThema} grundlage={grundlage} weiter={weiter}
           onFertig={fertig} onNeu={() => setNr((n) => n + 1)} onEnde={() => gehe(bereich)}
         />
       ) : (
