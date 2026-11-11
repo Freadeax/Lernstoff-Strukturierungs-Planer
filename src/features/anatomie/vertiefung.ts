@@ -1,7 +1,10 @@
 // „Mehr verstehen“ im Anatomie-Trainer: Bau und Funktion mit Bezug zur Pflege.
 // Übliches Lehrbuchwissen (Anatomie/Physiologie für Pflegeberufe), ohne Beleg aus eigenem Material.
 
+import { ERWEITERUNG_VERTIEFUNG } from './erweiterung';
+
 export const VERTIEFUNG: Record<string, string[]> = {
+  ...ERWEITERUNG_VERTIEFUNG,
   'herz.beschriften': [
     'Die Klappen sind Ventile: Segelklappen werden in der Systole von Sehnenfäden und Papillarmuskeln gehalten, damit sie nicht in die Vorhöfe durchschlagen. Taschenklappen schließen sich passiv, wenn das Blut zurückfließen will.',
     'Pflegebezug: Eine undichte oder verengte Klappe (Insuffizienz bzw. Stenose) hört man als Herzgeräusch. Eine Mitralinsuffizienz staut Blut zurück in die Lunge, typisch sind Atemnot und Rasselgeräusche.',

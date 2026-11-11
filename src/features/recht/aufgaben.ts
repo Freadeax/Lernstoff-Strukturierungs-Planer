@@ -4,8 +4,9 @@
 // übliche Lehrbuchinhalte. Alle Fälle sind erfunden. Keine Rechtsberatung: Im Einzelfall
 // gelten Hausregelungen, Rechtsprechung und die Auskunft von Vorgesetzten oder Rechtsabteilung.
 
-import { mitVertiefung, type Aufgabe, type AuswahlAufgabe } from '../quiz/quiz';
+import { ergaenze, mitVertiefung, type Aufgabe, type AuswahlAufgabe } from '../quiz/quiz';
 import { VERTIEFUNG } from './vertiefung';
+import { ERWEITERUNG } from './erweiterung';
 
 export type BereichId = 'schweigepflicht' | 'strafrecht' | 'delegation' | 'fem' | 'vorsorge' | 'sozialrecht' | 'arbeitsrecht';
 export interface Bereich { id: BereichId; label: string; kurz: string; wissen: string[] }
@@ -327,5 +328,5 @@ export const BEREICHE: Bereich[] = [
   },
 ];
 
-export const AUFGABEN: Record<BereichId, Aufgabe[]> = mitVertiefung({ schweigepflicht, strafrecht, delegation, fem, vorsorge, sozialrecht, arbeitsrecht }, VERTIEFUNG);
+export const AUFGABEN: Record<BereichId, Aufgabe[]> = mitVertiefung(ergaenze({ schweigepflicht, strafrecht, delegation, fem, vorsorge, sozialrecht, arbeitsrecht }, ERWEITERUNG), VERTIEFUNG);
 export const ALLE_AUFGABEN: Aufgabe[] = Object.values(AUFGABEN).flat();

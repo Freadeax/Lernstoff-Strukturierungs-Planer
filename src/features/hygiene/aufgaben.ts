@@ -3,8 +3,9 @@
 // Aktion Saubere Hände (5 Indikationen nach WHO), TRBA 250, RKI-Ratgeber zu den Erregern.
 // Einrichtungen können abweichende Hygienepläne haben: Die App sagt das auf der Seite.
 
-import { mitVertiefung, type Aufgabe, type AuswahlAufgabe } from '../quiz/quiz';
+import { ergaenze, mitVertiefung, type Aufgabe, type AuswahlAufgabe } from '../quiz/quiz';
 import { VERTIEFUNG } from './vertiefung';
+import { ERWEITERUNG } from './erweiterung';
 
 export const HYGIENE_THEMA = 'thema.ph.hygiene';
 const T = [HYGIENE_THEMA];
@@ -263,5 +264,5 @@ export const BEREICHE: Bereich[] = [
   },
 ];
 
-export const AUFGABEN: Record<BereichId, Aufgabe[]> = mitVertiefung({ momente, psa, erreger, basis }, VERTIEFUNG);
+export const AUFGABEN: Record<BereichId, Aufgabe[]> = mitVertiefung(ergaenze({ momente, psa, erreger, basis }, ERWEITERUNG), VERTIEFUNG);
 export const ALLE_AUFGABEN: Aufgabe[] = Object.values(AUFGABEN).flat();

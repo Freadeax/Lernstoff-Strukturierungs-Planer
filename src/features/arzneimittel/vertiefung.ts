@@ -2,7 +2,10 @@
 // Übliches Lehrbuchwissen (Arzneimittellehre für Pflegeberufe), ohne Beleg aus eigenem Material.
 // Im Einzelfall gelten Fachinformation, ärztliche Anordnung und Hausstandard.
 
+import { ERWEITERUNG_VERTIEFUNG } from './erweiterung';
+
 export const VERTIEFUNG: Record<string, string[]> = {
+  ...ERWEITERUNG_VERTIEFUNG,
   'sicherheit.6r': [
     'Medikationsfehler entstehen meist an Schnittstellen: beim Übertragen von Anordnungen, beim Richten und bei Verwechslungen ähnlich klingender oder aussehender Präparate (Look-alike, Sound-alike).',
     'Den richtigen Patienten prüft man mit zwei unabhängigen Merkmalen, etwa Name und Geburtsdatum, die der Mensch selbst nennt, oder über das Patientenarmband. Die Zimmernummer ist kein sicheres Merkmal.',

@@ -2,7 +2,10 @@
 // Eigene Erläuterungen nach Gesetzestext (StGB, BGB, PflBG, SGB V, SGB XI, ArbZG, MuSchG), kein Text aus privatem Material.
 // Keine Rechtsberatung: Im Einzelfall gelten aktuelle Gesetzesfassung, Hausregeln und Rechtsberatung der Einrichtung.
 
+import { ERWEITERUNG_VERTIEFUNG } from './erweiterung';
+
 export const VERTIEFUNG: Record<string, string[]> = {
+  ...ERWEITERUNG_VERTIEFUNG,
   'sp.norm': [
     '§ 203 StGB schützt das Vertrauen in Heilberufe: Wer sich behandeln lässt, muss offen sprechen können. Die Strafverfolgung setzt einen Strafantrag der verletzten Person voraus (Antragsdelikt).',
     'Daneben folgt die Verschwiegenheit aus dem Arbeitsvertrag und aus dem Datenschutzrecht. Gesundheitsdaten sind nach der DSGVO besonders geschützte Daten.',

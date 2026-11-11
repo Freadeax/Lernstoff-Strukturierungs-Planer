@@ -1,6 +1,6 @@
 // Gemeinsamer Kern für offline-Übungsrunden (Hygiene-, Anatomie-, Normwerte-, Notfall-, Arzneimittel-,
 // Expertenstandards-, Labor- und Recht-Trainer).
-// Drei Aufgabenarten: Auswahl, Reihenfolge, Abbildung beschriften.
+// Fünf Aufgabenarten: Auswahl, Reihenfolge, Abbildung beschriften, Zuordnen (Paare), Fall in mehreren Schritten.
 // Alles hier ist rein und testbar; Speichern und Oberfläche liegen in Runde.tsx und den Seiten.
 //
 // Regeln:
@@ -25,7 +25,12 @@ interface Basis {
    * Wird nach dem Prüfen aufklappbar gezeigt und wandert mit ins Fehlerheft.
    */
   vertiefung?: string[];
+  /** 1 Grundlagen, 2 Anwenden, 3 Transfer. Ohne Angabe aus der Aufgabenart abgeleitet (stufeVon). */
+  stufe?: Stufe;
 }
+
+export type Stufe = 1 | 2 | 3;
+export const STUFE_LABEL: Record<Stufe, string> = { 1: 'Grundlagen', 2: 'Anwenden', 3: 'Transfer' };
 
 export interface AuswahlAufgabe extends Basis {
   art: 'auswahl';
@@ -55,12 +60,57 @@ export interface BeschriftenAufgabe extends Basis {
   marken: Marke[];
 }
 
-export type Aufgabe = AuswahlAufgabe | ReihenfolgeAufgabe | BeschriftenAufgabe;
+/** Paare bilden: Jedem Begriff links wird eine Antwort rechts zugeordnet. Rechts darf sich wiederholen. */
+export interface ZuordnenAufgabe extends Basis {
+  art: 'zuordnen';
+  paare: Array<{ links: string; rechts: string }>;
+}
+
+/** Ein Schritt in einem Fall: neue Lage, eine Frage, eine Begründung. */
+export interface FallSchritt {
+  /** Was sich jetzt im Fall zeigt (wird vor der Frage gelesen). */
+  lage: string;
+  frage: string;
+  optionen: string[];
+  richtig: number[];
+  mehrfach: boolean;
+  /** Kurze Rückmeldung zu diesem Schritt, erscheint nach dem Festlegen. */
+  warum: string;
+}
+
+/** Fall in mehreren Schritten: Die Lage entwickelt sich, jede Entscheidung wird festgelegt, dann geht es weiter. */
+export interface FallAufgabe extends Basis {
+  art: 'fall';
+  einstieg: string;
+  schritte: FallSchritt[];
+}
+
+export type Aufgabe = AuswahlAufgabe | ReihenfolgeAufgabe | BeschriftenAufgabe | ZuordnenAufgabe | FallAufgabe;
 
 export type Antwort =
   | { art: 'auswahl'; wahl: number[] }
   | { art: 'reihenfolge'; folge: string[] }
-  | { art: 'beschriften'; zuordnung: Record<number, string> };
+  | { art: 'beschriften'; zuordnung: Record<number, string> }
+  | { art: 'zuordnen'; zuordnung: Record<number, string> }
+  | { art: 'fall'; wahl: number[][] };
+
+/** Schwierigkeit: angegeben oder aus der Art. Fälle sind Transfer, Mehrfachauswahl und Ordnen sind Anwenden. */
+export function stufeVon(a: Aufgabe): Stufe {
+  if (a.stufe) return a.stufe;
+  if (a.art === 'fall') return 3;
+  if (a.art === 'auswahl' && !a.mehrfach) return 1;
+  return 2;
+}
+
+/** Antwortmöglichkeiten rechts beim Zuordnen: jede einmal, alphabetisch (verrät nichts über die Reihenfolge). */
+export function zuordnenOptionen(a: ZuordnenAufgabe): string[] {
+  return [...new Set(a.paare.map((p) => p.rechts))].sort((x, y) => x.localeCompare(y, 'de'));
+}
+
+const optionenMischen = <T extends { optionen: string[]; richtig: number[] }>(x: T, zufall: () => number): T => {
+  const reihe = mische(x.optionen.map((_, k) => k), zufall);
+  return { ...x, optionen: reihe.map((k) => x.optionen[k]!), richtig: reihe.flatMap((k, neu) => (x.richtig.includes(k) ? [neu] : [])) };
+};
 
 export interface Bewertung {
   punkte: number;
@@ -94,9 +144,10 @@ export function startFolge(schritte: readonly string[], zufall: () => number = M
 
 /** Mischt die Optionen einer Auswahlaufgabe, ohne die Lösung zu verlieren. */
 export function mischeOptionen(a: Aufgabe, zufall: () => number = Math.random): Aufgabe {
-  if (a.art !== 'auswahl') return a;
-  const reihe = mische(a.optionen.map((_, k) => k), zufall);
-  return { ...a, optionen: reihe.map((k) => a.optionen[k]!), richtig: reihe.flatMap((k, neu) => (a.richtig.includes(k) ? [neu] : [])) };
+  if (a.art === 'auswahl') return optionenMischen(a, zufall);
+  if (a.art === 'fall') return { ...a, schritte: a.schritte.map((st) => optionenMischen(st, zufall)) };
+  if (a.art === 'zuordnen') return { ...a, paare: mische(a.paare, zufall) };
+  return a;
 }
 
 /**
@@ -109,6 +160,13 @@ export function runde(aufgaben: readonly Aufgabe[], anzahl: number, zufall: () =
   const rest = mische(aufgaben.filter((a) => a.art !== 'beschriften'), zufall);
   const auswahl = [...bilder, ...rest].slice(0, Math.max(0, anzahl));
   return mische(auswahl, zufall).map((a) => mischeOptionen(a, zufall));
+}
+
+/** Hängt zusätzliche Aufgaben (z. B. Fälle und Zuordnungen aus erweiterung.ts) an die Bereiche eines Trainers. */
+export function ergaenze<K extends string>(aufgaben: Record<K, Aufgabe[]>, mehr: Partial<Record<K, Aufgabe[]>>): Record<K, Aufgabe[]> {
+  const out = { ...aufgaben };
+  for (const k of Object.keys(mehr) as K[]) out[k] = [...(aufgaben[k] ?? []), ...(mehr[k] ?? [])];
+  return out;
 }
 
 /**
@@ -139,6 +197,14 @@ export function pruefeVertiefung(aufgaben: readonly Aufgabe[], vertiefung: Reado
   return out;
 }
 
+/** Aufgaben, zu denen im Fehlerheft noch ein offener Eintrag dieses Trainers liegt. */
+export function schwachstellen(alle: readonly Aufgabe[], quelle: string, offeneIds: readonly string[]): Aufgabe[] {
+  return alle.filter((a) => {
+    const id = `${quelle}:${a.id}`;
+    return offeneIds.some((f) => f === id || f.startsWith(`${id}:`));
+  });
+}
+
 // ---------------------------------------------------------------- Bewerten
 
 export function bewerte(a: Aufgabe, antwort: Antwort): Bewertung {
@@ -163,9 +229,25 @@ export function bewerte(a: Aufgabe, antwort: Antwort): Bewertung {
     }
     return { punkte, max: Math.max(1, a.schritte.length - 1), richtig: teile.every(Boolean) && folge.length === a.schritte.length, teile };
   }
+  if (a.art === 'zuordnen') {
+    const zu = antwort.art === 'zuordnen' ? antwort.zuordnung : {};
+    const teile = a.paare.map((p, i) => zu[i] === p.rechts);
+    return { punkte: teile.filter(Boolean).length, max: a.paare.length, richtig: teile.every(Boolean), teile };
+  }
+  if (a.art === 'fall') {
+    const wahl = antwort.art === 'fall' ? antwort.wahl : [];
+    const teile = a.schritte.map((st, i) => schrittRichtig(st, wahl[i] ?? []));
+    return { punkte: teile.filter(Boolean).length, max: a.schritte.length, richtig: teile.every(Boolean), teile };
+  }
   const zu = antwort.art === 'beschriften' ? antwort.zuordnung : {};
   const teile = a.marken.map((m) => zu[m.nr] === m.label);
   return { punkte: teile.filter(Boolean).length, max: a.marken.length, richtig: teile.every(Boolean), teile };
+}
+
+/** Ein Fallschritt ist richtig, wenn genau die richtigen Optionen gewählt sind. */
+export function schrittRichtig(st: FallSchritt, wahl: readonly number[]): boolean {
+  const w = new Set(wahl);
+  return st.optionen.every((_, i) => w.has(i) === st.richtig.includes(i));
 }
 
 /** Für den Lernplan: jede Aufgabe zählt einmal, mit ihrem Anteil richtiger Teile. */
@@ -220,6 +302,29 @@ export function alsFehler(a: Aufgabe, antwort: Antwort, quelle: FehlerQuelle): N
       wiederholung: { art: 'auswahl', optionen, richtig: [0], mehrfach: false },
     }];
   }
+  if (a.art === 'zuordnen') {
+    const zu = antwort.art === 'zuordnen' ? antwort.zuordnung : {};
+    const pool = zuordnenOptionen(a);
+    return a.paare.flatMap((p, k) => (b.teile[k] ? [] : [{
+      id: `${id}:${p.links}`, quelle, topicIds: a.topicIds, titel: a.titel,
+      frage: `${a.frage} Was gehört zu „${p.links}“?`,
+      deineAntwort: zu[k] ?? 'nicht zugeordnet',
+      loesung: p.rechts,
+      erklaerung,
+      wiederholung: { art: 'auswahl' as const, optionen: [p.rechts, ...ablenker(p.rechts, pool)], richtig: [0], mehrfach: false },
+    }]));
+  }
+  if (a.art === 'fall') {
+    const wahl = antwort.art === 'fall' ? antwort.wahl : [];
+    return a.schritte.flatMap((st, k) => (b.teile[k] ? [] : [{
+      id: `${id}:${k + 1}`, quelle, topicIds: a.topicIds, titel: `${a.titel} (Schritt ${k + 1})`,
+      frage: `${a.einstieg} ${st.lage} ${st.frage}`,
+      deineAntwort: (wahl[k] ?? []).map((i) => st.optionen[i]).join(' · ') || 'keine Antwort',
+      loesung: st.richtig.map((i) => st.optionen[i]).join(' · '),
+      erklaerung: [st.warum, ...erklaerung],
+      wiederholung: { art: 'auswahl' as const, optionen: st.optionen, richtig: st.richtig, mehrfach: st.mehrfach },
+    }]));
+  }
   const zu = antwort.art === 'beschriften' ? antwort.zuordnung : {};
   const labels = a.marken.map((m) => m.label);
   return a.marken.filter((_, k) => !b.teile[k]).map((m) => ({
@@ -249,6 +354,21 @@ export function pruefeAufgaben(aufgaben: readonly Aufgabe[], gueltigeThemen?: Re
       if (new Set(a.optionen).size !== a.optionen.length) out.push(`${a.id}: Option doppelt`);
       if (!a.richtig.length || a.richtig.some((i) => i < 0 || i >= a.optionen.length)) out.push(`${a.id}: richtige Antwort fehlt`);
       if (!a.mehrfach && a.richtig.length !== 1) out.push(`${a.id}: Einfachauswahl braucht genau eine richtige Antwort`);
+    } else if (a.art === 'zuordnen') {
+      if (a.paare.length < 3) out.push(`${a.id}: zu wenig Paare`);
+      if (new Set(a.paare.map((p) => p.links)).size !== a.paare.length) out.push(`${a.id}: Begriff links doppelt`);
+      if (zuordnenOptionen(a).length < 2) out.push(`${a.id}: rechts braucht mindestens zwei verschiedene Antworten`);
+    } else if (a.art === 'fall') {
+      if (a.schritte.length < 2) out.push(`${a.id}: Fall braucht mindestens zwei Schritte`);
+      if (!a.einstieg.trim()) out.push(`${a.id}: Fall ohne Einstieg`);
+      a.schritte.forEach((st, k) => {
+        const n = `${a.id} Schritt ${k + 1}`;
+        if (st.optionen.length < 2) out.push(`${n}: zu wenig Optionen`);
+        if (new Set(st.optionen).size !== st.optionen.length) out.push(`${n}: Option doppelt`);
+        if (!st.richtig.length || st.richtig.some((i) => i < 0 || i >= st.optionen.length)) out.push(`${n}: richtige Antwort fehlt`);
+        if (!st.mehrfach && st.richtig.length !== 1) out.push(`${n}: Einfachauswahl braucht genau eine richtige Antwort`);
+        if (!st.warum.trim() || !st.lage.trim()) out.push(`${n}: Lage oder Begründung fehlt`);
+      });
     } else if (a.art === 'reihenfolge') {
       if (a.schritte.length < 3) out.push(`${a.id}: zu wenig Schritte`);
       if (new Set(a.schritte).size !== a.schritte.length) out.push(`${a.id}: Schritt doppelt`);
