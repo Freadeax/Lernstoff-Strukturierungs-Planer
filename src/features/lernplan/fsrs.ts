@@ -115,6 +115,8 @@ export function ratingFromScore(scorePercent: number): Rating {
 /** Bewertung eines Logs oder `undefined`, wenn es kein Wissensnachweis ist. */
 export function evidenceRating(log: ReviewLog): Rating | undefined {
   if (log.source === 'selbsteinschaetzung') return undefined;
+  // Offene, abgebrochene und reine Übungsversuche sind protokolliert, aber kein Wissensnachweis.
+  if ((log.status && log.status !== 'abgeschlossen') || log.aussagekraft === 'uebung') return undefined;
   if (log.rating !== undefined)
     return Number.isInteger(log.rating) && log.rating >= 1 && log.rating <= 4 ? log.rating : undefined;
   if (log.scorePercent !== undefined && Number.isFinite(log.scorePercent) && log.scorePercent >= 0 && log.scorePercent <= 100)
