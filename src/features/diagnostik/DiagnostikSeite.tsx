@@ -13,6 +13,10 @@ import { FallAnsicht } from './FallAnsicht';
 import { FrageKarte } from './FrageKarte';
 import { Befundung } from './Befundung';
 import { starte, type Lauf } from './lauf';
+import { dauerMinuten, fallSchritte, fallTyp, fallZustand, ZUSTAND_KNOPF, ZUSTAND_TEXT } from './fallstart';
+import { freigabeFuer } from './freigaben';
+import { FreigabeHinweis } from '../../ui/sim/FreigabeHinweis';
+import type { DiagnostikFall } from './typen';
 import { holeSerien, materialVerbunden, verbindeMaterial } from './material';
 import './diagnostik.css';
 
@@ -40,12 +44,18 @@ export default function DiagnostikSeite() {
 
   const setFarbsystem = (f: Farbsystem) => { setFarbsystemState(f); storage.write(FARBEN_KEY, f); };
   const setLauf = (l: Lauf) => setLaeufe((alle) => { const neu = { ...alle, [l.fallId]: l }; storage.write(LAUF_KEY, neu); return neu; });
-  const neuStarten = (id: string) => setLauf(starte(FALL_NACH_ID[id]));
+  /** Neuer Versuch: eigener Lauf mit neuer Kennung, der alte wird ersetzt (Auswertung und Lernereignis bleiben getrennt). */
+  const neuStarten = (id: string) => setLauf(starte(FALL_NACH_ID[id], (laeufe[id]?.versuch ?? (laeufe[id] ? 1 : 0)) + 1));
+  const neuBeginnen = (id: string) => {
+    if (fallZustand(laeufe[id]) === 'laeuft' && !window.confirm('Der laufende Versuch wird verworfen. Neu beginnen?')) return;
+    neuStarten(id); navigate(`/lernen/diagnostik?fall=${id}`);
+  };
 
   const fall = FALL_NACH_ID[fallId];
   if (fall) {
-    const lauf = laeufe[fall.id] ?? starte(fall);
-    return <FallAnsicht key={fall.id} fall={fall} lauf={lauf} setLauf={setLauf} zurueck={() => navigate('/lernen/diagnostik')} farbsystem={farbsystem} setFarbsystem={setFarbsystem} />;
+    const lauf = laeufe[fall.id];
+    if (!lauf) return <FallStart fall={fall} starten={() => neuStarten(fall.id)} zurueck={() => navigate('/lernen/diagnostik')} />;
+    return <FallAnsicht key={`${fall.id}-${lauf.id ?? ''}`} fall={fall} startReiter={lauf.beendet !== undefined ? 'auswertung' : undefined} lauf={lauf} setLauf={setLauf} zurueck={() => navigate('/lernen/diagnostik')} farbsystem={farbsystem} setFarbsystem={setFarbsystem} />;
   }
 
   return (
@@ -60,27 +70,25 @@ export default function DiagnostikSeite() {
         <button type="button" role="tab" className="pill" aria-selected={modus === 'befundung'} onClick={() => navigate('/lernen/diagnostik?modus=befundung')}>Röntgen systematisch</button>
         <button type="button" role="tab" className="pill" aria-selected={modus === 'material'} onClick={() => navigate('/lernen/diagnostik?modus=material')}>Eigene Bilder</button>
       </div>
-      {modus === 'faelle' && (
-        <ol className="dx-schritte" aria-label="So läuft ein Fall">
-          <li><span aria-hidden="true">1</span> Laborauftrag und Blutabnahme</li>
-          <li><span aria-hidden="true">2</span> Bildbetrachter: Schichten, Fenster, Lupe</li>
-          <li><span aria-hidden="true">3</span> Befund einordnen und weitergeben</li>
-        </ol>
-      )}
+      {modus === 'faelle' && <p className="muted dx-klein">Jeder Fall zeigt vor dem Start, welche Schritte er hat. Nicht jeder Fall hat Bildgebung.</p>}
       {modus === 'faelle' && (
         <ul className="dx-faelle">
           {FAELLE.map((f) => {
             const l = laeufe[f.id];
+            const z = fallZustand(l);
             return (
               <li key={f.id} className="card dx-fallkarte">
                 <img className="dx-fallkarte__bild" src={raumUrl(raumFuerZustand(f.raum, f.monitor?.start === 'abwesend' ? 'abwesend' : undefined))} alt="" width={1280} height={720} loading="lazy" decoding="async" />
                 <strong>{f.titel}</strong>
                 <span className="muted">{f.kurz}</span>
-                <span className="dx-klein muted">{f.bereich} · {f.bildgebung.length ? f.bildgebung.map((u) => u.serie.titel).join(', ') : 'ohne Bildgebung'}</span>
+                <span className="dx-klein muted">{f.bereich} · {fallTyp(f)} · etwa {dauerMinuten(f)} Min.</span>
                 <div className="dx-zeile">
-                  {l && <span className={`tag ${l.beendet !== undefined ? 'tag--wissen-sicher' : 'tag--info'}`}>{l.beendet !== undefined ? 'abgeschlossen' : 'läuft'}</span>}
-                  <button type="button" className="primary" onClick={() => navigate(`/lernen/diagnostik?fall=${f.id}`)}>{l && l.beendet === undefined ? 'Fortsetzen' : 'Starten'}</button>
-                  {l && <button type="button" onClick={() => { neuStarten(f.id); navigate(`/lernen/diagnostik?fall=${f.id}`); }}>Neu beginnen</button>}
+                  <FreigabeHinweis freigabe={freigabeFuer(f)} ort="chip" />
+                  {z !== 'neu' && <span className={`tag ${z === 'beendet' ? 'tag--wissen-sicher' : 'tag--info'}`}>{ZUSTAND_TEXT[z]}{l?.versuch && l.versuch > 1 ? ` · Versuch ${l.versuch}` : ''}</span>}
+                </div>
+                <div className="dx-zeile">
+                  <button type="button" className="primary" onClick={() => navigate(`/lernen/diagnostik?fall=${f.id}`)}>{ZUSTAND_KNOPF[z]}</button>
+                  {z !== 'neu' && <button type="button" onClick={() => neuBeginnen(f.id)}>Neu beginnen</button>}
                 </div>
               </li>
             );
@@ -91,6 +99,35 @@ export default function DiagnostikSeite() {
       {modus === 'befundung' && <Befundung />}
       {modus === 'material' && <EigeneBilder />}
       <p className="muted dx-klein">Fiktive Lernfälle, didaktisch vereinfacht, fachlich ungeprüft. Synthetische Bilder sind schematisch. Echte Bilder sind frei lizenzierte Vergleichsbilder (Quelle und Lizenz unter dem Bild).</p>
+    </section>
+  );
+}
+
+/** Vor dem Start: Falltyp, Dauer, Schritte genau dieses Falls, Lernziele und fachlicher Prüfstand. */
+function FallStart({ fall, starten, zurueck }: { fall: DiagnostikFall; starten: () => void; zurueck: () => void }) {
+  const p = fall.patient;
+  return (
+    <section className="page dx-fall dx-start" aria-labelledby="dx-start-titel">
+      <div className="dx-kopf">
+        <button type="button" className="dx-zurueck" onClick={zurueck}>← Alle Fälle</button>
+        <h2 id="dx-start-titel">{fall.titel}</h2>
+        <p className="muted">{fall.bereich} · {p.name}, {p.alter} J.</p>
+      </div>
+      <div className="card dx-karte">
+        <dl className="dx-akte">
+          <div><dt>Falltyp</dt><dd>{fallTyp(fall)}</dd></div>
+          <div><dt>Dauer</dt><dd>etwa {dauerMinuten(fall)} Minuten, jederzeit unterbrechbar</dd></div>
+          <div><dt>Schwerpunkte</dt><dd>{fall.kurz}</dd></div>
+        </dl>
+        <h3>So läuft dieser Fall</h3>
+        <ol className="dx-schritte dx-schritte--fall">
+          {fallSchritte(fall).map((s, i) => <li key={s}><span aria-hidden="true">{i + 1}</span> {s}</li>)}
+        </ol>
+        <FreigabeHinweis freigabe={freigabeFuer(fall)} ort="start" />
+        <div className="dx-zeile">
+          <button type="button" className="primary" onClick={starten}>Fall starten</button>
+        </div>
+      </div>
     </section>
   );
 }

@@ -14,6 +14,8 @@ import { FrageKarte, Rueckmeldung } from './FrageKarte';
 import { auswertung, fuehreAus, vitalReihe, zeitleiste, type ZeitArt, monitorZustand, naechsterBefund, offeneAnrufe, offeneMeldungen, vitalwerte, type Befehl, type Lauf, type MonitorStatus } from './lauf';
 import { DiagnostikSzene } from './DiagnostikSzene';
 import type { DiagnostikFall, Untersuchung } from './typen';
+import { FreigabeHinweis } from '../../ui/sim/FreigabeHinweis';
+import { freigabeFuer } from './freigaben';
 import { SimTon } from '../../ui/audio/SimTon';
 import { raumFuerSetting } from '../../ui/audio/klaenge';
 import { alarmProfil, gesamtAlarm, monitorGruppe, normBand } from '../../ui/sim/monitor';
@@ -27,10 +29,11 @@ export const REITER = [
 ] as const;
 export type Reiter = typeof REITER[number]['id'];
 
-export function FallAnsicht({ fall, lauf, setLauf, zurueck, farbsystem, setFarbsystem }: {
+export function FallAnsicht({ fall, lauf, setLauf, zurueck, farbsystem, setFarbsystem, startReiter }: {
+  startReiter?: Reiter;
   fall: DiagnostikFall; lauf: Lauf; setLauf: (l: Lauf) => void; zurueck: () => void; farbsystem: Farbsystem; setFarbsystem: (f: Farbsystem) => void;
 }) {
-  const [reiter, setReiter] = useState<Reiter>('beobachtung');
+  const [reiter, setReiter] = useState<Reiter>(startReiter ?? 'beobachtung');
   const senden = (b: Befehl) => setLauf(fuehreAus(lauf, fall, b));
   const anrufe = offeneAnrufe(lauf, fall);
   const meldungen = lauf.beendet === undefined ? offeneMeldungen(lauf, fall) : [];
@@ -60,6 +63,7 @@ export function FallAnsicht({ fall, lauf, setLauf, zurueck, farbsystem, setFarbs
           <div key={schluessel} className="dx-anruf" role="alert">
             <p><strong>Telefon: Zentrallabor.</strong> „Kritischer Wert bei {fall.patient.name}: {p.name} {formatWert(p, ergebnis.wert!)} {p.einheit}, {FLAG_TEXT[ergebnis.flag]}.{ergebnis.kommentar ? ` ${ergebnis.kommentar}` : ''}“</p>
             <button type="button" className="primary" onClick={() => senden({ typ: 'quittieren', schluessel })}>Zurücklesen, Name und Uhrzeit dokumentieren</button>
+            <FreigabeHinweis freigabe={freigabeFuer(fall)} ort="entscheidung" />
           </div>
         );
       })}
@@ -217,6 +221,7 @@ function UntersuchungKarte({ u, fall, lauf, senden }: { u: Untersuchung; fall: D
                     {serie.befunde.filter((b) => sichtbar.includes(b.id)).map((b) => <li key={b.id}><strong>{b.titel}</strong>{lauf.gefunden.includes(b.id) ? ' (selbst gefunden)' : ' (aufgedeckt)'}: {b.text}</li>)}
                   </ul>
                 ) : <p className="muted">Noch keine. Tippe mit „Markieren“ auf eine auffällige Stelle.</p>}
+                <FreigabeHinweis freigabe={freigabeFuer(fall)} ort="entscheidung" />
               </section>
               <section>
                 <h5>Eigene Einordnung</h5>
@@ -245,6 +250,7 @@ function Uebergabe({ fall, lauf, senden }: { fall: DiagnostikFall; lauf: Lauf; s
       <section className="card dx-karte" aria-labelledby="dx-sbar">
         <h3 id="dx-sbar">Ärztin oder Arzt informieren (SBAR)</h3>
         <p className="muted">Wähle, was du am Telefon sagst. Situation, Background, Assessment, Recommendation: kurz, vollständig, nichts Ablenkendes.</p>
+        <FreigabeHinweis freigabe={freigabeFuer(fall)} ort="entscheidung" />
         <ul className="dx-pruef">
           {gemischt.map((s) => <li key={s.id}><label className="dx-check"><input type="checkbox" checked={fakten.includes(s.id)} onChange={(e) => setFakten((f) => (e.target.checked ? [...f, s.id] : f.filter((x) => x !== s.id)))} /> {s.text}</label></li>)}
         </ul>

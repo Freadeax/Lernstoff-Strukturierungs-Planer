@@ -56,6 +56,8 @@ export interface RaumBuehneProps {
   className?: string;
   /** Überschreibt die Bildbeschreibung aus dem Katalog. */
   beschreibung?: string;
+  /** Überschreibt den Raumtitel (Bildunterschrift), z. B. mit der Station des Falls. */
+  ort?: string;
 }
 
 /** Grundbreite, in der Monitorinhalt gezeichnet und dann ins Rechteck skaliert wird. */
@@ -97,7 +99,7 @@ function MonitorFlaeche({ rechteck, children }: { rechteck: Rechteck; children: 
   );
 }
 
-export function RaumBuehne({ raum, hotspots = [], monitor, monitorInhalt, fokus, fallback, onError, children, className = '', beschreibung }: RaumBuehneProps) {
+export function RaumBuehne({ raum, hotspots = [], monitor, monitorInhalt, fokus, fallback, onError, children, className = '', beschreibung, ort }: RaumBuehneProps) {
   const id = raumFuerZustand(raum, monitor?.zustand);
   const r = RAEUME[id];
   const [fehler, setFehler] = useState<string | null>(null);
@@ -143,7 +145,7 @@ export function RaumBuehne({ raum, hotspots = [], monitor, monitorInhalt, fokus,
           ))}
         </div>
       </div>
-      <figcaption className="visually-hidden">{r.titel}</figcaption>
+      <figcaption className="visually-hidden">{ort ?? r.titel}</figcaption>
     </figure>
   );
 }
