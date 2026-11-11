@@ -111,8 +111,8 @@ Hotspots und Monitorfläche sind optional; Claude misst sie sonst selbst nach.
 | `20_paediatrie_kleinkind` | Grundbild, `20a` ohne Monitor, `20m` Sensor am Kind, `20n` Nacht, `20f` Fieberkrampf (Lina) | in der App (PR #103): Praxis `kind`, Fall `fieberkrampf` |
 | `21_paediatrie_schulkind` | Grundbild, `21a` ohne Monitor, `21b` Inhalation mit Spacer, `21m` Sensor am Kind | in der App (PR #103): Praxis `asthma`, Fall `asthma-kind`; `21b` noch keiner Handlung zugeordnet |
 | Porträts | `praxis-kind_stabil`, `praxis-asthma_stabil` | im Projektordner, noch ohne Verwendung; Zustände `angestrengt`/`kritisch` fehlen |
-| `ct_lungenembolie` | 32 Schichten CTPA, CAD-PE 001, CC BY 4.0, 16-Bit-PNG | beim Labor-Thread zur Übernahme (braucht 16-Bit-Ladepfad) |
-| `rx_pneumothorax` | Spontanpneumothorax links, Hellerhoff, CC BY-SA 3.0 | beim Labor-Thread zur Übernahme (Befundmarke neu vermessen) |
+| `ct_lungenembolie` | 32 Schichten CTPA, CAD-PE 001, CC BY 4.0, 16-Bit-PNG | in der App (PR #105): Diagnostik `lungenembolie`, 16-Bit-Dekoder mit echter HU-Fensterung |
+| `rx_pneumothorax` | Spontanpneumothorax links, Hellerhoff, CC BY-SA 3.0 | in der App (PR #105): Diagnostik `pneumothorax`, Befundmarke neu vermessen |
 | `txt_ce10` (Teil) | Lernskript Neugeborenes (LEB 6) | Material-Repo: Original unter `dateien/`, Skript `skripte/CE10-Neugeborenes.md` |
 
 Originale der Lieferung: Projektordner `material-lieferungen/2026-11-11_P1_Paediatrie/`. Fachliche Prüfung aller Motive und der Bildzuordnung ist offen.
@@ -412,9 +412,9 @@ Nur mit Lizenz (z. B. CC BY) oder selbst aufgenommen am Simulator-Dummy.
 | Fall | Raum | Bildgebung heute | Fehlt |
 | --- | --- | --- | --- |
 | sepsis-pneumonie (Herr Heinz M.) | 12 | Phantom Rx + CT, echtes Rx | echtes CT (P2) |
-| lungenembolie | 13 | Phantom CT-Angio | **echtes CT-Angio (P1)**, Raum 13a |
+| lungenembolie | 13 | Phantom CT-Angio, echtes CT-Angio (seit 11.11.) | Raum 13a |
 | herzinsuffizienz | 18 | Phantom Rx, echtes Rx (nur Erguss) | Rx mit Stauung (P2), 18a |
-| pneumothorax | 17 | Phantom Rx + CT | **echtes Rx (P1)**, echtes CT (P2), 17a |
+| pneumothorax | 17 | Phantom Rx + CT, echtes Rx (seit 11.11.) | echtes CT (P2), 17a |
 | ketoazidose (Leon T.) | 16 | Labor/BGA | — |
 
 ---
