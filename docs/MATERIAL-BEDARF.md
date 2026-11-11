@@ -1,6 +1,6 @@
 # Materialbedarf: Grafiken, Medien und Texte, die die App noch braucht
 
-Stand: 11.11.2026, geprüft gegen `main` (Commit `ad9a096`, nach PR #95 bis #98), den Projektordner,
+Stand: 11.11.2026 (Lieferung 1 eingetragen), geprüft gegen `main` (Commit `ad9a096`, nach PR #95 bis #98), den Projektordner,
 das **Visualpaket** und das **Pflegesimulator-Komplettpaket v2**. Diese Liste ist die Bestellliste für die
 nächste Materiallieferung. Jede Position hat eine feste ID, damit Dateien eindeutig zugeordnet werden können.
 
@@ -102,7 +102,20 @@ Hotspots und Monitorfläche sind optional; Claude misst sie sonst selbst nach.
 | Bildgebung synthetisch | CT/Röntgen-Phantome: Pneumonie, Lungenembolie, Pneumothorax, Erguss, Stauung | `src/ui/sim/bildgebung/phantom.ts` |
 | Monitor, Kurven, Alarmton | EKG/Pleth/AF-Kurven und Piepton werden im Code erzeugt | `src/ui/sim/PatientenMonitor.tsx`, `MiniMonitor.tsx` |
 | App-Icons | SVG, 192, 512, maskable, Apple-Touch | `public/` |
-| Lernskripte | CE01–CE05, CE08, CE09, LEB5 (24 Zusammenfassungen) | Material-Repo `skripte/` |
+| Lernskripte | CE01–CE05, CE08, CE09, CE10 (Neugeborenes), LEB5 | Material-Repo `skripte/` |
+
+### 1.1 Lieferung 1 vom 11.11.2026 (P1 Pädiatrie)
+
+| Position | Geliefert | Stand |
+| --- | --- | --- |
+| `20_paediatrie_kleinkind` | Grundbild, `20a` ohne Monitor, `20m` Sensor am Kind, `20n` Nacht, `20f` Fieberkrampf (Lina) | in der App (PR #103): Praxis `kind`, Fall `fieberkrampf` |
+| `21_paediatrie_schulkind` | Grundbild, `21a` ohne Monitor, `21b` Inhalation mit Spacer, `21m` Sensor am Kind | in der App (PR #103): Praxis `asthma`, Fall `asthma-kind`; `21b` noch keiner Handlung zugeordnet |
+| Porträts | `praxis-kind_stabil`, `praxis-asthma_stabil` | im Projektordner, noch ohne Verwendung; Zustände `angestrengt`/`kritisch` fehlen |
+| `ct_lungenembolie` | 32 Schichten CTPA, CAD-PE 001, CC BY 4.0, 16-Bit-PNG | beim Labor-Thread zur Übernahme (braucht 16-Bit-Ladepfad) |
+| `rx_pneumothorax` | Spontanpneumothorax links, Hellerhoff, CC BY-SA 3.0 | beim Labor-Thread zur Übernahme (Befundmarke neu vermessen) |
+| `txt_ce10` (Teil) | Lernskript Neugeborenes (LEB 6) | Material-Repo: Original unter `dateien/`, Skript `skripte/CE10-Neugeborenes.md` |
+
+Originale der Lieferung: Projektordner `material-lieferungen/2026-11-11_P1_Paediatrie/`. Fachliche Prüfung aller Motive und der Bildzuordnung ist offen.
 
 ---
 
@@ -317,7 +330,8 @@ Nur mit Lizenz (z. B. CC BY) oder selbst aufgenommen am Simulator-Dummy.
 
 | ID | Inhalt | Prio | Wofür |
 | --- | --- | --- | --- |
-| `txt_ce06`, `txt_ce07`, `txt_ce10`, `txt_ce11` | Unterrichtsmaterial zu den CEs, für die noch keine Zusammenfassung existiert (vorhanden: CE01–05, 08, 09, LEB5) | **P1** | Skript, Belegprüfung, Lernpfade |
+| `txt_ce06`, `txt_ce07`, `txt_ce11` | Unterrichtsmaterial zu den CEs, für die noch keine Zusammenfassung existiert (vorhanden: CE01–05, 08, 09, 10, LEB5) | **P1** | Skript, Belegprüfung, Lernpfade |
+| `txt_ce10_weitere` | CE10 zweite Lernsituation (individueller Entwicklungsstand des Kindes) | P2 | Skript |
 | `txt_ce03_ce04_mehr` | Weitere Unterlagen zu CE03 (2 Skripte) und CE04 (1 Skript) | P2 | Lücken in Belegen |
 | `txt_pruefungen_alt` | Alte Klausuren/Examensaufgaben, Bewertungsbögen, Erwartungshorizonte | P2 | Examen, Prüfungssimulation |
 | `txt_termine` | Stundenplan, Praxiseinsatzplan, Prüfungstermine | P2 | Lernplan |
@@ -329,10 +343,10 @@ Nur mit Lizenz (z. B. CC BY) oder selbst aufgenommen am Simulator-Dummy.
 
 ## 11. Kurzfassung: Die wichtigsten 15 Positionen
 
-1. `20_paediatrie_kleinkind` + `20a` (Kinderfälle zeigen heute ein Erwachsenenzimmer)
-2. `21_paediatrie_schulkind` + `21a` (Asthma-Kind)
-3. `ct_lungenembolie` (frei lizenzierte CT-Angio)
-4. `rx_pneumothorax` (frei lizenziertes Röntgen)
+1. ~~`20_paediatrie_kleinkind` + `20a`~~ geliefert 11.11.
+2. ~~`21_paediatrie_schulkind` + `21a`~~ geliefert 11.11.
+3. ~~`ct_lungenembolie`~~ geliefert 11.11.
+4. ~~`rx_pneumothorax`~~ geliefert 11.11.
 5. `26_pflegeheim_zimmer_tag` + `26a` (5 Heimfälle ohne passendes Zimmer)
 6. `30_station_zimmer_frau` + `30b` (Anaphylaxie, Sepsis)
 7. `27_station_zweibett_nacht` (Delir)
@@ -342,7 +356,7 @@ Nur mit Lizenz (z. B. CC BY) oder selbst aufgenommen am Simulator-Dummy.
 11. `28_ambulant_schlafzimmer` und `29_ambulant_wohnzimmer_copd`
 12. Varianten `13a`–`13c` (postoperativ: ohne Monitor, Nachblutung, Mobilisation)
 13. Animationen `haendedesinfektion`, `psa_anlegen`/`psa_ablegen`, `dosieraerosol_spacer`
-14. Unterrichtsmaterial CE06, CE07, CE10, CE11
+14. Unterrichtsmaterial CE06, CE07, CE11 (CE10 Neugeborenes geliefert)
 15. Nahansichten `na_wunde_op_verband`, `na_urinbeutel`, `na_haut_steiss`
 
 ---
@@ -358,7 +372,7 @@ Nur mit Lizenz (z. B. CC BY) oder selbst aufgenommen am Simulator-Dummy.
 | nachtwache | Atemnot in der Nacht | Martin Keller, 78 | Internistische Station, Monitorwagen | 12 Kardiologie | 12n (Nacht) |
 | zna | Brustdruck am Empfang | Andreas Brandt, 59 | ZNA Triageplatz, EKG | 16 Triage | 16a |
 | its | Ein Alarm während der Übergabe | Sabine Fuchs, 67 | ITS, Beatmung, Perfusoren | 15 Intensiv | 15a |
-| kind | Ein Kind möchte nicht mehr trinken | Mila Berg, 4 | Kinderstation, Mutter am Bett | 13 postop (Erwachsene) | **20** |
+| kind | Ein Kind möchte nicht mehr trinken | Mila Berg, 4 | Kinderstation, Mutter am Bett | **20** (seit 11.11.) | erledigt |
 | psychiatrie | Unruhe im Aufenthaltsraum | Leon Weber, 32 | Psychiatrischer Wohnbereich, Rückzugsraum | 11 Speiseraum Heim | **22, 23** |
 | reha | Der erste Weg zum Bad | Petra Lind, 64 | Rehazimmer, Rollator, Haltegriffe | 08 Pflegebad ambulant | **24** |
 | palliativ | Zeit für ein schwieriges Gespräch | Helene Roth, 88 | Hospizzimmer, Angehörige | 10 Heim nachts | **25** |
@@ -368,10 +382,10 @@ Nur mit Lizenz (z. B. CC BY) oder selbst aufgenommen am Simulator-Dummy.
 | anaphylaxie | Juckreiz nach der ersten Infusion | Selin Kaya, 34 | Internistische Station | 14 Isolation | **30** |
 | lungenembolie | Plötzlich keine Luft beim ersten Aufstehen | Werner Brandt, 67 | Unfallchirurgie | 12 Kardiologie | 13c |
 | delir | Er will mitten in der Nacht nach Hause | Heinrich Vogt, 84 | Zweibettzimmer, Nachbar schläft | 10 Heim nachts | **27** |
-| asthma | Das Spray hilft heute nicht | Ben Yilmaz, 7 | Kinderzimmer, O₂-Anschluss | 17 Notaufnahme | **21** |
+| asthma | Das Spray hilft heute nicht | Ben Yilmaz, 7 | Kinderzimmer, O₂-Anschluss | **21** (seit 11.11.) | erledigt |
 | demenz | Frau Kühn isst seit gestern nichts | Ilse Kühn, 89 | Einzelzimmer Wohnbereich | 11 Speiseraum | **26** |
 
-### Fallsimulator (`src/features/fall/faelle.ts`, heute gezeichnete Räume)
+### Fallsimulator (`src/features/fall/faelle.ts`, Fotoräume seit PR #101 in `fotoraeume.ts`)
 
 | Fall | Titel | Setting | Gewünschter Raum |
 | --- | --- | --- | --- |
@@ -381,7 +395,7 @@ Nur mit Lizenz (z. B. CC BY) oder selbst aufgenommen am Simulator-Dummy.
 | pneumonie | Fieber und Husten | Langzeitpflege | 26 |
 | schlaganfall | Plötzlich hängt der Mundwinkel | Krankenhaus | 36 (P3) oder 30 |
 | dekubitus | Rötung am Steiß | ambulant | **28** |
-| fieberkrampf | Ein Kind mit hohem Fieber (Lina, 2) | Pädiatrie | **20** |
+| fieberkrampf | Ein Kind mit hohem Fieber (Lina, 2) | Pädiatrie | 20f (erledigt) |
 | palliativ | Die letzten Tage | Langzeitpflege | 25 / 10b |
 | sepsis | Gestern war sie noch klar | Krankenhaus | 30b |
 | nachblutung | Der Verband wird rot | Krankenhaus | 13b |
@@ -390,7 +404,7 @@ Nur mit Lizenz (z. B. CC BY) oder selbst aufgenommen am Simulator-Dummy.
 | anaphylaxie | Juckreiz nach der ersten Infusion | Krankenhaus | 30 |
 | lungenembolie | Keine Luft beim ersten Aufstehen | Krankenhaus | 13c |
 | delir-nacht | Er will mitten in der Nacht nach Hause | Krankenhaus | 27 |
-| asthma-kind | Das Spray hilft heute nicht | Pädiatrie | **21** |
+| asthma-kind | Das Spray hilft heute nicht | Pädiatrie | 21 (erledigt) |
 | demenz-verfuegung | Frau K. isst seit gestern nichts | Langzeitpflege | 26 |
 
 ### Diagnostik (`src/features/diagnostik/faelle.ts`)
