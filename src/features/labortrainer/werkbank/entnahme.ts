@@ -1,0 +1,151 @@
+// Blutentnahme-Station der Werkbank: reine Logik (Szenarien, Bewertung), damit Tests und
+// Oberfläche dieselben Regeln sehen. Die Fehlerregeln kommen aus der Präanalytik der Simulatoren.
+
+import { bewerte, parameter, type Flag } from '../../../ui/sim/labor/parameter';
+import { benoetigteRoehrchen, fehlerAus, ROEHRCHEN, verfaelsche, venoes, type Abnahme, type PraeanalytikFehler } from '../../../ui/sim/labor/praeanalytik';
+import type { Material } from '../../../ui/sim/labor/parameter';
+
+export interface EntnahmeSzenario {
+  id: string;
+  titel: string;
+  patient: { name: string; geburt: string; geschlecht: 'w' | 'm'; anrede: string };
+  /** Kurzer Kontext am Bett. */
+  lage: string;
+  /** Angeforderte Parameter (bestimmen die Röhrchen). */
+  parameter: string[];
+  /** Wahre Werte der Person (ohne Präanalytikfehler). */
+  wahr: Record<string, number>;
+  /** Arm mit laufender Infusion. */
+  infusion?: 'links' | 'rechts';
+  /** Mit Flügelkanüle: ohne Verwurfröhrchen wird das erste Citratröhrchen unterfüllt. */
+  fluegel?: boolean;
+  /** Die erste Antibiotikagabe ist schon gelaufen. */
+  antibiotikumGelaufen?: boolean;
+}
+
+export const SZENARIEN: EntnahmeSzenario[] = [
+  {
+    id: 'aufnahme', titel: 'Aufnahmelabor', patient: { name: 'Gerda Hoffmann', geburt: '14.03.1946', geschlecht: 'w', anrede: 'Frau Hoffmann' },
+    lage: 'Aufnahme mit Schwäche und Schwindel. Am linken Unterarm läuft eine Glukose-5-%-Infusion.',
+    parameter: ['k', 'na', 'krea', 'glukose', 'hb', 'leuko', 'crp'],
+    wahr: { k: 4.3, na: 138, krea: 0.8, glukose: 112, hb: 12.8, leuko: 8.4, crp: 3 },
+    infusion: 'links',
+  },
+  {
+    id: 'gerinnung', titel: 'Gerinnung vor OP', patient: { name: 'Klaus Weber', geburt: '02.11.1958', geschlecht: 'm', anrede: 'Herr Weber' },
+    lage: 'Morgen Hüft-OP, nimmt bis vorgestern Phenprocoumon. Schlechte Venen, du nimmst eine Flügelkanüle.',
+    parameter: ['inr', 'aptt', 'hb', 'thrombo', 'k'],
+    wahr: { inr: 1.2, aptt: 31, hb: 14.1, thrombo: 236, k: 4.1 },
+    fluegel: true,
+  },
+  {
+    id: 'sepsis', titel: 'Verdacht auf Sepsis', patient: { name: 'Ali Demir', geburt: '23.07.1951', geschlecht: 'm', anrede: 'Herr Demir' },
+    lage: 'Fieber 39,4 °C, verwirrt, RR 92/50. Die erste Antibiotikagabe ist angeordnet, aber noch nicht gelaufen.',
+    parameter: ['bk', 'crp', 'pct', 'leuko', 'krea', 'k', 'inr'],
+    wahr: { inr: 1.4, crp: 182, pct: 6.8, leuko: 17.9, krea: 1.6, k: 4.6, bk: 1 },
+  },
+  {
+    id: 'sepsis-spaet', titel: 'Blutkultur nach Antibiose', patient: { name: 'Marta Kowalski', geburt: '09.01.1939', geschlecht: 'w', anrede: 'Frau Kowalski' },
+    lage: 'Pneumonie. Der Nachtdienst hat das Antibiotikum vor einer Stunde gegeben, Blutkulturen wurden vergessen.',
+    parameter: ['bk', 'crp', 'leuko', 'k', 'krea'],
+    wahr: { crp: 96, leuko: 14.2, k: 4.0, krea: 0.9, bk: 1 },
+    antibiotikumGelaufen: true,
+  },
+];
+
+/** Verwurf- bzw. Leerröhrchen bei Flügelkanüle (füllt den Schlauch, wird verworfen). */
+export const VERWURF = 'verwurf' as const;
+export type Platz = Material | typeof VERWURF;
+
+export function roehrchenFuer(s: EntnahmeSzenario): Material[] {
+  return benoetigteRoehrchen(s.parameter);
+}
+
+/** Röhrchen im Ständer: benötigte in gemischter Reihenfolge, bei Flügelkanüle plus Verwurfröhrchen. */
+export function staender(s: EntnahmeSzenario, zufall: () => number = Math.random): Platz[] {
+  const liste: Platz[] = [...roehrchenFuer(s)];
+  if (s.fluegel) liste.push(VERWURF);
+  for (let i = liste.length - 1; i > 0; i--) { const j = Math.floor(zufall() * (i + 1)); [liste[i], liste[j]] = [liste[j]!, liste[i]!]; }
+  return liste;
+}
+
+/** Wie voll ein Röhrchen wird: bei Flügelkanüle ohne Verwurf saugt das erste Röhrchen Luft aus dem Schlauch. */
+export function zielFuellung(s: EntnahmeSzenario, bisher: Platz[], naechstes: Platz): number {
+  if (naechstes === VERWURF) return 0.5;
+  if (s.fluegel && bisher.length === 0) return 0.82;
+  return 1;
+}
+
+export interface EntnahmeEingabe {
+  /** Offen gefragt („Wie heißen Sie …?“) und Armband geprüft. */
+  identitaet: 'offen' | 'geschlossen' | 'keine';
+  arm: 'links' | 'rechts';
+  /** Stauzeit in Sekunden (von Anlegen bis Lösen). */
+  stauzeit: number;
+  /** Gefüllte Röhrchen in Reihenfolge, inklusive Verwurf. */
+  folge: Platz[];
+  /** Füllstand je Röhrchen (0..1) zur Zeit des Abziehens. */
+  fuellung: Partial<Record<Material, number>>;
+  mischen: 'schwenken' | 'schuetteln';
+  transport: 'sofort' | 'spaeter';
+}
+
+export interface EntnahmeErgebnis {
+  abnahme: Abnahme;
+  fehler: PraeanalytikFehler[];
+  werte: { id: string; wahr: number; gemessen?: number; flagWahr: Flag; flagGemessen?: Flag; verfaelscht: boolean }[];
+  /** Hinweise ohne Wertverfälschung (z. B. fehlende Röhrchen). */
+  hinweise: string[];
+  punkte: number;
+  max: number;
+}
+
+export function bewerteEntnahme(s: EntnahmeSzenario, e: EntnahmeEingabe): EntnahmeErgebnis {
+  const noetig = roehrchenFuer(s);
+  const venoeseFolge = e.folge.filter((p): p is Material => p !== VERWURF && venoes(p));
+  const abnahme: Abnahme = {
+    identitaetGeprueft: e.identitaet === 'offen',
+    stauzeit: e.stauzeit,
+    infusionsarm: !!s.infusion && s.infusion === e.arm,
+    reihenfolge: venoeseFolge,
+    citratVoll: (e.fuellung.citrat ?? 0) >= 0.95,
+    sofortTransport: e.transport === 'sofort',
+    vorAntibiose: !s.antibiotikumGelaufen,
+    geschuettelt: e.mischen === 'schuetteln',
+  };
+  const gefuellt = new Set(e.folge);
+  const fehlend = noetig.filter((m) => !gefuellt.has(m));
+  const fehler = fehlerAus(abnahme, noetig.filter((m) => gefuellt.has(m)));
+  const abgelehnt = fehler.some((f) => f.abgelehnt);
+  const werte = s.parameter.filter((id) => id !== 'bk').map((id) => {
+    const p = parameter(id);
+    const wahr = s.wahr[id] ?? 0;
+    const roehrchenDa = gefuellt.has(p.material);
+    const citratWeg = p.material === 'citrat' && fehler.some((f) => f.art === 'citrat');
+    const gemessen = abgelehnt || !roehrchenDa || citratWeg ? undefined : verfaelsche(id, wahr, fehler);
+    return {
+      id, wahr, gemessen,
+      flagWahr: bewerte(p, wahr, s.patient.geschlecht),
+      flagGemessen: gemessen === undefined ? undefined : bewerte(p, gemessen, s.patient.geschlecht),
+      verfaelscht: gemessen !== undefined && Math.abs(gemessen - wahr) > 1e-9,
+    };
+  });
+  const hinweise: string[] = [];
+  if (fehlend.length) hinweise.push(`Nicht abgenommen: ${fehlend.map((m) => ROEHRCHEN[m].name).join(', ')}. Diese Werte fehlen im Befund.`);
+  if (e.identitaet === 'geschlossen') hinweise.push('„Sind Sie …?“ ist eine geschlossene Frage: Verwirrte oder schwerhörige Menschen nicken oft einfach. Offen fragen und das Armband prüfen.');
+  if (s.fluegel && e.folge[0] !== VERWURF && noetig.includes('citrat')) hinweise.push('Flügelkanüle ohne Verwurfröhrchen: Die Luft im Schlauch landet im ersten Röhrchen.');
+  if (s.antibiotikumGelaufen && noetig.includes('blutkultur')) hinweise.push('Die Blutkultur kommt nach der Antibiotikagabe: trotzdem abnehmen, aber auf dem Auftrag vermerken und ärztlich informieren. Künftig vor der ersten Gabe.');
+  const checks = [
+    e.identitaet === 'offen',
+    !abnahme.infusionsarm,
+    e.stauzeit <= 60,
+    fehlend.length === 0,
+    !fehler.some((f) => f.art === 'verschleppung') && !(venoeseFolge.length > 1 && venoeseFolge.some((m, i) => i > 0 && (ROEHRCHEN_RANG(m) < ROEHRCHEN_RANG(venoeseFolge[i - 1]!)))),
+    !noetig.includes('citrat') || abnahme.citratVoll,
+    e.mischen === 'schwenken',
+    e.transport === 'sofort',
+  ];
+  return { abnahme, fehler, werte, hinweise, punkte: checks.filter(Boolean).length, max: checks.length };
+}
+
+const ROEHRCHEN_RANG = (m: Material) => ROEHRCHEN[m].reihenfolge ?? 99;

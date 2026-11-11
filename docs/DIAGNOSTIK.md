@@ -54,3 +54,22 @@ beim Kleinkind (Raum 20). Die Monitor-Alarmgrenzen sind weiter die für Erwachse
 - Befunde im echten Bild tragen dieselbe ID wie im synthetischen Bild; ein Test prüft Lizenzfelder, Dateien und IDs.
 - **Privat** (Material-Repo, Ordner `bildgebung/<name>/serie.json` + Bilder): z. B. Unterrichtsmaterial. Die App lädt
   sie nur mit dem Zugang unter Material → Große Dateien auf dem Gerät, nie in den öffentlichen Build.
+
+## Labor-Werkbank (`#/lernen/labor?modus=werkbank`)
+
+Drei interaktive Stationen neben den Quizrunden des Labor-Trainers, als eigener Chunk nachgeladen
+(`src/features/labortrainer/werkbank`). Die Logik liegt in reinen Modulen mit Tests
+(`entnahme.ts`, `verlauf.ts`, `meldung.ts`, `werkbank.test.ts`).
+
+- **Blutentnahme:** Identität, Arm (Infusionsarm sichtbar), Stauen mit laufender Stauzeit (Warnung über 60 s), Röhrchen in selbst gewählter Reihenfolge in den Halter stecken, Füllanimation durch das Vakuum (bei „Bewegung reduzieren“ sofort voll), Flügelkanüle mit Verwurfröhrchen, mischen, Transport. Der Befund zeigt wahre und gemessene Werte; Fehlerregeln aus `src/ui/sim/labor/praeanalytik.ts`.
+- **Kumulativbefund:** Verlauf über mehrere Tage in der `LaborTafel`, den entscheidenden Wert wählen, dann zeichnet sich die Kurve mit Referenzband, danach Handlungsfrage.
+- **Kritischer Wert:** Anruf des Labors, zurücklesen, Telefonnotiz, SBAR-Meldung aus Bausteinen (Reihenfolge und Unwichtiges werden bewertet), richtig handeln bis zum ärztlichen Eintreffen.
+
+Alle Fälle sind fiktiv und fachlich ungeprüft vereinfacht.
+
+## Messen, geführte Befundung, Vergleich (Bildbetrachter)
+
+- **Strecke** (`↔`): Länge in mm; Phantome haben ein festes Bildfeld (CT 360 mm, Röntgen 430 mm), echte Bilder nur mit `pixelMm` an der Serie, sonst Pixel. **Messkreis** (`⊙`): Mittelwert, Streuung in HU mit grober Deutung (Luft, Lunge, Wasser, Weichteil, Kontrast, Knochen). Rechnungen in `src/ui/sim/bildgebung/messen.ts`.
+- **Hervorhebung:** `BildBetrachter` nimmt `hervorhebung` (normierter Bereich) und `werkzeugVorschlag`; der Rahmen wandert animiert (bei „Bewegung reduzieren“ ohne Animation).
+- **Röntgen systematisch** (`#/lernen/diagnostik?modus=befundung`): Technik, A Atemweg, B Lunge und Pleura, C Herz mit eigener Messung des Herz-Thorax-Quotienten, D Zwerchfell, E Rest, Gesamtbild. Schritte je Phantom-Variante in `befundung.ts` (gemeinsamer Baustein, auch für andere Module nutzbar).
+- **Nebeneinander:** In Fällen mit echtem Vergleichsbild zeigt „Nebeneinander“ synthetisches und echtes Bild gleichzeitig.

@@ -222,7 +222,7 @@ export function ctSchicht(z: number, variante: CtVariante = 'normal', groesse = 
 
 export function roentgenThorax(variante: RoentgenVariante = 'normal', groesse = 360): Rohbild {
   const N = groesse, werte = new Uint16Array(N * N);
-  const herzBreite = variante === 'stauung' ? 0.4 : 0.28;
+  const herzBreite = variante === 'stauung' ? 0.46 : 0.28;
   // Zwerchfellkuppel je Seite (-1 = Bild links = Patientenrechts, steht etwas höher)
   const zwerchfell = (seite: number, t: number) => (seite < 0 ? 0.3 : 0.35) + 0.32 * ((t - 0.4) / 0.4) ** 2;
   const aussen = (v: number) => 0.14 + 0.66 * Math.sqrt(klemme((v + 0.84) / 0.7));

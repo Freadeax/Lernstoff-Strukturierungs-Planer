@@ -107,3 +107,21 @@
 .dx-schritte { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; padding: 0; margin: 0.75rem 0; }
 .dx-schritte li { display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; border: 2px solid var(--color-ink); border-radius: 12px; background: var(--color-surface); font-weight: 600; }
 .dx-schritte span { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 8px; background: var(--tile-2, #cfe6fb); color: #16302b; }
+
+/* Geführte Befundung */
+.dx-befundschritte { display: flex; flex-wrap: wrap; gap: 4px; list-style: none; margin: 0 0 8px; padding: 0; }
+.dx-befundschritte li { display: grid; place-items: center; min-width: 30px; height: 30px; border-radius: 999px; background: var(--color-surface-sunken); color: var(--color-text-muted); font-weight: 600; font-size: 0.8125rem; }
+.dx-befundschritte li.is-jetzt { background: var(--color-primary); color: var(--color-on-primary, #fff); }
+.dx-befundschritte li.is-richtig { background: var(--color-success-soft); color: var(--color-success); }
+.dx-befundschritte li.is-falsch { background: var(--color-danger-soft); color: var(--color-danger); }
+.dx-befundfrage { display: grid; gap: 8px; }
+.dx-befundfrage h4, .dx-befundfrage p { margin: 0; }
+.dx-optionen { display: grid; gap: 6px; }
+.dx-optionen button { display: grid; gap: 4px; text-align: left; justify-content: start; justify-items: start; }
+.dx-optionen button.is-richtig { border-color: var(--color-success); background: var(--color-success-soft); }
+.dx-optionen button.is-falsch { border-color: var(--color-danger); background: var(--color-danger-soft); }
+.dx-warum { font-size: var(--text-sm); color: var(--color-text-muted); }
+.dx-htq { padding: 6px 10px; border-radius: var(--radius-sm); background: var(--color-surface-sunken); }
+.dx-vergleich { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+.dx-vergleich figure { margin: 0; display: grid; gap: 6px; }
+.dx-vergleich figcaption { font-size: var(--text-sm); color: var(--color-text-muted); }

@@ -139,11 +139,76 @@ const befund: Aufgabe[] = [
     ['Bei Insulinmangel verbrennt der Körper Fett, es entstehen Ketone und eine metabolische Azidose. Die tiefe Atmung (Kussmaul) ist der Versuch, CO₂ abzuatmen.']),
 ];
 
+
+// ---------------------------------------------------------------- Erweiterung (passt zur Werkbank)
+
+const mehrPraeanalytik: Aufgabe[] = [
+  { id: 'pa.fluegel', art: 'reihenfolge', topicIds: [THEMEN.entnahme], titel: 'Flügelkanüle', frage: 'Mit Flügelkanüle sind Gerinnung, Elektrolyte und Blutbild angefordert. In welcher Reihenfolge füllst du?',
+    schritte: ['Leerröhrchen (Verwurf)', r.citrat.name, r.serum.name, r.edta.name],
+    erklaerung: ['Das Leerröhrchen füllt den Schlauch mit Blut und wird verworfen. Erst danach füllt sich das Citratröhrchen bis zur Markierung.'] },
+  wahl('pa.mischen', THEMEN.entnahme, 'Mischen', 'Wie mischst du ein frisch gefülltes EDTA-Röhrchen?',
+    ['Mehrmals sanft über Kopf schwenken', 'Kräftig schütteln, bis Schaum entsteht', 'Gar nicht, es mischt sich beim Transport', 'Zwischen den Händen rollen, bis es warm ist'],
+    ['Sanftes Schwenken verteilt den Zusatz ohne Zellen zu zerstören. Schütteln macht Hämolyse; ungemischt bilden sich Gerinnsel, die das Blutbild verfälschen.']),
+  wahl('pa.faust', THEMEN.entnahme, 'Faust pumpen', 'Die Patientin soll während der Blutentnahme kräftig die Faust öffnen und schließen. Was ist die Folge?',
+    ['Kalium wird falsch hoch gemessen', 'Die Werte werden genauer', 'Der Blutzucker sinkt stark', 'Es hat keine Auswirkung'],
+    ['Arbeitende Muskeln geben Kalium ab, der Wert kann um mehr als 1 mmol/l steigen. Faust einmal schließen reicht, nicht pumpen lassen.']),
+  wahl('pa.beschriften', THEMEN.entnahme, 'Beschriften', 'Wann beschriftest du die Röhrchen?',
+    ['Am Bett, direkt bei der Person, vor oder unmittelbar nach dem Füllen', 'Im Stationszimmer, gesammelt für alle Patienten', 'Gar nicht, das Labor ordnet über die Uhrzeit zu', 'Erst wenn das Labor anruft'],
+    ['Beschriften fern vom Bett ist eine häufige Ursache für Verwechslungen. Etikett mit Name und Geburtsdatum am Bett abgleichen.']),
+  wahl('pa.nuechtern', THEMEN.entnahme, 'Nüchtern', 'Für welche Werte ist eine nüchterne Abnahme besonders wichtig?',
+    ['Glukose und Triglyzeride', 'Hämoglobin und Thrombozyten', 'Blutgruppe', 'Kreuzprobe'],
+    ['Nach dem Essen steigen Blutzucker und Blutfette deutlich. Nüchtern heißt meist 8 bis 12 Stunden ohne Nahrung, Wasser ist erlaubt.']),
+];
+
+const MEHR_BGA: { id: string; text: string; werte: Bga; hinweis: string }[] = [
+  { id: 'niere', text: 'Akutes Nierenversagen, kaum Urin seit gestern.', werte: { ph: 7.29, pco2: 31, hco3: 15 }, hinweis: 'Die Niere scheidet keine Säuren mehr aus und bildet zu wenig Bikarbonat. Kalium mitbeachten.' },
+  { id: 'diuretika', text: 'Hochdosiert Schleifendiuretikum, Kalium niedrig.', werte: { ph: 7.49, pco2: 46, hco3: 33 }, hinweis: 'Diuretika verlieren Chlorid und Kalium, die Niere hält Bikarbonat zurück: Kontraktionsalkalose.' },
+];
+
+const mehrBga: Aufgabe[] = [
+  ...MEHR_BGA.map((f): AuswahlAufgabe => {
+    const d = deuteBga(f.werte);
+    const richtig = STOERUNGEN.indexOf(d.stoerung as typeof STOERUNGEN[number]);
+    return wahl(`bga.${f.id}`, THEMEN.atmung, 'BGA deuten', `${f.text} pH ${fmt(f.werte.ph, 2)}, pCO₂ ${fmt(f.werte.pco2)} mmHg, HCO₃⁻ ${fmt(f.werte.hco3, 1)} mmol/l. Welche Störung liegt vor?`,
+      [...STOERUNGEN], [`${d.stoerung[0]!.toUpperCase()}${d.stoerung.slice(1)}, Kompensation: ${d.kompensation}. ${f.hinweis}`, ...d.schritte], [richtig]);
+  }),
+  wahl('bga.po2', THEMEN.atmung, 'Sauerstoff', 'Die BGA zeigt pO₂ 54 mmHg bei Raumluft. Wie ordnest du das ein?',
+    ['Ausgeprägte Hypoxämie: ärztlich melden, Sauerstoff nach Anordnung, Atmung beobachten', 'Normalbefund', 'Zu viel Sauerstoff im Blut', 'Unwichtig, solange der pH normal ist'],
+    ['Normal sind etwa 75 bis 100 mmHg, bei älteren Menschen etwas weniger. Unter 60 mmHg sinkt die Sättigung steil ab.']),
+  wahl('bga.laktat', THEMEN.atmung, 'Laktat in der BGA', 'Im BGA-Gerät steht Laktat 5,1 mmol/l bei einer Patientin mit Fieber und RR 88/50. Was bedeutet das?',
+    ['Zeichen einer Minderdurchblutung, Sepsis-Verdacht: sofort ärztlich melden', 'Muskelkater, kein Handlungsbedarf', 'Messfehler, Laktat ist immer so', 'Zeichen einer guten Durchblutung'],
+    ['Laktat über 2 mmol/l zusammen mit niedrigem Blutdruck und Fieber ist ein Warnsignal. Der Verlauf nach Therapie zeigt, ob die Durchblutung besser wird.']),
+];
+
+const mehrBefund: Aufgabe[] = [
+  wahl('bf.verlauf-hb', THEMEN.blut, 'Kumulativbefund', 'Hb über drei Tage: 12,9 → 11,8 → 10,1 → 8,2 g/dl, heute schwarzer Stuhl. Was ist am wahrscheinlichsten?',
+    ['Blutung im oberen Magen-Darm-Trakt', 'Normale Schwankung nach OP', 'Laborfehler durch Stauung', 'Folge von zu viel Trinken'],
+    ['Ein stetiger Abfall mit Teerstuhl spricht für eine GI-Blutung. Vitalzeichen, ärztlich melden, Stuhl aufheben, nüchtern bis zur Klärung.']),
+  wahl('bf.natrium', THEMEN.niere, 'Natrium', 'Eine 86-Jährige unter Thiaziddiuretikum ist neu verwirrt, Natrium 124 mmol/l. Was ist richtig?',
+    ['Hyponatriämie kann die Verwirrtheit erklären: ärztlich melden, Sturzschutz, Trinkmenge nur nach Anordnung', 'Viel Wasser trinken lassen', 'Salztabletten aus dem Vorrat geben', 'Natrium spielt für das Gehirn keine Rolle'],
+    ['Niedriges Natrium lässt Gehirnzellen anschwellen. Zu schnelles Ausgleichen ist ebenfalls gefährlich, deshalb nur nach ärztlicher Anordnung.']),
+  wahl('bf.thrombo', THEMEN.blut, 'Thrombozyten', 'Unter Heparin fallen die Thrombozyten am 7. Tag von 260 auf 95/nl. Woran denkst du?',
+    ['Heparininduzierte Thrombozytopenie (HIT): ärztlich melden, Heparin nicht eigenmächtig weitergeben', 'Normale Reaktion, weiter wie bisher', 'Zu wenig getrunken', 'Laborfehler durch Fluoridröhrchen'],
+    ['Bei HIT sinken die Thrombozyten, gleichzeitig steigt das Thromboserisiko. Die ärztliche Entscheidung über das Absetzen und Ersatz ist dringend.']),
+  wahl('bf.inr', THEMEN.blut, 'INR', 'Ein Patient unter Phenprocoumon hat INR 6,2 und Zahnfleischbluten. Was tust du?',
+    ['Ärztlich melden, auf Blutungszeichen achten, keine Injektionen in den Muskel', 'Die nächste Tablette doppelt geben', 'Nichts, INR 6 ist der Zielbereich', 'Kräftige Massage gegen blaue Flecken'],
+    ['Der Zielbereich liegt meist bei 2 bis 3. Ein Wert über 5 mit Blutung ist gefährlich; über Dosis und Gegenmittel wird ärztlich entschieden.']),
+  wahl('bf.glukose-hypo', THEMEN.diabetes, 'Kritischer Blutzucker', 'Das Labor meldet Glukose 38 mg/dl. Die Patientin ist schwitzig und verlangsamt, kann schlucken. Was zuerst?',
+    ['Sofort schnell wirksame Kohlenhydrate geben, BZ kontrollieren, ärztlich melden', 'Erst auf den Rückruf der Ärztin warten', 'Insulin geben', 'Bis zur nächsten Mahlzeit abwarten'],
+    ['Eine Hypoglykämie ist ein Notfall, den Pflegende sofort behandeln dürfen (Hausstandard): Traubenzucker oder Saft, wenn sicheres Schlucken möglich ist. Bewusstlose bekommen nichts in den Mund.']),
+  wahl('bf.rueckruf', THEMEN.herz, 'Kritischer Wert', 'Was gehört zur Dokumentation eines telefonisch gemeldeten kritischen Wertes?',
+    ['Uhrzeit, Anrufer, Patient, Wert mit Einheit, wem und wann weitergegeben', 'Nur der Wert', 'Nur die Uhrzeit', 'Nichts, er steht ja im System'],
+    ['Die Dokumentation zeigt, dass der Wert ankam und gehandelt wurde. Zurücklesen verhindert Hörfehler.']),
+  wahl('bf.pct', THEMEN.herz, 'Procalcitonin', 'Wofür wird Procalcitonin (PCT) vor allem genutzt?',
+    ['Hinweis auf bakterielle Infektion und Steuerung der Antibiotikadauer', 'Messung der Nierenfunktion', 'Diagnose eines Herzinfarkts', 'Kontrolle des Blutzuckers'],
+    ['PCT steigt bei bakteriellen Infektionen stärker als bei viralen. Fallende Werte können helfen, die Antibiotikatherapie zu verkürzen; die Entscheidung bleibt ärztlich.']),
+];
+
 export const BEREICHE: Bereich[] = [
   { id: 'praeanalytik', label: 'Blutentnahme und Präanalytik', kurz: 'Reihenfolge, Stauen, Hämolyse, Identität, Transport', wissen: ['Reihenfolge: Blutkultur → Citrat → Serum → Heparin → EDTA → Fluorid.', 'Höchstens etwa 1 Minute stauen, nicht am Infusionsarm abnehmen.', 'Identität aktiv erfragen, am Bett beschriften, zügig transportieren.'] },
   { id: 'bga', label: 'Blutgasanalyse', kurz: 'pH, pCO₂, HCO₃⁻, Kompensation', wissen: ['pH 7,35–7,45, pCO₂ 35–45 mmHg, HCO₃⁻ 22–26 mmol/l.', 'Zuerst pH, dann: welche Achse zeigt in dieselbe Richtung?', 'Die Gegenseite zeigt die Kompensation.'] },
   { id: 'befund', label: 'Befunde einordnen', kurz: 'Kritische Werte, CRP, Laktat, Troponin, D-Dimere', wissen: ['Kritischer Wert: zurücklesen, dokumentieren, sofort melden.', 'Verlauf zählt mehr als ein Einzelwert.', 'Vor Kontrastmittel: Niere, Schilddrüse, Allergien, Metformin.'] },
 ];
 
-export const AUFGABEN: Record<BereichId, Aufgabe[]> = mitVertiefung({ praeanalytik, bga, befund }, VERTIEFUNG);
+export const AUFGABEN: Record<BereichId, Aufgabe[]> = mitVertiefung({ praeanalytik: [...praeanalytik, ...mehrPraeanalytik], bga: [...bga, ...mehrBga], befund: [...befund, ...mehrBefund] }, VERTIEFUNG);
 export const ALLE_AUFGABEN: Aufgabe[] = Object.values(AUFGABEN).flat();

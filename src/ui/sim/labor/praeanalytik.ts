@@ -17,7 +17,7 @@ export interface Roehrchen {
 }
 
 export const ROEHRCHEN: Record<Material, Roehrchen> = {
-  blutkultur: { material: 'blutkultur', name: 'Blutkulturflaschen (aerob + anaerob)', farbe: { eu: { name: 'Flaschen', hex: '#475569' }, iso: { name: 'Flaschen', hex: '#475569' } }, reihenfolge: 1, hinweis: 'Zuerst, steril: Hautdesinfektion mit Einwirkzeit, Septum desinfizieren, nicht nachtasten. Erst aerob, dann anaerob (bei Flügelkanüle umgekehrt wegen Luft im Schlauch).' },
+  blutkultur: { material: 'blutkultur', name: 'Blutkulturflaschen (aerob + anaerob)', farbe: { eu: { name: 'Flaschen', hex: '#475569' }, iso: { name: 'Flaschen', hex: '#475569' } }, reihenfolge: 1, hinweis: 'Zuerst, steril: Hautdesinfektion mit Einwirkzeit, Septum desinfizieren, nicht nachtasten. Erst aerob, dann anaerob: bei Flügelkanüle landet so die Luft aus dem Schlauch in der aeroben Flasche.' },
   citrat: { material: 'citrat', name: 'Citrat (Gerinnung)', farbe: { eu: { name: 'grün', hex: '#16a34a' }, iso: { name: 'hellblau', hex: '#38bdf8' } }, reihenfolge: 2, hinweis: 'Exakt bis zur Markierung füllen (Mischverhältnis 1:9), sanft schwenken.' },
   serum: { material: 'serum', name: 'Serum', farbe: { eu: { name: 'weiß/braun', hex: '#a16207' }, iso: { name: 'rot/gold', hex: '#dc2626' } }, reihenfolge: 3, hinweis: 'Gerinnen lassen (ca. 30 min), dann zügig ins Labor.' },
   heparin: { material: 'heparin', name: 'Lithium-Heparin', farbe: { eu: { name: 'orange', hex: '#f97316' }, iso: { name: 'grün', hex: '#16a34a' } }, reihenfolge: 4, hinweis: 'Plasma für die klinische Chemie, je nach Labor statt Serum.' },

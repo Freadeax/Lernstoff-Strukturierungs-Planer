@@ -153,7 +153,7 @@ function Bildgebung({ fall, lauf, senden }: { fall: DiagnostikFall; lauf: Lauf; 
 
 function UntersuchungKarte({ u, fall, lauf, senden }: { u: Untersuchung; fall: DiagnostikFall; lauf: Lauf; senden: (b: Befehl) => void }) {
   const [haken, setHaken] = useState<string[]>([]);
-  const [ansicht, setAnsicht] = useState<'synthetisch' | 'echt'>('synthetisch');
+  const [ansicht, setAnsicht] = useState<'synthetisch' | 'echt' | 'beide'>('synthetisch');
   const ul = lauf.untersuchungen.find((x) => x.serie === u.serie.id);
   const reihenfolge = useMemo(() => [...u.vorbereitung].sort((a, b) => a.id.localeCompare(b.id) * (u.serie.id.length % 2 ? 1 : -1)), [u]);
   const serie: Bildserie = ansicht === 'echt' && u.echt ? u.echt : u.serie;
@@ -180,8 +180,20 @@ function UntersuchungKarte({ u, fall, lauf, senden }: { u: Untersuchung; fall: D
             <div className="pills dx-quelle" role="group" aria-label="Bildquelle">
               <button type="button" className="pill" aria-pressed={ansicht === 'synthetisch'} onClick={() => setAnsicht('synthetisch')}>Übungsbild (synthetisch)</button>
               <button type="button" className="pill" aria-pressed={ansicht === 'echt'} onClick={() => setAnsicht('echt')}>Echtes Bild (frei lizenziert)</button>
+              <button type="button" className="pill" aria-pressed={ansicht === 'beide'} onClick={() => setAnsicht('beide')}>Nebeneinander</button>
             </div>
           )}
+          {ansicht === 'beide' && u.echt ? (
+            <div className="dx-vergleich">
+              {[u.serie, u.echt].map((x) => (
+                <figure key={x.id}>
+                  <BildBetrachter serie={x} sichtbareBefunde={x.befunde.map((b) => b.id).filter((id) => lauf.gefunden.includes(id) || lauf.aufgedeckt.includes(id))} />
+                  <figcaption>{x.quelle.art === 'phantom' ? 'Synthetisches Übungsbild: schematisch, Formen stark vereinfacht.' : 'Echtes Bild eines anderen Patienten: feinere Strukturen, Überlagerungen, Rauschen.'}</figcaption>
+                </figure>
+              ))}
+              <p className="muted dx-klein">Vergleiche dieselbe Stelle in beiden Bildern: Wie sieht der Befund im echten Bild aus? Fenster, Lupe und Messkreis funktionieren in beiden. Markieren geht in der Einzelansicht.</p>
+            </div>
+          ) : (
           <div className="dx-bildlayout">
             <BildBetrachter
               serie={serie}
@@ -215,6 +227,7 @@ function UntersuchungKarte({ u, fall, lauf, senden }: { u: Untersuchung; fall: D
               </section>
             </aside>
           </div>
+          )}
         </>
       )}
     </section>
