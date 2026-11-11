@@ -1,0 +1,58 @@
+/* Raumfoto-Bühne für die Simulatoren (siehe RaumBuehne.tsx). */
+
+.raum-buehne { margin: 0; }
+.raum-buehne__rahmen {
+  position: relative; overflow: hidden; aspect-ratio: 16 / 9;
+  border: 2px solid var(--color-ink); border-radius: var(--radius-lg, 14px);
+  background: #1b2422; box-shadow: var(--shadow-hard-sm);
+}
+.raum-buehne__kamera {
+  position: absolute; inset: 0;
+  transition: transform var(--dur-slower, 700ms) var(--ease-out, ease-out);
+}
+.raum-buehne.is-ruhig .raum-buehne__kamera, .raum-buehne.is-ruhig .raum-hotspot { transition: none; }
+.raum-buehne__bild { display: block; width: 100%; height: 100%; object-fit: cover; }
+.raum-buehne__fallback {
+  position: absolute; inset: 0; display: grid; place-items: center; padding: 1rem;
+  color: #eef3f1; text-align: center; font-size: 0.9rem;
+}
+.raum-buehne__overlay { position: absolute; inset: 0; pointer-events: none; }
+.raum-buehne__overlay > * { pointer-events: auto; }
+
+/* Monitor am Gerät: Inhalt wird in fester Grundgröße gezeichnet und ins Rechteck skaliert. */
+.raum-monitor { position: absolute; overflow: hidden; border-radius: 2px; }
+.raum-monitor__inhalt { transform-origin: 0 0; }
+.raum-monitor__inhalt > * { width: 100%; height: 100%; box-sizing: border-box; }
+.raum-monitor__geraet { border-radius: 0; margin: 0; }
+
+/* Hotspots: gut treffbar (44 px), sichtbare Nummer, Fokusring. */
+.raum-hotspot {
+  position: absolute; transform: translate(-50%, -50%) scale(calc(1 / var(--raum-zoom, 1)));
+  transition: transform var(--dur-slower, 700ms) var(--ease-out, ease-out);
+  min-width: 44px; min-height: 44px; padding: 0; border: 0; background: transparent;
+  display: grid; place-items: center; cursor: pointer; box-shadow: none; color: inherit;
+}
+.raum-buehne .raum-hotspot, .raum-buehne .raum-hotspot:hover, .raum-buehne .raum-hotspot[aria-pressed='true'] { background: transparent; border: 0; box-shadow: none; }
+.raum-hotspot > span {
+  display: grid; place-items: center; min-width: 28px; height: 28px; padding: 0 6px; border-radius: 999px;
+  background: var(--color-sun); color: #16302b; font-weight: 700; font-size: 0.85rem; line-height: 1;
+  border: 2px solid #16302b; box-shadow: 2px 2px 0 #16302b;
+  transition: transform var(--dur-fast, 120ms) var(--ease-out, ease-out);
+}
+.raum-hotspot:hover > span { transform: scale(1.08); }
+.raum-hotspot:focus-visible { outline: none; }
+.raum-hotspot:focus-visible > span { box-shadow: 0 0 0 3px #fff, 0 0 0 6px var(--color-focus); }
+.raum-hotspot[aria-pressed='true'] > span { background: #16302b; color: var(--color-sun); border-color: var(--color-sun); }
+.raum-hotspot.is-aktiv > span { animation: raum-puls 1.6s var(--ease-out, ease-out) infinite; }
+.raum-buehne.is-ruhig .raum-hotspot.is-aktiv > span { animation: none; outline: 3px solid var(--color-sun); outline-offset: 2px; }
+@keyframes raum-puls {
+  0%, 100% { box-shadow: 2px 2px 0 #16302b, 0 0 0 0 rgba(255, 200, 87, 0.8); }
+  50% { box-shadow: 2px 2px 0 #16302b, 0 0 0 10px rgba(255, 200, 87, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .raum-buehne__kamera, .raum-hotspot, .raum-hotspot > span { transition: none; }
+  .raum-hotspot.is-aktiv > span { animation: none; }
+}
+@media (max-width: 480px) {
+  .raum-hotspot > span { min-width: 24px; height: 24px; font-size: 0.78rem; }
+}

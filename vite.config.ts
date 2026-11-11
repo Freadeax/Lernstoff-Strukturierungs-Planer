@@ -38,6 +38,11 @@ export default defineConfig({
           urlPattern: ({ url }) => url.pathname.includes('/bildgebung/'),
           handler: 'CacheFirst',
           options: { cacheName: 'bildgebung', expiration: { maxEntries: 200 } },
+        }, {
+          // Raumfotos der Simulatoren (je ca. 50–110 KB): beim ersten Ansehen laden, danach offline.
+          urlPattern: ({ url }) => url.pathname.includes('/raeume/'),
+          handler: 'CacheFirst',
+          options: { cacheName: 'raeume', expiration: { maxEntries: 60 } },
         }],
       },
       manifest: {

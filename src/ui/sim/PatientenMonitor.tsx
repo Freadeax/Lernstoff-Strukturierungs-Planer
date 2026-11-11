@@ -18,6 +18,8 @@ export interface PatientenMonitorProps {
   aktiv?: boolean;
   /** Zeile über den Kurven, z. B. Uhrzeit oder "Letzte Messung 14:05". */
   titel?: string;
+  /** Text, wenn aktiv=false (Standard „Kein Signal“), z. B. „Standby“. */
+  ausText?: string;
   className?: string;
 }
 
@@ -135,7 +137,7 @@ function Wert({ label, wert, einheit, alarm, nachkomma = 0, klasse, klein }: {
   );
 }
 
-export function PatientenMonitor({ werte, kompakt = false, aktiv = true, titel, className = '' }: PatientenMonitorProps) {
+export function PatientenMonitor({ werte, kompakt = false, aktiv = true, titel, ausText = 'Kein Signal', className = '' }: PatientenMonitorProps) {
   const w = werte;
   const alarm = aktiv ? gesamtAlarm(w) : 'ok';
   const spo2Amp = typeof w.spo2 === 'number' && w.spo2 < 90 ? 0.6 : 0.9;
@@ -153,11 +155,11 @@ export function PatientenMonitor({ werte, kompakt = false, aktiv = true, titel, 
 
   return (
     <div className={`sim-monitor ${kompakt ? 'is-kompakt' : ''} ${aktiv ? '' : 'is-aus'} is-alarm-${alarm} ${className}`.trim()} role="group" aria-label="Patientenmonitor">
-      <span className="sim-sr">{aktiv ? zusammenfassung : 'Monitor aus, kein Signal'}</span>
+      <span className="sim-sr">{aktiv ? zusammenfassung : `Monitor: ${ausText}`}</span>
       {(titel || alarm !== 'ok' || !aktiv) && (
         <div className="sim-monitor__kopf" aria-hidden="true">
           <span>{titel}</span>
-          {!aktiv ? <span className="sim-monitor__status">Kein Signal</span>
+          {!aktiv ? <span className="sim-monitor__status">{ausText}</span>
             : alarm === 'rot' ? <span className="sim-monitor__status is-rot">Alarm</span>
               : alarm === 'gelb' ? <span className="sim-monitor__status is-gelb">Hinweis</span> : null}
         </div>
