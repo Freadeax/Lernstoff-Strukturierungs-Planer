@@ -31,7 +31,18 @@ export type RaumId =
   | '21_paediatrie_schulkind'
   | '21a_paediatrie_schulkind_ohne_monitor'
   | '21b_paediatrie_schulkind_spacer'
-  | '21m_paediatrie_schulkind_monitor_verbunden';
+  | '21m_paediatrie_schulkind_monitor_verbunden'
+  | '26_pflegeheim_zimmer_tag'
+  | '26a_pflegeheim_zimmer_schlaganfall'
+  | '26b_pflegeheim_zimmer_fruehstueck_unberuehrt'
+  | '26h_pflegeheim_zimmer_hypoglykaemie'
+  | '26p_pflegeheim_zimmer_pneumonie'
+  | '27_station_zweibett_nacht'
+  | '27a_station_zweibett_nacht_niedrigbett_sturzmatte'
+  | '30_station_zimmer_frau'
+  | '30a_station_zimmer_frau_ohne_monitor'
+  | '30b_station_zimmer_frau_sepsis'
+  | '30m_station_zimmer_frau_monitor_verbunden';
 
 export type RaumBereich = 'Ambulante Pflege' | 'Pflegeheim' | 'Station' | 'Intensivstation' | 'Notaufnahme' | 'Krankenhaus' | 'Pädiatrie';
 
@@ -90,6 +101,38 @@ const schulkindHotspots = (mitWagen: boolean, spacerAmKind = false, clipAmKind =
   spacerAmKind ? { id: 'spacer', label: 'Dosieraerosol mit Spacer und Maske', x: 0.39, y: 0.42 } : { id: 'spacer', label: 'Dosieraerosol und Spacer', x: 0.24, y: 0.72 },
   ...(mitWagen ? [{ id: 'monitor', label: 'Monitorwagen', x: 0.88, y: 0.53 }] : []),
   ...(clipAmKind ? [{ id: 'fingerclip', label: 'Fingerclip am Kind', x: 0.43, y: 0.63 }] : []),
+];
+
+// Welle 2 (11.11.2026): Bewohnerzimmer tags, Zweibettzimmer nachts, internistisches Zimmer (KI-generiert).
+const heimHotspots = (person: { label: string; x: number; y: number }): HotspotVorschlag[] => [
+  { id: 'person', ...person },
+  { id: 'rufanlage', label: 'Rufanlage', x: 0.13, y: 0.58 },
+  { id: 'trinkglas', label: 'Trinkglas', x: 0.05, y: 0.53 },
+  { id: 'kissen', label: 'Lagerungskissen', x: 0.47, y: 0.52 },
+  { id: 'doku', label: 'Pflegedokumentation', x: 0.09, y: 0.78 },
+  { id: 'tablett', label: 'Frühstückstablett', x: 0.38, y: 0.83 },
+  { id: 'rollstuhl', label: 'Rollstuhl', x: 0.9, y: 0.48 },
+];
+const ZWEIBETT_MONITOR: Rechteck = { x: 0.7051, y: 0.2157, width: 0.0706, height: 0.0978 };
+const zweibettHotspots = (niedrig: boolean): HotspotVorschlag[] => [
+  { id: 'patient', label: 'Patient an der Bettkante', x: 0.4, y: 0.34 },
+  { id: 'bettgitter', label: 'Bettgitter', x: 0.33, y: niedrig ? 0.56 : 0.46 },
+  { id: 'rufanlage', label: 'Rufanlage', x: 0.31, y: niedrig ? 0.62 : 0.53 },
+  ...(niedrig ? [{ id: 'sturzmatte', label: 'Sturzmatte', x: 0.49, y: 0.84 }] : []),
+  { id: 'nachbar', label: 'Schlafender Nachbar', x: 0.9, y: 0.35 },
+  { id: 'tuer', label: 'Tür zum Flur', x: 0.59, y: 0.31 },
+  { id: 'monitor', label: 'Monitorwagen', x: 0.75, y: 0.46 },
+];
+const INNERE_MONITOR: Rechteck = { x: 0.7129, y: 0.237, width: 0.1447, height: 0.153 };
+const innereHotspots = (person: string, wagen: boolean, sensor = false, sepsis = false): HotspotVorschlag[] => [
+  { id: 'patient', label: person, x: 0.46, y: 0.46 },
+  sepsis ? { id: 'bettdecke', label: 'Bettdecke', x: 0.45, y: 0.61 } : { id: 'zugang', label: 'Venenzugang', x: 0.47, y: 0.62 },
+  { id: 'infusion', label: 'Infusionsbeutel', x: 0.23, y: 0.14 },
+  { id: 'tropfkammer', label: 'Tropfkammer', x: 0.23, y: 0.24 },
+  { id: 'rufanlage', label: 'Rufanlage', x: 0.51, y: 0.87 },
+  { id: 'tuer', label: 'Zimmertür', x: 0.08, y: 0.4 },
+  ...(wagen ? [{ id: 'monitor', label: 'Monitorwagen', x: 0.79, y: 0.48 }] : []),
+  ...(sensor ? [{ id: 'fingersensor', label: 'Fingersensor', x: 0.43, y: 0.72 }] : []),
 ];
 
 const liste: Raum[] = [
@@ -296,6 +339,67 @@ const liste: Raum[] = [
     beschreibung: 'Dasselbe Zimmer, der Fingerclip sitzt am Jungen und ist mit dem Monitorwagen verbunden.',
     monitor: SCHULKIND_MONITOR, ohneMonitor: '21a_paediatrie_schulkind_ohne_monitor',
     hotspots: schulkindHotspots(true, false, true),
+  }),
+  raum({
+    id: '26_pflegeheim_zimmer_tag', bereich: 'Pflegeheim', titel: 'Bewohnerzimmer · tagsüber',
+    beschreibung: 'Bewohnerzimmer im Pflegeheim: eine alte Frau sitzt halb aufgerichtet im Pflegebett, davor ein Frühstückstablett. Links Nachttisch mit Trinkglas und Rufanlage, rechts Sessel und Rollstuhl.',
+    hotspots: heimHotspots({ label: 'Bewohnerin', x: 0.29, y: 0.38 }),
+  }),
+  raum({
+    id: '26a_pflegeheim_zimmer_schlaganfall', bereich: 'Pflegeheim', titel: 'Bewohnerzimmer · Bewohner im Sessel',
+    beschreibung: 'Dasselbe Bewohnerzimmer: ein älterer Mann sitzt im Sessel, sein Mundwinkel hängt leicht auf einer Seite. Das Pflegebett links ist leer.',
+    hotspots: heimHotspots({ label: 'Bewohner', x: 0.7, y: 0.34 }),
+  }),
+  raum({
+    id: '26b_pflegeheim_zimmer_fruehstueck_unberuehrt', bereich: 'Pflegeheim', titel: 'Bewohnerzimmer · Frühstück unberührt',
+    beschreibung: 'Dasselbe Bewohnerzimmer: die Bewohnerin im Pflegebett wendet den Blick ab, auf dem Tablett stehen eine volle Schale und ein ganzes Brötchen.',
+    hotspots: heimHotspots({ label: 'Bewohnerin', x: 0.29, y: 0.38 }),
+  }),
+  raum({
+    id: '26h_pflegeheim_zimmer_hypoglykaemie', bereich: 'Pflegeheim', titel: 'Bewohnerzimmer · Bewohnerin angespannt',
+    beschreibung: 'Dasselbe Bewohnerzimmer mit einer anderen Bewohnerin: sie sitzt wach und angespannt im Pflegebett, das Frühstück steht davor.',
+    hotspots: heimHotspots({ label: 'Bewohnerin', x: 0.29, y: 0.38 }),
+  }),
+  raum({
+    id: '26p_pflegeheim_zimmer_pneumonie', bereich: 'Pflegeheim', titel: 'Bewohnerzimmer · Bewohner im Bett',
+    beschreibung: 'Dasselbe Bewohnerzimmer: ein alter Mann liegt halb aufgerichtet im Pflegebett, das Frühstückstablett steht davor.',
+    hotspots: heimHotspots({ label: 'Bewohner', x: 0.29, y: 0.38 }),
+  }),
+  raum({
+    id: '27_station_zweibett_nacht', bereich: 'Station', titel: 'Zweibettzimmer · Nacht',
+    beschreibung: 'Zweibettzimmer bei Nacht: ein alter Mann sitzt an der Bettkante und beugt sich vor, das Bettgitter ist halb oben. Rechts schläft der Bettnachbar, neben der offenen Tür steht ein ausgeschalteter Monitorwagen.',
+    monitor: ZWEIBETT_MONITOR,
+    hotspots: zweibettHotspots(false),
+  }),
+  raum({
+    id: '27a_station_zweibett_nacht_niedrigbett_sturzmatte', bereich: 'Station', titel: 'Zweibettzimmer · Niedrigbett und Sturzmatte',
+    beschreibung: 'Dasselbe Zweibettzimmer: das Bett ist ganz abgesenkt, davor liegt eine Sturzmatte. Der Mann sitzt an der Bettkante, der Nachbar schläft.',
+    monitor: ZWEIBETT_MONITOR,
+    hotspots: zweibettHotspots(true),
+  }),
+  raum({
+    id: '30_station_zimmer_frau', bereich: 'Station', titel: 'Innere Medizin · Patientin mit Infusion',
+    beschreibung: 'Internistisches Einzelzimmer: eine junge Frau sitzt halb aufgerichtet im Bett und reibt sich den Arm. Links läuft eine Infusion, rechts steht ein Monitorwagen mit dunklem Bildschirm.',
+    monitor: INNERE_MONITOR, ohneMonitor: '30a_station_zimmer_frau_ohne_monitor', verbunden: '30m_station_zimmer_frau_monitor_verbunden',
+    hotspots: innereHotspots('Patientin', true),
+  }),
+  raum({
+    id: '30a_station_zimmer_frau_ohne_monitor', bereich: 'Station', titel: 'Innere Medizin · ohne Monitor',
+    beschreibung: 'Dasselbe Zimmer ohne Monitorwagen: die junge Frau im Bett reibt sich den Arm, links der Infusionsständer.',
+    mitMonitor: '30_station_zimmer_frau',
+    hotspots: innereHotspots('Patientin', false),
+  }),
+  raum({
+    id: '30m_station_zimmer_frau_monitor_verbunden', bereich: 'Station', titel: 'Innere Medizin · Fingersensor angeschlossen',
+    beschreibung: 'Dasselbe Zimmer: die junge Frau trägt einen Fingersensor, das Kabel führt zum Monitorwagen.',
+    monitor: INNERE_MONITOR, ohneMonitor: '30a_station_zimmer_frau_ohne_monitor',
+    hotspots: innereHotspots('Patientin', true, true),
+  }),
+  raum({
+    id: '30b_station_zimmer_frau_sepsis', bereich: 'Station', titel: 'Innere Medizin · ältere Patientin, verwirrt',
+    beschreibung: 'Dasselbe Zimmer mit einer alten Frau im Bett, die an der Bettdecke nestelt und unsicher blickt. Infusionsständer und Monitorwagen stehen an ihren Plätzen.',
+    monitor: INNERE_MONITOR,
+    hotspots: innereHotspots('Patientin', true, false, true),
   }),
 ];
 

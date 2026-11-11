@@ -1,6 +1,6 @@
 # Materialbedarf: Grafiken, Medien und Texte, die die App noch braucht
 
-Stand: 11.11.2026 (Lieferung 1 eingetragen), geprüft gegen `main` (Commit `ad9a096`, nach PR #95 bis #98), den Projektordner,
+Stand: 11.11.2026 (Lieferungen 1 und 2 eingetragen), geprüft gegen `main` (Commit `ad9a096`, nach PR #95 bis #98), den Projektordner,
 das **Visualpaket** und das **Pflegesimulator-Komplettpaket v2**. Diese Liste ist die Bestellliste für die
 nächste Materiallieferung. Jede Position hat eine feste ID, damit Dateien eindeutig zugeordnet werden können.
 
@@ -116,7 +116,17 @@ Hotspots und Monitorfläche sind optional; Claude misst sie sonst selbst nach.
 | `rx_pneumothorax` | Spontanpneumothorax links, Hellerhoff, CC BY-SA 3.0 | in der App (PR #105): Diagnostik `pneumothorax`, Befundmarke neu vermessen |
 | `txt_ce10` (Teil) | Lernskript Neugeborenes (LEB 6) | Material-Repo: Original unter `dateien/`, Skript `skripte/CE10-Neugeborenes.md` |
 
-Originale der Lieferung: Projektordner `material-lieferungen/2026-11-11_P1_Paediatrie/`. Fachliche Prüfung aller Motive und der Bildzuordnung ist offen.
+### 1.2 Lieferung 2 vom 11.11.2026 (Welle 02, Räume)
+
+| Position | Geliefert | Stand |
+| --- | --- | --- |
+| `26_pflegeheim_zimmer_tag` | Grundbild (Ilse), `26a` Bernd im Sessel, `26b` Frühstück unberührt, `26h` Frau S., `26p` Herr B. | in der App: Praxis `demenz` (26b), `schlaganfall` (26a); Fall `demenz-verfuegung` (26b), `hypoglykaemie` (26h), `pneumonie` (26p) |
+| `27_station_zweibett_nacht` | Grundbild, `27a` Niedrigbett mit Sturzmatte | in der App: Praxis `delir` (27a erscheint nach „Bett in Niedrigstellung“), Fall `delir-nacht` |
+| `30_station_zimmer_frau` | Grundbild (Selin), `30a` ohne Monitor, `30m` Sensor am Finger, `30b` Gertrud (Sepsis) | in der App: Praxis/Fall `anaphylaxie` (30/30a/30m je Monitorzustand), `sepsis` (30b) |
+
+Raumbilder werden nicht ins Startpaket gepackt, sondern beim ersten Ansehen geladen (Startgröße unverändert). Fachliche Prüfung offen (Infusionsanschluss, Kabelführung, Niedrigbett-Motiv).
+
+Originale der Lieferungen: Projektordner `material-lieferungen/2026-11-11_P1_Paediatrie/`. Fachliche Prüfung aller Motive und der Bildzuordnung ist offen.
 
 ---
 
@@ -354,9 +364,9 @@ Nicht nötig (macht die App besser selbst): Monitorpiep, Alarmmelodien, Telefon,
 2. ~~`21_paediatrie_schulkind` + `21a`~~ geliefert 11.11.
 3. ~~`ct_lungenembolie`~~ geliefert 11.11.
 4. ~~`rx_pneumothorax`~~ geliefert 11.11.
-5. `26_pflegeheim_zimmer_tag` + `26a` (5 Heimfälle ohne passendes Zimmer)
-6. `30_station_zimmer_frau` + `30b` (Anaphylaxie, Sepsis)
-7. `27_station_zweibett_nacht` (Delir)
+5. ~~`26_pflegeheim_zimmer_tag` + `26a`~~ geliefert 11.11. (5 Heimfälle ohne passendes Zimmer)
+6. ~~`30_station_zimmer_frau` + `30b`~~ geliefert 11.11. (Anaphylaxie, Sepsis)
+7. ~~`27_station_zweibett_nacht`~~ geliefert 11.11. (Delir)
 8. `22_psychiatrie_aufenthaltsraum` + `23_psychiatrie_rueckzugsraum`
 9. `24_reha_zimmer`
 10. `25_hospiz_zimmer`
@@ -383,14 +393,14 @@ Nicht nötig (macht die App besser selbst): Monitorpiep, Alarmmelodien, Telefon,
 | psychiatrie | Unruhe im Aufenthaltsraum | Leon Weber, 32 | Psychiatrischer Wohnbereich, Rückzugsraum | 11 Speiseraum Heim | **22, 23** |
 | reha | Der erste Weg zum Bad | Petra Lind, 64 | Rehazimmer, Rollator, Haltegriffe | 08 Pflegebad ambulant | **24** |
 | palliativ | Zeit für ein schwieriges Gespräch | Helene Roth, 88 | Hospizzimmer, Angehörige | 10 Heim nachts | **25** |
-| sepsis | Gestern war sie noch klar | Gertrud Hahn, 81 | Internistische Station | 13 postop | **30b** |
+| sepsis | Gestern war sie noch klar | Gertrud Hahn, 81 | Internistische Station | **30b** (seit 11.11.) | erledigt |
 | nachblutung | Der Verband wird rot | Jonas Wendt, 58 | Unfallchirurgie | 13 postop | 13b |
-| schlaganfall | Der Kaffee läuft aus dem Mundwinkel | Bernd Albers, 76 | Wohnbereich, Speisesaal | 11 Speiseraum | 11a |
-| anaphylaxie | Juckreiz nach der ersten Infusion | Selin Kaya, 34 | Internistische Station | 14 Isolation | **30** |
+| schlaganfall | Der Kaffee läuft aus dem Mundwinkel | Bernd Albers, 76 | Wohnbereich, Speisesaal | **26a** (seit 11.11.) | 11a für das Frühstücksereignis |
+| anaphylaxie | Juckreiz nach der ersten Infusion | Selin Kaya, 34 | Internistische Station | **30** (seit 11.11.) | erledigt |
 | lungenembolie | Plötzlich keine Luft beim ersten Aufstehen | Werner Brandt, 67 | Unfallchirurgie | 12 Kardiologie | 13c |
-| delir | Er will mitten in der Nacht nach Hause | Heinrich Vogt, 84 | Zweibettzimmer, Nachbar schläft | 10 Heim nachts | **27** |
+| delir | Er will mitten in der Nacht nach Hause | Heinrich Vogt, 84 | Zweibettzimmer, Nachbar schläft | **27/27a** (seit 11.11.) | erledigt |
 | asthma | Das Spray hilft heute nicht | Ben Yilmaz, 7 | Kinderzimmer, O₂-Anschluss | **21** (seit 11.11.) | erledigt |
-| demenz | Frau Kühn isst seit gestern nichts | Ilse Kühn, 89 | Einzelzimmer Wohnbereich | 11 Speiseraum | **26** |
+| demenz | Frau Kühn isst seit gestern nichts | Ilse Kühn, 89 | Einzelzimmer Wohnbereich | **26b** (seit 11.11.) | erledigt |
 
 ### Fallsimulator (`src/features/fall/faelle.ts`, Fotoräume seit PR #101 in `fotoraeume.ts`)
 
@@ -398,21 +408,21 @@ Nicht nötig (macht die App besser selbst): Monitorpiep, Alarmmelodien, Telefon,
 | --- | --- | --- | --- |
 | herzinsuffizienz | Atemnot in der Nacht | Krankenhaus | 12n |
 | hueft-tep | Erster Tag nach der Hüft-OP | Krankenhaus | 13d |
-| hypoglykaemie | Unruhe vor dem Mittagessen | Langzeitpflege | 26 / 11 |
-| pneumonie | Fieber und Husten | Langzeitpflege | 26 |
+| hypoglykaemie | Unruhe vor dem Mittagessen | Langzeitpflege | 26h (erledigt) |
+| pneumonie | Fieber und Husten | Langzeitpflege | 26p (erledigt) |
 | schlaganfall | Plötzlich hängt der Mundwinkel | Krankenhaus | 36 (P3) oder 30 |
 | dekubitus | Rötung am Steiß | ambulant | **28** |
 | fieberkrampf | Ein Kind mit hohem Fieber (Lina, 2) | Pädiatrie | 20f (erledigt) |
 | palliativ | Die letzten Tage | Langzeitpflege | 25 / 10b |
-| sepsis | Gestern war sie noch klar | Krankenhaus | 30b |
+| sepsis | Gestern war sie noch klar | Krankenhaus | 30b (erledigt) |
 | nachblutung | Der Verband wird rot | Krankenhaus | 13b |
 | copd | Luft holen fällt schwer | ambulant | **29** |
 | sturz-nacht | Gefunden neben dem Bett | Langzeitpflege | 10a |
-| anaphylaxie | Juckreiz nach der ersten Infusion | Krankenhaus | 30 |
+| anaphylaxie | Juckreiz nach der ersten Infusion | Krankenhaus | 30 (erledigt) |
 | lungenembolie | Keine Luft beim ersten Aufstehen | Krankenhaus | 13c |
-| delir-nacht | Er will mitten in der Nacht nach Hause | Krankenhaus | 27 |
+| delir-nacht | Er will mitten in der Nacht nach Hause | Krankenhaus | 27 (erledigt) |
 | asthma-kind | Das Spray hilft heute nicht | Pädiatrie | 21 (erledigt) |
-| demenz-verfuegung | Frau K. isst seit gestern nichts | Langzeitpflege | 26 |
+| demenz-verfuegung | Frau K. isst seit gestern nichts | Langzeitpflege | 26b (erledigt) |
 
 ### Diagnostik (`src/features/diagnostik/faelle.ts`)
 

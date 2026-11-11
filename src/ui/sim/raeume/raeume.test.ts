@@ -7,7 +7,7 @@ const imBild = (n: number) => n >= 0 && n <= 1;
 
 describe('Raumkatalog', () => {
   it('jedes Bild existiert, hat Beschreibung und gültige Koordinaten', () => {
-    expect(RAUM_IDS.length).toBe(23);
+    expect(RAUM_IDS.length).toBe(34);
     for (const id of RAUM_IDS) {
       const r = RAEUME[id];
       expect(existsSync(`public/${r.datei}`), r.datei).toBe(true);
@@ -36,6 +36,9 @@ describe('Raumkatalog', () => {
     expect(raumFuerZustand('21_paediatrie_schulkind', 'abwesend')).toBe('21a_paediatrie_schulkind_ohne_monitor');
     expect(raumFuerZustand('21_paediatrie_schulkind', 'laeuft')).toBe('21m_paediatrie_schulkind_monitor_verbunden');
     expect(raumFuerZustand('20f_paediatrie_kleinkind_fieberkrampf', 'laeuft')).toBe('20f_paediatrie_kleinkind_fieberkrampf');
+    expect(raumFuerZustand('30_station_zimmer_frau', 'abwesend')).toBe('30a_station_zimmer_frau_ohne_monitor');
+    expect(raumFuerZustand('30a_station_zimmer_frau_ohne_monitor', 'laeuft')).toBe('30m_station_zimmer_frau_monitor_verbunden');
+    expect(raumFuerZustand('30b_station_zimmer_frau_sepsis', 'abwesend')).toBe('30b_station_zimmer_frau_sepsis');
   });
 
   it('Varianten verweisen auf vorhandene Räume, Hotspots liegen nicht auf dem Bildschirm', () => {
