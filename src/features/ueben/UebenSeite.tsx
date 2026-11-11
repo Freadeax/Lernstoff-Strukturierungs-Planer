@@ -18,6 +18,7 @@ const TEXT: Record<string, string> = {
   praxis: 'Eine Schicht übernehmen. Ohne KI, offline.',
   fall: 'Pflegefall im Dialog mit der KI.',
   notfall: 'Erkennen, handeln, Reihenfolge einhalten.',
+  hoeren: 'Herz, Lunge, Darm, Alarme und Blutdruck nach Gehör.',
   assessment: 'Braden, Barthel, Schmerzskalen an Fällen.',
   pflegeplanung: 'Probleme, Ziele, Maßnahmen formulieren.',
   sis: 'Strukturierte Informationssammlung üben.',

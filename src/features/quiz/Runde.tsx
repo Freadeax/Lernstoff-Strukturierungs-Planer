@@ -9,6 +9,8 @@ import { proThema, type TrainerId } from '../lernplan/trainer';
 import { LernplanHinweis, useLernplanUebernahme } from '../lernplan/ui/LernplanHinweis';
 import { storage } from '../../ui/lib/store';
 import { BegriffListe, FachListe, ThemenLinks } from './FachText';
+import { spiele } from '../../ui/audio/spieler';
+import { Vorlesen } from '../../ui/audio/Vorlesen';
 
 /** Eine Abbildung zum Beschriften: Zeichnung ohne Nummern, die Marken legt die Runde darüber. */
 export interface Figur { viewBox: string; beschreibung: string; zeichnung: ReactNode }
@@ -198,6 +200,7 @@ export function Runde({ aufgaben, quelle, trainer, figuren = {}, minProThema = 3
   function pruefen() {
     if (!a) return;
     const b = bewerte(a, antwort);
+    spiele(b.richtig ? 'richtig' : b.punkte > 0 ? 'teilweise' : 'falsch');
     setGeprueft(b);
     setErgebnisse((e) => [...e, { a, b }]);
     const fehler = alsFehler(a, antwort, quelle);
@@ -210,6 +213,7 @@ export function Runde({ aufgaben, quelle, trainer, figuren = {}, minProThema = 3
     if (naechste) { setAntwort(leereAntwort(naechste)); setI(i + 1); return; }
     const punkte = ergebnisse.reduce((s, e) => s + e.b.punkte / e.b.max, 0);
     const prozent = Math.round((punkte / Math.max(1, ergebnisse.length)) * 100);
+    spiele(prozent >= 90 ? 'erfolg' : 'fertig');
     onFertig?.({ punkte: ergebnisse.reduce((s, e) => s + e.b.punkte, 0), max: ergebnisse.reduce((s, e) => s + e.b.max, 0), prozent, richtig: ergebnisse.filter((e) => e.b.richtig).length, anzahl: ergebnisse.length });
     lernplan.uebernimm(proThema(ergebnisse.map((e) => alsTreffer(e.a, e.b)), minProThema));
   }
@@ -270,12 +274,14 @@ export function Runde({ aufgaben, quelle, trainer, figuren = {}, minProThema = 3
           <MehrVerstehen a={a} />
           <div className="row">
             <button type="button" className="primary" onClick={weiter}>{i + 1 < aufgaben.length ? 'Weiter' : 'Auswertung'}</button>
+            <Vorlesen key={`e-${a.id}`} label="Erklärung vorlesen" text={() => a.erklaerung.join(' ')} />
           </div>
         </>
       ) : (
         <div className="row">
           <button type="button" className="primary" disabled={!bereit} onClick={pruefen}>Prüfen</button>
           <button type="button" className="ghost" onClick={onEnde}>Abbrechen</button>
+          <Vorlesen key={`f-${a.id}`} label="Frage vorlesen" text={() => [a.frage, ...(a.art === 'auswahl' ? a.optionen.map((o, n) => `${n + 1}: ${o}`) : [])].join('. ')} />
         </div>
       )}
     </div>

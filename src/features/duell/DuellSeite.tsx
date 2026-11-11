@@ -8,6 +8,7 @@ import { modules } from '../../modules/registry';
 import { useRoute } from '../../ui/shell/router';
 import { inLernplan, proThema } from '../lernplan/trainer';
 import { LernplanHinweis, useLernplanUebernahme } from '../lernplan/ui/LernplanHinweis';
+import { spiele } from '../../ui/audio/spieler';
 import {
   ARTEN, erzeugeRunde, filtere, karten, nacharbeiten, passt, punkte, stand, trefferVon,
   type Antwort, type Frage, type FrageArt, type Spieler, type Zug,
@@ -198,6 +199,8 @@ function Arena({ e, fragen, onEnde, onRevanche }: {
     return () => clearInterval(id);
   }, [laeuft, spiel.i]);
   useEffect(() => { if (laeuft && rest <= 0) dispatch({ typ: 'zeitAus' }); }, [laeuft, rest]);
+  // Auflösung jeder Frage: kurzer Hinweiston (beide spielen an einem Gerät, also neutral statt richtig/falsch)
+  useEffect(() => { if (spiel.aufgedeckt) spiele('hinweis'); }, [spiel.aufgedeckt, spiel.i]);
 
   // Seite darunter nicht scrollen lassen, Bildschirm wach halten
   useEffect(() => {
@@ -212,6 +215,7 @@ function Arena({ e, fragen, onEnde, onRevanche }: {
   // Runde fertig: einmal ins Aktivitätsprotokoll
   useEffect(() => {
     if (spiel.phase !== 'ende') return;
+    spiele('fertig');
     const [a, b] = stand(spiel.zuege);
     void logActivity({
       kind: 'uebung', severity: 'info',

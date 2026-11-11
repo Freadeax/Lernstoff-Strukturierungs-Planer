@@ -10,6 +10,7 @@ import { proThema } from '../lernplan/trainer';
 import { LernplanHinweis, useLernplanUebernahme } from '../lernplan/ui/LernplanHinweis';
 import { FAELLE, type Fallaufgabe } from './faelle';
 import { faelleZuKrankheit, KI_KRANKHEITEN, PRAXIS_KRANKHEITEN } from './fallbezug';
+import { Vorlesen } from '../../ui/audio/Vorlesen';
 import {
   ABSCHNITTE, ASSESSMENT_GRUPPE, belegeFuer, belegQuote, bewerteFall, faelleZuThema, MIN_PRO_THEMA, mischung, passtZurSuche, vollstaendig,
   type Antworten, type FallErgebnis,
@@ -198,6 +199,22 @@ function Verknuepfungen({ p }: { p: DiseaseProfile }) {
   );
 }
 
+/** Steckbrief als Vorlesetext: Abschnitt für Abschnitt, Listen als Sätze. */
+function steckbriefText(p: DiseaseProfile): string {
+  const teile = [p.name + '.'];
+  for (const a of ABSCHNITTE) {
+    if (a.id === 'definition') { teile.push(`${a.label}: ${p.definition}`); continue; }
+    if (a.id === 'prophylaxen') {
+      if (p.prophylaxen?.length) teile.push(`${a.label}: ${p.prophylaxen.map((x) => `${THEMEN.get(x.topicId)?.name ?? ''}, ${x.grund}`).join('. ')}.`);
+      continue;
+    }
+    const punkte = p[a.id];
+    if (Array.isArray(punkte) && punkte.length) teile.push(`${a.label}: ${punkte.join('. ')}.`);
+  }
+  if (p.merksatz) teile.push(`Merksatz: ${p.merksatz}`);
+  return teile.join(' ');
+}
+
 function Steckbrief({ p }: { p: DiseaseProfile }) {
   return (
     <div className="kb__layout">
@@ -211,6 +228,7 @@ function Steckbrief({ p }: { p: DiseaseProfile }) {
         {p.merksatz && <p className="note">Merksatz: {p.merksatz}</p>}
         <div className="row">
           <button type="button" className="primary small" onClick={() => navigate(`/lernen/karten?krankheit=${encodeURIComponent(p.id)}`)}>Mit Karteikarten lernen</button>
+          <Vorlesen key={p.id} label="Steckbrief vorlesen" text={() => steckbriefText(p)} />
         </div>
       </article>
       <Verknuepfungen p={p} />

@@ -18,6 +18,7 @@ const NICHT_SICHERN = new Set([
   'lernstoff.fortschritt.erinnert', // Serien-Erinnerung: je Gerät einmal am Tag
   'lernstoff.lernplan.stand',  // gemerkter Tagesplan für „liegen geblieben“: je Gerät
   'lernstoff.quiz.vertiefungOffen', // „Mehr verstehen“ auf- oder zugeklappt: Anzeige je Gerät
+  'lernstoff.audio',           // Töne und Vorlesestimme: je Gerät
 ]);
 const PRAEFIXE = ['lernstoff.', 'duell.'];
 
@@ -139,7 +140,7 @@ const LOKAL_LABEL: Record<string, string> = {
   'lernstoff.expertenstandards.stand': 'Ergebnisse im Expertenstandards-Trainer', 'lernstoff.normwerte.stand': 'Ergebnisse im Normwerte-Trainer', 'lernstoff.labor.stand': 'Ergebnisse im Labor-Trainer',
   'lernstoff.diagnostik.laeufe': 'Fälle in Labor und Bildgebung', 'lernstoff.diagnostik.lernmodus': 'Lernmodus Befund lesen',
   'lernstoff.notfall.stand': 'Ergebnisse im Notfall-Trainer', 'lernstoff.arzneimittel.stand': 'Ergebnisse im Arzneimittel-Trainer',
-  'lernstoff.recht.stand': 'Ergebnisse im Recht-Trainer',
+  'lernstoff.recht.stand': 'Ergebnisse im Recht-Trainer', 'lernstoff.hoeren.stand': 'Ergebnisse im Hör-Trainer',
 };
 
 /** Liest eine Sicherungsdatei. Wirft mit verständlicher Meldung, wenn sie nicht passt. */

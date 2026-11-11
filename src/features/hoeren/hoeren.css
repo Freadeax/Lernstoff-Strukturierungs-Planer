@@ -1,0 +1,23 @@
+.hoe__reiter { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-block: var(--space-3); }
+.hoe__stand:empty { display: none; }
+.hoe__gruppen { display: grid; gap: var(--space-4); }
+.hoe__gruppe h2 { margin-top: 0; }
+.hoe__liste { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); }
+.hoe__klang { display: flex; gap: var(--space-3); align-items: flex-start; justify-content: space-between; padding: var(--space-3); border: 1.5px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); }
+.hoe__klang.is-an { border-color: var(--color-primary); background: var(--color-primary-soft); }
+.hoe__klang h3 { margin: 0 0 var(--space-1); font-size: var(--text-md); }
+.hoe__klang p { margin: 0 0 var(--space-1); }
+.hoe__merkmal { font-size: var(--text-sm); }
+.hoe__play { flex: none; min-width: 7.5rem; justify-content: center; }
+.hoe__play.is-an { background: var(--color-primary); color: var(--color-on-primary); border-color: var(--color-primary); }
+.hoe__spo2 { display: inline-flex; gap: var(--space-2); align-items: center; font-size: var(--text-sm); }
+.hoe__manometer { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2); margin-block: var(--space-3); }
+.hoe__druck { font-family: var(--font-mono); font-size: 3rem; font-weight: 700; font-variant-numeric: tabular-nums; min-width: 4ch; text-align: right; }
+.hoe__skala { flex-basis: 100%; height: 0.6rem; border: 1.5px solid var(--color-outline); border-radius: var(--radius-pill); overflow: hidden; }
+.hoe__skala span { display: block; height: 100%; background: var(--color-primary); transform-origin: left; }
+.hoe__bd-knoepfe button { min-height: 3rem; }
+.hoe__hinweis { margin-top: var(--space-4); }
+@media (max-width: 560px) {
+  .hoe__klang { flex-direction: column; }
+  .hoe__play { width: 100%; }
+}
