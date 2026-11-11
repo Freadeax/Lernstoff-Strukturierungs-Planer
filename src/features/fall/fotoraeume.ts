@@ -11,7 +11,9 @@ export type FotoRaumId = Extract<RaumId,
   | '07_ambulant_wohnzimmer_kompression' | '08_ambulant_pflegebad' | '09_ambulant_kueche_diabetes'
   | '10_pflegeheim_nacht' | '11_pflegeheim_speiseraum'
   | '12_station_kardiologie_monitoring' | '13_station_postop'
-  | '20f_paediatrie_kleinkind_fieberkrampf' | '21_paediatrie_schulkind'>;
+  | '20f_paediatrie_kleinkind_fieberkrampf' | '21_paediatrie_schulkind'
+  | '26b_pflegeheim_zimmer_fruehstueck_unberuehrt' | '26h_pflegeheim_zimmer_hypoglykaemie' | '26p_pflegeheim_zimmer_pneumonie'
+  | '27_station_zweibett_nacht' | '30_station_zimmer_frau' | '30b_station_zimmer_frau_sepsis'>;
 
 export interface FotoMarker extends Marker { x: number; y: number }
 export type Geschlecht = 'mann' | 'frau' | 'kind';
@@ -67,6 +69,57 @@ export const FOTORAEUME: Record<FotoRaumId, FotoRaum> = {
       { id: 'rollstuhl', nr: 3, name: 'Rollstuhl', ort: 'wagen', x: 0.06, y: 0.82 },
     ],
   },
+  '26b_pflegeheim_zimmer_fruehstueck_unberuehrt': {
+    id: '26b_pflegeheim_zimmer_fruehstueck_unberuehrt', person: 'frau', titel: 'Bewohnerzimmer, Frühstück unberührt',
+    marker: [
+      { id: 'patient', nr: 1, name: 'Bewohnerin', ort: 'bett', x: 0.29, y: 0.38 },
+      { id: 'nachttisch', nr: 2, name: 'Nachttisch mit Rufanlage', ort: 'monitor', x: 0.1, y: 0.56 },
+      { id: 'essen', nr: 3, name: 'Frühstückstablett', ort: 'wagen', x: 0.38, y: 0.83 },
+      { id: 'rollstuhl', nr: 4, name: 'Rollstuhl', ort: 'tuer', x: 0.9, y: 0.48 },
+    ],
+  },
+  '26h_pflegeheim_zimmer_hypoglykaemie': {
+    id: '26h_pflegeheim_zimmer_hypoglykaemie', person: 'frau', titel: 'Bewohnerzimmer am Vormittag',
+    marker: [
+      { id: 'patient', nr: 1, name: 'Bewohnerin', ort: 'bett', x: 0.29, y: 0.38 },
+      { id: 'nachttisch', nr: 2, name: 'Nachttisch mit Rufanlage', ort: 'monitor', x: 0.1, y: 0.56 },
+      { id: 'essen', nr: 3, name: 'Frühstückstablett', ort: 'wagen', x: 0.38, y: 0.83 },
+      { id: 'rollstuhl', nr: 4, name: 'Rollstuhl', ort: 'tuer', x: 0.9, y: 0.48 },
+    ],
+  },
+  '26p_pflegeheim_zimmer_pneumonie': {
+    id: '26p_pflegeheim_zimmer_pneumonie', person: 'mann', titel: 'Bewohnerzimmer am Vormittag',
+    marker: [
+      { id: 'patient', nr: 1, name: 'Bewohner', ort: 'bett', x: 0.29, y: 0.38 },
+      { id: 'nachttisch', nr: 2, name: 'Nachttisch mit Rufanlage', ort: 'monitor', x: 0.1, y: 0.56 },
+      { id: 'essen', nr: 3, name: 'Frühstückstablett', ort: 'wagen', x: 0.38, y: 0.83 },
+      { id: 'rollstuhl', nr: 4, name: 'Rollstuhl', ort: 'tuer', x: 0.9, y: 0.48 },
+    ],
+  },
+  '27_station_zweibett_nacht': {
+    id: '27_station_zweibett_nacht', person: 'mann', titel: 'Zweibettzimmer in der Nacht', nacht: true, monitor: true,
+    marker: [
+      { id: 'patient', nr: 1, name: 'Patient', ort: 'bett', x: 0.4, y: 0.34 },
+      { id: 'monitor', nr: 2, name: 'Monitorwagen', ort: 'monitor', x: 0.75, y: 0.46 },
+      { id: 'nachttisch', nr: 3, name: 'Bettgitter und Rufanlage', ort: 'wagen', x: 0.31, y: 0.53 },
+    ],
+  },
+  '30_station_zimmer_frau': {
+    id: '30_station_zimmer_frau', person: 'frau', titel: 'Internistisches Zimmer mit Infusion', monitor: true,
+    marker: [
+      { id: 'patient', nr: 1, name: 'Patientin', ort: 'bett', x: 0.46, y: 0.46 },
+      { id: 'monitor', nr: 2, name: 'Monitor und Messgeräte', ort: 'monitor', x: 0.79, y: 0.48 },
+      { id: 'infusion', nr: 3, name: 'Infusion', ort: 'wagen', x: 0.23, y: 0.24 },
+    ],
+  },
+  '30b_station_zimmer_frau_sepsis': {
+    id: '30b_station_zimmer_frau_sepsis', person: 'frau', titel: 'Internistisches Zimmer', monitor: true,
+    marker: [
+      { id: 'patient', nr: 1, name: 'Patientin', ort: 'bett', x: 0.46, y: 0.46 },
+      { id: 'monitor', nr: 2, name: 'Monitor und Messgeräte', ort: 'monitor', x: 0.79, y: 0.48 },
+      { id: 'infusion', nr: 3, name: 'Infusion', ort: 'wagen', x: 0.23, y: 0.24 },
+    ],
+  },
   '20f_paediatrie_kleinkind_fieberkrampf': {
     id: '20f_paediatrie_kleinkind_fieberkrampf', person: 'kind', titel: 'Kinderzimmer auf Station', monitor: true,
     marker: [
@@ -114,15 +167,15 @@ const RAUM_FUER_FALL: Record<string, FotoRaumId> = {
   'demo-atemnot': '12_station_kardiologie_monitoring',
   herzinsuffizienz: '12_station_kardiologie_monitoring',
   lungenembolie: '12_station_kardiologie_monitoring',
-  anaphylaxie: '12_station_kardiologie_monitoring',
+  anaphylaxie: '30_station_zimmer_frau',
   'hueft-tep': '13_station_postop',
   nachblutung: '13_station_postop',
   schlaganfall: '13_station_postop',
-  sepsis: '13_station_postop',
-  'delir-nacht': '13_station_postop',
-  hypoglykaemie: '11_pflegeheim_speiseraum',
-  'demenz-verfuegung': '11_pflegeheim_speiseraum',
-  pneumonie: '10_pflegeheim_nacht',
+  sepsis: '30b_station_zimmer_frau_sepsis',
+  'delir-nacht': '27_station_zweibett_nacht',
+  hypoglykaemie: '26h_pflegeheim_zimmer_hypoglykaemie',
+  'demenz-verfuegung': '26b_pflegeheim_zimmer_fruehstueck_unberuehrt',
+  pneumonie: '26p_pflegeheim_zimmer_pneumonie',
   palliativ: '10_pflegeheim_nacht',
   'sturz-nacht': '10_pflegeheim_nacht',
   // Herr L. und Herr P.: die Küche zeigt einen älteren Mann, Wohnzimmer und Bad eine Frau

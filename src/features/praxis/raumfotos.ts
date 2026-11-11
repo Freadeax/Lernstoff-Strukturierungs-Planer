@@ -42,15 +42,26 @@ export const RAUMFOTOS: Record<string, RaumFoto> = {
   schulkind: { id: '21_paediatrie_schulkind', orte: { patient: { x: 42, y: 32 }, monitor: { x: 88, y: 54 }, wagen: { x: 24, y: 72 }, telefon: { x: 52, y: 88 } },
     namen: { wagen: 'Tisch mit Dosieraerosol und Spacer', telefon: 'Rufanlage' },
     waehrend: { id: '21b_paediatrie_schulkind_spacer', flag: 'orders', minuten: 15 } },
+  heimTag: { id: '26b_pflegeheim_zimmer_fruehstueck_unberuehrt', orte: { patient: { x: 29, y: 38 }, monitor: { x: 6, y: 68 }, wagen: { x: 38, y: 83 }, telefon: { x: 13, y: 58 } },
+    namen: { monitor: 'Nachttisch mit Trinkglas', wagen: 'Frühstückstablett', telefon: 'Rufanlage' } },
+  heimSessel: { id: '26a_pflegeheim_zimmer_schlaganfall', orte: { patient: { x: 70, y: 34 }, monitor: { x: 6, y: 68 }, wagen: { x: 38, y: 83 }, telefon: { x: 13, y: 58 } },
+    namen: { monitor: 'Nachttisch mit Trinkglas', wagen: 'Frühstückstablett', telefon: 'Rufanlage' } },
+  zweibettNacht: { id: '27_station_zweibett_nacht', nacht: true, orte: { patient: { x: 40, y: 34 }, monitor: { x: 75, y: 46 }, wagen: { x: 59, y: 40 }, telefon: { x: 31, y: 53 } },
+    namen: { wagen: 'Tür zum Flur (Material im Lager)', telefon: 'Rufanlage' },
+    waehrend: { id: '27a_station_zweibett_nacht_niedrigbett_sturzmatte', flag: 'niedrigbett', minuten: 600 } },
+  innere: { id: '30_station_zimmer_frau', orte: { patient: { x: 46, y: 46 }, monitor: { x: 79, y: 48 }, wagen: { x: 23, y: 24 }, telefon: { x: 51, y: 87 } },
+    namen: { wagen: 'Infusion', telefon: 'Rufanlage' } },
+  innereSepsis: { id: '30b_station_zimmer_frau_sepsis', orte: { patient: { x: 46, y: 46 }, monitor: { x: 79, y: 48 }, wagen: { x: 23, y: 24 }, telefon: { x: 51, y: 87 } },
+    namen: { wagen: 'Infusion', telefon: 'Rufanlage' } },
   schockraum: { id: '18_notaufnahme_schockraum_nacht', nacht: true, orte: { patient: { x: 42, y: 45 }, monitor: { x: 9, y: 40 }, wagen: { x: 90, y: 64 }, telefon: { x: 63, y: 30 } } },
 };
 
 /** Fall → Raum. Fälle ohne Eintrag zeigen nur die Zeichnung. Neue Fälle hier eintragen (Test prüft das). */
 export const FALL_RAUM: Record<string, keyof typeof RAUMFOTOS> = {
   hausbesuch: 'wohnzimmer', pflegeheim: 'speiseraum', nachtwache: 'kardiologie', zna: 'triage', its: 'intensiv',
-  kind: 'kleinkind', psychiatrie: 'speiseraum', reha: 'bad', palliativ: 'heimNacht', sepsis: 'postop',
-  nachblutung: 'postop', schlaganfall: 'speiseraum', anaphylaxie: 'isolation', lungenembolie: 'kardiologie',
-  delir: 'heimNacht', asthma: 'schulkind', demenz: 'speiseraum',
+  kind: 'kleinkind', psychiatrie: 'speiseraum', reha: 'bad', palliativ: 'heimNacht', sepsis: 'innereSepsis',
+  nachblutung: 'postop', schlaganfall: 'heimSessel', anaphylaxie: 'innere', lungenembolie: 'kardiologie',
+  delir: 'zweibettNacht', asthma: 'schulkind', demenz: 'heimTag',
 };
 
 export function raumFotoFuer(fallId: string): RaumFoto | undefined {
