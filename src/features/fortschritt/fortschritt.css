@@ -90,3 +90,13 @@
 .fs-stufen__kopf { display: flex; justify-content: space-between; gap: var(--space-2); font-variant-numeric: tabular-nums; }
 .fs-stufen__balken { height: 8px; margin: var(--space-1) 0; border-radius: var(--radius-pill); background: var(--color-surface-sunken); overflow: hidden; }
 .fs-stufen__balken > span { display: block; height: 100%; background: var(--color-primary); border-radius: inherit; }
+
+/* Herkunft der Zahlen (Audit 11/2026) */
+.fs-herkunft { margin-top: var(--space-2); font-size: var(--text-sm, .875rem); }
+.fs-herkunft summary { cursor: pointer; color: var(--color-text-muted); }
+.fs-herkunft dl { margin: var(--space-2) 0 0; display: grid; gap: var(--space-2); }
+.fs-herkunft dt { font-weight: var(--weight-bold, 700); }
+.fs-herkunft dd { margin: 0; overflow-wrap: anywhere; }
+.fs-leer { font-weight: normal; font-size: var(--text-sm, .875rem); color: var(--color-text-muted); font-style: italic; }
+.fs-zeitraum { text-transform: none; letter-spacing: normal; font-weight: normal; }
+.fs-vorlaeufig { font-size: var(--text-sm, .875rem); }

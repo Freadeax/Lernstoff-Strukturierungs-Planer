@@ -2,7 +2,9 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ladeThemen } from '../../core/topics';
 import { db } from '../../core/db';
-import { BOARD_COLUMNS, COLUMN_LABEL, moveTopics, type BoardColumn } from '../../core/board';
+import { BOARD_COLUMNS, COLUMN_LABEL, moveTopics, moveTopicsMitStand, stelleBoardWiederHer, type BoardColumn, type BoardSnapshot } from '../../core/board';
+import type { MasteryStatus } from '../../core/types';
+import { navigate } from '../../ui/shell/router';
 import { Widget } from '../../ui/widget/Widget';
 import { useWidgetData } from '../../ui/widget/useWidgetData';
 import { Bone } from '../../ui/widget/states';
@@ -35,16 +37,23 @@ export function BoardSkeleton() {
   );
 }
 
-function CardView({ card, dragging, kbActive, onPointerDown, onKeyDown, onMove }: {
-  card: Card; dragging: boolean; kbActive: boolean;
+const WISSEN_LABEL: Record<MasteryStatus, string> = { offen: 'offen', bearbeitet: 'bearbeitet', unsicher: 'unsicher', sicher: 'sicher' };
+
+function CardView({ card, dragging, kbActive, auswahl, gewaehlt, onPointerDown, onKeyDown, onMove, onToggle }: {
+  card: Card; dragging: boolean; kbActive: boolean; auswahl: boolean; gewaehlt: boolean;
   onPointerDown: (e: React.PointerEvent, card: Card) => void; onKeyDown: (e: React.KeyboardEvent, card: Card) => void;
-  onMove: (card: Card, col: BoardColumn) => void;
+  onMove: (card: Card, col: BoardColumn) => void; onToggle: (card: Card) => void;
 }) {
+  const i = BOARD_COLUMNS.findIndex((c) => c.id === card.column);
+  const links = BOARD_COLUMNS[i - 1], rechts = BOARD_COLUMNS[i + 1];
+  const wissen = card.wissen ?? 'offen';
   return (
-    <article className={`kcard${dragging ? ' is-drag-source' : ''}${kbActive ? ' is-lifted' : ''}`} data-card={card.id} tabIndex={0}
-      aria-roledescription="verschiebbare Karte" aria-label={`${card.name}, ${card.fach}`}
+    <article className={`kcard${dragging ? ' is-drag-source' : ''}${kbActive ? ' is-lifted' : ''}${gewaehlt ? ' is-selected' : ''}`} data-card={card.id} tabIndex={0}
+      aria-roledescription="verschiebbare Karte" aria-label={`${card.name}, ${card.fach}. Arbeitsstand ${COLUMN_LABEL[card.column]}, Wissensstand ${WISSEN_LABEL[wissen]}`}
       aria-describedby="board-help" onKeyDown={(e) => onKeyDown(e, card)}>
-      <span className="kcard__grip" onPointerDown={(e) => onPointerDown(e, card)} aria-hidden="true"><Icon name="grip" size={18} /></span>
+      {auswahl
+        ? <label className="kcard__wahl"><input type="checkbox" checked={gewaehlt} onChange={() => onToggle(card)} /><span className="visually-hidden">{card.name} auswählen</span></label>
+        : <span className="kcard__grip" onPointerDown={(e) => onPointerDown(e, card)} aria-hidden="true"><Icon name="grip" size={18} /></span>}
       <div className="kcard__body">
         <div className="kcard__title">{card.name}</div>
         <div className="kcard__meta">
@@ -52,21 +61,24 @@ function CardView({ card, dragging, kbActive, onPointerDown, onKeyDown, onMove }
           {card.minutes && <span>{card.minutes} Min.</span>}
           {card.difficulty && <span className="diff" title={`Schwierigkeit ${card.difficulty} von 5`}>{'●'.repeat(card.difficulty)}<span className="diff__off">{'●'.repeat(5 - card.difficulty)}</span></span>}
         </div>
+        <button type="button" className={`kcard__wissen tag tag--wissen-${wissen}`} onClick={() => navigate(`/lernen/thema?id=${encodeURIComponent(card.id)}`)}
+          title="Wissensstand aus Abfragen im Lernplan, nicht vom Board">
+          Wissen: {WISSEN_LABEL[wissen]}
+        </button>
       </div>
-      <label className="kcard__move">
-        <span className="visually-hidden">Verschieben nach</span>
-        <select value={card.column} onChange={(e) => onMove(card, e.target.value as BoardColumn)} tabIndex={-1}>
-          {BOARD_COLUMNS.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
-        </select>
-        <Icon name="chevronDown" size={14} />
-      </label>
+      <div className="kcard__schritte">
+        <button type="button" className="icon ghost small" disabled={!links} onClick={() => links && onMove(card, links.id)}
+          aria-label={links ? `${card.name} nach „${links.label}“ verschieben` : 'Schon ganz links'}><Icon name="chevronLeft" size={16} /></button>
+        <button type="button" className="icon ghost small" disabled={!rechts} onClick={() => rechts && onMove(card, rechts.id)}
+          aria-label={rechts ? `${card.name} nach „${rechts.label}“ verschieben` : 'Schon ganz rechts'}><Icon name="chevronRight" size={16} /></button>
+      </div>
     </article>
   );
 }
 
-function Column({ id, label, hint, cards, target, drag, onPointerDown, onKeyDown, onMove }: {
-  id: BoardColumn; label: string; hint: string; cards: Card[]; target: Target | null; drag: Drag | null;
-  onPointerDown: (e: React.PointerEvent, card: Card) => void; onKeyDown: (e: React.KeyboardEvent, card: Card) => void; onMove: (c: Card, col: BoardColumn) => void;
+function Column({ id, label, hint, cards, target, drag, auswahl, gewaehlt, onPointerDown, onKeyDown, onMove, onToggle }: {
+  id: BoardColumn; label: string; hint: string; cards: Card[]; target: Target | null; drag: Drag | null; auswahl: boolean; gewaehlt: Set<string>;
+  onPointerDown: (e: React.PointerEvent, card: Card) => void; onKeyDown: (e: React.KeyboardEvent, card: Card) => void; onMove: (c: Card, col: BoardColumn) => void; onToggle: (c: Card) => void;
 }) {
   const [shown, setShown] = useState(BATCH);
   const sentinel = useSentinel(() => setShown((s) => s + BATCH), shown < cards.length, [cards.length]);
@@ -76,6 +88,11 @@ function Column({ id, label, hint, cards, target, drag, onPointerDown, onKeyDown
     <section className={`board__col${isTarget ? ' is-drop-target' : ''}`} data-col={id} aria-label={`${label}, ${cards.length} Themen`}>
       <header className="board__colhead">
         <h4>{label} <span className="board__count">{cards.length}</span></h4>
+        {auswahl && cards.length > 0 && (
+          <button type="button" className="link board__alle" onClick={() => { const alle = cards.every((c) => gewaehlt.has(c.id)); cards.forEach((c) => { if (alle || !gewaehlt.has(c.id)) onToggle(c); }); }}>
+            {cards.every((c) => gewaehlt.has(c.id)) ? 'Keine' : 'Alle'} wählen
+          </button>
+        )}
         <p className="muted">{hint}</p>
       </header>
       <div className="board__list" data-scroll-root="">
@@ -83,11 +100,11 @@ function Column({ id, label, hint, cards, target, drag, onPointerDown, onKeyDown
           <div key={c.id}>
             {isTarget && target!.index === i && <div className="drop-line" aria-hidden="true" />}
             <CardView card={c} dragging={drag?.id === c.id && drag.mode === 'pointer'} kbActive={drag?.id === c.id && drag.mode === 'keyboard'}
-              onPointerDown={onPointerDown} onKeyDown={onKeyDown} onMove={onMove} />
+              auswahl={auswahl} gewaehlt={gewaehlt.has(c.id)} onPointerDown={onPointerDown} onKeyDown={onKeyDown} onMove={onMove} onToggle={onToggle} />
           </div>
         ))}
         {isTarget && target!.index >= visible.length && <div className="drop-line" aria-hidden="true" />}
-        {cards.length === 0 && !isTarget && <p className="board__empty">Hierher ziehen</p>}
+        {cards.length === 0 && !isTarget && <p className="board__empty">Hierher ziehen oder mit den Pfeilknöpfen verschieben</p>}
         {shown < cards.length && (
           <div ref={sentinel} className="board__more">
             <button type="button" className="small ghost" onClick={() => setShown((s) => s + BATCH)}>{cards.length - shown} weitere laden</button>
@@ -98,10 +115,18 @@ function Column({ id, label, hint, cards, target, drag, onPointerDown, onKeyDown
   );
 }
 
-export function BoardView({ id, state, badge, onRetry, lastSynced, onHide, lifecycle, onCommit }: {
+export function BoardView({ id, state, badge, onRetry, lastSynced, onHide, lifecycle, onCommit, onCommitMany, onRestore }: {
   id: string; state: WidgetState<BoardData>; badge: SyncBadge; onRetry: () => void; lastSynced?: Date; onHide?: () => void; lifecycle?: WidgetLifecycle;
   onCommit?: (card: Card, column: BoardColumn, order: number) => Promise<void>;
+  /** Mehrere Themen verschieben; gibt den vorherigen Stand für „Rückgängig“ zurück. */
+  onCommitMany?: (cards: Card[], column: BoardColumn) => Promise<BoardSnapshot>;
+  onRestore?: (stand: BoardSnapshot) => Promise<void>;
 }) {
+  const [auswahl, setAuswahl] = useState(false);
+  const [gewaehlt, setGewaehlt] = useState(new Set<string>());
+  const [ziel, setZiel] = useState<BoardColumn>('woche');
+  const [undo, setUndo] = useState<{ text: string; stand: BoardSnapshot } | null>(null);
+  const toggle = (c: Card) => setGewaehlt((g) => { const n = new Set(g); if (n.has(c.id)) n.delete(c.id); else n.add(c.id); return n; });
   const [pill, setPill] = useState<Pill>('alle');
   const [fach, setFach] = useState('');
   const [overrides, setOverrides] = useState(new Map<string, { column: BoardColumn; order: number }>());
@@ -135,10 +160,12 @@ export function BoardView({ id, state, badge, onRetry, lastSynced, onHide, lifec
   async function commit(card: Card, column: BoardColumn, index: number) {
     if (!cols || !onCommit) return;
     const order = orderForDrop(cols, card.id, column, index);
+    const vorher = data?.entries.find((e) => e.topicId === card.id);
     setOverrides((m) => new Map(m).set(card.id, { column, order }));   // optimistisch
     setAnnounce(`${card.name} liegt jetzt in ${COLUMN_LABEL[column]}, Position ${index + 1}.`);
     try {
       await onCommit(card, column, order);
+      if (column !== card.column) setUndo({ text: `„${card.name}“ liegt jetzt in ${COLUMN_LABEL[column]}.`, stand: [{ topicId: card.id, ...(vorher ? { entry: vorher } : {}) }] });
     } catch (e) {
       setOverrides((m) => { const n = new Map(m); n.delete(card.id); return n; });   // zurückrollen
       notify('critical', 'Verschieben fehlgeschlagen', e instanceof Error ? e.message : String(e));
@@ -231,6 +258,34 @@ export function BoardView({ id, state, badge, onRetry, lastSynced, onHide, lifec
     }
   }
 
+  async function verschiebeAuswahl() {
+    if (!cols || !onCommitMany || !gewaehlt.size) return;
+    // Reihenfolge wie auf dem Board (Spalte für Spalte), damit die Themen in derselben Folge ankommen
+    const karten = BOARD_COLUMNS.flatMap((c) => cols[c.id]).filter((c) => gewaehlt.has(c.id) && c.column !== ziel);
+    if (!karten.length) { notify('info', `Die Auswahl liegt schon in „${COLUMN_LABEL[ziel]}“`); return; }
+    try {
+      const stand = await onCommitMany(karten, ziel);
+      const text = `${karten.length === 1 ? '1 Thema' : `${karten.length} Themen`} nach „${COLUMN_LABEL[ziel]}“ verschoben.`;
+      setAnnounce(text);
+      setUndo({ text, stand });
+      setGewaehlt(new Set());
+    } catch (e) {
+      notify('critical', 'Verschieben fehlgeschlagen', e instanceof Error ? e.message : String(e));
+    }
+  }
+
+  async function rueckgaengig() {
+    if (!undo || !onRestore) return;
+    try {
+      await onRestore(undo.stand);
+      setOverrides(new Map());
+      setAnnounce('Rückgängig gemacht.');
+      setUndo(null);
+    } catch (e) {
+      notify('critical', 'Rückgängig fehlgeschlagen', e instanceof Error ? e.message : String(e));
+    }
+  }
+
   const dragCard = drag?.mode === 'pointer' && cols ? Object.values(cols).flat().find((c) => c.id === drag.id) : undefined;
 
   return (
@@ -254,12 +309,40 @@ export function BoardView({ id, state, badge, onRetry, lastSynced, onHide, lifec
       ) }}>
       {() => cols && (
         <>
-          <p id="board-help" className="visually-hidden">Leertaste nimmt die Karte auf, Pfeiltasten verschieben sie, Leertaste legt sie ab. Auf dem Handy am Griff ziehen oder über die Auswahl verschieben.</p>
+          <p id="board-help" className="visually-hidden">Leertaste nimmt die Karte auf, Pfeiltasten verschieben sie, Leertaste legt sie ab. Ohne Ziehen: Pfeilknöpfe an der Karte oder „Mehrere auswählen“.</p>
           <div className="visually-hidden" aria-live="assertive">{announce}</div>
+          <p className="board__legende muted">
+            <strong>Spalte = Arbeitsstand</strong> (von dir gesetzt). <strong>„Wissen: …“ = Wissensstand</strong> aus Abfragen im Lernplan; ein Tipp darauf öffnet das Thema.
+          </p>
+          {onCommitMany && (
+            <div className="board__werkzeuge" role="group" aria-label="Mehrere Themen verschieben">
+              <button type="button" className="small" aria-pressed={auswahl} onClick={() => { setAuswahl((a) => !a); setGewaehlt(new Set()); }}>
+                {auswahl ? 'Auswahl beenden' : 'Mehrere auswählen'}
+              </button>
+              {auswahl && (
+                <>
+                  <span className="board__anzahl" aria-live="polite">{gewaehlt.size} ausgewählt</span>
+                  <label className="board__ziel">Nach
+                    <select value={ziel} onChange={(e) => setZiel(e.target.value as BoardColumn)}>
+                      {BOARD_COLUMNS.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
+                    </select>
+                  </label>
+                  <button type="button" className="small primary" disabled={!gewaehlt.size} onClick={() => void verschiebeAuswahl()}>Verschieben</button>
+                </>
+              )}
+            </div>
+          )}
+          {undo && onRestore && (
+            <div className="board__undo" role="status">
+              <span>{undo.text}</span>
+              <button type="button" className="small" onClick={() => void rueckgaengig()}>Rückgängig</button>
+              <button type="button" className="icon ghost small" aria-label="Hinweis schließen" onClick={() => setUndo(null)}><Icon name="close" size={14} /></button>
+            </div>
+          )}
           <div ref={boardRef} className={`board${drag ? ' is-dragging' : ''}`}>
             {BOARD_COLUMNS.map((c) => (
               <Column key={c.id} id={c.id} label={c.label} hint={c.hint} cards={cols[c.id]} target={target} drag={drag}
-                onPointerDown={onPointerDown} onKeyDown={onKeyDown}
+                auswahl={auswahl} gewaehlt={gewaehlt} onToggle={toggle} onPointerDown={onPointerDown} onKeyDown={onKeyDown}
                 onMove={(card, col) => { refocus.current = card.id; commit(card, col, cols[col].length); }} />
             ))}
           </div>
@@ -279,9 +362,14 @@ export async function loadBoard(moduleId: string): Promise<BoardData> {
   const mod = getModule(moduleId);
   const entries = await db.board.toArray();
   const subj = new Map(mod?.subjects.map((s) => [s.id, s]) ?? []);
-  const cards = (await ladeThemen(moduleId)).filter((t) => t.parentId || t.id.startsWith('thema.eigen.')).map((t) => ({
+  const themen = await ladeThemen(moduleId);
+  // Wissensstand wie im Lernplan (gleiche Rechnung), damit Board und Lernplan nie verschieden „sicher“ sagen
+  const { loadPlannerData, assembleInput, heute } = await import('../../features/lernplan/store');
+  const { buildPlan } = await import('../../features/lernplan/scheduler');
+  const progress = await loadPlannerData(themen, heute()).then((d) => buildPlan(assembleInput(d)).progress).catch(() => ({} as Record<string, { status: MasteryStatus } | undefined>));
+  const cards = themen.filter((t) => t.parentId || t.id.startsWith('thema.eigen.')).map((t) => ({
     id: t.id, name: t.name, fachId: t.subjectId, fach: subj.get(t.subjectId)?.code ?? subj.get(t.subjectId)?.name ?? '',
-    difficulty: t.difficulty, minutes: t.estimatedMinutes,
+    difficulty: t.difficulty, minutes: t.estimatedMinutes, wissen: progress[t.id]?.status,
   }));
   return { cards, entries, subjects: mod?.subjects ?? [] };
 }
@@ -291,8 +379,10 @@ export default function BoardWidget({ id, onHide, lifecycle }: WidgetHostProps) 
   const { state, retry, lastSynced, badge } = useWidgetData({
     deps: [moduleId], load: () => loadBoard(moduleId),
     isEmpty: (d) => d.cards.length === 0,
-    isPartial: (d) => !d.entries.some((e) => e.column !== 'pool') && 'Noch nichts eingeplant: Zieh Themen aus dem Pool nach „Diese Woche“.',
+    isPartial: (d) => !d.entries.some((e) => e.column !== 'pool') && 'Noch nichts eingeplant: Verschiebe Themen aus dem Pool nach „Diese Woche“, per Ziehen, Pfeilknopf oder „Mehrere auswählen“.',
   });
   return <BoardView id={id} state={state} badge={badge} onRetry={retry} lastSynced={lastSynced} onHide={onHide} lifecycle={lifecycle}
-    onCommit={(card, column, order) => moveTopics([{ topicId: card.id, column, order, name: card.name }])} />;
+    onCommit={(card, column, order) => moveTopics([{ topicId: card.id, column, order, name: card.name }])}
+    onCommitMany={(cards, column) => moveTopicsMitStand(cards.map((c) => ({ topicId: c.id, name: c.name })), column)}
+    onRestore={stelleBoardWiederHer} />;
 }

@@ -191,6 +191,39 @@ try {
     await page.locator('.karte__viewport').waitFor();
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Überlauf Landkarte bei ${width}px`);
 
+    // Board: Arbeits- und Wissensstand getrennt, Pfeilknöpfe statt Ziehen, Mehrfachverschieben mit Rückgängig, Persistenz
+    await page.goto(base + '#/lernen/board', { waitUntil: 'networkidle' });
+    await page.locator('.kcard').first().waitFor();
+    assert.match(await page.locator('.board__legende').innerText(), /Spalte = Arbeitsstand[\s\S]*Wissensstand/);
+    assert.match(await page.locator('.kcard__wissen').first().innerText(), /^Wissen: /);
+    const spalte = (id) => page.locator(`[data-col="${id}"] [data-card]`);
+    const ersteImPool = await spalte('pool').first().getAttribute('data-card');
+    await spalte('pool').first().getByRole('button', { name: /nach „Diese Woche“ verschieben/ }).click();
+    await page.locator(`[data-col="woche"] [data-card="${ersteImPool}"]`).waitFor();
+    await page.getByRole('button', { name: 'Rückgängig' }).click();
+    await page.locator(`[data-col="pool"] [data-card="${ersteImPool}"]`).waitFor();
+    const wocheVorher = await spalte('woche').count();
+    await page.getByRole('button', { name: 'Mehrere auswählen' }).click();
+    const boxen = page.locator('[data-col="pool"] .kcard__wahl input');
+    for (let i = 0; i < 3; i++) await boxen.nth(i).check();
+    assert.match(await page.locator('.board__anzahl').innerText(), /3 ausgewählt/);
+    await page.locator('.board__ziel select').selectOption('woche');
+    await page.getByRole('button', { name: 'Verschieben', exact: true }).click();
+    await page.locator('.board__undo').waitFor();
+    await page.waitForFunction((n) => document.querySelectorAll('[data-col="woche"] [data-card]').length === n, wocheVorher + 3);
+    await axe(page, 'Themenboard');
+    await page.reload({ waitUntil: 'networkidle' });
+    await page.locator('.kcard').first().waitFor();
+    await page.waitForFunction((n) => document.querySelectorAll('[data-col="woche"] [data-card]').length === n, wocheVorher + 3);
+    // Rückgängig nach dem Neuladen gibt es nicht mehr; vor dem Neuladen geprüft wird es hier noch einmal:
+    await page.getByRole('button', { name: 'Mehrere auswählen' }).click();
+    await page.locator('[data-col="woche"] .kcard__wahl input').first().check();
+    await page.locator('.board__ziel select').selectOption('erarbeitet');
+    await page.getByRole('button', { name: 'Verschieben', exact: true }).click();
+    await page.getByRole('button', { name: 'Rückgängig' }).click();
+    await page.waitForFunction((n) => document.querySelectorAll('[data-col="woche"] [data-card]').length === n, wocheVorher + 3);
+    assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Überlauf Board bei ${width}px`);
+
     // Material: schwer lesbare Seiten, Dubletten, Sprung zur Fundstelle, Original neben der Zusammenfassung
     const thema = blaetter[1];
     await page.evaluate(async ({ thema }) => {
@@ -244,10 +277,18 @@ try {
     const stufen = page.locator('.fs-stufen');
     await stufen.waitFor();
     assert.match(await stufen.innerText(), /Abgerufen\s*1 von/);
+    // Herkunft jeder Zahl, Zeitraum und Hinweis bei kleiner Datenbasis
+    const gesamtKarte = page.locator('.fs-gesamt');
+    assert.match(await gesamtKarte.locator('.eyebrow').innerText(), /seit .*Tag/);
+    await gesamtKarte.locator('.fs-herkunft summary').click();
+    const herkunft = await gesamtKarte.locator('.fs-herkunft dl').innerText();
+    for (const w of ['Lernzeit', 'Abfragen', 'Themen sicher', 'Quelle:', 'Zeitraum:']) assert(herkunft.includes(w), `Herkunft ohne ${w}`);
+    assert.match(await gesamtKarte.locator('.fs-vorlaeufig').innerText(), /Kleine Datenbasis/);
+    assert.match(await stufen.innerText(), /Vorläufig/);
     await axe(page, 'Fortschritt');
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Überlauf bei ${width}px`);
     assert.deepEqual(errors, []);
-    console.log(`Lernalltag ${width}px: liegen gebliebene Blöcke, Dienstplan mit Vorschau, Kompetenzbereiche, Kalenderexport, CE-Matrix, Themenpflege, Skript-Belegprüfung und Fassungen, Landkarte als Liste, Fundstelle, Original nebeneinander, Lese-/Dublettenhinweise, Fehlerheft-Rückwege, Lernstufen und WCAG bestanden.`);
+    console.log(`Lernalltag ${width}px: liegen gebliebene Blöcke, Dienstplan mit Vorschau, Kompetenzbereiche, Kalenderexport, CE-Matrix, Themenpflege, Skript-Belegprüfung und Fassungen, Landkarte als Liste, Board mit Knöpfen und Rückgängig, Fundstelle, Original nebeneinander, Lese-/Dublettenhinweise, Fehlerheft-Rückwege, Lernstufen, Herkunft der Fortschrittszahlen und WCAG bestanden.`);
     await context.close();
   }
 } finally { await browser.close(); }
