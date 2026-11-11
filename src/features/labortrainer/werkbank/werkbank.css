@@ -75,3 +75,16 @@
   .wb-telefon__symbol { animation: none; }
 }
 :root[data-motion='reduce'] .wb-telefon__symbol { animation: none; }
+
+/* Farbsystem vor dem Start und Nachbesprechung in drei Teilen */
+.wb-farbkarte { display: grid; gap: 8px; padding: 12px; border: 1px dashed var(--color-border-strong); border-radius: 12px; margin-bottom: 12px; }
+.wb-farbkarte p { margin: 0; }
+.wb-legende { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 0.875rem; }
+.wb-legende li { display: flex; align-items: center; gap: 6px; }
+.wb-legende__farbe { width: 14px; height: 14px; border-radius: 4px; border: 1px solid var(--color-border-strong); }
+.wb-debrief { margin: 0; padding-left: 1.25rem; display: grid; gap: 10px; }
+.wb-debrief dl { display: grid; grid-template-columns: max-content 1fr; gap: 2px 12px; margin: 0; }
+.wb-debrief dl > div { display: contents; }
+.wb-debrief dt { color: var(--color-text-muted); font-size: 0.8125rem; }
+.wb-debrief dd { margin: 0; }
+@media (max-width: 560px) { .wb-debrief dl { grid-template-columns: 1fr; } .wb-debrief dd { margin-bottom: 4px; } }

@@ -74,6 +74,13 @@ Ein öffentliches Repo wird abgelehnt. Er bleibt an das verbundene Ziel gebunden
 nichts mehr. Begrenzt sind Ordner, Bilder je Serie, Dateigröße, Größe der serie.json, Befundmarken und Texte.
 Marken außerhalb von 0..1 oder Schichtbereich werden verworfen. Die Seite lädt nur herunter, nie hoch.
 
+**Labor-Werkbank (Audit, Abschnitt 5):** Vor jeder Entnahme wählst du das Farbsystem. Dazu siehst du seine
+Herkunft (EU-Herstellerkonvention oder ISO 6710/US) und die Röhrchen der Situation in diesen Farben. Die
+Nachbesprechung trennt je Fehler Ursache, Messwertänderung und Folgehandlung (`debrief`, `FOLGEHANDLUNG`). Alle drei
+Stationen buchen in den Lernplan (`werkbank/lernplan.ts`, Versuch-ID `werkbank:<station>:<szenario>:<lauf>`):
+Entnahme auf Blutentnahme, Verlauf auf das Thema des gesuchten Werts, Meldung auf Übergabe. `uebungenFuer` verlinkt
+die Stationen vom Lernplan aus.
+
 ## Echte Bilder
 
 - **Öffentlich** (`public/bildgebung/…`, Quelle `bilder`): nur frei lizenziert (CC BY, CC BY-SA, gemeinfrei) mit Urheber,

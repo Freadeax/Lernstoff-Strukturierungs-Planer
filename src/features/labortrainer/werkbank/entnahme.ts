@@ -1,8 +1,8 @@
 // Blutentnahme-Station der Werkbank: reine Logik (Szenarien, Bewertung), damit Tests und
 // Oberfläche dieselben Regeln sehen. Die Fehlerregeln kommen aus der Präanalytik der Simulatoren.
 
-import { bewerte, parameter, type Flag } from '../../../ui/sim/labor/parameter';
-import { benoetigteRoehrchen, fehlerAus, ROEHRCHEN, verfaelsche, venoes, type Abnahme, type PraeanalytikFehler } from '../../../ui/sim/labor/praeanalytik';
+import { bewerte, formatWert, parameter, type Flag } from '../../../ui/sim/labor/parameter';
+import { benoetigteRoehrchen, fehlerAus, ROEHRCHEN, verfaelsche, venoes, type Abnahme, type FehlerArt, type PraeanalytikFehler } from '../../../ui/sim/labor/praeanalytik';
 import type { Material } from '../../../ui/sim/labor/parameter';
 
 export interface EntnahmeSzenario {
@@ -98,6 +98,8 @@ export interface EntnahmeErgebnis {
   hinweise: string[];
   punkte: number;
   max: number;
+  /** Einzelkriterien wie ENTNAHME_KRITERIEN. */
+  checks: boolean[];
 }
 
 export function bewerteEntnahme(s: EntnahmeSzenario, e: EntnahmeEingabe): EntnahmeErgebnis {
@@ -145,7 +147,40 @@ export function bewerteEntnahme(s: EntnahmeSzenario, e: EntnahmeEingabe): Entnah
     e.mischen === 'schwenken',
     e.transport === 'sofort',
   ];
-  return { abnahme, fehler, werte, hinweise, punkte: checks.filter(Boolean).length, max: checks.length };
+  return { abnahme, fehler, werte, hinweise, punkte: checks.filter(Boolean).length, max: checks.length, checks };
 }
+
+/** Was nach dem Fehler zu tun ist (Folgehandlung), getrennt von Ursache und Messwertänderung. */
+export const FOLGEHANDLUNG: Record<FehlerArt, string> = {
+  identitaet: 'Probe verwerfen, Person offen nach Name und Geburtsdatum fragen, Armband prüfen und neu abnehmen.',
+  haemolyse: 'Kalium nicht behandeln, sondern ärztlich auf die Hämolyse hinweisen und schonend neu abnehmen (kurz stauen, nicht schütteln).',
+  stauung: 'Werte mit Vorsicht lesen; bei Entscheidungsrelevanz neu abnehmen und den Stau vor dem Füllen lösen.',
+  infusion: 'Ärztlich melden, dass die Probe verdünnt sein kann, und am Gegenarm neu abnehmen.',
+  verschleppung: 'Kalium und Calcium ärztlich als fraglich melden und in der richtigen Reihenfolge neu abnehmen.',
+  citrat: 'Gerinnung neu abnehmen, Citratröhrchen bis zur Marke füllen (bei Flügelkanüle erst Verwurfröhrchen).',
+  liegezeit: 'Glukose und Kalium als fraglich kennzeichnen, bei Bedarf neu abnehmen und sofort transportieren.',
+  antibiose: 'Trotzdem abnehmen, auf dem Auftrag „nach Antibiose“ vermerken und ärztlich informieren.',
+};
+
+export interface DebriefZeile { art: FehlerArt; ursache: string; erklaerung: string; messwert: string; folge: string }
+
+/** Nachbesprechung: je Fehler Ursache, Änderung am Messwert und Folgehandlung getrennt. */
+export function debrief(e: EntnahmeErgebnis): DebriefZeile[] {
+  const abgelehnt = e.fehler.some((f) => f.abgelehnt);
+  return e.fehler.map((f) => {
+    const betroffen = e.werte.filter((w) => w.verfaelscht && f.wirkung.some((x) => x.id === w.id));
+    const angefragt = f.wirkung.filter((x) => e.werte.some((w) => w.id === x.id)).map((x) => parameter(x.id).name);
+    const messwert = f.abgelehnt ? 'Probe abgelehnt: kein Wert im Befund.'
+      : abgelehnt ? (angefragt.length ? `Wegen der abgelehnten Probe nicht sichtbar. Verfälscht wären: ${angefragt.join(', ')}.` : 'Wegen der abgelehnten Probe nicht sichtbar.')
+      : f.art === 'citrat' && e.werte.some((w) => parameter(w.id).material === 'citrat' && w.gemessen === undefined) ? 'Gerinnung nicht beurteilbar: kein Wert im Befund.'
+      : betroffen.length ? betroffen.map((w) => { const p = parameter(w.id); return `${p.name} ${formatWert(p, w.wahr)} → ${formatWert(p, w.gemessen!)} ${p.einheit}`; }).join('; ')
+      : f.art === 'antibiose' ? 'Blutkultur bleibt womöglich falsch negativ.'
+      : 'In dieser Situation kein angeforderter Wert betroffen.';
+    return { art: f.art, ursache: f.titel, erklaerung: f.folge, messwert, folge: FOLGEHANDLUNG[f.art] };
+  });
+}
+
+/** Kriterien der Entnahme für den Lernplan (in derselben Reihenfolge wie die Punkte). */
+export const ENTNAHME_KRITERIEN = ['Identität offen geprüft', 'Nicht am Infusionsarm', 'Stauzeit höchstens 1 min', 'Alle Röhrchen abgenommen', 'Reihenfolge eingehalten', 'Citrat voll', 'Sanft geschwenkt', 'Sofort transportiert'];
 
 const ROEHRCHEN_RANG = (m: Material) => ROEHRCHEN[m].reihenfolge ?? 99;
