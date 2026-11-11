@@ -16,7 +16,7 @@ import { DiagnostikSzene } from './DiagnostikSzene';
 import type { DiagnostikFall, Untersuchung } from './typen';
 import { SimTon } from '../../ui/audio/SimTon';
 import { raumFuerSetting } from '../../ui/audio/klaenge';
-import { gesamtAlarm } from '../../ui/sim/monitor';
+import { alarmProfil, gesamtAlarm, monitorGruppe, normBand } from '../../ui/sim/monitor';
 
 export const REITER = [
   { id: 'beobachtung', label: 'Beobachtung' },
@@ -50,7 +50,7 @@ export function FallAnsicht({ fall, lauf, setLauf, zurueck, farbsystem, setFarbs
       <DiagnostikSzene fall={fall} werte={werte} status={status} senden={senden} setReiter={setReiter} telefon={anrufe.length > 0} />
       <div className="audio-simton">
         <SimTon raum={raumFuerSetting(fall.bereich)} telefon={anrufe.length > 0} technisch={status === 'signalausfall'}
-          herzschlag={status !== 'signalausfall'} alarm={status === 'signalausfall' ? 'ok' : gesamtAlarm(werte)}
+          herzschlag={status !== 'signalausfall'} alarm={status === 'signalausfall' ? 'ok' : gesamtAlarm(werte, monitorGruppe(fall.patient.alter))}
           monitor={{ puls: werte.puls, spo2: werte.spo2, aktiv: status !== 'abwesend' && lauf.beendet === undefined }} />
       </div>
 
@@ -111,7 +111,9 @@ function Beobachtung({ fall, lauf, senden, werte, uhr, status }: { fall: Diagnos
           werte={status === 'signalausfall' ? { ...werte, spo2: null } : werte}
           aktiv={status !== 'abwesend'} ausText="Nicht angeschlossen"
           titel={status === 'signalausfall' ? `${uhr} · SpO₂: kein Signal` : `${uhr} · ${werte.sauerstoff ? 'mit O₂' : 'Raumluft'}`}
+          gruppe={monitorGruppe(p.alter)}
         />
+        {monitorGruppe(p.alter) !== 'erwachsen' && <MonitorProfil alter={p.alter} />}
         {status === 'abwesend' && <button type="button" className="primary" disabled={lauf.beendet !== undefined} onClick={() => senden({ typ: 'monitor' })}>Monitor anschließen (~3 min)</button>}
         {status === 'signalausfall' && <button type="button" className="primary" onClick={() => senden({ typ: 'sensor' })}>Fingersensor prüfen und neu anlegen</button>}
         <section className="card dx-karte">
@@ -304,12 +306,23 @@ function Auswertung({ fall, lauf, senden }: { fall: DiagnostikFall; lauf: Lauf; 
 }
 
 const ZEIT_ART: Record<ZeitArt, string> = { start: 'Start', monitor: 'Monitor', abnahme: 'Labor', befund: 'Befund', kritisch: 'Kritisch', bild: 'Bild', meldung: 'Meldung', massnahme: 'Maßnahme', eigen: 'Notiz', ende: 'Ende' };
-const VITAL: { k: 'puls' | 'sys' | 'spo2' | 'af'; name: string; einheit: string; band: { min?: number; max?: number } }[] = [
-  { k: 'puls', name: 'Puls', einheit: '/min', band: { min: 60, max: 100 } },
-  { k: 'sys', name: 'Blutdruck systolisch', einheit: 'mmHg', band: { min: 100, max: 140 } },
-  { k: 'spo2', name: 'SpO₂', einheit: '%', band: { min: 94, max: 100 } },
-  { k: 'af', name: 'Atemfrequenz', einheit: '/min', band: { min: 12, max: 20 } },
+const VITAL: { k: 'puls' | 'sys' | 'spo2' | 'af'; name: string; einheit: string }[] = [
+  { k: 'puls', name: 'Puls', einheit: '/min' },
+  { k: 'sys', name: 'Blutdruck systolisch', einheit: 'mmHg' },
+  { k: 'spo2', name: 'SpO₂', einheit: '%' },
+  { k: 'af', name: 'Atemfrequenz', einheit: '/min' },
 ];
+
+/** Kinderprofil am Entscheidungspunkt: welche Alarmgrenzen gelten und woher sie stammen. */
+function MonitorProfil({ alter }: { alter: number }) {
+  const pr = alarmProfil(monitorGruppe(alter));
+  return (
+    <details className="dx-profil">
+      <summary>{pr.label}{pr.bewertet ? '' : ' · keine automatische Wertung'}</summary>
+      <p className="muted dx-klein">{pr.quelle}</p>
+    </details>
+  );
+}
 
 /** Auswertung: was wann geschah und wie sich der Zustand unter den Maßnahmen entwickelt hat. */
 function Zeitleiste({ fall, lauf }: { fall: DiagnostikFall; lauf: Lauf }) {
@@ -317,7 +330,8 @@ function Zeitleiste({ fall, lauf }: { fall: DiagnostikFall; lauf: Lauf }) {
   const [vital, setVital] = useState<typeof VITAL[number]['k']>('puls');
   const v = VITAL.find((x) => x.k === vital)!;
   const marken = lauf.massnahmen.map((m) => ({ minute: m.minute, text: fall.anordnungen.find((a) => a.id === m.id)?.label ?? m.id }));
-  const kind = fall.patient.alter < 14;
+  const gruppe = monitorGruppe(fall.patient.alter);
+  const band = normBand(vital, gruppe);
   return (
     <section className="card dx-karte" aria-labelledby="dx-zeitleiste">
       <h3 id="dx-zeitleiste">Dein Ablauf</h3>
@@ -334,9 +348,9 @@ function Zeitleiste({ fall, lauf }: { fall: DiagnostikFall; lauf: Lauf }) {
       <div className="pills" role="group" aria-label="Vitalwert wählen">
         {VITAL.map((x) => <button key={x.k} type="button" className="pill" aria-pressed={x.k === vital} onClick={() => setVital(x.k)}>{x.name}</button>)}
       </div>
-      <VerlaufKurve key={vital} name={v.name} einheit={v.einheit} punkte={vitalReihe(lauf, fall, vital)} band={kind ? undefined : v.band}
+      <VerlaufKurve key={vital} name={v.name} einheit={v.einheit} punkte={vitalReihe(lauf, fall, vital)} band={band}
         format={(n) => String(Math.round(n))} zeitText={(m) => uhrzeit(fall.startzeit, m)} marken={marken} />
-      <p className="muted dx-klein">Die gestrichelten Linien sind deine Maßnahmen. {kind ? 'Bei Kindern gelten altersabhängige Normwerte, deshalb ohne grünes Band.' : 'Grün: üblicher Bereich bei Erwachsenen.'}</p>
+      <p className="muted dx-klein">Die gestrichelten Linien sind deine Maßnahmen. {!band ? 'Für diese Altersgruppe gibt es kein Profil, deshalb ohne grünes Band.' : `Grün: unauffälliger Bereich nach ${alarmProfil(gruppe).label.replace(/\.$/, "")} (Profil).`}</p>
     </section>
   );
 }

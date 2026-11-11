@@ -89,15 +89,36 @@ describe('BGA-Deutung', () => {
   });
 });
 
-describe('Kinder-Referenzbereiche', () => {
-  it('Kreatinin 0,7 mg/dl ist beim Erwachsenen normal, beim Kind erhöht', async () => {
-    const { bewerte, formatReferenz, parameter, istKind } = await import('./parameter');
+describe('Kinderprofile (SIM-01)', () => {
+  it('Kreatinin 0,7 mg/dl ist beim Erwachsenen normal, beim Kleinkind erhöht, beim Schulkind normal', async () => {
+    const { bewerte, formatReferenz, parameter, altersgruppe } = await import('./parameter');
     const krea = parameter('krea');
     expect(bewerte(krea, 0.7, 'w')).toBe('normal');
-    expect(bewerte(krea, 0.7, 'w', true)).toBe('hoch');
-    expect(formatReferenz(krea, 'w', true)).toBe('0,2–0,6');
-    // Ohne eigenen Kinderbereich gilt der Erwachsenenbereich
-    expect(bewerte(parameter('na'), 133, 'w', true)).toBe('niedrig');
-    expect(istKind(8)).toBe(true); expect(istKind(19)).toBe(false);
+    expect(bewerte(krea, 0.7, 'w', 'kleinkind')).toBe('hoch');
+    expect(bewerte(krea, 0.7, 'w', 'schulkind')).toBe('normal');
+    expect(formatReferenz(krea, 'w', 'kleinkind')).toBe('0,2–0,5');
+    expect(altersgruppe(0.5)).toBe('saeugling'); expect(altersgruppe(2)).toBe('kleinkind');
+    expect(altersgruppe(8)).toBe('schulkind'); expect(altersgruppe(19)).toBe('erwachsen');
+  });
+  it('übernimmt Erwachsenenbereiche nur, wo ausdrücklich freigegeben', async () => {
+    const { bewerte, parameter, PARAMETER, hatProfil } = await import('./parameter');
+    expect(bewerte(parameter('na'), 133, 'w', 'schulkind')).toBe('niedrig');
+    // Ohne Kinderprofil keine automatische Wertung, auch kein kritischer Anruf
+    const ohne = PARAMETER.filter((p) => !hatProfil(p, 'schulkind'));
+    for (const p of ohne) expect(bewerte(p, 99999, 'm', 'schulkind')).toBe('unbewertet');
+    // Säuglinge: nie bewertet
+    expect(bewerte(parameter('na'), 120, 'w', 'saeugling')).toBe('unbewertet');
+  });
+  it('beide Kinderfälle: Mia (2 J.) Kreatinin erhöht nach Kleinkindprofil, Max (8 J.) Leukozyten im Schulkindbereich', async () => {
+    const { FALL_NACH_ID } = await import('../../../features/diagnostik/faelle');
+    const { altersgruppe, bewerte, parameter } = await import('./parameter');
+    const mia = FALL_NACH_ID['gastroenteritis-kind'], max = FALL_NACH_ID['asthma-kind'];
+    expect(altersgruppe(mia.patient.alter)).toBe('kleinkind');
+    expect(altersgruppe(max.patient.alter)).toBe('schulkind');
+    const start = (f: typeof mia, id: string) => (f.labor[id] as unknown as { basis: number }).basis;
+    expect(bewerte(parameter('krea'), start(mia, 'krea'), 'w', 'kleinkind')).toBe('hoch');
+    expect(bewerte(parameter('leuko'), start(max, 'leuko'), 'm', 'schulkind')).toBe('normal');
+    // Kein Wert in beiden Kinderfällen bleibt ohne Profil
+    for (const f of [mia, max]) for (const id of Object.keys(f.labor)) expect(bewerte(parameter(id), start(f, id), f.patient.geschlecht, altersgruppe(f.patient.alter))).not.toBe('unbewertet');
   });
 });

@@ -6,7 +6,7 @@
 
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { PatientenMonitor } from '../PatientenMonitor';
-import type { MonitorWerte } from '../monitor';
+import type { MonitorGruppe, MonitorWerte } from '../monitor';
 import { wenigBewegung } from '../../shell/session';
 import { RAEUME, raumFuerZustand, raumUrl, type MonitorZustand, type RaumId, type Rechteck } from './katalog';
 import './raeume.css';
@@ -35,6 +35,8 @@ export interface BuehnenMonitor {
   /** Bei Signalausfall: welche Kanäle fehlen (Standard: SpO₂). EKG betrifft HF, SpO₂ betrifft Sättigung, AF die Atemkurve. */
   ausfall?: MonitorKanal[];
   titel?: string;
+  /** Altersgruppe für die Alarmgrenzen (Kinderprofil). */
+  gruppe?: MonitorGruppe;
 }
 
 export interface RaumBuehneProps {
@@ -125,7 +127,7 @@ export function RaumBuehne({ raum, hotspots = [], monitor, monitorInhalt, fokus,
           )}
           {zeigeMonitor && r.monitor && (
             <MonitorFlaeche rechteck={r.monitor}>
-              {monitorInhalt ?? (mw && <PatientenMonitor werte={mw.werte} aktiv={mw.aktiv} ausText={mw.ausText} titel={mw.hinweis ?? monitor?.titel} className="raum-monitor__geraet" />)}
+              {monitorInhalt ?? (mw && <PatientenMonitor werte={mw.werte} aktiv={mw.aktiv} ausText={mw.ausText} titel={mw.hinweis ?? monitor?.titel} gruppe={monitor?.gruppe} className="raum-monitor__geraet" />)}
             </MonitorFlaeche>
           )}
           <div className="raum-buehne__overlay">{children}</div>
