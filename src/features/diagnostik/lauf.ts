@@ -29,6 +29,10 @@ export interface Lauf {
   antworten: Record<string, { richtig: boolean; wahl: string }>;
   log: LogEintrag[];
   beendet?: number;
+  /** Minute, zu der der Monitor angeschlossen wurde (Fälle mit monitor.start = 'abwesend'). */
+  monitorAn?: number;
+  /** Minute, zu der der abgerutschte Fingersensor neu angelegt wurde. */
+  sensorNeu?: number;
 }
 
 export type Befehl =
@@ -43,6 +47,8 @@ export type Befehl =
   | { typ: 'massnahme'; id: string }
   | { typ: 'antwort'; frage: string; richtig: boolean; wahl: string }
   | { typ: 'notiz'; text: string }
+  | { typ: 'monitor' }
+  | { typ: 'sensor' }
   | { typ: 'beenden' };
 
 export const ZEIT = { abnahme: 8, poct: 3, sbar: 5 };
@@ -167,11 +173,33 @@ export function fuehreAus(l: Lauf, fall: DiagnostikFall, b: Befehl): Lauf {
     case 'antwort':
       if (l.antworten[b.frage]) return l;
       return { ...l, antworten: { ...l.antworten, [b.frage]: { richtig: b.richtig, wahl: b.wahl } } };
+    case 'monitor': {
+      if (fall.monitor?.start !== 'abwesend' || l.monitorAn !== undefined) return l;
+      const n = rueckt(l, 3);
+      return { ...n, monitorAn: n.minute, log: log(n, 'Monitor angeschlossen: EKG-Elektroden, Fingersensor, Blutdruckmanschette (Intervall 15 min)') };
+    }
+    case 'sensor': {
+      if (monitorZustand(l, fall) !== 'signalausfall') return l;
+      const n = rueckt(l, 1);
+      return { ...n, sensorNeu: n.minute, log: log(n, 'Fingersensor war abgerutscht, neu angelegt; SpO₂-Kurve wieder sauber') };
+    }
     case 'notiz':
       return b.text.trim() ? { ...l, log: log(l, b.text.trim(), 'eigen') } : l;
     case 'beenden':
       return { ...l, beendet: l.minute, log: log(l, 'Fall beendet') };
   }
+}
+
+export type MonitorStatus = 'abwesend' | 'laeuft' | 'signalausfall';
+
+/** Zustand des Monitors am Bett: nicht angeschlossen, läuft, oder Fingersensor abgerutscht (nur SpO₂ fällt aus). */
+export function monitorZustand(l: Lauf, fall: DiagnostikFall): MonitorStatus {
+  const m = fall.monitor;
+  if (!m) return 'laeuft';
+  if (m.start === 'abwesend' && l.monitorAn === undefined) return 'abwesend';
+  const seit = m.start === 'abwesend' ? l.monitorAn! : 0;
+  if (m.sensorAusfallNach !== undefined && l.sensorNeu === undefined && l.minute >= seit + m.sensorAusfallNach) return 'signalausfall';
+  return 'laeuft';
 }
 
 /** Kumulativbefund zum aktuellen Zeitpunkt. */
