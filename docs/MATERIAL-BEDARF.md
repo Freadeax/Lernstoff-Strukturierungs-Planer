@@ -155,6 +155,7 @@ Nummerierung schließt an das Komplettpaket an (07–19).
 | `28_ambulant_schlafzimmer` | Häusliches Schlafzimmer mit Pflegebett, Wechseldruckmatratze, Tag | Frau ca. 80 liegend, Angehöriger im Türrahmen | Klientin, Pflegebett, Lagerungskissen, Pflegetasche, Inkontinenzmaterial, Dokumentationsmappe | `28a` Klientin in 30°-Seitenlage | Fall `dekubitus`, Praxis `hausbesuch` (Erika, 79, Ausweichraum) |
 | `29_ambulant_wohnzimmer_copd` | Wohnzimmer, Sessel, Sauerstoffkonzentrator mit Schlauch | Mann ca. 70, in Kutschersitz vornübergebeugt | Klient, O₂-Konzentrator, Inhalator, Peak-Flow-Meter, Telefon | `29a` ruhig atmend | Fall `copd` |
 | `30_station_zimmer_frau` | Internistisches Einzelzimmer, Tag, Infusionsständer mit laufender Kurzinfusion | Frau ca. 34 im Bett, kratzt sich am Arm | Patientin, Infusion/Zugang, Monitorwagen, Rufanlage, Notfallwagen-Hinweis an der Tür | `30a` ohne Monitor, `30b` ältere Frau ca. 81 im Bett, verwirrt (Sepsis) | Praxis `anaphylaxie` (Selin, 34), `sepsis` (Gertrud, 81), Fall `anaphylaxie`, `sepsis` |
+| `42_station_bewusstlos` | Stationszimmer (Normalstation), Bett flach gestellt, Kopfteil abnehmbar, Tag | Erwachsene Person ca. 70 Jahre bewusstlos in Rückenlage im Bett, Augen geschlossen, Arme neben dem Körper, keine Pflegekraft im Bild | Person (Brustkorb frei zugänglich), Rufanlage/Notrufknopf, Bettbedienung (Flachstellung), Reanimationsbrett am Bett oder an der Wand, Monitorwagen | `42a` mit Monitorwagen am Bett, `42n` Nacht, `42b` mit Reanimationsbrett unter dem Oberkörper | Notfall-Trainer „Reanimation üben“ (läuft heute im Schockraum 18) |
 
 ### 2.2 P3: Räume für geplante Einsatzbereiche
 
@@ -358,7 +359,7 @@ Nicht nötig (macht die App besser selbst): Monitorpiep, Alarmmelodien, Telefon,
 
 ---
 
-## 11. Kurzfassung: Die wichtigsten 15 Positionen
+## 11. Kurzfassung: Die wichtigsten Positionen
 
 1. ~~`20_paediatrie_kleinkind` + `20a`~~ geliefert 11.11.
 2. ~~`21_paediatrie_schulkind` + `21a`~~ geliefert 11.11.
@@ -375,6 +376,7 @@ Nicht nötig (macht die App besser selbst): Monitorpiep, Alarmmelodien, Telefon,
 13. Animationen `haendedesinfektion`, `psa_anlegen`/`psa_ablegen`, `dosieraerosol_spacer`
 14. Unterrichtsmaterial CE06, CE07, CE11 (CE10 Neugeborenes geliefert)
 15. Nahansichten `na_wunde_op_verband`, `na_urinbeutel`, `na_haut_steiss`
+16. `42_station_bewusstlos` (bewusstlose Person im Bett für „Reanimation üben“)
 
 ---
 

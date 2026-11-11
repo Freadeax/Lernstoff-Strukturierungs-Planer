@@ -210,7 +210,9 @@ a.pill { display: inline-flex; align-items: center; text-decoration: none; color
   .szene__kamera, .szene__du, .szene__zeiger, .szene__fenster, .szene__mond { transition: none; }
   .szene *, .fall__wort, .fall__rueck, .fall__option, .fall__trendpfeil, .fall__vital .is-geaendert { animation: none !important; }
 }
-.fall__probe { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; border-left: 4px solid var(--color-primary); }
+.fall__probe { display: grid; gap: var(--space-3); border-left: 4px solid var(--color-primary); }
+.fall__probe-liste { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+.fall__probe-liste li { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); flex-wrap: wrap; padding: var(--space-2) 0; border-top: 1px solid var(--color-line, rgba(0,0,0,.12)); }
 .fall__probe p { margin: var(--space-1) 0 0; font-size: var(--text-sm); }
 .fall__aktuell { display: flex; flex-direction: column; gap: var(--space-2); }
 .fall__aktuell .note { margin: 0; }
@@ -262,3 +264,59 @@ a.pill { display: inline-flex; align-items: center; text-decoration: none; color
 .fall__titelbild { max-width: 44rem; margin: 0 0 var(--space-3); }
 .fall__kopf-titel { display: flex; align-items: center; gap: var(--space-3); }
 .fall__foto-hinweis { margin: var(--space-1) 0 0; font-size: 0.85rem; }
+
+/* Rückblick nach dem Fall */
+.fall__rueckblick { display: grid; gap: var(--space-3); margin: var(--space-4) 0; padding-top: var(--space-3); border-top: 1px solid var(--color-border); }
+.fall__rb-kopf { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); flex-wrap: wrap; }
+.fall__rb-kopf h4 { margin: 0; }
+.fall__rb-legende { margin: 0 0 var(--space-1); font-size: var(--text-sm); }
+.fall__rb-kurve svg { display: block; width: 100%; height: auto; max-height: 11rem; }
+.fall__rb-band--niedrig { fill: var(--color-success-soft); }
+.fall__rb-band--mittel { fill: var(--color-warning-soft); }
+.fall__rb-band--hoch { fill: var(--color-danger-soft); }
+.fall__rb-achse, .fall__rb-wert { font-size: 13px; fill: var(--color-text-muted); }
+.fall__rb-wert { fill: var(--color-text); font-weight: 700; }
+.fall__rb-linie { fill: none; stroke: var(--color-ink); stroke-width: 2.5; stroke-linejoin: round; }
+.fall__rb-jetzt { stroke: var(--color-focus); stroke-width: 2; stroke-dasharray: 4 4; }
+.fall__rb-punkt { stroke: var(--color-ink); stroke-width: 2; fill: var(--color-surface); transition: r var(--dur-normal, 200ms) var(--ease-out, ease-out); }
+.fall__rb-punkt--gut { fill: var(--color-success); }
+.fall__rb-punkt--teilweise { fill: var(--color-sun); }
+.fall__rb-punkt--unguenstig { fill: var(--color-warning); }
+.fall__rb-punkt--gefaehrlich { fill: var(--color-danger); }
+.fall__rb-punkt.is-leer { stroke-dasharray: 2 2; }
+.fall__rb-schritte { list-style: none; display: flex; flex-wrap: wrap; gap: var(--space-1); margin: var(--space-2) 0 0; padding: 0; }
+.fall__rb-knopf { min-width: 44px; min-height: 44px; padding: 0 var(--space-2); font-weight: 700; border-left-width: 6px; transition: none; }
+.fall__rb-knopf--gut { border-left-color: var(--color-success); }
+.fall__rb-knopf--teilweise { border-left-color: var(--color-sun); }
+.fall__rb-knopf--unguenstig { border-left-color: var(--color-warning); }
+.fall__rb-knopf--gefaehrlich { border-left-color: var(--color-danger); }
+.fall__rb-knopf[aria-current='step'] { background: var(--color-ink); color: var(--color-surface); }
+.fall__rb-buehne { display: grid; gap: var(--space-3); grid-template-columns: minmax(0, 1fr); align-items: start; }
+@media (min-width: 900px) { .fall__rb-buehne { grid-template-columns: minmax(0, 1.6fr) minmax(14rem, 1fr); } }
+.fall__rb-text p { margin: 0 0 var(--space-2); }
+.fall__rb-text.is-animiert { animation: fall-rb-rein var(--dur-slow, 320ms) var(--ease-out, ease-out); }
+@keyframes fall-rb-rein { from { transform: translateY(6px); } to { transform: none; } }
+.fall__rb-wertung { padding: var(--space-2); border-radius: var(--radius-md, 10px); border-left: 4px solid var(--color-border-strong); background: var(--color-surface-sunken); }
+.fall__rb-wertung--gut { border-left-color: var(--color-success); background: var(--color-success-soft); }
+.fall__rb-wertung--teilweise { border-left-color: var(--color-sun); }
+.fall__rb-wertung--unguenstig { border-left-color: var(--color-warning); background: var(--color-warning-soft); }
+.fall__rb-wertung--gefaehrlich { border-left-color: var(--color-danger); background: var(--color-danger-soft); }
+.fall__abhoeren { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin: 0 0 var(--space-2); }
+.fall__abhoeren details { flex-basis: 100%; }
+.fall__abhoeren details p { margin: var(--space-1) 0 0; }
+
+/* Lebendige Fotoszene: Atemring, Ereignisse gleiten herein, Telefon wackelt (nur transform/box-shadow) */
+.fall__foto-atem {
+  position: absolute; width: 7%; aspect-ratio: 1; border-radius: 50%; transform: translate(-50%, -50%) scale(0.8);
+  border: 2px solid rgba(255, 255, 255, 0.6); pointer-events: none;
+  animation: fall-atem var(--atem-dauer, 4s) ease-in-out infinite;
+}
+.fall__foto-atem--verschlechtert { border-color: rgba(255, 200, 87, 0.9); }
+.fall__foto-atem--kritisch { border-color: rgba(220, 70, 60, 0.85); }
+@keyframes fall-atem { 0%, 100% { transform: translate(-50%, -50%) scale(0.75); } 45% { transform: translate(-50%, -50%) scale(1.25); } }
+.fall__foto-chip.is-neu { animation: fall-chip-rein var(--dur-slow, 320ms) var(--ease-out, ease-out); }
+.fall__foto-chip.is-zeichen { background: #4a3a0c; }
+.fall__foto-chip.is-klingeln { animation: fall-chip-rein var(--dur-slow, 320ms) var(--ease-out, ease-out), fall-klingeln 1.2s ease-in-out 0.4s infinite; }
+@keyframes fall-chip-rein { from { transform: translateY(-120%); } to { transform: none; } }
+@keyframes fall-klingeln { 0%, 60%, 100% { transform: rotate(0); } 10%, 30%, 50% { transform: rotate(-4deg); } 20%, 40% { transform: rotate(4deg); } }
+@media (prefers-reduced-motion: reduce) { .fall__foto-atem, .fall__foto-chip.is-neu, .fall__foto-chip.is-klingeln { animation: none; } }

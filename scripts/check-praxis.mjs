@@ -160,7 +160,7 @@ try {
     await page.goto(base + '#/lernen/fall', { waitUntil: 'networkidle' });
     await page.getByRole('heading', { name: 'Fallbeispiel-Simulator', exact: true }).waitFor();
     // Probefall ohne KI: Szene und Monitor laufen, eine Entscheidung bewegt Figur und Werte
-    await page.getByRole('button', { name: 'Probefall starten', exact: true }).click();
+    await page.getByRole('button', { name: 'Probefall starten: Atemnot in der Nacht', exact: true }).click();
     await page.locator('.fall__option').first().waitFor();
     // Fotoraum (Kardiologie): vor der Messung Variante ohne Monitor, danach Live-Monitor im Bild
     await page.locator('.fall__foto img[src*="12a_station"]').waitFor();
@@ -172,6 +172,7 @@ try {
     await page.locator('.fall__option').first().waitFor();
     await page.getByRole('button', { name: '1: Herr K. ansehen' }).click();
     await page.getByRole('region', { name: /^1: Patient/ }).waitFor();
+    assert(await page.getByRole('button', { name: 'Lunge abhören' }).isVisible(), 'Abhören am Patienten');
     await page.getByRole('button', { name: 'Übergabe', exact: true }).click();
     assert(await page.getByRole('button', { name: /^Ich übergebe nach SBAR/ }).isVisible());
     await page.waitForTimeout(3000); // Untertitel blendet Wort für Wort ein, erst danach Kontrast messen
@@ -181,7 +182,54 @@ try {
     assert(await page.locator('.szene svg').isVisible());
     await page.getByRole('button', { name: 'Fotoansicht', exact: true }).click();
     await page.locator('.fall__foto img').waitFor();
+    // Zweiter Probefall mit Verzweigung bis zur Auswertung und zum Rückblick
+    page.once('dialog', (d) => d.accept());
+    await page.getByRole('button', { name: 'Abbrechen', exact: true }).click();
+    await page.getByRole('button', { name: 'Probefall starten: Der Verband wird rot', exact: true }).click();
+    await page.locator('.fall__foto img[src*="13_station_postop"]').waitFor();
+    await page.getByRole('button', { name: /zweite Decke/ }).click();
+    await page.getByText(/kaltschweißig/).first().waitFor();
+    for (let i = 0; i < 6; i++) {
+      if (await page.getByRole('button', { name: 'Auswertung ansehen', exact: true }).isVisible()) break;
+      await page.locator('.fall__option').first().click();
+      await page.waitForFunction(() => !document.querySelector('.fall__laedt'));
+    }
+    await page.getByRole('button', { name: 'Auswertung ansehen', exact: true }).click();
+    await page.getByRole('heading', { name: 'Rückblick: Szene für Szene' }).waitFor();
+    await page.getByRole('button', { name: /^Szene 2,/ }).click();
+    assert(await page.locator('.fall__rueckblick .fall__rb-eingabe').isVisible(), 'Rückblick zeigt Entscheidung');
+    await page.waitForTimeout(600);
+    await audit('Fallsimulator Rückblick'); await page.screenshot({ path: path.join(output, `fall-rueckblick-${width}.png`), fullPage: true });
     await context.close();
+    // Notfall-Trainer: Reanimationsübung mit künstlicher Uhr (Zyklus 30 s ohne Warten).
+    {
+      const ctx = await browser.newContext({ viewport: { width, height: 1050 }, locale: 'de-DE', colorScheme: 'light' });
+      const rea = await ctx.newPage(); rea.on('pageerror', e => errors.push(e.message));
+      await rea.clock.install();
+      await rea.goto(base + '#/lernen/notfall?modus=rea', { waitUntil: 'networkidle' });
+      await rea.getByRole('button', { name: 'Übung starten', exact: true }).click();
+      for (const l of [/^Laut ansprechen/, /^Laut um Hilfe/, /^Atemwege frei/, /^Reanimationsteam/]) await rea.getByRole('button', { name: l }).click();
+      await rea.getByRole('button', { name: /^Blutdruck messen/ }).click();
+      assert(await rea.locator('.rea__meldung.is-falsch').isVisible(), 'Umweg wird erklärt');
+      await rea.getByRole('button', { name: /^Sofort mit Thorax/ }).click();
+      const druck = rea.getByRole('button', { name: /^Drücken/ });
+      for (let i = 0; i < 30; i++) { await druck.click(); await rea.clock.runFor(545); }
+      assert(await rea.locator('.rea__rate.is-gut').isVisible(), 'Rate im Zielbereich');
+      await rea.getByRole('button', { name: '2 Beatmungen geben', exact: true }).click();
+      await rea.clock.runFor(31000);
+      await rea.getByRole('button', { name: /^Schockbar/ }).waitFor();
+      assert(await rea.locator('.rea-defi canvas').isVisible(), 'Defibrillator im Bild');
+      const axe = await new AxeBuilder({ page: rea }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+      audits.push({ width, name: 'Reanimation', violations: axe.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => ({ html: n.html, summary: n.failureSummary })) })) });
+      await rea.getByRole('button', { name: /^Schockbar/ }).click();
+      await rea.clock.runFor(3500);
+      await rea.getByRole('button', { name: /Schock auslösen/ }).click();
+      assert(await rea.getByText(/Schock 1 abgegeben/).isVisible());
+      await rea.getByRole('button', { name: 'Übung beenden', exact: true }).click();
+      await rea.locator('.rea__ergebnis').waitFor();
+      await rea.screenshot({ path: path.join(output, `rea-${width}.png`), fullPage: true });
+      await ctx.close();
+    }
   }
   fs.writeFileSync(path.join(output, 'audit.json'), JSON.stringify({ audits, errors }, null, 2));
   console.log(JSON.stringify({ audits: audits.map(x => ({ width: x.width, name: x.name, violations: x.violations.map(v => v.id) })), errors }, null, 2));
