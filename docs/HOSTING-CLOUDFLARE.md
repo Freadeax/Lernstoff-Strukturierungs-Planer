@@ -5,6 +5,15 @@ Schutz vor fremder Einbettung, nosniff, Referrer- und Permissions-Policy). GitHu
 Außerdem bekommt der Planer eine eigene Adresse und teilt den Browser-Speicher nicht mehr mit anderen
 Projekten unter `freadeax.github.io`. Cloudflare baut direkt aus dem Repo, es braucht keine GitHub Actions.
 
+## Stand
+
+Eingerichtet am 2026-11-11: Projekt `lernstoff-planer`, Adresse <https://lernstoff-planer.pages.dev/>, verbunden mit
+`Freadeax/Lernstoff-Strukturierungs-Planer`, Produktionszweig `main`, Build `npm run build`, Ausgabe `dist`,
+`NODE_VERSION` = 22, keine Vorschau-Bereitstellungen für andere Zweige. Angelegt per Cloudflare-API
+(`POST /accounts/{id}/pages/projects` mit `source.type = github`); dafür muss die Cloudflare-GitHub-App einmal im
+Dashboard verbunden sein. Hinweis: `wrangler pages project create` legt in neueren Versionen stattdessen einen Worker an
+und schreibt Projektdateien um, also nicht verwenden.
+
 ## Einrichtung (einmalig, ca. 10 Minuten)
 
 1. Auf <https://dash.cloudflare.com> ein kostenloses Konto anlegen.
