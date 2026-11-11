@@ -1,3 +1,4 @@
+import { DATEN_TEXT, FIKTIV, type DatenArt } from '../ui/DatenHinweis';
 import { lazy, Suspense, useState } from 'react';
 import { deleteAll } from '../core/db';
 import { loescheLokaleEintraege, loescheRueckfall } from '../core/sicherung';
@@ -31,6 +32,8 @@ function Zeitzone() {
     </section>
   );
 }
+
+const DATEN_NAME: Record<DatenArt, string> = { import: 'Import', ki: 'KI-Funktionen', 'ki-bild': 'Handschrift erkennen', diktat: 'Diktat', teilen: 'Fall teilen', abgabe: 'Abgabe im Klassenmodus' };
 
 export function Einstellungen() {
   const [key, setKey] = useState(getApiKey());
@@ -81,6 +84,14 @@ export function Einstellungen() {
       <div className="settings-data-actions"><button type="button" onClick={() => navigate('/system/sicherung')}><Icon name="save" size={18} /> Datensicherung öffnen</button></div>
       <div className="settings-danger"><h3>Lokale Lerndaten löschen</h3><p className="muted">Erstelle vorher eine Sicherung, wenn du deinen Lernstand behalten möchtest.</p><button type="button" className="danger" onClick={wipe}><Icon name="trash" size={16} /> Alle Lerndaten löschen</button></div>
     </section>
+    <section className="card form-card" aria-labelledby="datenhinweise-title">
+      <h2 id="datenhinweise-title">Datenhinweise</h2>
+      <p className="form-section__description">Diese Hinweise stehen in der App jeweils direkt am Schritt. Hier findest du sie alle an einem Ort.</p>
+      <dl className="datenhinweise">
+        {(Object.keys(DATEN_TEXT) as DatenArt[]).map((a) => <div key={a}><dt>{DATEN_NAME[a]}: {DATEN_TEXT[a].kurz}</dt><dd>{DATEN_TEXT[a].lang}</dd></div>)}
+      </dl>
+      <p className="muted">{FIKTIV}</p>
+    </section>
     <section className="card form-card" aria-labelledby="app-info-title">
       <h2 id="app-info-title">Über diese App</h2>
       <ul className="settings-app-info">
@@ -90,5 +101,6 @@ export function Einstellungen() {
       </ul>
       <p className="muted">Jede Adresse hat ihren eigenen Speicher. Lernstand und Einstellungen wandern nur per Datensicherung von einer Adresse oder einem Gerät zum anderen. Die App-Version hilft, wenn du einen Fehler meldest.</p>
     </section>
+    <p className="muted settings-intern">Für Entwicklung und Gestaltung: <a href="#/system/design">Designsystem ansehen</a>.</p>
   </section>;
 }

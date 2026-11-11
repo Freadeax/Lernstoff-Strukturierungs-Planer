@@ -31,7 +31,7 @@ export function NotificationCenter() {
   const toggle = () => { if (open) markAllSeen(); setOpen(!open); };
 
   return (
-    <div className="notif" ref={root} onKeyDown={(e) => { if (e.key === 'Escape') { setOpen(false); markAllSeen(); } }}>
+    <div className="notif" ref={root} onKeyDown={(e) => { if (e.key === 'Escape' && open) { setOpen(false); markAllSeen(); root.current?.querySelector('button')?.focus(); } }}>
       <button type="button" className="icon ghost notif__btn" aria-expanded={open} aria-controls={id} onClick={toggle}
         aria-label={unread ? `Mitteilungen, ${unread} neu` : 'Mitteilungen'} title="Mitteilungen">
         <Icon name="bell" />

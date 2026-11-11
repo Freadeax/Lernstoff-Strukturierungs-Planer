@@ -21,3 +21,6 @@
 .ueben__wohin dl { display: grid; grid-template-columns: auto 1fr; gap: 2px var(--space-2); margin: var(--space-1) 0 0; }
 .ueben__wohin dt { font-weight: 600; }
 .ueben__wohin dd { margin: 0; }
+/* Übungsart wählen (Adresse ?gruppe=…): Links statt Knöpfe, damit Zurück und Teilen funktionieren. */
+.ueben__wahl a.pill { display: inline-flex; align-items: center; border: 2px solid var(--color-outline); color: var(--color-text); text-decoration: none; font-weight: 600; min-height: 44px; padding: 0 16px; }
+.ueben__wahl a.pill[aria-current] { background: var(--color-text); color: var(--color-surface); }

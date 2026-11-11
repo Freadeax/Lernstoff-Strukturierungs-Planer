@@ -67,6 +67,32 @@ const futureDate = new Date(Date.now() + 21 * 86400000).toISOString().slice(0, 1
   await page.getByRole('checkbox',{name:'Pflegeprozess TEXT'}).check();
   await page.getByRole('button',{name:/^Vergleich /}).click();
   assert(await page.getByText('Wähle mindestens zwei Dokumente, damit ihre Inhalte verglichen werden können.',{exact:true}).isVisible());
+  // Bedienwege aus „Heute“ (Audit-Paket E): jede Übungskachel öffnet ihre Kategorie, fünf Wege gelingen mit einem Tipp.
+  for(const [gruppe,name] of [['fachwissen','Fachwissen'],['praxis','Praxis'],['pruefung','Prüfung']]){
+    await go('/');await page.locator(`a.tool-link[href$="gruppe=${gruppe}"]`).click();
+    await page.waitForFunction(g=>location.hash==='#/lernen/ueben?gruppe='+g,gruppe);
+    await page.locator('.ueben__gruppe h2').first().waitFor();
+    assert.deepEqual(await page.locator('.ueben__gruppe h2').allTextContents(),[name],'Kachel öffnet nur ihre Kategorie: '+name);
+  }
+  for(const [name,ziel] of [['Prüfung planen','/lernen/plan'],['Quelle finden','/material/dokumente'],['Fällige Karten lernen','/lernen/karten'],['Fall starten','/lernen/praxis'],['Sicherung erstellen','/system/sicherung']]){
+    await go('/');await page.getByRole('navigation',{name:'Schnellwege'}).getByRole('link',{name,exact:true}).click();
+    await page.waitForFunction(z=>location.hash.startsWith('#'+z),ziel);await page.locator('main .page').first().waitFor();
+  }
+  // Tastatur und Fokus (A-08): Suche, Mitteilungen und Profilmenü schließen mit Escape und geben den Fokus zurück.
+  await go('/');
+  const fokus=()=>page.evaluate(()=>document.activeElement?.getAttribute('aria-label')||document.activeElement?.className||'');
+  const suche=page.getByRole('button',{name:'Lernstoff durchsuchen'});await suche.focus();await page.keyboard.press('Enter');
+  assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('role')),'combobox','Suche: Fokus im Feld');
+  await page.keyboard.type('hyg');await page.waitForTimeout(400);
+  assert((await page.locator('.omnibar__hit').count())>0,'Suche: Treffer');
+  assert(await page.locator('.omnibar__hit .muted').first().isVisible(),'Suche: Treffer nennen ihre Herkunft');
+  await page.keyboard.press('Escape');
+  assert.equal(await page.locator('dialog.omnibar[open]').count(),0,'Suche: Escape schließt auch mit Text im Feld');
+  assert.equal(await fokus(),'Lernstoff durchsuchen','Suche: Fokus zurück am Auslöser');
+  const glocke=page.locator('.notif__btn');await glocke.focus();await page.keyboard.press('Enter');assert(await page.locator('.notif__panel').isVisible());
+  await page.keyboard.press('Escape');assert.equal(await page.locator('.notif__panel').count(),0);assert.equal(await glocke.evaluate(e=>e===document.activeElement),true,'Mitteilungen: Fokus zurück');
+  const profil=page.getByRole('button',{name:'Profil und Darstellung'});await profil.focus();await page.keyboard.press('Enter');await page.waitForTimeout(100);
+  await page.keyboard.press('Escape');assert.equal(await profil.evaluate(e=>e===document.activeElement),true,'Profilmenü: Fokus zurück');
   await context.close();
   const mobile=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:'de-DE',timezoneId:'Europe/Berlin',colorScheme:'light'});
   const mp=await mobile.newPage();mp.on('pageerror',e=>pageErrors.push(e.message));

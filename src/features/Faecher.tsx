@@ -30,6 +30,10 @@ export function Faecher() {
         <h2>Fächer</h2>
         <p className="muted">Wissensstand je Fach. Sicher wird ein Thema erst nach erfolgreichen Abfragen, zum Beispiel aus einem Trainer oder einer Prüfungssimulation.</p>
       </div>
+      <details className="note faecher__erklaerung">
+        <summary>Fach, Curriculare Einheit, Prüfungsbereich: was ist was?</summary>
+        <p>Ein <strong>Fach</strong> ordnet Themen nach Wissensgebiet, zum Beispiel Anatomie. Eine <a href="#/lernen/ce">Curriculare Einheit</a> ordnet dieselben Themen nach Pflegesituation, so wie sie im Unterricht drankommen. Die <a href="#/lernen/examen">Kompetenzbereiche I bis V</a> sagen, was in der staatlichen Prüfung verlangt wird. Jedes Thema gehört zu genau einem Fach, kann aber in mehreren CE vorkommen.</p>
+      </details>
       {error && <div className="note warn" role="alert">Wissensstand nicht geladen. <button type="button" className="link" onClick={retry}>Erneut versuchen</button></div>}
       {!ctx && !error && <p className="muted">Lädt …</p>}
       <div className="faecher__liste">
@@ -39,7 +43,7 @@ export function Faecher() {
               {fach.code && <span className="badge badge--demo">{fach.code}</span>}
               <h3>{fach.name}</h3>
             </div>
-            <p className="muted">{themen} Themen · etwa {Math.round(minuten / 60)} Std. Erarbeitung</p>
+            <p className="muted">{themen} {themen === 1 ? 'Thema' : 'Themen'} · etwa {Math.round(minuten / 60)} Std. Erarbeitung</p>
             <div className="faecher__balken" role="img" aria-label={REIHE.map((st) => `${zahl[st]} ${STATUS_LABEL[st]}`).join(', ')}>
               {REIHE.map((st) => zahl[st] > 0 && <span key={st} className={`faecher__teil faecher__teil--${st}`} style={{ flexGrow: zahl[st] }} />)}
             </div>
