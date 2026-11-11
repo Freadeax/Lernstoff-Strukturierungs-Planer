@@ -12,6 +12,8 @@ import { uebungenFuer } from '../lernplan/trainer';
 import { dauer, inTagen, kurzDatum, STATUS_LABEL } from '../lernplan/ui/format';
 import { usePlan, type PlanCtx } from '../lernplan/ui/usePlan';
 import { CePruefung } from './CePruefung';
+import { MaterialStand, Matrix } from './Matrix';
+import { ceMatrix } from './matrix';
 import { sammleFakten, UEBEN_TRAINER, useGeraeteDaten, type GeraeteDaten } from './daten';
 import { PfadKarte, PfadPunkte, SchrittListe } from './Lernpfad';
 import { cePfad, themaPfad, type Haken, type ThemaFakten, type ThemaPfad } from './lernpfad';
@@ -81,6 +83,7 @@ function Uebersicht({ daten, ctx, status, minuten }: { daten: GeraeteDaten; ctx?
   return (
     <>
       <PageHeading title="Curriculare Einheiten" description="Alle CE der generalistischen Pflegeausbildung mit ihren Themen und deinem Wissensstand. Tippe auf eine CE, um die Themen aufzuschlüsseln." />
+      <div><button type="button" className="small" onClick={() => navigate('/lernen/ce?ansicht=matrix')}>Materialstand aller CE (Matrix)</button></div>
       <div className="ce__liste">
         {karten.map(({ ce, themen, pfad, skripte: nSkripte, steckbriefe, faelle }) => {
           const exam = ctx && findeCePruefung(ctx.data.exams, ce.id);
@@ -170,6 +173,7 @@ function Detail({ ce, daten, ctx, status, minuten, setHaken }: {
   const gesamt = useMemo(() => cePfad(themen.map((t) => pfade.get(t.topic.id)!.pfad)), [themen, pfade]);
   const testbar = useMemo(() => testbareThemen(daten.karten, themen.map((t) => t.topic.id)).size, [daten.karten, themen]);
   const namen = useMemo(() => new Map(themen.map((t) => [t.topic.id, t.topic.name])), [themen]);
+  const matrix = useMemo(() => ceMatrix(modul, ce, { skripte, karten: daten.karten, reviewLogs: ctx?.data.reviewLogs ?? [] }, LISTE), [ce, skripte, daten.karten, ctx]);
   const [nurOffen, setNurOffen] = useState(false);
   const sichtbar = (e: CeThema) => !nurOffen || !!pfade.get(e.topic.id)?.pfad.naechster;
 
@@ -226,6 +230,7 @@ function Detail({ ce, daten, ctx, status, minuten, setHaken }: {
           );
         })}
       </section>
+      {themen.length > 0 && <MaterialStand m={matrix} />}
     </>
   );
 }
@@ -247,7 +252,9 @@ export default function CeSeite() {
     <section className="page ce">
       {error && <div className="note warn" role="alert">Wissensstand nicht geladen. <button type="button" className="link" onClick={retry}>Erneut versuchen</button></div>}
       {!LISTE.length && <p className="muted">Das aktive Fachmodul hat keine curricularen Einheiten.</p>}
-      {ce && params.get('ansicht') === 'test'
+      {!ce && params.get('ansicht') === 'matrix'
+        ? <Matrix modul={modul} daten={daten} ctx={ctx} />
+        : ce && params.get('ansicht') === 'test'
         ? <Selbsttest ce={ce} themen={ceThemen(modul, ce, daten.skripte, LISTE)} daten={daten} status={status} nurThema={params.get('thema') ?? undefined} />
         : ce
           ? <Detail ce={ce} daten={daten} ctx={ctx} status={status} minuten={minuten} setHaken={setHaken} />
