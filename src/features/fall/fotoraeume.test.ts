@@ -6,12 +6,10 @@ import { objektInfo } from './raeume';
 import { szenenBild } from './szene';
 
 describe('Fotoräume', () => {
-  it('ordnet jedem Fall außer Pädiatrie einen Raum zu', () => {
-    for (const s of [...SZENARIEN, DEMO_SZENARIO]) {
-      const r = fotoRaumFuer(s.id, s.setting);
-      if (s.setting === 'paediatrie') expect(r).toBeNull();
-      else expect(r, s.id).not.toBeNull();
-    }
+  it('ordnet jedem Fall einen Raum zu, Kinderfälle bekommen die Kinderzimmer', () => {
+    for (const s of [...SZENARIEN, DEMO_SZENARIO]) expect(fotoRaumFuer(s.id, s.setting), s.id).not.toBeNull();
+    expect(fotoRaumFuer('fieberkrampf', 'paediatrie')?.id).toBe('20f_paediatrie_kleinkind_fieberkrampf');
+    expect(fotoRaumFuer('asthma-kind', 'paediatrie')?.id).toBe('21_paediatrie_schulkind');
     expect(fotoRaumFuer('demo-atemnot', 'krankenhaus')?.monitor).toBe(true);
     expect(fotoRaumFuer('unbekannt', 'ambulant')?.id).toBe('07_ambulant_wohnzimmer_kompression');
   });
