@@ -244,3 +244,19 @@ a.pill { display: inline-flex; align-items: center; text-decoration: none; color
 .fall__vorschlaege { list-style: none; margin: var(--space-1) 0 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-1); }
 .fall__vorschlag { width: 100%; height: auto; min-height: var(--control-h); text-align: left; white-space: normal; justify-content: flex-start; padding: var(--space-2) var(--space-3); line-height: var(--leading-normal); }
 @media (prefers-reduced-motion: reduce) { .szene__marker-kreis, .szene__tropf, .fall__objekt { animation: none !important; } }
+
+/* Fotoraum (Komplettpaket v2) */
+.fall__foto { position: relative; }
+.fall__foto-nacht { position: absolute; inset: 0; background: rgba(8, 18, 40, 0.45); mix-blend-mode: multiply; pointer-events: none; }
+.fall__foto-alarm { position: absolute; inset: 0; border-radius: var(--radius-lg, 14px); pointer-events: none; box-shadow: inset 0 0 0 4px #c8372d, inset 0 0 40px rgba(200, 55, 45, 0.55); animation: fall-foto-alarm 1.2s steps(2, jump-none) infinite; }
+@keyframes fall-foto-alarm { 50% { box-shadow: inset 0 0 0 2px #c8372d; } }
+.fall__foto-leiste { position: absolute; left: 0.5rem; top: 0.5rem; right: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.35rem; pointer-events: none; }
+.fall__foto-chip { background: #16302b; color: #fff; font-size: 0.78rem; font-weight: 600; padding: 0.15rem 0.5rem; border-radius: 999px; line-height: 1.4; }
+.fall__foto-chip.is-wichtig { background: #a3241c; }
+.fall__ansicht { justify-self: start; }
+.fall__materialraum { margin: 0 0 var(--space-2); }
+.fall__materialraum img { display: block; width: 100%; max-width: 28rem; height: auto; border-radius: var(--radius-md, 10px); border: 2px solid var(--color-ink); }
+@media (prefers-reduced-motion: reduce) { .fall__foto-alarm { animation: none; } }
+:root[data-motion='reduce'] .fall__foto-alarm { animation: none; }
+.fall__szenenwahl { display: grid; gap: var(--space-2); min-width: 0; }
+.fall__titelbild { max-width: 44rem; margin: 0 0 var(--space-3); }

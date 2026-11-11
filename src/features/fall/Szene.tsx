@@ -70,7 +70,7 @@ const FOKUS_IN: Record<Raum, Record<Fokus, Kamera>> = {
     wagen: k(295, 185, 40, 1.45), telefon: k(130, 180, 45, 1.5), tuer: k(20, 220, 60, 1.35),
   },
 };
-const MARKER_PUNKT: Record<ObjektId, [number, number, number]> = {
+const MARKER_PUNKT: Partial<Record<ObjektId, [number, number, number]>> = {
   patient: [170, 110, 72], monitor: [40, 20, 152], infusion: [300, 165, 168],
   rollstuhl: [320, 120, 78], nachttisch: [95, 172, 72], rucksack: [130, 180, 72], rollator: [295, 185, 78],
 };
@@ -292,7 +292,7 @@ export function Szene({ bild, raum, uhrzeit, fokus, aktiverMarker, onMarker }: S
 
           {/* Nummerierte Marker: antippen öffnet das Objekt */}
           {onMarker && marker.map((m) => {
-            const [mx, my] = iso(...MARKER_PUNKT[m.id]);
+            const [mx, my] = iso(...(MARKER_PUNKT[m.id] ?? MARKER_PUNKT.patient!));
             const auswaehlen = () => onMarker(m);
             return (
               <g key={m.id} className={`szene__marker ${aktiverMarker === m.id ? 'is-aktiv' : ''}`} role="button" tabIndex={0}

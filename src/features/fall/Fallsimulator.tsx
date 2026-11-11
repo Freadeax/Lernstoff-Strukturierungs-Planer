@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { DatenHinweis } from '../../ui/DatenHinweis';
+import { Titelbild } from '../../ui/Titelbild';
 import './fall.css';
 import { logActivity } from '../../core/activity';
 import { getApiKey } from '../../core/settings';
@@ -11,6 +12,9 @@ import { faelleZuKrankheit, KI_KRANKHEITEN } from '../krankheitsbilder/fallbezug
 import { PatientenMonitor } from '../../ui/sim/PatientenMonitor';
 import { DEMO_SZENARIO, demoAbschluss, demoZug, istDemo } from './demo';
 import { Szene } from './Szene';
+import { FotoSzene } from './FotoSzene';
+import { fotoRaumFuer } from './fotoraeume';
+import { raumUrl } from '../../ui/sim/raeume/katalog';
 import { szenenBild, type Fokus, type SzenenBild } from './szene';
 import { LEISTE, leistenVorschlaege, objektInfo, RAUM_FUER, type Leiste, type Marker, type Raum } from './raeume';
 import {
@@ -328,8 +332,8 @@ function Vorschlag({ text, demo, onWahl }: { text: string; demo: boolean; onWahl
   );
 }
 
-function Werkzeuge({ fall, bild, raum, demo, marker, setMarker, onWahl, onUebersicht }: {
-  fall: Fall; bild: SzenenBild; raum: Raum; demo: boolean; marker: Marker | null; setMarker: (m: Marker | null) => void;
+function Werkzeuge({ fall, bild, raum, demo, foto, marker, setMarker, onWahl, onUebersicht }: {
+  fall: Fall; bild: SzenenBild; raum: Raum; demo: boolean; foto: boolean; marker: Marker | null; setMarker: (m: Marker | null) => void;
   onWahl: (t: string) => void; onUebersicht: () => void;
 }) {
   const [bereich, setBereich] = useState<Leiste | null>(null);
@@ -348,7 +352,7 @@ function Werkzeuge({ fall, bild, raum, demo, marker, setMarker, onWahl, onUebers
       {info && marker && (
         <section className="fall__objekt" aria-label={`${marker.nr}: ${info.titel}`}>
           <div className="fall__objekt-kopf">
-            <strong><span className="fall__objekt-nr" aria-hidden="true">{marker.nr}</span> {info.titel}</strong>
+            <strong><span className="fall__objekt-nr" aria-hidden="true">{marker.nr}</span> {marker.id === 'patient' ? marker.name : info.titel}</strong>
             <button type="button" className="ghost" onClick={() => setMarker(null)}>Schließen</button>
           </div>
           <ul className="fall__objekt-beobachtung">{info.beobachtung.map((b) => <li key={b}>{b}</li>)}</ul>
@@ -361,6 +365,11 @@ function Werkzeuge({ fall, bild, raum, demo, marker, setMarker, onWahl, onUebers
             <strong>{LEISTE.find((l) => l.id === bereich)!.label}</strong>
             <button type="button" className="ghost" onClick={() => setBereich(null)}>Schließen</button>
           </div>
+          {bereich === 'material' && foto && raum === 'krankenhaus' && (
+            <figure className="fall__materialraum">
+              <img src={raumUrl('19_krankenhaus_materialraum')} alt="Materialraum der Station: Regale mit Verbandsmaterial, Spritzen und Infusionszubehör, davor ein Verbandswagen." width={1280} height={720} loading="lazy" decoding="async" />
+            </figure>
+          )}
           {bereich === 'uebergabe' && <p className="muted">Entwurf aus dem bisherigen Verlauf. Prüfe ihn und ergänze, was fehlt.</p>}
           <ul className="fall__vorschlaege">{leistenVorschlaege(bereich, raum, bild, fall).map((h) => <Vorschlag key={h} text={h} demo={demo} onWahl={onWahl} />)}</ul>
         </section>
@@ -447,6 +456,9 @@ export default function Fallsimulator() {
   // Marker oder Raumübersicht steuern die Kamera, bis der nächste Zug kommt
   const [marker, setMarker] = useState<Marker | null>(null);
   const [kamera, setKamera] = useState<Fokus | null>(null);
+  const fotoRaum = fall ? fotoRaumFuer(fall.szenario.id, fall.szenario.setting) : null;
+  const [gezeichnet, setGezeichnet] = useState(false);
+  const zeigeFoto = !!fotoRaum && !gezeichnet;
   const runden = fall?.runden.length ?? 0;
   useEffect(() => { setMarker(null); setKamera(null); }, [runden]);
   function waehleMarker(m: Marker | null) { setMarker(m); setKamera(m ? m.ort : null); }
@@ -465,6 +477,7 @@ export default function Fallsimulator() {
         <DatenHinweis art="ki" detail="Gesendet werden der erfundene Fall und deine Eingaben." />
       </div>
 
+      {!fall && <Titelbild motiv="simulation" sofort className="fall__titelbild" />}
       {!fall && <Start apiKey={apiKey} onStart={(s, st) => void starte(s, st)} />}
 
       {fall?.abschluss && (
@@ -488,13 +501,26 @@ export default function Fallsimulator() {
 
             {bild && (
               <div className="fall__buehne">
-                <Szene bild={bild} raum={raum} uhrzeit={letzter?.uhrzeit} fokus={kamera ?? undefined} aktiverMarker={marker?.id ?? null} onMarker={(m) => waehleMarker(marker?.id === m.id ? null : m)} />
+                <div className="fall__szenenwahl">
+                  {zeigeFoto && fotoRaum ? (
+                    <FotoSzene raum={fotoRaum} bild={bild} uhrzeit={letzter?.uhrzeit} fokus={kamera ?? undefined} aktiverMarker={marker?.id ?? null}
+                      onMarker={(m) => waehleMarker(marker?.id === m.id ? null : m)}
+                      fallback={<span>Das Raumfoto lädt gerade nicht. <button type="button" onClick={() => setGezeichnet(true)}>Gezeichnete Ansicht zeigen</button></span>} />
+                  ) : (
+                    <Szene bild={bild} raum={raum} uhrzeit={letzter?.uhrzeit} fokus={kamera ?? undefined} aktiverMarker={marker?.id ?? null} onMarker={(m) => waehleMarker(marker?.id === m.id ? null : m)} />
+                  )}
+                  {fotoRaum && (
+                    <button type="button" className="ghost fall__ansicht" onClick={() => { setGezeichnet(!gezeichnet); setMarker(null); }}>
+                      {gezeichnet ? 'Fotoansicht' : 'Gezeichnete Ansicht'}
+                    </button>
+                  )}
+                </div>
                 <PatientenMonitor werte={bild.monitor} aktiv={bild.monitorAn} titel={bild.monitorAn ? `${letzter?.uhrzeit ?? ''} Uhr` : 'Noch nicht gemessen'} />
               </div>
             )}
 
             {bild && letzter && !letzter.beendet && (
-              <Werkzeuge fall={fall} bild={bild} raum={raum} demo={demo} marker={marker} setMarker={waehleMarker} onWahl={uebernimm} onUebersicht={() => { setMarker(null); setKamera('raum'); }} />
+              <Werkzeuge fall={fall} bild={bild} raum={raum} demo={demo} foto={zeigeFoto} marker={marker} setMarker={waehleMarker} onWahl={uebernimm} onUebersicht={() => { setMarker(null); setKamera('raum'); }} />
             )}
 
             {fall.runden.length > 1 && (
