@@ -182,6 +182,35 @@ try {
     await page.getByRole('button', { name: 'Fotoansicht', exact: true }).click();
     await page.locator('.fall__foto img').waitFor();
     await context.close();
+    // Notfall-Trainer: Reanimationsübung mit künstlicher Uhr (Zyklus 30 s ohne Warten).
+    {
+      const ctx = await browser.newContext({ viewport: { width, height: 1050 }, locale: 'de-DE', colorScheme: 'light' });
+      const rea = await ctx.newPage(); rea.on('pageerror', e => errors.push(e.message));
+      await rea.clock.install();
+      await rea.goto(base + '#/lernen/notfall?modus=rea', { waitUntil: 'networkidle' });
+      await rea.getByRole('button', { name: 'Übung starten', exact: true }).click();
+      for (const l of [/^Laut ansprechen/, /^Laut um Hilfe/, /^Atemwege frei/, /^Reanimationsteam/]) await rea.getByRole('button', { name: l }).click();
+      await rea.getByRole('button', { name: /^Blutdruck messen/ }).click();
+      assert(await rea.locator('.rea__meldung.is-falsch').isVisible(), 'Umweg wird erklärt');
+      await rea.getByRole('button', { name: /^Sofort mit Thorax/ }).click();
+      const druck = rea.getByRole('button', { name: /^Drücken/ });
+      for (let i = 0; i < 30; i++) { await druck.click(); await rea.clock.runFor(545); }
+      assert(await rea.locator('.rea__rate.is-gut').isVisible(), 'Rate im Zielbereich');
+      await rea.getByRole('button', { name: '2 Beatmungen geben', exact: true }).click();
+      await rea.clock.runFor(31000);
+      await rea.getByRole('button', { name: /^Schockbar/ }).waitFor();
+      assert(await rea.locator('.rea-defi canvas').isVisible(), 'Defibrillator im Bild');
+      const axe = await new AxeBuilder({ page: rea }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+      audits.push({ width, name: 'Reanimation', violations: axe.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => ({ html: n.html, summary: n.failureSummary })) })) });
+      await rea.getByRole('button', { name: /^Schockbar/ }).click();
+      await rea.clock.runFor(3500);
+      await rea.getByRole('button', { name: /Schock auslösen/ }).click();
+      assert(await rea.getByText(/Schock 1 abgegeben/).isVisible());
+      await rea.getByRole('button', { name: 'Übung beenden', exact: true }).click();
+      await rea.locator('.rea__ergebnis').waitFor();
+      await rea.screenshot({ path: path.join(output, `rea-${width}.png`), fullPage: true });
+      await ctx.close();
+    }
   }
   fs.writeFileSync(path.join(output, 'audit.json'), JSON.stringify({ audits, errors }, null, 2));
   console.log(JSON.stringify({ audits: audits.map(x => ({ width: x.width, name: x.name, violations: x.violations.map(v => v.id) })), errors }, null, 2));
