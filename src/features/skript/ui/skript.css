@@ -100,3 +100,11 @@
 .sk-lernzeit select { max-width: 100%; }
 .sk-blaettern { display: flex; justify-content: space-between; gap: var(--space-2); margin: var(--space-3) 0; }
 .sk-ende { font-size: var(--text-sm); }
+
+/* Belegprüfung und Fassungen */
+.sk-pruefung { margin: var(--space-2) 0; padding: var(--space-2) var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md, 8px); background: var(--color-surface); font-size: var(--text-sm); }
+.sk-pruefung > summary { cursor: pointer; min-height: 32px; display: flex; align-items: center; font-weight: 600; }
+.sk-pruefung ul { margin: var(--space-1) 0; padding-left: var(--space-4); }
+.sk-pruefung p { margin: var(--space-1) 0 0; }
+.sk-warn { color: var(--color-text); background: var(--color-warning-soft); border-radius: 4px; padding: 0 4px; }
+.sk-fassung-hinweis { margin-bottom: var(--space-2); }

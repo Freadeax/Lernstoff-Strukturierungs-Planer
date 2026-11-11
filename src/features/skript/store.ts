@@ -7,8 +7,10 @@ import { logActivity } from '../../core/activity';
 import { pflegeModule } from '../../modules/pflege';
 import { ladeZiel, type AblageZiel } from '../ablage/ablage';
 import { parseSkript } from './parser';
+import { neueFassung } from './fassung';
 import { schlageThemenVor } from './themen';
-import type { Lesestand, Skript } from './typen';
+import type { Skript } from './typen';
+import { ladeLesestaende, speichereLesestaende, verschiebeLesestand } from './lesestand';
 
 export const REPO_ORDNER = 'skripte';
 
@@ -35,8 +37,12 @@ export async function uebernehmeDateien(dateien: Array<{ name: string; text: str
     const alt = vorhanden.get(s.id);
     if (alt && alt.hash === s.hash) { erg.unveraendert.push(s.titel); continue; }
     if (alt) {
+      // Frühere Gliederung aufheben und den Lesestand auf die neuen Abschnitte abbilden
+      const { skript, idKarte } = neueFassung(alt, s);
+      s = skript;
       s.importiert = alt.importiert;
       if (alt.themenManuell) { s.topicIds = alt.topicIds; s.themenManuell = true; }
+      verschiebeLesestand(s.id, idKarte);
       erg.aktualisiert.push(s.titel);
     } else erg.neu.push(s.titel);
     speichern.push(s);
@@ -114,32 +120,6 @@ export async function skripteZuThema(topicId: string, database: LernstoffDB = db
   return database.skripte.where('topicIds').equals(topicId).toArray();
 }
 
-// ---------------------------------------------------------------- Lesestand (localStorage)
+// ---------------------------------------------------------------- Lesestand
 
-const KEY = 'lernstoff.skript.lesestand';
-
-export function ladeLesestaende(): Record<string, Lesestand> {
-  try { return JSON.parse(localStorage.getItem(KEY) ?? '{}') as Record<string, Lesestand>; } catch { return {}; }
-}
-
-function speichereLesestaende(s: Record<string, Lesestand>) {
-  try { localStorage.setItem(KEY, JSON.stringify(s)); } catch { /* privater Modus */ }
-}
-
-export function markiereGelesen(skriptId: string, abschnittId: string, gelesen: boolean): Record<string, Lesestand> {
-  const alle = ladeLesestaende();
-  const st = alle[skriptId] ?? { gelesen: [], geaendert: '' };
-  const set = new Set(st.gelesen);
-  if (gelesen) set.add(abschnittId); else set.delete(abschnittId);
-  alle[skriptId] = { ...st, gelesen: [...set], geaendert: new Date().toISOString() };
-  speichereLesestaende(alle);
-  return alle;
-}
-
-export function merkeZuletzt(skriptId: string, abschnittId: string): Record<string, Lesestand> {
-  const alle = ladeLesestaende();
-  const st = alle[skriptId] ?? { gelesen: [], geaendert: '' };
-  alle[skriptId] = { ...st, zuletzt: abschnittId, geaendert: new Date().toISOString() };
-  speichereLesestaende(alle);
-  return alle;
-}
+export { ladeLesestaende, markiereGelesen, merkeZuletzt } from './lesestand';

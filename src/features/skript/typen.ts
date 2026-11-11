@@ -24,6 +24,14 @@ export interface Abschnitt {
   woerter: number;
 }
 
+/** Gliederung einer früheren Fassung, damit ältere Links und Karten nachvollziehbar bleiben. */
+export interface SkriptFassung {
+  hash: string;
+  /** Wann diese Fassung zuletzt galt (ISO). */
+  stand: string;
+  abschnitte: Array<{ id: string; nummer?: string; titel: string }>;
+}
+
 export interface Skript {
   id: ID;              // aus dem Dateinamen, z. B. 'ce09-demenz'
   datei: string;       // Originaldateiname
@@ -43,6 +51,8 @@ export interface Skript {
   /** true, wenn der Nutzer die Themen von Hand geändert hat (dann überschreibt ein Neuimport sie nicht). */
   themenManuell?: boolean;
   hash: string;
+  /** Frühere Fassungen, neueste zuerst (höchstens zehn). */
+  fassungen?: SkriptFassung[];
   herkunft: 'repo' | 'datei';
   importiert: string;
   geaendert: string;

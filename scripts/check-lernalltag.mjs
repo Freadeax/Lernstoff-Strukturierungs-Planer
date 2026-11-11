@@ -143,6 +143,28 @@ try {
     assert.deepEqual(nachher.logs, ['thema.eigen.test-b']);
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Überlauf Themenpflege bei ${width}px`);
 
+    // Skript: Belegprüfung (Quelle fehlt / Seite fehlt getrennt), Link mit Abschnittsnummer, neue Fassung
+    const skriptText = (vorne) => `# CE 01 · Prüfskript Alltag\n\n**Quellen**\n- **[A]** Unterricht.pdf (10 S.)\n\n${vorne ? '## 0 · Neu vorne [A, S. 1]\n\n- Neu [A, S. 1].\n\n' : ''}## 1 · Gut belegt [A, S. 2]\n\n- Aussage [A, S. 3].\n\n## 2 · Lücken\n\n- Seite fehlt [A].\n- Kürzel fehlt [X, S. 4].\n${vorne ? '' : '\n## 3 · Entfällt später [A, S. 5]\n\n- Alt [A, S. 5].\n'}`;
+    await page.goto(base + '#/lernen/skript', { waitUntil: 'networkidle' });
+    await page.locator('input[type=file][accept*=".md"]').setInputFiles({ name: 'pruefskript-alltag.md', mimeType: 'text/markdown', buffer: Buffer.from(skriptText(false)) });
+    await page.getByText('Prüfskript Alltag').first().waitFor();
+    await page.goto(base + '#/lernen/skript?id=pruefskript-alltag&nr=2', { waitUntil: 'networkidle' });
+    await page.getByRole('heading', { name: /Lücken/ }).waitFor();
+    const meta = await page.locator('.sk-meta').innerText();
+    assert.match(meta, /Quelle fehlt: \[X\]/);
+    assert.match(meta, /Seite fehlt: \[A\]/);
+    await axe(page, 'Skript Belegprüfung');
+    await page.goto(base + '#/lernen/skript', { waitUntil: 'networkidle' });
+    const importFeld = page.locator('input[type=file][accept*=".md"]');
+    if (!(await importFeld.count())) await page.getByText(/Skripte (laden|aktualisieren)|Weitere Skripte|Importieren/).first().click();
+    await page.locator('input[type=file][accept*=".md"]').setInputFiles({ name: 'pruefskript-alltag.md', mimeType: 'text/markdown', buffer: Buffer.from(skriptText(true)) });
+    await page.waitForTimeout(500);
+    await page.goto(base + '#/lernen/skript?id=pruefskript-alltag&nr=1', { waitUntil: 'networkidle' });
+    await page.getByRole('heading', { name: /Gut belegt/ }).waitFor();
+    await page.goto(base + '#/lernen/skript?id=pruefskript-alltag&nr=3', { waitUntil: 'networkidle' });
+    assert.match(await page.locator('.sk-fassung-hinweis').innerText(), /Abschnitt 3 „Entfällt später“ gab es in der Fassung vom/);
+    assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Überlauf Skript bei ${width}px`);
+
     // Material: schwer lesbare Seiten, Dubletten, Sprung zur Fundstelle, Original neben der Zusammenfassung
     const thema = blaetter[1];
     await page.evaluate(async ({ thema }) => {
@@ -199,7 +221,7 @@ try {
     await axe(page, 'Fortschritt');
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Überlauf bei ${width}px`);
     assert.deepEqual(errors, []);
-    console.log(`Lernalltag ${width}px: liegen gebliebene Blöcke, Dienstplan mit Vorschau, Kompetenzbereiche, Kalenderexport, CE-Matrix, Themenpflege, Fundstelle, Original nebeneinander, Lese-/Dublettenhinweise, Fehlerheft-Rückwege, Lernstufen und WCAG bestanden.`);
+    console.log(`Lernalltag ${width}px: liegen gebliebene Blöcke, Dienstplan mit Vorschau, Kompetenzbereiche, Kalenderexport, CE-Matrix, Themenpflege, Skript-Belegprüfung und Fassungen, Fundstelle, Original nebeneinander, Lese-/Dublettenhinweise, Fehlerheft-Rückwege, Lernstufen und WCAG bestanden.`);
     await context.close();
   }
 } finally { await browser.close(); }

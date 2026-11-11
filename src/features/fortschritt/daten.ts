@@ -12,7 +12,7 @@ import { session } from '../../ui/shell/session';
 import { useWidgetData } from '../../ui/widget/useWidgetData';
 import { assembleInput, heute, leafTopics, loadPlannerData } from '../lernplan/store';
 import { resolveSettings } from '../lernplan/types';
-import { ladeLesestaende } from '../skript/store';
+import { ladeLesestaende } from '../skript/lesestand';
 import { zieleAufloesen, type Fakten, type Lernstand, type StatKarte, type Ziele } from './statistik';
 
 export const ZIELE_KEY = 'lernstoff.ziele';

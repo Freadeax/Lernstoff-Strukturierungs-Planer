@@ -15,7 +15,7 @@ import { FAELLE as KRANKHEITSFAELLE } from '../krankheitsbilder/faelle';
 import type { StoredReviewLog } from '../lernplan/store';
 import { uebungenFuer } from '../lernplan/trainer';
 import type { TopicProgress } from '../lernplan/progress';
-import { ladeLesestaende } from '../skript/store';
+import { ladeLesestaende } from '../skript/lesestand';
 import type { Lesestand, Skript } from '../skript/typen';
 import { ladeHaken, steckbriefHaken, type Haken, type ThemaFakten } from './lernpfad';
 import { steckbriefeZuThema, szenarienZuThema, type CeThema } from './modell';
