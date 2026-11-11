@@ -21,3 +21,12 @@
   .hoe__klang { flex-direction: column; }
   .hoe__play { width: 100%; }
 }
+
+/* Wiedergabe immer erreichbar, Kennzeichnung synthetisch, Textalternative */
+.hoe__steuerung { position: sticky; top: var(--sticky-top, 0); z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); padding: var(--space-2) var(--space-3); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+.hoe__steuerung label { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); }
+.hoe__steuerung input[type="range"] { width: 9rem; }
+.hoe__synth { font-size: 0.6875rem; font-weight: 500; vertical-align: middle; }
+.hoe__textalt { margin: var(--space-2) 0; font-size: var(--text-sm); }
+.hoe__textalt summary { cursor: pointer; }
+.hoe__hinweis p { margin: 0 0 var(--space-1); }
