@@ -15,6 +15,7 @@ import {
   type MapLayout, type MapNode,
 } from './layout';
 import { usePanZoom, type View } from './usePanZoom';
+import { warumZuerst } from './warum';
 import { heute, topicKnowledge } from '../lernplan/store';
 import { SkriptKnopf } from '../skript/ui/SkriptKnopf';
 import { STATUS_LABEL } from '../lernplan/ui/format';
@@ -110,9 +111,10 @@ function Wissensstand({ topic }: { topic: Topic }) {
   );
 }
 
-function Details({ id, topics, preds, succs, stand, rankOf, subjects, onSelect, onClose }: {
+function Details({ id, topics, preds, succs, stand, rankOf, subjects, kindOf, begriffeVon, onSelect, onClose }: {
   id: string; topics: Map<string, Topic>; preds: Map<string, string[]>; succs: Map<string, string[]>;
   stand: (id: string) => BoardColumn; rankOf: (id: string) => number; subjects: Map<string, { name: string; code?: string }>;
+  kindOf: (from: string, to: string) => 'voraussetzung' | 'teil'; begriffeVon: (id: string) => string[];
   onSelect: (id: string) => void; onClose: () => void;
 }) {
   const t = topics.get(id);
@@ -137,16 +139,28 @@ function Details({ id, topics, preds, succs, stand, rankOf, subjects, onSelect, 
     }
   };
 
-  const Liste = ({ ids, leer }: { ids: string[]; leer: string }) => ids.length ? (
+  const Liste = ({ ids, leer, warum }: { ids: string[]; leer: string; warum?: boolean }) => ids.length ? (
     <ul className="karte__liste">
-      {ids.map((x) => (
-        <li key={x}>
-          <button type="button" className="karte__link" onClick={() => onSelect(x)}>
-            <span>{topics.get(x)?.name ?? x}</span>
-            <span className={`tag tag--col-${stand(x)}`}>{COLUMN_LABEL[stand(x)]}</span>
-          </button>
-        </li>
-      ))}
+      {ids.map((x) => {
+        const vor = topics.get(x);
+        const w = warum && vor ? warumZuerst(vor, t, kindOf(x, id), begriffeVon(x)) : undefined;
+        return (
+          <li key={x}>
+            <button type="button" className="karte__link" onClick={() => onSelect(x)}>
+              <span>{vor?.name ?? x}</span>
+              <span className={`tag tag--col-${stand(x)}`}>{COLUMN_LABEL[stand(x)]}</span>
+            </button>
+            {w && (
+              <details className="karte__warum">
+                <summary>Warum zuerst?</summary>
+                <p>{w.text}</p>
+                {!!w.begriffe.length && <p className="muted">Begriffe daraus: {w.begriffe.join(', ')}</p>}
+                <p className="muted">{w.hinweis}</p>
+              </details>
+            )}
+          </li>
+        );
+      })}
     </ul>
   ) : <p className="muted">{leer}</p>;
 
@@ -189,11 +203,11 @@ function Details({ id, topics, preds, succs, stand, rankOf, subjects, onSelect, 
       </section>
 
       <section className="karte__abschnitt">
-        <h4>Direkte Voraussetzungen</h4>
-        <Liste ids={direkt} leer="Keine." />
+        <h4>Vorher lernen: direkte Voraussetzungen</h4>
+        <Liste ids={direkt} leer="Keine." warum />
       </section>
       <section className="karte__abschnitt">
-        <h4>Baut darauf auf</h4>
+        <h4>Danach möglich: baut auf diesem Thema auf</h4>
         <Liste ids={folgen} leer="Kein weiteres Thema im Katalog." />
       </section>
       <button type="button" className="karte__mehr" onClick={() => navigate(`/lernen/thema?id=${encodeURIComponent(id)}`)}>
@@ -204,6 +218,50 @@ function Details({ id, topics, preds, succs, stand, rankOf, subjects, onSelect, 
   );
 }
 
+/**
+ * Textliste als vollwertige Alternative zur Karte: je Fach in Lernreihenfolge (Stufe), mit Arbeitsstand,
+ * „vorher“ und „danach“ in Worten. Ein Thema öffnet dieselben Details wie auf der Karte.
+ */
+function Textliste({ map, topics, preds, succs, stand, ready, selected, onSelect }: {
+  map: MapLayout; topics: Map<string, Topic>; preds: Map<string, string[]>; succs: Map<string, string[]>;
+  stand: (id: string) => BoardColumn; ready: Set<string>; selected?: string; onSelect: (id: string) => void;
+}) {
+  const name = (id: string) => topics.get(id)?.name ?? id;
+  return (
+    <div className="karte__textliste">
+      {map.lanes.map((l, i) => {
+        const nodes = map.nodes.filter((n) => n.lane === i).sort((a, b) => a.rank - b.rank || a.topic.name.localeCompare(b.topic.name, 'de'));
+        if (!nodes.length) return null;
+        return (
+          <section key={l.subjectId} aria-labelledby={`karte-fach-${i}`}>
+            <h3 id={`karte-fach-${i}`}>{l.label}</h3>
+            <ol className="karte__textliste-themen">
+              {nodes.map((n) => {
+                const vor = preds.get(n.id) ?? [];
+                const nach = succs.get(n.id) ?? [];
+                const s = stand(n.id);
+                return (
+                  <li key={n.id} className={selected === n.id ? 'is-selected' : undefined}>
+                    <button type="button" className="karte__textliste-name" aria-expanded={selected === n.id} onClick={() => onSelect(n.id)}>
+                      {n.topic.name}
+                    </button>
+                    <span className={`tag tag--col-${s}`}>{ready.has(n.id) ? 'Bereit' : COLUMN_LABEL[s]}</span>
+                    <span className="muted karte__textliste-stufe">Stufe {n.rank + 1}{n.topic.estimatedMinutes ? ` · ca. ${dauer(n.topic.estimatedMinutes)}` : ''}</span>
+                    <p className="karte__textliste-weg">
+                      {vor.length ? <>Vorher: {vor.map(name).join(', ')}.</> : 'Keine Voraussetzung: guter Einstieg.'}
+                      {nach.length ? <> Danach möglich: {nach.map(name).join(', ')}.</> : null}
+                    </p>
+                  </li>
+                );
+              })}
+            </ol>
+          </section>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function Landkarte() {
   const moduleId = useStore(session, (s) => s.moduleId);
   const mod = getModule(moduleId);
@@ -211,6 +269,13 @@ export default function Landkarte() {
   const [fach, setFach] = useState(() => params.get('fach') ?? '');
   const [selected, setSelected] = useState<string | undefined>(() => params.get('thema') ?? undefined);
   const [suche, setSuche] = useState('');
+  const [ansicht, setAnsicht] = useState<'karte' | 'liste'>(() => (params.get('ansicht') === 'liste' ? 'liste' : 'karte'));
+  const wechsle = (a: 'karte' | 'liste') => {
+    setAnsicht(a);
+    const q = new URLSearchParams(params);
+    if (a === 'liste') q.set('ansicht', 'liste'); else q.delete('ansicht');
+    history.replaceState(null, '', `#/lernen/landkarte${q.toString() ? `?${q}` : ''}`);
+  };
   const { state, retry } = useWidgetData({ deps: [], load: loadStand });
 
   const map = useMemo(() => mod ? layoutMap(selectSubject(mod.topics, fach || undefined), mod.subjects) : undefined, [mod, fach]);
@@ -222,6 +287,9 @@ export default function Landkarte() {
   }, [map]);
   const topics = useMemo(() => new Map(mod?.topics.map((t) => [t.id, t])), [mod]);
   const subjects = useMemo(() => new Map(mod?.subjects.map((s) => [s.id, s])), [mod]);
+  const kanten = useMemo(() => new Map(map?.edges.map((e) => [`${e.from}>${e.to}`, e.kind])), [map]);
+  const kindOf = useCallback((from: string, to: string) => kanten.get(`${from}>${to}`) ?? 'voraussetzung', [kanten]);
+  const begriffeVon = useCallback((id: string) => (mod?.glossary ?? []).filter((g) => (g as { topicIds?: string[] }).topicIds?.includes(id)).map((g) => g.term), [mod]);
 
   const standMap = state.status === 'ideal' || state.status === 'partial' ? state.data : undefined;
   const stand = useMemo(() => (id: string): BoardColumn => standMap?.get(id) ?? 'pool', [standMap]);
@@ -324,6 +392,10 @@ export default function Landkarte() {
       </div>
 
       <div className="karte__werkzeuge">
+        <div className="pills karte__ansicht" role="group" aria-label="Ansicht">
+          <button type="button" className="pill" aria-pressed={ansicht === 'karte'} onClick={() => wechsle('karte')}>Karte</button>
+          <button type="button" className="pill" aria-pressed={ansicht === 'liste'} onClick={() => wechsle('liste')}>Liste</button>
+        </div>
         <label className="karte__feld">
           <span className="visually-hidden">Fach</span>
           <select value={fach} onChange={(e) => setFach(e.target.value)}>
@@ -360,7 +432,17 @@ export default function Landkarte() {
         <p className="note warn">Arbeitsstand konnte nicht geladen werden. <button type="button" onClick={retry}>Erneut versuchen</button></p>
       )}
 
-      <div className={`karte__rahmen${selected ? ' has-details' : ''}`}>
+      {ansicht === 'liste' && map && (
+        <div className={`karte__listenrahmen${selected ? ' has-details' : ''}`}>
+          <Textliste map={map} topics={topics} preds={preds} succs={succs} stand={stand} ready={ready} selected={selected}
+            onSelect={(id) => setSelected((cur) => (cur === id ? undefined : id))} />
+          {selected && topics.has(selected) && (
+            <Details id={selected} topics={topics} preds={preds} succs={succs} stand={stand} rankOf={rankOf} subjects={subjects}
+              kindOf={kindOf} begriffeVon={begriffeVon} onSelect={(id) => setSelected(id)} onClose={() => setSelected(undefined)} />
+          )}
+        </div>
+      )}
+      <div className={`karte__rahmen${selected ? ' has-details' : ''}`} hidden={ansicht === 'liste'}>
         <div ref={viewport} className="karte__viewport" tabIndex={0} onKeyDown={pz.onKeyDown}
           role="group" aria-roledescription="Karte" aria-label="Themen-Landkarte. Pfeiltasten verschieben, Plus und Minus zoomen, 0 passt ein.">
           <div ref={world} className="karte__welt" style={{ width: map?.width, height: map?.height }}>
@@ -376,9 +458,9 @@ export default function Landkarte() {
           <button type="button" className="icon ghost" onClick={() => pz.zoomBy(0.8)} disabled={pz.zoom <= pz.minZoom} aria-label="Herauszoomen"><Icon name="minus" /></button>
           <button type="button" className="icon ghost" onClick={() => pz.fit()} aria-label="Ganze Karte zeigen"><Icon name="maximize" /></button>
         </div>
-        {selected && topics.has(selected) && (
+        {ansicht === 'karte' && selected && topics.has(selected) && (
           <Details id={selected} topics={topics} preds={preds} succs={succs} stand={stand} rankOf={rankOf} subjects={subjects}
-            onSelect={select} onClose={() => setSelected(undefined)} />
+            kindOf={kindOf} begriffeVon={begriffeVon} onSelect={select} onClose={() => setSelected(undefined)} />
         )}
       </div>
     </section>

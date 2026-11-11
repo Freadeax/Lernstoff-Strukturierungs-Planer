@@ -124,9 +124,12 @@ try {
     await page.goto(base + '#/lernen/thema?id=thema.eigen.test-a', { waitUntil: 'networkidle' });
     await page.getByRole('heading', { name: 'Eigenes Thema verwalten' }).waitFor();
     await axe(page, 'Themenpflege');
-    await page.getByLabel('Name', { exact: true }).fill('Testthema Verbandwechsel');
+    const nameFeld = page.getByLabel('Name', { exact: true });
+    await nameFeld.fill('Testthema Verbandwechsel');
+    assert.equal(await nameFeld.inputValue(), 'Testthema Verbandwechsel');
     await page.getByRole('button', { name: 'Umbenennen' }).click();
-    await page.getByRole('heading', { name: 'Testthema Verbandwechsel' }).waitFor();
+    await page.getByRole('heading', { name: 'Testthema Verbandwechsel' }).waitFor({ timeout: 10000 })
+      .catch(async (e) => { throw new Error(`Umbenennen nicht sichtbar: ${await page.locator('.thema__verwalten').innerText()}\n${e.message}`); });
     await page.getByLabel('Zusammenführen mit').selectOption('thema.eigen.test-b');
     assert.match(await page.locator('.thema__verwalten').innerText(), /1 Prüfung, 1 Abfrage/);
     await page.getByRole('button', { name: 'Zusammenführen', exact: true }).click();
@@ -164,6 +167,29 @@ try {
     await page.goto(base + '#/lernen/skript?id=pruefskript-alltag&nr=3', { waitUntil: 'networkidle' });
     assert.match(await page.locator('.sk-fassung-hinweis').innerText(), /Abschnitt 3 „Entfällt später“ gab es in der Fassung vom/);
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Überlauf Skript bei ${width}px`);
+
+    // Landkarte: Textliste als Alternative, „Warum zuerst?“, große Schrift und Tastatur
+    await page.goto(base + '#/lernen/landkarte?ansicht=liste', { waitUntil: 'networkidle' });
+    await page.locator('.karte__textliste').waitFor();
+    assert(await page.locator('.karte__rahmen').isHidden(), 'Karte sollte in der Listenansicht verborgen sein');
+    const herz = page.getByRole('button', { name: 'Herz-Kreislauf-Erkrankungen', exact: true });
+    await herz.focus();
+    await page.keyboard.press('Enter');
+    const det = page.locator('.karte__details');
+    await det.waitFor();
+    assert.match(await det.innerText(), /Vorher lernen/);
+    await det.getByText('Warum zuerst?').first().click();
+    assert.match(await det.locator('.karte__warum').first().innerText(), /Abweichung vom Gesunden|Überblick kommt zuerst|im selben Fach/);
+    await axe(page, 'Landkarte Liste');
+    await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
+    await page.waitForTimeout(200);
+    // Nur der Seiteninhalt: Die Kopfleiste der App ist hier nicht Gegenstand (eigener Punkt im Audit)
+    assert(await page.evaluate(() => [...document.querySelectorAll('.karte__textliste, .karte__details')].every((e) => e.scrollWidth <= e.clientWidth + 1 && e.getBoundingClientRect().right <= innerWidth + 1)), `Überlauf Landkarte-Liste bei großer Schrift ${width}px`);
+    await page.screenshot({ path: path.join(out, `landkarte-liste-${width}.png`) });
+    await page.evaluate(() => { document.documentElement.style.fontSize = ''; });
+    await page.getByRole('button', { name: 'Karte', exact: true }).click();
+    await page.locator('.karte__viewport').waitFor();
+    assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Überlauf Landkarte bei ${width}px`);
 
     // Material: schwer lesbare Seiten, Dubletten, Sprung zur Fundstelle, Original neben der Zusammenfassung
     const thema = blaetter[1];
@@ -221,7 +247,7 @@ try {
     await axe(page, 'Fortschritt');
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Überlauf bei ${width}px`);
     assert.deepEqual(errors, []);
-    console.log(`Lernalltag ${width}px: liegen gebliebene Blöcke, Dienstplan mit Vorschau, Kompetenzbereiche, Kalenderexport, CE-Matrix, Themenpflege, Skript-Belegprüfung und Fassungen, Fundstelle, Original nebeneinander, Lese-/Dublettenhinweise, Fehlerheft-Rückwege, Lernstufen und WCAG bestanden.`);
+    console.log(`Lernalltag ${width}px: liegen gebliebene Blöcke, Dienstplan mit Vorschau, Kompetenzbereiche, Kalenderexport, CE-Matrix, Themenpflege, Skript-Belegprüfung und Fassungen, Landkarte als Liste, Fundstelle, Original nebeneinander, Lese-/Dublettenhinweise, Fehlerheft-Rückwege, Lernstufen und WCAG bestanden.`);
     await context.close();
   }
 } finally { await browser.close(); }
