@@ -48,7 +48,7 @@ export default defineConfig({
           // Raumfotos der Simulatoren (je ca. 50–110 KB): beim ersten Ansehen laden, danach offline.
           urlPattern: ({ url }) => url.pathname.includes('/raeume/'),
           handler: 'CacheFirst',
-          options: { cacheName: 'raeume', expiration: { maxEntries: 60 } },
+          options: { cacheName: 'raeume', expiration: { maxEntries: 150 } },
         }, {
           // Patientenporträts (512 px, je ca. 15 KB): beim ersten Ansehen laden, danach offline.
           urlPattern: ({ url }) => url.pathname.includes('/personen/'),

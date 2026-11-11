@@ -54,3 +54,18 @@ describe('Fotoräume', () => {
     expect(fotoRaumFuer(hueft.id, hueft.setting, hueft.kurz)!.personPasst).toBe(false);
   });
 });
+
+describe('Offline-Bedarf je Fall', () => {
+  it('Probefälle laufen offline, KI-Fälle brauchen Netz; Raumvarianten sind dabei', async () => {
+    const { fallOfflineBedarf } = await import('./offlinebedarf');
+    const { PROBEFAELLE } = await import('./demo');
+    const herz = fallOfflineBedarf(PROBEFAELLE[0]!.szenario);
+    expect(herz.online).toBe(false);
+    expect(herz.ersatz).toBe(true);
+    expect(herz.dateien.some((d) => d.includes('12a_'))).toBe(true);
+    expect(herz.dateien.some((d) => d.includes('19_krankenhaus_materialraum'))).toBe(true);
+    const asthma = fallOfflineBedarf(PROBEFAELLE.find((p) => p.szenario.id === 'demo-asthma')!.szenario);
+    expect(asthma.dateien.some((d) => d.includes('personen/'))).toBe(true);
+    expect(fallOfflineBedarf(SZENARIEN[0]!).online).toBe(true);
+  });
+});
