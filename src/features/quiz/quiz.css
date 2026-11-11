@@ -154,3 +154,10 @@ details.qz-vertiefung__begriffe summary { cursor: pointer; font-weight: var(--we
 /* Auswahlseite: Filter */
 .qz-seite__filter { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; margin: 0 0 var(--space-2); }
 .qz-seite__filter button[aria-pressed='true'] { border-color: var(--color-primary); background: var(--color-primary-soft); }
+
+/* Grundlage je Aufgabe: Quelle, Stand, Geltung */
+.qz-grundlage { display: grid; gap: 2px; margin: var(--space-2) 0 0; padding: var(--space-2) var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-size: var(--text-sm); }
+.qz-grundlage > div { display: grid; grid-template-columns: 6.5rem 1fr; gap: var(--space-2); }
+.qz-grundlage dt { font-weight: 600; color: var(--color-text-muted); }
+.qz-grundlage dd { margin: 0; }
+@media (max-width: 480px) { .qz-grundlage > div { grid-template-columns: 1fr; gap: 0; } }

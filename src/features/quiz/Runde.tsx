@@ -8,6 +8,7 @@ import {
 import { notiereFehler, type FehlerQuelle } from '../fehlerheft/fehlerheft';
 import { proThema, type TrainerId } from '../lernplan/trainer';
 import { LernplanHinweis, useLernplanUebernahme } from '../lernplan/ui/LernplanHinweis';
+import type { Grundlage, GrundlageZeile } from './grundlage';
 import { storage } from '../../ui/lib/store';
 import { BegriffListe, FachListe, ThemenLinks } from './FachText';
 import { spiele } from '../../ui/audio/spieler';
@@ -25,6 +26,8 @@ interface Props {
   figuren?: Record<string, Figur>;
   /** Ab so vielen Aufgaben je Thema zählt die Runde im Lernplan. */
   minProThema?: number;
+  /** Quelle, Stand und Geltung je Aufgabe, nach dem Prüfen unter der Begründung. */
+  grundlage?: Grundlage;
   onFertig?: (e: RundenErgebnis) => void;
   onNeu: () => void;
   onEnde: () => void;
@@ -254,6 +257,16 @@ function MehrVerstehen({ a }: { a: Aufgabe }) {
   );
 }
 
+/** Quelle, Stand und Geltung der Aufgabe als kurze Tabelle (Audit: Quelle und Stand je Antwort). */
+function GrundlageBox({ zeilen }: { zeilen: GrundlageZeile[] }) {
+  if (!zeilen.length) return null;
+  return (
+    <dl className="qz-grundlage" aria-label="Grundlage dieser Aufgabe">
+      {zeilen.map((z, n) => <div key={n}><dt>{z.label}</dt><dd>{z.text}</dd></div>)}
+    </dl>
+  );
+}
+
 // ---------------------------------------------------------------- Runde
 
 function leereAntwort(a: Aufgabe): Antwort {
@@ -280,7 +293,7 @@ const ART_HINWEIS: Record<Aufgabe['art'], string> = {
   fall: 'Der Fall entwickelt sich. Jeden Schritt festlegen, dann geht es weiter.',
 };
 
-export function Runde({ aufgaben, quelle, trainer, figuren = {}, minProThema = 3, onFertig, onNeu, onEnde }: Props) {
+export function Runde({ aufgaben, quelle, trainer, figuren = {}, minProThema = 3, grundlage, onFertig, onNeu, onEnde }: Props) {
   const [i, setI] = useState(0);
   const [antwort, setAntwort] = useState<Antwort>(() => leereAntwort(aufgaben[0]!));
   const [ergebnisse, setErgebnisse] = useState<Array<{ a: Aufgabe; b: Bewertung }>>([]);
@@ -412,6 +425,7 @@ export function Runde({ aufgaben, quelle, trainer, figuren = {}, minProThema = 3
             <strong>{geprueft.richtig ? 'Richtig.' : geprueft.punkte > 0 ? `Teilweise richtig: ${geprueft.punkte} von ${geprueft.max}.` : 'Leider falsch.'}</strong>
             <FachListe texte={a.erklaerung} className="qz__erklaerung" />
           </div>
+          {grundlage && <GrundlageBox zeilen={grundlage(a)} />}
           <MehrVerstehen a={a} />
           <div className="row">
             <button type="button" className="primary" onClick={weiter}>{i + 1 < aufgaben.length ? 'Weiter' : 'Auswertung'}</button>

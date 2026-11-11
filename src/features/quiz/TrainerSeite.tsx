@@ -9,6 +9,7 @@ import { Runde, type Figur, type RundenErgebnis } from './Runde';
 import type { FehlerQuelle } from '../fehlerheft/fehlerheft';
 import type { TrainerId } from '../lernplan/trainer';
 import { FachListe } from './FachText';
+import type { Grundlage } from './grundlage';
 
 export interface TrainerBereich { id: string; label: string; kurz: string; wissen: string[] }
 
@@ -24,13 +25,15 @@ interface Props {
   /** Aufgaben je Runde. Gemischte Runden ziehen aus allen Bereichen. */
   proRunde?: number;
   minProThema?: number;
+  /** Quelle, Stand und Geltung je Aufgabe (siehe grundlage.ts). */
+  grundlage?: Grundlage;
 }
 
 type Stand = Record<string, { datum: string; prozent: number }>;
 const MIX = 'mix';
 const SCHWACH = 'schwach';
 
-export function TrainerSeite({ titel, intro, hinweis, pfad, quelle, bereiche, aufgaben, figuren, proRunde = 8, minProThema = 3 }: Props) {
+export function TrainerSeite({ titel, intro, hinweis, pfad, quelle, bereiche, aufgaben, figuren, proRunde = 8, minProThema = 3, grundlage }: Props) {
   const { params } = useRoute();
   const key = `lernstoff.${quelle}.stand`;
   const [stand, setStand] = useState<Stand>(() => storage.read<Stand>(key, {}));
@@ -84,7 +87,7 @@ export function TrainerSeite({ titel, intro, hinweis, pfad, quelle, bereiche, au
 
       {laeuft && liste.length ? (
         <Runde
-          key={`${bereich}-${stufe}-${nr}`} aufgaben={liste} quelle={quelle} trainer={quelle} figuren={figuren} minProThema={minProThema}
+          key={`${bereich}-${stufe}-${nr}`} aufgaben={liste} quelle={quelle} trainer={quelle} figuren={figuren} minProThema={minProThema} grundlage={grundlage}
           onFertig={fertig} onNeu={() => setNr((n) => n + 1)} onEnde={() => gehe(bereich)}
         />
       ) : (
