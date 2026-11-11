@@ -68,13 +68,14 @@ function Vorschau({ vergleich, modus }: { vergleich: Vergleich; modus: Modus }) 
     <div className="sicherung__vergleich">
       <h4>Vergleich mit diesem Gerät</h4>
       {vergleich.zeilen.length > 0 && (
-        <div className="sicherung__tabelle">
+        <div className="sicherung__tabelle" tabIndex={0} role="region" aria-label="Vergleich je Bereich">
           <table>
-            <thead><tr><th scope="col">Bereich</th><th scope="col">kommt dazu</th><th scope="col">neuer in der Datei</th><th scope="col">Konflikt</th><th scope="col">{modus === 'ersetzen' ? 'wird gelöscht' : 'nur hier'}</th></tr></thead>
+            <thead><tr><th scope="col">Bereich</th><th scope="col">neu</th><th scope="col">neuer</th><th scope="col">Konflikt</th><th scope="col">{modus === 'ersetzen' ? 'gelöscht' : 'nur hier'}</th></tr></thead>
             <tbody>{vergleich.zeilen.map((z) => (
               <tr key={z.bereich}><th scope="row">{z.bereich}</th><td>{z.neu}</td><td>{z.neuerInDatei}</td><td className={z.konflikt ? 'sicherung__konflikt' : undefined}>{z.konflikt}</td><td className={modus === 'ersetzen' && z.nurHier ? 'sicherung__konflikt' : undefined}>{z.nurHier}</td></tr>
             ))}</tbody>
           </table>
+          <p className="muted sicherung__legende"><strong>neu</strong>: kommt dazu · <strong>neuer</strong>: in der Datei neuer, ersetzt den Stand hier · <strong>Konflikt</strong>: hier anders und nicht älter, bleibt wie hier · <strong>{modus === 'ersetzen' ? 'gelöscht' : 'nur hier'}</strong>: {modus === 'ersetzen' ? 'gibt es nur auf diesem Gerät, wird beim Ersetzen gelöscht' : 'gibt es nur auf diesem Gerät, bleibt'}.</p>
         </div>
       )}
       {vergleich.lokal.length > 0 && (
@@ -103,7 +104,7 @@ function Ergebnisbericht({ fertig }: { fertig: Ergebnis & { modus: Modus } }) {
       <strong>{teil ? 'Teilweise eingespielt.' : 'Fertig.'}</strong>{' '}
       {fertig.modus === 'ersetzen' ? `Datenbank ersetzt: ${fertig.neu} Einträge.` : `Datenbank zusammengeführt: ${fertig.neu} Einträge ergänzt, ${fertig.aktualisiert} durch neuere ersetzt.`}
       <ul className="sicherung__fakten">
-        <li>Übernommen: alle Tabellen (Dokumente, Lernplan, Karteikarten, …){fertig.lokalUebernommen.length ? `, dazu ${fertig.lokalUebernommen.join(', ')}` : ''}.</li>
+        <li>Datenbank (Dokumente, Lernplan, Karteikarten, …): vollständig {fertig.modus === 'ersetzen' ? 'übernommen' : 'abgeglichen'}.{fertig.lokalUebernommen.length ? ` Geändert außerdem: ${fertig.lokalUebernommen.join(', ')}.` : ''}</li>
         {teil && <li><strong>Nicht übernommen</strong> (Speicher voll oder gesperrt): {fertig.lokalFehler.map(lokalLabel).join(', ')}. Auf diesem Gerät gilt dafür noch der alte Stand{fertig.modus === 'ersetzen' ? ' bzw. nichts' : ''}.</li>}
         {fertig.rueckfall && <li>Der Stand vor dem Einspielen liegt als <button type="button" className="link" onClick={() => document.getElementById('rueckfall')?.scrollIntoView({ behavior: 'smooth' })}>Rückfallsicherung</button> auf diesem Gerät. {teil ? 'Wenn dir der Teilstand nicht reicht: Speicher frei machen und die Datei noch einmal einspielen, oder unten „Diesen Stand wiederherstellen“ wählen.' : 'Unten lässt sich das Einspielen damit rückgängig machen.'}</li>}
       </ul>

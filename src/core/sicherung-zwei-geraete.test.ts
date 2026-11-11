@@ -61,6 +61,7 @@ describe('A-05 · Datensicherung zwischen zwei Geräten', () => {
     const e1 = await auf(ipad, () => spieleEin(vomIphone, 'zusammenfuehren', ipad.db));
     expect(e1).toMatchObject({ neu: 1, aktualisiert: 1, lokalFehler: [] });
     expect(e1.rueckfall).toBeTruthy();
+    expect(e1.lokalUebernommen).toEqual(['Mindmaps']); // der laufende Fall blieb, wird also nicht als übernommen gemeldet
     expect((await ipad.db.documents.toArray()).map((d) => d.id).sort()).toEqual(['d-gemeinsam', 'd-iphone']);
     expect((await ipad.db.karten.get('k1'))!.vorne).toContain('6 Kategorien');
     expect(await ipad.db.karten.get('k-ipad')).toBeTruthy();

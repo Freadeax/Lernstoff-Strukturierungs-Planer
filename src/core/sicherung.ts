@@ -497,8 +497,8 @@ export async function spieleEin(s: Sicherung, modus: Modus, database: LernstoffD
     if (vorherigerRueckfall) await rueckfallDb(database).staende.put({ id: RUECKFALL_ID, ...vorherigerRueckfall }).catch(() => undefined);
     throw e;
   }
-  const lokalFehler = spieleLokalEin(s.local ?? {}, modus);
-  const lokalUebernommen = [...new Set(Object.keys(s.local ?? {}).filter((k) => gehoertInSicherung(k) && !lokalFehler.includes(k)).map(lokalLabel))];
+  const { fehler: lokalFehler, geaendert } = spieleLokalEin(s.local ?? {}, modus);
+  const lokalUebernommen = [...new Set(geaendert.map(lokalLabel))];
   return { neu, aktualisiert, tabellen: tabellen.length, lokalFehler, rueckfall, lokalUebernommen };
 
   async function schreibeTabellen() { await database.transaction('rw', database.tables, async () => {
@@ -513,9 +513,10 @@ export async function spieleEin(s: Sicherung, modus: Modus, database: LernstoffD
   }); }
 }
 
-/** Schreibt die Geräteeinträge. Liefert die Schlüssel, die nicht geschrieben werden konnten (Teilfehler). */
-function spieleLokalEin(local: Record<string, string>, modus: Modus): string[] {
+/** Schreibt die Geräteeinträge. Liefert die Schlüssel, die nicht geschrieben werden konnten (Teilfehler), und die geänderten. */
+function spieleLokalEin(local: Record<string, string>, modus: Modus): { fehler: string[]; geaendert: string[] } {
   const fehler: string[] = [];
+  const geaendert: string[] = [];
   try {
     if (modus === 'ersetzen') loescheLokaleEintraege();
   } catch { /* privater Modus: unten schlägt dann jedes Schreiben fehl und wird gemeldet */ }
@@ -523,14 +524,16 @@ function spieleLokalEin(local: Record<string, string>, modus: Modus): string[] {
     if (!gehoertInSicherung(k)) continue;
     try {
       const alt = localStorage.getItem(k);
-      if (modus === 'ersetzen' || alt === null) { localStorage.setItem(k, v); continue; }
+      if (modus === 'ersetzen' || alt === null) { localStorage.setItem(k, v); if (alt !== v) geaendert.push(k); continue; }
       let zusammen: string;
       try { zusammen = JSON.stringify(fuehreWertZusammen(JSON.parse(alt), JSON.parse(v))); }
       catch { continue; /* kein JSON: vorhandenen Wert behalten, das ist kein Fehler */ }
+      if (zusammen === alt) continue;
       localStorage.setItem(k, zusammen);
+      if (signatur(JSON.parse(zusammen)) !== signatur(JSON.parse(alt))) geaendert.push(k);
     } catch { fehler.push(k); }
   }
-  return fehler;
+  return { fehler, geaendert };
 }
 
 /** Lesbare Namen für Geräteeinträge (für Fehlermeldungen). */
