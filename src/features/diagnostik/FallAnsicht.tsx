@@ -367,7 +367,7 @@ function MonitorProfil({ alter }: { alter: number }) {
   const pr = alarmProfil(monitorGruppe(alter));
   return (
     <details className="dx-profil">
-      <summary>{pr.label}{pr.bewertet ? '' : ' · keine automatische Wertung'}</summary>
+      <summary>{pr.label}{pr.bewertet ? ' · fachlich ungeprüft' : ' · keine automatische Wertung'}</summary>
       <p className="muted dx-klein">{pr.quelle}</p>
     </details>
   );

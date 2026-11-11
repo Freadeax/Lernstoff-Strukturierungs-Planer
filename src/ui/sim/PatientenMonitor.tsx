@@ -167,7 +167,7 @@ export function PatientenMonitor({ werte, kompakt = false, aktiv = true, titel, 
       {(titel || alarm !== 'ok' || !aktiv || gruppe !== 'erwachsen') && (
         <div className="sim-monitor__kopf" aria-hidden="true">
           <span>{titel}</span>
-          {gruppe !== 'erwachsen' && <span className={`sim-monitor__profil ${profil.bewertet && bewerten ? '' : 'is-offen'}`} title={profil.quelle}>{!bewerten ? 'ohne Alarmwertung' : profil.bewertet ? profil.label.replace('Alarmgrenzen ', '') : 'kein Profil'}</span>}
+          {gruppe !== 'erwachsen' && <span className={`sim-monitor__profil ${profil.bewertet && bewerten ? '' : 'is-offen'}`} title={profil.quelle}>{!bewerten ? 'ohne Alarmwertung' : profil.bewertet ? `${profil.label.replace('Alarmgrenzen ', '')} · ungeprüft` : 'kein Profil'}</span>}
           {!aktiv ? <span className="sim-monitor__status">{ausText}</span>
             : alarm === 'rot' ? <span className="sim-monitor__status is-rot">Alarm</span>
               : alarm === 'gelb' ? <span className="sim-monitor__status is-gelb">Hinweis</span> : null}

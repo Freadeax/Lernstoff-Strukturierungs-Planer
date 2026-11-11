@@ -17,6 +17,11 @@ export interface Rohbild {
   hoehe: number;
   /** 0..4095, siehe Kopfkommentar. */
   werte: Uint16Array;
+  /**
+   * Was die Werte bedeuten: 'hu' = Rohwert ist HU + 1024 (Phantom-CT, 16-Bit-PNG), 'grau' = nur Helligkeit
+   * (Röntgen oder 8-Bit-Bild). Fehlt: nach Modalität (CT = HU).
+   */
+  skala?: 'hu' | 'grau';
 }
 
 export const ROH_MAX = 4095;

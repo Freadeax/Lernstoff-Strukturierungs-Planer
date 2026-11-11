@@ -8,7 +8,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent as RPointerEvent } from 'react';
 import { grauTabelle, malePixel, vonRoh, type Fenster, type Rohbild } from './phantom';
-import { anzahlSchichten, befundeAuf, FENSTER, ladeSchicht, mmProPixel, modalitaetVon, type Befundmarke, type Bildserie } from './serie';
+import { anzahlSchichten, befundeAuf, bildNachweis, FENSTER, hatHu, istKalibriert, ladeSchicht, mmProPixel, modalitaetVon, type Befundmarke, type Bildserie } from './serie';
 import { huDeutung, roiStatistik, streckeMm, streckePx, type Messung } from './messen';
 import { wenigBewegung } from '../../shell/session';
 import './bildgebung.css';
@@ -53,7 +53,6 @@ export function BildBetrachter({ serie, sichtbareBefunde = [], markierungen = []
   const modalitaet = modalitaetVon(serie);
   const n = anzahlSchichten(serie);
   const vorgaben = FENSTER[modalitaet];
-  const einheit = modalitaet === 'ct' ? 'HU' : '%';
   const [schicht, setSchichtState] = useState(() => Math.min(n - 1, Math.max(0, startSchicht ?? Math.floor(n / 2))));
   const [fenster, setFenster] = useState<Fenster>(vorgaben[0]);
   const [invertiert, setInvertiert] = useState(false);
@@ -62,6 +61,10 @@ export function BildBetrachter({ serie, sichtbareBefunde = [], markierungen = []
   const [entwurf, setEntwurf] = useState<Messung | null>(null);
   const [ansage, setAnsage] = useState('');
   const [bild, setBild] = useState<Rohbild | null>(null);
+  // Messwerte in HU nur bei CT mit Rohdaten; ein 8-Bit-CT-Bild liefert nur Helligkeit in Prozent.
+  const hu = hatHu(serie, bild);
+  const skala: typeof modalitaet = hu ? 'ct' : 'roentgen';
+  const einheit = hu ? 'HU' : '%';
   const [vollbild, setVollbild] = useState(false);
   const [cine, setCine] = useState(false);
   const [lupe, setLupe] = useState<{ x: number; y: number; wert: number } | null>(null);
@@ -238,7 +241,7 @@ export function BildBetrachter({ serie, sichtbareBefunde = [], markierungen = []
   const messwert = (x: number, y: number) => {
     if (!bild) return 0;
     const px = Math.min(bild.breite - 1, Math.floor(x * bild.breite)), py = Math.min(bild.hoehe - 1, Math.floor(y * bild.hoehe));
-    return vonRoh(modalitaet, bild.werte[py * bild.breite + px]);
+    return vonRoh(skala, bild.werte[py * bild.breite + px]);
   };
 
   const mmPx = bild ? mmProPixel(serie, bild) : undefined;
@@ -248,17 +251,17 @@ export function BildBetrachter({ serie, sichtbareBefunde = [], markierungen = []
       const mm = streckeMm(bild, m.a, m.b, mmPx);
       return mm !== undefined ? `${fmt1(mm)} mm` : `${fmt(streckePx(bild, m.a, m.b))} px`;
     }
-    const r = roiStatistik(bild, modalitaet, m.x, m.y, m.r, mmPx);
+    const r = roiStatistik(bild, skala, m.x, m.y, m.r, mmPx);
     return `Ø ${fmt(r.mittel)} ${einheit} ±${fmt(r.sd)}`;
   }
   const fertigMessen = (m: Messung) => {
     if (!bild) return;
     const text = messText(m);
     const mm = m.art === 'strecke' ? streckeMm(bild, m.a, m.b, mmPx) : undefined;
-    const roi = m.art === 'roi' ? roiStatistik(bild, modalitaet, m.x, m.y, m.r, mmPx) : undefined;
+    const roi = m.art === 'roi' ? roiStatistik(bild, skala, m.x, m.y, m.r, mmPx) : undefined;
     const g: Gemessen = { ...m, text, mm, mittel: roi?.mittel };
     setMessungen((alt) => { const neu = [...alt, g]; onMessungenRef.current?.(neu); return neu; });
-    setAnsage(m.art === 'strecke' ? `Strecke ${text}` : `Messkreis: Mittelwert ${fmt(roi!.mittel)} ${einheit}${modalitaet === 'ct' ? `, ${huDeutung(roi!.mittel)}` : ''}`);
+    setAnsage(m.art === 'strecke' ? `Strecke ${text}` : `Messkreis: Mittelwert ${fmt(roi!.mittel)} ${einheit}${hu ? `, ${huDeutung(roi!.mittel)}` : ''}`);
   };
   const loeschen = (id?: string) => setMessungen((alt) => { const neu = id ? alt.filter((m) => m.id !== id) : []; onMessungenRef.current?.(neu); return neu; });
 
@@ -385,7 +388,7 @@ export function BildBetrachter({ serie, sichtbareBefunde = [], markierungen = []
           <ul aria-label="Messungen">
             {messungen.map((m, k) => (
               <li key={m.id}>
-                <span>{k + 1}. {m.art === 'strecke' ? 'Strecke' : 'Messkreis'}{n > 1 ? ` (Schicht ${m.schicht + 1})` : ''}: <strong>{m.text}</strong>{m.mittel !== undefined && modalitaet === 'ct' ? <span className="bb__deutung"> ({huDeutung(m.mittel)})</span> : null}</span>
+                <span>{k + 1}. {m.art === 'strecke' ? 'Strecke' : 'Messkreis'}{n > 1 ? ` (Schicht ${m.schicht + 1})` : ''}: <strong>{m.text}</strong>{m.mittel !== undefined && hu ? <span className="bb__deutung"> ({huDeutung(m.mittel)})</span> : null}</span>
                 <button type="button" className="bb__knopf" onClick={() => loeschen(m.id)} aria-label={`Messung ${k + 1} löschen`}>×</button>
               </li>
             ))}
@@ -403,13 +406,26 @@ export function BildBetrachter({ serie, sichtbareBefunde = [], markierungen = []
         {werkzeug === 'fenster' && 'Wischen: waagrecht = Fensterbreite (Kontrast), senkrecht = Fenstermitte (Helligkeit).'}
         {werkzeug === 'lupe' && `Gedrückt halten und bewegen: Vergrößerung und Messwert in ${einheit === 'HU' ? 'Hounsfield-Einheiten' : 'Prozent Helligkeit'}.`}
         {werkzeug === 'markieren' && 'Tippe auf die Stelle, die du für auffällig hältst.'}
-        {werkzeug === 'strecke' && (mmPx ? 'Strecke ziehen: Länge in Millimetern (Maßstab des Bildes, ungefähr).' : 'Strecke ziehen: Länge in Bildpunkten. Für dieses Bild ist kein Maßstab hinterlegt; Verhältnisse (z. B. Herz zu Thorax) gehen trotzdem.')}
-        {werkzeug === 'roi' && (modalitaet === 'ct' ? 'Kreis aufziehen: Mittelwert und Streuung der Dichte in HU, z. B. Erguss (um 0) oder Kontrast im Gefäß (über 200).' : 'Kreis aufziehen: mittlere Helligkeit in Prozent.')}
-        {' '}{serie.quelle.art === 'phantom' ? 'Synthetisches Übungsbild, vereinfacht.'
-          : serie.quelle.art === 'bilder' ? <>Echtes Bild: {serie.quelle.urheber}, <a href={serie.quelle.quelleUrl} target="_blank" rel="noreferrer">{serie.quelle.lizenz}</a>, {serie.quelle.bearbeitung ?? 'zugeschnitten und verkleinert'}.</>
-          : <>Privates Material: {serie.quelle.herkunft}{serie.quelle.lizenz ? ` (${serie.quelle.lizenz})` : ''}. Nur auf diesem Gerät, nicht weitergeben.</>}
+        {werkzeug === 'strecke' && (mmPx ? `Strecke ziehen: Länge in Millimetern (${serie.pixelMm ? 'Maßstab aus den Bilddaten' : 'Übungsmaßstab des synthetischen Bildes, ungefähr'}).` : 'Strecke ziehen: Länge in Bildpunkten. Für dieses Bild ist kein Maßstab hinterlegt; Verhältnisse (z. B. Herz zu Thorax) gehen trotzdem.')}
+        {werkzeug === 'roi' && (hu ? 'Kreis aufziehen: Mittelwert und Streuung der Dichte in HU, z. B. Erguss (um 0) oder Kontrast im Gefäß (über 200).' : 'Kreis aufziehen: mittlere Helligkeit in Prozent.')}
       </p>
+      <Nachweis serie={serie} hu={hu} />
     </div>
+  );
+}
+
+/** Bildart, Quelle, Lizenz, Bearbeitung und was die Messwerte bedeuten (Audit SIM-08). */
+function Nachweis({ serie, hu }: { serie: Bildserie; hu: boolean }) {
+  const n = bildNachweis(serie);
+  const ct = serie.quelle.modalitaet === 'ct';
+  return (
+    <dl className="bb__nachweis" aria-label="Bildnachweis">
+      <div><dt>Bildart</dt><dd>{n.bildart}</dd></div>
+      <div><dt>Quelle</dt><dd>{n.url ? <a href={n.url} target="_blank" rel="noreferrer">{n.quelle}</a> : n.quelle}</dd></div>
+      <div><dt>Lizenz</dt><dd>{n.lizenz}</dd></div>
+      <div><dt>Bearbeitung</dt><dd>{n.bearbeitung}</dd></div>
+      <div><dt>Messen</dt><dd>{istKalibriert(serie) ? (serie.pixelMm ? 'mm nach hinterlegtem Maßstab' : 'mm nach Übungsmaßstab, ungefähr') : 'kein Maßstab, Längen nur in Bildpunkten'}; {hu ? 'Dichte in HU aus Rohdaten' : ct ? 'keine HU (Bild ohne Rohdaten), nur Helligkeit in %' : 'Helligkeit in %'}</dd></div>
+    </dl>
   );
 }
 
