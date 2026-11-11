@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { BERICHT_FAELLE } from './faelle';
-import { markiere, ohneZitate, pruefeBericht, sprachpruefung } from './pruefung';
+import { grundkriterien, markiere, ohneZitate, pruefeBericht, sprachpruefung } from './pruefung';
 
 const fall = (id: string) => BERICHT_FAELLE.find((f) => f.id === id)!;
 const woerter = (text: string, art?: string) => sprachpruefung(text).filter((f) => !art || f.art === art).map((f) => f.wort);
@@ -68,5 +68,22 @@ describe('Lernplan-Verknüpfung', async () => {
   const { uebungenFuer } = await import('../lernplan/trainer');
   it('Pflegebericht-Thema führt zum Trainer', () => {
     expect(uebungenFuer('thema.pp.evaluation').map((u) => u.path)).toContain('/lernen/bericht');
+  });
+});
+
+describe('Grundkriterien (Zeit, Fakten, Maßnahme, Wirkung)', () => {
+  for (const f of BERICHT_FAELLE) {
+    it(`${f.id}: Muster erfüllt alle Grundkriterien`, () => {
+      expect(grundkriterien(f.muster).filter((g) => !g.ok).map((g) => g.id)).toEqual([]);
+    });
+    if (f.vorlage) it(`${f.id}: Vorlage verfehlt mindestens ein Grundkriterium`, () => {
+      expect(grundkriterien(f.vorlage!).some((g) => !g.ok)).toBe(true);
+    });
+  }
+  it('Wirkung zählt nur nach der Maßnahme', () => {
+    const g = (t: string) => Object.fromEntries(grundkriterien(t).map((x) => [x.id, x.ok]));
+    expect(g('14:10 Uhr: ruhiger. Tee angeboten.').wirkung).toBe(false);
+    expect(g('14:10 Uhr: Tee angeboten, 150 ml getrunken. Danach ruhiger.')).toEqual({ zeit: true, fakten: true, massnahme: true, wirkung: true });
+    expect(g('Sie war unruhig.')).toEqual({ zeit: false, fakten: false, massnahme: false, wirkung: false });
   });
 });

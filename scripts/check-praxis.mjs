@@ -301,6 +301,23 @@ try {
       audits.push({ width, name: 'Assessment', violations: axe.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => ({ html: n.html, summary: n.failureSummary })) })) });
       await ctx.close();
     }
+    // Pflegebericht: Grundkriterien und Warnung bei echten Personendaten direkt am Feld.
+    {
+      const ctx = await browser.newContext({ viewport: { width, height: 1050 }, locale: 'de-DE', colorScheme: 'light' });
+      const pb = await ctx.newPage(); pb.on('pageerror', e => errors.push(e.message));
+      await pb.goto(base + '#/lernen/bericht', { waitUntil: 'networkidle' });
+      const feld = pb.getByRole('textbox', { name: 'Berichtseintrag' });
+      await feld.fill('Frau Schulze, Zimmer 12, war unruhig.');
+      assert.match(await pb.locator('.bericht__eingabe .personen-warnung').textContent(), /Zimmer 12/);
+      await feld.fill('2:15 Uhr: steht an der Tür und sagt: „Ich muss nach Hause.“ Warme Milch angeboten. 2:40 Uhr Milch getrunken, geht ins Zimmer.');
+      assert.equal(await pb.locator('.bericht__eingabe .personen-warnung').count(), 0, 'Übungstext ohne Warnung');
+      await pb.getByRole('button', { name: 'Prüfen', exact: true }).click();
+      await pb.locator('.bericht__grund').waitFor();
+      assert.equal(await pb.locator('.bericht__grund .is-ok').count(), 4, 'Zeit, Fakten, Maßnahme, Wirkung erkannt');
+      const axe = await new AxeBuilder({ page: pb }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+      audits.push({ width, name: 'Pflegebericht', violations: axe.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => ({ html: n.html, summary: n.failureSummary })) })) });
+      await ctx.close();
+    }
     // Notfall-Trainer: ABCDE-Übung (deterministisch, Zeit nur durch Handlungen).
     {
       const ctx = await browser.newContext({ viewport: { width, height: 1050 }, locale: 'de-DE', colorScheme: 'light' });
