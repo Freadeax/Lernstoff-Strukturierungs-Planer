@@ -35,3 +35,5 @@
 .fehlerheft__eintrag p { margin: var(--space-1) 0; overflow-wrap: anywhere; }
 .fehlerheft__punkte { letter-spacing: 0.15em; }
 .fehlerheft__rueckwege { display: flex; flex-wrap: wrap; gap: var(--space-1); margin: var(--space-1) 0 var(--space-2); }
+.fehlerheft__kriterium { font-size: var(--text-xs); }
+.fehlerheft__beleg { font-size: var(--text-sm); margin: var(--space-1) 0 0; }

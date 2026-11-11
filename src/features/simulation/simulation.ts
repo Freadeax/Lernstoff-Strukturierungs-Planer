@@ -40,6 +40,7 @@ interface Basis {
   minuten: number;        // empfohlene Bearbeitungszeit
   frage: string;
   hinweis?: string;
+  herkunft?: string;      // Name des Übungstrainers bei quelle 'trainer'
 }
 
 export interface AuswahlFrage extends Basis {
@@ -214,7 +215,7 @@ export function trainerFragen(k: Katalog, pools: readonly TrainerPool[], filter:
       const afb = operatorAfb(k, TRAINER_OPERATOR[stufe], stufe);
       const topicId = a.topicIds.find((t) => k.topics.has(t)) ?? '';
       if (!filter({ topicId, afb })) continue;
-      const basis = { quelle: 'trainer' as const, art: 'auswahl' as const, topicId, operator: TRAINER_OPERATOR[stufe], afb, punkte: stufe, minuten: TRAINER_MINUTEN[stufe] };
+      const basis = { quelle: 'trainer' as const, herkunft: p.name, art: 'auswahl' as const, topicId, operator: TRAINER_OPERATOR[stufe], afb, punkte: stufe, minuten: TRAINER_MINUTEN[stufe] };
       if (a.art === 'auswahl') {
         out.push({
           ...basis, id: `trainer:${p.quelle}:${a.id}`, frage: a.frage, optionen: a.optionen, richtig: a.richtig, mehrfach: a.mehrfach,
@@ -447,6 +448,30 @@ export function lernplanEintraege(k: Katalog, fragen: SimFrage[], w: Record<stri
 }
 
 // ---------- Zeit ----------
+
+/**
+ * Herkunft und Geltung je Aufgabe in einem Satz (Audit: Quellen je Aufgabe). Katalog- und Trainerwissen ist
+ * ergänzend, Rechenaufgaben haben fiktive Werte, Fragen aus dem Material tragen ihre Belegstellen.
+ */
+export function quelleText(f: SimFrage): string {
+  switch (f.quelle) {
+    case 'glossar': return 'Fachbegriff aus dem Glossar · Katalogwissen, ergänzend';
+    case 'rechnen': return 'Rechenaufgabe mit fiktiven Werten · Übung, keine Dosierempfehlung';
+    case 'trainer': return `${f.herkunft ?? 'Übungstrainer'} · Katalogwissen, ergänzend`;
+    case 'material': return f.art === 'offen' ? `Aus deinem Material: ${f.material.satzName} · mit Belegstellen` : 'Aus deinem Material · mit Belegstellen';
+  }
+}
+
+/** Bewertungsraster einer offenen Frage, kurz für die Prüfungsansicht: „3 Kriterien, 6 Punkte“. */
+export function rasterText(f: SimFrage): string | null {
+  if (f.art !== 'offen' || !f.kriterien.length) return null;
+  return `Bewertet nach ${f.kriterien.length} ${f.kriterien.length === 1 ? 'Kriterium' : 'Kriterien'}, zusammen ${f.punkte} ${f.punkte === 1 ? 'Punkt' : 'Punkte'}`;
+}
+
+/** Fragen ohne Antwort zum Zeitpunkt der Abgabe. */
+export function unbeantwortet(fragen: readonly SimFrage[], antworten: Record<string, Antwort | undefined>): number {
+  return fragen.filter((f) => !istBeantwortet(f, antworten[f.id])).length;
+}
 
 export function restzeit(deadline: number, jetzt: number): number { return Math.max(0, deadline - jetzt); }
 

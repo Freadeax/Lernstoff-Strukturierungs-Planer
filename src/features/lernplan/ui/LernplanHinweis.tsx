@@ -10,9 +10,10 @@ import { inLernplan, type ThemenErgebnis, type TrainerId, type Uebernahme } from
 export function useLernplanUebernahme(trainer: TrainerId) {
   const [uebernahme, setUebernahme] = useState<Uebernahme[] | null>(null);
   const [fehler, setFehler] = useState('');
-  const uebernimm = useCallback((ergebnisse: ThemenErgebnis[]) => {
+  // versuchId (Form <modul>:<ref>:<lauf>): derselbe Versuch zählt nur einmal, auch nach Reload oder Doppelklick.
+  const uebernimm = useCallback((ergebnisse: ThemenErgebnis[], versuchId?: string) => {
     setFehler('');
-    inLernplan(trainer, ergebnisse).then(setUebernahme).catch((e) => { setUebernahme(null); setFehler(e instanceof Error ? e.message : String(e)); });
+    inLernplan(trainer, ergebnisse, undefined, undefined, versuchId).then(setUebernahme).catch((e) => { setUebernahme(null); setFehler(e instanceof Error ? e.message : String(e)); });
   }, [trainer]);
   const zuruecksetzen = useCallback(() => { setUebernahme(null); setFehler(''); }, []);
   return { uebernahme, fehler, uebernimm, zuruecksetzen };

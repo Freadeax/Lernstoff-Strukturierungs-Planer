@@ -87,6 +87,22 @@ try {
     await axe(page, 'Kalenderexport mit Uhrzeit');
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Überlauf bei ${width}px`);
 
+    // CE-Matrix: Materialstand je Ausbildungsabschnitt, CE 10 mit Weg Quelle → Abfrage
+    await page.goto(base + '#/lernen/ce?ansicht=matrix', { waitUntil: 'networkidle' });
+    await page.getByRole('heading', { name: '3. Ausbildungsdrittel' }).waitFor();
+    assert.match(await page.locator('.ce-matrix__tabelle').first().innerText(), /CE 01/);
+    await axe(page, 'CE-Matrix');
+    await page.screenshot({ path: path.join(out, `ce-matrix-${width}.png`), fullPage: true });
+    assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Überlauf CE-Matrix bei ${width}px`);
+    await page.goto(base + '#/lernen/ce?ce=ce.10', { waitUntil: 'networkidle' });
+    await page.getByRole('heading', { name: 'Materialstand' }).waitFor();
+    await page.getByText(/Alle \d+ Themen einzeln/).click();
+    const ce10 = await page.locator('.ce-matrix__themen').innerText();
+    assert.match(ce10, /Neugeborenes und Wochenbett/);
+    assert.match(ce10, /Keine Quelle/);
+    await axe(page, 'CE 10 Materialstand');
+    assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Überlauf CE 10 bei ${width}px`);
+
     // Material: schwer lesbare Seiten, Dubletten, Sprung zur Fundstelle, Original neben der Zusammenfassung
     const thema = blaetter[1];
     await page.evaluate(async ({ thema }) => {
@@ -143,7 +159,7 @@ try {
     await axe(page, 'Fortschritt');
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Überlauf bei ${width}px`);
     assert.deepEqual(errors, []);
-    console.log(`Lernalltag ${width}px: liegen gebliebene Blöcke, Dienstplan mit Vorschau, Kompetenzbereiche, Kalenderexport, Fundstelle, Original nebeneinander, Lese-/Dublettenhinweise, Fehlerheft-Rückwege, Lernstufen und WCAG bestanden.`);
+    console.log(`Lernalltag ${width}px: liegen gebliebene Blöcke, Dienstplan mit Vorschau, Kompetenzbereiche, Kalenderexport, CE-Matrix, Fundstelle, Original nebeneinander, Lese-/Dublettenhinweise, Fehlerheft-Rückwege, Lernstufen und WCAG bestanden.`);
     await context.close();
   }
 } finally { await browser.close(); }

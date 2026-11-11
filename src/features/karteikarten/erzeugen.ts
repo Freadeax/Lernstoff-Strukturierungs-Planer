@@ -375,3 +375,28 @@ export function pruefeEingabe(eingabe: string, karte: Pick<Karte, 'hinten' | 'al
 
 /** Bewertungsvorschlag nach dem Eintippen. */
 export const VORSCHLAG: Record<Exclude<EingabeErgebnis, 'leer'>, 1 | 2 | 3> = { richtig: 3, tippfehler: 2, falsch: 1 };
+
+// ---------------------------------------------------------------- Prüfhinweise beim Bearbeiten
+
+export interface KartenHinweis { art: 'luecke' | 'quelle' | 'ungeprueft'; text: string }
+
+/**
+ * Was an einer Karte nachzubessern ist (Audit: importierte Textlücken und fehlende Quellen sichtbar machen):
+ * unmarkierte Lücken („___“, „[…]“) aus Importen, leere oder offene [[Klammern]], Karten ohne Fundstelle
+ * und Katalogangaben, die noch nicht gegen Lehrbuch oder Fachinformation geprüft sind.
+ */
+export function kartenHinweise(k: Pick<Karte, 'vorne' | 'hinten' | 'liste' | 'luecken' | 'belege' | 'quellen' | 'belegText' | 'ungeprueft' | 'quelle'>): KartenHinweis[] {
+  const out: KartenHinweis[] = [];
+  const text = `${k.vorne}\n${k.hinten}\n${(k.liste ?? []).join('\n')}`;
+  const unmarkiert = (text.match(/_{3,}|\[(?:…|\.\.\.)\]|\(\s*\)/g) ?? []).length;
+  if (unmarkiert) out.push({ art: 'luecke', text: `${unmarkiert} unmarkierte ${unmarkiert === 1 ? 'Lücke' : 'Lücken'} (z. B. „___“). Als [[Antwort]] eintragen, sonst wird nichts abgefragt.` });
+  const offen = (k.vorne.match(/\[\[/g) ?? []).length - (k.vorne.match(/\]\]/g) ?? []).length;
+  if (offen) out.push({ art: 'luecke', text: 'Eine Lücke ist nicht geschlossen: zu jedem [[ gehört ein ]].' });
+  if (/\[\[\s*(\|[^\]]*)?\]\]/.test(k.vorne)) out.push({ art: 'luecke', text: 'Eine Lücke ist leer und wird nicht abgefragt.' });
+  if (k.luecken && !luecken(k.vorne).length) out.push({ art: 'luecke', text: 'Lückentext ohne Lücke: Wort markieren und „Markierung zur Lücke machen“.' });
+  if (!k.belege?.length && !k.quellen?.length && !k.belegText?.trim()) {
+    out.push({ art: 'quelle', text: k.quelle === 'eigen' ? 'Ohne Quelle: Trag eine Fundstelle ein (Skript, Seite), damit du die Antwort nachprüfen kannst.' : 'Ohne Quelle: Herkunft ist nur der Katalog, ergänzend.' });
+  }
+  if (k.ungeprueft) out.push({ art: 'ungeprueft', text: 'Katalogangabe, noch nicht gegen Lehrbuch oder Fachinformation geprüft.' });
+  return out;
+}

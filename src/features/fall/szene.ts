@@ -102,14 +102,15 @@ export function minutenAus(uhrzeit: string | undefined): number | null {
 const istAn = (m: MonitorWerte) => [m.puls, m.spo2, m.af].some((x) => x !== null && x !== undefined);
 
 /** Alarm in einem Zug: kritischer Zustand, roter Monitorwert oder ausdrücklich im Text. */
-function alarmVon(zug: Zug | undefined): boolean {
+function alarmVon(zug: Zug | undefined, messwert = true): boolean {
   if (!zug) return false;
   const m = monitorWerte(zug.vitalwerte);
-  return zug.zustand === 'kritisch' || (istAn(m) && gesamtAlarm(m) === 'rot') || /alarm|reanimation|notfall/i.test(zug.situation);
+  return zug.zustand === 'kritisch' || (messwert && istAn(m) && gesamtAlarm(m) === 'rot') || /alarm|reanimation|notfall/i.test(zug.situation);
 }
 
 /** Szene für den aktuellen Stand des Falls. */
-export function szenenBild(fall: Fall): SzenenBild {
+/** messwertAlarm=false: rote Erwachsenen-Grenzen lösen keinen Alarm aus (Kinderfall ohne Freigabe). */
+export function szenenBild(fall: Fall, { messwertAlarm = true }: { messwertAlarm?: boolean } = {}): SzenenBild {
   const runden = fall.runden;
   const letzte = runden.at(-1);
   const zug = letzte?.zug;
@@ -117,8 +118,8 @@ export function szenenBild(fall: Fall): SzenenBild {
   const zustand: Zustand = zug?.zustand ?? 'stabil';
   const monitor = monitorWerte(zug?.vitalwerte);
   const monitorAn = istAn(monitor);
-  const alarm = alarmVon(zug);
-  const alarmNeu = alarm && !alarmVon(runden.at(-2)?.zug);
+  const alarm = alarmVon(zug, messwertAlarm);
+  const alarmNeu = alarm && !alarmVon(runden.at(-2)?.zug, messwertAlarm);
   const personen = personenIn(situation);
   const telefon = /telefon|ruft (an|zurück)|anruf|klingelt das telefon|am apparat/i.test(situation);
   const verlaufTexte = runden.flatMap((r) => [r.eingabe ?? '', r.zug.situation]);

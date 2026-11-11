@@ -21,6 +21,7 @@ import { Portraet } from '../../ui/sim/Portraet';
 import { personFuer } from '../../ui/sim/personen';
 import { raumFotoFuer } from './raumfotos';
 import { PatientenMonitor } from '../../ui/sim/PatientenMonitor';
+import { monitorGruppe } from '../../ui/sim/monitor';
 import { SimTon } from '../../ui/audio/SimTon';
 import { klangZuBefund, raumFuerSetting } from '../../ui/audio/klaenge';
 import { HoerBeispiel } from '../../ui/audio/HoerBeispiel';
@@ -299,12 +300,12 @@ export function Arbeitsplatz({ s, send, panel, setPanel, zeitraffer = 1, uhrLaeu
     </div>
     <section className="praxis-monitor" aria-label="Vitalparameter"><div className="praxis-monitor__heading"><strong>{s.monitoring ? 'Kontinuierliches Monitoring' : s.measuredAt === null ? 'Noch keine Messung' : `Letzte Messung · ${clock(s.measuredAt)}`}</strong><span>SpO₂: LOINC 59408-5 · keine Alarmgrenzen für die pädiatrische Bewertung</span></div>
       {s.monitoring
-        ? <><PatientenMonitor className="praxis-monitor__live" titel={`Monitor · ${clock(s.time)}`} werte={{ puls: s.measured.pulse ?? null, af: s.measured.resp ?? null, spo2: s.measured.spo2 ?? null, sys: s.measured.sys ?? null, dia: s.measured.dia ?? null, temp: s.measured.temp ?? null, avpu: consciousness(s), sauerstoff: s.oxygen ?? false }} />
+        ? <><PatientenMonitor className="praxis-monitor__live" gruppe={monitorGruppe(s.scenario.age)} titel={`Monitor · ${clock(s.time)}`} werte={{ puls: s.measured.pulse ?? null, af: s.measured.resp ?? null, spo2: s.measured.spo2 ?? null, sys: s.measured.sys ?? null, dia: s.measured.dia ?? null, temp: s.measured.temp ?? null, avpu: consciousness(s), sauerstoff: s.oxygen ?? false }} />
           <dl className="praxis-monitor__rest">{VITALS.filter(v => v.key === 'glucose' || v.key === 'pain').map(v => <div key={v.key}><dt>{v.label}</dt><dd>{format(s.measured[v.key], v.key)}<small>{v.unit}</small></dd></div>)}</dl></>
         : <dl>{VITALS.map(v => <div key={v.key}><dt>{v.label}</dt><dd>{format(s.measured[v.key], v.key)}<small>{v.unit}</small></dd></div>)}</dl>}
       {automatischeWertung(freigabeFuer(s.scenario))
         ? <News2Badge point={s.monitoring && s.measuredAt !== null ? { at: s.measuredAt, vitals: s.vitals, avpu: consciousness(s), oxygen: s.oxygen ?? false } : s.chart?.at(-1)} />
-        : <div className="praxis-news2 is-empty"><strong>Keine automatische Wertung</strong><span>NEWS2 und die Alarmfarben am Monitor gelten für Erwachsene. Für Kinder ist noch kein geprüftes Profil hinterlegt: Werte selbst mit Kinder-Normwerten einordnen.</span></div>}
+        : <div className="praxis-news2 is-empty"><strong>Keine automatische Wertung</strong><span>NEWS2 gilt nur für Erwachsene. Der Monitor nutzt das Kinderprofil seiner Altersgruppe (Quelle im Monitorkopf). Der Fall ist fachlich ungeprüft: Werte selbst mit Kinder-Normwerten einordnen.</span></div>}
     </section>
     <Entscheidung s={s} send={send} />
     <div className={`praxis-feedback ${last?.kind === 'warning' ? 'is-warning' : last?.kind === 'story' ? 'is-story' : ''}`} role="status" aria-live="polite" aria-atomic="true"><strong>{last?.title}</strong><p>{last?.detail}</p></div>

@@ -23,6 +23,8 @@ export interface PatientenMonitorProps {
   className?: string;
   /** Altersgruppe für die Alarmgrenzen (Standard Erwachsene). Bei Kindern zeigt der Monitor das Profil an. */
   gruppe?: MonitorGruppe;
+  /** false: Werte nicht automatisch einfärben und kein Alarm, z. B. Kinderfall ohne fachliche Freigabe. */
+  bewerten?: boolean;
 }
 
 // Systemeinstellung oder App-Schalter „Bewegung reduzieren“ (data-motion="reduce")
@@ -140,11 +142,11 @@ function Wert({ label, wert, einheit, alarm, nachkomma = 0, klasse, klein }: {
   );
 }
 
-export function PatientenMonitor({ werte, kompakt = false, aktiv = true, titel, ausText = 'Kein Signal', className = '', gruppe = 'erwachsen' }: PatientenMonitorProps) {
+export function PatientenMonitor({ werte, kompakt = false, aktiv = true, titel, ausText = 'Kein Signal', className = '', gruppe = 'erwachsen', bewerten = true }: PatientenMonitorProps) {
   const w = werte;
   const profil = alarmProfil(gruppe);
-  const st = (p: Parameters<typeof alarmStufe>[0], n: number | null | undefined): Alarm => (aktiv ? alarmStufe(p, n, gruppe) : 'ok');
-  const alarm = aktiv ? gesamtAlarm(w, gruppe) : 'ok';
+  const st = (p: Parameters<typeof alarmStufe>[0], n: number | null | undefined): Alarm => (aktiv && bewerten ? alarmStufe(p, n, gruppe) : 'ok');
+  const alarm = aktiv && bewerten ? gesamtAlarm(w, gruppe) : 'ok';
   const spo2Amp = typeof w.spo2 === 'number' && w.spo2 < 90 ? 0.6 : 0.9;
   const kanalEkg: Kanal = { fn: ekg, rate: () => proSekunde(w.puls, 20), amp: () => 0.9 };
   const kanalPleth: Kanal = { fn: pleth, rate: () => (typeof w.spo2 === 'number' ? proSekunde(w.puls ?? 75, 20) : 0), amp: () => spo2Amp };
@@ -156,7 +158,7 @@ export function PatientenMonitor({ werte, kompakt = false, aktiv = true, titel, 
     `Herzfrequenz ${anzeige(w.puls)}`, `SpO₂ ${anzeige(w.spo2)} %`, `Atemfrequenz ${anzeige(w.af)}`,
     !kompakt && `Blutdruck ${bd}`, !kompakt && `Temperatur ${anzeige(w.temp, 1)} °C`,
     alarm === 'rot' ? 'Alarm: kritischer Wert' : alarm === 'gelb' ? 'Hinweis: auffälliger Wert' : '',
-    gruppe !== 'erwachsen' && profil.label,
+    gruppe !== 'erwachsen' && (bewerten ? profil.label : 'ohne automatische Alarmwertung'),
   ].filter(Boolean).join(', ');
 
   return (
@@ -165,7 +167,7 @@ export function PatientenMonitor({ werte, kompakt = false, aktiv = true, titel, 
       {(titel || alarm !== 'ok' || !aktiv || gruppe !== 'erwachsen') && (
         <div className="sim-monitor__kopf" aria-hidden="true">
           <span>{titel}</span>
-          {gruppe !== 'erwachsen' && <span className={`sim-monitor__profil ${profil.bewertet ? '' : 'is-offen'}`} title={profil.quelle}>{profil.bewertet ? profil.label.replace('Alarmgrenzen ', '') : 'kein Profil'}</span>}
+          {gruppe !== 'erwachsen' && <span className={`sim-monitor__profil ${profil.bewertet && bewerten ? '' : 'is-offen'}`} title={profil.quelle}>{!bewerten ? 'ohne Alarmwertung' : profil.bewertet ? profil.label.replace('Alarmgrenzen ', '') : 'kein Profil'}</span>}
           {!aktiv ? <span className="sim-monitor__status">{ausText}</span>
             : alarm === 'rot' ? <span className="sim-monitor__status is-rot">Alarm</span>
               : alarm === 'gelb' ? <span className="sim-monitor__status is-gelb">Hinweis</span> : null}

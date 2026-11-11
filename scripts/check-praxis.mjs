@@ -57,8 +57,18 @@ try {
     await page.locator('.praxis-lernclips button', { hasText: 'Kompressionsstrumpf' }).click();
     await page.locator('dialog.hvideo[open]').waitFor();
     assert(await page.locator('dialog.hvideo video, dialog.hvideo img').count() >= 1, 'Clip zeigt Video oder Phasenbild');
+    // Medienstart nur auf Knopfdruck, Fortschritt getrennt von der Handlung im Fall.
+    if (await page.locator('dialog.hvideo video').count()) {
+      assert(await page.locator('dialog.hvideo video').evaluate(v => v.paused && !v.autoplay), 'Video startet nicht von selbst');
+      assert(await page.locator('dialog.hvideo').getByRole('button', { name: 'Video abspielen' }).isVisible(), 'eigener Startknopf');
+    }
+    assert(await page.locator('dialog.hvideo .hvideo__nur').isVisible(), 'Lernclip ohne Fallhandlung');
+    assert(await page.locator('dialog.hvideo .freigabe-ort').isVisible(), 'Prüfstatus am Clip');
     await page.getByRole('button', { name: /Zwischenzustand/ }).click();
     assert(await page.locator('dialog.hvideo img[alt^="Phase 3 von 4"]').isVisible(), 'Phasenbild 3');
+    assert.match(await page.locator('dialog.hvideo .hvideo__status').textContent(), /Schritt 3 von 4/);
+    await page.locator('dialog.hvideo').getByRole('button', { name: 'Weiter', exact: true }).click();
+    assert.match(await page.locator('dialog.hvideo .hvideo__text h3').textContent(), /Endzustand/);
     await audit('Lernclip');
     await page.locator('dialog.hvideo').getByRole('button', { name: 'Schließen', exact: true }).click();
     assert.equal(await page.locator('dialog.hvideo[open]').count(), 0);
@@ -216,6 +226,10 @@ try {
       await p2.getByRole('button', { name: 'Probefall starten: Das Spray hilft heute nicht', exact: true }).click();
       await p2.locator('.szene svg').waitFor();
       await p2.getByText(/gezeichnete Ersatzansicht/).waitFor();
+      // Freigabe (SIM-02): Lernziele am Start, Kennzeichnung am Entscheidungsort, Kinder-Monitor ohne Alarmwertung
+      await p2.getByRole('region', { name: 'Lernziele und fachlicher Prüfstand' }).waitFor();
+      await p2.locator('.fall__eingabe .freigabe-ort', { hasText: 'Fachlich ungeprüft' }).waitFor();
+      assert.equal(await p2.locator('.sim-monitor.is-alarm-rot').count(), 0);
       await ctx.close();
     }
     // Notfall-Trainer: Reanimationsübung mit künstlicher Uhr (Zyklus 30 s ohne Warten).

@@ -76,3 +76,16 @@
 @container content (min-width: 640px) {
   .kb__vgl-spalten { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+/* Zuständigkeit je Abschnitt: Pflege beobachtet, ärztlich, Pflege handelt */
+.kb__rollen { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-2); font-size: var(--text-sm); margin: var(--space-2) 0 0; }
+.kb__rolle { display: inline-block; padding: 1px 8px; border-radius: var(--radius-pill); font-size: 0.75rem; font-weight: 600; border: 1px solid currentColor; }
+.kb__rolle--beobachtung { color: var(--color-info); }
+.kb__rolle--aerztlich { color: var(--color-text-muted); }
+.kb__rolle--pflege { color: var(--color-success); }
+.kb__abschnitt--beobachtung, .kb__abschnitt--aerztlich, .kb__abschnitt--pflege { padding-left: var(--space-3); border-left: 3px solid var(--color-border); }
+.kb__abschnitt--beobachtung { border-left-color: var(--color-info); }
+.kb__abschnitt--pflege { border-left-color: var(--color-success); }
+.kb__abschnitt--aerztlich { border-left-style: dashed; }
+.kb__warn { margin-top: var(--space-3); padding: var(--space-2) var(--space-3); border: 1px solid var(--color-danger); border-radius: var(--radius-md); }
+.kb__warn h3 { margin: 0; font-size: var(--text-md); color: var(--color-danger); }

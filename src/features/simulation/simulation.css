@@ -93,3 +93,7 @@
 .sim__antwort { padding: var(--space-2); background: var(--color-surface-sunken); border-radius: var(--radius-sm); }
 .sim__selbst { margin-top: var(--space-2); }
 .sim__selbst p { margin: var(--space-1) 0; font-size: var(--text-sm); }
+
+/* Lernmodus: Pause und Modushinweis */
+.sim__modus { font-size: var(--text-sm); margin: var(--space-1) 0 0; }
+.sim__pause { display: grid; gap: var(--space-2); justify-items: start; }

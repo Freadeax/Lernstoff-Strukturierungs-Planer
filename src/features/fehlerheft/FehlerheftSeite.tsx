@@ -63,7 +63,7 @@ function Eintrag({ f, onEntfernen }: { f: Fehler; onEntfernen: () => void }) {
     <li className={`fehlerheft__eintrag ${klasse}`}>
       <div className="fehlerheft__zeile">
         <strong>{f.titel}</strong>
-        <span className="fehlerheft__meta">{QUELLE_LABEL[f.quelle]} · {f.fehlerAnzahl}× falsch · {f.behoben ? `behoben am ${datum(f.behoben)}` : <Punkte f={f} />}</span>
+        <span className="fehlerheft__meta">{QUELLE_LABEL[f.quelle]}{f.kriterium && <> · <span className="tag fehlerheft__kriterium">{f.kriterium}</span></>} · {f.fehlerAnzahl}× falsch · {f.behoben ? `behoben am ${datum(f.behoben)}` : <Punkte f={f} />}</span>
       </div>
       <details>
         <summary>Letztes Beispiel und Lösung</summary>
@@ -71,6 +71,7 @@ function Eintrag({ f, onEntfernen }: { f: Fehler; onEntfernen: () => void }) {
         <p className="muted">Deine Antwort: {f.deineAntwort}</p>
         <p>Richtig: <strong>{f.loesung}</strong></p>
         {f.erklaerung.length > 0 && <FachListe texte={f.erklaerung} className="fehlerheft__weg" nummeriert />}
+        {f.beleg && <p className="muted fehlerheft__beleg">Quelle: {f.beleg}</p>}
         <div className="row">
           {link && <a className="button-link" href={`#${link.path}`}>{link.label}</a>}
           <button type="button" className="ghost" onClick={onEntfernen}>Aus dem Fehlerheft entfernen</button>
@@ -84,10 +85,13 @@ const datum = (t: string) => new Date(`${t}T12:00:00`).toLocaleDateString('de-DE
 
 function Wiederholen({ aufgaben, onAntwort, onEnde }: {
   aufgaben: Aufgabe2[];
-  onAntwort: (f: Fehler, richtig: boolean, eingabe: string) => void;
+  onAntwort: (f: Fehler, richtig: boolean, eingabe: string, versuchId: string) => void;
   onEnde: (richtig: number) => void;
 }) {
   const [i, setI] = useState(0);
+  // Eine Kennung je Sitzung: Jede Aufgabe zählt einmal, auch bei doppeltem Absenden
+  const sitzungId = useRef(`fehlerheft:${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`);
+  const gemeldet = useRef(-1);
   const [eingabe, setEingabe] = useState('');
   const [wahl, setWahl] = useState<number[]>([]);
   const [ergebnis, setErgebnis] = useState<boolean | null>(null);
@@ -114,9 +118,11 @@ function Wiederholen({ aufgaben, onAntwort, onEnde }: {
       ok = auswahlRichtig(a.w, wahl);
       text = wahl.map((x) => a.w.optionen[x]).join(' · ');
     }
+    if (gemeldet.current === i) return;
+    gemeldet.current = i;
     setErgebnis(ok);
     if (ok) setRichtig((r) => r + 1);
-    onAntwort(a.fehler, ok, text);
+    onAntwort(a.fehler, ok, text, `${sitzungId.current}:${i}`);
   }
 
   const waehle = (x: number) => {
@@ -191,6 +197,7 @@ export default function FehlerheftSeite() {
   const [sitzung, setSitzung] = useState<Aufgabe2[] | null>(null);
   const [fazit, setFazit] = useState<string | null>(null);
   const [quelle, setQuelle] = useState<FehlerQuelle | null>(null);
+  const [kriterium, setKriterium] = useState<string | null>(null);
   const [behobeneZeigen, setBehobeneZeigen] = useState(false);
 
   // Andere Tabs oder Trainer haben neue Fehler eingetragen
@@ -202,7 +209,8 @@ export default function FehlerheftSeite() {
   }, []);
 
   const ue = useMemo(() => ueberblick(liste), [liste]);
-  const gefiltert = useMemo(() => liste.filter((f) => !quelle || f.quelle === quelle), [liste, quelle]);
+  const gefiltert = useMemo(() => liste.filter((f) => (!quelle || f.quelle === quelle) && (!kriterium || f.kriterium === kriterium)), [liste, quelle, kriterium]);
+  const kriterien = useMemo(() => [...new Set(liste.filter((f) => istOffen(f) && (!quelle || f.quelle === quelle)).map((f) => f.kriterium).filter((k): k is string => !!k))].sort(), [liste, quelle]);
   const gruppen = useMemo(() => nachThema(gefiltert), [gefiltert]);
   const behobene = gefiltert.filter((f) => !istOffen(f));
 
@@ -215,9 +223,9 @@ export default function FehlerheftSeite() {
     setSitzung(auswahl.map(baue));
   }
 
-  function antwort(f: Fehler, richtig: boolean, eingabe: string) {
+  function antwort(f: Fehler, richtig: boolean, eingabe: string, versuchId: string) {
     // Immer vom aktuellen Speicher aus, damit parallel eingetragene Fehler nicht verloren gehen
-    aendere(wiederholt(ladeFehler(), f.id, richtig, eingabe));
+    aendere(wiederholt(ladeFehler(), f.id, richtig, eingabe, new Date(), versuchId));
   }
 
   function ende(richtig: number) {
@@ -237,7 +245,8 @@ export default function FehlerheftSeite() {
       <div className="page__head">
         <h2>Fehlerheft</h2>
         <p className="muted">
-          Falsche Antworten aus Rechentrainer, Fachbegriff-Duell, Prüfungssimulation und Krankheitsbild-Fällen landen automatisch hier.
+          Falsche Antworten aus Rechentrainer, Fachbegriff-Duell, Prüfungssimulation, Krankheitsbildern, Assessments, Praxissimulator und allen Übungstrainern landen automatisch hier.
+          Dieselbe Aufgabe bleibt ein Eintrag; ein Versuch zählt auch nach Neuladen nur einmal.
           Ein Fehler gilt als behoben, wenn du ihn an {BEHOBEN_NACH} verschiedenen Tagen richtig löst. Heute gemachte Fehler kommen ab morgen dran,
           damit du nicht nur die eben gesehene Lösung wiederholst. Das Fehlerheft zählt nicht als Abfrage im Lernplan.
         </p>
@@ -263,13 +272,19 @@ export default function FehlerheftSeite() {
           ) : (
             <>
               <div className="pills" role="group" aria-label="Herkunft">
-                <button type="button" className="pill" aria-pressed={quelle === null} onClick={() => setQuelle(null)}>Alle</button>
+                <button type="button" className="pill" aria-pressed={quelle === null} onClick={() => { setQuelle(null); setKriterium(null); }}>Alle</button>
                 {(Object.keys(QUELLE_LABEL) as FehlerQuelle[]).map((q) => (
-                  <button key={q} type="button" className="pill" aria-pressed={quelle === q} onClick={() => setQuelle(q)}>
+                  <button key={q} type="button" className="pill" aria-pressed={quelle === q} onClick={() => { setQuelle(q); setKriterium(null); }}>
                     {QUELLE_LABEL[q]}<span className="pill__count">{ue.nachQuelle[q]}</span>
                   </button>
                 ))}
               </div>
+              {kriterien.length > 0 && (
+                <div className="pills" role="group" aria-label="Kriterium">
+                  <button type="button" className="pill small" aria-pressed={kriterium === null} onClick={() => setKriterium(null)}>Alle Kriterien</button>
+                  {kriterien.map((k) => <button key={k} type="button" className="pill small" aria-pressed={kriterium === k} onClick={() => setKriterium(kriterium === k ? null : k)}>{k}</button>)}
+                </div>
+              )}
               <div className="row">
                 {heuteDran > 0
                   ? <button type="button" className="primary" onClick={() => starte(false)}>Wiederholen ({Math.min(heuteDran, SITZUNG_MAX)})</button>

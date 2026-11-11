@@ -225,3 +225,11 @@ describe('Examens-Hinweis auf der Übersicht', async () => {
     expect([inTagen(0), inTagen(1), inTagen(5)]).toEqual(['heute', 'morgen', 'in 5 Tagen']);
   });
 });
+
+describe('Übungen je Prüfungsteil', () => {
+  it('zählt Themen je Übung und kürzt den Pfad, wenn mehrere Themen dieselbe Übung nutzen', async () => {
+    const { uebungenJeTeil } = await import('./radar');
+    const u = uebungenJeTeil(['a', 'b', 'c'], (t) => (t === 'c' ? [{ trainer: 'x', label: 'X', path: '/x?b=c' }] : [{ trainer: 'r', label: 'R', path: `/r?t=${t}` }]));
+    expect(u).toEqual([{ label: 'R', path: '/r', themen: 2 }, { label: 'X', path: '/x?b=c', themen: 1 }]);
+  });
+});

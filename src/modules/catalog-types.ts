@@ -43,7 +43,8 @@ export interface Framework {
   referenceIds?: ID[];
   pruefstatus?: Pruefstatus;
   hinweis?: string;
-  items: Array<{ id: ID; parentId?: ID; code: string; name: string }>;
+  /** abschnitte: Ausbildungsabschnitte (bei CE: ad12 = 1./2. Ausbildungsdrittel, ad3 = 3. Drittel). */
+  items: Array<{ id: ID; parentId?: ID; code: string; name: string; abschnitte?: string[] }>;
 }
 
 /** Wissensobjekt mit eigener Identität, auf das Themen verweisen. */

@@ -121,3 +121,30 @@ describe('Layout', () => {
     expect(svg).not.toContain('var(--');
   });
 });
+
+describe('Versionierte Speicherung', () => {
+  it('hebt alte Stände an und repariert kaputte Bäume', async () => {
+    const { migriere, SCHEMA } = await import('./modell');
+    const m = migriere({ id: 'a', wurzel: { text: 'Herz', kinder: [{ id: 'x', text: 1 }, null] }, topicId: 'thema.x' });
+    expect(m).toMatchObject({ id: 'a', schema: SCHEMA, rev: 1, topicId: 'thema.x', wurzel: { text: 'Herz', kinder: [{ id: 'x', text: '1', kinder: [] }] } });
+    expect(m!.wurzel.id).toBeTruthy();
+    expect(migriere({ id: 'b' })).toBeNull();
+  });
+
+  it('hält höchstens alle zwei Minuten eine Fassung fest, nie doppelt', async () => {
+    const { naechsteFassungen, FASSUNG_ABSTAND_MS, knoten } = await import('./modell');
+    const alt = { id: 'a', wurzel: knoten('A'), erstellt: '', geaendert: '', rev: 3 };
+    const t0 = Date.parse('2026-11-11T10:00:00Z');
+    const eins = naechsteFassungen([], alt, t0);
+    expect(eins.map((f) => f.rev)).toEqual([3]);
+    expect(naechsteFassungen(eins, { ...alt, rev: 4, wurzel: knoten('B') }, t0 + 1000)).toBe(eins);
+    expect(naechsteFassungen(eins, { ...alt, rev: 4, wurzel: knoten('B') }, t0 + FASSUNG_ABSTAND_MS + 1).map((f) => f.rev)).toEqual([4, 3]);
+  });
+
+  it('Umbenennen der Mindmap lässt die Themenverknüpfung (ID) unberührt', async () => {
+    const { umbenennen, knoten, neueMindmap } = await import('./modell');
+    const m = neueMindmap(knoten('Diabetes'), 'thema.diabetes');
+    const w = umbenennen(m.wurzel, m.wurzel.id, 'Diabetes mellitus Typ 2');
+    expect({ ...m, wurzel: w }.topicId).toBe('thema.diabetes');
+  });
+});

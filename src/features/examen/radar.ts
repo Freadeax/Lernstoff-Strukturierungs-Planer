@@ -91,12 +91,30 @@ export function pruefungsTeile(modul: CatalogModule): PruefungsTeil[] {
 }
 
 /** Stand je Prüfungsteil: ein Thema zählt, wenn eine seiner Kompetenzen zum Teil passt. */
-export function proTeil(k: Katalog, teile: PruefungsTeil[], f: Fakten): Array<Stand & { teil: PruefungsTeil }> {
+export function proTeil(k: Katalog, teile: PruefungsTeil[], f: Fakten): Array<Stand & { teil: PruefungsTeil; themenIds: ID[] }> {
   const themen = [...f.status.keys()];
-  return teile.map((teil) => ({
-    ...stand(teil.id, teil.kurz, teil.name, themen.filter((t) => kompetenzenVon(k, t).some((c) => teil.kompetenzen.some((p) => passt(c, p)))), f),
-    teil,
-  }));
+  return teile.map((teil) => {
+    const ids = themen.filter((t) => kompetenzenVon(k, t).some((c) => teil.kompetenzen.some((p) => passt(c, p))));
+    return { ...stand(teil.id, teil.kurz, teil.name, ids, f), teil, themenIds: ids };
+  });
+}
+
+/** Rechtsgrundlage je Prüfungsart in der PflAPrV (Ausbildung zur Pflegefachfrau / zum Pflegefachmann). */
+export const PFLAPRV: Record<string, string> = { schriftlich: '§ 14 PflAPrV', muendlich: '§ 15 PflAPrV', praktisch: '§ 16 PflAPrV' };
+
+/**
+ * Welche Übungen die Themen eines Prüfungsteils abdecken, mit Anzahl der Themen je Übung.
+ * `uebungen` liefert die passenden Übungen je Thema (uebungenFuer), damit radar.ts frei von Trainerdaten bleibt.
+ */
+export function uebungenJeTeil(themenIds: ID[], uebungen: (id: ID) => Array<{ trainer: string; label: string; path: string }>, max = 5) {
+  const zahl = new Map<string, { label: string; path: string; themen: number }>();
+  for (const t of themenIds) {
+    for (const u of new Map(uebungen(t).map((x) => [x.trainer, x])).values()) {
+      const alt = zahl.get(u.trainer);
+      zahl.set(u.trainer, { label: alt?.label ?? u.label, path: alt ? alt.path.split('?')[0]! : u.path, themen: (alt?.themen ?? 0) + 1 });
+    }
+  }
+  return [...zahl.values()].sort((a, b) => b.themen - a.themen).slice(0, max);
 }
 
 export interface Schwachstelle { topicId: ID; punkte: number; gruende: string[] }

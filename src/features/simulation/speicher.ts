@@ -21,7 +21,23 @@ export interface Lauf {
   automatisch?: boolean;                 // Zeit abgelaufen
   wertungen?: Record<string, Wertung>;
   uebergeben?: boolean;                  // an den Lernplan übergeben
+  /**
+   * 'pruefung' (Standard): die Zeit läuft wie im Examen weiter, auch bei App-Wechsel und Neuladen.
+   * 'lernen': pausierbar, pausiert von selbst beim Verlassen der App; das Ergebnis zählt als Übung, nicht als Prüfungsnachweis.
+   */
+  modus?: 'pruefung' | 'lernen';
+  pausiertSeit?: number;                 // nur im Lernmodus: seit wann pausiert
 }
+
+/** Setzt eine Pause fort: Start und Ende rücken um die Pausendauer nach hinten. */
+export function fortsetzen(l: Lauf, jetzt = Date.now()): Lauf {
+  if (!l.pausiertSeit) return l;
+  const pause = Math.max(0, jetzt - l.pausiertSeit);
+  return { ...l, start: l.start + pause, deadline: l.deadline + pause, pausiertSeit: undefined };
+}
+
+/** Uhrzeit, mit der die Restzeit gerechnet wird: während einer Pause steht sie still. */
+export const uhrzeit = (l: Lauf, jetzt = Date.now()) => l.pausiertSeit ?? jetzt;
 
 export interface VerlaufEintrag {
   id: string; titel: string; at: string; minuten: number; gebraucht: number;
@@ -48,6 +64,6 @@ export function ergaenzeVerlauf(e: VerlaufEintrag): VerlaufEintrag[] {
   return neu;
 }
 
-export type Einstellungen = Omit<Auswahl, 'seed' | 'topicIds' | 'satzIds'> & { minuten: number | null; pruefungId: string };
+export type Einstellungen = Omit<Auswahl, 'seed' | 'topicIds' | 'satzIds'> & { minuten: number | null; pruefungId: string; modus?: 'pruefung' | 'lernen' };
 export const ladeEinstellungen = (standard: Einstellungen) => ({ ...standard, ...lies<Partial<Einstellungen>>(EINSTELLUNGEN, {}) });
 export const speichereEinstellungen = (e: Einstellungen) => schreib(EINSTELLUNGEN, e);

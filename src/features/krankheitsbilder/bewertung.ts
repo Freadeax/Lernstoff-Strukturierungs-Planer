@@ -59,19 +59,45 @@ export function belegeFuer(p: DiseaseProfile, abschnitt: DiseaseSection): Diseas
   return (p.belege ?? []).filter((b) => b.abschnitt === abschnitt);
 }
 
-export const ABSCHNITTE: { id: DiseaseSection; label: string }[] = [
-  { id: 'definition', label: 'Definition' },
-  { id: 'formen', label: 'Formen und Einteilung' },
-  { id: 'ursachen', label: 'Ursachen' },
-  { id: 'risikofaktoren', label: 'Risikofaktoren' },
-  { id: 'symptome', label: 'Symptome' },
-  { id: 'komplikationen', label: 'Komplikationen und Warnzeichen' },
-  { id: 'diagnostik', label: 'Diagnostik' },
-  { id: 'therapie', label: 'Therapie' },
-  { id: 'pflege', label: 'Pflegeschwerpunkte' },
-  { id: 'beratung', label: 'Beratung und Anleitung' },
-  { id: 'prophylaxen', label: 'Prophylaxen' },
+/**
+ * Wer ist zuständig? Audit 11.11.2026: Pflegebeobachtung, pflegerische Maßnahmen und ärztliche
+ * Diagnostik sichtbar auseinanderhalten. 'wissen' = Hintergrund ohne Handlungsauftrag.
+ */
+export type Rolle = 'wissen' | 'beobachtung' | 'aerztlich' | 'pflege';
+export const ROLLE_LABEL: Record<Rolle, string> = {
+  wissen: 'Hintergrundwissen',
+  beobachtung: 'Pflege beobachtet',
+  aerztlich: 'Ärztlich, Pflege wirkt mit',
+  pflege: 'Pflege handelt',
+};
+
+export const ABSCHNITTE: { id: DiseaseSection; label: string; rolle: Rolle }[] = [
+  { id: 'definition', label: 'Definition', rolle: 'wissen' },
+  { id: 'formen', label: 'Formen und Einteilung', rolle: 'wissen' },
+  { id: 'ursachen', label: 'Ursachen', rolle: 'wissen' },
+  { id: 'risikofaktoren', label: 'Risikofaktoren', rolle: 'wissen' },
+  { id: 'symptome', label: 'Symptome', rolle: 'beobachtung' },
+  { id: 'komplikationen', label: 'Komplikationen und Warnzeichen', rolle: 'beobachtung' },
+  { id: 'diagnostik', label: 'Ärztliche Diagnostik', rolle: 'aerztlich' },
+  { id: 'therapie', label: 'Ärztliche Therapie', rolle: 'aerztlich' },
+  { id: 'pflege', label: 'Pflegerische Maßnahmen', rolle: 'pflege' },
+  { id: 'beratung', label: 'Beratung und Anleitung', rolle: 'pflege' },
+  { id: 'prophylaxen', label: 'Prophylaxen', rolle: 'pflege' },
 ];
+
+/**
+ * Warnzeichen, die sofort gemeldet werden: Einträge aus Symptomen und Komplikationen mit Hinweisen auf eine
+ * akute Verschlechterung (Atmung, Kreislauf, Bewusstsein, Blutung, Neurologie). Grob nach Stichworten,
+ * deshalb nur als Lesehilfe; die Abschnitte selbst bleiben vollständig.
+ */
+const WARN = /atemnot|dyspnoe|zyanose|bewusstsein|bewusstlos|somnolen|verwirrt|schock|blutdruckabfall|hypoton|tachykard|bradykard|brustschmerz|thoraxschmerz|blutung|bluterbrechen|teerstuhl|krampf|lähmung|sprachstörung|sehstörung|plötzlich|akute?r? |sepsis|kaltschweiß|hohes fieber|nackensteif|apnoe|einziehungen|stridor|anurie|oligurie|ateminsuff|aspiration|entgleis|koma|perforation|ileus|embolie|infarkt|herzrhythmus|kammerflimmern|hypoglyk|ketoazidose/i;
+
+export function warnzeichen(p: Pick<DiseaseProfile, 'symptome' | 'komplikationen'>): Array<{ text: string; aus: 'symptome' | 'komplikationen' }> {
+  const out: Array<{ text: string; aus: 'symptome' | 'komplikationen' }> = [];
+  for (const t of p.komplikationen ?? []) if (WARN.test(t)) out.push({ text: t, aus: 'komplikationen' });
+  for (const t of p.symptome) if (WARN.test(t) && !out.some((x) => x.text === t)) out.push({ text: t, aus: 'symptome' });
+  return out.slice(0, 6);
+}
 
 /** Anteil der vorhandenen Abschnitte, die aus dem Unterrichtsmaterial belegt sind. */
 export function belegQuote(p: DiseaseProfile): { belegt: number; gesamt: number } {

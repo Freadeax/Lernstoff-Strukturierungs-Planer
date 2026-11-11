@@ -96,3 +96,10 @@ describe('Befund zum Hörbeispiel', () => {
     expect(klangZuBefund('Unauffälliger orientierender Lungenbefund.')).toBe('atem-vesikulaer');
   });
 });
+
+describe('Textalternative', () => {
+  it('verdeckt die Namen der Antwortmöglichkeiten', async () => {
+    const { ohneNamen } = await import('./hoeren');
+    expect(ohneNamen('Typisch für Stridor: pfeifend beim Einatmen.', ['Stridor', 'Giemen'])).toBe('Typisch für […]: pfeifend beim Einatmen.');
+  });
+});

@@ -67,8 +67,13 @@ export function definitionen(markdown: string, bekannte?: Set<string>): Array<{ 
   return out;
 }
 
+/** „Quellen“, „Literatur“, „Ergänzende Fachquellen“: Verzeichnisse, aus denen keine Karten entstehen. */
+export const istQuellenAbschnitt = (a: Pick<Abschnitt, 'titel'>) => /^(ergänzende\s+|weitere\s+)?(fach)?(quellen|literatur)(verzeichnis|angaben)?\b/i.test(a.titel.trim());
+
 /** Kartenvorschläge zu einem Abschnitt: Kernaussagen in Gruppen und Definitionskarten. */
 export function kartenAusAbschnitt(skript: Skript, abschnitt: Abschnitt, subjectIds: ID[] = []): Karte[] {
+  // Quellen- und Literaturlisten sind kein Lernstoff
+  if (istQuellenAbschnitt(abschnitt)) return [];
   const bekannte = new Set(skript.quellen.map((q) => q.kuerzel));
   const kopf = abschnitt.kopfBelege ?? [];
   const basis = { quelle: 'zusammenfassung' as const, topicIds: skript.topicIds, subjectIds, ref: `skript:${skript.id}` };

@@ -171,3 +171,22 @@ describe('Übungstrainer als Quelle', () => {
     expect(z.fragen).toHaveLength(3);
   });
 });
+
+describe('Lernmodus, Quelle und unbeantwortete Fragen', () => {
+  it('Fortsetzen verschiebt Start und Ende um die Pause, die Uhr steht in der Pause', async () => {
+    const { fortsetzen, uhrzeit } = await import('./speicher');
+    const l = { id: 'x', titel: '', auswahl: basis, fragen: [], antworten: {}, markiert: [], start: 0, deadline: 60_000, i: 0, modus: 'lernen' as const, pausiertSeit: 10_000 };
+    expect(uhrzeit(l, 50_000)).toBe(10_000);
+    const w = fortsetzen(l, 30_000);
+    expect(w).toMatchObject({ start: 20_000, deadline: 80_000, pausiertSeit: undefined });
+    expect(fortsetzen(w, 99_000)).toBe(w);
+  });
+
+  it('jede Frage nennt ihre Herkunft, Trainerfragen den Trainer', async () => {
+    const { quelleText, unbeantwortet } = await import('./simulation');
+    const z = stelleZusammen(k, basis, []);
+    for (const f of z.fragen) expect(quelleText(f).length).toBeGreaterThan(10);
+    expect(quelleText(z.fragen.find((f) => f.quelle === 'rechnen')!)).toMatch(/fiktiv/);
+    expect(unbeantwortet(z.fragen, {})).toBe(z.fragen.length);
+  });
+});

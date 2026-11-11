@@ -118,3 +118,12 @@
 .steckbrief__inhalt p { margin: 0; }
 .steckbrief__suche { flex: 1 1 18rem; margin: 0; }
 .steckbrief__suche input { width: 100%; }
+
+/* Getrennte Einstiege: fällig, neu, gemischt */
+.karten__einstiege { display: flex; flex-wrap: wrap; gap: var(--space-2); justify-content: center; }
+.karten__thema { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2); }
+
+/* Hinweise beim Bearbeiten: Lücken, fehlende Quelle, ungeprüft */
+.karten__hinweise { list-style: none; margin: var(--space-1) 0; padding: 0; display: grid; gap: var(--space-1); font-size: var(--text-sm); }
+.karten__hinweis { padding: var(--space-1) var(--space-2); border-left: 3px solid var(--color-warning); background: var(--color-surface-sunken); border-radius: var(--radius-sm); }
+.karten__hinweis--quelle { border-left-color: var(--color-border-strong); }

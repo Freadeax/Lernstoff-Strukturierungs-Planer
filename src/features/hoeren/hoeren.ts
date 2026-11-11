@@ -74,3 +74,12 @@ export const ablesen = (p: number) => Math.round(p / 2) * 2;
 
 export const HOER_KEY = 'lernstoff.hoeren.stand';
 export interface HoerStand { quiz?: { datum: string; prozent: number }; blutdruck?: { datum: string; genau: number; versuche: number } }
+
+/** Textalternative ohne Lösung: Namen der Antwortmöglichkeiten werden verdeckt. */
+export function ohneNamen(text: string, namen: string[]): string {
+  let out = text;
+  for (const n of namen.filter((x) => x.length >= 4).sort((a, b) => b.length - a.length)) {
+    out = out.replace(new RegExp(n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), '[…]');
+  }
+  return out;
+}

@@ -7,25 +7,33 @@ import '../quiz/quiz.css';
 import { logActivity } from '../../core/activity';
 import { PageHeading } from '../../ui/PageHeading';
 import { Icon } from '../../ui/icons';
-import { storage } from '../../ui/lib/store';
+import { storage, useStore } from '../../ui/lib/store';
 import { navigate, useRoute } from '../../ui/shell/router';
 import { GRUPPEN, KLANG, type Gruppe } from '../../ui/audio/klaenge';
 import { ausgang, audioMoeglich, entsperre } from '../../ui/audio/motor';
+import { audioEinstellungen, setzeAudio } from '../../ui/audio/einstellungen';
 import { spiele, starteSchleife, type Schleife } from '../../ui/audio/spieler';
 import { dauerRauschen, rauschen, ton, type Werkzeug } from '../../ui/audio/synth';
 import {
-  ablesen, ABLASS_MMHG_PRO_S, druckNach, genauigkeit, HOER_GRUPPEN, HOER_KEY, hoerKlaenge, hoerRunde, korotkow, neuerBlutdruckFall,
+  ablesen, ABLASS_MMHG_PRO_S, ohneNamen, druckNach, genauigkeit, HOER_GRUPPEN, HOER_KEY, hoerKlaenge, hoerRunde, korotkow, neuerBlutdruckFall,
   type BlutdruckFall, type Genauigkeit, type HoerFrage, type HoerStand,
 } from './hoeren';
 
 type Reiter = 'beispiele' | 'quiz' | 'blutdruck';
 const REITER: Array<[Reiter, string]> = [['beispiele', 'Hörbeispiele'], ['quiz', 'Was hörst du?'], ['blutdruck', 'Blutdruck nach Gehör']];
 
+/** Alle laufenden Klänge der Seite, damit „Alles stoppen“ jederzeit greift (Audit: Stop jederzeit erreichbar). */
+const STOPPER = new Set<() => void>();
+const allesStoppen = () => { for (const s of [...STOPPER]) s(); };
+
 /** Ein Klang zur Zeit: Abspielen stoppt den vorherigen. Beim Verlassen der Seite ist Ruhe. */
 function useEinKlang() {
   const [aktiv, setAktiv] = useState<string | null>(null);
   const lauf = useRef<Schleife | null>(null);
   const stopp = () => { lauf.current?.stopp(); lauf.current = null; setAktiv(null); };
+  const stoppRef = useRef(stopp);
+  stoppRef.current = stopp;
+  useEffect(() => { const s = () => stoppRef.current(); STOPPER.add(s); return () => { STOPPER.delete(s); }; }, []);
   const spiel = (id: string, p: { spo2?: number } = {}) => {
     lauf.current?.stopp(); lauf.current = null;
     entsperre();
@@ -62,7 +70,7 @@ function Beispiele() {
             {[...hoerKlaenge(g), ...(g === 'geraet' ? [KLANG['nibp']!, KLANG['defi']!] : [])].map((k) => (
               <li key={k.id} className={`hoe__klang${aktiv === k.id ? ' is-an' : ''}`}>
                 <div>
-                  <h3>{k.titel}</h3>
+                  <h3>{k.titel} <span className="tag hoe__synth" title="Am Gerät erzeugte Nachbildung, keine Aufnahme">synthetisch</span></h3>
                   <p>{k.text}</p>
                   {k.merkmal && <p className="hoe__merkmal"><strong>Woran erkennen:</strong> {k.merkmal}</p>}
                   {k.id === 'monitor-piep' && (
@@ -84,6 +92,7 @@ function Beispiele() {
 }
 
 // ---------------------------------------------------------------- Quiz
+
 
 function Quiz({ onFertig }: { onFertig: (prozent: number) => void }) {
   const [gruppe, setGruppe] = useState<Gruppe | ''>('');
@@ -150,12 +159,19 @@ function Quiz({ onFertig }: { onFertig: (prozent: number) => void }) {
     <div className="card qz__aufgabe">
       <div className="qz__kopf">
         <span className="badge badge--demo">{GRUPPEN[k.gruppe]}</span>
+        <span className="tag hoe__synth">synthetisch</span>
         <span className="muted">Geräusch {i + 1} von {fragen.length}</span>
       </div>
       <progress className="qz__fortschritt" max={fragen.length} value={i + (wahl !== null ? 1 : 0)} aria-label="Fortschritt der Runde" />
       <div className="row">
         <Abspielen an={aktiv === f.klang} label="Geräusch" onClick={() => (aktiv === f.klang ? stopp() : spiel(f.klang))} />
       </div>
+      {wahl === null && k.merkmal && (
+        <details className="hoe__textalt">
+          <summary>Ohne Ton: Beschreibung lesen</summary>
+          <p>{ohneNamen(k.merkmal, [k.titel, ...f.optionen.map((o) => KLANG[o]?.titel ?? '')])}</p>
+        </details>
+      )}
       <fieldset className="qz__optionen" disabled={wahl !== null}>
         <legend className="qz__frage">Was hörst du?</legend>
         {f.optionen.map((o, n) => {
@@ -204,7 +220,7 @@ function Blutdruck({ onErgebnis }: { onErgebnis: (g: Genauigkeit) => void }) {
   const lauf = useRef<{ stopp: () => void; druck: () => number } | null>(null);
 
   function stoppe() { lauf.current?.stopp(); lauf.current = null; }
-  useEffect(() => () => stoppe(), []);
+  useEffect(() => { STOPPER.add(stoppe); return () => { STOPPER.delete(stoppe); stoppe(); }; }, []);
 
   function starte() {
     stoppe();
@@ -307,6 +323,20 @@ function Blutdruck({ onErgebnis }: { onErgebnis: (g: Genauigkeit) => void }) {
 
 // ---------------------------------------------------------------- Seite
 
+/** Lautstärke und Stopp, immer oben sichtbar (klebt beim Scrollen). */
+function Steuerung() {
+  const s = useStore(audioEinstellungen, (x) => x);
+  return (
+    <div className="hoe__steuerung" role="group" aria-label="Wiedergabe">
+      <label>Lautstärke
+        <input type="range" min={0} max={1} step={0.05} value={s.lautstaerke} aria-valuetext={`${Math.round(s.lautstaerke * 100)} %`}
+          onChange={(e) => setzeAudio({ lautstaerke: Number(e.target.value) })} />
+      </label>
+      <button type="button" className="small" onClick={allesStoppen}><Icon name="tonAus" size={16} /> Alles stoppen</button>
+    </div>
+  );
+}
+
 export default function HoerTrainer() {
   const { params } = useRoute();
   const reiter = (REITER.find(([r]) => r === params.get('teil'))?.[0] ?? 'beispiele') as Reiter;
@@ -318,7 +348,9 @@ export default function HoerTrainer() {
     <section className="page hoe">
       <PageHeading eyebrow="Üben · Prüfung" title="Hör-Trainer"
         description="Herztöne, Atem- und Darmgeräusche, Monitoralarme und Blutdruck nach Gehör. Alles offline." />
-      {!audioMoeglich() && <p className="note warn">Dieser Browser kann keine Töne erzeugen.</p>}
+      {!audioMoeglich() && <p className="note warn">Dieser Browser kann keine Töne erzeugen. Die Beschreibungen unter jedem Klang und „Ohne Ton: Beschreibung lesen“ im Quiz gehen trotzdem.</p>}
+      <Steuerung />
+      <p className="note hoe__grenzen">Alle Klänge sind <strong>synthetisch</strong>: am Gerät erzeugte, vereinfachte Nachbildungen, keine Originalaufnahmen von Patientinnen und Patienten. Grenzen stehen unten auf der Seite.</p>
       <div className="hoe__reiter" role="tablist" aria-label="Teil wählen">
         {REITER.map(([r, label]) => (
           <button key={r} type="button" role="tab" className="pill" aria-selected={reiter === r} onClick={() => navigate(`/lernen/hoeren?teil=${r}`)}>{label}</button>
@@ -339,7 +371,11 @@ export default function HoerTrainer() {
         speichere({ ...stand, blutdruck: { datum: heute(), genau: b.genau + (g === 'genau' ? 1 : 0), versuche: b.versuche + 1 } });
       }} />}
 
-      <p className="muted hoe__hinweis">Die Geräusche sind am Gerät erzeugte, vereinfachte Nachbildungen typischer Merkmale. Sie ersetzen keine echten Auskultationsaufnahmen und kein Üben am Menschen. Alarmrhythmen sind an die Norm IEC 60601-1-8 angelehnt; die Geräte deiner Einrichtung können anders klingen.</p>
+      <div className="muted hoe__hinweis">
+        <p><strong>Grenzen:</strong> Die Geräusche sind am Gerät erzeugte, vereinfachte Nachbildungen typischer Merkmale. Sie ersetzen keine echten Auskultationsaufnahmen und kein Üben am Menschen.</p>
+        <p>Echte Befunde sind leiser, überlagert (Atmung, Bewegung, Umgebung) und hängen von Stethoskop, Abhörstelle und Körperbau ab. Lautsprecher am Handy geben tiefe Töne (Herz, Korotkow) nur schwach wieder: Kopfhörer nutzen.</p>
+        <p>Alarmrhythmen sind an die Norm IEC 60601-1-8 angelehnt; die Geräte deiner Einrichtung können anders klingen. Eine Diagnose stellt die Ärztin oder der Arzt.</p>
+      </div>
     </section>
   );
 }
