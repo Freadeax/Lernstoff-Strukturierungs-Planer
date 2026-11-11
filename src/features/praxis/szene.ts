@@ -4,6 +4,7 @@
 // nur über Messen bzw. Monitoring. Keine Seiteneffekte, damit die Szene testbar bleibt.
 
 import { automatischeWertung } from '../../ui/sim/freigabe';
+import { alarmProfil, gesamtAlarm, monitorGruppe } from '../../ui/sim/monitor';
 import { RESOURCES } from './catalog';
 import { freigabeFuer } from './freigaben';
 import { consciousness, news2Of } from './engine';
@@ -152,8 +153,16 @@ export function szene(s: Session): SzenenZustand {
 
   const punkt = { vitals: v, avpu, oxygen: s.oxygen ?? false };
   const risiko = news2Of(punkt).risiko;
-  // Kinder ohne geprüftes Profil: keine Erwachsenen-Alarmlogik (NEWS2) – Audit SIM-01/02.
-  const alarm: Alarm = !s.monitoring || !automatischeWertung(freigabeFuer(s.scenario)) ? 'kein' : risiko === 'hoch' || risiko === 'mittel' ? 'rot' : risiko === 'niedrig-mittel' ? 'gelb' : 'kein';
+  // Erwachsene: NEWS2. Kinder: Alarmgrenzen des Kinderprofils der Altersgruppe statt NEWS2 (Audit SIM-01/02),
+  // auch vor der fachlichen Prüfung, dann als „ungeprüft“ gekennzeichnet (Philipp, 2026-11-11).
+  // Säuglinge haben kein Profil: kein Alarm.
+  const gruppe = monitorGruppe(s.scenario.age);
+  const kinderAlarm = gruppe !== 'erwachsen' && alarmProfil(gruppe).bewertet
+    ? gesamtAlarm({ puls: v.pulse, af: v.resp, spo2: v.spo2, sys: v.sys, dia: v.dia, temp: v.temp }, gruppe) : 'ok';
+  const alarm: Alarm = !s.monitoring ? 'kein'
+    : gruppe !== 'erwachsen' ? (kinderAlarm === 'ok' ? 'kein' : kinderAlarm)
+    : !automatischeWertung(freigabeFuer(s.scenario)) ? 'kein'
+    : risiko === 'hoch' || risiko === 'mittel' ? 'rot' : risiko === 'niedrig-mittel' ? 'gelb' : 'kein';
 
   return {
     zuhause, monitorVorhanden: r.monitor, monitoring: s.monitoring, nacht,
