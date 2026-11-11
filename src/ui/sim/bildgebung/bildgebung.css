@@ -50,3 +50,20 @@
 @media (hover: hover) {
   .bb__knopf:hover, .bb__chip:hover, .bb__werkzeuge button:hover { border-color: #ffffff55; }
 }
+/* Messen und geführte Befundung */
+.bb__bild--strecke, .bb__bild--roi { cursor: crosshair; }
+.bb__fokus {
+  position: absolute; pointer-events: none; border: 2px solid var(--bb-gelb); border-radius: 10px;
+  box-shadow: 0 0 0 9999px #000a, 0 0 18px #fbbf2466;
+  transition: left 0.45s ease, top 0.45s ease, width 0.45s ease, height 0.45s ease;
+  animation: bb-fokus 1.6s ease-in-out 2;
+}
+@keyframes bb-fokus { 50% { box-shadow: 0 0 0 9999px #000a, 0 0 28px #fbbf24aa; } }
+.bb__ansage { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); margin: 0; }
+.bb__messungen { display: grid; gap: 6px; padding: 8px 10px; border-radius: 10px; background: #062a33; color: #cffafe; font-size: 0.8125rem; }
+.bb__messungen ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.bb__messungen li { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.bb__messungen .bb__knopf { min-height: 30px; padding: 0 10px; }
+.bb__deutung { color: var(--bb-muted); }
+@media (prefers-reduced-motion: reduce) { .bb__fokus { transition: none; animation: none; } }
+:root[data-motion='reduce'] .bb__fokus { transition: none; animation: none; }

@@ -11,6 +11,7 @@ import { raumFuerZustand, raumUrl } from '../../ui/sim/raeume/katalog';
 import { FAELLE, FALL_NACH_ID } from './faelle';
 import { FallAnsicht } from './FallAnsicht';
 import { FrageKarte } from './FrageKarte';
+import { Befundung } from './Befundung';
 import { starte, type Lauf } from './lauf';
 import { holeSerien, materialVerbunden, verbindeMaterial } from './material';
 import './diagnostik.css';
@@ -26,12 +27,13 @@ function leseLaeufe(): Record<string, Lauf> {
   return Object.fromEntries(Object.entries(roh).filter(([id, l]) => FALL_NACH_ID[id] && gueltigerLauf(l))) as Record<string, Lauf>;
 }
 
-type Modus = 'faelle' | 'lernen' | 'material';
+type Modus = 'faelle' | 'lernen' | 'befundung' | 'material';
 
 export default function DiagnostikSeite() {
   const { params: query } = useRoute();
   const fallId = query.get('fall') ?? '';
-  const modus: Modus = query.get('modus') === 'lernen' ? 'lernen' : query.get('modus') === 'material' ? 'material' : 'faelle';
+  const m = query.get('modus');
+  const modus: Modus = m === 'lernen' || m === 'material' || m === 'befundung' ? m : 'faelle';
   const [laeufe, setLaeufe] = useState<Record<string, Lauf>>(leseLaeufe);
   const [farbsystem, setFarbsystemState] = useState<Farbsystem>(() => (storage.read<string>(FARBEN_KEY, 'eu') === 'iso' ? 'iso' : 'eu'));
   useEffect(() => { verbindeMaterial(); }, []);
@@ -55,6 +57,7 @@ export default function DiagnostikSeite() {
       <div className="pills" role="tablist" aria-label="Bereich">
         <button type="button" role="tab" className="pill" aria-selected={modus === 'faelle'} onClick={() => navigate('/lernen/diagnostik')}>Fälle</button>
         <button type="button" role="tab" className="pill" aria-selected={modus === 'lernen'} onClick={() => navigate('/lernen/diagnostik?modus=lernen')}>Befund lesen lernen</button>
+        <button type="button" role="tab" className="pill" aria-selected={modus === 'befundung'} onClick={() => navigate('/lernen/diagnostik?modus=befundung')}>Röntgen systematisch</button>
         <button type="button" role="tab" className="pill" aria-selected={modus === 'material'} onClick={() => navigate('/lernen/diagnostik?modus=material')}>Eigene Bilder</button>
       </div>
       {modus === 'faelle' && (
@@ -85,6 +88,7 @@ export default function DiagnostikSeite() {
         </ul>
       )}
       {modus === 'lernen' && <Lernmodus />}
+      {modus === 'befundung' && <Befundung />}
       {modus === 'material' && <EigeneBilder />}
       <p className="muted dx-klein">Fiktive Lernfälle, didaktisch vereinfacht, fachlich ungeprüft. Synthetische Bilder sind schematisch. Echte Bilder sind frei lizenzierte Vergleichsbilder (Quelle und Lizenz unter dem Bild).</p>
     </section>
