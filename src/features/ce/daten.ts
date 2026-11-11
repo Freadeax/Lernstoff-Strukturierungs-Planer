@@ -62,6 +62,9 @@ export interface FaktenQuelle {
 }
 
 const enc = encodeURIComponent;
+
+/** Trainer, die der Schritt „Üben“ meint: alles außer Fällen (eigener Schritt), Mindmap und CE-Selbsttest. */
+export const UEBEN_TRAINER = (t: string) => !['fall', 'krankheitsbilder', 'praxis', 'mindmap', 'selbsttest'].includes(t);
 const PRAXISFAELLE = Object.keys(PRAXIS_THEMEN).map((id) => ({ id }));
 
 /** Baut für alle Themen einer CE die Fakten, aus denen der Lernpfad entsteht. */
@@ -81,6 +84,13 @@ export function sammleFakten(themen: CeThema[], q: FaktenQuelle): ThemaFakten[] 
   const geuebt = new Set(q.reviewLogs.filter((l) => l.trainer === 'fall' || l.trainer === 'krankheitsbilder').map((l) => l.topicId));
   // Ein abgeschlossener Praxisfall hinterlässt keine Abfrage, ist aber eine Spur: Fall-Schritt erledigt.
   for (const id of daten.praxisFertig ?? []) for (const t of PRAXIS_THEMEN[id] ?? []) geuebt.add(t);
+  // Letztes Ergebnis je Thema aus einem Übungstrainer (Logs sind nach Zeit sortiert; das jüngste gewinnt)
+  const trainerErgebnis = new Map<ID, { at: string; prozent: number }>();
+  for (const l of q.reviewLogs) {
+    if (!l.trainer || !UEBEN_TRAINER(l.trainer) || l.scorePercent === undefined) continue;
+    const alt = trainerErgebnis.get(l.topicId);
+    if (!alt || l.at >= alt.at) trainerErgebnis.set(l.topicId, { at: l.at, prozent: Math.round(l.scorePercent) });
+  }
   const tests = new Map<ID, number>();
   for (const l of q.reviewLogs) if (l.source !== 'selbsteinschaetzung') tests.set(l.topicId, (tests.get(l.topicId) ?? 0) + 1);
 
@@ -100,7 +110,9 @@ export function sammleFakten(themen: CeThema[], q: FaktenQuelle): ThemaFakten[] 
     const praxis = praxisZuThema(id, PRAXISFAELLE);
     const kf = faelleZuThema(id, KRANKHEITSFAELLE, modul);
     const p = q.progress[id];
-    const uebung = uebungenFuer(id, modul)[0];
+    const alleUebungen = uebungenFuer(id, modul);
+    const uebung = alleUebungen[0];
+    const trainer = alleUebungen.filter((u) => UEBEN_TRAINER(u.trainer)).map((u) => ({ label: u.label, path: u.path }));
     return {
       topicId: id,
       skripte: e.skriptIds.map((sid) => skripte.get(sid)).filter((s): s is Skript => !!s).map((s) => {
@@ -116,6 +128,7 @@ export function sammleFakten(themen: CeThema[], q: FaktenQuelle): ThemaFakten[] 
         // Offline-Fälle zuerst: Der Praxissimulator braucht keinen API-Schlüssel.
         ziel: praxis.length ? `/lernen/praxis?thema=${enc(id)}` : szen.length ? `/lernen/fall?thema=${enc(id)}` : kf.length ? `/lernen/krankheitsbilder?ansicht=faelle&thema=${enc(id)}` : undefined,
       },
+      uebungen: { trainer, ergebnis: trainerErgebnis.get(id)?.prozent },
       status: p?.status ?? 'offen',
       tests: tests.get(id) ?? 0,
       testZiel: testbar.has(id) ? `/lernen/ce?ce=${enc(q.ceId)}&ansicht=test&thema=${enc(id)}` : uebung?.path,

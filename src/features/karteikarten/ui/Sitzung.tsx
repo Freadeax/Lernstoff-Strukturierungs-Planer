@@ -5,11 +5,13 @@ import { navigate } from '../../../ui/shell/router';
 import { RATING_LABEL } from '../../lernplan/store';
 import type { Rating } from '../../lernplan/types';
 import { pruefeEingabe, VORSCHLAG, type EingabeErgebnis } from '../erzeugen';
-import { intervallText, vorschau, wiedereinreihen, type ThemenErgebnis } from '../planung';
+import { gewusstProzent, intervallText, laengsteSerie, vorschau, wiedereinreihen, type ThemenErgebnis } from '../planung';
 import { antworte, merkeOffeneSitzung, schliesseOffeneSitzungAb, schliesseSitzungAb, setzeAus, vergissOffeneSitzung } from '../store';
 import { QUELLE_LABEL, type Karte, type KartenLog, type KartenStand } from '../typen';
 import { spiele } from '../../../ui/audio/spieler';
 import { Vorlesen } from '../../../ui/audio/Vorlesen';
+import { Ergebnisring } from '../../../ui/Ergebnisring';
+import { BegriffListe } from '../../quiz/FachText';
 
 type Antwort = Pick<KartenLog, 'cardId' | 'rating' | 'topicIds'>;
 
@@ -47,6 +49,7 @@ export function Rueckseite({ karte, titles }: { karte: Karte; titles: Map<ID, st
       {karte.quelle === 'glossar' || karte.quelle === 'katalog'
         ? <p className="karte__belege muted">Katalogwissen des Fachmoduls. Bei Abweichungen gilt dein Unterrichtsmaterial.</p>
         : null}
+      <BegriffListe aufklappbar titel="Fachbegriffe auf dieser Karte" texte={[karte.hinten ?? '', ...(karte.liste ?? [])]} ohne={[karte.vorne, karte.hinten ?? '']} />
     </div>
   );
 }
@@ -61,10 +64,12 @@ export interface SitzungProps {
   /** Name des Themas, wenn die Sitzung aus dem Lernplan für ein Thema gestartet wurde. */
   titel?: string;
   onEnde: () => void;
+  /** Unsichere Karten (beim ersten Versuch Vergessen oder Schwer) gleich noch einmal üben. */
+  onNochmal?: (karten: Karte[]) => void;
 }
 
 /** Eine Lernsitzung: Vorderseite, aufdecken (oder eintippen), bewerten. Vergessene Karten kommen kurz danach noch einmal. */
-export function Sitzung({ karten, staende: start, retention, heute, topics, titles, titel, onEnde }: SitzungProps) {
+export function Sitzung({ karten, staende: start, retention, heute, topics, titles, titel, onEnde, onNochmal }: SitzungProps) {
   const [queue, setQueue] = useState(karten);
   const [staende, setStaende] = useState(start);
   const [offen, setOffen] = useState(false);
@@ -81,6 +86,9 @@ export function Sitzung({ karten, staende: start, retention, heute, topics, titl
   const karte = queue[0];
   const v = useMemo(() => (karte ? vorschau(staende.get(karte.id)?.reps ? staende.get(karte.id) : undefined, heute, retention) : null), [karte, staende, heute, retention]);
   const vorschlag = geprueft && geprueft !== 'leer' ? VORSCHLAG[geprueft] : undefined;
+  // Aktuelle Serie gewusster Karten (Gut oder Leicht hintereinander)
+  let serie = 0;
+  for (let j = antworten.length - 1; j >= 0 && antworten[j]!.rating >= 3; j--) serie++;
 
   useEffect(() => {
     if (!karte) return;
@@ -167,10 +175,19 @@ export function Sitzung({ karten, staende: start, retention, heute, topics, titl
     const erste = new Map<ID, Rating>();
     for (const a of antworten) if (!erste.has(a.cardId)) erste.set(a.cardId, a.rating);
     const zaehl = [1, 2, 3, 4].map((r) => [...erste.values()].filter((x) => x === r).length);
+    const prozent = gewusstProzent([...erste.values()]);
+    const beste = laengsteSerie(antworten.map((a) => a.rating));
+    const unsicher = karten.filter((k) => (erste.get(k.id) ?? 4) <= 2);
     return (
-      <div className="card karten__auswertung" aria-live="polite">
-        <h3>Geschafft: {erste.size} {erste.size === 1 ? 'Karte' : 'Karten'}</h3>
-        <ul className="karten__verteilung">
+      <div className="card karten__auswertung m-pop" aria-live="polite">
+        <div className="karten__ende-kopf">
+          <Ergebnisring prozent={prozent} label={`${prozent} Prozent beim ersten Versuch gewusst`} />
+          <div>
+            <h3>{prozent >= 80 ? 'Stark' : prozent >= 50 ? 'Gut dabei' : 'Dranbleiben lohnt sich'}: {erste.size} {erste.size === 1 ? 'Karte' : 'Karten'}</h3>
+            <p className="muted">{prozent} % beim ersten Versuch gewusst{beste >= 3 ? ` · längste Serie ${beste} Karten` : ''}</p>
+          </div>
+        </div>
+        <ul className="karten__verteilung m-stagger">
           {([1, 2, 3, 4] as Rating[]).map((r) => <li key={r} className={`bew--${r}`}><strong>{zaehl[r - 1]}</strong> {RATING_LABEL[r]}</li>)}
         </ul>
         {busy && <p className="muted">Ergebnis wird an den Lernplan übertragen …</p>}
@@ -183,8 +200,16 @@ export function Sitzung({ karten, staende: start, retention, heute, topics, titl
           </>
         )}
         {ergebnis && !ergebnis.length && <p className="muted">Für den Lernplan zählt ein Thema ab drei Karten in einer Sitzung. Diesmal war kein Thema so oft dabei.</p>}
+        {unsicher.length > 0 && (
+          <details className="karten__unsicher">
+            <summary>Noch unsicher: {unsicher.length} {unsicher.length === 1 ? 'Karte' : 'Karten'}</summary>
+            <ul>{unsicher.slice(0, 12).map((k) => <li key={k.id}>{k.vorne}</li>)}</ul>
+            {unsicher.length > 12 && <p className="muted">und {unsicher.length - 12} weitere</p>}
+          </details>
+        )}
         <div className="row">
           <button type="button" className="primary" onClick={onEnde}>Fertig</button>
+          {onNochmal && unsicher.length > 0 && !busy && <button type="button" onClick={() => onNochmal(unsicher)}>Unsichere noch einmal üben</button>}
           {ergebnis && ergebnis.length > 0 && <button type="button" onClick={() => navigate('/lernen/plan')}>Zum Lernplan</button>}
         </div>
       </div>
@@ -197,13 +222,14 @@ export function Sitzung({ karten, staende: start, retention, heute, topics, titl
     <div className="karten__sitzung">
       <div className="karten__kopf">
         <span className="muted">{titel ? `${titel} · ` : ''}{Math.min(fertigeKarten + 1, gesamt)} von {gesamt}{queue.length > gesamt - fertigeKarten ? ` · ${queue.length - (gesamt - fertigeKarten)} zur Wiederholung` : ''}</span>
+        {serie >= 3 && <span key={serie} className="badge karten__serie m-pop" aria-label={`${serie} Karten in Folge gewusst`}>{serie}× in Folge</span>}
         <button type="button" className="small ghost" disabled={busy} onClick={() => (antworten.length ? beende() : onEnde())}>Beenden</button>
       </div>
       <div className="rechnen__fortschritt" role="progressbar" aria-valuemin={0} aria-valuemax={gesamt} aria-valuenow={fertigeKarten}>
         <span style={{ width: `${(fertigeKarten / Math.max(1, gesamt)) * 100}%` }} />
       </div>
 
-      <article className={`card karte${offen ? ' is-offen' : ''}`} aria-live="polite">
+      <article key={`${karte.id}-${antworten.length}`} className={`card karte m-rise${offen ? ' is-offen' : ''}`} aria-live="polite">
         <div className="karte__meta">
           <span className="badge badge--demo">{QUELLE_LABEL[karte.quelle]}</span>
           <span className="muted">{karte.art}{thema ? ` · ${thema}` : ''}</span>
@@ -224,7 +250,7 @@ export function Sitzung({ karten, staende: start, retention, heute, topics, titl
             {geprueft && geprueft !== 'leer' && (
               <p className={`note ${geprueft === 'richtig' ? 'ok' : 'warn'}`} role="status"><strong>{EINGABE_TEXT[geprueft]}</strong>{eingabe.trim() ? '' : ' (keine Eingabe)'}</p>
             )}
-            <Rueckseite karte={karte} titles={titles} />
+            <div className="karte__aufgedeckt"><Rueckseite karte={karte} titles={titles} /></div>
           </>
         )}
       </article>

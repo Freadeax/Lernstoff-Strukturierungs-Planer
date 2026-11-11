@@ -66,14 +66,33 @@ export function FachListe({ texte, className, nummeriert }: { texte: readonly st
 }
 
 /** Fachbegriffe einer ganzen Aufgabe zum Nachschlagen. */
-export function BegriffListe({ texte }: { texte: readonly string[] }) {
+export function BegriffListe({ texte, titel = 'Fachbegriffe in dieser Aufgabe', aufklappbar, ohne }: {
+  texte: readonly string[];
+  titel?: string;
+  /** Als aufklappbaren Block zeigen (z. B. auf der Rückseite einer Karteikarte). */
+  aufklappbar?: boolean;
+  /** Begriffe, die nicht erklärt werden sollen (etwa der Begriff, nach dem die Karte fragt). */
+  ohne?: readonly string[];
+}) {
   const { index, themen } = useModulBegriffe();
-  const begriffe = useMemo(() => begriffeIn(texte, index), [texte, index]);
+  const begriffe = useMemo(() => {
+    const weg = new Set((ohne ?? []).map((x) => x.toLowerCase()));
+    return begriffeIn(texte, index).filter((b) => !weg.has(b.term.toLowerCase()));
+  }, [texte, index, ohne]);
   if (!begriffe.length) return null;
+  const liste = <ul>{begriffe.map((b) => <li key={b.term}><BegriffKarte b={b} themen={themen} /></li>)}</ul>;
+  if (aufklappbar) {
+    return (
+      <details className="qz-vertiefung__begriffe">
+        <summary>{titel} ({begriffe.length})</summary>
+        {liste}
+      </details>
+    );
+  }
   return (
     <div className="qz-vertiefung__begriffe">
-      <h4>Fachbegriffe in dieser Aufgabe</h4>
-      <ul>{begriffe.map((b) => <li key={b.term}><BegriffKarte b={b} themen={themen} /></li>)}</ul>
+      <h4>{titel}</h4>
+      {liste}
     </div>
   );
 }

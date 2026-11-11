@@ -46,6 +46,25 @@
 }
 
 .karten__auswertung { display: flex; flex-direction: column; gap: var(--space-2); }
+.karten__ende-kopf { display: flex; gap: var(--space-3); align-items: center; flex-wrap: wrap; }
+.karten__ende-kopf h3 { margin: 0; }
+.karten__ende-kopf p { margin: var(--space-1) 0 0; }
+.karten__unsicher summary { cursor: pointer; min-height: var(--control-h); display: flex; align-items: center; font-weight: var(--weight-medium); }
+.karten__unsicher ul { margin: 0; padding-left: var(--space-4); display: flex; flex-direction: column; gap: var(--space-1); white-space: pre-line; overflow-wrap: anywhere; }
+.karten__serie { background: var(--color-success-soft); border-color: var(--color-success); margin-left: auto; }
+.karten__kopf .karten__serie + button { margin-left: 0; }
+
+/* Aufdecken: Karte kippt kurz nach vorn, die Rückseite wird von oben aufgedeckt (nur transform/clip-path). */
+@keyframes karte-kippen { from { transform: perspective(900px) rotateX(-14deg) scale(0.98); } }
+.karte.is-offen { animation: karte-kippen var(--dur-slow) var(--ease-spring); transform-origin: top center; }
+.karte__aufgedeckt { animation: m-wipe-up var(--dur-slow) var(--ease-out) backwards; }
+
+/* Gezielt üben */
+.karten__gezielt { display: flex; flex-direction: column; gap: var(--space-2); }
+.karten__gezielt h3 { margin: 0; font-size: var(--text-md); }
+.karten__gezielt .row { justify-content: flex-start; flex-wrap: wrap; }
+.karten__quellen { display: flex; flex-wrap: wrap; gap: var(--space-1); align-items: center; }
+.karten__quellen > span { font-size: var(--text-sm); margin-right: var(--space-1); }
 .karten__verteilung { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-2); }
 .karten__verteilung li { border: 2px solid; border-radius: var(--radius-sm); padding: var(--space-2); display: flex; flex-direction: column; font-size: var(--text-sm); }
 .karten__verteilung strong { font-size: var(--text-xl); }

@@ -8,13 +8,16 @@ import type { CatalogModule, CatalogTopic, Operator } from '../../modules/catalo
 import { erzeugeRunde, karten, type FrageArt } from '../duell/duell';
 import { bewerte as bewerteZahl, erzeuge, rng, TYPEN, type AufgabenTyp, type Stufe } from '../rechnen/aufgaben';
 import type { FragenSatz, Pruefungsfrage } from '../zusammenfasser/typen';
+import type { FehlerQuelle } from '../fehlerheft/fehlerheft';
+import { stufeVon, type Aufgabe } from '../quiz/quiz';
 
-export type Quelle = 'glossar' | 'rechnen' | 'material';
+export type Quelle = 'glossar' | 'rechnen' | 'trainer' | 'material';
 export type Afb = 1 | 2 | 3;
 
 export const QUELLEN: { id: Quelle; label: string; hinweis: string }[] = [
   { id: 'glossar', label: 'Fachbegriffe', hinweis: 'Multiple Choice aus dem Glossar, offline' },
   { id: 'rechnen', label: 'Pflegerisches Rechnen', hinweis: 'Rechenaufgaben mit Lösungsweg, offline' },
+  { id: 'trainer', label: 'Übungstrainer', hinweis: 'Auswahlaufgaben und Fallschritte aus Hygiene, Anatomie, Expertenstandards, Normwerten, Notfall, Arzneimitteln, Recht und Labor, offline' },
   { id: 'material', label: 'Fragen aus deinem Material', hinweis: 'Prüfungsfragen des Zusammenfassers mit Belegen' },
 ];
 export const QUELLE_LABEL = Object.fromEntries(QUELLEN.map((q) => [q.id, q.label])) as Record<Quelle, string>;
@@ -191,6 +194,48 @@ export function materialFragen(k: Katalog, saetze: FragenSatz[]): SimFrage[] {
   }));
 }
 
+/** Aufgaben eines Übungstrainers für die Simulation (wird erst beim Öffnen der Seite nachgeladen). */
+export interface TrainerPool { quelle: FehlerQuelle; name: string; aufgaben: Aufgabe[] }
+
+/** Stufe der Trainer-Aufgabe → Operator wie im Katalog (bestimmt den Anforderungsbereich). */
+const TRAINER_OPERATOR = { 1: 'benennen', 2: 'erklären', 3: 'beurteilen' } as const;
+const TRAINER_MINUTEN = { 1: 1, 2: 1.5, 3: 2.5 } as const;
+
+/**
+ * Übungstrainer als Prüfungsquelle: Auswahlaufgaben direkt, Fälle in Schritten als je eine Frage pro Schritt
+ * mit dem bisherigen Verlauf als Kontext. Zuordnen, Reihenfolge und Beschriften bleiben im Trainer, weil die
+ * Simulation nur Auswahl, Zahl und Freitext kennt. ID: trainer:<quelle>:<aufgabe>[:<schritt>].
+ */
+export function trainerFragen(k: Katalog, pools: readonly TrainerPool[], filter: (f: Pick<SimFrage, 'topicId' | 'afb'>) => boolean): AuswahlFrage[] {
+  const out: AuswahlFrage[] = [];
+  for (const p of pools) {
+    for (const a of p.aufgaben) {
+      const stufe = stufeVon(a);
+      const afb = operatorAfb(k, TRAINER_OPERATOR[stufe], stufe);
+      const topicId = a.topicIds.find((t) => k.topics.has(t)) ?? '';
+      if (!filter({ topicId, afb })) continue;
+      const basis = { quelle: 'trainer' as const, art: 'auswahl' as const, topicId, operator: TRAINER_OPERATOR[stufe], afb, punkte: stufe, minuten: TRAINER_MINUTEN[stufe] };
+      if (a.art === 'auswahl') {
+        out.push({
+          ...basis, id: `trainer:${p.quelle}:${a.id}`, frage: a.frage, optionen: a.optionen, richtig: a.richtig, mehrfach: a.mehrfach,
+          hinweis: `${p.name} · ${a.titel}${a.mehrfach ? ' · Mehrere Antworten können richtig sein.' : ''}`,
+          erklaerung: a.erklaerung.join(' '),
+        });
+      } else if (a.art === 'fall') {
+        a.schritte.forEach((st, i) => {
+          const verlauf = [a.einstieg, ...a.schritte.slice(0, i + 1).map((x) => x.lage)].join('\n\n');
+          out.push({
+            ...basis, id: `trainer:${p.quelle}:${a.id}:${i + 1}`, frage: `${verlauf}\n\n${st.frage}`, optionen: st.optionen, richtig: st.richtig, mehrfach: st.mehrfach,
+            hinweis: `${p.name} · Fall „${a.titel.replace(/^Fall:\s*/, '')}“, Schritt ${i + 1} von ${a.schritte.length}${st.mehrfach ? ' · Mehrere Antworten können richtig sein.' : ''}`,
+            erklaerung: st.warum,
+          });
+        });
+      }
+    }
+  }
+  return out;
+}
+
 /** Verteilt n Plätze möglichst gleichmäßig auf Töpfe mit begrenztem Vorrat. */
 export function verteile(n: number, vorrat: number[]): number[] {
   const out = vorrat.map(() => 0);
@@ -227,26 +272,45 @@ export interface Zusammenstellung { fragen: SimFrage[]; vorrat: Record<Quelle, n
  * ihre Plätze an die anderen ab), innerhalb einer Quelle reihum über die Themen gestreut.
  * Reihenfolge wie in einer Klausur: erst AFB I, dann II, dann III.
  */
-export function stelleZusammen(k: Katalog, a: Auswahl, saetze: FragenSatz[]): Zusammenstellung {
+export function stelleZusammen(k: Katalog, a: Auswahl, saetze: FragenSatz[], pools: readonly TrainerPool[] = []): Zusammenstellung {
   const filter = (f: Pick<SimFrage, 'topicId' | 'afb'>) => passtZurAuswahl(k, a, f);
   const r = rng(a.seed);
   const vorratFragen: Record<Quelle, SimFrage[]> = {
     glossar: a.quellen.includes('glossar') ? glossarFragen(k, a.anzahl, a.seed, filter) : [],
     rechnen: a.quellen.includes('rechnen') ? rechenFragen(k, a.anzahl, a.stufe, a.seed, filter) : [],
+    trainer: a.quellen.includes('trainer') ? trainerFragen(k, pools, filter) : [],
     material: a.quellen.includes('material')
       ? materialFragen(k, saetze.filter((s) => !a.satzIds.length || a.satzIds.includes(s.id))).filter(filter)
       : [],
   };
-  const reihe: Quelle[] = ['material', 'rechnen', 'glossar'];
+  const reihe: Quelle[] = ['material', 'trainer', 'rechnen', 'glossar'];
   const plaetze = verteile(a.anzahl, reihe.map((q) => vorratFragen[q].length));
   const gewaehlt = reihe.flatMap((q, i) => streueUeberThemen(vorratFragen[q], plaetze[i]!, r.next));
-  const fragen = mische(gewaehlt, r.next).sort((x, y) => x.afb - y.afb);
+  const fragen = fallSchritteZusammen(mische(gewaehlt, r.next).sort((x, y) => x.afb - y.afb));
   return {
     fragen,
-    vorrat: { glossar: vorratFragen.glossar.length, rechnen: vorratFragen.rechnen.length, material: vorratFragen.material.length },
+    vorrat: { glossar: vorratFragen.glossar.length, rechnen: vorratFragen.rechnen.length, trainer: vorratFragen.trainer.length, material: vorratFragen.material.length },
     minuten: empfohleneMinuten(fragen),
     punkte: fragen.reduce((s, f) => s + f.punkte, 0),
   };
+}
+
+/** Schritte desselben Trainer-Falls stehen hintereinander und in ihrer Reihenfolge, am Platz des ersten. */
+export function fallSchritteZusammen<T extends Pick<SimFrage, 'id'>>(fragen: T[]): T[] {
+  const fall = (id: string) => { const t = id.split(':'); return t[0] === 'trainer' && t.length === 4 ? `${t[1]}:${t[2]}` : ''; };
+  const schritt = (id: string) => Number(id.split(':')[3]);
+  const gruppen = new Map<string, T[]>();
+  for (const f of fragen) { const k = fall(f.id); if (k) gruppen.set(k, [...(gruppen.get(k) ?? []), f]); }
+  const out: T[] = [];
+  const schon = new Set<string>();
+  for (const f of fragen) {
+    const k = fall(f.id);
+    if (!k) { out.push(f); continue; }
+    if (schon.has(k)) continue;
+    schon.add(k);
+    out.push(...gruppen.get(k)!.sort((a, b) => schritt(a.id) - schritt(b.id)));
+  }
+  return out;
 }
 
 /** Empfohlene Dauer, auf 5 Minuten aufgerundet. */

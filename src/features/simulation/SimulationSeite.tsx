@@ -17,7 +17,7 @@ import { zahl } from '../rechnen/aufgaben';
 import {
   AFB_LABEL, auswerten, istBeantwortet, katalog, lernplanEintraege, QUELLE_LABEL, QUELLEN, restzeit, SCHWACH_AB,
   selbstWertung, stelleZusammen, uhr, werteAus,
-  type Afb, type Antwort, type Auswertung, type Gruppe, type OffeneFrage, type Quelle, type SimFrage, type Wertung,
+  type Afb, type Antwort, type Auswertung, type Gruppe, type OffeneFrage, type Quelle, type SimFrage, type TrainerPool, type Wertung,
 } from './simulation';
 import { spiele } from '../../ui/audio/spieler';
 import { ergaenzeVerlauf, ladeEinstellungen, ladeLauf, ladeVerlauf, speichereEinstellungen, speichereLauf, type Einstellungen, type Lauf, type VerlaufEintrag } from './speicher';
@@ -26,12 +26,12 @@ const K = katalog(pflegeModule);
 const KB = [...K.kbName.entries()].map(([id, name]) => ({ id, code: name.split(' · ')[0]!, name: name.split(' · ')[1]! }));
 const STAATLICH = pflegeModule.examFormats?.find((f) => f.id === 'pruefung.staatlich.schriftlich');
 
-const STANDARD: Einstellungen = { quellen: ['glossar', 'rechnen', 'material'], kb: [], afb: [], anzahl: 20, stufe: 2, minuten: null, pruefungId: '' };
+const STANDARD: Einstellungen = { quellen: ['glossar', 'rechnen', 'trainer', 'material'], kb: [], afb: [], anzahl: 20, stufe: 2, minuten: null, pruefungId: '' };
 const VORLAGEN: Array<{ id: string; label: string; e: Partial<Einstellungen>; hinweis: string }> = [
   { id: 'kurz', label: 'Kurztest', e: { anzahl: 10, minuten: 15, kb: [], afb: [] }, hinweis: '10 Fragen in 15 Minuten' },
   { id: 'klausur', label: 'Klausur', e: { anzahl: 25, minuten: null, kb: [], afb: [] }, hinweis: '25 Fragen, Zeit nach Umfang' },
   ...(STAATLICH?.durationMinutes ? [{
-    id: 'staatlich', label: 'Probe Staatsprüfung', e: { anzahl: 40, minuten: STAATLICH.durationMinutes, kb: [], afb: [], quellen: ['glossar', 'rechnen', 'material'] as Quelle[] },
+    id: 'staatlich', label: 'Probe Staatsprüfung', e: { anzahl: 40, minuten: STAATLICH.durationMinutes, kb: [], afb: [], quellen: ['glossar', 'rechnen', 'trainer', 'material'] as Quelle[] },
     hinweis: `Eine Aufsichtsarbeit: ${STAATLICH.durationMinutes} Minuten. Hier kommen Fragen aus allen Kompetenzbereichen, jede echte Aufsichtsarbeit hat eigene Schwerpunkte (§ 14 PflAPrV). Die echte Prüfung ist fallbezogen und frei formuliert, nimm dafür Fragen aus deinem Material dazu.`,
   }] : []),
 ];
@@ -46,16 +46,18 @@ const themaName = (id: string) => K.topics.get(id)?.name ?? 'Ohne Thema';
 function useFragenSaetze() {
   const [saetze, setSaetze] = useState<FragenSatz[]>([]);
   const [exams, setExams] = useState<Exam[]>([]);
+  const [pools, setPools] = useState<TrainerPool[]>([]);
   useEffect(() => {
+    import('./trainerpool').then((m) => setPools(m.TRAINER_POOLS)).catch(() => {});
     db.summaries.where('mode').equals('pruefung').toArray().then((s) => setSaetze((s as FragenSatz[]).filter((x) => x.fragen?.length))).catch(() => {});
     db.exams.toArray().then((e) => setExams(e.sort((a, b) => a.date.localeCompare(b.date)))).catch(() => {});
   }, []);
-  return { saetze, exams };
+  return { saetze, exams, pools };
 }
 
 // ---------- Einrichten ----------
 
-function Einrichten({ onStart, saetze, exams, verlauf }: { onStart: (l: Lauf) => void; saetze: FragenSatz[]; exams: Exam[]; verlauf: VerlaufEintrag[] }) {
+function Einrichten({ onStart, saetze, exams, pools, verlauf }: { onStart: (l: Lauf) => void; saetze: FragenSatz[]; exams: Exam[]; pools: TrainerPool[]; verlauf: VerlaufEintrag[] }) {
   const { params } = useRoute();
   const [e, setE] = useState<Einstellungen>(() => {
     const x = ladeEinstellungen(STANDARD);
@@ -69,7 +71,7 @@ function Einrichten({ onStart, saetze, exams, verlauf }: { onStart: (l: Lauf) =>
   const set = (patch: Partial<Einstellungen>) => setE((cur) => { const n = { ...cur, ...patch }; speichereEinstellungen(n); return n; });
   const pruefung = exams.find((x) => x.id === e.pruefungId);
   const auswahl = { ...e, seed, satzIds, topicIds: pruefung?.topicIds ?? [] };
-  const z = useMemo(() => stelleZusammen(K, auswahl, saetze), [JSON.stringify(auswahl), saetze]);
+  const z = useMemo(() => stelleZusammen(K, auswahl, saetze, pools), [JSON.stringify(auswahl), saetze, pools]);
   const minuten = e.minuten ?? z.minuten;
 
   const start = () => {
@@ -102,7 +104,7 @@ function Einrichten({ onStart, saetze, exams, verlauf }: { onStart: (l: Lauf) =>
             {QUELLEN.map((q) => (
               <button key={q.id} type="button" className="pill" title={q.hinweis} aria-pressed={e.quellen.includes(q.id)}
                 onClick={() => set({ quellen: toggle(e.quellen, q.id) })}>
-                {q.label}{q.id === 'material' && e.quellen.includes(q.id) && <span className="pill__count">{z.vorrat.material}</span>}
+                {q.label}{(q.id === 'material' || q.id === 'trainer') && e.quellen.includes(q.id) && <span className="pill__count">{z.vorrat[q.id]}</span>}
               </button>
             ))}
           </div>
@@ -163,7 +165,7 @@ function Einrichten({ onStart, saetze, exams, verlauf }: { onStart: (l: Lauf) =>
           <p className="muted">
             {z.fragen.length < e.anzahl && z.fragen.length > 0 && `Mit dieser Auswahl gibt es nur ${z.fragen.length} passende Fragen. `}
             {!z.fragen.length && 'Keine passende Frage. Wähle mehr Quellen oder weniger Filter. '}
-            {(['material', 'rechnen', 'glossar'] as Quelle[]).map((q) => [q, z.fragen.filter((f) => f.quelle === q).length] as const).filter(([, n]) => n).map(([q, n]) => `${n} × ${QUELLE_LABEL[q]}`).join(', ')}
+            {(['material', 'trainer', 'rechnen', 'glossar'] as Quelle[]).map((q) => [q, z.fragen.filter((f) => f.quelle === q).length] as const).filter(([, n]) => n).map(([q, n]) => `${n} × ${QUELLE_LABEL[q]}`).join(', ')}
           </p>
           <p className="muted">Die Zeit läuft auch weiter, wenn du die App schließt. Ist sie abgelaufen, wird automatisch abgegeben.</p>
         </div>
@@ -479,7 +481,7 @@ function Ergebnis({ lauf, setLauf, onNeu }: { lauf: Lauf; setLauf: (l: Lauf) => 
 export default function Simulation() {
   const [lauf, setLaufState] = useState<Lauf | null>(ladeLauf);
   const [verlauf, setVerlauf] = useState(ladeVerlauf);
-  const { saetze, exams } = useFragenSaetze();
+  const { saetze, exams, pools } = useFragenSaetze();
   const setLauf = (l: Lauf | null) => { setLaufState(l); speichereLauf(l); };
 
   function abgabe(automatisch: boolean) {
@@ -517,9 +519,9 @@ export default function Simulation() {
     <section className={`page sim ${laeuft ? 'sim--laeuft' : ''}`}>
       <div className="page__head">
         <h2>Prüfungssimulation</h2>
-        {!laeuft && <p className="muted">Schriftliche Probeprüfung mit Zeitlimit aus Fachbegriffen, Rechenaufgaben und Fragen aus deinem Material, gefiltert nach Kompetenzbereichen und Anforderungsbereichen. Das Ergebnis geht je Thema an den Lernplan.</p>}
+        {!laeuft && <p className="muted">Schriftliche Probeprüfung mit Zeitlimit aus Fachbegriffen, Rechenaufgaben, Aufgaben und Fällen der Übungstrainer und Fragen aus deinem Material, gefiltert nach Kompetenzbereichen und Anforderungsbereichen. Das Ergebnis geht je Thema an den Lernplan.</p>}
       </div>
-      {!lauf && <Einrichten onStart={setLauf} saetze={saetze} exams={exams} verlauf={verlauf} />}
+      {!lauf && <Einrichten onStart={setLauf} saetze={saetze} exams={exams} pools={pools} verlauf={verlauf} />}
       {laeuft && <Pruefung lauf={lauf} setLauf={setLauf} onAbgabe={abgabe} />}
       {lauf?.abgegeben && <Ergebnis lauf={lauf} setLauf={setLauf} onNeu={() => { if (lauf.uebergeben || confirm('Ergebnis wurde noch nicht an den Lernplan übergeben. Trotzdem neu beginnen?')) setLauf(null); }} />}
     </section>

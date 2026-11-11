@@ -1,4 +1,4 @@
-// Geführter Lernpfad je Thema einer CE: Skript lesen → Karteikarten → Steckbrief → Fall → Selbsttest.
+// Geführter Lernpfad je Thema einer CE: Skript lesen → Karteikarten → Steckbrief → Fall → Üben im Trainer → Selbsttest.
 // Reine Funktionen: Die Seite sammelt die Fakten (Lesestand, Kartenstand, Abfragen), hier wird
 // nur entschieden, welcher Schritt erledigt ist und was als Nächstes dran ist.
 //
@@ -8,13 +8,13 @@
 import type { ID, MasteryStatus } from '../../core/types';
 import type { DayPlan, PlanBlock } from '../lernplan/scheduler';
 
-export type SchrittArt = 'lesen' | 'karten' | 'steckbrief' | 'fall' | 'selbsttest';
+export type SchrittArt = 'lesen' | 'karten' | 'steckbrief' | 'fall' | 'ueben' | 'selbsttest';
 export type SchrittZustand = 'erledigt' | 'teilweise' | 'offen' | 'entfaellt';
 
-export const SCHRITTE: SchrittArt[] = ['lesen', 'karten', 'steckbrief', 'fall', 'selbsttest'];
+export const SCHRITTE: SchrittArt[] = ['lesen', 'karten', 'steckbrief', 'fall', 'ueben', 'selbsttest'];
 
 export const SCHRITT_LABEL: Record<SchrittArt, string> = {
-  lesen: 'Lesen', karten: 'Karteikarten', steckbrief: 'Steckbrief', fall: 'Fall', selbsttest: 'Selbsttest',
+  lesen: 'Lesen', karten: 'Karteikarten', steckbrief: 'Steckbrief', fall: 'Fall', ueben: 'Üben', selbsttest: 'Selbsttest',
 };
 
 export interface Schritt {
@@ -37,6 +37,11 @@ export interface ThemaFakten {
   karten: { gesamt: number; gesehen: number };
   steckbriefe: Array<{ id: ID; name: string; gelesen: boolean }>;
   faelle: { anzahl: number; geuebt: boolean; ziel?: string };
+  /**
+   * Übungstrainer zum Thema (Hygiene, Recht, Rechnen, Duell …). `ergebnis` ist das letzte Trainer-Ergebnis
+   * in Prozent, falls es eins gibt. Fehlt das Feld oder ist die Liste leer, entfällt der Schritt.
+   */
+  uebungen?: { trainer: Array<{ label: string; path: string }>; ergebnis?: number };
   status: MasteryStatus;
   /** Anzahl echter Abfragen (ohne Selbsteinschätzung). */
   tests: number;
@@ -101,6 +106,19 @@ function fall(f: ThemaFakten): Schritt {
   return { art: 'fall', zustand: 'offen', text: `${zaehl(f.faelle.anzahl, 'Fall', 'Fälle')} zum Üben`, ziel: f.faelle.ziel };
 }
 
+/** Ab diesem Ergebnis gilt das Üben im Trainer als erledigt; darunter heißt es „wiederholen“. */
+export const UEBEN_GUT_AB = 70;
+
+function ueben(f: ThemaFakten): Schritt {
+  const u = f.uebungen;
+  if (!u?.trainer.length) return { art: 'ueben', zustand: 'entfaellt', text: 'Kein Übungstrainer zum Thema' };
+  const ziel = u.trainer[0]!.path;
+  const namen = u.trainer.map((t) => t.label).join(', ');
+  if (u.ergebnis === undefined) return { art: 'ueben', zustand: 'offen', text: namen, ziel };
+  if (u.ergebnis >= UEBEN_GUT_AB) return { art: 'ueben', zustand: 'erledigt', text: `Zuletzt ${u.ergebnis} % · ${namen}`, ziel };
+  return { art: 'ueben', zustand: 'teilweise', text: `Zuletzt ${u.ergebnis} %, noch einmal üben · ${namen}`, ziel };
+}
+
 function selbsttest(f: ThemaFakten): Schritt {
   if (f.status === 'sicher') return { art: 'selbsttest', zustand: 'erledigt', text: 'Sicher (durch Abfragen belegt)', ziel: f.testZiel };
   if (!f.testZiel && !f.tests) return { art: 'selbsttest', zustand: 'entfaellt', text: 'Noch keine Abfrage zu diesem Thema' };
@@ -109,7 +127,7 @@ function selbsttest(f: ThemaFakten): Schritt {
 }
 
 export function themaPfad(f: ThemaFakten): ThemaPfad {
-  const schritte = [lesen(f), karten(f), steckbrief(f), fall(f), selbsttest(f)];
+  const schritte = [lesen(f), karten(f), steckbrief(f), fall(f), ueben(f), selbsttest(f)];
   const gilt = schritte.filter((s) => s.zustand !== 'entfaellt');
   return {
     topicId: f.topicId,

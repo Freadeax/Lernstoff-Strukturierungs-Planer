@@ -5,10 +5,10 @@ import '../../rechnen/rechnen.css';
 import { db } from '../../../core/db';
 import type { ID } from '../../../core/types';
 import { navigate, useRoute } from '../../../ui/shell/router';
-import { stelleSitzungZusammen, type Sitzung as SitzungsPlan } from '../planung';
+import { istProblem, problemSitzung, stelleSitzungZusammen, type Sitzung as SitzungsPlan } from '../planung';
 import { notify } from '../../../ui/shell/notifications';
 import { heute as heuteTag, ladeKartenDaten, neueHeute, schliesseOffeneSitzungAb } from '../store';
-import type { Karte } from '../typen';
+import { QUELLE_LABEL, type Karte, type KartenQuelle } from '../typen';
 import { Sitzung } from './Sitzung';
 import { alleThemen, blaetter, modul, type KartenCtx } from './kontext';
 import { Steckbriefe } from './Steckbriefe';
@@ -24,8 +24,19 @@ function Start({ ctx, thema, krankheit, onStart }: { ctx: KartenCtx; thema?: ID;
   const { daten, heute } = ctx;
   const themen = thema ? [thema, ...modul.topics.filter((t) => t.parentId === thema).map((t) => t.id)] : undefined;
   const profil = krankheit ? modul.diseaseProfiles?.find((p) => p.id === krankheit) : undefined;
-  const opts = { heute, config: daten.config, neueHeuteSchon: neueHeute(daten.staende.values(), heute), themen, ref: profil?.id };
-  const plan = useMemo(() => stelleSitzungZusammen(daten.alle, daten.staende, opts), [daten, heute, thema, profil]);
+  const [quellen, setQuellen] = useState<KartenQuelle[]>([]);
+  const vorhanden = useMemo(() => (Object.keys(QUELLE_LABEL) as KartenQuelle[]).filter((q) => daten.alle.some((k) => k.quelle === q)), [daten]);
+  const opts = { heute, config: daten.config, neueHeuteSchon: neueHeute(daten.staende.values(), heute), themen, ref: profil?.id, quellen };
+  const plan = useMemo(() => stelleSitzungZusammen(daten.alle, daten.staende, opts), [daten, heute, thema, profil, quellen]);
+  const schnell = useMemo(() => {
+    const o = { ...opts, config: { ...daten.config, sitzungsGroesse: 10 } };
+    const s = stelleSitzungZusammen(daten.alle, daten.staende, o);
+    return s.karten.length ? s : stelleSitzungZusammen(daten.alle, daten.staende, { ...o, vorziehen: true });
+  }, [daten, heute, thema, profil, quellen]);
+  const imPool = (k: Karte) => (!quellen.length || quellen.includes(k.quelle));
+  const problem = useMemo(() => problemSitzung(daten.alle.filter(imPool), daten.staende, heute, daten.config.sitzungsGroesse), [daten, heute, quellen]);
+  const problemGesamt = useMemo(() => [...daten.staende.values()].filter((s) => istProblem(s, heute)).length, [daten, heute]);
+  const umschalten = (q: KartenQuelle) => setQuellen((alt) => (alt.includes(q) ? alt.filter((x) => x !== q) : [...alt, q]));
   const vorziehen = useMemo(() => (plan.karten.length ? null : stelleSitzungZusammen(daten.alle, daten.staende, { ...opts, vorziehen: true })), [plan]);
   const themaName = profil?.name ?? (thema ? alleThemen.get(thema)?.name : undefined);
   const gezielt = !!thema || !!profil;
@@ -60,6 +71,30 @@ function Start({ ctx, thema, krankheit, onStart }: { ctx: KartenCtx; thema?: ID;
           </>
         )}
       </div>
+      <div className="card karten__gezielt">
+        <h3>Gezielt üben</h3>
+        {vorhanden.length > 1 && (
+          <div className="karten__quellen" role="group" aria-label="Nur Karten aus">
+            <span className="muted">Nur aus:</span>
+            {vorhanden.map((q) => (
+              <button key={q} type="button" className="pill small" aria-pressed={quellen.includes(q)} onClick={() => umschalten(q)}>{QUELLE_LABEL[q]}</button>
+            ))}
+            {quellen.length > 0 && <button type="button" className="link" onClick={() => setQuellen([])}>alle</button>}
+          </div>
+        )}
+        <div className="row">
+          <button type="button" disabled={!schnell.karten.length} onClick={() => onStart(schnell, themaName ? `${themaName} · Schnellrunde` : 'Schnellrunde')}>
+            Schnellrunde ({schnell.karten.length} {schnell.karten.length === 1 ? 'Karte' : 'Karten'})
+          </button>
+          <button type="button" disabled={!problem.karten.length} onClick={() => onStart(problem, 'Problemkarten')}>
+            Problemkarten ({problem.karten.length})
+          </button>
+        </div>
+        <p className="muted">
+          Problemkarten sind Karten, die du mindestens zweimal vergessen hast, die besonders schwer sind oder die du heute wahrscheinlich nicht mehr weißt.
+          {problemGesamt > 0 ? ` Insgesamt ${problemGesamt}.` : ' Im Moment hast du keine.'} Die wackeligsten kommen zuerst, auch wenn sie noch nicht fällig sind.
+        </p>
+      </div>
       <details className="card">
         <summary>So funktioniert die Wiederholung</summary>
         <p>Jede Karte hat ihren eigenen Wiederholungsplan nach FSRS, demselben Verfahren wie im Lernplan. Je sicherer du eine Karte weißt, desto länger wird der Abstand bis zur nächsten Abfrage. Ziel ist, dass du sie zum Zeitpunkt der Wiederholung mit {Math.round(daten.config.retention * 100)} % Wahrscheinlichkeit noch weißt.</p>
@@ -77,7 +112,8 @@ export default function Karteikarten() {
   const krankheit = params.get('krankheit') ?? undefined;
   const [ctx, setCtx] = useState<KartenCtx | null>(null);
   const [fehler, setFehler] = useState<string | null>(null);
-  const [sitzung, setSitzung] = useState<{ karten: Karte[]; titel?: string } | null>(null);
+  const [sitzung, setSitzung] = useState<{ karten: Karte[]; titel?: string; nr: number } | null>(null);
+  const starte = (karten: Karte[], titel?: string) => setSitzung((alt) => ({ karten, titel, nr: (alt?.nr ?? 0) + 1 }));
 
   const neuLaden = useCallback(async () => {
     try {
@@ -114,10 +150,11 @@ export default function Karteikarten() {
       {fehler && <p className="note warn">Karteikarten konnten nicht geladen werden: {fehler}</p>}
       {!ctx && !fehler && <p className="muted">Lädt …</p>}
       {ctx && sitzung && (
-        <Sitzung karten={sitzung.karten} titel={sitzung.titel} staende={ctx.daten.staende} retention={ctx.daten.config.retention} heute={ctx.heute}
-          topics={blaetter} titles={ctx.titles} onEnde={() => { setSitzung(null); void neuLaden(); }} />
+        <Sitzung key={sitzung.nr} karten={sitzung.karten} titel={sitzung.titel} staende={ctx.daten.staende} retention={ctx.daten.config.retention} heute={ctx.heute}
+          topics={blaetter} titles={ctx.titles} onEnde={() => { setSitzung(null); void neuLaden(); }}
+          onNochmal={(k) => { void neuLaden().then(() => starte(k, 'Noch einmal')); }} />
       )}
-      {ctx && !sitzung && ansicht === 'lernen' && <Start ctx={ctx} thema={thema} krankheit={krankheit} onStart={(s, titel) => setSitzung({ karten: s.karten, titel })} />}
+      {ctx && !sitzung && ansicht === 'lernen' && <Start ctx={ctx} thema={thema} krankheit={krankheit} onStart={(s, titel) => starte(s.karten, titel)} />}
       {ctx && !sitzung && ansicht === 'steckbriefe' && <Steckbriefe ctx={ctx} />}
       {ctx && !sitzung && ansicht === 'stapel' && <Stapel ctx={ctx} />}
       {ctx && !sitzung && ansicht === 'eigene' && <Eigene ctx={ctx} />}

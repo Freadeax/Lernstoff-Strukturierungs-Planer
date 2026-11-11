@@ -12,7 +12,7 @@ import { uebungenFuer } from '../lernplan/trainer';
 import { dauer, inTagen, kurzDatum, STATUS_LABEL } from '../lernplan/ui/format';
 import { usePlan, type PlanCtx } from '../lernplan/ui/usePlan';
 import { CePruefung } from './CePruefung';
-import { sammleFakten, useGeraeteDaten, type GeraeteDaten } from './daten';
+import { sammleFakten, UEBEN_TRAINER, useGeraeteDaten, type GeraeteDaten } from './daten';
 import { PfadKarte, PfadPunkte, SchrittListe } from './Lernpfad';
 import { cePfad, themaPfad, type Haken, type ThemaFakten, type ThemaPfad } from './lernpfad';
 import {
@@ -128,8 +128,8 @@ function ThemaZeile({ e, status, minuten, pfad, fakten, haken, onHaken }: {
 }) {
   const t = e.topic;
   const st = status(t.id);
-  // Fall und Krankheitsbild-Fälle stehen schon im Pfad
-  const uebungen = uebungenFuer(t.id, modul).filter((u) => u.trainer !== 'fall' && u.trainer !== 'krankheitsbilder' && u.trainer !== 'praxis');
+  // Fälle und Übungstrainer stehen schon im Pfad (Schritte „Fall“ und „Üben“)
+  const uebungen = uebungenFuer(t.id, modul).filter((u) => !UEBEN_TRAINER(u.trainer) && u.trainer !== 'fall' && u.trainer !== 'krankheitsbilder' && u.trainer !== 'praxis');
 
   return (
     <details className="ce__thema">

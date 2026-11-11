@@ -5,7 +5,7 @@ import { pflegeModule } from '../../modules/pflege';
 import { ratingFromScore } from '../lernplan/fsrs';
 import { ausFragenSatz, ausGlossar, ausKatalog, ausKrankheitsbildern, ausSteckbriefen, ausZusammenfassung, definitionsBegriff, luecken, lueckenKarten, lueckenOhneMarken, modulKarten, pruefeEingabe, wirkstoffAntworten } from './erzeugen';
 import {
-  bewerte, einstreuen, ergebnisseJeThema, prognose, stelleSitzungZusammen, vorschau, wiedereinreihen,
+  bewerte, einstreuen, ergebnisseJeThema, gewusstProzent, istProblem, laengsteSerie, problemSitzung, prognose, stelleSitzungZusammen, vorschau, wiedereinreihen,
 } from './planung';
 import type { Karte, KartenStand } from './typen';
 import { STANDARD_CONFIG } from './typen';
@@ -336,5 +336,48 @@ describe('Lückentext-Karten', () => {
   it('lässt normale Karten unverändert', () => {
     const k: Karte = { ...basis, luecken: undefined, vorne: 'Frage [[x]]', hinten: 'Antwort' };
     expect(lueckenKarten(k)).toEqual([k]);
+  });
+});
+
+describe('Problemkarten, Herkunftsfilter und Sitzungsauswertung', () => {
+  const heute = '2026-10-24';
+  const st = (cardId: string, o: Partial<KartenStand> = {}): KartenStand => ({ cardId, stability: 30, difficulty: 5, lastReview: '2026-10-23', due: '2026-11-20', reps: 3, lapses: 0, erstmals: '2026-10-01', ...o });
+
+  it('erkennt oft vergessene, schwere und wackelige Karten, aber keine neuen oder ausgesetzten', () => {
+    expect(istProblem(st('a'), heute)).toBe(false);
+    expect(istProblem(st('a', { lapses: 2 }), heute)).toBe(true);
+    expect(istProblem(st('a', { difficulty: 9 }), heute)).toBe(true);
+    expect(istProblem(st('a', { stability: 1, lastReview: '2026-10-10' }), heute)).toBe(true);
+    expect(istProblem(st('a', { lapses: 3, ausgesetzt: true }), heute)).toBe(false);
+    expect(istProblem(st('a', { lapses: 3, reps: 0 }), heute)).toBe(false);
+  });
+
+  it('stellt Problemkarten zusammen, die wackeligste zuerst, auch wenn sie nicht fällig sind', () => {
+    const karten = ['ok', 'p1', 'p2', 'neu'].map((id) => karte(id));
+    const staende = new Map([
+      ['ok', st('ok')],
+      ['p1', st('p1', { lapses: 2 })],
+      ['p2', st('p2', { stability: 1, lastReview: '2026-10-01', due: '2026-10-02' })],
+    ]);
+    const s = problemSitzung(karten, staende, heute, 10);
+    expect(s.karten.map((k) => k.id)).toEqual(['p2', 'p1']);
+    expect(s.faellig).toBe(1);
+    expect(s.vorgezogen).toBe(1);
+    expect(problemSitzung(karten, staende, heute, 1).karten).toHaveLength(1);
+  });
+
+  it('filtert eine Sitzung nach Herkunft', () => {
+    const karten: Karte[] = [{ ...karte('g'), quelle: 'glossar' }, { ...karte('e'), quelle: 'eigen' }];
+    const s = stelleSitzungZusammen(karten, new Map(), { heute, config: { neueProTag: 10, sitzungsGroesse: 10 }, neueHeuteSchon: 0, quellen: ['glossar'] });
+    expect(s.karten.map((k) => k.id)).toEqual(['g']);
+    const alle = stelleSitzungZusammen(karten, new Map(), { heute, config: { neueProTag: 10, sitzungsGroesse: 10 }, neueHeuteSchon: 0, quellen: [] });
+    expect(alle.karten).toHaveLength(2);
+  });
+
+  it('zählt die längste Serie und den Anteil gewusster Karten', () => {
+    expect(laengsteSerie([3, 4, 1, 3, 3, 4, 2])).toBe(3);
+    expect(laengsteSerie([])).toBe(0);
+    expect(gewusstProzent([3, 4, 1, 2])).toBe(50);
+    expect(gewusstProzent([])).toBe(0);
   });
 });

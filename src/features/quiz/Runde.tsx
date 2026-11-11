@@ -1,4 +1,5 @@
 import { useMemo, useState, type ReactNode } from 'react';
+import { Ergebnisring } from '../../ui/Ergebnisring';
 import './quiz.css';
 import {
   alsFehler, alsTreffer, bewerte, schrittRichtig, startFolge, stufeVon, zuordnenOptionen, STUFE_LABEL,
@@ -279,17 +280,6 @@ const ART_HINWEIS: Record<Aufgabe['art'], string> = {
   fall: 'Der Fall entwickelt sich. Jeden Schritt festlegen, dann geht es weiter.',
 };
 
-/** Ergebnisring für die Auswertung: zeichnet sich bis zum Prozentwert (bei reduzierter Bewegung sofort fertig). */
-function Ring({ prozent }: { prozent: number }) {
-  return (
-    <svg className="qz__ring" viewBox="0 0 120 120" role="img" aria-label={`${prozent} Prozent richtig`}>
-      <circle className="qz__ring-spur" cx="60" cy="60" r="50" pathLength={100} />
-      <circle className={`qz__ring-wert ${prozent >= 80 ? 'is-gut' : prozent >= 50 ? 'is-mittel' : 'is-schwach'}`} cx="60" cy="60" r="50" pathLength={100} strokeDasharray={`${prozent} 100`} />
-      <text x="60" y="60" dy="0.35em" textAnchor="middle">{prozent} %</text>
-    </svg>
-  );
-}
-
 export function Runde({ aufgaben, quelle, trainer, figuren = {}, minProThema = 3, onFertig, onNeu, onEnde }: Props) {
   const [i, setI] = useState(0);
   const [antwort, setAntwort] = useState<Antwort>(() => leereAntwort(aufgaben[0]!));
@@ -330,7 +320,7 @@ export function Runde({ aufgaben, quelle, trainer, figuren = {}, minProThema = 3
     return (
       <div className="card qz__ende m-pop" aria-live="polite">
         <div className="qz__ende-kopf">
-          <Ring prozent={prozent} />
+          <Ergebnisring prozent={prozent} />
           <div>
             <h3>{prozent >= 90 ? 'Sehr sicher' : prozent >= 70 ? 'Gut dabei' : prozent >= 50 ? 'Auf dem Weg' : 'Noch einmal üben'}</h3>
             <p className="muted">{ergebnisse.length - falsch.length} von {ergebnisse.length} Aufgaben ganz richtig. Teilpunkte zählen anteilig.</p>
