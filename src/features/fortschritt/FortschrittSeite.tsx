@@ -10,6 +10,7 @@ import { dauer, kurzDatum, STATUS_LABEL } from '../lernplan/ui/format';
 import type { EvidenceSource } from '../lernplan/types';
 import { alleMeilensteine, naechsteSchritte, werteAus, type Auswertung } from './auswertung';
 import { speichereZiel, useFortschritt, type FortschrittDaten } from './daten';
+import { datenbasis, KENNZAHLEN, kleineBasis, wochenOhneDaten, zeitraumText, type Belastbarkeit, type Datenbasis, type KennzahlId } from './kennzahlen';
 import {
   gesamtWerte, kalenderWochen, lernstufen, LERNSTUFEN, rueckblickText, serie, stufe, STATUS_REIHE, wissensVerlauf,
   wochenrueckblick, wochenStart, wochenZiele, woche, ZIEL_GRENZEN,
@@ -33,11 +34,19 @@ const breite = (x: number) => `${Math.round(Math.max(0, Math.min(1, x)) * 100)}%
 interface Ctx extends Auswertung {
   d: FortschrittDaten;
   ziele: Ziele;
+  basis: Datenbasis;
+  /** Gesetzt, wenn Status, Stufen und Verlauf wegen wenig Daten vorläufig sind. */
+  vorlaeufig?: Belastbarkeit;
 }
 
 function useCtx(d: FortschrittDaten | undefined, ziele: Ziele): Ctx | undefined {
   const a = useMemo(() => (d ? werteAus(d) : undefined), [d]);
-  return useMemo(() => (d && a ? { ...a, d, ziele } : undefined), [d, a, ziele]);
+  return useMemo(() => {
+    if (!d || !a) return undefined;
+    const basis = datenbasis(d.fakten, d.today);
+    const vorlaeufig = kleineBasis(basis);
+    return { ...a, d, ziele, basis, ...(vorlaeufig ? { vorlaeufig } : {}) };
+  }, [d, a, ziele]);
 }
 
 export default function FortschrittSeite() {
@@ -107,6 +116,29 @@ function StatusBalken({ zahl, gesamt }: { zahl: Record<MasteryStatus, number>; g
   );
 }
 
+/** Quelle, Zeitraum und Definition der Zahlen einer Karte, aufklappbar. */
+function Herkunft({ ids }: { ids: KennzahlId[] }) {
+  return (
+    <details className="fs-herkunft">
+      <summary>Woher kommen die Zahlen?</summary>
+      <dl>
+        {ids.map((id) => {
+          const k = KENNZAHLEN[id];
+          return (
+            <div key={id}>
+              <dt>{k.label}</dt>
+              <dd>{k.definition}<br /><span className="muted">Quelle: {k.quelle} Zeitraum: {k.zeitraum}</span></dd>
+            </div>
+          );
+        })}
+      </dl>
+    </details>
+  );
+}
+
+/** Platzhalter statt einer Null, wenn es für diese Zahl noch gar keine Einträge gibt. */
+const Leer = ({ text = 'noch keine Daten' }: { text?: string }) => <span className="fs-leer">{text}</span>;
+
 const WT = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
 
 function Kalender({ ctx }: { ctx: Ctx }) {
@@ -147,6 +179,7 @@ function NaechsterSchritt({ ctx }: { ctx: Ctx }) {
           </li>
         ))}
       </ol>
+      {ctx.vorlaeufig && ctx.basis.abfragen > 0 && <p className="muted">Fällige Wiederholungen schätzt das Wiederholungsmodell. {ctx.vorlaeufig.kurz}</p>}
     </article>
   );
 }
@@ -159,6 +192,16 @@ function Verlauf({ ctx }: { ctx: Ctx }) {
   const begonnen = (p: typeof letzte) => gesamt - p.zahl.offen;
   // Skaliert auf die meisten begonnenen Themen, sonst wären die Balken bei vielen offenen Themen kaum sichtbar.
   const skala = Math.max(1, ...punkte.map(begonnen));
+  const ohneDaten = wochenOhneDaten(ctx.basis, punkte.map((p) => p.ende));
+  if (!ctx.basis.abfragen && !ctx.basis.karten) {
+    return (
+      <article className="card fs-verlauf">
+        <p className="eyebrow">Wissensverlauf, zwölf Wochen</p>
+        <p><Leer text="Noch keine Abfrage." /> Der Verlauf entsteht ab deiner ersten Abfrage oder Karteikarten-Runde. Bis dahin ist hier nichts zu zeigen, auch keine Null.</p>
+        <Herkunft ids={['verlauf']} />
+      </article>
+    );
+  }
   return (
     <article className="card fs-verlauf">
       <p className="eyebrow">Wissensverlauf, zwölf Wochen</p>
@@ -175,7 +218,10 @@ function Verlauf({ ctx }: { ctx: Ctx }) {
       <ul className="faecher__legende">
         {(['sicher', 'unsicher', 'bearbeitet'] as const).map((st) => <li key={st}><i className={`faecher__punkt faecher__teil--${st}`} />{STATUS_LABEL[st]}</li>)}
       </ul>
-      <p className="muted">Volle Höhe = {plural(skala, 'begonnenes Thema', 'begonnene Themen')}, Stand jeweils am Wochenende. Insgesamt {gesamt} Themen.</p>
+      <p className="muted">Volle Höhe = {plural(skala, 'begonnenes Thema', 'begonnene Themen')}, Stand jeweils am Wochenende. Insgesamt {gesamt} Themen.
+        {ohneDaten > 0 && ` Die ersten ${plural(ohneDaten, 'Woche liegt', 'Wochen liegen')} vor deinem ersten Eintrag: dort gab es noch keine Daten.`}</p>
+      {ctx.vorlaeufig && <p className="muted">{ctx.vorlaeufig.kurz}</p>}
+      <Herkunft ids={['verlauf']} />
     </article>
   );
 }
@@ -204,6 +250,8 @@ function Stufen({ ctx }: { ctx: Ctx }) {
           {' '}<a className="text-link" href={`#/lernen/karten?thema=${encodeURIComponent(luecke[0]!)}`}>Jetzt abfragen</a></p>
       )}
       <p className="muted">Selbsteinschätzungen zählen auf keiner Stufe. Bestätigt ist ein Thema erst nach mehreren erfolgreichen Abfragen an verschiedenen Tagen.</p>
+      {ctx.vorlaeufig && <p className="muted">{ctx.vorlaeufig.kurz} Eine 0 auf einer Stufe heißt hier: dafür gibt es noch keinen Eintrag.</p>}
+      <Herkunft ids={['stufen']} />
     </article>
   );
 }
@@ -218,6 +266,7 @@ function Ueberblick({ ctx, onZiele }: { ctx: Ctx; onZiele: () => void }) {
   const gesamt = useMemo(() => gesamtWerte(d.fakten, d.today), [d]);
   const sicher = [...ctx.status.values()].filter((p) => p.status === 'sicher').length;
   const themen = d.lernstand.leaves.length;
+  const b = ctx.basis;
   const [bearbeiten, setBearbeiten] = useState(false);
 
   const serieText = s.heuteAktiv ? 'Heute schon gelernt. Stark.'
@@ -230,9 +279,11 @@ function Ueberblick({ ctx, onZiele }: { ctx: Ctx; onZiele: () => void }) {
       <NaechsterSchritt ctx={ctx} />
       <article className="card fs-serie">
         <p className="eyebrow">Lernserie</p>
-        <p className="fs-zahl"><strong>{s.aktuell}</strong> {s.aktuell === 1 ? 'Lerntag' : 'Lerntage'} in Folge</p>
+        {ctx.basis.tage ? <p className="fs-zahl"><strong>{s.aktuell}</strong> {s.aktuell === 1 ? 'Lerntag' : 'Lerntage'} in Folge</p>
+          : <p className="fs-zahl"><Leer text="Noch kein Lerntag erfasst" /></p>}
         <p>{serieText}</p>
-        <p className="muted">Längste Serie: {plural(s.laengste, 'Tag', 'Tage')}. Ein Lerntag zählt, sobald du Lernzeit erfasst, etwas abfragst oder Karteikarten lernst.</p>
+        <p className="muted">{ctx.basis.tage ? `Längste Serie: ${plural(s.laengste, 'Tag', 'Tage')}. ` : ''}Ein Lerntag zählt, sobald du Lernzeit erfasst, etwas abfragst oder Karteikarten lernst.</p>
+        <Herkunft ids={['serie']} />
         <a className="text-link" href="#/lernen/karten">Karteikarten lernen</a>
       </article>
 
@@ -246,21 +297,24 @@ function Ueberblick({ ctx, onZiele }: { ctx: Ctx; onZiele: () => void }) {
             : <p className="muted">Keine Wochenziele gesetzt.</p>
         )}
         <a className="text-link" href={`#${pfad('woche')}`}>Zum Wochenrückblick</a>
+        <Herkunft ids={['wochenziele']} />
       </article>
 
       <article className="card fs-gesamt">
-        <p className="eyebrow">Bisher insgesamt</p>
+        <p className="eyebrow">Bisher insgesamt <span className="fs-zeitraum">{zeitraumText(b, kurzDatum)}</span></p>
         <dl className="fs-kennzahlen">
-          <div><dt>Lernzeit</dt><dd>{dauer(gesamt.minuten)}</dd></div>
-          <div><dt>Lerntage</dt><dd>{gesamt.lerntage}</dd></div>
-          <div><dt>Abfragen</dt><dd>{gesamt.abfragen}</dd></div>
-          <div><dt>Karteikarten</dt><dd>{gesamt.karten}</dd></div>
-          <div><dt>Themen sicher</dt><dd>{sicher} von {themen}</dd></div>
+          <div><dt>Lernzeit</dt><dd>{b.lernzeiten ? dauer(gesamt.minuten) : <Leer />}</dd></div>
+          <div><dt>Lerntage</dt><dd>{b.tage ? gesamt.lerntage : <Leer />}</dd></div>
+          <div><dt>Abfragen</dt><dd>{b.abfragen ? gesamt.abfragen : <Leer />}</dd></div>
+          <div><dt>Karteikarten</dt><dd>{b.karten ? gesamt.karten : <Leer />}</dd></div>
+          <div><dt>Themen sicher</dt><dd>{b.abfragen || b.karten ? `${sicher} von ${themen}` : <Leer text={`noch keine Abfrage (${themen} Themen)`} />}</dd></div>
         </dl>
+        {ctx.vorlaeufig && <p className="note fs-vorlaeufig" role="note">{ctx.vorlaeufig.lang}</p>}
         {ziele.sichereThemen > 0 && (
           <ul className="fs-ziele"><ZielBalken z={{ id: 'sichereThemen', label: 'Gesamtziel sichere Themen', ist: sicher, soll: ziele.sichereThemen, einheit: 'Themen', anteil: Math.min(1, sicher / ziele.sichereThemen), erreicht: sicher >= ziele.sichereThemen }} /></ul>
         )}
         <p className="muted">„Sicher“ heißt: mehrfach an verschiedenen Tagen erfolgreich abgefragt und aktuell gut abrufbar. Lesen allein zählt nicht.</p>
+        <Herkunft ids={['lernzeit', 'lerntage', 'abfragen', 'karten', 'sicher']} />
       </article>
 
       <Stufen ctx={ctx} />
@@ -348,7 +402,9 @@ function Rueckblick({ ctx, start: raw }: { ctx: Ctx; start: string | null }) {
             </div>
           ))}
         </div>
-        <p className="muted">Balken: Lernzeit in Minuten. Hervorgehoben: Lerntag (auch mit Abfragen oder Karten).</p>
+        <p className="muted">Balken: Lernzeit in Minuten. Hervorgehoben: Lerntag (auch mit Abfragen oder Karten).
+          {ctx.basis.ersterTag && r.woche.ende < ctx.basis.ersterTag ? ' Diese Woche liegt vor deinem ersten Eintrag: keine Daten, keine echte Null.' : ''}</p>
+        <Herkunft ids={['lernzeit', 'lerntage', 'abfragen', 'karten', 'wochenziele']} />
       </article>
 
       {r.ziele.length > 0 && (
@@ -415,6 +471,8 @@ function Bereiche({ ctx }: { ctx: Ctx }) {
   const { ce, kb } = ctx;
   return (
     <>
+      {ctx.vorlaeufig && <p className="note fs-vorlaeufig" role="note">{ctx.vorlaeufig.lang}</p>}
+      <Herkunft ids={['bereiche']} />
       <BereichListe titel="Curriculare Einheiten" staende={ce} link={(b) => `/lernen/ce?ce=${encodeURIComponent(b.id)}`}
         text="Wissensstand je CE. Die Prozentzahl ist der Anteil sicherer Themen. Zuordnung wie auf der CE-Seite (Katalog und eigene Skripte)." />
       <BereichListe titel="Kompetenzbereiche" staende={kb}
