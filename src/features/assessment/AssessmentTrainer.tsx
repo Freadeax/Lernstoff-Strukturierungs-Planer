@@ -10,6 +10,7 @@ import {
   type Instrument, type InstrumentId, type Item, type Werte,
 } from './instrumente';
 import { GRUPPEN, VIGNETTEN, type Gruppe, type Vignette } from './vignetten';
+import { BEWERTUNG_TEXT, RECHTE_TEXT, STECKBRIEFE } from './steckbriefe';
 import { bewerteVignette, type VignettenErgebnis } from './bewertung';
 import { notiereFehler } from '../fehlerheft/fehlerheft';
 import { ausAssessment } from '../fehlerheft/quellen';
@@ -124,6 +125,34 @@ function Skala({ instr, punkte, markiert }: { instr: Instrument; punkte: number 
   );
 }
 
+/** Skalenfassung, Zielgruppe, Rechte und Grenzen des Instruments (Audit Assessments). */
+function SteckbriefAnzeige({ instr }: { instr: Instrument }) {
+  const s = STECKBRIEFE[instr.id];
+  return (
+    <details className="as__steckbrief">
+      <summary>Fassung, Zielgruppe und Rechte <span className="as__rechte">{RECHTE_TEXT[s.rechteStatus]}</span></summary>
+      <dl>
+        <div><dt>Fassung</dt><dd>{s.fassung}</dd></div>
+        <div><dt>Original</dt><dd>{s.original.titel} ({s.original.stand})</dd></div>
+        <div><dt>Für</dt><dd>{s.zielgruppe}</dd></div>
+        <div><dt>Nicht für</dt><dd>{s.nichtFuer}</dd></div>
+        <div><dt>Rechte</dt><dd>{s.rechte}. {RECHTE_TEXT[s.rechteStatus]}: Nutzung hier nur als Lehrfassung.</dd></div>
+      </dl>
+    </details>
+  );
+}
+
+/** Pflegerische Beurteilung: getrennt vom Score, mit den Grenzen der Skala. */
+function Beurteilung({ instr, kat }: { instr: Instrument; kat?: ReturnType<typeof kategorie> }) {
+  return (
+    <section className="as__beurteilung" aria-labelledby={`beurteilung-${instr.id}`}>
+      <h4 id={`beurteilung-${instr.id}`}>Pflegerische Beurteilung</h4>
+      <p>Der Score ist ein Hinweis, keine Entscheidung. {STECKBRIEFE[instr.id].grenzen}</p>
+      {kat && <p><strong>Mögliche nächste Schritte bei „{kat.label}“</strong> (Vorschlag, fachlich prüfen): {kat.hinweis}</p>}
+    </section>
+  );
+}
+
 // ---------------------------------------------------------------- Rechner
 
 function Rechner({ instrumentId }: { instrumentId: InstrumentId }) {
@@ -136,28 +165,31 @@ function Rechner({ instrumentId }: { instrumentId: InstrumentId }) {
   const fertig = vollstaendig(items, werte);
   const kat = fertig ? kategorie(instr, punkte) : undefined;
   const { max } = minMax(instr);
-  const offen = items.filter((i) => werte[i.id] === undefined).length;
+  const fehlend = items.filter((i) => werte[i.id] === undefined);
 
   return (
     <div className="as__layout">
       <div className="card">
         <h3>{instr.name}</h3>
         <p className="muted">{instr.zweck}</p>
+        <SteckbriefAnzeige instr={instr} />
         <Formular instr={instr} werte={werte} setWert={(id, p) => setWerte((w) => ({ ...w, [id]: p }))}
           ersatz={ersatz} setErsatz={setErsatz} bmiUebernehmen />
       </div>
       <aside className="card as__ergebnis" aria-live="polite">
+        <h4 className="as__score-titel">Score laut Instrument</h4>
         {instr.ohneSumme
           ? <p className="as__summe"><span className="muted">Stufe</span> <strong>{fertig ? punkte : '–'}</strong></p>
-          : <p className="as__summe"><strong>{punkte}</strong> <span className="muted">von {max} Punkten</span></p>}
+          : <p className="as__summe"><strong>{punkte}</strong> <span className="muted">{fertig ? `von ${max} Punkten` : `Teilsumme, unvollständig (max. ${max})`}</span></p>}
         {kat ? (
-          <div className={`note as__note--${kat.ton}`}><strong>{kat.label}</strong><br />{kat.hinweis}</div>
+          <div className={`note as__note--${kat.ton}`}><strong>{kat.label}</strong> <span className="muted">Einstufung laut Skala</span></div>
         ) : (
-          <p className="muted">Noch {offen} {offen === 1 ? 'Bereich' : 'Bereiche'} offen.</p>
+          <div className="note as__fehlend"><strong>Fehlende Angaben ({fehlend.length}):</strong> {fehlend.map((i) => i.label).join(', ')}. Ohne sie gibt es keine gültige Summe und keine Einstufung.</div>
         )}
         <Skala instr={instr} punkte={fertig ? punkte : null} />
         <p className="muted as__richtung">{instr.richtung}</p>
         <ul className="as__hinweise">{instr.hinweise.map((h) => <li key={h}>{h}</li>)}</ul>
+        <Beurteilung instr={instr} kat={kat} />
         <div className="row">
           <button type="button" className="ghost" onClick={() => { setWerte({}); setErsatz(new Set()); }}>Zurücksetzen</button>
         </div>
@@ -167,6 +199,12 @@ function Rechner({ instrumentId }: { instrumentId: InstrumentId }) {
 }
 
 // ---------------------------------------------------------------- Fallvignetten
+
+function fehlendText(items: Item[], werte: Werte, kat: string | null): string {
+  const offen = items.filter((i) => werte[i.id] === undefined).map((i) => i.label);
+  const teile = [...(offen.length ? [`Fehlende Angaben: ${offen.join(', ')}`] : []), ...(kat ? [] : ['Einstufung fehlt'])];
+  return `${teile.join('. ')}.`;
+}
 
 function FallListe({ gruppe, erledigt, onWahl }: { gruppe: Gruppe; erledigt: Erledigt; onWahl: (v: Vignette) => void }) {
   return (
@@ -187,12 +225,12 @@ function FallListe({ gruppe, erledigt, onWahl }: { gruppe: Gruppe; erledigt: Erl
   );
 }
 
-function Auswertung({ v, ergebnis, eigeneKategorie, gewaehlt }: { v: Vignette; ergebnis: VignettenErgebnis; eigeneKategorie: string | null; gewaehlt?: InstrumentId }) {
+function Auswertung({ v, ergebnis, eigeneKategorie, gewaehlt, beurteilung }: { v: Vignette; ergebnis: VignettenErgebnis; eigeneKategorie: string | null; gewaehlt?: InstrumentId; beurteilung: string }) {
   const instr = INSTRUMENTE[v.instrument];
   const eigene = instr.kategorien.find((k) => k.id === eigeneKategorie);
   return (
     <div className="as__auswertung">
-      <h3>{ergebnis.punkte} von {ergebnis.max} richtig</h3>
+      <h3>Score: {ergebnis.punkte} von {ergebnis.max} richtig</h3>
       <table className="as__tabelle">
         <thead><tr><th>Bereich</th><th>Du</th><th>Lösung</th></tr></thead>
         <tbody>
@@ -220,7 +258,12 @@ function Auswertung({ v, ergebnis, eigeneKategorie, gewaehlt }: { v: Vignette; e
           </tr>
         </tbody>
       </table>
-      <div className="note"><strong>Fazit:</strong> {v.fazit}</div>
+      <section className="as__beurteilung" aria-labelledby={`muster-${v.id}`}>
+        <h4 id={`muster-${v.id}`}>Pflegerische Beurteilung (nicht automatisch bewertet)</h4>
+        <p><strong>Deine:</strong> {beurteilung.trim() || <span className="muted">nicht ausgefüllt</span>}</p>
+        <p><strong>Muster:</strong> {v.fazit}</p>
+        <p className="muted">{STECKBRIEFE[v.instrument].grenzen}</p>
+      </section>
     </div>
   );
 }
@@ -234,6 +277,7 @@ function Fall({ v, onFertig, onZurueck, onWeiter }: {
   const [werte, setWerte] = useState<Werte>({});
   const [ersatz, setErsatz] = useState<Set<string>>(new Set());
   const [eigeneKat, setEigeneKat] = useState<string | null>(null);
+  const [beurteilung, setBeurteilung] = useState('');
   const [ergebnis, setErgebnis] = useState<VignettenErgebnis | null>(null);
   const lernplan = useLernplanUebernahme('assessment');
 
@@ -284,6 +328,7 @@ function Fall({ v, onFertig, onZurueck, onWeiter }: {
         {gewaehlt && (
           <>
             {mitWahl && <h3>2. Einschätzen mit der {instr.kurz}</h3>}
+            <SteckbriefAnzeige instr={instr} />
             <Formular instr={instr} werte={werte} setWert={(id, p) => setWerte((w) => ({ ...w, [id]: p }))}
               ersatz={ersatz} setErsatz={setErsatz} gesperrt={!!ergebnis} bmiUebernehmen={false} />
             <div className="as__einstufung">
@@ -295,14 +340,23 @@ function Fall({ v, onFertig, onZurueck, onWeiter }: {
                 ))}
               </div>
             </div>
+            <div className="as__beurteilung-eingabe">
+              <label htmlFor={`beurteilung-${v.id}`}><strong>Pflegerische Beurteilung</strong> <span className="muted">(freiwillig, getrennt vom Score, wird nicht gespeichert)</span></label>
+              <p className="muted as__frage">Was folgt aus dem Ergebnis für diese Person? Was sagt der Score nicht?</p>
+              <p className="as__datenhinweis">Fiktiver Übungsfall: keine echten Namen oder Daten von Patientinnen und Patienten eintragen.</p>
+              <textarea id={`beurteilung-${v.id}`} rows={3} value={beurteilung} disabled={!!ergebnis} onChange={(e) => setBeurteilung(e.target.value)} />
+            </div>
             {!ergebnis ? (
-              <div className="row">
-                <button type="button" className="primary" disabled={!bereit} onClick={auswerten}>Auswerten</button>
-                {!bereit && <span className="muted">Alle Bereiche und eine Einstufung wählen.</span>}
-              </div>
+              <>
+                <p className="muted as__bewertung">{BEWERTUNG_TEXT}</p>
+                <div className="row">
+                  <button type="button" className="primary" disabled={!bereit} onClick={auswerten}>Auswerten</button>
+                  {!bereit && <span className="muted">{fehlendText(items, werte, eigeneKat)}</span>}
+                </div>
+              </>
             ) : (
               <>
-                <Auswertung v={v} ergebnis={ergebnis} eigeneKategorie={eigeneKat} gewaehlt={gewaehlt} />
+                <Auswertung v={v} ergebnis={ergebnis} eigeneKategorie={eigeneKat} gewaehlt={gewaehlt} beurteilung={beurteilung} />
                 <LernplanHinweis uebernahme={lernplan.uebernahme} fehler={lernplan.fehler} />
                 <div className="row">
                   {onWeiter && <button type="button" className="primary" onClick={onWeiter}>Nächster Fall</button>}
