@@ -72,10 +72,12 @@ function Start({ ctx, thema, krankheit, onStart }: { ctx: KartenCtx; thema?: ID;
         </div>
         {plan.karten.length > 0 ? (
           <div className="karten__einstiege">
-            <button type="button" className="primary karten__aufdecken" disabled={!nurFaellig.karten.length} onClick={() => onStart(nurFaellig, themaName ? `${themaName} · Wiederholen` : 'Fällige wiederholen')}>
-              {nurFaellig.karten.length ? `${nurFaellig.karten.length} fällige wiederholen` : 'Nichts fällig'}
-            </button>
-            <button type="button" disabled={!nurNeu.karten.length} onClick={() => onStart(nurNeu, themaName ? `${themaName} · Neue Karten` : 'Neue Karten')}>
+            {nurFaellig.karten.length > 0 && (
+              <button type="button" className="primary karten__aufdecken" onClick={() => onStart(nurFaellig, themaName ? `${themaName} · Wiederholen` : 'Fällige wiederholen')}>
+                {nurFaellig.karten.length} fällige wiederholen
+              </button>
+            )}
+            <button type="button" className={nurFaellig.karten.length ? '' : 'primary karten__aufdecken'} disabled={!nurNeu.karten.length} onClick={() => onStart(nurNeu, themaName ? `${themaName} · Neue Karten` : 'Neue Karten')}>
               {nurNeu.karten.length ? `${nurNeu.karten.length} neue lernen` : 'Keine neuen für heute'}
             </button>
             {plan.faellig > 0 && plan.neu > 0 && (
