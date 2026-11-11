@@ -7,7 +7,7 @@ import { news2, type Fall } from './simulator';
 import { PERSON_LABEL, type Ort, type SzenenBild } from './szene';
 
 export type Raum = 'krankenhaus' | 'heim' | 'wohnung';
-export type ObjektId = 'patient' | 'monitor' | 'infusion' | 'rollstuhl' | 'nachttisch' | 'rucksack' | 'rollator' | 'essen' | 'duschstuhl';
+export type ObjektId = 'patient' | 'monitor' | 'infusion' | 'rollstuhl' | 'nachttisch' | 'rucksack' | 'rollator' | 'essen' | 'duschstuhl' | 'doku';
 
 export const RAUM_FUER: Record<Setting, Raum> = { krankenhaus: 'krankenhaus', paediatrie: 'krankenhaus', langzeit: 'heim', ambulant: 'wohnung' };
 export const RAUM_LABEL: Record<Raum, string> = { krankenhaus: 'Krankenhauszimmer', heim: 'Bewohnerzimmer', wohnung: 'Wohnung' };
@@ -101,6 +101,11 @@ export function objektInfo(id: ObjektId, raum: Raum, bild: SzenenBild): ObjektIn
       titel: 'Mahlzeit und Trinkbecher',
       beobachtung: ['Auf dem Teller liegt noch viel. Der Schnabelbecher ist halb voll.'],
       handlungen: ['Ich schaue, wie viel gegessen und getrunken wurde, und trage es ins Ein- und Ausfuhrprotokoll ein.', 'Ich frage, ob Schmerzen beim Kauen oder Schlucken bestehen, und biete Hilfe beim Essen an.'],
+    };
+    case 'doku': return {
+      titel: 'Pflegedokumentation',
+      beobachtung: ['Auf dem Tablet: Medikamentenplan, ärztliche Verordnungen und die Einträge der letzten Besuche.'],
+      handlungen: ['Ich lese im Medikamentenplan und in den Verordnungen nach, was für heute angeordnet ist.', 'Ich schaue, was beim letzten Besuch dokumentiert wurde, und vergleiche es mit heute.'],
     };
     case 'duschstuhl': return {
       titel: 'Duschstuhl',

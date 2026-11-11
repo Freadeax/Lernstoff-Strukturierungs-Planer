@@ -49,6 +49,11 @@ export default defineConfig({
           urlPattern: ({ url }) => url.pathname.includes('/raeume/'),
           handler: 'CacheFirst',
           options: { cacheName: 'raeume', expiration: { maxEntries: 60 } },
+        }, {
+          // Patientenporträts (512 px, je ca. 15 KB): beim ersten Ansehen laden, danach offline.
+          urlPattern: ({ url }) => url.pathname.includes('/personen/'),
+          handler: 'CacheFirst',
+          options: { cacheName: 'personen', expiration: { maxEntries: 120 } },
         }],
       },
       manifest: {

@@ -4,12 +4,12 @@
 
 import type { ReactNode } from 'react';
 import { RaumBuehne } from '../../ui/sim/raeume/RaumBuehne';
-import { fotoFokus, type FotoRaum } from './fotoraeume';
+import { fotoFokus, type FallFotoRaum } from './fotoraeume';
 import type { Marker, ObjektId } from './raeume';
 import { PERSON_LABEL, type Fokus, type SzenenBild } from './szene';
 
 export interface FotoSzeneProps {
-  raum: FotoRaum;
+  raum: FallFotoRaum;
   bild: SzenenBild;
   uhrzeit?: string;
   fokus?: Fokus;
@@ -51,6 +51,9 @@ export function FotoSzene({ raum, bild, uhrzeit, fokus, aktiverMarker, onMarker,
         {uhrzeit && <span className="fall__foto-chip">{uhrzeit} Uhr</span>}
         {ereignisse.map((e) => <span key={e} className={`fall__foto-chip ${e === 'Alarm' || e === 'Telefon klingelt' ? 'is-wichtig' : ''}`}>{e}</span>)}
       </div>
+      {!raum.personPasst && raum.personName && (
+        <p className="fall__foto-hinweis muted">Beispielfoto: Die Person im Bild steht für {raum.personName}.</p>
+      )}
     </div>
   );
 }

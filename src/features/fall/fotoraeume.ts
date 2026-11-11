@@ -2,24 +2,40 @@
 // Raum spielt und wo die nummerierten Marker im Foto sitzen (relativ 0…1). Die Bilder und
 // die Bühne liegen im gemeinsamen Baustein src/ui/sim/raeume; hier steckt nur die Zuordnung.
 
+import type { RaumId } from '../../ui/sim/raeume/katalog';
 import type { Setting } from './faelle';
 import type { Marker } from './raeume';
 import type { Fokus } from './szene';
 
-import type { RaumId } from '../../ui/sim/raeume/katalog';
-
 export type FotoRaumId = Extract<RaumId,
-  | '07_ambulant_wohnzimmer_kompression' | '08_ambulant_pflegebad'
+  | '07_ambulant_wohnzimmer_kompression' | '08_ambulant_pflegebad' | '09_ambulant_kueche_diabetes'
   | '10_pflegeheim_nacht' | '11_pflegeheim_speiseraum'
   | '12_station_kardiologie_monitoring' | '13_station_postop'
   | '20f_paediatrie_kleinkind_fieberkrampf' | '21_paediatrie_schulkind'>;
 
 export interface FotoMarker extends Marker { x: number; y: number }
-export interface FotoRaum { id: FotoRaumId; titel: string; marker: FotoMarker[]; /** Foto zeigt schon Nacht */ nacht?: boolean; /** Raum hat einen Monitor im Bild */ monitor?: boolean }
+export type Geschlecht = 'mann' | 'frau' | 'kind';
+export interface FotoRaum {
+  id: FotoRaumId; titel: string; marker: FotoMarker[];
+  /** Wer im Foto die Hauptperson ist (für den Abgleich mit dem Fall) */
+  person: Geschlecht;
+  /** Foto zeigt schon Nacht */ nacht?: boolean;
+  /** Raum hat einen Monitor im Bild */ monitor?: boolean;
+}
+
+/** Person aus der Fallbeschreibung: „Herr K., 78 Jahre …“ oder „Lina, 2 Jahre …“. */
+export function personAus(kurz: string): { name: string; geschlecht: Geschlecht } | null {
+  const erw = /^(Herr|Frau) ([A-ZÄÖÜ][a-zäöüß]*)\./.exec(kurz);
+  if (erw) return { name: `${erw[1]} ${erw[2]}.`, geschlecht: erw[1] === 'Herr' ? 'mann' : 'frau' };
+  const vor = /^([A-ZÄÖÜ][a-zäöüß]+), (\d+) Jahre/.exec(kurz);
+  if (vor) return { name: vor[1]!, geschlecht: Number(vor[2]) < 18 ? 'kind' : 'frau' };
+  return null;
+}
+
 
 export const FOTORAEUME: Record<FotoRaumId, FotoRaum> = {
   '12_station_kardiologie_monitoring': {
-    id: '12_station_kardiologie_monitoring', titel: 'Kardiologie, Monitoring am Bett', monitor: true,
+    id: '12_station_kardiologie_monitoring', person: 'mann', titel: 'Kardiologie, Monitoring am Bett', monitor: true,
     marker: [
       { id: 'patient', nr: 1, name: 'Patient', ort: 'bett', x: 0.3, y: 0.52 },
       { id: 'monitor', nr: 2, name: 'Monitor und Messgeräte', ort: 'monitor', x: 0.73, y: 0.34 },
@@ -27,7 +43,7 @@ export const FOTORAEUME: Record<FotoRaumId, FotoRaum> = {
     ],
   },
   '13_station_postop': {
-    id: '13_station_postop', titel: 'Zimmer nach der Operation',
+    id: '13_station_postop', person: 'mann', titel: 'Zimmer nach der Operation',
     marker: [
       { id: 'patient', nr: 1, name: 'Patient', ort: 'bett', x: 0.6, y: 0.52 },
       { id: 'monitor', nr: 2, name: 'Pumpe und Messgeräte', ort: 'monitor', x: 0.7, y: 0.3 },
@@ -36,7 +52,7 @@ export const FOTORAEUME: Record<FotoRaumId, FotoRaum> = {
     ],
   },
   '10_pflegeheim_nacht': {
-    id: '10_pflegeheim_nacht', titel: 'Bewohnerzimmer im Nachtdienst', nacht: true,
+    id: '10_pflegeheim_nacht', person: 'mann', titel: 'Bewohnerzimmer im Nachtdienst', nacht: true,
     marker: [
       { id: 'patient', nr: 1, name: 'Bewohner', ort: 'bett', x: 0.32, y: 0.44 },
       { id: 'nachttisch', nr: 2, name: 'Nachttisch mit Rufanlage', ort: 'monitor', x: 0.16, y: 0.53 },
@@ -44,7 +60,7 @@ export const FOTORAEUME: Record<FotoRaumId, FotoRaum> = {
     ],
   },
   '11_pflegeheim_speiseraum': {
-    id: '11_pflegeheim_speiseraum', titel: 'Speiseraum im Pflegeheim',
+    id: '11_pflegeheim_speiseraum', person: 'frau', titel: 'Speiseraum im Pflegeheim',
     marker: [
       { id: 'patient', nr: 1, name: 'Bewohnerin', ort: 'bett', x: 0.12, y: 0.42 },
       { id: 'essen', nr: 2, name: 'Mahlzeit und Trinkbecher', ort: 'monitor', x: 0.33, y: 0.64 },
@@ -52,7 +68,7 @@ export const FOTORAEUME: Record<FotoRaumId, FotoRaum> = {
     ],
   },
   '20f_paediatrie_kleinkind_fieberkrampf': {
-    id: '20f_paediatrie_kleinkind_fieberkrampf', titel: 'Kinderzimmer auf Station', monitor: true,
+    id: '20f_paediatrie_kleinkind_fieberkrampf', person: 'kind', titel: 'Kinderzimmer auf Station', monitor: true,
     marker: [
       { id: 'patient', nr: 1, name: 'Kind', ort: 'bett', x: 0.45, y: 0.4 },
       { id: 'monitor', nr: 2, name: 'Monitor und Messgeräte', ort: 'monitor', x: 0.86, y: 0.55 },
@@ -60,15 +76,23 @@ export const FOTORAEUME: Record<FotoRaumId, FotoRaum> = {
     ],
   },
   '21_paediatrie_schulkind': {
-    id: '21_paediatrie_schulkind', titel: 'Kinderzimmer mit Sauerstoffanschluss', monitor: true,
+    id: '21_paediatrie_schulkind', person: 'kind', titel: 'Kinderzimmer mit Sauerstoffanschluss', monitor: true,
     marker: [
       { id: 'patient', nr: 1, name: 'Kind', ort: 'bett', x: 0.42, y: 0.32 },
       { id: 'monitor', nr: 2, name: 'Monitor und Messgeräte', ort: 'monitor', x: 0.88, y: 0.53 },
       { id: 'nachttisch', nr: 3, name: 'Tisch mit Dosieraerosol und Spacer', ort: 'wagen', x: 0.24, y: 0.72 },
     ],
   },
+  '09_ambulant_kueche_diabetes': {
+    id: '09_ambulant_kueche_diabetes', person: 'mann', titel: 'Küche beim Hausbesuch',
+    marker: [
+      { id: 'patient', nr: 1, name: 'Klient', ort: 'bett', x: 0.8, y: 0.45 },
+      { id: 'rucksack', nr: 2, name: 'Messgeräte auf dem Tablett', ort: 'monitor', x: 0.5, y: 0.8 },
+      { id: 'doku', nr: 3, name: 'Pflegedokumentation', ort: 'wagen', x: 0.3, y: 0.74 },
+    ],
+  },
   '07_ambulant_wohnzimmer_kompression': {
-    id: '07_ambulant_wohnzimmer_kompression', titel: 'Wohnzimmer beim Hausbesuch',
+    id: '07_ambulant_wohnzimmer_kompression', person: 'frau', titel: 'Wohnzimmer beim Hausbesuch',
     marker: [
       { id: 'patient', nr: 1, name: 'Klientin', ort: 'bett', x: 0.24, y: 0.36 },
       { id: 'rucksack', nr: 2, name: 'Pflegetasche', ort: 'monitor', x: 0.94, y: 0.75 },
@@ -76,7 +100,7 @@ export const FOTORAEUME: Record<FotoRaumId, FotoRaum> = {
     ],
   },
   '08_ambulant_pflegebad': {
-    id: '08_ambulant_pflegebad', titel: 'Bad beim Hausbesuch',
+    id: '08_ambulant_pflegebad', person: 'frau', titel: 'Bad beim Hausbesuch',
     marker: [
       { id: 'patient', nr: 1, name: 'Klientin', ort: 'bett', x: 0.88, y: 0.44 },
       { id: 'rucksack', nr: 2, name: 'Pflegetasche', ort: 'monitor', x: 0.11, y: 0.78 },
@@ -101,8 +125,9 @@ const RAUM_FUER_FALL: Record<string, FotoRaumId> = {
   pneumonie: '10_pflegeheim_nacht',
   palliativ: '10_pflegeheim_nacht',
   'sturz-nacht': '10_pflegeheim_nacht',
-  dekubitus: '08_ambulant_pflegebad',
-  copd: '07_ambulant_wohnzimmer_kompression',
+  // Herr L. und Herr P.: die Küche zeigt einen älteren Mann, Wohnzimmer und Bad eine Frau
+  dekubitus: '09_ambulant_kueche_diabetes',
+  copd: '09_ambulant_kueche_diabetes',
   fieberkrampf: '20f_paediatrie_kleinkind_fieberkrampf',
   'asthma-kind': '21_paediatrie_schulkind',
 };
@@ -112,9 +137,24 @@ const RAUM_FUER_SETTING: Partial<Record<Setting, FotoRaumId>> = {
   paediatrie: '21_paediatrie_schulkind',
 };
 
-export function fotoRaumFuer(szenarioId: string, setting: Setting): FotoRaum | null {
+export interface FallFotoRaum extends FotoRaum {
+  /** Name aus dem Fall, z. B. „Frau M.“ */
+  personName?: string;
+  /** false: Das Foto zeigt eine andere Person als im Fall (Beispielfoto). */
+  personPasst: boolean;
+}
+
+/** Raum zum Fall; mit der Fallbeschreibung trägt Marker 1 den Namen aus dem Fall. */
+export function fotoRaumFuer(szenarioId: string, setting: Setting, kurz = ''): FallFotoRaum | null {
   const id = RAUM_FUER_FALL[szenarioId] ?? RAUM_FUER_SETTING[setting];
-  return id ? FOTORAEUME[id] : null;
+  if (!id) return null;
+  const raum = FOTORAEUME[id];
+  const p = personAus(kurz);
+  if (!p) return { ...raum, personPasst: true };
+  return {
+    ...raum, personName: p.name, personPasst: p.geschlecht === raum.person,
+    marker: raum.marker.map((m) => (m.id === 'patient' ? { ...m, name: p.name } : m)),
+  };
 }
 
 /** Kamerazoom zum Ort der Handlung: auf den Marker, der dort steht. */

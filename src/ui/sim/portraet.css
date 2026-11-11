@@ -1,0 +1,8 @@
+/* Patientenporträt (siehe Portraet.tsx) */
+.portraet { display: inline-flex; align-items: center; gap: 0.6rem; }
+.portraet__bild {
+  display: grid; place-items: center; flex: none; overflow: hidden; border-radius: 50%;
+  border: 2px solid var(--color-ink); background: var(--color-surface-sunken); font-weight: 700;
+}
+.portraet__bild img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.portraet__name { line-height: 1.25; }

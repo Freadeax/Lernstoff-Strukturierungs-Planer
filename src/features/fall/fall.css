@@ -260,3 +260,5 @@ a.pill { display: inline-flex; align-items: center; text-decoration: none; color
 :root[data-motion='reduce'] .fall__foto-alarm { animation: none; }
 .fall__szenenwahl { display: grid; gap: var(--space-2); min-width: 0; }
 .fall__titelbild { max-width: 44rem; margin: 0 0 var(--space-3); }
+.fall__kopf-titel { display: flex; align-items: center; gap: var(--space-3); }
+.fall__foto-hinweis { margin: var(--space-1) 0 0; font-size: 0.85rem; }

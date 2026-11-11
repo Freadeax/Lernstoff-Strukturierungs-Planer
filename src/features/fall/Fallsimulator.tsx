@@ -19,6 +19,8 @@ import { DEMO_SZENARIO, demoAbschluss, demoZug, istDemo } from './demo';
 import { Szene } from './Szene';
 import { FotoSzene } from './FotoSzene';
 import { fotoRaumFuer } from './fotoraeume';
+import { Portraet } from '../../ui/sim/Portraet';
+import { personFuer, type PortraetZustand } from '../../ui/sim/personen';
 import { raumUrl } from '../../ui/sim/raeume/katalog';
 import { szenenBild, type Fokus, type SzenenBild } from './szene';
 import { LEISTE, leistenVorschlaege, objektInfo, RAUM_FUER, type Leiste, type Marker, type Raum } from './raeume';
@@ -471,9 +473,11 @@ export default function Fallsimulator() {
   // Marker oder Raumübersicht steuern die Kamera, bis der nächste Zug kommt
   const [marker, setMarker] = useState<Marker | null>(null);
   const [kamera, setKamera] = useState<Fokus | null>(null);
-  const fotoRaum = fall ? fotoRaumFuer(fall.szenario.id, fall.szenario.setting) : null;
+  const fotoRaum = fall ? fotoRaumFuer(fall.szenario.id, fall.szenario.setting, fall.szenario.kurz) : null;
   const [gezeichnet, setGezeichnet] = useState(false);
   const zeigeFoto = !!fotoRaum && !gezeichnet;
+  const person = fall ? personFuer('fall', fall.szenario.id) : null;
+  const portraetZustand: PortraetZustand = bild?.zustand === 'kritisch' ? 'kritisch' : bild?.zustand === 'verschlechtert' ? 'angestrengt' : 'stabil';
   const runden = fall?.runden.length ?? 0;
   useEffect(() => { setMarker(null); setKamera(null); }, [runden]);
   function waehleMarker(m: Marker | null) { setMarker(m); setKamera(m ? m.ort : null); }
@@ -506,9 +510,12 @@ export default function Fallsimulator() {
         <div className="fall__layout">
           <div className="card fall__haupt">
             <div className="fall__kopf">
-              <div>
-                <span className="badge badge--demo">{SETTING_LABEL[fall.szenario.setting]} · {STUFE_LABEL[fall.stufe]}</span>
-                <h3>{fall.szenario.titel}</h3>
+              <div className="fall__kopf-titel">
+                {person && <Portraet person={person} zustand={portraetZustand} groesse={56} />}
+                <div>
+                  <span className="badge badge--demo">{SETTING_LABEL[fall.szenario.setting]} · {STUFE_LABEL[fall.stufe]}</span>
+                  <h3>{fall.szenario.titel}</h3>
+                </div>
               </div>
               <button type="button" className="ghost" onClick={abbrechen}>Abbrechen</button>
             </div>
