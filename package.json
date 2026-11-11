@@ -11,6 +11,7 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview --host",
     "test": "vitest run",
+    "assets:status": "ASSET_STATUS_SCHREIBEN=1 vitest run src/features/assetstatus",
     "test:ui": "node scripts/check-ui.mjs",
     "typecheck": "tsc -b --noEmit",
     "test:material": "node scripts/check-material.mjs",
