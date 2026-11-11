@@ -46,6 +46,8 @@ export interface Bildserie {
   befundtext: string;
   /** Schichtdicke in mm (CT). */
   schichtdicke?: number;
+  /** Pixelabstand in mm bezogen auf die gespeicherte Bildbreite. Fehlt bei echten Bildern ohne bekannten Maßstab. */
+  pixelMm?: number;
 }
 
 export const FENSTER: Record<Modalitaet, FensterVorgabe[]> = {
@@ -62,6 +64,15 @@ export const FENSTER: Record<Modalitaet, FensterVorgabe[]> = {
 };
 
 export const modalitaetVon = (s: Bildserie): Modalitaet => s.quelle.modalitaet;
+
+/** Bildfeld der Phantome in mm (Breite), daraus der ungefähre Pixelabstand. */
+const PHANTOM_FELD_MM: Record<Modalitaet, number> = { ct: 360, roentgen: 430 };
+
+/** mm je Pixel für Messungen, falls bekannt (Phantome: festes Bildfeld). */
+export function mmProPixel(s: Bildserie, bild: { breite: number }): number | undefined {
+  if (s.pixelMm) return s.pixelMm;
+  return s.quelle.art === 'phantom' ? PHANTOM_FELD_MM[s.quelle.modalitaet] / bild.breite : undefined;
+}
 
 export function anzahlSchichten(s: Bildserie): number {
   const q = s.quelle;
