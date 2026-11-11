@@ -43,10 +43,24 @@ export interface Fehler {
   treffer: string[];           // Tage mit richtiger Wiederholung seit dem letzten Fehler
   behoben?: string;            // Tag, an dem der Eintrag als behoben gilt
   aktualisiert: string;        // ISO-Zeit, für das Zusammenführen von Sicherungen
+  /** Kriterium oder Aufgabenart, z. B. „Präanalytik“ oder „Kritische Meldung“ (Etikett und Filter). */
+  kriterium?: string;
+  /** Fall, aus dem der Fehler stammt (Praxis-, Diagnostik- oder Krankheitsbild-Fall). */
+  fallId?: string;
+  /** Quelle oder Stand der Lösung als Text, z. B. „KRINKO 2016“ oder „Katalogwissen, ergänzend“. */
+  beleg?: string;
+  /** Zuletzt gezählte Versuche (Kennungen), damit Reload, Doppelklick oder erneutes Öffnen nicht doppelt zählen. */
+  versuche?: string[];
 }
 
 /** Was ein Trainer beim Fehler meldet. Zähler und Daten setzt das Fehlerheft selbst. */
-export type NeuerFehler = Pick<Fehler, 'id' | 'quelle' | 'topicIds' | 'titel' | 'frage' | 'deineAntwort' | 'loesung' | 'erklaerung' | 'wiederholung'>;
+export type NeuerFehler = Pick<Fehler, 'id' | 'quelle' | 'topicIds' | 'titel' | 'frage' | 'deineAntwort' | 'loesung' | 'erklaerung' | 'wiederholung' | 'kriterium' | 'fallId' | 'beleg'> & {
+  /** Kennung des Übungsversuchs (dieselbe wie im Lernplan). Ein Versuch zählt je Eintrag höchstens einmal. */
+  versuchId?: string;
+};
+
+/** So viele Versuchskennungen merkt sich ein Eintrag. */
+export const MAX_VERSUCHE = 20;
 
 export const BEHOBEN_NACH = 2;
 /** Obergrenze, damit localStorage klein bleibt. Behobene Einträge fallen zuerst weg. */
@@ -63,11 +77,17 @@ export function merke(liste: Fehler[], neue: NeuerFehler[], jetzt = new Date()):
   const t = tag(jetzt);
   const iso = jetzt.toISOString();
   const map = new Map(liste.map((f) => [f.id, f]));
-  for (const n of neue) {
+  // Dieselbe Aufgabe zweimal in einer Meldung (z. B. Doppelklick) zählt einmal
+  const schon = new Set<string>();
+  for (const { versuchId, ...n } of neue) {
+    if (schon.has(n.id)) continue;
+    schon.add(n.id);
     const alt = map.get(n.id);
+    if (alt && versuchId && alt.versuche?.includes(versuchId)) continue;
+    const versuche = versuchId ? [...(alt?.versuche ?? []), versuchId].slice(-MAX_VERSUCHE) : alt?.versuche;
     map.set(n.id, alt
-      ? { ...alt, ...n, topicIds: [...new Set([...alt.topicIds, ...n.topicIds])], fehlerAnzahl: alt.fehlerAnzahl + 1, letzterFehler: t, treffer: [], behoben: undefined, aktualisiert: iso }
-      : { ...n, erfasst: t, letzterFehler: t, fehlerAnzahl: 1, treffer: [], aktualisiert: iso });
+      ? { ...alt, ...n, topicIds: [...new Set([...alt.topicIds, ...n.topicIds])], fehlerAnzahl: alt.fehlerAnzahl + 1, letzterFehler: t, treffer: [], behoben: undefined, aktualisiert: iso, ...(versuche ? { versuche } : {}) }
+      : { ...n, erfasst: t, letzterFehler: t, fehlerAnzahl: 1, treffer: [], aktualisiert: iso, ...(versuche ? { versuche } : {}) });
   }
   return begrenze([...map.values()]);
 }
@@ -80,15 +100,20 @@ function begrenze(liste: Fehler[]): Fehler[] {
   return liste.filter((f) => !weg.has(f.id));
 }
 
-/** Ergebnis einer Wiederholung eintragen. Falsch = wie ein neuer Fehler. */
-export function wiederholt(liste: Fehler[], id: string, richtig: boolean, eingabe: string, jetzt = new Date()): Fehler[] {
+/**
+ * Ergebnis einer Wiederholung eintragen. Falsch = wie ein neuer Fehler. Mit `versuchId` zählt derselbe
+ * Wiederholungsversuch nur einmal (doppeltes Absenden, Reload).
+ */
+export function wiederholt(liste: Fehler[], id: string, richtig: boolean, eingabe: string, jetzt = new Date(), versuchId?: string): Fehler[] {
   const t = tag(jetzt);
   const iso = jetzt.toISOString();
   return liste.map((f) => {
     if (f.id !== id) return f;
-    if (!richtig) return { ...f, deineAntwort: eingabe, fehlerAnzahl: f.fehlerAnzahl + 1, letzterFehler: t, treffer: [], behoben: undefined, aktualisiert: iso };
+    if (versuchId && f.versuche?.includes(versuchId)) return f;
+    const versuche = versuchId ? { versuche: [...(f.versuche ?? []), versuchId].slice(-MAX_VERSUCHE) } : {};
+    if (!richtig) return { ...f, ...versuche, deineAntwort: eingabe, fehlerAnzahl: f.fehlerAnzahl + 1, letzterFehler: t, treffer: [], behoben: undefined, aktualisiert: iso };
     const treffer = f.treffer.includes(t) ? f.treffer : [...f.treffer, t];
-    return { ...f, treffer, behoben: f.behoben ?? (treffer.length >= BEHOBEN_NACH ? t : undefined), aktualisiert: iso };
+    return { ...f, ...versuche, treffer, behoben: f.behoben ?? (treffer.length >= BEHOBEN_NACH ? t : undefined), aktualisiert: iso };
   });
 }
 

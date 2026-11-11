@@ -10,9 +10,9 @@ import { usePanZoom } from '../landkarte/usePanZoom';
 import { LernplanHinweis, useLernplanUebernahme } from '../lernplan/ui/LernplanHinweis';
 import {
   alleKnoten, alsSvg, alsText, anzahl, ausruecken, ausText, ausVorlage, einruecken, entfernen, erinnern, geschwisterAnhaengen,
-  kantenPfad, kindAnhaengen, ladeAlle, layout, MIN_FUER_LERNPLAN, neueMindmap, passt, speichereAlle, umbenennen, verschieben,
+  kantenPfad, fassungenVon, kindAnhaengen, ladeAlle, layout, MIN_FUER_LERNPLAN, neueMindmap, passt, speichereAlle, umbenennen, verschieben,
   VORLAGEN, vorschlaege, waehleLuecken, zeilen, knoten as neuerKnoten,
-  type Erinnerung, type Knoten, type Luecke, type Mindmap, type MindmapLayout, type VorlageId,
+  type Erinnerung, type Fassung, type Knoten, type Luecke, type Mindmap, type MindmapLayout, type VorlageId,
 } from './modell';
 
 const modul = pflegeModule;
@@ -266,6 +266,27 @@ function speichereDatei(name: string, inhalt: string, typ: string) {
 }
 const dateiname = (t: string) => (t.trim() || 'mindmap').replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '').slice(0, 60) || 'mindmap';
 
+/** Frühere Fassungen dieser Mindmap (nur auf diesem Gerät) mit Wiederherstellen. */
+function FruehereFassungen({ m, onWiederherstellen }: { m: Mindmap; onWiederherstellen: (f: Fassung) => void }) {
+  const [offen, setOffen] = useState(false);
+  const liste = useMemo(() => (offen ? fassungenVon(m.id) : []), [offen, m.id, m.rev]);
+  return (
+    <details className="mm__fassungen" onToggle={(e) => setOffen((e.target as HTMLDetailsElement).open)}>
+      <summary>Frühere Fassungen{m.rev && m.rev > 1 ? ` (aktuell Fassung ${m.rev})` : ''}</summary>
+      {offen && (liste.length ? (
+        <ul>
+          {liste.map((f) => (
+            <li key={f.rev}>
+              <span>Fassung {f.rev} · {relativeTime(f.at)} · {anzahl(f.wurzel) - 1} Begriffe</span>
+              <button type="button" className="small ghost" onClick={() => { if (confirm(`Fassung ${f.rev} wiederherstellen? Der jetzige Stand wird selbst zur früheren Fassung.`)) onWiederherstellen(f); }}>Wiederherstellen</button>
+            </li>
+          ))}
+        </ul>
+      ) : <p className="muted">Noch keine. Beim Bearbeiten hält die App höchstens alle zwei Minuten eine Fassung fest, bis zu acht.</p>)}
+    </details>
+  );
+}
+
 function Bearbeiten({ m, onSpeichern }: { m: Mindmap; onSpeichern: (m: Mindmap) => void }) {
   const [auswahl, setAuswahl] = useState(m.wurzel.id);
   const [fokus, setFokus] = useState<string>();
@@ -303,6 +324,7 @@ function Bearbeiten({ m, onSpeichern }: { m: Mindmap; onSpeichern: (m: Mindmap) 
         <div className="row">
           <label className="field mm__thema"><span className="muted">Thema (für den Lernplan)</span>
             <ThemaAuswahl wert={m.topicId ?? ''} onChange={(id) => onSpeichern({ ...m, topicId: id || undefined, geaendert: new Date().toISOString() })} />
+            {m.topicId && !themaName(m.topicId) && <span className="note warn">Das verknüpfte Thema ({m.topicId}) gibt es im Katalog nicht mehr. Bitte neu wählen.</span>}
           </label>
           <div className="row mm__aktionen">
             <button type="button" disabled={n < 1} onClick={() => navigate(`/lernen/mindmap?id=${m.id}&modus=luecken`)}>Lücken füllen</button>
@@ -318,7 +340,8 @@ function Bearbeiten({ m, onSpeichern }: { m: Mindmap; onSpeichern: (m: Mindmap) 
         <div className="card mm__seite">
           <Werkzeuge w={m.wurzel} auswahl={auswahl} onChange={aendern} />
           <Gliederung w={m.wurzel} auswahl={auswahl} fokus={fokus} onSelect={setAuswahl} onChange={aendern} onFokusErledigt={fokusErledigt} />
-          <p className="muted mm__tasten">Tastatur: Eingabe = neuer Begriff, Tab = einrücken, Umschalt+Tab = ausrücken, Alt+↑/↓ = verschieben.</p>
+          <p className="muted mm__tasten">Tastatur: Eingabe = neuer Begriff, Tab = einrücken, Umschalt+Tab = ausrücken, ↑/↓ = zum Begriff darüber oder darunter, Alt+↑/↓ = verschieben, Rücktaste im leeren Feld = löschen. Die Karte links lässt sich mit Pfeiltasten verschieben und mit + und − zoomen.</p>
+          <FruehereFassungen m={m} onWiederherstellen={(f) => onSpeichern({ ...m, wurzel: f.wurzel, topicId: f.topicId, geaendert: new Date().toISOString() })} />
           {m.topicId && (
             <details className="mm__vorschlaege" open={zeigeVorschlaege} onToggle={(e) => setZeigeVorschlaege((e.target as HTMLDetailsElement).open)}>
               <summary>Abgleich mit dem Katalog {vorschlag.length ? `(${vorschlag.length} Vorschläge)` : '(alles drin)'}</summary>

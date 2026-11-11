@@ -14,7 +14,7 @@ import { Praktisch } from './Praktisch';
 import { useExamensModul } from './modul';
 import {
   BAUSTELLE_UNTER, einstufung, fehlerProThema, proBereich, proTeil, radarPunkte, schwachstellen, simulationsSchwaechen,
-  STABIL_AB, STATUS_GEWICHT, type Fakten, type Stand,
+  STABIL_AB, STATUS_GEWICHT, type Fakten, type Stand, PFLAPRV, uebungenJeTeil,
 } from './radar';
 import { ladeTermine, speichereTermine, type Termine } from './speicher';
 import { tageBis } from './praktisch';
@@ -146,7 +146,7 @@ function useFakten(ctx?: PlanCtx): Fakten | undefined {
 
 function Ueberblick({ termine, aendere }: { termine: Termine; aendere: (p: Partial<Termine>) => void }) {
   const { ctx, error, retry } = usePlan();
-  const { K, teile: TEILE } = useExamensModul();
+  const { K, teile: TEILE, modul } = useExamensModul();
   const fakten = useFakten(ctx);
   const bereiche = useMemo(() => (fakten ? proBereich(K, fakten) : []), [K, fakten]);
   const teile = useMemo(() => (fakten ? proTeil(K, TEILE, fakten) : []), [K, TEILE, fakten]);
@@ -203,8 +203,17 @@ function Ueberblick({ termine, aendere }: { termine: Termine; aendere: (p: Parti
                   <span className={`tag ${EINSTUFUNG_KLASSE[einstufung(s.staerke)]}`}>{s.themen ? `${s.staerke} %` : '–'}</span>
                 </div>
                 <h3>{s.name}</h3>
-                <p className="muted examen__klein">{s.teil.minuten ? `${s.teil.minuten} Minuten · ` : ''}{s.themen} Themen · Bereiche {[...new Set(s.teil.kompetenzen.map((c) => K.kbOberbereich.get(c) ?? c))].map((c) => c.replace('kb.', '')).join(', ')}</p>
+                <p className="muted examen__klein">{s.teil.minuten ? `${s.teil.minuten} Minuten · ` : ''}{s.themen} Themen · Bereiche {[...new Set(s.teil.kompetenzen.map((c) => K.kbOberbereich.get(c) ?? c))].map((c) => c.replace('kb.', '')).join(', ')}{PFLAPRV[s.teil.art] ? ` · ${PFLAPRV[s.teil.art]}` : ''}</p>
                 {s.themen > 0 && <Balken zahl={s.zahl} />}
+                {s.zahl.offen > 0 && <p className="muted examen__klein">{s.zahl.offen} von {s.themen} Themen noch nie abgefragt: dafür sagt die Zahl noch nichts.</p>}
+                {(() => {
+                  const u = uebungenJeTeil(s.themenIds, (t) => uebungenFuer(t), 4);
+                  return u.length ? (
+                    <p className="examen__klein examen__uebungen">Übungen dazu:{' '}
+                      {u.map((x, n) => <span key={x.path}>{n > 0 && ', '}<button type="button" className="link" onClick={() => navigate(x.path)}>{x.label.replace(/ \(.*\)$/, '')}</button> <span className="muted">({x.themen})</span></span>)}
+                    </p>
+                  ) : null;
+                })()}
                 <div className="faecher__aktionen">
                   {s.teil.art === 'schriftlich' && <button type="button" className="small" onClick={() => navigate(`/lernen/simulation?kb=${encodeURIComponent([...new Set(s.teil.kompetenzen.map((c) => K.kbOberbereich.get(c) ?? c))].join(','))}`)}>Probeklausur</button>}
                   {s.teil.art === 'muendlich' && <button type="button" className="small" onClick={() => navigate(pfad('muendlich'))}>Mündlich üben</button>}
@@ -214,6 +223,16 @@ function Ueberblick({ termine, aendere }: { termine: Termine; aendere: (p: Parti
             ))}
           </div>
         </section>
+
+        <details className="card examen__datenbasis">
+          <summary>Woher kommen diese Zahlen?</summary>
+          <ul className="examen__klein">
+            <li><strong>Datenbasis:</strong> echte Abfragen aus dem Lernplan (Karteikarten, Trainer, Fälle, Prüfungssimulation). Selbsteinschätzung, Lernmodus und Übungsversuche zählen nicht als „sicher“.</li>
+            <li><strong>Aktualität:</strong> der Status verfällt nach dem Wiederholungsplan; Simulationen zählen 60 Tage. Katalogstand: {modul.stand ?? 'unbekannt'}.</li>
+            <li><strong>Prüfungsteile:</strong> Zuordnung der Kompetenzbereiche aus dem Katalog nach PflAPrV §§ 14 bis 16 und Anlage 2. Maßgeblich sind die Vorgaben deiner Schule und des Landesprüfungsamts.</li>
+            <li><strong>Ungeprüft:</strong> Themen ohne Abfrage zählen mit 0 %. Ein niedriger Wert kann also auch heißen: noch nicht getestet.</li>
+          </ul>
+        </details>
 
         <section className="card examen__abschnitt" aria-labelledby="examen-baustellen">
           <h2 id="examen-baustellen">Als Nächstes angehen</h2>

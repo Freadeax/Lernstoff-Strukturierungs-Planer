@@ -117,3 +117,17 @@ describe('Fallaufgaben', () => {
     expect(mischung(1)).toEqual([0]);
   });
 });
+
+describe('Warnzeichen und Zuständigkeit', () => {
+  it('jeder Abschnitt hat eine Rolle, Diagnostik ist ärztlich, Pflege handelt', async () => {
+    const { ABSCHNITTE } = await import('./bewertung');
+    expect(ABSCHNITTE.find((a) => a.id === 'diagnostik')?.rolle).toBe('aerztlich');
+    expect(ABSCHNITTE.find((a) => a.id === 'pflege')?.rolle).toBe('pflege');
+    expect(ABSCHNITTE.find((a) => a.id === 'symptome')?.rolle).toBe('beobachtung');
+  });
+  it('findet Warnzeichen in Komplikationen und Symptomen, ohne Dubletten', async () => {
+    const { warnzeichen } = await import('./bewertung');
+    const w = warnzeichen({ symptome: ['Husten', 'Plötzliche Atemnot'], komplikationen: ['Plötzliche Atemnot', 'Dekubitus'] });
+    expect(w).toEqual([{ text: 'Plötzliche Atemnot', aus: 'komplikationen' }]);
+  });
+});

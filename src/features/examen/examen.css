@@ -98,3 +98,7 @@
 .examen__schritte li { display: flex; flex-wrap: wrap; gap: 0 var(--space-2); align-items: center; justify-content: space-between; }
 .examen__schritte .check { flex: 1 1 16rem; margin: var(--space-1) 0; }
 .examen__schritt-link { margin-left: calc(var(--space-2) + 1rem); }
+
+.examen__datenbasis summary { cursor: pointer; font-weight: 600; }
+.examen__datenbasis ul { margin: var(--space-2) 0 0; padding-left: 1.2em; display: grid; gap: var(--space-1); }
+.examen__uebungen { margin: var(--space-1) 0 0; }

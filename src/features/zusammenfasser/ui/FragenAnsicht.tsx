@@ -92,6 +92,8 @@ function Frage({ f, nr, chunkMap, titles, onErgebnis }: { f: Pruefungsfrage; nr:
 export function FragenAnsicht({ satz, chunkMap, titles }: { satz: FragenSatz; chunkMap: Map<string, SourceChunk>; titles: Map<string, string> }) {
   const [ergebnisse, setErgebnisse] = useState<Record<string, { p: number; max: number }>>({});
   const beantwortet = Object.keys(ergebnisse).length;
+  // Ein Durchgang durch den Fragensatz = ein Versuch; Nachbewerten einer Frage bucht nicht erneut.
+  const [versuchId] = useState(() => `zusammenfasser:${satz.id}:${Date.now().toString(36)}`);
   const summe = Object.values(ergebnisse).reduce((s, e) => ({ p: s.p + e.p, max: s.max + e.max }), { p: 0, max: 0 });
 
   function ergebnis(id: string, p: number, max: number) {
@@ -102,7 +104,8 @@ export function FragenAnsicht({ satz, chunkMap, titles }: { satz: FragenSatz; ch
       logActivity({ kind: 'uebung', ref: satz.id, severity: s.p >= s.max * 0.5 ? 'info' : 'warning', title: `Prüfungsfragen: ${satz.pruefungName}`, detail: `${s.p} von ${s.max} Punkten` });
       // Ergebnis geht als Abfrage an den Lernplan, denn „gelesen“ ist nicht „verstanden“
       const topic = pflegeModule.topics.find((t) => t.id === satz.topicIds[0]);
-      if (topic && s.max > 0) logReview(topic, 'pruefungssimulation', { scorePercent: Math.round((s.p / s.max) * 100) }).catch(() => {});
+      if (topic && s.max > 0) logReview(topic, 'pruefungssimulation', { scorePercent: Math.round((s.p / s.max) * 100) }, undefined, undefined,
+        { versuchId, herkunft: { modul: 'zusammenfasser', ref: satz.id }, status: 'abgeschlossen', aussagekraft: 'abruf' }).catch(() => {});
     }
   }
 

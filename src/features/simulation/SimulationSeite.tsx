@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { notiereFehler } from '../fehlerheft/fehlerheft';
 import { ausSimulation } from '../fehlerheft/quellen';
 import './simulation.css';
@@ -15,12 +15,12 @@ import { bewerteAntwort } from '../zusammenfasser/pruefung';
 import type { FragenSatz } from '../zusammenfasser/typen';
 import { zahl } from '../rechnen/aufgaben';
 import {
-  AFB_LABEL, auswerten, istBeantwortet, katalog, lernplanEintraege, QUELLE_LABEL, QUELLEN, restzeit, SCHWACH_AB,
+  AFB_LABEL, auswerten, istBeantwortet, quelleText, rasterText, unbeantwortet, katalog, lernplanEintraege, QUELLE_LABEL, QUELLEN, restzeit, SCHWACH_AB,
   selbstWertung, stelleZusammen, uhr, werteAus,
   type Afb, type Antwort, type Auswertung, type Gruppe, type OffeneFrage, type Quelle, type SimFrage, type TrainerPool, type Wertung,
 } from './simulation';
 import { spiele } from '../../ui/audio/spieler';
-import { ergaenzeVerlauf, ladeEinstellungen, ladeLauf, ladeVerlauf, speichereEinstellungen, speichereLauf, type Einstellungen, type Lauf, type VerlaufEintrag } from './speicher';
+import { ergaenzeVerlauf, fortsetzen, uhrzeit, ladeEinstellungen, ladeLauf, ladeVerlauf, speichereEinstellungen, speichereLauf, type Einstellungen, type Lauf, type VerlaufEintrag } from './speicher';
 
 const K = katalog(pflegeModule);
 const KB = [...K.kbName.entries()].map(([id, name]) => ({ id, code: name.split(' · ')[0]!, name: name.split(' · ')[1]! }));
@@ -77,7 +77,8 @@ function Einrichten({ onStart, saetze, exams, pools, verlauf }: { onStart: (l: L
   const start = () => {
     const jetzt = Date.now();
     const titel = pruefung ? `Simulation: ${pruefung.name}` : VORLAGEN.find((v) => v.e.anzahl === e.anzahl && v.e.minuten === e.minuten)?.label ?? 'Prüfungssimulation';
-    onStart({ id: crypto.randomUUID(), titel, auswahl, fragen: z.fragen, antworten: {}, markiert: [], start: jetzt, deadline: jetzt + minuten * 60_000, i: 0 });
+    const modus = e.modus ?? 'pruefung';
+    onStart({ id: crypto.randomUUID(), titel: modus === 'lernen' ? `${titel} (Lernmodus)` : titel, auswahl, fragen: z.fragen, antworten: {}, markiert: [], start: jetzt, deadline: jetzt + minuten * 60_000, i: 0, modus });
   };
 
   return (
@@ -151,6 +152,13 @@ function Einrichten({ onStart, saetze, exams, pools, verlauf }: { onStart: (l: L
           </div>
         )}
         <div className="sim__zeile">
+          <span className="muted">Modus</span>
+          <div className="pills" role="radiogroup" aria-label="Modus">
+            <button type="button" className="pill" role="radio" aria-checked={(e.modus ?? 'pruefung') === 'pruefung'} aria-pressed={(e.modus ?? 'pruefung') === 'pruefung'} onClick={() => set({ modus: 'pruefung' })}>Zeitprüfung</button>
+            <button type="button" className="pill" role="radio" aria-checked={e.modus === 'lernen'} aria-pressed={e.modus === 'lernen'} onClick={() => set({ modus: 'lernen' })}>Lernmodus</button>
+          </div>
+        </div>
+        <div className="sim__zeile">
           <span className="muted">Zeitlimit</span>
           <div className="pills">
             <button type="button" className="pill" aria-pressed={e.minuten === null} onClick={() => set({ minuten: null })}>Nach Umfang ({z.minuten} min)</button>
@@ -167,9 +175,11 @@ function Einrichten({ onStart, saetze, exams, pools, verlauf }: { onStart: (l: L
             {!z.fragen.length && 'Keine passende Frage. Wähle mehr Quellen oder weniger Filter. '}
             {(['material', 'trainer', 'rechnen', 'glossar'] as Quelle[]).map((q) => [q, z.fragen.filter((f) => f.quelle === q).length] as const).filter(([, n]) => n).map(([q, n]) => `${n} × ${QUELLE_LABEL[q]}`).join(', ')}
           </p>
-          <p className="muted">Die Zeit läuft auch weiter, wenn du die App schließt. Ist sie abgelaufen, wird automatisch abgegeben.</p>
+          <p className="muted">{e.modus === 'lernen'
+            ? 'Lernmodus: Du kannst pausieren, beim Verlassen der App hält die Uhr von selbst an. Das Ergebnis zählt im Lernplan als Übung, nicht als Prüfungsnachweis.'
+            : 'Zeitprüfung: Die Zeit läuft wie im Examen weiter, auch wenn du die App wechselst, schließt oder neu lädst. Ist sie abgelaufen, wird automatisch abgegeben.'}</p>
         </div>
-        <button type="button" className="primary" disabled={!z.fragen.length} onClick={start}>Prüfung starten</button>
+        <button type="button" className="primary" disabled={!z.fragen.length} onClick={start}>{e.modus === 'lernen' ? 'Lernmodus starten' : 'Prüfung starten'}</button>
       </div>
 
       {verlauf.length > 0 && (
@@ -220,7 +230,7 @@ function FrageEingabe({ f, a, onChange, disabled }: { f: SimFrage; a?: Antwort; 
 function Kopfzeile({ f }: { f: SimFrage }) {
   return (
     <div className="sim__meta muted">
-      <span>{QUELLE_LABEL[f.quelle]}</span>
+      <span title={QUELLE_LABEL[f.quelle]}>{quelleText(f)}</span>
       <span>{f.operator} · AFB {['I', 'II', 'III'][f.afb - 1]}</span>
       <span>{f.punkte} {f.punkte === 1 ? 'Punkt' : 'Punkte'}</span>
       {f.topicId && <span>{themaName(f.topicId)}</span>}
@@ -232,7 +242,20 @@ function Pruefung({ lauf, setLauf, onAbgabe }: { lauf: Lauf; setLauf: (l: Lauf) 
   const [jetzt, setJetzt] = useState(Date.now());
   const [uebersicht, setUebersicht] = useState(false);
   useEffect(() => { const t = setInterval(() => setJetzt(Date.now()), 1000); return () => clearInterval(t); }, []);
-  const rest = restzeit(lauf.deadline, jetzt);
+  const lernen = lauf.modus === 'lernen';
+  // Lernmodus: beim Verlassen der App (App-Wechsel, Sperre, Neuladen) von selbst pausieren.
+  const aktuell = useRef(lauf);
+  aktuell.current = lauf;
+  useEffect(() => {
+    if (!lernen) return;
+    const pause = () => { const l = aktuell.current; if (!l.pausiertSeit && !l.abgegeben) setLauf({ ...l, pausiertSeit: Date.now() }); };
+    const sichtbar = () => { if (document.visibilityState === 'hidden') pause(); };
+    document.addEventListener('visibilitychange', sichtbar);
+    window.addEventListener('pagehide', pause);
+    return () => { document.removeEventListener('visibilitychange', sichtbar); window.removeEventListener('pagehide', pause); };
+  }, [lernen]);
+  const pausiert = lernen && !!lauf.pausiertSeit;
+  const rest = restzeit(lauf.deadline, uhrzeit(lauf, jetzt));
   useEffect(() => { if (rest <= 0) onAbgabe(true); }, [rest <= 0]);
   const f = lauf.fragen[lauf.i]!;
   const beantwortet = lauf.fragen.filter((x) => istBeantwortet(x, lauf.antworten[x.id])).length;
@@ -252,10 +275,20 @@ function Pruefung({ lauf, setLauf, onAbgabe }: { lauf: Lauf; setLauf: (l: Lauf) 
         <span className="sim__uhr" role="timer" aria-live={rest < 60_000 ? 'assertive' : 'off'}>{uhr(rest)}</span>
         <div className="sim__zeitbalken" aria-hidden><span style={{ transform: `scaleX(${gesamt ? rest / gesamt : 0})` }} /></div>
         <button type="button" className="small" aria-expanded={uebersicht} onClick={() => setUebersicht(!uebersicht)}>{beantwortet}/{lauf.fragen.length}</button>
+        {lernen && !pausiert && <button type="button" className="small" onClick={() => setLauf({ ...lauf, pausiertSeit: Date.now() })}>Pause</button>}
         <button type="button" className="small primary" onClick={abgeben}>Abgeben</button>
       </div>
+      <p className="muted sim__modus">{lernen ? 'Lernmodus: pausierbar, zählt als Übung.' : 'Zeitprüfung: Die Zeit läuft weiter, auch beim Wechsel der App.'}</p>
 
-      {uebersicht && (
+      {pausiert && (
+        <div className="card sim__pause m-pop" role="status">
+          <strong>Pausiert</strong>
+          <p className="muted">Die Uhr steht bei {uhr(rest)}. Die Fragen sind während der Pause ausgeblendet.</p>
+          <button type="button" className="primary" onClick={() => setLauf(fortsetzen(lauf))}>Fortsetzen</button>
+        </div>
+      )}
+
+      {!pausiert && uebersicht && (
         <div className="card sim__raster" aria-label="Übersicht der Fragen">
           {lauf.fragen.map((x, i) => (
             <button key={x.id} type="button" onClick={() => geh(i)} aria-current={i === lauf.i}
@@ -267,7 +300,7 @@ function Pruefung({ lauf, setLauf, onAbgabe }: { lauf: Lauf; setLauf: (l: Lauf) 
         </div>
       )}
 
-      <article className="card sim__frage">
+      {!pausiert && <article className="card sim__frage">
         <div className="sim__kopf">
           <strong>Frage {lauf.i + 1} von {lauf.fragen.length}</strong>
           <button type="button" className={`small ${markiert ? 'pill--accent' : 'ghost'}`} aria-pressed={markiert}
@@ -275,6 +308,7 @@ function Pruefung({ lauf, setLauf, onAbgabe }: { lauf: Lauf; setLauf: (l: Lauf) 
         </div>
         <Kopfzeile f={f} />
         {f.hinweis && <p className="muted sim__hinweis">{f.hinweis}</p>}
+        {rasterText(f) && <p className="muted sim__hinweis">{rasterText(f)}. Die einzelnen Kriterien siehst du nach der Abgabe.</p>}
         <p className={`sim__text ${f.quelle === 'glossar' && f.frage.length < 12 ? 'sim__text--gross' : ''}`}>{f.frage}</p>
         <FrageEingabe key={f.id} f={f} a={lauf.antworten[f.id]} onChange={(a) => setLauf({ ...lauf, antworten: { ...lauf.antworten, [f.id]: a } })} />
         <div className="row sim__nav">
@@ -283,7 +317,7 @@ function Pruefung({ lauf, setLauf, onAbgabe }: { lauf: Lauf; setLauf: (l: Lauf) 
             ? <button type="button" className="primary" onClick={() => geh(lauf.i + 1)}>Weiter</button>
             : <button type="button" className="primary" onClick={abgeben}>Abgeben</button>}
         </div>
-      </article>
+      </article>}
     </div>
   );
 }
@@ -361,6 +395,7 @@ function Ergebnis({ lauf, setLauf, onNeu }: { lauf: Lauf; setLauf: (l: Lauf) => 
   const offene = lauf.fragen.filter((f): f is OffeneFrage => f.art === 'offen' && w[f.id]?.art === 'offen');
   const eintraege = lernplanEintraege(K, lauf.fragen, w);
   const gebraucht = Math.round(((lauf.abgegeben ?? Date.now()) - lauf.start) / 60_000);
+  const ohneAntwort = unbeantwortet(lauf.fragen, lauf.antworten);
   const setWertung = (id: string, x: Wertung) => setLauf({ ...lauf, wertungen: { ...(lauf.wertungen ?? {}), [id]: x } });
 
   async function mitClaude() {
@@ -391,7 +426,12 @@ function Ergebnis({ lauf, setLauf, onNeu }: { lauf: Lauf; setLauf: (l: Lauf) => 
     try {
       for (const e of eintraege) {
         const topic = K.topics.get(e.topicId);
-        if (topic) await logReview(topic, e.source, { scorePercent: e.scorePercent });
+        // Eine Abgabe = ein Versuch: erneutes Übergeben (Reload, zweiter Tab) bucht nichts doppelt.
+        // Lernmodus und Selbsteinschätzung werden protokolliert, zählen aber nicht als Prüfungsnachweis.
+        if (topic) await logReview(topic, e.source, { scorePercent: e.scorePercent }, undefined, undefined, {
+          versuchId: `simulation:${lauf.id}:abgabe`, herkunft: { modul: 'simulation', ref: lauf.id }, status: 'abgeschlossen',
+          aussagekraft: lauf.modus === 'lernen' ? 'uebung' : 'abruf',
+        });
       }
       if (verschieben && a.schwach.length) {
         const board = await db.board.bulkGet(a.schwach);
@@ -413,6 +453,8 @@ function Ergebnis({ lauf, setLauf, onNeu }: { lauf: Lauf; setLauf: (l: Lauf) => 
       <div className="card sim__ergebnis">
         <h3>{lauf.titel}</h3>
         {lauf.automatisch && <p className="note warn">Die Zeit ist abgelaufen, die Prüfung wurde automatisch abgegeben.</p>}
+        {lauf.modus === 'lernen' && <p className="note">Lernmodus: Das Ergebnis zählt im Lernplan als Übung, nicht als Prüfungsnachweis.</p>}
+        {ohneAntwort > 0 && <p className="note warn">{ohneAntwort} {ohneAntwort === 1 ? 'Frage blieb' : 'Fragen blieben'} unbeantwortet und {ohneAntwort === 1 ? 'zählt' : 'zählen'} mit 0 Punkten.</p>}
         <div className="kpi-grid sim__kpis">
           <div className="kpi"><p className="kpi__label">Punkte</p><div className="kpi__value">{a.punkte}/{a.max}</div></div>
           <div className="kpi"><p className="kpi__label">Ergebnis</p><div className="kpi__value">{Math.round(a.prozent)} %</div></div>
@@ -485,6 +527,10 @@ export default function Simulation() {
   const setLauf = (l: Lauf | null) => { setLaufState(l); speichereLauf(l); };
 
   function abgabe(automatisch: boolean) {
+    if (!lauf?.abgegeben && lauf?.pausiertSeit) return abgabeVon(fortsetzen(lauf), automatisch);
+    abgabeVon(lauf, automatisch);
+  }
+  function abgabeVon(lauf: Lauf | null, automatisch: boolean) {
     if (!lauf || lauf.abgegeben) return;
     const jetzt = Math.min(Date.now(), lauf.deadline);
     const wertungen = Object.fromEntries(lauf.fragen.map((f) => [f.id, werteAus(f, lauf.antworten[f.id])]));

@@ -102,3 +102,8 @@
 .mm__ergebnis { font-size: var(--text-lg); margin: 0 0 var(--space-2); }
 .mm .note ul { margin: var(--space-1) 0 0; padding-left: var(--space-4); }
 .mm textarea { width: 100%; }
+
+.mm__fassungen { margin-top: var(--space-2); font-size: var(--text-sm); }
+.mm__fassungen summary { cursor: pointer; }
+.mm__fassungen ul { list-style: none; margin: var(--space-1) 0 0; padding: 0; display: grid; gap: var(--space-1); }
+.mm__fassungen li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2); }

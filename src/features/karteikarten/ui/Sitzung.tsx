@@ -81,6 +81,9 @@ export function Sitzung({ karten, staende: start, retention, heute, topics, titl
   const inputRef = useRef<HTMLInputElement>(null);
   const aufdeckenRef = useRef<HTMLButtonElement>(null);
   const abgeschlossen = useRef(false);
+  const bewertet = useRef('');
+  /** Kennung dieser Sitzung: Ihr Ergebnis wird je Thema nur einmal an den Lernplan gemeldet. */
+  const sitzungId = useRef(`karteikarten:sitzung:${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`);
   const gesamt = karten.length;
   const fertigeKarten = new Set(antworten.map((a) => a.cardId)).size;
   const karte = queue[0];
@@ -110,17 +113,19 @@ export function Sitzung({ karten, staende: start, retention, heute, topics, titl
     vergissOffeneSitzung();
     setBusy(true);
     try {
-      setErgebnis(await schliesseSitzungAb(liste, topics, heute));
+      setErgebnis(await schliesseSitzungAb(liste, topics, heute, sitzungId.current));
       if (liste.length) spiele('fertig');
     } catch (e) {
-      merkeOffeneSitzung(liste, heute);
+      merkeOffeneSitzung(liste, heute, sitzungId.current);
       notify('critical', 'Ergebnis nicht an den Lernplan übertragen', e instanceof Error ? e.message : String(e));
       setErgebnis([]);
     } finally { setBusy(false); }
   }
 
   async function bewerte(r: Rating) {
-    if (!karte || busy) return;
+    // Ref statt State: zwei schnelle Klicks im selben Takt dürfen nur eine Antwort buchen
+    if (!karte || busy || bewertet.current === `${karte.id}:${antworten.length}`) return;
+    bewertet.current = `${karte.id}:${antworten.length}`;
     setBusy(true);
     spiele(r === 1 ? 'falsch' : r === 2 ? 'teilweise' : 'richtig');
     try {
@@ -128,7 +133,7 @@ export function Sitzung({ karten, staende: start, retention, heute, topics, titl
       setStaende((m) => new Map(m).set(karte.id, s));
       const neu = [...antworten, { cardId: karte.id, rating: r, topicIds: karte.topicIds }];
       setAntworten(neu);
-      merkeOffeneSitzung(neu, heute);
+      merkeOffeneSitzung(neu, heute, sitzungId.current);
       const rest = queue.slice(1);
       const naechste = r === 1 ? wiedereinreihen(rest, karte) : rest;
       setQueue(naechste);
@@ -136,6 +141,7 @@ export function Sitzung({ karten, staende: start, retention, heute, topics, titl
       setBusy(false);
       if (!naechste.length) await beende(neu);
     } catch (e) {
+      bewertet.current = '';
       setBusy(false);
       notify('critical', 'Antwort nicht gespeichert', e instanceof Error ? e.message : String(e));
     }

@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from 'react';
+import { useMemo, useRef, useState, type ReactNode } from 'react';
 import { Ergebnisring } from '../../ui/Ergebnisring';
 import './quiz.css';
 import {
@@ -8,6 +8,7 @@ import {
 import { notiereFehler, type FehlerQuelle } from '../fehlerheft/fehlerheft';
 import { proThema, type TrainerId } from '../lernplan/trainer';
 import { LernplanHinweis, useLernplanUebernahme } from '../lernplan/ui/LernplanHinweis';
+import type { Grundlage, GrundlageZeile } from './grundlage';
 import { storage } from '../../ui/lib/store';
 import { BegriffListe, FachListe, ThemenLinks } from './FachText';
 import { spiele } from '../../ui/audio/spieler';
@@ -25,6 +26,10 @@ interface Props {
   figuren?: Record<string, Figur>;
   /** Ab so vielen Aufgaben je Thema zählt die Runde im Lernplan. */
   minProThema?: number;
+  /** Quelle, Stand und Geltung je Aufgabe, nach dem Prüfen unter der Begründung. */
+  grundlage?: Grundlage;
+  /** Weiterführende Links nach dem Prüfen, z. B. Anatomie → Krankheitsbild und Fall. */
+  weiter?: (a: Aufgabe) => Array<{ label: string; path: string }>;
   onFertig?: (e: RundenErgebnis) => void;
   onNeu: () => void;
   onEnde: () => void;
@@ -94,6 +99,9 @@ function Beschriften({ a, figur, zu, setZu, b }: {
   a: BeschriftenAufgabe; figur: Figur | undefined; zu: Record<number, string>; setZu: (z: Record<number, string>) => void; b: Bewertung | null;
 }) {
   const [aktiv, setAktiv] = useState<number | null>(null);
+  const [mitText, setMitText] = useState(!figur);
+  const listeRef = useRef<HTMLUListElement>(null);
+  const waehle = (nr: number) => { listeRef.current?.querySelector<HTMLSelectElement>(`select[data-nr="${nr}"]`)?.focus(); setAktiv(nr); };
   const labels = useMemo(() => [...a.marken.map((m) => m.label)].sort((x, y) => x.localeCompare(y, 'de')), [a]);
   const vergeben = new Set(Object.values(zu));
   return (
@@ -104,7 +112,7 @@ function Beschriften({ a, figur, zu, setZu, b }: {
           {a.marken.map((m, k) => {
             const status = b ? (b.teile[k] ? 'ok' : 'falsch') : zu[m.nr] ? 'belegt' : 'offen';
             return (
-              <g key={m.nr} className={`qz__pin qz__pin--${status}${aktiv === m.nr ? ' is-aktiv' : ''}`}>
+              <g key={m.nr} className={`qz__pin qz__pin--${status}${aktiv === m.nr ? ' is-aktiv' : ''}`} onClick={() => waehle(m.nr)}>
                 <circle cx={m.x} cy={m.y} r={9} />
                 <text x={m.x} y={m.y} dy="0.35em" textAnchor="middle">{m.nr}</text>
               </g>
@@ -112,16 +120,24 @@ function Beschriften({ a, figur, zu, setZu, b }: {
           })}
         </svg>
       )}
-      <ul className="qz__zuordnung">
+      {figur && (
+        <label className="check qz__textweg">
+          <input type="checkbox" checked={mitText} onChange={(e) => setMitText(e.target.checked)} />
+          <span>Ohne Bild lösen: Lage jeder Nummer als Text zeigen</span>
+        </label>
+      )}
+      <ul className="qz__zuordnung" ref={listeRef}>
         {a.marken.map((m, k) => (
           <li key={m.nr} className={b ? (b.teile[k] ? 'is-ok' : 'is-falsch') : ''}>
             <label onFocus={() => setAktiv(m.nr)} onBlur={() => setAktiv(null)}>
               <span className="qz__nr">{m.nr}</span>
-              <select value={zu[m.nr] ?? ''} disabled={!!b} onChange={(e) => setZu({ ...zu, [m.nr]: e.target.value })} aria-label={`Nummer ${m.nr}`}>
+              <select data-nr={m.nr} value={zu[m.nr] ?? ''} disabled={!!b} onChange={(e) => setZu({ ...zu, [m.nr]: e.target.value })}
+                aria-label={`Nummer ${m.nr}${mitText ? `: ${m.hinweis}` : ''}`}>
                 <option value="">– wählen –</option>
                 {labels.map((l) => <option key={l} value={l}>{l}{vergeben.has(l) && zu[m.nr] !== l ? ' (vergeben)' : ''}</option>)}
               </select>
             </label>
+            {mitText && !b && <span className="muted qz__lage">{m.hinweis}</span>}
             {b && !b.teile[k] && <span className="muted qz__soll">Richtig: {m.label}. {m.hinweis}</span>}
           </li>
         ))}
@@ -254,6 +270,16 @@ function MehrVerstehen({ a }: { a: Aufgabe }) {
   );
 }
 
+/** Quelle, Stand und Geltung der Aufgabe als kurze Tabelle (Audit: Quelle und Stand je Antwort). */
+function GrundlageBox({ zeilen }: { zeilen: GrundlageZeile[] }) {
+  if (!zeilen.length) return null;
+  return (
+    <dl className="qz-grundlage" aria-label="Grundlage dieser Aufgabe">
+      {zeilen.map((z, n) => <div key={n}><dt>{z.label}</dt><dd>{z.text}</dd></div>)}
+    </dl>
+  );
+}
+
 // ---------------------------------------------------------------- Runde
 
 function leereAntwort(a: Aufgabe): Antwort {
@@ -280,7 +306,7 @@ const ART_HINWEIS: Record<Aufgabe['art'], string> = {
   fall: 'Der Fall entwickelt sich. Jeden Schritt festlegen, dann geht es weiter.',
 };
 
-export function Runde({ aufgaben, quelle, trainer, figuren = {}, minProThema = 3, onFertig, onNeu, onEnde }: Props) {
+export function Runde({ aufgaben, quelle, trainer, figuren = {}, minProThema = 3, grundlage, weiter: weiterLinks, onFertig, onNeu, onEnde }: Props) {
   const [i, setI] = useState(0);
   const [antwort, setAntwort] = useState<Antwort>(() => leereAntwort(aufgaben[0]!));
   const [ergebnisse, setErgebnisse] = useState<Array<{ a: Aufgabe; b: Bewertung }>>([]);
@@ -288,11 +314,16 @@ export function Runde({ aufgaben, quelle, trainer, figuren = {}, minProThema = 3
   const [serie, setSerie] = useState(0);
   const [besteSerie, setBesteSerie] = useState(0);
   const lernplan = useLernplanUebernahme(trainer);
+  // Schutz gegen doppeltes Absenden: jede Aufgabe wird einmal bewertet, die Runde einmal abgeschlossen
+  const rundeId = useRef(`${quelle}:runde:${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`);
+  const bewertetBei = useRef(-1);
+  const abgeschlossen = useRef(false);
   const a = aufgaben[i];
   const fertig = ergebnisse.length === aufgaben.length && !geprueft;
 
   function pruefen() {
-    if (!a) return;
+    if (!a || bewertetBei.current === i) return;
+    bewertetBei.current = i;
     const b = bewerte(a, antwort);
     spiele(b.richtig ? 'richtig' : b.punkte > 0 ? 'teilweise' : 'falsch');
     setGeprueft(b);
@@ -300,18 +331,20 @@ export function Runde({ aufgaben, quelle, trainer, figuren = {}, minProThema = 3
     const neu = b.richtig ? serie + 1 : 0;
     setSerie(neu); setBesteSerie((x) => Math.max(x, neu));
     const fehler = alsFehler(a, antwort, quelle);
-    if (fehler.length) notiereFehler(fehler);
+    if (fehler.length) notiereFehler(fehler.map((f) => ({ ...f, versuchId: `${rundeId.current}:${i}` })));
   }
 
   function weiter() {
     setGeprueft(null);
     const naechste = aufgaben[i + 1];
     if (naechste) { setAntwort(leereAntwort(naechste)); setI(i + 1); return; }
+    if (abgeschlossen.current) return;
+    abgeschlossen.current = true;
     const punkte = ergebnisse.reduce((s, e) => s + e.b.punkte / e.b.max, 0);
     const prozent = Math.round((punkte / Math.max(1, ergebnisse.length)) * 100);
     spiele(prozent >= 90 ? 'erfolg' : 'fertig');
     onFertig?.({ punkte: ergebnisse.reduce((s, e) => s + e.b.punkte, 0), max: ergebnisse.reduce((s, e) => s + e.b.max, 0), prozent, richtig: ergebnisse.filter((e) => e.b.richtig).length, anzahl: ergebnisse.length });
-    lernplan.uebernimm(proThema(ergebnisse.map((e) => alsTreffer(e.a, e.b)), minProThema));
+    lernplan.uebernimm(proThema(ergebnisse.map((e) => alsTreffer(e.a, e.b)), minProThema), rundeId.current);
   }
 
   if (fertig) {
@@ -405,6 +438,12 @@ export function Runde({ aufgaben, quelle, trainer, figuren = {}, minProThema = 3
             <strong>{geprueft.richtig ? 'Richtig.' : geprueft.punkte > 0 ? `Teilweise richtig: ${geprueft.punkte} von ${geprueft.max}.` : 'Leider falsch.'}</strong>
             <FachListe texte={a.erklaerung} className="qz__erklaerung" />
           </div>
+          {grundlage && <GrundlageBox zeilen={grundlage(a)} />}
+          {weiterLinks && weiterLinks(a).length > 0 && (
+            <p className="qz-weiter">Weiter mit:{' '}
+              {weiterLinks(a).map((x, n) => <span key={x.path}>{n > 0 && ' · '}<a href={`#${x.path}`}>{x.label}</a></span>)}
+            </p>
+          )}
           <MehrVerstehen a={a} />
           <div className="row">
             <button type="button" className="primary" onClick={weiter}>{i + 1 < aufgaben.length ? 'Weiter' : 'Auswertung'}</button>

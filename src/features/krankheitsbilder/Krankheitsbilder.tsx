@@ -15,7 +15,7 @@ import { Runde } from '../quiz/Runde';
 import { runde } from '../quiz/quiz';
 import { detektivRunde, DETEKTIV_HINWEIS } from './detektiv';
 import {
-  ABSCHNITTE, ASSESSMENT_GRUPPE, belegeFuer, belegQuote, bewerteFall, faelleZuThema, MIN_PRO_THEMA, mischung, passtZurSuche, vollstaendig,
+  ABSCHNITTE, ASSESSMENT_GRUPPE, belegeFuer, ROLLE_LABEL, warnzeichen, type Rolle, belegQuote, bewerteFall, faelleZuThema, MIN_PRO_THEMA, mischung, passtZurSuche, vollstaendig,
   type Antworten, type FallErgebnis,
 } from './bewertung';
 
@@ -36,6 +36,7 @@ const PROFIL = new Map(PROFILE.map((p) => [p.id, p]));
 const DRUGS = new Map((pflegeModule.drugProfiles ?? []).map((d) => [d.id, d]));
 const REFS = new Map((pflegeModule.references ?? []).map((r) => [r.id, r]));
 const THEMEN = new Map(pflegeModule.topics.map((t) => [t.id, t]));
+const STAND = pflegeModule.stand;
 
 function gehe(p: { ansicht?: Ansicht; kb?: string; fall?: string; thema?: string; a?: string; b?: string }) {
   const q = new URLSearchParams();
@@ -61,7 +62,29 @@ function Beleg({ p, abschnitt }: { p: DiseaseProfile; abschnitt: DiseaseSection 
   );
 }
 
-function Abschnitt({ p, id, label }: { p: DiseaseProfile; id: DiseaseSection; label: string }) {
+function RollenTag({ rolle }: { rolle: Rolle }) {
+  if (rolle === 'wissen') return null;
+  return <span className={`kb__rolle kb__rolle--${rolle}`}>{ROLLE_LABEL[rolle]}</span>;
+}
+
+/** Warnzeichen mit Quellenstand: aus welchem Abschnitt, belegt oder ungeprüft, Katalogstand. */
+function Warnzeichen({ p }: { p: DiseaseProfile }) {
+  const w = warnzeichen(p);
+  if (!w.length) return null;
+  return (
+    <section className="kb__warn m-rise" aria-labelledby={`warn-${p.id}`}>
+      <h3 id={`warn-${p.id}`}>Warnzeichen: sofort melden</h3>
+      <ul className="kb__liste">{w.map((x, i) => <li key={i}>{x.text}</li>)}</ul>
+      <p className="muted kb__klein">
+        Aus den Abschnitten {[...new Set(w.map((x) => (x.aus === 'symptome' ? 'Symptome' : 'Komplikationen')))].join(' und ')}.{' '}
+        Quellenstand: {w.some((x) => belegeFuer(p, x.aus).length) ? 'teils aus deinem Unterricht belegt' : 'Lehrbuchwissen, ungeprüft'}
+        {STAND ? `, Katalog ${STAND}` : ''}. Wann genau gemeldet wird, regeln Anordnung und Hausstandard.
+      </p>
+    </section>
+  );
+}
+
+function Abschnitt({ p, id, label, rolle = 'wissen' }: { p: DiseaseProfile; id: DiseaseSection; label: string; rolle?: Rolle }) {
   if (id === 'definition') {
     return (
       <section className="kb__abschnitt">
@@ -73,8 +96,8 @@ function Abschnitt({ p, id, label }: { p: DiseaseProfile; id: DiseaseSection; la
   if (id === 'prophylaxen') {
     if (!p.prophylaxen?.length) return null;
     return (
-      <section className="kb__abschnitt">
-        <div className="kb__abschnitt-kopf"><h3>{label}</h3><Beleg p={p} abschnitt={id} /></div>
+      <section className={`kb__abschnitt kb__abschnitt--${rolle}`}>
+        <div className="kb__abschnitt-kopf"><h3>{label}</h3><RollenTag rolle={rolle} /><Beleg p={p} abschnitt={id} /></div>
         <ul className="kb__liste">
           {p.prophylaxen.map((x) => (
             <li key={x.topicId}><strong>{THEMEN.get(x.topicId)?.name ?? x.topicId}:</strong> {x.grund}</li>
@@ -86,8 +109,8 @@ function Abschnitt({ p, id, label }: { p: DiseaseProfile; id: DiseaseSection; la
   const punkte = p[id];
   if (!punkte?.length) return null;
   return (
-    <section className="kb__abschnitt">
-      <div className="kb__abschnitt-kopf"><h3>{label}</h3><Beleg p={p} abschnitt={id} /></div>
+    <section className={`kb__abschnitt kb__abschnitt--${rolle}`}>
+      <div className="kb__abschnitt-kopf"><h3>{label}</h3><RollenTag rolle={rolle} /><Beleg p={p} abschnitt={id} /></div>
       <ul className="kb__liste">{punkte.map((x, i) => <li key={i}>{x}</li>)}</ul>
     </section>
   );
@@ -229,8 +252,14 @@ function Steckbrief({ p }: { p: DiseaseProfile }) {
         </div>
         <h2 className="kb__titel">{p.name}</h2>
         {!!p.synonyms?.length && <p className="muted">{p.synonyms.join(' · ')}</p>}
-        {ABSCHNITTE.map((a) => <Abschnitt key={a.id} p={p} id={a.id} label={a.label} />)}
+        <p className="kb__rollen muted" aria-label="Zuständigkeiten">
+          {(['beobachtung', 'aerztlich', 'pflege'] as Rolle[]).map((r) => <RollenTag key={r} rolle={r} />)}
+          <span>Wer beobachtet, wer entscheidet, wer handelt.</span>
+        </p>
+        <Warnzeichen p={p} />
+        {ABSCHNITTE.map((a) => <Abschnitt key={a.id} p={p} id={a.id} label={a.label} rolle={a.rolle} />)}
         {p.merksatz && <p className="note">Merksatz: {p.merksatz}</p>}
+        <Abgrenzen p={p} />
         <div className="row">
           <button type="button" className="primary small" onClick={() => navigate(`/lernen/karten?krankheit=${encodeURIComponent(p.id)}`)}>Mit Karteikarten lernen</button>
           <button type="button" className="small" onClick={() => gehe({ ansicht: 'vergleich', a: p.id })}>Vergleichen mit …</button>
@@ -296,12 +325,15 @@ function Fall({ fall, onFertig, onZurueck, onWeiter }: {
     });
   }
 
+  // Ein Fallaufruf = ein Versuch: Doppelklick auf „Auswerten“ bucht nicht doppelt.
+  const versuchId = useMemo(() => `krankheitsbilder:${fall.id}:${Date.now().toString(36)}`, [fall]);
   function auswerten() {
+    if (ergebnis) return;
     const e = bewerteFall(fall, antworten, p);
     setErgebnis(e);
     notiereFehler(e.zeilen.filter((z) => !z.richtig).map((z) => ausKrankheitsbild(fall, z.aufgabe, z.gewaehlt, p)));
     onFertig(fall, e);
-    lernplan.uebernimm(proThema(e.treffer, MIN_PRO_THEMA));
+    lernplan.uebernimm(proThema(e.treffer, MIN_PRO_THEMA), versuchId);
   }
 
   return (
@@ -405,6 +437,26 @@ function Detektiv() {
 // ---------------------------------------------------------------- Vergleich
 
 /** Paare, die in Prüfung und Praxis oft verwechselt werden. */
+/** Differenzialfragen: mit welchen Bildern wird dieses verwechselt? Führt in den Vergleich. */
+function Abgrenzen({ p }: { p: DiseaseProfile }) {
+  const partner = PAARE.filter(([a, b]) => a === p.id || b === p.id).map(([a, b]) => PROFIL.get(a === p.id ? b : a)!);
+  if (!partner.length) return null;
+  return (
+    <section className="kb__abschnitt">
+      <div className="kb__abschnitt-kopf"><h3>Abgrenzen: Differenzialfragen</h3></div>
+      <ul className="kb__liste">
+        {partner.map((x) => (
+          <li key={x.id}>
+            Woran unterscheidest du {kurzname(p)} von {kurzname(x)}?{' '}
+            <button type="button" className="link" onClick={() => gehe({ ansicht: 'vergleich', a: p.id, b: x.id })}>Gegenüberstellen</button>
+          </li>
+        ))}
+      </ul>
+      <p className="muted kb__klein">Gegenüberstellung aus den Steckbriefen, Abschnitt für Abschnitt mit Belegstatus. Die Diagnose stellt die Ärztin oder der Arzt.</p>
+    </section>
+  );
+}
+
 const PAARE: Array<[string, string]> = ([
   ['kh.asthma', 'kh.copd'], ['kh.delir', 'kh.demenz'], ['kh.demenz', 'kh.depression'], ['kh.tvt', 'kh.pavk'],
   ['kh.herzinfarkt', 'kh.lungenembolie'], ['kh.fieberkrampf', 'kh.epilepsie'], ['kh.pseudokrupp', 'kh.bronchiolitis'], ['kh.arthrose', 'kh.osteoporose'],

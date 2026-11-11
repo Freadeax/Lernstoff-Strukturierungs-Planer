@@ -20,6 +20,13 @@ const ANSICHTEN: { id: Ansicht; label: string }[] = [
   { id: 'lernen', label: 'Lernen' }, { id: 'steckbriefe', label: 'Medikamente' }, { id: 'stapel', label: 'Stapel' }, { id: 'eigene', label: 'Eigene Karten' }, { id: 'statistik', label: 'Statistik' },
 ];
 
+/** Oberstes Thema einer Karte (Einstieg „Nach Thema“ zeigt nur diese Ebene). */
+function oberthema(id: ID): ID {
+  let t = alleThemen.get(id);
+  while (t?.parentId && alleThemen.has(t.parentId)) t = alleThemen.get(t.parentId);
+  return t?.id ?? id;
+}
+
 function Start({ ctx, thema, krankheit, onStart }: { ctx: KartenCtx; thema?: ID; krankheit?: ID; onStart: (s: SitzungsPlan, titel?: string) => void }) {
   const { daten, heute } = ctx;
   const themen = thema ? [thema, ...modul.topics.filter((t) => t.parentId === thema).map((t) => t.id)] : undefined;
@@ -37,6 +44,14 @@ function Start({ ctx, thema, krankheit, onStart }: { ctx: KartenCtx; thema?: ID;
   const problem = useMemo(() => problemSitzung(daten.alle.filter(imPool), daten.staende, heute, daten.config.sitzungsGroesse), [daten, heute, quellen]);
   const problemGesamt = useMemo(() => [...daten.staende.values()].filter((s) => istProblem(s, heute)).length, [daten, heute]);
   const umschalten = (q: KartenQuelle) => setQuellen((alt) => (alt.includes(q) ? alt.filter((x) => x !== q) : [...alt, q]));
+  const nurFaellig = useMemo(() => stelleSitzungZusammen(daten.alle, daten.staende, { ...opts, nur: 'faellig' }), [daten, heute, thema, profil, quellen]);
+  const nurNeu = useMemo(() => stelleSitzungZusammen(daten.alle, daten.staende, { ...opts, nur: 'neu' }), [daten, heute, thema, profil, quellen]);
+  // Themen mit Karten für den themenbezogenen Einstieg (oberste Ebene, nach Anzahl)
+  const themenMitKarten = useMemo(() => {
+    const zahl = new Map<ID, number>();
+    for (const k of daten.alle) for (const t of k.topicIds) { const top = oberthema(t); zahl.set(top, (zahl.get(top) ?? 0) + 1); }
+    return [...zahl].filter(([id]) => alleThemen.has(id)).sort((a, b) => b[1] - a[1]);
+  }, [daten]);
   const vorziehen = useMemo(() => (plan.karten.length ? null : stelleSitzungZusammen(daten.alle, daten.staende, { ...opts, vorziehen: true })), [plan]);
   const themaName = profil?.name ?? (thema ? alleThemen.get(thema)?.name : undefined);
   const gezielt = !!thema || !!profil;
@@ -56,9 +71,19 @@ function Start({ ctx, thema, krankheit, onStart }: { ctx: KartenCtx; thema?: ID;
           <div><strong>{daten.alle.length}</strong><span className="muted">Karten aktiv</span></div>
         </div>
         {plan.karten.length > 0 ? (
-          <button type="button" className="primary karten__aufdecken" onClick={() => onStart(plan, themaName)}>
-            {plan.faellig ? `${plan.karten.length} Karten lernen` : `${plan.neu} neue Karten lernen`}
-          </button>
+          <div className="karten__einstiege">
+            {nurFaellig.karten.length > 0 && (
+              <button type="button" className="primary karten__aufdecken" onClick={() => onStart(nurFaellig, themaName ? `${themaName} · Wiederholen` : 'Fällige wiederholen')}>
+                {nurFaellig.karten.length} fällige wiederholen
+              </button>
+            )}
+            <button type="button" className={nurFaellig.karten.length ? '' : 'primary karten__aufdecken'} disabled={!nurNeu.karten.length} onClick={() => onStart(nurNeu, themaName ? `${themaName} · Neue Karten` : 'Neue Karten')}>
+              {nurNeu.karten.length ? `${nurNeu.karten.length} neue lernen` : 'Keine neuen für heute'}
+            </button>
+            {plan.faellig > 0 && plan.neu > 0 && (
+              <button type="button" className="ghost" onClick={() => onStart(plan, themaName)}>Gemischt ({plan.karten.length})</button>
+            )}
+          </div>
         ) : (
           <>
             <p>{gelernt ? 'Für heute ist alles wiederholt. Morgen geht es weiter.' : 'Keine Karten für diese Auswahl.'}</p>
@@ -73,6 +98,15 @@ function Start({ ctx, thema, krankheit, onStart }: { ctx: KartenCtx; thema?: ID;
       </div>
       <div className="card karten__gezielt">
         <h3>Gezielt üben</h3>
+        {!gezielt && themenMitKarten.length > 1 && (
+          <label className="karten__thema">
+            <span className="muted">Nach Thema:</span>
+            <select value="" onChange={(e) => { if (e.target.value) navigate(`/lernen/karten?thema=${encodeURIComponent(e.target.value)}`); }}>
+              <option value="">Thema wählen …</option>
+              {themenMitKarten.map(([id, n]) => <option key={id} value={id}>{alleThemen.get(id)?.name ?? id} ({n})</option>)}
+            </select>
+          </label>
+        )}
         {vorhanden.length > 1 && (
           <div className="karten__quellen" role="group" aria-label="Nur Karten aus">
             <span className="muted">Nur aus:</span>

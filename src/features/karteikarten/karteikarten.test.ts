@@ -381,3 +381,14 @@ describe('Problemkarten, Herkunftsfilter und Sitzungsauswertung', () => {
     expect(gewusstProzent([])).toBe(0);
   });
 });
+
+describe('Prüfhinweise beim Bearbeiten', () => {
+  it('meldet unmarkierte und offene Lücken, fehlende Quelle und ungeprüfte Angaben', async () => {
+    const { kartenHinweise } = await import('./erzeugen');
+    const arten = (k: Parameters<typeof kartenHinweise>[0]) => kartenHinweise(k).map((h) => h.art);
+    expect(arten({ quelle: 'eigen', vorne: 'Der ___ prüft die Rötung.', hinten: 'Fingertest' })).toEqual(['luecke', 'quelle']);
+    expect(arten({ quelle: 'eigen', vorne: 'Der [[Fingertest prüft', hinten: '', luecken: true })).toContain('luecke');
+    expect(arten({ quelle: 'eigen', vorne: 'Der [[Fingertest]] prüft', hinten: '', luecken: true, belegText: 'Skript S. 4' })).toEqual([]);
+    expect(arten({ quelle: 'katalog', vorne: 'a', hinten: 'b', quellen: [{ title: 'x', url: 'https://x' }], ungeprueft: true })).toEqual(['ungeprueft']);
+  });
+});
