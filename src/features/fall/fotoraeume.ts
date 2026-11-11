@@ -6,10 +6,12 @@ import type { Setting } from './faelle';
 import type { Marker } from './raeume';
 import type { Fokus } from './szene';
 
-export type FotoRaumId =
+import type { RaumId } from '../../ui/sim/raeume/katalog';
+
+export type FotoRaumId = Extract<RaumId,
   | '07_ambulant_wohnzimmer_kompression' | '08_ambulant_pflegebad'
   | '10_pflegeheim_nacht' | '11_pflegeheim_speiseraum'
-  | '12_station_kardiologie_monitoring' | '13_station_postop';
+  | '12_station_kardiologie_monitoring' | '13_station_postop'>;
 
 export interface FotoMarker extends Marker { x: number; y: number }
 export interface FotoRaum { id: FotoRaumId; titel: string; marker: FotoMarker[]; /** Foto zeigt schon Nacht */ nacht?: boolean; /** Raum hat einen Monitor im Bild */ monitor?: boolean }
@@ -19,7 +21,7 @@ export const FOTORAEUME: Record<FotoRaumId, FotoRaum> = {
     id: '12_station_kardiologie_monitoring', titel: 'Kardiologie, Monitoring am Bett', monitor: true,
     marker: [
       { id: 'patient', nr: 1, name: 'Patient', ort: 'bett', x: 0.3, y: 0.52 },
-      { id: 'monitor', nr: 2, name: 'Monitor und Messgeräte', ort: 'monitor', x: 0.73, y: 0.2 },
+      { id: 'monitor', nr: 2, name: 'Monitor und Messgeräte', ort: 'monitor', x: 0.73, y: 0.34 },
       { id: 'infusion', nr: 3, name: 'Infusionsständer', ort: 'wagen', x: 0.5, y: 0.3 },
     ],
   },
@@ -101,5 +103,5 @@ export function fotoRaumFuer(szenarioId: string, setting: Setting): FotoRaum | n
 export function fotoFokus(raum: FotoRaum, fokus: Fokus | null | undefined): { x: number; y: number; zoom: number } | undefined {
   if (!fokus || fokus === 'raum') return undefined;
   const m = raum.marker.find((k) => k.ort === fokus);
-  return m ? { x: m.x, y: m.y, zoom: 1.6 } : undefined;
+  return m ? { x: m.x, y: m.y, zoom: 1.45 } : undefined;
 }

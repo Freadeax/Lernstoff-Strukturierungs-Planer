@@ -37,7 +37,7 @@ describe('Fotoräume', () => {
 
   it('Kamera zoomt auf den Marker am Ort der Handlung', () => {
     const r = FOTORAEUME['12_station_kardiologie_monitoring'];
-    expect(fotoFokus(r, 'monitor')).toEqual({ x: 0.73, y: 0.2, zoom: 1.6 });
+    expect(fotoFokus(r, 'monitor')).toEqual({ x: 0.73, y: 0.34, zoom: 1.45 });
     expect(fotoFokus(r, 'raum')).toBeUndefined();
     expect(fotoFokus(r, 'telefon')).toBeUndefined();
   });

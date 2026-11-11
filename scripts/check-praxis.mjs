@@ -149,10 +149,13 @@ try {
     // Probefall ohne KI: Szene und Monitor laufen, eine Entscheidung bewegt Figur und Werte
     await page.getByRole('button', { name: 'Probefall starten', exact: true }).click();
     await page.locator('.fall__option').first().waitFor();
-    assert(await page.locator('.szene svg').isVisible());
-    assert(await page.locator('.sim-monitor.is-aus').isVisible());
+    // Fotoraum (Kardiologie): vor der Messung Variante ohne Monitor, danach Live-Monitor im Bild
+    await page.locator('.fall__foto img[src*="12a_station"]').waitFor();
+    assert(await page.locator('.fall__buehne > .sim-monitor.is-aus').isVisible());
     await page.getByRole('button', { name: /messe Blutdruck/ }).click();
-    await page.locator('.sim-monitor:not(.is-aus)').waitFor();
+    await page.locator('.fall__buehne > .sim-monitor:not(.is-aus)').waitFor();
+    await page.locator('.fall__foto img[src*="12_station_kardiologie_monitoring"]').waitFor();
+    assert(await page.locator('.fall__foto .raum-monitor .sim-monitor').isVisible());
     await page.locator('.fall__option').first().waitFor();
     await page.getByRole('button', { name: '1: Patient ansehen' }).click();
     await page.getByRole('region', { name: /^1: Patient/ }).waitFor();
@@ -160,6 +163,11 @@ try {
     assert(await page.getByRole('button', { name: /^Ich übergebe nach SBAR/ }).isVisible());
     await page.waitForTimeout(3000); // Untertitel blendet Wort für Wort ein, erst danach Kontrast messen
     await audit('Fallsimulator Probefall'); await page.screenshot({ path: path.join(output, `fall-probe-${width}.png`), fullPage: true });
+    // Umschalten auf die gezeichnete Szene und zurück
+    await page.getByRole('button', { name: 'Gezeichnete Ansicht', exact: true }).click();
+    assert(await page.locator('.szene svg').isVisible());
+    await page.getByRole('button', { name: 'Fotoansicht', exact: true }).click();
+    await page.locator('.fall__foto img').waitFor();
     await context.close();
   }
   fs.writeFileSync(path.join(output, 'audit.json'), JSON.stringify({ audits, errors }, null, 2));
