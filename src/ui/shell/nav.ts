@@ -88,7 +88,6 @@ export const NAV: NavItem[] = [
     id: 'system', label: 'System', icon: 'settings', children: [
       { id: 'sicherung', label: 'Datensicherung', path: '/system/sicherung', icon: 'save' },
       { id: 'einstellungen', label: 'Einstellungen', path: '/einstellungen', icon: 'settings' },
-      { id: 'design', label: 'Designsystem', path: '/system/design', icon: 'palette' },
     ],
   },
 ];
@@ -96,6 +95,7 @@ export const NAV: NavItem[] = [
 /** Seiten ohne eigenen Menüeintrag (erreichbar über Links), für Seitentitel und Gerätetest. */
 export const UNTERSEITEN: NavItem[] = [
   { id: 'thema', label: 'Thema', path: '/lernen/thema', icon: 'book' },
+  { id: 'design', label: 'Designsystem', path: '/system/design', icon: 'palette' },
 ];
 
 /** Untere Leiste auf dem Handy: vier feste Ziele plus „Mehr“ (öffnet das ganze Menü). */

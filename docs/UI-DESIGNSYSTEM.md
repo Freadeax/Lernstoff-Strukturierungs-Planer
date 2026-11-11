@@ -51,6 +51,13 @@ Die wandernde Markierung im Menü misst den aktiven Eintrag (`useMarkierung` in 
 
 Jede Seite hat denselben Kopf: Marke, großer Titel, Einleitung. Seiten mit `PageHeading` setzen die Marke über `eyebrow`. Alle anderen (`.page__head` mit `h2`, oder `PageHeading` ohne `eyebrow`) bekommen automatisch ihren Platz im Menü als Marke, zum Beispiel „Üben · Fachwissen“: `gruppenPfad()` in `nav.ts`, von `App.tsx` als `--kopf-marke` gesetzt, Darstellung in `farbfelder.css`. Neue Seiten brauchen dafür nichts zu tun.
 
+### Wege und Bedienvertrag (Audit-Paket E)
+
+- „Heute“: Die drei Übungskacheln öffnen `#/lernen/ueben?gruppe=fachwissen|praxis|pruefung`, die Übungsseite zeigt dann nur dieses Bündel und bietet den Wechsel als Links an. Die Leiste „Schnellwege“ führt mit einem Tipp zu Prüfung planen, Quelle finden, fällige Karten, Fall starten oder fortsetzen und Sicherung.
+- Suche: Treffer nennen Art und Herkunft (Seite mit Menüplatz, Thema mit Fach, Begriff aus dem Fachkatalog, Quelle aus dem eigenen Material). Escape schließt immer, der Fokus geht zum Auslöser zurück. Dasselbe gilt für Mitteilungen und Profilmenü.
+- Das Designsystem steht nicht mehr im Menü, der Einstieg liegt am Ende der Einstellungen (`#/system/design`). Dort stehen auch alle Datenhinweise gesammelt.
+- `scripts/check-ui.mjs` prüft diese Wege und die Fokusrückgabe bei jedem Lauf.
+
 ### Titelbilder
 
 Sechs Bereichsfotos liegen unter `public/titelbilder/` (1200 × 675, WebP, je 50 bis 100 KB) und werden für Offline vorab geladen (`titelbilder/*.webp` in `vite.config.ts`; andere WebP-Ordner bleiben beim Laufzeit-Cache). Baustein: `<Titelbild motiv="heute|lernen|material|ueben|simulation|system" />` aus `src/ui/Titelbild.tsx`, standardmäßig dekorativ (leerer Alternativtext), mit `beschreiben` kommt der Text aus dem Katalog. `PageHeading` nimmt `bild="…"` für die Einstiegsseiten der Bereiche. Neue Fotos zuerst auf diese Größe verkleinern.

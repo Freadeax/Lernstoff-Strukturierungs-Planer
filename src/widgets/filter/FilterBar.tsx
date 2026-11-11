@@ -3,7 +3,7 @@ import { useStore } from '../../ui/lib/store';
 import { Icon } from '../../ui/icons';
 import { getModule } from '../../modules/registry';
 import { session } from '../../ui/shell/session';
-import { drillUp, filterStore, presetRange } from './filterStore';
+import { defaultFilter, drillUp, filterStore, presetRange } from './filterStore';
 
 const PRESETS = [[7, '7 Tage'], [14, '14 Tage'], [30, '30 Tage'], [90, '90 Tage']] as const;
 
@@ -14,6 +14,8 @@ export function FilterBar() {
   const subjects = getModule(moduleId)?.subjects ?? [];
   const id = useId();
   const invalid = f.from > f.to;
+  const std = defaultFilter(undefined, f.timeZone);
+  const geaendert = f.from !== std.from || f.to !== std.to || f.subjectId !== '';
 
   return (
     <div className="filterbar" role="search" aria-label="Globale Filter">
@@ -53,7 +55,9 @@ export function FilterBar() {
           <input type="checkbox" checked={f.persist} onChange={(e) => filterStore.set({ persist: e.target.checked })} />
           Filter merken
         </label>
+        {geaendert && <button type="button" className="small ghost" onClick={() => filterStore.set({ from: std.from, to: std.to, subjectId: '', previous: undefined })}>Zurücksetzen</button>}
       </div>
+      <p className="filterbar__gilt muted">Gilt für Kennzahlen, Verlauf und Aktivität darunter: {new Date(`${f.from}T12:00:00`).toLocaleDateString('de-DE')} bis {new Date(`${f.to}T12:00:00`).toLocaleDateString('de-DE')}, {subjects.find((s) => s.id === f.subjectId)?.name ?? 'alle Fächer'}.</p>
       {invalid && <p id={`${id}-err`} className="field-error">„Von“ liegt nach „Bis“.</p>}
     </div>
   );

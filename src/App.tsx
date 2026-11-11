@@ -6,13 +6,13 @@ import { PageBoundary } from './ui/shell/PageBoundary';
 import { WidgetGrid } from './ui/widget/Dashboard';
 import { WIDGETS } from './widgets/registry';
 import { Dashboard } from './features/Dashboard';
-import { Faecher } from './features/Faecher';
-import { Einstellungen } from './features/Einstellungen';
 import { PageHeading } from './ui/PageHeading';
 
 // Import (PDF, OCR, ZIP) und Zusammenfasser (Claude-SDK) sind groß: erst laden, wenn die Seite geöffnet wird.
 const Dokumente = lazy(() => import('./features/Dokumente').then((m) => ({ default: m.Dokumente })));
 const Zusammenfassen = lazy(() => import('./features/Zusammenfassen').then((m) => ({ default: m.Zusammenfassen })));
+const Faecher = lazy(() => import('./features/Faecher').then((m) => ({ default: m.Faecher })));
+const Einstellungen = lazy(() => import('./features/Einstellungen').then((m) => ({ default: m.Einstellungen })));
 const Designsystem = lazy(() => import('./features/Designsystem'));
 const Ablage = lazy(() => import('./features/ablage/AblageSeite'));
 const Rechentrainer = lazy(() => import('./features/rechnen/Rechentrainer'));
