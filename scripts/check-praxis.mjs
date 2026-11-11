@@ -286,6 +286,21 @@ try {
       assert(await rea.getByText(/Adrenalin 20 µg\/kg/).count() === 0, 'Adrenalin erst nach der zweiten Kontrolle');
       await ctx.close();
     }
+    // Assessment: Steckbrief, fehlende Angaben, Score getrennt von der pflegerischen Beurteilung.
+    {
+      const ctx = await browser.newContext({ viewport: { width, height: 1050 }, locale: 'de-DE', colorScheme: 'light' });
+      const as = await ctx.newPage(); as.on('pageerror', e => errors.push(e.message));
+      await as.goto(base + '#/lernen/assessment?gruppe=braden&modus=rechner', { waitUntil: 'networkidle' });
+      await as.locator('.as__steckbrief summary').click();
+      assert.match(await as.locator('.as__steckbrief').textContent(), /Bergstrom.*1987/);
+      assert.match(await as.locator('.as__fehlend').textContent(), /Fehlende Angaben \(6\)/);
+      for (const g of await as.getByRole('radiogroup').all()) { await g.getByRole('radio').first().focus(); await as.keyboard.press('Space'); } // Tastatur: die Schnellleiste liegt am Telefon über dem Formular
+      assert.match(await as.locator('.as__ergebnis .note').first().textContent(), /Sehr hohes Risiko.*Einstufung laut Skala/);
+      assert.match(await as.locator('.as__ergebnis .as__beurteilung').textContent(), /Pflegerische Beurteilung.*Vorschlag, fachlich prüfen/);
+      const axe = await new AxeBuilder({ page: as }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+      audits.push({ width, name: 'Assessment', violations: axe.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => ({ html: n.html, summary: n.failureSummary })) })) });
+      await ctx.close();
+    }
     // Notfall-Trainer: ABCDE-Übung (deterministisch, Zeit nur durch Handlungen).
     {
       const ctx = await browser.newContext({ viewport: { width, height: 1050 }, locale: 'de-DE', colorScheme: 'light' });

@@ -139,3 +139,17 @@ describe('Lernplan-Kopplung', () => {
     expect(uebungenFuer('thema.pro.dekubitus').filter((u) => u.trainer === 'assessment')).toHaveLength(2);
   });
 });
+
+describe('Steckbriefe (Audit Assessments)', () => {
+  it('jedes Instrument hat Fassung, Originalquelle mit Jahr, Zielgruppe, Grenzen und Rechtestatus', async () => {
+    const { STECKBRIEFE } = await import('./steckbriefe');
+    const { INSTRUMENTE } = await import('./instrumente');
+    for (const id of Object.keys(INSTRUMENTE) as (keyof typeof INSTRUMENTE)[]) {
+      const s = STECKBRIEFE[id];
+      expect(s, id).toBeTruthy();
+      expect(s.original.stand, id).toMatch(/^\d{4}$/);
+      for (const f of [s.fassung, s.zielgruppe, s.nichtFuer, s.rechte, s.grenzen]) expect(f.length, id).toBeGreaterThan(8);
+      expect(s.rechteStatus, id).toBe('nicht-geprueft');
+    }
+  });
+});
