@@ -16,6 +16,8 @@ try {
     await page.goto(base + '#/lernen/praxis', { waitUntil: 'networkidle' });
     await page.getByRole('heading', { name: 'Praxissimulator', exact: true }).waitFor();
     assert.equal(await page.getByRole('button', { name: 'Schicht übernehmen', exact: true }).count(), 17);
+    assert.equal(await page.locator('.praxis-scenario__tiefe').count(), 17, 'Falltiefe vor dem Start auf jeder Karte');
+    assert.match(await page.locator('.praxis-scenario', { hasText: 'Atemnot in der Nacht' }).locator('.praxis-scenario__tiefe').textContent(), /Bewertungskriteri/);
     const audit = async name => {
       await page.waitForTimeout(350); // Wait for the shared theme/button color transitions to settle.
       assert(!(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)), `${name} overflow @${width}`);

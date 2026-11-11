@@ -78,7 +78,8 @@
 /* Klinischer Verlauf: Ereignisse, NEWS2, Verlaufskurve, Debriefing */
 .praxis-feedback.is-story { background: var(--color-info-soft); border-color: var(--color-info); color: var(--color-text); }
 .praxis-timeline .is-story strong { color: var(--color-info); }
-.praxis-scenario__story { color: var(--color-primary) !important; margin-top: 0 !important; }
+.praxis-scenario__tiefe { margin: 0; font-size: var(--text-sm); color: var(--color-text-muted); }
+.praxis-scenario__tiefe strong { color: var(--color-text); }
 .praxis-news2 { display: grid; gap: var(--space-1); margin-top: var(--space-4); padding: var(--space-3); border-radius: var(--radius-sm); border: 1px solid #ffffff40; }
 .praxis-news2 strong { font-family: var(--font-mono); font-size: var(--text-xl); color: var(--praxis-mint); }
 .praxis-news2 span, .praxis-news2 small { color: #d4e7e0; font-size: var(--text-sm); }

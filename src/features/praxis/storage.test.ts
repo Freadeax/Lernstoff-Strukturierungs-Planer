@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { SCENARIOS } from './catalog';
 import { dispatch, replay, start } from './engine';
+import { dispatch as hilfe } from './testhilfe';
 import { archive, CURRENT, readArchive, readSession, saveSession } from './storage';
 
 let data: Map<string, string>;
@@ -38,4 +39,23 @@ it('trägt schwächere Entscheidungen beim ersten Archivieren ins Fehlerheft ein
   const heft = JSON.parse(data.get('lernstoff.fehlerheft') ?? '[]');
   expect(heft).toHaveLength(1);
   expect(heft[0]).toMatchObject({ id: `praxis:${sc.id}:${e.id}`, quelle: 'praxis', fehlerAnzahl: 1 });
+});
+it('gleicher Seed und gleiche Befehle ergeben nach Neustart und Replay denselben Verlauf (alle Fälle)', () => {
+  for (const sc of SCENARIOS) {
+    // Erste Hälfte, dann „Neustart“: speichern, neu lesen, weiterspielen.
+    let s = start(sc, 2, 4711);
+    for (const id of ['vitals', 'monitor', 'help']) if (sc.actions.some(a => a.id === id)) s = hilfe(s, { type: 'action', id });
+    s = hilfe(s, { type: 'advance', seconds: 900 });
+    expect(saveSession(s), sc.id).toBe('');
+    let weiter = readSession().session!;
+    expect(weiter, sc.id).toEqual(s);
+    weiter = hilfe(weiter, { type: 'advance', seconds: 1200 });
+    if (sc.actions.some(a => a.id === 'vitals')) weiter = hilfe(weiter, { type: 'action', id: 'vitals' });
+    weiter = hilfe(weiter, { type: 'finish' });
+    // Replay aus Seed + Befehlen und eine völlig neue Sitzung mit denselben Befehlen.
+    expect(replay(weiter), sc.id).toEqual(weiter);
+    let neu = start(sc, 2, 4711);
+    for (const c of weiter.commands) neu = dispatch(neu, c.command, c.id);
+    expect({ ...neu, id: weiter.id }, sc.id).toEqual(weiter);
+  }
 });
