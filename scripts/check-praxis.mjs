@@ -216,6 +216,10 @@ try {
       await p2.getByRole('button', { name: 'Probefall starten: Das Spray hilft heute nicht', exact: true }).click();
       await p2.locator('.szene svg').waitFor();
       await p2.getByText(/gezeichnete Ersatzansicht/).waitFor();
+      // Freigabe (SIM-02): Lernziele am Start, Kennzeichnung am Entscheidungsort, Kinder-Monitor ohne Alarmwertung
+      await p2.getByRole('region', { name: 'Lernziele und fachlicher Prüfstand' }).waitFor();
+      await p2.locator('.fall__eingabe .freigabe-ort', { hasText: 'Fachlich ungeprüft' }).waitFor();
+      assert.equal(await p2.locator('.sim-monitor.is-alarm-rot').count(), 0);
       await ctx.close();
     }
     // Notfall-Trainer: Reanimationsübung mit künstlicher Uhr (Zyklus 30 s ohne Warten).

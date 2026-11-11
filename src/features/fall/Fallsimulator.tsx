@@ -20,6 +20,9 @@ import { Szene } from './Szene';
 import { Rueckblick } from './Rueckblick';
 import { abhoerBefund } from './abhoeren';
 import { OfflinePaket } from '../../ui/sim/OfflinePaket';
+import { FreigabeHinweis } from '../../ui/sim/FreigabeHinweis';
+import { automatischeWertung } from '../../ui/sim/freigabe';
+import { freigabeFuerFall, monitorGruppeVon } from './freigaben';
 import { fallOfflineBedarf } from './offlinebedarf';
 import { HoerBeispiel } from '../../ui/audio/HoerBeispiel';
 import { FotoSzene } from './FotoSzene';
@@ -113,6 +116,7 @@ function Start({ onStart, apiKey }: { onStart: (s: Szenario, stufe: Stufe) => vo
               <span className="fall__probe-info">
                 <span><strong>{p.szenario.titel.replace(/^Probefall: /, '')}</strong> <span className="muted">· {SETTING_LABEL[p.szenario.setting]}</span></span>
                 <OfflinePaket bedarf={fallOfflineBedarf(p.szenario)} kompakt />
+                <FreigabeHinweis freigabe={freigabeFuerFall(p.szenario)} ort="chip" />
               </span>
               <button type="button" className={i === 0 ? 'primary' : ''} aria-label={`Probefall starten: ${p.szenario.titel.replace(/^Probefall: /, '')}`}
                 onClick={() => onStart(p.szenario, 1)}>Starten</button>
@@ -135,6 +139,7 @@ function Start({ onStart, apiKey }: { onStart: (s: Szenario, stufe: Stufe) => vo
           <button key={s.id} type="button" className="card fall__szenario" disabled={!apiKey} onClick={() => onStart(s, stufe)}>
             <span className="row fall__badges">
               <span className="badge badge--demo">{SETTING_LABEL[s.setting]}</span>
+              <FreigabeHinweis freigabe={freigabeFuerFall(s)} ort="chip" />
               {wunsch && s.topicIds.includes(wunsch) && <span className="badge">passt zu {themaName(wunsch)}</span>}
               {kbFaelle.includes(s.id) && <span className="badge">zeigt {kbName}</span>}
             </span>
@@ -198,12 +203,12 @@ function trend(alt: string, neu: string): '↑' | '↓' | '' {
   return Number.isFinite(a) && Number.isFinite(n) && a !== n ? (n > a ? '↑' : '↓') : '';
 }
 
-function Kurve({ fall }: { fall: Fall }) {
+function Kurve({ fall, news = true }: { fall: Fall; news?: boolean }) {
   const letzter = fall.runden.at(-1)?.zug;
   const v = letzter?.vitalwerte;
   const vorher = fall.runden.at(-2)?.zug.vitalwerte;
-  const score = v ? news2(v) : null;
-  const verlauf = news2Verlauf(fall);
+  const score = v && news ? news2(v) : null;
+  const verlauf = news ? news2Verlauf(fall) : [];
   const bearbeitet = new Set(fall.runden.filter((r) => r.eingabe !== undefined).map((r) => r.zug.schritt));
   return (
     <aside className="card fall__kurve" aria-label="Patientenkurve">
@@ -247,7 +252,8 @@ function Kurve({ fall }: { fall: Fall }) {
           </li>
         ))}
       </ol>
-      <p className="muted fall__hinweis">Werte und Verlauf sind fiktiv. NEWS2 rechnet die App selbst nach. Maßgeblich bleiben Anordnung und Hausstandard.</p>
+      {!news && <p className="muted fall__news">NEWS2 gilt nur für Erwachsene. Beurteile die Werte nach Kinder-Normwerten und dem Standard deiner Station.</p>}
+      <p className="muted fall__hinweis">Werte und Verlauf sind fiktiv.{news && ' NEWS2 rechnet die App selbst nach.'} Maßgeblich bleiben Anordnung und Hausstandard.</p>
     </aside>
   );
 }
@@ -538,7 +544,9 @@ export default function Fallsimulator() {
     }
     rundenAnzahl.current = n;
   }, [fall?.runden.length]); // eslint-disable-line react-hooks/exhaustive-deps
-  const bild = useMemo(() => (fall ? szenenBild(fall) : null), [fall]);
+  const freigabe = fall ? freigabeFuerFall(fall.szenario) : undefined;
+  const wertung = automatischeWertung(freigabe);
+  const bild = useMemo(() => (fall ? szenenBild(fall, { messwertAlarm: wertung }) : null), [fall, wertung]);
   const raum: Raum = fall ? RAUM_FUER[fall.szenario.setting] ?? 'krankenhaus' : 'krankenhaus';
   // Marker oder Raumübersicht steuern die Kamera, bis der nächste Zug kommt
   const [marker, setMarker] = useState<Marker | null>(null);
@@ -592,6 +600,7 @@ export default function Fallsimulator() {
             </div>
             <p className="muted">{fall.szenario.kurz}</p>
             <OfflinePaket bedarf={fallOfflineBedarf(fall.szenario)} kompakt />
+            {entscheidungen === 0 && <FreigabeHinweis freigabe={freigabe} ort="start" />}
 
             {bild && (
               <div className="fall__buehne">
@@ -611,11 +620,11 @@ export default function Fallsimulator() {
                     </button>
                   )}
                 </div>
-                <PatientenMonitor werte={bild.monitor} aktiv={bild.monitorAn} titel={bild.monitorAn ? `${letzter?.uhrzeit ?? ''} Uhr` : 'Noch nicht gemessen'} />
+                <PatientenMonitor werte={bild.monitor} aktiv={bild.monitorAn} gruppe={monitorGruppeVon(fall.szenario)} bewerten={wertung} titel={bild.monitorAn ? `${letzter?.uhrzeit ?? ''} Uhr` : 'Noch nicht gemessen'} />
                 <div className="audio-simton">
                   <SimTon raum={raumFuerSetting(fotoRaum?.id ?? fall.szenario.setting)} telefon={bild.telefon && !letzter?.beendet}
                     monitor={{ puls: bild.monitor.puls, spo2: bild.monitor.spo2, aktiv: bild.monitorAn && !letzter?.beendet }}
-                    alarm={bild.monitorAn ? gesamtAlarm(bild.monitor) : 'ok'} />
+                    alarm={bild.monitorAn && wertung ? gesamtAlarm(bild.monitor, monitorGruppeVon(fall.szenario)) : 'ok'} />
                   {letzter && <Vorlesen key={fall.runden.length} label="Situation vorlesen"
                     text={() => [letzter.rueckmeldung.text, letzter.situation].filter(Boolean).join(' ')} />}
                 </div>
@@ -655,6 +664,7 @@ export default function Fallsimulator() {
                 </div>
               ) : (
                 <form className="fall__eingabe" onSubmit={(e) => { e.preventDefault(); if (eingabe.trim()) void zug(fall, eingabe.trim()); }}>
+                  <FreigabeHinweis freigabe={freigabe} ort="entscheidung" />
                   {letzter.optionen.length > 0 && (
                     <div className="fall__optionen" role="group" aria-label="Vorschläge">
                       {letzter.optionen.map((o) => (
@@ -681,7 +691,7 @@ export default function Fallsimulator() {
             )}
             <div ref={endeRef} />
           </div>
-          <Kurve fall={fall} />
+          <Kurve fall={fall} news={freigabe?.zielgruppe === 'erwachsene'} />
         </div>
       )}
     </section>
