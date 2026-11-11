@@ -200,3 +200,56 @@ describe('Inhalte', () => {
     expect(uebungenFuer(THEMA.herz).map((u) => u.path)).toContain('/lernen/anatomie?bereich=herz');
   });
 });
+
+describe('Zuordnen und Fall in Schritten', () => {
+  const paare: Aufgabe = {
+    id: 'z', art: 'zuordnen', topicIds: ['t'], titel: 'Paare', frage: 'Ordne zu.', erklaerung: ['so'],
+    paare: [{ links: 'MRSA', rechts: 'Kontakt' }, { links: 'Influenza', rechts: 'Tröpfchen' }, { links: 'Noro', rechts: 'Kontakt' }],
+  };
+  const fall: Aufgabe = {
+    id: 'f', art: 'fall', topicIds: ['t'], titel: 'Fall', frage: 'Was tust du?', erklaerung: ['so'], einstieg: 'Frau K., 80 Jahre.',
+    schritte: [
+      { lage: 'Sie ist blass.', frage: 'Zuerst?', optionen: ['Messen', 'Warten'], richtig: [0], mehrfach: false, warum: 'Erst Werte.' },
+      { lage: 'RR 85/50.', frage: 'Dann?', optionen: ['Hinlegen', 'Laufen', 'Melden'], richtig: [0, 2], mehrfach: true, warum: 'Sicherheit.' },
+    ],
+  };
+
+  it('Zuordnen: Teilpunkte je Paar, Antworten rechts einmalig und sortiert', async () => {
+    const { zuordnenOptionen } = await import('./quiz');
+    expect(zuordnenOptionen(paare as never)).toEqual(['Kontakt', 'Tröpfchen']);
+    expect(bewerte(paare, { art: 'zuordnen', zuordnung: { 0: 'Kontakt', 1: 'Kontakt', 2: 'Kontakt' } })).toMatchObject({ punkte: 2, max: 3, richtig: false, teile: [true, false, true] });
+  });
+
+  it('Fall: je Schritt ein Punkt, Mehrfachauswahl muss genau stimmen', () => {
+    expect(bewerte(fall, { art: 'fall', wahl: [[0], [0, 2]] })).toMatchObject({ punkte: 2, max: 2, richtig: true });
+    expect(bewerte(fall, { art: 'fall', wahl: [[0], [0]] })).toMatchObject({ punkte: 1, richtig: false, teile: [true, false] });
+  });
+
+  it('Fehlerheft: je falschem Paar bzw. Schritt eine Auswahlfrage, die ohne Runde lösbar ist', () => {
+    const fz = alsFehler(paare, { art: 'zuordnen', zuordnung: { 0: 'Kontakt', 1: 'Kontakt', 2: 'Kontakt' } }, 'hygiene');
+    expect(fz).toHaveLength(1);
+    expect(fz[0]!.wiederholung).toMatchObject({ art: 'auswahl', richtig: [0] });
+    expect(fz[0]!.wiederholung.art === 'auswahl' && fz[0]!.wiederholung.optionen[0]).toBe('Tröpfchen');
+    const ff = alsFehler(fall, { art: 'fall', wahl: [[1], [0, 2]] }, 'hygiene');
+    expect(ff).toHaveLength(1);
+    expect(ff[0]!.frage).toContain('Sie ist blass.');
+    expect(ff[0]!.erklaerung[0]).toBe('Erst Werte.');
+  });
+
+  it('Mischen behält die Lösung in jedem Fallschritt', () => {
+    const m = mischeOptionen(fall, zufall(3));
+    expect(m.art === 'fall' && m.schritte.map((st) => st.richtig.map((i) => st.optionen[i]))).toEqual([['Messen'], expect.arrayContaining(['Hinlegen', 'Melden'])]);
+  });
+
+  it('Bauprüfung findet kaputte Fälle und Paare', () => {
+    expect(pruefeAufgaben([paare, fall])).toEqual([]);
+    const kaputt: Aufgabe = { ...(fall as Extract<Aufgabe, { art: 'fall' }>), id: 'k', schritte: [{ lage: '', frage: '?', optionen: ['a'], richtig: [3], mehrfach: false, warum: '' }] };
+    expect(pruefeAufgaben([kaputt]).length).toBeGreaterThan(2);
+  });
+
+  it('Stufe ergibt sich aus der Art, wenn nichts angegeben ist; Schwachstellen kommen aus dem Fehlerheft', async () => {
+    const { stufeVon, schwachstellen } = await import('./quiz');
+    expect([stufeVon(auswahl), stufeVon(mehrfach), stufeVon(fall), stufeVon({ ...auswahl, stufe: 3 })]).toEqual([1, 2, 3, 3]);
+    expect(schwachstellen([auswahl, fall, paare], 'hygiene', ['hygiene:f:2', 'hygiene:a', 'recht:z']).map((a) => a.id)).toEqual(['a', 'f']);
+  });
+});

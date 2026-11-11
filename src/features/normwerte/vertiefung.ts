@@ -1,7 +1,10 @@
 // „Mehr verstehen“ im Normwerte-Trainer: Was hinter einem Wert steckt und was Pflege daraus macht.
 // Übliche Lehrbuch-Richtwerte; maßgeblich bleiben Referenzbereich des Labors und ärztliche Zielwerte.
 
+import { ERWEITERUNG_VERTIEFUNG } from './erweiterung';
+
 export const VERTIEFUNG: Record<string, string[]> = {
+  ...ERWEITERUNG_VERTIEFUNG,
   'vital.puls': [
     'Beim Pulsmessen zählt nicht nur die Frequenz, sondern auch Rhythmus (regelmäßig oder unregelmäßig) und Qualität (kräftig, schwach, fadenförmig). Ein unregelmäßiger Puls wird eine volle Minute gezählt.',
     'Bei Vorhofflimmern kann der am Handgelenk getastete Puls niedriger sein als die Herzfrequenz am Herzen (Pulsdefizit), weil nicht jeder Schlag genug Blut auswirft.',

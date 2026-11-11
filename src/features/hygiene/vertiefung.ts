@@ -2,7 +2,10 @@
 // Grundlage wie aufgaben.ts: KRINKO-Empfehlungen, Aktion Saubere Hände (WHO-Modell), TRBA 250, RKI-Ratgeber.
 // Ergänzendes Lehrbuchwissen ohne Beleg aus eigenem Material; der Hygieneplan der Einrichtung geht vor.
 
+import { ERWEITERUNG_VERTIEFUNG } from './erweiterung';
+
 export const VERTIEFUNG: Record<string, string[]> = {
+  ...ERWEITERUNG_VERTIEFUNG,
   'momente.begruessung': [
     'Das WHO-Modell denkt in zwei Zonen: die Patientenzone (Person plus unmittelbare Umgebung) und die Umgebung außerhalb. Indikation 1 schützt die Patientenzone vor Erregern aus dem Rest der Station, die du an den Händen trägst.',
     'Handschütteln zählt als direkter Hautkontakt. Viele Einrichtungen verzichten deshalb auf die Begrüßung per Hand, sobald die Händedesinfektion nicht gleich möglich ist.',

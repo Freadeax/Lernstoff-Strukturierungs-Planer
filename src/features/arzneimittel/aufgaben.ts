@@ -2,8 +2,9 @@
 // Wirkstoffgruppen an der Endung erkennen und typische Nebenwirkungen beobachten.
 // Lehrbuchwissen für die Pflege. Verordnung, Beipackzettel und Hausstandard gehen vor.
 
-import { mitVertiefung, type Aufgabe, type AuswahlAufgabe } from '../quiz/quiz';
+import { ergaenze, mitVertiefung, type Aufgabe, type AuswahlAufgabe } from '../quiz/quiz';
 import { VERTIEFUNG } from './vertiefung';
+import { ERWEITERUNG } from './erweiterung';
 
 export const AM_THEMA = 'thema.ph.medikamente';
 
@@ -128,5 +129,5 @@ export const BEREICHE: Bereich[] = [
   },
 ];
 
-export const AUFGABEN: Record<BereichId, Aufgabe[]> = mitVertiefung({ sicherheit, applikation, gruppen, beobachtung }, VERTIEFUNG);
+export const AUFGABEN: Record<BereichId, Aufgabe[]> = mitVertiefung(ergaenze({ sicherheit, applikation, gruppen, beobachtung }, ERWEITERUNG), VERTIEFUNG);
 export const ALLE_AUFGABEN: Aufgabe[] = Object.values(AUFGABEN).flat();

@@ -2,8 +2,9 @@
 // Werte sind übliche Lehrbuch-Richtwerte. Laborgrenzen unterscheiden sich je Labor und Methode,
 // maßgeblich ist immer der Referenzbereich auf dem Befund. Die Seite sagt das.
 
-import { mitVertiefung, type Aufgabe, type AuswahlAufgabe } from '../quiz/quiz';
+import { ergaenze, mitVertiefung, type Aufgabe, type AuswahlAufgabe } from '../quiz/quiz';
 import { VERTIEFUNG } from './vertiefung';
+import { ERWEITERUNG } from './erweiterung';
 
 export type BereichId = 'vital' | 'labor' | 'ausscheidung';
 export interface Bereich { id: BereichId; label: string; kurz: string; wissen: string[] }
@@ -119,5 +120,5 @@ export const BEREICHE: Bereich[] = [
   },
 ];
 
-export const AUFGABEN: Record<BereichId, Aufgabe[]> = mitVertiefung({ vital, labor, ausscheidung }, VERTIEFUNG);
+export const AUFGABEN: Record<BereichId, Aufgabe[]> = mitVertiefung(ergaenze({ vital, labor, ausscheidung }, ERWEITERUNG), VERTIEFUNG);
 export const ALLE_AUFGABEN: Aufgabe[] = Object.values(AUFGABEN).flat();

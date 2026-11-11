@@ -1,8 +1,8 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import './quiz.css';
 import {
-  alsFehler, alsTreffer, bewerte, startFolge,
-  type Antwort, type Aufgabe, type AuswahlAufgabe, type BeschriftenAufgabe, type Bewertung, type ReihenfolgeAufgabe,
+  alsFehler, alsTreffer, bewerte, schrittRichtig, startFolge, stufeVon, zuordnenOptionen, STUFE_LABEL,
+  type Antwort, type Aufgabe, type AuswahlAufgabe, type BeschriftenAufgabe, type Bewertung, type FallAufgabe, type ReihenfolgeAufgabe, type ZuordnenAufgabe,
 } from './quiz';
 import { notiereFehler, type FehlerQuelle } from '../fehlerheft/fehlerheft';
 import { proThema, type TrainerId } from '../lernplan/trainer';
@@ -129,13 +129,98 @@ function Beschriften({ a, figur, zu, setZu, b }: {
   );
 }
 
+// ---------------------------------------------------------------- Zuordnen
+
+function Zuordnen({ a, zu, setZu, b }: { a: ZuordnenAufgabe; zu: Record<number, string>; setZu: (z: Record<number, string>) => void; b: Bewertung | null }) {
+  const optionen = useMemo(() => zuordnenOptionen(a), [a]);
+  return (
+    <ul className="qz__paare m-stagger">
+      {a.paare.map((p, k) => (
+        <li key={p.links} className={`qz__paar${b ? (b.teile[k] ? ' is-ok' : ' is-falsch m-shake') : zu[k] ? ' is-belegt' : ''}`}>
+          <label>
+            <span className="qz__paar-links">{p.links}</span>
+            <select value={zu[k] ?? ''} disabled={!!b} onChange={(e) => setZu({ ...zu, [k]: e.target.value })} aria-label={`Zuordnung für ${p.links}`}>
+              <option value="">– zuordnen –</option>
+              {optionen.map((o) => <option key={o} value={o}>{o}</option>)}
+            </select>
+          </label>
+          {b && !b.teile[k] && <span className="muted qz__soll">Richtig: {p.rechts}</span>}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+// ---------------------------------------------------------------- Fall in Schritten
+
+/**
+ * Ein Fall entwickelt sich: Jeder Schritt wird festgelegt (zählt dann so, wie er festgelegt wurde), bekommt eine kurze
+ * Rückmeldung, und erst dann erscheint die nächste Lage. Das ist Rückmeldung zum eigenen Schritt, kein Tipp vorab.
+ */
+function Fall({ a, wahl, setWahl, b }: { a: FallAufgabe; wahl: number[][]; setWahl: (w: number[][]) => void; b: Bewertung | null }) {
+  const [entwurf, setEntwurf] = useState<number[]>([]);
+  const fertig = wahl.length;
+  const aktuell = a.schritte[fertig];
+  function festlegen() { setWahl([...wahl, entwurf]); setEntwurf([]); }
+  return (
+    <div className="qz__fall">
+      <p className="qz__fall-einstieg">{a.einstieg}</p>
+      <ol className="qz__fall-schritte">
+        {a.schritte.slice(0, fertig).map((st, k) => {
+          const ok = schrittRichtig(st, wahl[k] ?? []);
+          return (
+            <li key={k} className={`qz__fall-schritt is-fest ${ok ? 'is-ok' : 'is-falsch'}`}>
+              <p className="qz__fall-lage">{st.lage}</p>
+              <p><strong>{st.frage}</strong></p>
+              <p className="qz__fall-antwort">
+                <span className={`tag ${ok ? 'tag--wissen-sicher' : 'tag--warning'}`}>{ok ? 'Passt' : 'Nicht ganz'}</span>{' '}
+                Deine Wahl: {(wahl[k] ?? []).map((i) => st.optionen[i]).join(' · ')}
+                {!ok && <> · Besser: {st.richtig.map((i) => st.optionen[i]).join(' · ')}</>}
+              </p>
+              <p className="muted qz__fall-warum">{st.warum}</p>
+            </li>
+          );
+        })}
+        {aktuell && !b && (
+          <li key={fertig} className="qz__fall-schritt m-rise" aria-live="polite">
+            <p className="qz__fall-zaehler muted">Schritt {fertig + 1} von {a.schritte.length}</p>
+            <p className="qz__fall-lage">{aktuell.lage}</p>
+            <fieldset className="qz__optionen">
+              <legend className="qz__fall-frage">{aktuell.frage}{aktuell.mehrfach ? ' (mehrere Antworten möglich)' : ''}</legend>
+              {aktuell.optionen.map((o, i) => {
+                const an = entwurf.includes(i);
+                return (
+                  <label key={o} className={`qz__option${an ? ' is-gewaehlt' : ''}`}>
+                    <input
+                      type={aktuell.mehrfach ? 'checkbox' : 'radio'} name={`qz-${a.id}-${fertig}`} checked={an}
+                      onChange={() => setEntwurf(aktuell.mehrfach ? (an ? entwurf.filter((x) => x !== i) : [...entwurf, i]) : [i])}
+                    />
+                    <span>{o}</span>
+                  </label>
+                );
+              })}
+            </fieldset>
+            <button type="button" className="primary" disabled={!entwurf.length} onClick={festlegen}>
+              {fertig + 1 < a.schritte.length ? 'Festlegen und weiter' : 'Festlegen'}
+            </button>
+          </li>
+        )}
+      </ol>
+    </div>
+  );
+}
+
 // ---------------------------------------------------------------- Mehr verstehen
 
 const OFFEN_KEY = 'lernstoff.quiz.vertiefungOffen';
 
 /** Texte einer Aufgabe, in denen Fachbegriffe stehen können. Nach dem Prüfen ist alles sichtbar. */
 function aufgabenTexte(a: Aufgabe): string[] {
-  const teile = a.art === 'auswahl' ? a.optionen : a.art === 'reihenfolge' ? a.schritte : a.marken.flatMap((m) => [m.label, m.hinweis]);
+  const teile = a.art === 'auswahl' ? a.optionen
+    : a.art === 'reihenfolge' ? a.schritte
+      : a.art === 'zuordnen' ? a.paare.flatMap((p) => [p.links, p.rechts])
+        : a.art === 'fall' ? [a.einstieg, ...a.schritte.flatMap((st) => [st.lage, st.frage, ...st.optionen, st.warum])]
+          : a.marken.flatMap((m) => [m.label, m.hinweis]);
   return [a.frage, ...teile, ...a.erklaerung, ...(a.vertiefung ?? [])];
 }
 
@@ -173,12 +258,16 @@ function MehrVerstehen({ a }: { a: Aufgabe }) {
 function leereAntwort(a: Aufgabe): Antwort {
   if (a.art === 'auswahl') return { art: 'auswahl', wahl: [] };
   if (a.art === 'reihenfolge') return { art: 'reihenfolge', folge: startFolge(a.schritte) };
+  if (a.art === 'zuordnen') return { art: 'zuordnen', zuordnung: {} };
+  if (a.art === 'fall') return { art: 'fall', wahl: [] };
   return { art: 'beschriften', zuordnung: {} };
 }
 
 function vollstaendig(a: Aufgabe, x: Antwort): boolean {
   if (x.art === 'auswahl') return x.wahl.length > 0;
   if (x.art === 'reihenfolge') return true;
+  if (x.art === 'fall') return a.art === 'fall' && x.wahl.length === a.schritte.length;
+  if (x.art === 'zuordnen') return a.art === 'zuordnen' && a.paare.every((_, k) => !!x.zuordnung[k]);
   return a.art === 'beschriften' && a.marken.every((m) => !!x.zuordnung[m.nr]);
 }
 
@@ -186,13 +275,28 @@ const ART_HINWEIS: Record<Aufgabe['art'], string> = {
   auswahl: '',
   reihenfolge: 'Mit den Pfeilen in die richtige Reihenfolge bringen.',
   beschriften: 'Jeder Nummer eine Bezeichnung zuordnen.',
+  zuordnen: 'Jedem Begriff die passende Antwort zuordnen. Antworten können mehrfach vorkommen.',
+  fall: 'Der Fall entwickelt sich. Jeden Schritt festlegen, dann geht es weiter.',
 };
+
+/** Ergebnisring für die Auswertung: zeichnet sich bis zum Prozentwert (bei reduzierter Bewegung sofort fertig). */
+function Ring({ prozent }: { prozent: number }) {
+  return (
+    <svg className="qz__ring" viewBox="0 0 120 120" role="img" aria-label={`${prozent} Prozent richtig`}>
+      <circle className="qz__ring-spur" cx="60" cy="60" r="50" pathLength={100} />
+      <circle className={`qz__ring-wert ${prozent >= 80 ? 'is-gut' : prozent >= 50 ? 'is-mittel' : 'is-schwach'}`} cx="60" cy="60" r="50" pathLength={100} strokeDasharray={`${prozent} 100`} />
+      <text x="60" y="60" dy="0.35em" textAnchor="middle">{prozent} %</text>
+    </svg>
+  );
+}
 
 export function Runde({ aufgaben, quelle, trainer, figuren = {}, minProThema = 3, onFertig, onNeu, onEnde }: Props) {
   const [i, setI] = useState(0);
   const [antwort, setAntwort] = useState<Antwort>(() => leereAntwort(aufgaben[0]!));
   const [ergebnisse, setErgebnisse] = useState<Array<{ a: Aufgabe; b: Bewertung }>>([]);
   const [geprueft, setGeprueft] = useState<Bewertung | null>(null);
+  const [serie, setSerie] = useState(0);
+  const [besteSerie, setBesteSerie] = useState(0);
   const lernplan = useLernplanUebernahme(trainer);
   const a = aufgaben[i];
   const fertig = ergebnisse.length === aufgaben.length && !geprueft;
@@ -203,6 +307,8 @@ export function Runde({ aufgaben, quelle, trainer, figuren = {}, minProThema = 3
     spiele(b.richtig ? 'richtig' : b.punkte > 0 ? 'teilweise' : 'falsch');
     setGeprueft(b);
     setErgebnisse((e) => [...e, { a, b }]);
+    const neu = b.richtig ? serie + 1 : 0;
+    setSerie(neu); setBesteSerie((x) => Math.max(x, neu));
     const fehler = alsFehler(a, antwort, quelle);
     if (fehler.length) notiereFehler(fehler);
   }
@@ -222,9 +328,29 @@ export function Runde({ aufgaben, quelle, trainer, figuren = {}, minProThema = 3
     const prozent = Math.round((ergebnisse.reduce((s, e) => s + e.b.punkte / e.b.max, 0) / ergebnisse.length) * 100);
     const falsch = ergebnisse.filter((e) => !e.b.richtig);
     return (
-      <div className="card qz__ende" aria-live="polite">
-        <h3>{prozent} % richtig</h3>
-        <p className="muted">{ergebnisse.length - falsch.length} von {ergebnisse.length} Aufgaben ganz richtig. Teilpunkte zählen anteilig.</p>
+      <div className="card qz__ende m-pop" aria-live="polite">
+        <div className="qz__ende-kopf">
+          <Ring prozent={prozent} />
+          <div>
+            <h3>{prozent >= 90 ? 'Sehr sicher' : prozent >= 70 ? 'Gut dabei' : prozent >= 50 ? 'Auf dem Weg' : 'Noch einmal üben'}</h3>
+            <p className="muted">{ergebnisse.length - falsch.length} von {ergebnisse.length} Aufgaben ganz richtig. Teilpunkte zählen anteilig.</p>
+            {besteSerie >= 3 && <p><span className="tag tag--wissen-sicher">Beste Serie: {besteSerie} richtig in Folge</span></p>}
+          </div>
+        </div>
+        <ul className="qz__stufen" aria-label="Ergebnis nach Schwierigkeit">
+          {([1, 2, 3] as const).map((st) => {
+            const teil = ergebnisse.filter((e) => stufeVon(e.a) === st);
+            if (!teil.length) return null;
+            const p = Math.round((teil.reduce((x, e) => x + e.b.punkte / e.b.max, 0) / teil.length) * 100);
+            return (
+              <li key={st}>
+                <span>{STUFE_LABEL[st]}</span>
+                <span className="qz__stufen-balken" aria-hidden="true"><span style={{ transform: `scaleX(${p / 100})` }} /></span>
+                <span className="muted">{p} % · {teil.length}</span>
+              </li>
+            );
+          })}
+        </ul>
         {falsch.length > 0 && (
           <>
             <h4>Noch einmal ansehen</h4>
@@ -246,12 +372,24 @@ export function Runde({ aufgaben, quelle, trainer, figuren = {}, minProThema = 3
 
   const bereit = vollstaendig(a, antwort);
   return (
-    <div className="card qz__aufgabe">
+    <div key={a.id} className="card qz__aufgabe m-rise">
       <div className="qz__kopf">
-        <span className="badge badge--demo">{a.titel}</span>
-        <span className="muted" aria-live="polite">Aufgabe {i + 1} von {aufgaben.length}</span>
+        <span className="qz__kopf-links">
+          <span className="badge badge--demo">{a.titel}</span>
+          <span className={`qz__stufe qz__stufe--${stufeVon(a)}`} title="Schwierigkeit">{STUFE_LABEL[stufeVon(a)]}</span>
+        </span>
+        <span className="qz__kopf-rechts">
+          {serie >= 2 && <span key={serie} className="qz__serie m-pop" aria-label={`${serie} richtig in Folge`}>{serie}× in Folge</span>}
+          <span className="muted" aria-live="polite">Aufgabe {i + 1} von {aufgaben.length}</span>
+        </span>
       </div>
-      <progress className="qz__fortschritt" max={aufgaben.length} value={i + (geprueft ? 1 : 0)} aria-label="Fortschritt der Runde" />
+      <ol className="qz__spur" aria-label={`Fortschritt: ${ergebnisse.length} von ${aufgaben.length} geprüft, ${ergebnisse.filter((e) => e.b.richtig).length} ganz richtig`}>
+        {aufgaben.map((x, k) => {
+          const e = ergebnisse[k];
+          const st = e ? (e.b.richtig ? 'ok' : e.b.punkte > 0 ? 'teil' : 'falsch') : k === i ? 'jetzt' : 'offen';
+          return <li key={x.id} className={`qz__spur-punkt is-${st}${e ? ' m-pop' : ''}`} />;
+        })}
+      </ol>
       <h3 className="qz__frage">{a.frage}</h3>
       {(a.art !== 'auswahl' || a.mehrfach) && <p className="muted">{a.art === 'auswahl' ? 'Mehrere Antworten können stimmen.' : ART_HINWEIS[a.art]}</p>}
 
@@ -261,13 +399,19 @@ export function Runde({ aufgaben, quelle, trainer, figuren = {}, minProThema = 3
       {a.art === 'reihenfolge' && antwort.art === 'reihenfolge' && (
         <Reihenfolge a={a} folge={antwort.folge} setFolge={(folge) => setAntwort({ art: 'reihenfolge', folge })} b={geprueft} />
       )}
+      {a.art === 'zuordnen' && antwort.art === 'zuordnen' && (
+        <Zuordnen a={a} zu={antwort.zuordnung} setZu={(zuordnung) => setAntwort({ art: 'zuordnen', zuordnung })} b={geprueft} />
+      )}
+      {a.art === 'fall' && antwort.art === 'fall' && (
+        <Fall a={a} wahl={antwort.wahl} setWahl={(wahl) => setAntwort({ art: 'fall', wahl })} b={geprueft} />
+      )}
       {a.art === 'beschriften' && antwort.art === 'beschriften' && (
         <Beschriften a={a} figur={figuren[a.figur]} zu={antwort.zuordnung} setZu={(zuordnung) => setAntwort({ art: 'beschriften', zuordnung })} b={geprueft} />
       )}
 
       {geprueft ? (
         <>
-          <div className={`note ${geprueft.richtig ? 'ok' : 'warn'}`} role="status">
+          <div className={`note qz__rueckmeldung ${geprueft.richtig ? 'ok m-pop' : 'warn m-rise'}`} role="status">
             <strong>{geprueft.richtig ? 'Richtig.' : geprueft.punkte > 0 ? `Teilweise richtig: ${geprueft.punkte} von ${geprueft.max}.` : 'Leider falsch.'}</strong>
             <FachListe texte={a.erklaerung} className="qz__erklaerung" />
           </div>

@@ -2,7 +2,10 @@
 // Grundlage: veröffentlichte Expertenstandards des DNQP (jeweils aktuelle Aktualisierung). Ohne Beleg aus eigenem Material;
 // maßgeblich ist die Fassung, die in Schule und Einrichtung gilt.
 
+import { ERWEITERUNG_VERTIEFUNG } from './erweiterung';
+
 export const VERTIEFUNG: Record<string, string[]> = {
+  ...ERWEITERUNG_VERTIEFUNG,
   'aufbau.ebene.wissen': [
     'Jede Standardaussage hat eine Begründung und darunter drei Spalten: Struktur (S), Prozess (P) und Ergebnis (E), nummeriert von 1 bis meist 5 oder 6. S1, P1 und E1 gehören inhaltlich zusammen.',
     'Die Gliederung geht auf das Qualitätsmodell von Avedis Donabedian zurück: Gute Strukturen machen gute Prozesse möglich, gute Prozesse führen zu guten Ergebnissen.',
