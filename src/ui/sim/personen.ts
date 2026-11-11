@@ -28,7 +28,7 @@ const liste: Person[] = [
   {
     id: 'ben', name: 'Ben', alter: 7, datei: 'praxis-asthma', zustaende: ['stabil'],
     beschreibung: 'Ben, ein Schulkind mit dunkelbraunem, gewelltem Haar und hellblauem Oberteil.',
-    faelle: ['praxis:asthma', 'fall:asthma-kind'],
+    faelle: ['praxis:asthma', 'fall:asthma-kind', 'fall:demo-asthma'],
   },
 ];
 

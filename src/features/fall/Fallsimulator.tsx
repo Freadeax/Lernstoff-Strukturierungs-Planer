@@ -15,8 +15,11 @@ import { SimTon } from '../../ui/audio/SimTon';
 import { Vorlesen } from '../../ui/audio/Vorlesen';
 import { spiele } from '../../ui/audio/spieler';
 import { raumFuerSetting } from '../../ui/audio/klaenge';
-import { DEMO_SZENARIO, demoAbschluss, demoZug, istDemo } from './demo';
+import { demoAbschluss, demoZug, istDemo, PROBEFAELLE } from './demo';
 import { Szene } from './Szene';
+import { Rueckblick } from './Rueckblick';
+import { abhoerBefund } from './abhoeren';
+import { HoerBeispiel } from '../../ui/audio/HoerBeispiel';
 import { FotoSzene } from './FotoSzene';
 import { fotoRaumFuer } from './fotoraeume';
 import { Portraet } from '../../ui/sim/Portraet';
@@ -84,13 +87,21 @@ function Start({ onStart, apiKey }: { onStart: (s: Szenario, stufe: Stufe) => vo
           Für den Simulator braucht die App deinen Claude-API-Schlüssel. <a href="#/einstellungen">Zu den Einstellungen</a>
         </div>
       )}
-      <div className="card fall__probe">
+      <section className="card fall__probe" aria-labelledby="fall-probe-titel">
         <div>
-          <strong>Probefall ohne KI</strong>
-          <p className="muted">Ein kurzer, fest geschriebener Nachtdienst-Fall mit Zimmerszene und Monitor. Läuft ohne Schlüssel und offline, zählt nicht für den Lernplan.</p>
+          <strong id="fall-probe-titel">Probefälle ohne KI</strong>
+          <p className="muted">Fest geschriebene Kurzfälle mit Raumfoto und Monitor. Deine Entscheidungen verzweigen den Verlauf. Laufen ohne Schlüssel und offline, zählen nicht für den Lernplan.</p>
         </div>
-        <button type="button" className="primary" onClick={() => onStart(DEMO_SZENARIO, 1)}>Probefall starten</button>
-      </div>
+        <ul className="fall__probe-liste">
+          {PROBEFAELLE.map((p, i) => (
+            <li key={p.szenario.id}>
+              <span><strong>{p.szenario.titel.replace(/^Probefall: /, '')}</strong> <span className="muted">· {SETTING_LABEL[p.szenario.setting]}</span></span>
+              <button type="button" className={i === 0 ? 'primary' : ''} aria-label={`Probefall starten: ${p.szenario.titel.replace(/^Probefall: /, '')}`}
+                onClick={() => onStart(p.szenario, 1)}>Starten</button>
+            </li>
+          ))}
+        </ul>
+      </section>
       <div className="card fall__einstellungen">
         <span className="muted">Schwierigkeit</span>
         <div className="pills" role="group" aria-label="Schwierigkeit">
@@ -258,6 +269,7 @@ function Auswertung({ fall, onNeu, onNochmal }: { fall: Fall; onNeu: () => void;
           )}
         </>
       ) : <p className="muted">Dieser Fall wurde ohne Auswertung beendet.</p>}
+      {fall.runden.length > 1 && <Rueckblick fall={fall} />}
       <details>
         <summary>Verlauf nachlesen</summary>
         <Verlauf fall={fall} />
@@ -339,6 +351,21 @@ function Vorschlag({ text, demo, onWahl }: { text: string; demo: boolean; onWahl
   );
 }
 
+function Abhoeren({ fall, bild }: { fall: Fall; bild: SzenenBild }) {
+  const b = abhoerBefund(fall.szenario.id);
+  if (!b) return null;
+  const m = bild.monitor;
+  const p = { puls: m.puls ?? undefined, af: m.af ?? undefined, spo2: m.spo2 ?? undefined };
+  return (
+    <div className="fall__abhoeren">
+      <span className="muted">Stethoskop:</span>
+      <HoerBeispiel id={b.lunge} label="Lunge abhören" p={p} maxSek={15} />
+      <HoerBeispiel id={b.herz} label="Herz abhören" p={p} maxSek={15} />
+      <details><summary>Befund</summary><p>{b.text}</p></details>
+    </div>
+  );
+}
+
 function Werkzeuge({ fall, bild, raum, demo, foto, marker, setMarker, onWahl, onUebersicht }: {
   fall: Fall; bild: SzenenBild; raum: Raum; demo: boolean; foto: boolean; marker: Marker | null; setMarker: (m: Marker | null) => void;
   onWahl: (t: string) => void; onUebersicht: () => void;
@@ -363,6 +390,7 @@ function Werkzeuge({ fall, bild, raum, demo, foto, marker, setMarker, onWahl, on
             <button type="button" className="ghost" onClick={() => setMarker(null)}>Schließen</button>
           </div>
           <ul className="fall__objekt-beobachtung">{info.beobachtung.map((b) => <li key={b}>{b}</li>)}</ul>
+          {marker.id === 'patient' && <Abhoeren fall={fall} bild={bild} />}
           <ul className="fall__vorschlaege">{info.handlungen.map((h) => <Vorschlag key={h} text={h} demo={demo} onWahl={onWahl} />)}</ul>
         </section>
       )}

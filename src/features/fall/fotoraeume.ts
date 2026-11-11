@@ -165,6 +165,9 @@ export const FOTORAEUME: Record<FotoRaumId, FotoRaum> = {
 /** Fester Raum je Fall; Fälle ohne Eintrag bekommen den Raum ihres Settings. */
 const RAUM_FUER_FALL: Record<string, FotoRaumId> = {
   'demo-atemnot': '12_station_kardiologie_monitoring',
+  'demo-hypo': '26h_pflegeheim_zimmer_hypoglykaemie',
+  'demo-nachblutung': '13_station_postop',
+  'demo-asthma': '21_paediatrie_schulkind',
   herzinsuffizienz: '12_station_kardiologie_monitoring',
   lungenembolie: '12_station_kardiologie_monitoring',
   anaphylaxie: '30_station_zimmer_frau',
