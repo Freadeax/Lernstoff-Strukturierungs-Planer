@@ -10,6 +10,11 @@ import { proThema } from '../lernplan/trainer';
 import { LernplanHinweis, useLernplanUebernahme } from '../lernplan/ui/LernplanHinweis';
 import { faelleZuKrankheit, KI_KRANKHEITEN } from '../krankheitsbilder/fallbezug';
 import { PatientenMonitor } from '../../ui/sim/PatientenMonitor';
+import { gesamtAlarm } from '../../ui/sim/monitor';
+import { SimTon } from '../../ui/audio/SimTon';
+import { Vorlesen } from '../../ui/audio/Vorlesen';
+import { spiele } from '../../ui/audio/spieler';
+import { raumFuerSetting } from '../../ui/audio/klaenge';
 import { DEMO_SZENARIO, demoAbschluss, demoZug, istDemo } from './demo';
 import { Szene } from './Szene';
 import { FotoSzene } from './FotoSzene';
@@ -453,6 +458,16 @@ export default function Fallsimulator() {
   }
 
   const letzter = fall?.runden.at(-1)?.zug;
+  // Rückmeldung zur letzten Entscheidung hörbar machen (nur neue Runden, nicht beim Öffnen eines Spielstands)
+  const rundenAnzahl = useRef(fall?.runden.length ?? 0);
+  useEffect(() => {
+    const n = fall?.runden.length ?? 0;
+    if (n > rundenAnzahl.current && letzter) {
+      const w = letzter.rueckmeldung.wertung;
+      if (w === 'gut') spiele('richtig'); else if (w === 'teilweise') spiele('teilweise'); else if (w !== 'keine') spiele('falsch');
+    }
+    rundenAnzahl.current = n;
+  }, [fall?.runden.length]); // eslint-disable-line react-hooks/exhaustive-deps
   const bild = useMemo(() => (fall ? szenenBild(fall) : null), [fall]);
   const raum: Raum = fall ? RAUM_FUER[fall.szenario.setting] ?? 'krankenhaus' : 'krankenhaus';
   // Marker oder Raumübersicht steuern die Kamera, bis der nächste Zug kommt
@@ -523,6 +538,13 @@ export default function Fallsimulator() {
                   )}
                 </div>
                 <PatientenMonitor werte={bild.monitor} aktiv={bild.monitorAn} titel={bild.monitorAn ? `${letzter?.uhrzeit ?? ''} Uhr` : 'Noch nicht gemessen'} />
+                <div className="audio-simton">
+                  <SimTon raum={raumFuerSetting(fotoRaum?.id ?? fall.szenario.setting)} telefon={bild.telefon && !letzter?.beendet}
+                    monitor={{ puls: bild.monitor.puls, spo2: bild.monitor.spo2, aktiv: bild.monitorAn && !letzter?.beendet }}
+                    alarm={bild.monitorAn ? gesamtAlarm(bild.monitor) : 'ok'} />
+                  {letzter && <Vorlesen key={fall.runden.length} label="Situation vorlesen"
+                    text={() => [letzter.rueckmeldung.text, letzter.situation].filter(Boolean).join(' ')} />}
+                </div>
               </div>
             )}
 

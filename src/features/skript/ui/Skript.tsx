@@ -16,6 +16,8 @@ import {
 import type { Abschnitt, Lesestand, Skript as SkriptT, SkriptBeleg } from '../typen';
 import { PageHeading } from '../../../ui/PageHeading';
 import { Markdown, type MdKontext } from './Markdown';
+import { Vorlesen } from '../../../ui/audio/Vorlesen';
+import { markdownAlsText } from '../../../ui/audio/vorlesen';
 import './skript.css';
 
 const topics = new Map<ID, Topic>(pflegeModule.topics.map((t) => [t.id, t]));
@@ -285,6 +287,7 @@ function Leser({ skript, aId, q, staende, onNeu, setStaende }: {
               ca. {leseMinuten(a.woerter)} Min.
               {!!a.belege.length && ` · Belege: ${[...new Set(a.belege.map((b) => b.kuerzel))].join(', ')}`}
               {!!a.luecken && ` · ${a.luecken} ⚠ nicht belegt`}
+              {' '}<Vorlesen key={a.id} label="Abschnitt vorlesen" text={() => `${a.titel}. ${markdownAlsText(a.markdown)}`} />
             </p>
             <Markdown text={a.markdown} k={k} />
           </section>

@@ -148,7 +148,6 @@ export function Szene({ s, fokus, onFokus, zeitraffer }: { s: Session; fokus: Ra
   }, [ziel]);
 
 
-  const [ton, setTon] = useState(false);
   const pflegeX = STANDORT[ziel];
   const blase = useBlase(z);
   const anker = blase ? (blase.quelle === 'pflege' ? { x: (pflegeX / 800) * 100, y: 52 } : ANKER[blase.quelle]) : undefined;
@@ -235,7 +234,7 @@ export function Szene({ s, fokus, onFokus, zeitraffer }: { s: Session; fokus: Ra
         {(Object.entries(TREFFER) as [RaumElement, number[]][]).map(([e, [x, y, w, h]]) => <rect key={e} x={x} y={y} width={w} height={h} onClick={() => onFokus(e)} />)}
       </g>
     </svg>
-    {z.monitorVorhanden && <div className="szene__schirm"><MiniMonitor aktiv={z.monitoring} puls={s.vitals.pulse} spo2={s.vitals.spo2} af={s.vitals.resp} alarm={z.alarm} ton={ton} /></div>}
+    {z.monitorVorhanden && <div className="szene__schirm"><MiniMonitor aktiv={z.monitoring} puls={s.vitals.pulse} spo2={s.vitals.spo2} af={s.vitals.resp} alarm={z.alarm} /></div>}
     {!z.monitorVorhanden && s.measuredAt !== null && <div className="szene__lcd" aria-hidden="true">{Math.round(s.measured.sys ?? 0)}/{Math.round(s.measured.dia ?? 0)}<small>P {Math.round(s.measured.pulse ?? 0)}</small></div>}
     {blase && anker && <div key={blase.id} className={`szene__blase is-${blase.ton} ${anker.x < 35 ? 'is-links' : anker.x > 65 ? 'is-rechts' : ''}`} style={{ left: `${anker.x}%`, top: `${anker.y}%` }} aria-hidden="true">
       <strong>{BLASEN_TITEL[blase.ton]}</strong>
@@ -244,6 +243,6 @@ export function Szene({ s, fokus, onFokus, zeitraffer }: { s: Session; fokus: Ra
     </div>
     <OrteLeiste s={s} fokus={fokus} onFokus={onFokus} />
     <StatusChips z={z} zeitraffer={zeitraffer} />
-    {z.monitorVorhanden && z.monitoring && <button type="button" className="szene__ton" aria-pressed={ton} onClick={() => setTon(!ton)}>{ton ? 'Monitorton aus' : 'Monitorton an'}</button>}
+    {/* Monitorton, Alarme, Telefon und Raumklang kommen aus dem gemeinsamen Baustein SimTon (Arbeitsplatz). */}
   </div>;
 }

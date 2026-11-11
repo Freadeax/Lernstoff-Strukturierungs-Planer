@@ -8,6 +8,8 @@ import { pruefeEingabe, VORSCHLAG, type EingabeErgebnis } from '../erzeugen';
 import { intervallText, vorschau, wiedereinreihen, type ThemenErgebnis } from '../planung';
 import { antworte, merkeOffeneSitzung, schliesseOffeneSitzungAb, schliesseSitzungAb, setzeAus, vergissOffeneSitzung } from '../store';
 import { QUELLE_LABEL, type Karte, type KartenLog, type KartenStand } from '../typen';
+import { spiele } from '../../../ui/audio/spieler';
+import { Vorlesen } from '../../../ui/audio/Vorlesen';
 
 type Antwort = Pick<KartenLog, 'cardId' | 'rating' | 'topicIds'>;
 
@@ -101,6 +103,7 @@ export function Sitzung({ karten, staende: start, retention, heute, topics, titl
     setBusy(true);
     try {
       setErgebnis(await schliesseSitzungAb(liste, topics, heute));
+      if (liste.length) spiele('fertig');
     } catch (e) {
       merkeOffeneSitzung(liste, heute);
       notify('critical', 'Ergebnis nicht an den Lernplan übertragen', e instanceof Error ? e.message : String(e));
@@ -111,6 +114,7 @@ export function Sitzung({ karten, staende: start, retention, heute, topics, titl
   async function bewerte(r: Rating) {
     if (!karte || busy) return;
     setBusy(true);
+    spiele(r === 1 ? 'falsch' : r === 2 ? 'teilweise' : 'richtig');
     try {
       const s = await antworte(karte, r, retention, heute);
       setStaende((m) => new Map(m).set(karte.id, s));
@@ -143,6 +147,7 @@ export function Sitzung({ karten, staende: start, retention, heute, topics, titl
       const g = pruefeEingabe(eingabe, karte);
       setGeprueft(g === 'leer' ? 'falsch' : g);
     }
+    spiele('umdrehen');
     setOffen(true);
   }
 
@@ -243,6 +248,8 @@ export function Sitzung({ karten, staende: start, retention, heute, topics, titl
         )}
         <div className="karten__nebenaktionen">
           <button type="button" className="small ghost" onClick={aussetzen} disabled={busy}>Karte aussetzen</button>
+          <Vorlesen key={`${karte.id}-${offen}`} label={offen ? 'Karte vorlesen' : 'Frage vorlesen'}
+            text={() => [karte.vorne, offen ? karte.hinten ?? '' : '', offen && karte.liste ? karte.liste.join('. ') : ''].filter(Boolean).join('. ')} />
           {offen && <span className="muted karten__tasten">Tasten 1–4</span>}
         </div>
       </div>

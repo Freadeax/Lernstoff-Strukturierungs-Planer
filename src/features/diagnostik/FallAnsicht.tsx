@@ -13,6 +13,9 @@ import { FrageKarte, Rueckmeldung } from './FrageKarte';
 import { auswertung, fuehreAus, monitorZustand, naechsterBefund, offeneAnrufe, offeneMeldungen, vitalwerte, type Befehl, type Lauf, type MonitorStatus } from './lauf';
 import { DiagnostikSzene } from './DiagnostikSzene';
 import type { DiagnostikFall, Untersuchung } from './typen';
+import { SimTon } from '../../ui/audio/SimTon';
+import { raumFuerSetting } from '../../ui/audio/klaenge';
+import { gesamtAlarm } from '../../ui/sim/monitor';
 
 export const REITER = [
   { id: 'beobachtung', label: 'Beobachtung' },
@@ -44,6 +47,11 @@ export function FallAnsicht({ fall, lauf, setLauf, zurueck, farbsystem, setFarbs
       </div>
 
       <DiagnostikSzene fall={fall} werte={werte} status={status} senden={senden} setReiter={setReiter} telefon={anrufe.length > 0} />
+      <div className="audio-simton">
+        <SimTon raum={raumFuerSetting(fall.bereich)} telefon={anrufe.length > 0} technisch={status === 'signalausfall'}
+          herzschlag={status !== 'signalausfall'} alarm={status === 'signalausfall' ? 'ok' : gesamtAlarm(werte)}
+          monitor={{ puls: werte.puls, spo2: werte.spo2, aktiv: status !== 'abwesend' && lauf.beendet === undefined }} />
+      </div>
 
       {anrufe.map(({ schluessel, ergebnis }) => {
         const p = parameter(ergebnis.parameter);
