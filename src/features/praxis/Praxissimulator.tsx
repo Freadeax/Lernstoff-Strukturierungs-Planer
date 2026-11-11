@@ -14,6 +14,8 @@ import { News2Badge, VitalKurve } from './VitalKurve';
 import { Szene } from './Szene';
 import { FotoSzene } from './FotoSzene';
 import { auftragsSchritte } from './auftrag';
+import { Portraet } from '../../ui/sim/Portraet';
+import { personFuer } from '../../ui/sim/personen';
 import { raumFotoFuer } from './raumfotos';
 import { PatientenMonitor } from '../../ui/sim/PatientenMonitor';
 import { SimTon } from '../../ui/audio/SimTon';
@@ -253,9 +255,13 @@ function Entscheidung({ s, send }: { s: Session; send: (c: Command) => void }) {
 /** „Dein Auftrag“ (Gestaltungsvorlage): Simulationszeit, vier Arbeitsschritte mit Stand, Weg zum Debriefing. */
 function Auftrag({ s, uhrLaeuft, onAbschluss }: { s: Session; uhrLaeuft: boolean; onAbschluss: () => void }) {
   const schritte = auftragsSchritte(s);
+  const person = personFuer('praxis', s.scenario.id);
+  const z = szenenZustand(s);
+  const zustand = z.komplikation || z.atemnot >= 2 || z.alarm === 'rot' ? 'kritisch' : z.atemnot >= 1 || z.schmerz >= 2 ? 'angestrengt' : 'stabil';
   const aktuell = schritte.findIndex(x => !x.erledigt);
   return <aside className="praxis-auftrag" aria-labelledby="praxis-auftrag-titel">
     <h3 id="praxis-auftrag-titel">Dein Auftrag</h3>
+    {person && <Portraet person={person} zustand={zustand} groesse={56} mitName className="praxis-auftrag__person" />}
     <p className={`praxis-auftrag__zeit ${uhrLaeuft ? 'is-laeuft' : ''}`}>Simulationszeit · {clock(s.time)} · {uhrLaeuft ? 'läuft' : 'pausiert'}</p>
     <p className="praxis-auftrag__ziel">{s.scenario.recommendation}</p>
     <ol className="praxis-auftrag__schritte">{schritte.map((x, i) => <li key={x.id} className={x.erledigt ? 'is-erledigt' : i === aktuell ? 'is-aktuell' : ''} aria-current={i === aktuell ? 'step' : undefined}>
