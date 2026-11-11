@@ -28,6 +28,11 @@ Eintrag in `src/features/diagnostik/faelle.ts` (Format `typen.ts`). `faelle.test
 Therapie-Flags passen zu Anordnungen, Fragen verweisen auf vorhandene Befunde, BGA-Lösung stimmt mit der Deutung
 überein, und jede Befundmarke liegt dort, wo sich das Phantom vom Normalbefund unterscheidet.
 
+**Kinderfälle:** Ist die Patientin oder der Patient jünger als 14 Jahre (`istKind`), gelten im Labor die
+Kinder-Referenzbereiche (`kind` in `parameter.ts`, bisher Leukozyten, Hb, Kreatinin, Harnstoff; sonst der
+Erwachsenenbereich), die Tafel zeigt dann „(Kind)“. Fälle: Asthmaanfall beim Schulkind (Raum 21) und Exsikkose
+beim Kleinkind (Raum 20). Die Monitor-Alarmgrenzen sind weiter die für Erwachsene.
+
 ## Echte Bilder
 
 - **Öffentlich** (`public/bildgebung/…`, Quelle `bilder`): nur frei lizenziert (CC BY, CC BY-SA, gemeinfrei) mit Urheber,

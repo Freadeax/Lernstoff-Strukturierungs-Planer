@@ -25,22 +25,33 @@ const ZIEL: Record<string, { reiter: Reiter; text: string }> = {
   arbeitsplatz: { reiter: 'uebergabe', text: 'Ärztin oder Arzt informieren' },
   rufanlage: { reiter: 'uebergabe', text: 'Ärztin oder Arzt informieren' },
   nachttisch: { reiter: 'labor', text: 'Labor anfordern' },
+  // Kinderzimmer
+  kind: { reiter: 'beobachtung', text: 'ansehen und beobachten' },
+  mutter: { reiter: 'beobachtung', text: 'Mutter befragen: Trinkmenge, Windeln, Verlauf' },
+  trinkbecher: { reiter: 'beobachtung', text: 'Trinkmenge abschätzen' },
+  thermometer: { reiter: 'beobachtung', text: 'Temperatur messen' },
+  fingerclip: { reiter: 'beobachtung', text: 'Sättigung ablesen' },
+  sauerstoff: { reiter: 'beobachtung', text: 'Sauerstoff nach Anordnung' },
+  spacer: { reiter: 'beobachtung', text: 'Inhalation mit Spacer' },
 };
+
+const SENSOR = ['fingersensor', 'fingerclip'];
 
 export function DiagnostikSzene({ fall, werte, status, senden, setReiter, telefon }: {
   fall: DiagnostikFall; werte: MonitorWerte; status: MonitorStatus; senden: (b: Befehl) => void; setReiter: (r: Reiter) => void; telefon: boolean;
 }) {
   const [fokus, setFokus] = useState<{ x: number; y: number } | null>(null);
-  const raum = RAEUME[raumFuerZustand(fall.raum, status === 'abwesend' ? 'abwesend' : undefined)];
+  // Gleiche Raumvariante wie die Bühne (z. B. Sensor am Kind sichtbar), damit die Hotspots passen.
+  const raum = RAEUME[raumFuerZustand(fall.raum, status)];
   const patientName = fall.patient.name;
 
   const hotspots: Hotspot[] = raum.hotspots
-    .filter((h) => ZIEL[h.id] || h.id === 'patient')
+    .filter((h) => ZIEL[h.id])
     .map((h, i) => {
       const z = ZIEL[h.id];
-      const istPatient = h.id === 'patient';
+      const istPatient = h.id === 'patient' || h.id === 'kind';
       // Abgerutschter Fingersensor: Hotspot am Sensor bzw. Monitor behebt ihn.
-      if (status === 'signalausfall' && (h.id === 'fingersensor' || (h.id === 'monitor' && !raum.hotspots.some((x) => x.id === 'fingersensor')))) {
+      if (status === 'signalausfall' && (SENSOR.includes(h.id) || (h.id === 'monitor' && !raum.hotspots.some((x) => SENSOR.includes(x.id))))) {
         return { id: h.id, label: 'SpO₂-Signal fehlt: Fingersensor prüfen und neu anlegen', kurz: '!', x: h.x, y: h.y, aktiv: true, onClick: () => senden({ typ: 'sensor' }) };
       }
       return {

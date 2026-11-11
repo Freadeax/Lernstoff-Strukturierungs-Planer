@@ -1,7 +1,7 @@
 // Laufender Diagnostik-Fall: Zustand, Befehle und Auswertung. Rein und deterministisch;
 // die Oberfläche hält nur den Zustand und schickt Befehle.
 
-import { bewerte, parameter } from '../../ui/sim/labor/parameter';
+import { bewerte, istKind, parameter } from '../../ui/sim/labor/parameter';
 import { kumulativ, werteAuftrag, type Auftrag, type AuftragsErgebnis, type Ergebnis, type Flags, type Prioritaet, wahrerWert } from '../../ui/sim/labor/modell';
 import { benoetigteRoehrchen, STANDARD_ABNAHME, type Abnahme } from '../../ui/sim/labor/praeanalytik';
 import type { MonitorWerte } from '../../ui/sim/monitor';
@@ -60,7 +60,7 @@ export function starte(fall: DiagnostikFall): Lauf {
 const log = (l: Lauf, text: string, art: LogEintrag['art'] = 'system'): LogEintrag[] => [...l.log, { minute: l.minute, text, art }];
 
 export function ergebnisse(l: Lauf, fall: DiagnostikFall): AuftragsErgebnis[] {
-  return l.auftraege.map((a) => werteAuftrag(a, fall.labor, l.flags, fall.patient.geschlecht));
+  return l.auftraege.map((a) => werteAuftrag(a, fall.labor, l.flags, fall.patient.geschlecht, istKind(fall.patient.alter)));
 }
 
 export const anrufSchluessel = (e: Ergebnis, a: Auftrag) => `${e.parameter}@${a.id}`;
@@ -271,5 +271,5 @@ export function letzterWert(l: Lauf, fall: DiagnostikFall, id: string): { wert: 
   const r = befundReihen(l, fall)[id];
   if (!r?.length) return undefined;
   const w = r[r.length - 1].wert;
-  return { wert: w, flag: bewerte(parameter(id), w, fall.patient.geschlecht) };
+  return { wert: w, flag: bewerte(parameter(id), w, fall.patient.geschlecht, istKind(fall.patient.alter)) };
 }

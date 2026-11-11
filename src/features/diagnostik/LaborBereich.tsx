@@ -1,7 +1,7 @@
 // Labor im Fall: Werte anfordern, Probe abnehmen (Präanalytik als Entscheidungen), Eingang und Kumulativbefund.
 
 import { useMemo, useState } from 'react';
-import { GRUPPEN, PARAMETER, parameter, type Gruppe } from '../../ui/sim/labor/parameter';
+import { GRUPPEN, istKind, PARAMETER, parameter, type Gruppe } from '../../ui/sim/labor/parameter';
 import { benoetigteRoehrchen, reihenfolgeFehler, ROEHRCHEN, STANDARD_ABNAHME, venoes, type Abnahme, type Farbsystem } from '../../ui/sim/labor/praeanalytik';
 import { uhrzeit, type Prioritaet } from '../../ui/sim/labor/modell';
 import { LaborTafel } from '../../ui/sim/labor/LaborTafel';
@@ -156,7 +156,7 @@ export function LaborBereich({ fall, lauf, senden, farbsystem, setFarbsystem }: 
 
       <section className="card dx-karte" aria-labelledby="dx-kumulativ">
         <h3 id="dx-kumulativ">Kumulativbefund</h3>
-        <LaborTafel reihen={reihen} geschlecht={fall.patient.geschlecht} startzeit={fall.startzeit} neuAb={neuAb} />
+        <LaborTafel reihen={reihen} geschlecht={fall.patient.geschlecht} startzeit={fall.startzeit} neuAb={neuAb} kind={istKind(fall.patient.alter)} />
       </section>
     </div>
   );
