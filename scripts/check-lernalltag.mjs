@@ -277,10 +277,18 @@ try {
     const stufen = page.locator('.fs-stufen');
     await stufen.waitFor();
     assert.match(await stufen.innerText(), /Abgerufen\s*1 von/);
+    // Herkunft jeder Zahl, Zeitraum und Hinweis bei kleiner Datenbasis
+    const gesamtKarte = page.locator('.fs-gesamt');
+    assert.match(await gesamtKarte.locator('.eyebrow').innerText(), /seit .*Tag/);
+    await gesamtKarte.locator('.fs-herkunft summary').click();
+    const herkunft = await gesamtKarte.locator('.fs-herkunft dl').innerText();
+    for (const w of ['Lernzeit', 'Abfragen', 'Themen sicher', 'Quelle:', 'Zeitraum:']) assert(herkunft.includes(w), `Herkunft ohne ${w}`);
+    assert.match(await gesamtKarte.locator('.fs-vorlaeufig').innerText(), /Kleine Datenbasis/);
+    assert.match(await stufen.innerText(), /Vorläufig/);
     await axe(page, 'Fortschritt');
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Überlauf bei ${width}px`);
     assert.deepEqual(errors, []);
-    console.log(`Lernalltag ${width}px: liegen gebliebene Blöcke, Dienstplan mit Vorschau, Kompetenzbereiche, Kalenderexport, CE-Matrix, Themenpflege, Skript-Belegprüfung und Fassungen, Landkarte als Liste, Board mit Knöpfen und Rückgängig, Fundstelle, Original nebeneinander, Lese-/Dublettenhinweise, Fehlerheft-Rückwege, Lernstufen und WCAG bestanden.`);
+    console.log(`Lernalltag ${width}px: liegen gebliebene Blöcke, Dienstplan mit Vorschau, Kompetenzbereiche, Kalenderexport, CE-Matrix, Themenpflege, Skript-Belegprüfung und Fassungen, Landkarte als Liste, Board mit Knöpfen und Rückgängig, Fundstelle, Original nebeneinander, Lese-/Dublettenhinweise, Fehlerheft-Rückwege, Lernstufen, Herkunft der Fortschrittszahlen und WCAG bestanden.`);
     await context.close();
   }
 } finally { await browser.close(); }
