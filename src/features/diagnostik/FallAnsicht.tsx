@@ -399,7 +399,7 @@ function Zeitleiste({ fall, lauf }: { fall: DiagnostikFall; lauf: Lauf }) {
       </div>
       <VerlaufKurve key={vital} name={v.name} einheit={v.einheit} punkte={vitalReihe(lauf, fall, vital)} band={band}
         format={(n) => String(Math.round(n))} zeitText={(m) => uhrzeit(fall.startzeit, m)} marken={marken} />
-      <p className="muted dx-klein">Die gestrichelten Linien sind deine Maßnahmen. {!band ? 'Für diese Altersgruppe gibt es kein Profil, deshalb ohne grünes Band.' : `Grün: unauffälliger Bereich nach ${alarmProfil(gruppe).label.replace(/\.$/, "")} (Profil).`}</p>
+      <p className="muted dx-klein">Die gestrichelten Linien sind deine Maßnahmen. {!band ? 'Für diese Altersgruppe gibt es kein Profil, deshalb ohne grünes Band.' : `Grün: Normalbereich ${gruppe === 'erwachsen' ? 'für Erwachsene' : `nach Kinderprofil (${alarmProfil(gruppe).label.replace('Alarmgrenzen ', '').replace(/\.$/, '')}, ungeprüft)`}. Die Alarmfarben des Monitors folgen ${gruppe === 'erwachsen' ? 'NEWS2 und warnen früher' : 'denselben Grenzen'}.`}</p>
     </section>
   );
 }
