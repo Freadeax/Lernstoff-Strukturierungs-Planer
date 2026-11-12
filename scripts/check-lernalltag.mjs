@@ -129,22 +129,23 @@ try {
     await axe(page, 'Themenpflege');
     const nameFeld = page.getByLabel('Name', { exact: true });
     const umbenennen = page.getByRole('button', { name: 'Umbenennen' });
-    // Füllen und Klicken zusammen wiederholen, falls ein spätes Nachladen das Feld zurückgesetzt hat.
-    for (let i = 0; i < 3 && !(await umbenennen.isEnabled()); i++) {
+    const nameInDb = () => page.evaluate(async () => {
+      const open = indexedDB.open('lernstoff-planer');
+      const db = await new Promise((resolve) => { open.onsuccess = () => resolve(open.result); });
+      return new Promise((resolve) => { const r = db.transaction('topics').objectStore('topics').get('thema.eigen.test-a'); r.onsuccess = () => resolve(r.result?.name); });
+    });
+    // Unter Last kann die Seite zwischen Füllen und Klick noch einmal neu aufbauen; dann ist die Eingabe weg und
+    // der Klick trifft einen gesperrten Knopf. Maßgeblich ist deshalb, was in der Datenbank ankommt: bis zu drei Versuche.
+    for (let i = 0; i < 3 && await nameInDb() !== 'Testthema Verbandwechsel'; i++) {
       await nameFeld.fill('Testthema Verbandwechsel');
-      if (await umbenennen.isEnabled()) break;
-      await page.waitForTimeout(300);
+      assert.equal(await nameFeld.inputValue(), 'Testthema Verbandwechsel');
+      await umbenennen.click({ timeout: 5000 }).catch(() => undefined);
+      await page.locator('.thema__verwalten').getByText(/Umbenannt\.|gibt es schon/).first().waitFor({ timeout: 5000 }).catch(() => undefined);
     }
-    assert.equal(await nameFeld.inputValue(), 'Testthema Verbandwechsel');
-    await umbenennen.click();
-    await page.locator('.thema__verwalten').getByText(/Umbenannt\.|gibt es schon/).first().waitFor({ timeout: 10000 }).catch(() => undefined);
+    assert.equal(await nameInDb(), 'Testthema Verbandwechsel', `Umbenennen nicht gespeichert: ${await page.locator('.thema__verwalten').innerText()}`);
     await page.getByRole('heading', { name: 'Testthema Verbandwechsel' }).waitFor({ timeout: 15000 })
       .catch(async (e) => {
-        const inDb = await page.evaluate(async () => {
-          const open = indexedDB.open('lernstoff-planer');
-          const db = await new Promise((resolve) => { open.onsuccess = () => resolve(open.result); });
-          return new Promise((resolve) => { const r = db.transaction('topics').objectStore('topics').get('thema.eigen.test-a'); r.onsuccess = () => resolve(r.result?.name); });
-        });
+        const inDb = await nameInDb();
         throw new Error(`Umbenennen nicht sichtbar (Name in der Datenbank: ${inDb}; Überschrift: ${await page.locator('h1').first().innerText().catch(() => '?')}): ${await page.locator('.thema__verwalten').innerText()}\n${e.message}`);
       });
     await page.getByLabel('Zusammenführen mit').selectOption('thema.eigen.test-b');
