@@ -47,6 +47,7 @@ const NotfallTrainer = lazy(() => import('./features/notfall/NotfallTrainer'));
 const HoerTrainer = lazy(() => import('./features/hoeren/HoerTrainer'));
 const ArzneimittelTrainer = lazy(() => import('./features/arzneimittel/ArzneimittelTrainer'));
 const RechtTrainer = lazy(() => import('./features/recht/RechtTrainer'));
+const Schnellsuche = lazy(() => import('./features/schnellsuche/Schnellsuche'));
 const UebenSeite = lazy(() => import('./features/ueben/UebenSeite'));
 const ThemaSeite = lazy(() => import('./features/thema/ThemaSeite'));
 
@@ -75,6 +76,7 @@ function View() {
     case '/lernen/board': return <Page title="Mein Themenboard" intro="Dein Arbeitsstand je Thema: Themenpool, diese Woche, in Arbeit, erarbeitet. Ob du ein Thema sicher kannst, zeigt der Wissensstand aus Abfragen im Lernplan."><WidgetGrid widgets={[WIDGETS.board]} allowHide={false} /></Page>;
     case '/lernen/skript': return <Skript />;
     case '/lernen/karten': return <Karteikarten />;
+    case '/lernen/schnellsuche': return <Schnellsuche />;
     case '/lernen/rechnen': return <Rechentrainer />;
     case '/lernen/fehler': return <Fehlerheft />;
     case '/lernen/fall': return <Fallsimulator />;
