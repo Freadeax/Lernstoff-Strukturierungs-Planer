@@ -12,7 +12,7 @@ Kurzfassung für jede Änderung, egal ob von Hand oder von Claude in einem eigen
 4. Squash-Merge auf `main`, Arbeitszweig sofort löschen. `main` ist der einzige dauerhafte Branch.
 5. Maßgeblich sind die lokalen Prüfungen (`npm run check`), nicht GitHub. Veröffentlicht wird über Cloudflare Pages,
    das jeden Push auf `main` selbst baut (siehe `docs/HOSTING-CLOUDFLARE.md`). Einziger verbliebener GitHub-Workflow ist
-   `pages.yml`: Er versorgt bis zum Geräteumzug die alte Adresse freadeax.github.io und wird danach gelöscht.
+   `pages.yml`: Er versorgt die zweite Adresse freadeax.github.io, die vorerst parallel weiterläuft (Philipp, 2026-11-12).
    Keine neuen GitHub Actions anlegen; Tests laufen lokal mit `npm run check`.
 6. Unit-Tests haben ein Zeitlimit von 20 s je Test (`vite.config.ts`, `test.testTimeout`). OCR-, Diagnostik- und
    Simulationstests brauchen auf langsamen Rechnern deutlich länger als die 5 s Standard von Vitest.

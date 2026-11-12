@@ -3,11 +3,15 @@ import { adressArt, mussUmziehen } from './hosting';
 
 describe('Umzugshinweis', () => {
   it('erscheint nur auf der alten Adresse und nur, wenn eine neue eingetragen ist', () => {
-    expect(mussUmziehen('freadeax.github.io', '')).toBe(false);
-    expect(mussUmziehen('freadeax.github.io', 'https://lernstoff.pages.dev/')).toBe(true);
-    expect(mussUmziehen('lernstoff.pages.dev', 'https://lernstoff.pages.dev/')).toBe(false);
-    expect(mussUmziehen('127.0.0.1', 'https://lernstoff.pages.dev/')).toBe(false);
-    expect(mussUmziehen('freadeax.github.io', 'kaputt')).toBe(false);
+    expect(mussUmziehen('freadeax.github.io', '', true)).toBe(false);
+    expect(mussUmziehen('freadeax.github.io', 'https://lernstoff.pages.dev/', true)).toBe(true);
+    expect(mussUmziehen('lernstoff.pages.dev', 'https://lernstoff.pages.dev/', true)).toBe(false);
+    expect(mussUmziehen('127.0.0.1', 'https://lernstoff.pages.dev/', true)).toBe(false);
+    expect(mussUmziehen('freadeax.github.io', 'kaputt', true)).toBe(false);
+  });
+
+  it('bleibt aus, solange beide Adressen parallel laufen (UMZUG_HINWEIS_AKTIV = false)', () => {
+    expect(mussUmziehen('freadeax.github.io', 'https://lernstoff.pages.dev/')).toBe(false);
   });
 
   it('ordnet die Adresse für die sichtbare Angabe ein', () => {
