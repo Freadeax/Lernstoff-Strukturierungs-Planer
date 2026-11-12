@@ -27,4 +27,4 @@ Ausführliche Fassung mit Diagramm: https://claude.ai/artifact/HrsJYuzKtmhcm4WAB
 
 ## Hosting für Handy und iPad
 
-Die PWA wird unter https://lernstoff-planer.pages.dev/ über Cloudflare Pages veröffentlicht (baut jeden Push auf `main` selbst, Sicherheitsheader aus `public/_headers`, siehe `docs/HOSTING-CLOUDFLARE.md`). Die alte Adresse https://freadeax.github.io/Lernstoff-Strukturierungs-Planer/ (`.github/workflows/pages.yml`) bleibt bis zum Umzug aller Geräte erreichbar und zeigt einen Umzugshinweis. Tests und Browserprüfungen laufen vor dem Push lokal; nach dem Deployment wird die veröffentlichte Seite geprüft.
+Die PWA wird unter https://lernstoff-planer.pages.dev/ über Cloudflare Pages veröffentlicht (baut jeden Push auf `main` selbst, Sicherheitsheader aus `public/_headers`, siehe `docs/HOSTING-CLOUDFLARE.md`). Vorerst läuft parallel weiter https://freadeax.github.io/Lernstoff-Strukturierungs-Planer/ (`.github/workflows/pages.yml`), ohne Umzugshinweis (`UMZUG_HINWEIS_AKTIV` in `src/core/hosting.ts`). Tests und Browserprüfungen laufen vor dem Push lokal; nach dem Deployment wird die veröffentlichte Seite geprüft.

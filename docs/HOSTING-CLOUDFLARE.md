@@ -35,8 +35,10 @@ und schreibt Projektdateien um, also nicht verwenden.
 ## Was danach passiert
 
 - Claude prüft auf der neuen Adresse, ob alle Header ankommen und die App offline startet.
-- Mit `NEUE_ADRESSE` zeigt die alte Adresse oben einen Umzugshinweis mit Anleitung.
-- **Lernstand mitnehmen:** Der Browser trennt die Daten je Adresse, es geht nur über eine Sicherung:
+- **Stand 2026-11-12: Beide Adressen laufen vorerst parallel weiter**, beide bekommen jeden Stand von `main`.
+  Der Umzugshinweis ist deshalb aus (`UMZUG_HINWEIS_AKTIV = false` in `src/core/hosting.ts`). Für den späteren Umzug
+  auf `true` stellen, dann zeigt die github.io-Adresse oben einen Umzugshinweis mit Anleitung.
+- **Lernstand mitnehmen (wenn umgezogen wird):** Der Browser trennt die Daten je Adresse, es geht nur über eine Sicherung:
   alte Adresse → Datensicherung → Sicherung erstellen (gern mit Passwort) → neue Adresse öffnen,
   zum Home-Bildschirm hinzufügen → Sicherung einspielen → API-Schlüssel und „Große Dateien“ neu eintragen
   → alte App vom Home-Bildschirm löschen.

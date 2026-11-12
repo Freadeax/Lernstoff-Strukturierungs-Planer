@@ -167,7 +167,7 @@ export function Einstellungen() {
       <ul className="settings-app-info">
         <li>App-Version: <code data-testid="build-id">{BUILD_ID}</code></li>
         <li>Adresse: <strong>{adressText()}</strong></li>
-        {NEUE_ADRESSE && <li>Offizielle Adresse: <a className="text-link" href={NEUE_ADRESSE}>{NEUE_ADRESSE.replace(/^https:\/\//, '').replace(/\/$/, '')}</a></li>}
+        {NEUE_ADRESSE && <li>Hauptadresse: <a className="text-link" href={NEUE_ADRESSE}>{NEUE_ADRESSE.replace(/^https:\/\//, '').replace(/\/$/, '')}</a></li>}
       </ul>
       <p className="muted">Jede Adresse hat ihren eigenen Speicher. Lernstand und Einstellungen wandern nur per Datensicherung von einer Adresse oder einem Gerät zum anderen. Die App-Version hilft, wenn du einen Fehler meldest.</p>
     </section>
