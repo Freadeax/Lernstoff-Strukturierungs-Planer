@@ -3,6 +3,8 @@
 //   • ohne Netz: Neuladen und kalter Start (neuer Tab) zeigen die App, alle Menüseiten laden ihre Teile aus dem Cache
 //   • die Build-ID ist sichtbar (Datensicherung) und nicht der Entwicklungs-Platzhalter
 //   • neuere Datenbank aus einem anderen Fenster: Upgrade wird nicht blockiert, alter Tab zeigt „neu laden“
+//   • neue Veröffentlichung (dist/version.json + index.html kurz geändert): EIN Neuladen holt die neue Startseite
+//     am Service Worker vorbei, die App erkennt die neue Version und zeigt den Hinweis (iPhone-Problem)
 // Gedacht nach jedem Update von vite-plugin-pwa/Workbox.
 import { chromium } from 'playwright';
 import fs from 'node:fs';
@@ -35,6 +37,27 @@ try {
   await page.goto(base + '#/system/sicherung', { waitUntil: 'networkidle' });
   const version = await page.locator('text=App-Version').first().textContent();
   assert(version && !/Entwicklung/.test(version) && /\d{4}-\d{2}-\d{2}/.test(version), `Build-ID sichtbar: ${version}`);
+
+  // Neue Veröffentlichung simulieren: Der Server liefert eine andere version.json und eine geänderte Startseite.
+  const versionDatei = 'dist/version.json';
+  const startDatei = 'dist/index.html';
+  const alteVersion = fs.readFileSync(versionDatei, 'utf8');
+  const alteStart = fs.readFileSync(startDatei, 'utf8');
+  try {
+    fs.writeFileSync(versionDatei, JSON.stringify({ build: 'neu · Prüfung' }));
+    fs.writeFileSync(startDatei, alteStart.replace('</head>', '<meta name="pruef-marke" content="neu"></head>'));
+    await page.reload({ waitUntil: 'load' });
+    const marke = await page.evaluate(() => document.querySelector('meta[name="pruef-marke"]')?.getAttribute('content'));
+    if (marke !== 'neu') fehler.push('Neuladen zeigt die alte Startseite aus dem Cache statt der neuen vom Server');
+    await page.locator('.shell__aktualisierung').waitFor({ timeout: 10000 })
+      .catch(() => fehler.push('Neue Version auf dem Server: kein Hinweis „Jetzt neu laden“'));
+  } finally {
+    fs.writeFileSync(versionDatei, alteVersion);
+    fs.writeFileSync(startDatei, alteStart);
+  }
+  await page.reload({ waitUntil: 'networkidle' });
+  await page.waitForTimeout(500);
+  if (await page.locator('.shell__aktualisierung').count()) fehler.push('Gleiche Version auf dem Server, trotzdem Hinweis auf neue Version');
 
   await ctx.setOffline(true);
   await page.reload({ waitUntil: 'load' });
@@ -82,4 +105,4 @@ try {
   await browser.close();
 }
 if (fehler.length) { console.error(fehler.join('\n')); process.exit(1); }
-console.log(`Offline-Start ok: ${routes.length} Seiten ohne Netz geladen; neuere Datenbank in anderem Fenster zeigt den Hinweis.`);
+console.log(`Offline-Start ok: ${routes.length} Seiten ohne Netz geladen; neue Version kommt mit einem Neuladen; neuere Datenbank in anderem Fenster zeigt den Hinweis.`);
