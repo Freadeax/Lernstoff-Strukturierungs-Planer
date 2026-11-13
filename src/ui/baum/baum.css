@@ -67,3 +67,5 @@
 }
 @media (prefers-reduced-motion: reduce) { .baum__auf svg { transition: none; } }
 :root[data-motion="reduce"] .baum__auf svg { transition: none; }
+/* Am Touchscreen hängt „Umhängen“ (Menü) um; ein kleiner Ziehgriff wäre dort fummelig. */
+@media (pointer: coarse) { .baum__griff { display: none; } }
