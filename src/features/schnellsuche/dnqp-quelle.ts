@@ -1,7 +1,25 @@
 // Anschluss an die DNQP-Fachdaten des Expertenstandards-Lernmoduls (src/features/dnqp/standards.ts).
-// Die Daten werden dort gepflegt und hier nur gelesen. Solange sie noch nicht auf main sind, bleibt die Liste leer
-// und der Sucher arbeitet mit Katalog, Trainer, Glossar und Instrumenten.
+// Die Daten werden dort gepflegt und hier nur gelesen und auf die Form des Suchers abgebildet.
 
+import { STANDARDS } from '../dnqp/standards';
+import type { Teil } from '../dnqp/typen';
 import type { DnqpStandard } from './quellen';
 
-export const DNQP_STANDARDS: DnqpStandard[] = [];
+const texte = (t: Teil[]) => t.map((x) => `${x.id}: ${x.text}`);
+
+export const DNQP_STANDARDS: DnqpStandard[] = STANDARDS.map((s) => ({
+  id: s.id,
+  titel: s.titel,
+  kurztitel: s.kurztitel,
+  synonyme: s.synonyme,
+  fassungen: s.fassungen.map(({ jahr, art }) => ({ jahr, art })),
+  zielsetzung: s.zielsetzung,
+  begruendung: s.begruendung,
+  kriterien: s.kriterien.map((k) => ({
+    id: k.id, nr: k.ebene, thema: k.thema,
+    struktur: texte(k.struktur), prozess: texte(k.prozess), ergebnis: texte(k.ergebnis),
+    stichworte: k.stichworte,
+  })),
+  kernaussagen: [...s.merke, ...s.fehlvorstellungen.map((f) => f.richtig)],
+  themaIds: s.themaIds,
+}));
