@@ -242,6 +242,7 @@ dialog { border: 2px solid var(--color-outline); }
 .omnibar__type--quelle { color: var(--color-text); font-weight: 700; }
 .filterbar__gilt { margin: 8px 0 0; font-size: 0.8125rem; }
 .datenhinweise { margin: 0; display: grid; gap: 14px; } .datenhinweise dt { font-weight: 600; } .datenhinweise dd { margin: 4px 0 0; color: var(--color-text-muted); }
+.datenhinweise-kurz { margin: 0 0 16px; padding-left: 1.2em; display: grid; gap: 8px; }
 
 /* ---------- Favoriten und „Zuletzt“ ---------- */
 .shell__stern { flex-shrink: 0; color: var(--color-text-muted); }
