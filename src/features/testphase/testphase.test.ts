@@ -73,3 +73,49 @@ describe('Geräteangaben', () => {
     expect(geraetAus('Mozilla/5.0 (Windows NT 10.0) Chrome/130.0 Safari/537.36 Edg/130.0', 1440, false, 'x')).toMatchObject({ art: 'Rechner', browser: 'Edge' });
   });
 });
+
+import { bearbeitungen, gesammelte, leseSammelDatei, sammelDatei, setzeBearbeitung } from './testphase';
+import { NEUIGKEITEN, ungesehen } from './neuigkeiten';
+import { UNTERSEITEN } from '../../ui/shell/nav';
+
+describe('Bearbeitungsstand und Sammel-Datei', () => {
+  it('merkt Stand und Notiz, „neu“ ohne Notiz fällt weg', () => {
+    setzeBearbeitung('a', { stand: 'erledigt', notiz: ' PR #1 ' });
+    expect(bearbeitungen().a).toEqual({ stand: 'erledigt', notiz: 'PR #1' });
+    setzeBearbeitung('a', { stand: 'neu' });
+    expect(bearbeitungen().a).toBeUndefined();
+  });
+  it('nimmt Rückmeldungen samt Stand auf ein anderes Gerät mit, ohne Vorhandenes zu überschreiben', () => {
+    sammle([basis(), basis({ id: 'b' })]);
+    setzeBearbeitung('abc123', { stand: 'erledigt' });
+    const datei = sammelDatei();
+    // anderes Gerät: leer, nur „b“ schon mit eigenem Stand
+    const m = new Map<string, string>();
+    vi.stubGlobal('localStorage', { getItem: (k: string) => m.get(k) ?? null, setItem: (k: string, v: string) => void m.set(k, v), removeItem: (k: string) => void m.delete(k) });
+    setzeBearbeitung('b', { stand: 'verworfen' });
+    const r = leseSammelDatei(datei);
+    expect(r).toMatchObject({ neu: 2, doppelt: 0, fehler: 0 });
+    expect(gesammelte()).toHaveLength(2);
+    expect(bearbeitungen()).toMatchObject({ abc123: { stand: 'erledigt' }, b: { stand: 'verworfen' } });
+    expect(() => leseSammelDatei('{"art":"anders"}')).toThrow();
+    expect(() => leseSammelDatei('kein json')).toThrow();
+  });
+  it('schreibt Stand in die CSV', () => {
+    setzeBearbeitung('abc123', { stand: 'in-arbeit', notiz: 'prüfe' });
+    expect(alsCsv([basis()], () => undefined, bearbeitungen())).toContain('In Arbeit;prüfe');
+  });
+});
+
+describe('Was ist neu', () => {
+  it('verweist nur auf vorhandene Seiten, neuestes zuerst', () => {
+    const pfade = new Set([...flatNav(NAV), ...UNTERSEITEN].map((n) => n.path));
+    for (const n of NEUIGKEITEN) expect(pfade.has(n.pfad), n.titel).toBe(true);
+    const daten = NEUIGKEITEN.map((n) => n.datum);
+    expect([...daten].sort().reverse()).toEqual(daten);
+  });
+  it('zeigt beim ersten Besuch nichts als neu, danach nur Jüngeres', () => {
+    const liste = [{ datum: '2026-12-01', titel: 'b', text: '', pfad: '/' }, { datum: '2026-11-01', titel: 'a', text: '', pfad: '/' }];
+    expect(ungesehen('', liste)).toEqual([]);
+    expect(ungesehen('2026-11-01', liste).map((n) => n.titel)).toEqual(['b']);
+  });
+});

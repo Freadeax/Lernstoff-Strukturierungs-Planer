@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect } from 'react';
 import { Shell } from './ui/shell/Shell';
 import { navigate, useRoute } from './ui/shell/router';
-import { REDIRECTS, gruppenPfad, uebungsId } from './ui/shell/nav';
+import { REDIRECTS, gruppenPfad, passtDazuId } from './ui/shell/nav';
 import { PageBoundary } from './ui/shell/PageBoundary';
 import { WidgetGrid } from './ui/widget/Dashboard';
 import { WIDGETS } from './widgets/registry';
@@ -142,7 +142,7 @@ export function App() {
   // Schlüssel je Seite: beim Seitenwechsel wird der Rahmen neu aufgebaut, die Einblend-Animation läuft erneut.
   // Unterseiten des Klassenmodus teilen sich einen Schlüssel, damit ihr Zustand erhalten bleibt.
   const seite = path.startsWith('/lernen/klasse') ? '/lernen/klasse' : path;
-  const uebung = uebungsId(path);
+  const uebung = passtDazuId(path);
   return <Shell><PageBoundary path={path}><div className="route" key={seite} style={{ '--kopf-marke': JSON.stringify(gruppenPfad(seite)) } as React.CSSProperties}><View />
     {uebung && <Suspense fallback={null}><PasstDazu id={uebung} path={path} /></Suspense>}</div></PageBoundary></Shell>;
 }

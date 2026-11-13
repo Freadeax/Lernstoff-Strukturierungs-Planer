@@ -138,6 +138,17 @@ export function uebungsId(path: string): string | undefined {
   return flatNav(NAV.find((i) => i.id === 'ueben')?.children ?? []).find((i) => i.path === path)?.id;
 }
 
+/** Lern- und Materialseiten außerhalb von „Üben“, die „Passt dazu“ ebenfalls bekommen (feste Ziele). */
+export const LERNSEITEN = new Set(['karten', 'skript', 'dnqp', 'schnellsuche', 'ce', 'themen', 'landkarte', 'board', 'fortschritt', 'dokumente', 'zusammenfassen']);
+
+/** Menü-ID, für die „Passt dazu“ erscheint: jede Übung und die Lern- und Materialseiten aus LERNSEITEN. */
+export function passtDazuId(path: string): string | undefined {
+  const u = uebungsId(path);
+  if (u) return u;
+  const n = flatNav(NAV).find((i) => i.path === path);
+  return n && LERNSEITEN.has(n.id) ? n.id : undefined;
+}
+
 /** Die drei Bündel unter „Üben“ (für die Übersichtsseite). */
 export function uebenGruppen(): NavItem[] {
   return (NAV.find((i) => i.id === 'ueben')?.children ?? []).filter((i) => i.children?.length);

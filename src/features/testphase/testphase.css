@@ -32,3 +32,12 @@
 .testphase__zahlen div { background: var(--color-surface-sunken); border-radius: 8px; padding: var(--space-2); }
 .testphase__zahlen dt { font-size: 0.75rem; color: var(--color-text-muted); }
 .testphase__zahlen dd { margin: 0; font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.testphase__datei { position: relative; overflow: hidden; cursor: pointer; }
+.testphase__datei input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.testphase__datei:focus-within { outline: 3px solid var(--color-focus, var(--color-primary)); outline-offset: 2px; }
+.testphase__bearbeiten { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-2); }
+.testphase__bearbeiten label { display: flex; flex-direction: column; gap: 2px; font-size: 0.75rem; font-weight: 600; }
+.testphase__bearbeiten label:nth-child(2) { flex: 1 1 12rem; }
+.testphase__neu p { margin: var(--space-1) 0; }
+.testphase__marke { margin-left: var(--space-2); }
+.testphase__klein { font-size: 0.75rem; }

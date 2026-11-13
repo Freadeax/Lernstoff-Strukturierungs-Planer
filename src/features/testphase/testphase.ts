@@ -56,6 +56,7 @@ export const AUFTRAEGE: Auftrag[] = [
   { id: 'karten', titel: 'Karteikarten lernen', pfad: '/lernen/karten', minuten: 5, ziel: 'Kommst du ohne Erklärung durch eine Lernrunde?', schritte: 'Eine Runde Karteikarten starten und jede Karte bewerten.' },
   { id: 'trainer', titel: 'Einen Trainer spielen', pfad: '/lernen/ueben?gruppe=fachwissen', minuten: 8, ziel: 'Sind Fragen, Erklärungen und Ergebnis verständlich?', schritte: 'Einen Fachwissen-Trainer wählen (z. B. Normwerte) und eine Runde zu Ende spielen.' },
   { id: 'praxis', titel: 'Eine Schicht übernehmen', pfad: '/lernen/praxis', minuten: 15, ziel: 'Fühlt sich die Simulation wie eine echte Situation an?', schritte: 'Im Praxissimulator einen Fall starten und bis zur Auswertung spielen.' },
+  { id: 'fallakte', titel: 'Einen Fall durchgehend bearbeiten', pfad: '/lernen/fallakte', minuten: 15, ziel: 'Hängen SIS, Planung, Bericht und Übergabe für dich sinnvoll zusammen?', schritte: 'Eine Fallakte öffnen und mindestens zwei Schritte bearbeiten.' },
   { id: 'fehler', titel: 'Fehler wiederholen', pfad: '/lernen/fehler', minuten: 3, ziel: 'Findest du deine Fehler aus dem Trainer wieder?', schritte: 'Das Fehlerheft öffnen und einen Fehler neu versuchen.' },
   { id: 'plan', titel: 'Prüfung planen', pfad: '/lernen/plan?ansicht=pruefungen&neu=1', minuten: 4, ziel: 'Hilft dir der Lernplan bei einer echten Klausur?', schritte: 'Eine Prüfung mit Datum und Themen anlegen und den Plan ansehen.' },
   { id: 'simulation', titel: 'Probeklausur schreiben', pfad: '/lernen/simulation', minuten: 15, ziel: 'Ist die Prüfungssimulation fair und verständlich?', schritte: 'Eine kurze Simulation anlegen, beantworten und abgeben.' },
@@ -187,8 +188,59 @@ export function sammle(neu: Rueckmeldung[]): { neu: number; doppelt: number; lis
 
 export function entferneGesammelt(id?: string): Rueckmeldung[] {
   const liste = id ? gesammelte().filter((r) => r.id !== id) : [];
+  const stand = bearbeitungen();
+  if (id) delete stand[id];
+  schreib(K_STAND, id ? stand : {});
   schreib(K_GESAMMELT, liste);
   return liste;
+}
+
+// ---------- Bearbeitungsstand (nur bei der Testleitung) ----------
+
+export type Stand = 'neu' | 'in-arbeit' | 'erledigt' | 'verworfen';
+export const STAND_LABEL: Record<Stand, string> = { neu: 'Neu', 'in-arbeit': 'In Arbeit', erledigt: 'Erledigt', verworfen: 'Verworfen' };
+export interface Bearbeitung { stand: Stand; notiz?: string }
+
+const K_STAND = 'lernstoff.testphase.stand';
+export const bearbeitungen = (): Record<string, Bearbeitung> => {
+  const roh = lies<Record<string, Bearbeitung>>(K_STAND, {});
+  const out: Record<string, Bearbeitung> = {};
+  for (const [id, b] of Object.entries(roh ?? {})) if (b && b.stand in STAND_LABEL) out[id] = { stand: b.stand, notiz: typeof b.notiz === 'string' ? b.notiz.slice(0, 500) : undefined };
+  return out;
+};
+export function setzeBearbeitung(id: string, b: Bearbeitung): Record<string, Bearbeitung> {
+  const alle = bearbeitungen();
+  if (b.stand === 'neu' && !b.notiz?.trim()) delete alle[id]; else alle[id] = { stand: b.stand, notiz: b.notiz?.trim() || undefined };
+  schreib(K_STAND, alle);
+  return alle;
+}
+export const standVon = (alle: Record<string, Bearbeitung>, id: string): Stand => alle[id]?.stand ?? 'neu';
+
+// ---------- Sammlung als Datei (zweites Gerät, Sicherung) ----------
+
+export interface SammelDatei { art: 'lernstoff-rueckmeldungen'; v: 1; erstellt: string; rueckmeldungen: Rueckmeldung[]; bearbeitung: Record<string, Bearbeitung> }
+
+export function sammelDatei(jetzt = new Date()): string {
+  const d: SammelDatei = { art: 'lernstoff-rueckmeldungen', v: 1, erstellt: jetzt.toISOString(), rueckmeldungen: gesammelte(), bearbeitung: bearbeitungen() };
+  return JSON.stringify(d, null, 1);
+}
+
+/** Liest eine Sammel-Datei ein: Rückmeldungen ergänzen, Bearbeitungsstand nur übernehmen, wo hier noch keiner ist. */
+export function leseSammelDatei(text: string): { neu: number; doppelt: number; fehler: number; liste: Rueckmeldung[] } {
+  if (text.length > GRENZEN.codeEntpacktBytes) throw new Error('Die Datei ist zu groß.');
+  let d: SammelDatei;
+  try { d = JSON.parse(text) as SammelDatei; } catch { throw new Error('Das ist keine Rückmeldungs-Datei.'); }
+  if (!d || d.art !== 'lernstoff-rueckmeldungen' || d.v !== 1 || !Array.isArray(d.rueckmeldungen)) throw new Error('Das ist keine Rückmeldungs-Datei.');
+  const gut: Rueckmeldung[] = [];
+  let fehler = 0;
+  for (const x of d.rueckmeldungen.slice(0, 5000)) { try { gut.push(pruefeRueckmeldung(x)); } catch { fehler++; } }
+  const r = sammle(gut);
+  const hier = bearbeitungen();
+  for (const [id, b] of Object.entries(d.bearbeitung ?? {})) {
+    if (!hier[id] && b && (b as Bearbeitung).stand in STAND_LABEL) hier[id] = { stand: (b as Bearbeitung).stand, notiz: typeof (b as Bearbeitung).notiz === 'string' ? (b as Bearbeitung).notiz!.slice(0, 500) : undefined };
+  }
+  schreib(K_STAND, hier);
+  return { ...r, fehler };
 }
 
 export interface Ueberblick { gesamt: number; jeArt: Record<Art, number>; sterneSchnitt?: number; jeSeite: Array<{ seite: string; anzahl: number; fehler: number }> }
@@ -219,12 +271,12 @@ const zelle = (s: string | number | undefined) => {
 };
 
 /** CSV mit Semikolon (öffnet in deutschem Excel/Numbers ohne Umweg). */
-export function alsCsv(liste: Rueckmeldung[], seitenName: (p: string) => string | undefined = () => undefined): string {
-  const kopf = ['Datum', 'Art', 'Sterne', 'Seite', 'Name', 'Text', 'Gerät', 'Browser', 'Breite', 'Als App', 'Version', 'Testaufträge', 'Fehlermeldung'];
+export function alsCsv(liste: Rueckmeldung[], seitenName: (p: string) => string | undefined = () => undefined, stand: Record<string, Bearbeitung> = {}): string {
+  const kopf = ['Datum', 'Art', 'Sterne', 'Seite', 'Name', 'Text', 'Gerät', 'Browser', 'Breite', 'Als App', 'Version', 'Testaufträge', 'Fehlermeldung', 'Stand', 'Notiz'];
   const zeilen = liste.map((r) => [
     r.erstellt.slice(0, 16).replace('T', ' '), ART_LABEL[r.art], r.sterne, r.seite ? (seitenName(r.seite) ?? r.seite) : '', r.name, r.text,
     r.geraet?.art, r.geraet?.browser, r.geraet?.breite, r.geraet ? (r.geraet.app ? 'ja' : 'nein') : '', r.geraet?.version,
-    r.auftraege?.length ?? '', r.technik,
+    r.auftraege?.length ?? '', r.technik, STAND_LABEL[standVon(stand, r.id)], stand[r.id]?.notiz,
   ].map(zelle).join(';'));
   return '﻿' + [kopf.join(';'), ...zeilen].join('\r\n');
 }
