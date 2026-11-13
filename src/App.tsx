@@ -30,6 +30,7 @@ const AssessmentTrainer = lazy(() => import('./features/assessment/AssessmentTra
 const Krankheitsbilder = lazy(() => import('./features/krankheitsbilder/Krankheitsbilder'));
 const Uebergabetrainer = lazy(() => import('./features/uebergabe/Uebergabetrainer'));
 const Simulation = lazy(() => import('./features/simulation/SimulationSeite'));
+const Fallakte = lazy(() => import('./features/fallakte/FallaktePage'));
 const Pflegeplanung = lazy(() => import('./features/pflegeplanung/Pflegeplanung'));
 const Lernplan = lazy(() => import('./features/lernplan/ui/Lernplan'));
 const Landkarte = lazy(() => import('./features/landkarte/Landkarte'));
@@ -93,6 +94,7 @@ function View() {
     case '/lernen/duell': return <Duell />;
     case '/lernen/simulation': return <Simulation />;
     case '/lernen/examen': return <Examen />;
+    case '/lernen/fallakte': return <Fallakte />;
     case '/lernen/pflegeplanung': return <Pflegeplanung />;
     case '/lernen/sis': return <SisTrainer />;
     case '/lernen/bericht': return <Berichttrainer />;

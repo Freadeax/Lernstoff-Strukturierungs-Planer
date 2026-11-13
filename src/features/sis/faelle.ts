@@ -7,6 +7,7 @@
 //
 // Muster für die Prüfung per Code wie im Übergabe-Trainer (siehe ../uebergabe/faelle.ts):
 // Alternativen, „ + “ = alle Teile, Text vorher vereinfacht (klein, ä→ae, ß→ss), Wortteile genügen.
+import { AKTEN_SIS } from '../fallakte/akten';
 
 export type Themenfeld = 'TF1' | 'TF2' | 'TF3' | 'TF4' | 'TF5' | 'TF6';
 export type Feld = 'B' | Themenfeld;
@@ -394,4 +395,6 @@ export const SIS_FAELLE: SisFall[] = [
       TF6: 'Sein Gebetsteppich und ein Fernseher kommen ins Zimmer. Der Rollstuhl steht so, dass er Fernseher und Klingel erreicht.',
     },
   },
+  // Teilfälle der Fallakten (durchgehende Fälle, siehe ../fallakte)
+  ...AKTEN_SIS,
 ];
