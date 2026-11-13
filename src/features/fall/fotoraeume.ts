@@ -12,7 +12,7 @@ export type FotoRaumId = Extract<RaumId,
   | '10_pflegeheim_nacht' | '11_pflegeheim_speiseraum'
   | '12_station_kardiologie_monitoring' | '13_station_postop'
   | '20f_paediatrie_kleinkind_fieberkrampf' | '21_paediatrie_schulkind'
-  | '26b_pflegeheim_zimmer_fruehstueck_unberuehrt' | '26h_pflegeheim_zimmer_hypoglykaemie' | '26p_pflegeheim_zimmer_pneumonie'
+  | '26_pflegeheim_zimmer_tag' | '26b_pflegeheim_zimmer_fruehstueck_unberuehrt' | '26h_pflegeheim_zimmer_hypoglykaemie' | '26p_pflegeheim_zimmer_pneumonie'
   | '27_station_zweibett_nacht' | '30_station_zimmer_frau' | '30b_station_zimmer_frau_sepsis'>;
 
 export interface FotoMarker extends Marker { x: number; y: number }
@@ -67,6 +67,15 @@ export const FOTORAEUME: Record<FotoRaumId, FotoRaum> = {
       { id: 'patient', nr: 1, name: 'Bewohnerin', ort: 'bett', x: 0.12, y: 0.42 },
       { id: 'essen', nr: 2, name: 'Mahlzeit und Trinkbecher', ort: 'monitor', x: 0.33, y: 0.64 },
       { id: 'rollstuhl', nr: 3, name: 'Rollstuhl', ort: 'wagen', x: 0.06, y: 0.82 },
+    ],
+  },
+  '26_pflegeheim_zimmer_tag': {
+    id: '26_pflegeheim_zimmer_tag', person: 'frau', titel: 'Bewohnerzimmer tagsüber',
+    marker: [
+      { id: 'patient', nr: 1, name: 'Bewohnerin', ort: 'bett', x: 0.29, y: 0.38 },
+      { id: 'nachttisch', nr: 2, name: 'Nachttisch mit Rufanlage', ort: 'monitor', x: 0.1, y: 0.56 },
+      { id: 'essen', nr: 3, name: 'Frühstückstablett', ort: 'wagen', x: 0.38, y: 0.83 },
+      { id: 'rollstuhl', nr: 4, name: 'Rollstuhl', ort: 'tuer', x: 0.9, y: 0.48 },
     ],
   },
   '26b_pflegeheim_zimmer_fruehstueck_unberuehrt': {
@@ -193,7 +202,7 @@ export const RAUM_FUER_FALL: Record<string, FotoRaumId> = {
 };
 
 export const RAUM_FUER_SETTING: Partial<Record<Setting, FotoRaumId>> = {
-  krankenhaus: '13_station_postop', langzeit: '10_pflegeheim_nacht', ambulant: '07_ambulant_wohnzimmer_kompression',
+  krankenhaus: '13_station_postop', langzeit: '26_pflegeheim_zimmer_tag', ambulant: '07_ambulant_wohnzimmer_kompression',
   paediatrie: '21_paediatrie_schulkind',
 };
 

@@ -13,7 +13,7 @@ import './bildpruefung.css';
 const ART_LABEL: Record<AssetArt, string> = { raum: 'Räume', portraet: 'Porträts', handlungsvideo: 'Videos', bildgebung: 'Bildgebung', titelbild: 'Titelbilder' };
 type Filter = 'alle' | 'offen' | 'freigegeben' | 'mangel';
 const FILTER_LABEL: Record<Filter, string> = { alle: 'Alle', offen: 'Offen', freigegeben: 'Freigegeben', mangel: 'Mangel' };
-const SIM_LABEL: Record<string, string> = { praxis: 'Praxis', fall: 'Fall', diagnostik: 'Diagnostik', notfall: 'Notfall', bereich: 'Bereich' };
+const SIM_LABEL: Record<string, string> = { praxis: 'Praxis', fall: 'Fall', diagnostik: 'Diagnostik', notfall: 'Notfall', hygiene: 'Hygiene', bereich: 'Bereich' };
 
 const url = (datei: string) => `${import.meta.env.BASE_URL}${datei}`;
 

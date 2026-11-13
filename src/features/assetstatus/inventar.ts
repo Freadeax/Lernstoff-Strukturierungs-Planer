@@ -9,6 +9,7 @@
 import { FAELLE as DX_FAELLE } from '../diagnostik/faelle';
 import { FOTORAEUME, RAUM_FUER_FALL, RAUM_FUER_SETTING } from '../fall/fotoraeume';
 import { FALL_RAUM, RAUMFOTOS } from '../praxis/raumfotos';
+import { SUCHBILDER } from '../hygiene/suchbilder';
 import { HANDLUNGSVIDEOS, type HandlungsVideoId } from '../../ui/sim/handlungsvideos';
 import { PERSONEN, type PortraetZustand } from '../../ui/sim/personen';
 import { RAEUME, RAUM_IDS, raumVarianten, type MonitorZustand, type RaumId } from '../../ui/sim/raeume/katalog';
@@ -62,6 +63,7 @@ export function raumVerwendungen(): Map<RaumId, string[]> {
   }
   for (const f of DX_FAELLE) mitVarianten(f.raum, `diagnostik:${f.id}`, ALLE_ZUSTAENDE, false);
   for (const [id, raum] of Object.entries(NOTFALL_RAEUME)) add(raum, `notfall:${id}`);
+  for (const s of SUCHBILDER) add(s.raum, `hygiene:${s.id}`);
   return m;
 }
 

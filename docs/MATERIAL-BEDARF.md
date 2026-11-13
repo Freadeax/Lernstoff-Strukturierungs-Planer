@@ -42,6 +42,14 @@ Material_Lieferung_<JJJJ-MM-TT>/
 Dateien über 25 MB oder das ganze ZIP gehen über **Material → Große Dateien** ins private Material-Repo,
 kleinere Pakete kannst du hier im Projekt hochladen.
 
+**Eingangsprüfung:** Claude prüft jede Lieferung vor dem Verteilen mit `npm run material:pruefen -- <ordner>`
+(Namen, 16:9 ab 1280 px, Porträts quadratisch ab 512 px, Video mit vier Phasenbildern, Katalog mit Lizenz, Urheber
+und Fall-IDs, ID in dieser Bestellliste). Fehler gehen mit dem Bericht an dich zurück.
+
+**Fachliche Bildprüfung:** Nach dem Einbau prüfst du die Bilder in der App unter **System → Bildprüfung**
+(`#/system/bilder`): Prüfpunkte abhaken, freigeben oder Mangel notieren, Ergebnis als Datei exportieren und hier
+hochladen. Mängel stehen danach in `docs/ASSET-STATUS.md` und werden Positionen der nächsten Lieferung.
+
 ### 0.2 Technische Vorgaben
 
 | Art | Format | Auflösung (Lieferung) | In der App | Weitere Vorgaben |
@@ -215,9 +223,9 @@ das Bild, fällt sie auf ein Ersatzbild zurück. Die vollständige, automatisch 
 | `20g_paediatrie_kleinkind_fieberkrampf_seitenlage` | 20f | Kind in stabiler Seitenlage nach dem Krampf | Maßnahme | Fall `fieberkrampf` |
 | Porträts `angestrengt`, `kritisch` | Mila, Ben | gleiche Person, gleicher Ausschnitt | Patientenzustand | Fall `asthma-kind`, Praxis `kind`/`asthma` |
 
-Die Inhalation mit Spacer (`21b`) ist schon im passenden Fall eingebunden (Praxis `asthma`). Nicht erreichbar sind
-derzeit nur `14_station_isolation`, `19_krankenhaus_materialraum` und `26_pflegeheim_zimmer_tag` (kein Fall nutzt sie;
-14 und 19 brauchen die Varianten `14a`/`19a` unten, 26 ist Grundbild zu 26a/26b).
+Die Inhalation mit Spacer (`21b`) ist schon im passenden Fall eingebunden (Praxis `asthma`). Seit 13.11. ist jedes
+gelieferte Bild erreichbar: `14_station_isolation` und `19_krankenhaus_materialraum` als Suchbilder im Hygiene-Trainer,
+`26_pflegeheim_zimmer_tag` als Raum für Heim-Fälle aus Themen im Fallsimulator.
 
 | ID | Grundbild | Änderung | Wofür |
 | --- | --- | --- | --- |
