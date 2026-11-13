@@ -8,16 +8,37 @@ import { db } from '../../core/db';
 import { flatNav, gruppenPfad, NAV, visibleNav } from './nav';
 import { imFeld } from './Tastenkuerzel';
 import { navigate } from './router';
-import { session } from './session';
+import { session, setWorkspace, type Theme } from './session';
+import { merkliste } from './merkliste';
+import { kuerzelHilfe } from './Tastenkuerzel';
 
-interface Hit extends TrieEntry { id: string; type: 'Seite' | 'Fach' | 'Thema' | 'Begriff' | 'Quelle'; hint?: string; to?: string; definition?: string }
+interface Hit extends TrieEntry { id: string; type: 'Seite' | 'Fach' | 'Thema' | 'Begriff' | 'Quelle' | 'Aktion'; hint?: string; to?: string; definition?: string; run?: () => void }
 
 type Quelle = { id: string; title: string };
+
+/** Befehle: Dinge tun statt Seiten suchen. Stichwörter machen sie auch über Umschreibungen auffindbar. */
+function aktionen(): Hit[] {
+  const darstellung = (t: Theme, name: string, keywords: string[]): Hit => ({ id: `aktion:theme-${t}`, type: 'Aktion', label: `Darstellung ${name}`, keywords, hint: 'Sofort umschalten', run: () => setWorkspace({ theme: t }) });
+  return [
+    darstellung('dunkel', 'dunkel', ['Nachtschicht', 'dark', 'Nachtmodus']),
+    darstellung('hell', 'hell', ['Farbfelder', 'light', 'Tagmodus']),
+    darstellung('system', 'wie System', ['automatisch']),
+    { id: 'aktion:schrift', type: 'Aktion', label: 'Schrift sehr groß', keywords: ['größer', 'Lesbarkeit', 'Zoom'], hint: 'Sofort umschalten', run: () => setWorkspace({ schrift: 'sehrgross' }) },
+    { id: 'aktion:schrift-normal', type: 'Aktion', label: 'Schrift normal', keywords: ['kleiner'], hint: 'Sofort umschalten', run: () => setWorkspace({ schrift: 'normal' }) },
+    { id: 'aktion:bewegung-aus', type: 'Aktion', label: 'Bewegung reduzieren', keywords: ['Animation', 'ruhig'], hint: 'Sofort umschalten', run: () => setWorkspace({ bewegung: 'reduziert' }) },
+    { id: 'aktion:bewegung-an', type: 'Aktion', label: 'Bewegung einschalten', keywords: ['Animation'], hint: 'Sofort umschalten', run: () => setWorkspace({ bewegung: 'system' }) },
+    { id: 'aktion:pruefung', type: 'Aktion', label: 'Prüfung anlegen', keywords: ['Klausur', 'Termin', 'Examen planen'], hint: 'Lernplan', to: '/lernen/plan?ansicht=pruefungen&neu=1' },
+    { id: 'aktion:import', type: 'Aktion', label: 'Material importieren', keywords: ['hochladen', 'PDF', 'Skript hinzufügen'], hint: 'Import-Assistent', to: '/material/import' },
+    { id: 'aktion:sicherung', type: 'Aktion', label: 'Sicherung erstellen', keywords: ['Backup', 'übertragen', 'exportieren'], hint: 'Datensicherung', to: '/system/sicherung' },
+    { id: 'aktion:kuerzel', type: 'Aktion', label: 'Tastenkürzel anzeigen', keywords: ['Hilfe', 'Shortcuts'], hint: 'Übersicht', run: () => kuerzelHilfe.set({ offen: true }) },
+  ];
+}
 
 function buildIndex(moduleId: string, roles: Parameters<typeof visibleNav>[1], quellen: Quelle[]): Trie<Hit> {
   const mod = getModule(moduleId);
   const subjectName = new Map(mod?.subjects.map((s) => [s.id, s.code ?? s.name]) ?? []);
   return new Trie<Hit>([
+    ...aktionen(),
     ...flatNav(visibleNav(NAV, roles)).map((n): Hit => ({ id: `nav:${n.id}`, type: 'Seite', label: n.label, hint: gruppenPfad(n.path!) || undefined, to: n.path })),
     ...quellen.map((q): Hit => ({ id: `quelle:${q.id}`, type: 'Quelle', label: q.title, hint: 'Dein Material', to: `/material/dokumente?dokument=${encodeURIComponent(q.id)}` })),
     ...(mod?.subjects ?? []).map((s): Hit => ({ id: `fach:${s.id}`, type: 'Fach', label: s.name, hint: 'Themen dieses Fachs', keywords: s.code ? [s.code] : [], to: `/lernen/themen?fach=${encodeURIComponent(s.id)}` })),
@@ -39,7 +60,14 @@ export function Omnibar() {
   const [quellen, setQuellen] = useState<Quelle[]>([]);
   const index = useMemo(() => buildIndex(moduleId, roles, quellen), [moduleId, roles, quellen]);
   const debounced = useDebounced(query, 250);
-  const hits = useMemo(() => index.search(debounced, 12), [index, debounced]);
+  const merk = useStore(merkliste, (m) => m);
+  // Leeres Feld: Favoriten und zuletzt genutzte Seiten statt einer leeren Liste.
+  const start = useMemo(() => {
+    const seiten = flatNav(visibleNav(NAV, roles));
+    const hit = (p: string, hint: string): Hit[] => { const n = seiten.find((i) => i.path === p); return n ? [{ id: `start:${hint}:${p}`, type: 'Seite', label: n.label, hint, to: p }] : []; };
+    return [...merk.favoriten.flatMap((p) => hit(p, 'Favorit')), ...merk.zuletzt.filter((p) => !merk.favoriten.includes(p)).flatMap((p) => hit(p, 'Zuletzt'))].slice(0, 8);
+  }, [merk, roles]);
+  const hits = useMemo(() => (debounced ? index.search(debounced, 12) : start), [index, debounced, start]);
   const listId = useId();
 
   const open = () => {
@@ -60,8 +88,8 @@ export function Omnibar() {
   useEffect(() => setActive(0), [debounced]);
 
   function choose(hit: Hit | undefined) {
-    if (!hit?.to) return;
-    navigate(hit.to);
+    if (!hit?.to && !hit?.run) return;
+    if (hit.to) navigate(hit.to); else hit.run?.();
     setQuery('');
     close();
   }
@@ -89,7 +117,7 @@ export function Omnibar() {
             <Icon name="search" />
             <input ref={input} type="search" role="combobox" aria-label="Thema, Fach, Fachbegriff, Quelle oder Seite suchen" aria-expanded={hits.length > 0} aria-controls={listId}
               aria-autocomplete="list" aria-activedescendant={current ? `${listId}-${active}` : undefined}
-              placeholder="Thema, Fach, Fachbegriff, Quelle oder Seite" value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={onKey}
+              placeholder="Thema, Begriff, Quelle, Seite oder Befehl" value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={onKey}
               autoComplete="off" autoCorrect="off" spellCheck={false} enterKeyHint="go" />
             <button type="button" className="ghost small" onClick={close}>Schließen</button>
           </div>
@@ -97,7 +125,7 @@ export function Omnibar() {
             {hits.map((h, i) => (
               <li key={h.id} id={`${listId}-${i}`} role="option" aria-selected={i === active}
                 className={`omnibar__hit${i === active ? ' is-active' : ''}`}
-                onPointerEnter={() => setActive(i)} onClick={() => (h.to ? choose(h) : setActive(i))}>
+                onPointerEnter={() => setActive(i)} onClick={() => (h.to || h.run ? choose(h) : setActive(i))}>
                 <span className={`omnibar__type omnibar__type--${h.type.toLowerCase()}`}>{h.type}</span>
                 <span className="omnibar__label">{h.label}</span>
                 {h.hint && <span className="muted">{h.hint}</span>}
@@ -105,7 +133,7 @@ export function Omnibar() {
             ))}
           </ul>
           {debounced && !hits.length && <p className="omnibar__empty muted">Keine Treffer für „{debounced}“.</p>}
-          {!debounced && <p className="omnibar__empty muted">Tipp: Wortanfänge genügen, z. B. „dek pro“ für Dekubitusprophylaxe.</p>}
+          {!debounced && <p className="omnibar__empty muted">Tipp: Wortanfänge genügen, z. B. „dek pro“ für Dekubitusprophylaxe. Auch Befehle gehen, z. B. „dunkel“ oder „Sicherung“.</p>}
           {current?.definition && (
             <div className="omnibar__preview" aria-live="polite">
               <strong>{current.label}</strong>
