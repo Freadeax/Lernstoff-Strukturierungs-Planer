@@ -32,6 +32,32 @@ export const ERWEITERUNG: Partial<Record<'aufbau' | 'prophylaxe' | 'versorgung',
       ],
       erklaerung: ['Jeder Standard hat seine typischen Instrumente. Sie helfen, die Einschätzung systematisch zu machen.'],
     },
+    {
+      id: 'fall.einfuehrung', art: 'fall', topicIds: T, titel: 'Fall: Ein Standard kommt auf Station', stufe: 3,
+      frage: 'Weißt du, wie ein Expertenstandard in den Alltag kommt?',
+      einstieg: 'Deine Station soll den aktualisierten Expertenstandard Sturzprophylaxe einführen. Die Stationsleitung bittet dich, in der Projektgruppe mitzuarbeiten.',
+      schritte: [
+        {
+          lage: 'In der ersten Sitzung fragt eine Kollegin: „Können wir den Standard nicht einfach ausdrucken und aufhängen?“',
+          frage: 'Was antwortest du?', optionen: ['Der Standard muss an die Station angepasst werden, zum Beispiel als Verfahrensanweisung mit klaren Zuständigkeiten', 'Ja, Aushängen reicht, weil der Standard verbindlich ist', 'Nein, Expertenstandards gelten nur in Pflegeheimen', 'Wir sollten ihn nur lesen, wenn es Probleme gibt'],
+          richtig: [0], mehrfach: false,
+          warum: 'Expertenstandards beschreiben ein Qualitätsniveau, nicht jeden Handgriff. Wie es auf einer Station erreicht wird, legt die Einrichtung selbst fest.',
+        },
+        {
+          lage: 'Die Gruppe plant die Einführung.',
+          frage: 'Was gehört zu einer guten Einführung? Wähle alle zutreffenden.', optionen: ['Schulungen für alle Pflegenden', 'Benötigtes Material prüfen und beschaffen, zum Beispiel Niedrigbetten oder Hüftprotektoren', 'Festlegen, wie und wo dokumentiert wird', 'Den Standard ohne Absprache mit anderen Berufsgruppen einführen'],
+          richtig: [0, 1, 2], mehrfach: true,
+          warum: 'Strukturkriterien beschreiben, was die Einrichtung bereitstellt: Wissen, Material, Regeln. Sturzprophylaxe braucht außerdem Ärztinnen, Physiotherapie und Hauswirtschaft.',
+        },
+        {
+          lage: 'Nach sechs Monaten will die Leitung wissen, ob der Standard wirkt.',
+          frage: 'Wie prüft ihr das?', optionen: ['Mit einem Audit: Stichprobe von Pflegedokumentationen und Befragungen anhand der Ergebniskriterien', 'Nur die Zahl der Stürze vom letzten Monat ansehen', 'Gar nicht, eingeführt ist eingeführt', 'Die Patientinnen fragen, ob sie den Standard kennen'],
+          richtig: [0], mehrfach: false,
+          warum: 'Das DNQP stellt zu jedem Standard ein Auditinstrument bereit. Es fragt die Ergebniskriterien ab, etwa ob das Sturzrisiko eingeschätzt und dokumentiert wurde.',
+        },
+      ],
+      erklaerung: ['Einführen heißt: anpassen, schulen, ausstatten, dokumentieren und danach mit einem Audit prüfen.', 'Struktur-, Prozess- und Ergebniskriterien greifen ineinander.'],
+    },
   ],
   prophylaxe: [
     {
@@ -108,5 +134,9 @@ export const ERWEITERUNG_VERTIEFUNG: Record<string, string[]> = {
   'zu.kontinenz': [
     'Zwischen den Profilen kann man sich bewegen. Ziel der Pflege ist, die Person in ein selbstständigeres Profil zu bringen, etwa durch Blasentraining, Hilfsmittel zum Toilettengang oder Beckenbodentraining.',
     'Zur Einschätzung gehören ein Miktionsprotokoll, die Frage nach Ursachen (Infekt, Medikamente, Mobilität) und die Wünsche der Person.',
+  ],
+  'fall.einfuehrung': [
+    'Das DNQP führt neue Standards modellhaft in mehreren Einrichtungen ein, bevor sie veröffentlicht werden. Die Erfahrungen fließen in den Abschlussbericht ein.',
+    'Eine gesetzliche Einführung über den früheren § 113a SGB XI gab es nie, der Paragraf ist seit 1. Juli 2023 aufgehoben. Pflegeeinrichtungen müssen aber nach dem allgemein anerkannten Stand pflegen (§ 11 Abs. 1 SGB XI), und dafür gelten Expertenstandards auch vor Gericht als wichtiger Maßstab.',
   ],
 };
