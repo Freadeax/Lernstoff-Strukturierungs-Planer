@@ -21,14 +21,14 @@ describe('Suchbestand', () => {
   it('enthält alle Standards des Katalogs, Trainer, Instrumente und Glossar', () => {
     const katalog = (MODUL.references ?? []).filter((r) => r.kind === 'standard');
     expect(standards.filter((s) => s.gruppe === 'dnqp').map((s) => s.id).sort()).toEqual(katalog.map((r) => r.id).sort());
-    expect(standards.filter((s) => s.gruppe === 'regelwerk').map((s) => s.id)).toEqual(['rw.hygiene', 'rw.notfall', 'rw.arzneimittel', 'rw.recht']);
+    expect(standards.filter((s) => s.gruppe === 'regelwerk').map((s) => s.id)).toEqual(['rw.hygiene', 'rw.notfall', 'rw.arzneimittel', 'rw.qualitaet', 'rw.recht']);
     for (const art of ['standard', 'uebung', 'instrument', 'begriff', 'kernaussage'] as const) expect(index.doks.some((d) => d.art === art)).toBe(true);
     expect(new Set(index.doks.map((d) => d.id)).size).toBe(index.doks.length);
   });
   it('verweist nur auf bekannte Standards und Seiten', () => {
     const bekannt = new Set(standards.map((s) => s.id));
     for (const d of index.doks) for (const s of d.standardIds) expect(bekannt.has(s), `${d.id} → ${s}`).toBe(true);
-    for (const d of index.doks) if (d.link) expect(d.link).toMatch(/^\/lernen\/(thema|expertenstandards|assessment|dnqp|hygiene|notfall|arzneimittel|recht)(\?|$)/);
+    for (const d of index.doks) if (d.link) expect(d.link).toMatch(/^\/lernen\/(thema|expertenstandards|assessment|dnqp|hygiene|notfall|arzneimittel|recht|grundlagen)(\?|$)/);
   });
   it('findet typische Suchen der Ausbildung', () => {
     const erst = (q: string) => suche(index, q).treffer[0]?.dok;
@@ -44,6 +44,7 @@ describe('Suchbestand', () => {
     expect(std('Herzdruckmassage')).toContain('rw.notfall');
     expect(std('6-R-Regel')).toContain('rw.arzneimittel');
     expect(std('Schweigepflicht')).toContain('rw.recht');
+    expect(std('PDCA')).toContain('rw.qualitaet');
   });
 
   it('baut den Index schnell genug für jede Eingabe', () => {
