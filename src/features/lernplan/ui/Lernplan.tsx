@@ -1,3 +1,4 @@
+import { SeitenHilfe } from '../../wegweiser/SeitenHilfe';
 import './lernplan.css';
 import { navigate, useRoute } from '../../../ui/shell/router';
 import { usePlan } from './usePlan';
@@ -30,6 +31,7 @@ export default function Lernplan() {
     <section className="page lernplan">
       <PageHeading bild="lernen" eyebrow="Schritt für Schritt" title="Dein Plan. Passend zu deinem Alltag."
         description="Prüfungstermine, verfügbare Zeit und echte Abfragen bestimmen deine nächsten Lerneinheiten." />
+      <SeitenHilfe path="/lernen/plan" />
       <div className="pills lernplan__tabs" role="tablist" aria-label="Ansicht">
         {ANSICHTEN.map((a) => (
           <button key={a.id} id={`plan-tab-${a.id}`} type="button" role="tab" className="pill" aria-selected={ansicht === a.id} aria-controls="plan-panel" tabIndex={ansicht === a.id ? 0 : -1}

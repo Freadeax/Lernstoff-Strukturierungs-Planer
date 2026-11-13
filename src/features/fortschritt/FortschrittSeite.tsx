@@ -1,3 +1,4 @@
+import { SeitenHilfe } from '../wegweiser/SeitenHilfe';
 import { useMemo, useState } from 'react';
 import '../faecher.css';
 import './fortschritt.css';
@@ -61,6 +62,7 @@ export default function FortschrittSeite() {
     <section className="page fortschritt">
       <PageHeading eyebrow="Dranbleiben" title="Dein Fortschritt. Ehrlich gezählt."
         description="Lerntage, Wochenziele und Wissensstand aus allen Modulen. Gezählt wird nur, was du wirklich gelernt und abgefragt hast." />
+      <SeitenHilfe path="/lernen/fortschritt" />
       <div className="pills fortschritt__tabs" role="tablist" aria-label="Ansicht">
         {ANSICHTEN.map((a, index) => (
           <button key={a.id} id={`fs-tab-${a.id}`} type="button" role="tab" className="pill" aria-selected={ansicht === a.id}

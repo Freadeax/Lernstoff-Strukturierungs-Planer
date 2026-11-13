@@ -1,3 +1,4 @@
+import { SeitenHilfe } from '../../wegweiser/SeitenHilfe';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import './karteikarten.css';
 import '../../lernplan/ui/lernplan.css';
@@ -176,6 +177,7 @@ export default function Karteikarten() {
         <h2>Karteikarten</h2>
         <p className="muted">Fachbegriffe, Katalogwissen, Medikamenten- und Krankheitsbild-Steckbriefe und deine eigenen Zusammenfassungen mit Wiederholung im richtigen Abstand. Funktioniert offline, alles bleibt auf diesem Gerät.</p>
       </div>
+      <SeitenHilfe path="/lernen/karten" />
       {!sitzung && (
         <div className="pills karten__tabs" role="tablist" aria-label="Ansicht">
           {ANSICHTEN.map((a) => <button key={a.id} type="button" role="tab" className="pill" aria-selected={ansicht === a.id} onClick={() => wechsel(a.id)}>{a.label}</button>)}
