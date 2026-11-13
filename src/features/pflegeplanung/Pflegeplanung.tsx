@@ -17,6 +17,7 @@ import { pruefe, RASTER, type Befund, type Pruefergebnis, type RasterZeile, type
 import { PersonenWarnung, personenbezug } from '../../ui/PersonenWarnung';
 import { bewerteMitClaude, type KiRueckmeldung } from './claude';
 import { lernplanErgebnisse } from './lernplan';
+import { AkteLeiste } from '../fallakte/AkteLeiste';
 
 // ---------- Entwürfe und Bestwerte (nur dieses Gerät) ----------
 
@@ -460,6 +461,7 @@ export default function Pflegeplanung() {
         <h2>Pflegeplanung</h2>
         <p className="muted">Plane einen Fall Schritt für Schritt nach dem Pflegeprozess. Die Checkliste prüft offline nach den Regeln des Pflege-Katalogs (PESR, SMART, Maßnahmen), Claude gibt auf Wunsch eine fachliche Rückmeldung.</p>
       </div>
+      <AkteLeiste art="pflegeplanung" fallId={fallId} />
 
       <div className="card pp__auswahl">
         <label className="field">

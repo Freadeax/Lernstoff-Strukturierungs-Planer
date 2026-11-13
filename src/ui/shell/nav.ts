@@ -69,6 +69,8 @@ export const NAV: NavItem[] = [
       {
         id: 'pruefung-gruppe', label: 'Prüfung', icon: 'timer', zu: true, children: [
           { id: 'simulation', label: 'Prüfungssimulation', path: '/lernen/simulation', icon: 'timer' },
+          // Fallakte: ein Fall durch alle Dokumentationstrainer, wie in der praktischen Prüfung
+          { id: 'fallakte', label: 'Fallakte', path: '/lernen/fallakte', icon: 'folder' },
           { id: 'examen', label: 'Examen', path: '/lernen/examen', icon: 'examen' },
           { id: 'fehler', label: 'Fehlerheft', path: '/lernen/fehler', icon: 'alert' },
           // Praxis und Fachwissen sind mit je zehn Einträgen voll; Blutdruck nach Gehör ist auch Prüfungsstoff (praktische Prüfung).

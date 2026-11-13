@@ -14,6 +14,7 @@ import { BEWERTUNG_TEXT, RECHTE_TEXT, STECKBRIEFE } from './steckbriefe';
 import { bewerteVignette, type VignettenErgebnis } from './bewertung';
 import { notiereFehler } from '../fehlerheft/fehlerheft';
 import { ausAssessment } from '../fehlerheft/quellen';
+import { AkteLeiste } from '../fallakte/AkteLeiste';
 
 type Modus = 'rechner' | 'faelle';
 /** Ab so vielen bewerteten Punkten (Items + Einstufung + ggf. Instrument) zählt ein Fall im Lernplan. */
@@ -412,6 +413,7 @@ export default function AssessmentTrainer() {
         <h2>Assessment-Rechner</h2>
         <p className="muted">Braden, Norton, Barthel, NRS, BESD, MNA-SF, Glasgow Coma Scale, Tinetti und Timed Up and Go ausrechnen oder an Fallvignetten üben. Funktioniert offline. Fallvignetten zählen im Lernplan als Abfrage, der freie Rechner nicht. Übungswerkzeug, kein Ersatz für das Formular deiner Einrichtung.</p>
       </div>
+      {fall && <AkteLeiste art="assessment" fallId={fall.id} />}
 
       <div className="card as__einstellungen">
         <div className="as__zeile">
