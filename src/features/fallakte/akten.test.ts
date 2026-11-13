@@ -90,6 +90,20 @@ describe('Fallakten', () => {
   });
 });
 
+it('Albers: Assessments und Werte passen über die Teilfälle zusammen', () => {
+  const plan = PLAENE.find((x) => x.id === 'albers-copd')!;
+  const mna = VIGNETTEN.find((x) => x.id === 'mna-albers')!;
+  const bericht = BERICHT_FAELLE.find((x) => x.id === 'albers-hausbesuch')!;
+  const sbar = UEBERGABEN.find((x) => x.id === 'albers-hausarzt')!;
+  const summe = Object.values(mna.loesung).reduce((s, x) => s + x, 0);
+  expect(plan.daten.find((d) => d.label === 'Ernährung')!.wert).toContain(`MNA-SF ${summe} Punkte`);
+  expect(plan.daten.find((d) => d.label === 'Mobilität')!.wert).toContain('TUG 17 Sekunden');
+  for (const w of ['86 %', '38,3 °C', '88 %']) {
+    expect(bericht.szene.join(' ')).toContain(w);
+    expect(sbar.daten.map((d) => d.wert).join(' ')).toContain(w);
+  }
+});
+
 describe('Stand', () => {
   const a = AKTEN[0]!;
   const leser = (werte: Record<string, Record<string, unknown>>): Leser => (key) => werte[key] ?? {};
