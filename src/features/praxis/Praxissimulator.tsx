@@ -39,6 +39,7 @@ import { xapiDraft } from './tracking';
 import { SchichtAnsicht } from './Schicht';
 import { beginneSchicht, leseSchicht, SCHICHTEN, speichereSchicht, type Schicht } from './schicht';
 import { AuswertungsKarte } from '../../ui/sim/AuswertungsKarte';
+import { Weiterbearbeiten } from './Weiterbearbeiten';
 import { praxisAuswertung } from './auswertung';
 import { alterText, BEWERTET, KETTEN, SETTINGS, STORY_KINDS, type Action, type Command, type Medication, type Scenario, type Session, type Vital } from './types';
 import './praxis.css';
@@ -235,6 +236,7 @@ export function Klinik({ s }: { s: Session }) {
     {(s.chart?.length ?? 0) > 0 && <><h4>NEWS2 und Vitalwerte im Verlauf</h4><VitalKurve chart={s.chart!} /></>}
     {k.decisions.length > 0 && <><h4>Deine Entscheidungen</h4><p><span className="praxis-pruefart">{BEWERTET.inhalt}: deine Auswahl wird mit der fachlich besten Option verglichen</span></p><ul className="praxis-decisions">{k.decisions.map(d => <li key={d.event} className={d.best ? 'is-best' : 'is-other'}><strong>{d.best ? '✓ Gut gewählt' : '△ Anders gewählt'} · {d.title}</strong><span>{clock(d.at)} · {d.label}</span><p>{d.why}</p>{!d.best && <p className="muted">Fachlich besser: {d.bestLabel}</p>}</li>)}</ul></>}
     {s.scenario.teaching?.length ? <><h4>Merksätze zu diesem Fall</h4><ul>{s.scenario.teaching.map(t => <li key={t}>{t}</li>)}</ul></> : null}
+    <Weiterbearbeiten s={s} />
     <Weiterlernen id={s.scenario.id} />
     <p className="muted">NEWS2: {SOURCES.news2.title}. Verlauf und Komplikationen sind didaktische Modellregeln, keine validierte Physiologie.</p>
   </section>;

@@ -1,7 +1,8 @@
 import { storage } from '../../ui/lib/store';
+import { findeSitzung, berichtFall } from '../praxis/weitergabe';
 import { DatenHinweis } from '../../ui/DatenHinweis';
 import { PersonenWarnung, personenbezug } from '../../ui/PersonenWarnung';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import './bericht.css';
 import { logActivity } from '../../core/activity';
 import { getApiKey } from '../../core/settings';
@@ -135,8 +136,13 @@ function KiErgebnis({ r }: { r: KiRueckmeldung }) {
 }
 
 export default function Berichttrainer() {
-  const wunsch = useRoute().params.get('fall') ?? '';
-  const [fallId, setFallId] = useState(() => (BERICHT_FAELLE.some((f) => f.id === wunsch) ? wunsch : BERICHT_FAELLE[0]!.id));
+  const route = useRoute();
+  const wunsch = route.params.get('fall') ?? '';
+  // Fall aus dem Praxissimulator (Link aus dem Debriefing): wird vorne in die Auswahl gestellt
+  const praxisId = route.params.get('aus') === 'praxis' ? route.params.get('sitzung') : null;
+  const praxisFall = useMemo(() => { const s = findeSitzung(praxisId); return s ? berichtFall(s) : null; }, [praxisId]);
+  const LISTE = useMemo(() => (praxisFall ? [praxisFall, ...BERICHT_FAELLE] : BERICHT_FAELLE), [praxisFall]);
+  const [fallId, setFallId] = useState(() => (praxisFall?.id ?? (LISTE.some((f) => f.id === wunsch) ? wunsch : LISTE[0]!.id)));
   const [text, setText] = useState(() => ladeEntwurf(fallId));
   const [ergebnis, setErgebnis] = useState<BerichtErgebnis | null>(null);
   const [geprueft, setGeprueft] = useState('');
@@ -149,10 +155,10 @@ export default function Berichttrainer() {
   const ergebnisRef = useRef<HTMLDivElement>(null);
   const lernplan = useLernplanUebernahme('bericht');
   const apiKey = getApiKey();
-  const fall = BERICHT_FAELLE.find((f) => f.id === fallId)!;
+  const fall = LISTE.find((f) => f.id === fallId)!;
 
   useEffect(() => {
-    if (wunsch && wunsch !== fallId && BERICHT_FAELLE.some((f) => f.id === wunsch)) waehleFall(wunsch);
+    if (wunsch && wunsch !== fallId && LISTE.some((f) => f.id === wunsch)) waehleFall(wunsch);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wunsch]);
   useEffect(() => { speichereEntwurf(fallId, text); }, [fallId, text]);
@@ -170,7 +176,7 @@ export default function Berichttrainer() {
     const e = pruefeBericht(fall, text);
     setErgebnis(e); setGeprueft(text); setKi(null); setKiFehler('');
     const neu = { ...beste, [fall.id]: Math.max(beste[fall.id] ?? 0, e.prozent) };
-    setBeste(neu); schreibe(BESTE_KEY, neu);
+    if (!fall.id.startsWith('praxis-')) { setBeste(neu); schreibe(BESTE_KEY, neu); }
     if (e.woerter >= MIN_WOERTER_LERNPLAN) lernplan.uebernimm([{ topicId: BERICHT_THEMA, scorePercent: e.prozent, anzahl: 1 }]);
     void logActivity({
       kind: 'uebung', severity: e.prozent >= 85 ? 'info' : 'warning',
@@ -188,8 +194,8 @@ export default function Berichttrainer() {
   }
 
   function naechsterFall() {
-    const i = BERICHT_FAELLE.findIndex((f) => f.id === fallId);
-    waehleFall(BERICHT_FAELLE[(i + 1) % BERICHT_FAELLE.length]!.id);
+    const i = LISTE.findIndex((f) => f.id === fallId);
+    waehleFall(LISTE[(i + 1) % LISTE.length]!.id);
     requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
   }
 
@@ -204,12 +210,14 @@ export default function Berichttrainer() {
         <p className="muted">Schreib Berichtseinträge sachlich: was du gesehen, gehört und getan hast, ohne Wertung. Die Checkliste prüft offline und markiert wertende, ungenaue und vermutende Wörter.</p>
       </div>
       <AkteLeiste art="bericht" fallId={fallId} />
+      {praxisId && !praxisFall && <p className="note warn">Der Praxisfall ist auf diesem Gerät nicht mehr gespeichert (nur die letzten zehn Fälle bleiben). Wähle einen Übungsfall oder spiel den Fall erneut.</p>}
+      {praxisFall && fallId === praxisFall.id && <p className="note">Dieser Fall stammt aus deinem <a href="#/lernen/praxis">Praxissimulator</a>. Erwartet wird nur, was in deinem Spiel passiert ist. Er zählt nicht für die Bestwerte.</p>}
 
       <div className="card bericht__auswahl">
         <label className="field">
           <span className="muted">Fall</span>
           <select value={fallId} onChange={(e) => waehleFall(e.target.value)}>
-            {BERICHT_FAELLE.map((f) => (
+            {LISTE.map((f) => (
               <option key={f.id} value={f.id}>
                 {f.titel} · {f.art === 'umschreiben' ? 'umschreiben' : 'neu schreiben'}{beste[f.id] !== undefined ? ` · bisher ${beste[f.id]} %` : ''}
               </option>
