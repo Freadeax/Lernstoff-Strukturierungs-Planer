@@ -1,12 +1,12 @@
 // Rechentrainer: Aufgaben zum pflegerischen Rechnen (Einheiten, Dosis, Infusion, Perfusor,
-// Insulin, Flüssigkeitsbilanz, BMI, Sauerstoffvorrat, NEWS2-Punkte).
+// Insulin, Flüssigkeitsbilanz, BMI, Sauerstoffvorrat, NEWS2-Punkte, Tabletten, Verdünnen, Sondenkost).
 // Alle Werte sind fiktive Übungswerte und keine Dosierungsempfehlung. Aufgaben werden aus einem
 // Startwert erzeugt (seed), damit sie reproduzierbar und testbar sind.
 
 import { AVPU_LABEL, NEWS2_REAKTION, news2Punkte, type Avpu } from '../praxis/news2';
 
 export type AufgabenTyp = 'einheiten' | 'dosis' | 'mgkg' | 'prozent' | 'laufrate' | 'tropfen' | 'laufzeit' | 'perfusor'
-  | 'insulin' | 'bilanz' | 'bmi' | 'sauerstoff' | 'news2';
+  | 'insulin' | 'bilanz' | 'bmi' | 'sauerstoff' | 'news2' | 'tabletten' | 'verduennung' | 'sondenkost';
 export type Stufe = 1 | 2 | 3;
 
 export interface Aufgabe {
@@ -29,6 +29,7 @@ const FLUESSIGKEIT = 'thema.pro.dehydratation';
 const ERNAEHRUNG = 'thema.ph.ernaehrung';
 const ATMUNG = 'thema.kl.atmung';
 const VITAL = 'thema.beo.vitalzeichen';
+const HYGIENE = 'thema.ph.hygiene';
 
 export const TYPEN: TypInfo[] = [
   { typ: 'einheiten', label: 'Einheiten', formel: '1 g = 1000 mg · 1 mg = 1000 µg · 1 l = 1000 ml', merke: 'Eine Stufe größer: durch 1000. Eine Stufe kleiner: mal 1000.', thema: ARZNEI },
@@ -44,6 +45,9 @@ export const TYPEN: TypInfo[] = [
   { typ: 'bmi', label: 'BMI', formel: 'BMI = Gewicht (kg) ÷ (Größe in m)²', merke: 'Zentimeter erst in Meter umrechnen: 172 cm = 1,72 m. Dann die Größe mit sich selbst malnehmen.', thema: ERNAEHRUNG },
   { typ: 'news2', label: 'NEWS2', formel: 'NEWS2 = Summe der Punkte aus Atemfrequenz, SpO₂, O₂-Gabe, systolischem Blutdruck, Puls, Bewusstsein und Temperatur', merke: 'Jeder Parameter 0 bis 3 Punkte, O₂-Gabe 2 Punkte, neu verwirrt zählt wie V, P oder U: 3 Punkte. Ab 5 dringend ärztlich, ab 7 Notfall, ein Einzelwert mit 3 Punkten schon zeitnah.', thema: VITAL },
   { typ: 'sauerstoff', label: 'Sauerstoffvorrat', formel: 'Liter = Flaschenvolumen (l) × Druck (bar) · Minuten = Liter ÷ Flow (l/min)', merke: 'Bei einer Reserve nur den Druck über der Reserve nutzen: (Druck − Reserve) × Volumen.', thema: ATMUNG },
+  { typ: 'tabletten', label: 'Tabletten', formel: 'Anzahl = verordnete Menge ÷ Wirkstoff pro Tablette', merke: 'Einheiten angleichen (µg/mg). Nur Tabletten mit Bruchkerbe und Freigabe zum Teilen teilen.', thema: ARZNEI },
+  { typ: 'verduennung', label: 'Lösung verdünnen', formel: 'Konzentrat (ml) = Endmenge (ml) × gewünschte % ÷ Konzentrat-%', merke: 'Bei 100 % Konzentrat: 0,5 % von 1.000 ml = 5 ml Konzentrat. Den Rest mit Wasser auffüllen.', thema: HYGIENE },
+  { typ: 'sondenkost', label: 'Sondenkost', formel: 'kcal = ml × kcal/ml · ml/h = ml ÷ Stunden', merke: 'Auf der Packung steht die Energiedichte, z. B. 1,5 kcal/ml.', thema: ERNAEHRUNG },
 ];
 
 export const TYP_LABEL = Object.fromEntries(TYPEN.map((t) => [t.typ, t.label])) as Record<AufgabenTyp, string>;
@@ -446,7 +450,94 @@ const news2: Gen = (r, stufe) => {
   };
 };
 
-const GEN: Record<AufgabenTyp, Gen> = { einheiten, dosis, mgkg, prozent, laufrate, tropfen, laufzeit, perfusor, insulin, bilanz, bmi, sauerstoff, news2 };
+const tabletten: Gen = (r, stufe) => {
+  if (stufe === 1) {
+    const proTab = r.pick([5, 10, 20, 25, 40, 50]);
+    const n = r.pick([1, 2, 3]);
+    return {
+      frage: `Verordnet sind ${zahl(proTab * n)} mg. Eine Tablette enthält ${zahl(proTab)} mg. Wie viele Tabletten gibst du?`,
+      einheit: 'Tabletten', loesung: n, toleranz: 0,
+      schritte: [`${zahl(proTab * n)} mg ÷ ${zahl(proTab)} mg = ${zahl(n)} Tabletten`],
+    };
+  }
+  if (stufe === 2) {
+    const proTab = r.pick([2.5, 5, 10, 20]);
+    const n = r.pick([0.5, 1.5, 2.5]);
+    return {
+      frage: `Verordnet sind ${zahl(runde(proTab * n, 3))} mg. Eine teilbare Tablette mit Bruchkerbe enthält ${zahl(proTab)} mg. Wie viele Tabletten gibst du?`,
+      einheit: 'Tabletten', loesung: n, toleranz: 0,
+      schritte: [`${zahl(runde(proTab * n, 3))} mg ÷ ${zahl(proTab)} mg = ${zahl(n)} Tabletten`],
+    };
+  }
+  const proTabUg = r.pick([25, 50, 75, 100, 125]);
+  const n = r.pick([0.5, 1, 1.5, 2]);
+  const tage = r.pick([7, 14, 28]);
+  const verordnetMg = runde(proTabUg * n / 1000, 4);
+  const gesamt = runde(n * tage, 2);
+  return {
+    frage: `Verordnet sind täglich ${zahl(verordnetMg)} mg. Die Tabletten enthalten je ${zahl(proTabUg)} µg und sind teilbar. Wie viele Tabletten brauchst du für ${tage} Tage?`,
+    einheit: 'Tabletten', loesung: gesamt, toleranz: 0,
+    schritte: [
+      `${zahl(verordnetMg)} mg × 1000 = ${zahl(proTabUg * n)} µg pro Tag`,
+      `${zahl(proTabUg * n)} µg ÷ ${zahl(proTabUg)} µg = ${zahl(n)} Tabletten pro Tag`,
+      `${zahl(n)} × ${tage} Tage = ${zahl(gesamt)} Tabletten`,
+    ],
+  };
+};
+
+const verduennung: Gen = (r, stufe) => {
+  const ziel = stufe === 1 ? r.pick([1000, 2000, 5000]) : r.pick([500, 1000, 2000, 4000, 5000, 8000]);
+  const prozent = stufe === 1 ? r.pick([0.5, 1, 2]) : r.pick([0.25, 0.5, 1, 1.5, 2, 3]);
+  const konz = stufe === 3 ? r.pick([10, 20, 25, 50]) : 100;
+  const konzentrat = runde(ziel * prozent / konz, 2);
+  if (stufe === 3) {
+    const wasser = runde(ziel - konzentrat, 2);
+    return {
+      frage: `Du sollst ${zahl(ziel)} ml einer ${zahl(prozent)}%igen Lösung herstellen. Das Konzentrat ist ${konz}%ig. Wie viel ml Wasser brauchst du?`,
+      einheit: 'ml', loesung: wasser, toleranz: 0.5,
+      schritte: [
+        `Konzentrat: ${zahl(ziel)} ml × ${zahl(prozent)} % ÷ ${konz} % = ${zahl(konzentrat)} ml`,
+        `Wasser: ${zahl(ziel)} ml − ${zahl(konzentrat)} ml = ${zahl(wasser)} ml`,
+      ],
+    };
+  }
+  return {
+    frage: `Für die Flächendesinfektion brauchst du ${zahl(ziel)} ml einer ${zahl(prozent)}%igen Gebrauchslösung. Wie viel ml Konzentrat gibst du ins Wasser?`,
+    einheit: 'ml', loesung: konzentrat, toleranz: 0,
+    schritte: [`${zahl(prozent)} % von ${zahl(ziel)} ml: ${zahl(ziel)} ml × ${zahl(prozent)} ÷ 100 = ${zahl(konzentrat)} ml Konzentrat`, `Mit Wasser auf ${zahl(ziel)} ml auffüllen (erst Wasser, dann Konzentrat).`],
+  };
+};
+
+const sondenkost: Gen = (r, stufe) => {
+  const dichte = r.pick([1, 1.2, 1.5]);
+  if (stufe === 1) {
+    const ml = r.pick([500, 1000, 1500]);
+    const kcal = runde(ml * dichte, 1);
+    return {
+      frage: `Eine Patientin erhält ${zahl(ml)} ml Sondenkost mit ${zahl(dichte)} kcal/ml. Wie viele kcal sind das?`,
+      einheit: 'kcal', loesung: kcal, toleranz: 0,
+      schritte: [`${zahl(ml)} ml × ${zahl(dichte)} kcal/ml = ${zahl(kcal)} kcal`],
+    };
+  }
+  const kcalZiel = dichte === 1.5 ? r.pick([1500, 1800]) : dichte === 1.2 ? r.pick([1200, 1800]) : r.pick([1200, 1500, 1800]);
+  const ml = runde(kcalZiel / dichte, 1);
+  if (stufe === 2) {
+    return {
+      frage: `Angeordnet sind ${zahl(kcalZiel)} kcal am Tag. Die Sondenkost hat ${zahl(dichte)} kcal/ml. Wie viel ml werden gebraucht?`,
+      einheit: 'ml', loesung: ml, toleranz: 1,
+      schritte: [`${zahl(kcalZiel)} kcal ÷ ${zahl(dichte)} kcal/ml = ${zahl(ml)} ml`],
+    };
+  }
+  const stunden = r.pick([16, 20, 24]);
+  const rate = runde(ml / stunden, 1);
+  return {
+    frage: `Angeordnet sind ${zahl(kcalZiel)} kcal am Tag über eine Pumpe, verteilt auf ${stunden} Stunden. Die Sondenkost hat ${zahl(dichte)} kcal/ml. Welche Laufrate stellst du ein? (auf eine Nachkommastelle)`,
+    einheit: 'ml/h', loesung: rate, toleranz: 0.1,
+    schritte: [`Menge: ${zahl(kcalZiel)} kcal ÷ ${zahl(dichte)} kcal/ml = ${zahl(ml)} ml`, `Laufrate: ${zahl(ml)} ml ÷ ${stunden} h = ${zahl(rate)} ml/h`],
+  };
+};
+
+const GEN: Record<AufgabenTyp, Gen> = { einheiten, dosis, mgkg, prozent, laufrate, tropfen, laufzeit, perfusor, insulin, bilanz, bmi, sauerstoff, news2, tabletten, verduennung, sondenkost };
 
 export function erzeuge(typ: AufgabenTyp, stufe: Stufe, seed: number): Aufgabe {
   return { id: `${typ}:${stufe}:${seed}`, typ, stufe, ...GEN[typ](rng(seed), stufe) };

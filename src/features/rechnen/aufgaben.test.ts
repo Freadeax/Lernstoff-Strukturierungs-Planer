@@ -87,3 +87,25 @@ describe('Lernplan-Themen', () => {
     }
   });
 });
+
+describe('Neue Aufgabentypen rechnen nach', () => {
+  it('Verdünnung: 0,5 % von 2.000 ml aus 100%igem Konzentrat sind 10 ml', () => {
+    const a = Array.from({ length: 500 }, (_, i) => erzeuge('verduennung', 1, i + 1)).find((x) => x.frage.includes('2.000 ml einer 0,5%igen'));
+    expect(a?.loesung).toBe(10);
+  });
+  it('Verdünnung Stufe 3: Wasser = Endmenge − Konzentrat', () => {
+    for (let seed = 1; seed <= 100; seed++) {
+      const a = erzeuge('verduennung', 3, seed);
+      const [, ziel, prozent, konz] = a.frage.match(/([\d.]+) ml einer ([\d,]+)%igen Lösung herstellen\. Das Konzentrat ist (\d+)%ig/)!;
+      const z = leseZahl(ziel!), p = leseZahl(prozent!), k = Number(konz);
+      expect(a.loesung, a.id).toBeCloseTo(z - (z * p) / k, 1);
+    }
+  });
+  it('Sondenkost Stufe 2: kcal ÷ Energiedichte', () => {
+    for (let seed = 1; seed <= 100; seed++) {
+      const a = erzeuge('sondenkost', 2, seed);
+      const [, kcal, dichte] = a.frage.match(/([\d.]+) kcal am Tag\. Die Sondenkost hat ([\d,]+) kcal\/ml/)!;
+      expect(a.loesung, a.id).toBeCloseTo(leseZahl(kcal!) / leseZahl(dichte!), 0);
+    }
+  });
+});
