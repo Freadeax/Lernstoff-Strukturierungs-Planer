@@ -1,0 +1,30 @@
+/* Wegweiser „So lernst du hier“ und die Seitenhilfe oben auf den Lernseiten */
+.seitenhilfe { margin: 0; }
+.seitenhilfe summary { cursor: pointer; font-weight: 600; }
+.seitenhilfe p, .seitenhilfe ul { margin: var(--space-2) 0 0; }
+.seitenhilfe ul { padding-left: 1.2em; }
+.seitenhilfe__marke { font-weight: 600; }
+.seitenhilfe__links { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-3); }
+
+.wegweiser { display: flex; flex-direction: column; gap: var(--space-5); }
+.wegweiser section > h2 { margin: 0 0 var(--space-1); }
+.wegweiser section > p.muted { margin: 0 0 var(--space-3); max-width: 70ch; }
+.wegweiser h3 { margin: 0 0 var(--space-1); font-size: var(--text-md, 1rem); }
+.wegweiser__inhalt { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.wegweiser__kreislauf, .wegweiser__phasen { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); }
+.wegweiser__kreislauf > li, .wegweiser__phasen > li { margin: 0; padding: var(--space-3); }
+.wegweiser__kreislauf p, .wegweiser__phasen p { margin: 0 0 var(--space-2); }
+.wegweiser__phasen ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: var(--space-1); }
+.wegweiser__nr { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: var(--radius-pill); background: var(--color-primary-soft); color: var(--color-text); font-weight: 700; margin-bottom: var(--space-2); }
+.wegweiser__links { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-3); margin: 0; }
+.wegweiser__buendel + .wegweiser__buendel { margin-top: var(--space-4); }
+.wegweiser__buendel > p { margin: 0 0 var(--space-2); }
+.wegweiser__seiten, .wegweiser__begriffe, .wegweiser__stufen { margin: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.wegweiser__seite, .wegweiser__begriffe > div { padding: var(--space-2) 0; border-top: 1px solid var(--color-border); }
+.wegweiser dt { font-weight: 700; }
+.wegweiser dd { margin: 2px 0 0; max-width: 75ch; }
+.wegweiser__zwei { display: grid; gap: var(--space-3); grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+.wegweiser__zwei > .card { margin: 0; padding: var(--space-3); }
+.wegweiser__zwei > .card > p { margin: 0 0 var(--space-2); }
+.wegweiser__stufen > div { display: grid; grid-template-columns: 7.5em 1fr; gap: var(--space-2); }
+.wegweiser__stufen dd { margin: 0; }

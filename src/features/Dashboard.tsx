@@ -24,7 +24,7 @@ function fallLaeuft(): boolean {
   try { return !!(localStorage.getItem('lernstoff.praxis.schicht') || localStorage.getItem('lernstoff.praxis.aktuell')); } catch { return false; }
 }
 
-/** Die fünf häufigsten Wege, jeder mit einem Tipp erreichbar. */
+/** Die häufigsten Wege, jeder mit einem Tipp erreichbar. Der letzte erklärt Neuen, wie die Lernseiten zusammenhängen. */
 function Schnellwege() {
   const wege: Array<[string, string, IconName]> = [
     ['Prüfung planen', '/lernen/plan?ansicht=pruefungen&neu=1', 'calendar'],
@@ -32,6 +32,7 @@ function Schnellwege() {
     ['Fällige Karten lernen', '/lernen/karten', 'cards'],
     [fallLaeuft() ? 'Fall fortsetzen' : 'Fall starten', '/lernen/praxis', 'user'],
     ['Sicherung erstellen', '/system/sicherung', 'save'],
+    ['So lernst du hier', '/lernen/wegweiser', 'sparkle'],
   ];
   const zuletzt = useStore(merkliste, (m) => m.zuletzt).filter((p) => seitenName(p)).slice(0, 4);
   return (

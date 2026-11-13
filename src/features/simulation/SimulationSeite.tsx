@@ -1,3 +1,4 @@
+import { SeitenHilfe } from '../wegweiser/SeitenHilfe';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { notiereFehler } from '../fehlerheft/fehlerheft';
 import { ausSimulation } from '../fehlerheft/quellen';
@@ -569,6 +570,7 @@ export default function Simulation() {
         <h2>Prüfungssimulation</h2>
         {!laeuft && <p className="muted">Schriftliche Probeprüfung mit Zeitlimit aus Fachbegriffen, Rechenaufgaben, Aufgaben und Fällen der Übungstrainer und Fragen aus deinem Material, gefiltert nach Kompetenzbereichen und Anforderungsbereichen. Das Ergebnis geht je Thema an den Lernplan.</p>}
       </div>
+      {!laeuft && <SeitenHilfe path="/lernen/simulation" />}
       {!lauf && <Einrichten onStart={setLauf} saetze={saetze} exams={exams} pools={pools} verlauf={verlauf} />}
       {laeuft && <Pruefung lauf={lauf} setLauf={setLauf} onAbgabe={abgabe} />}
       {lauf?.abgegeben && <Ergebnis lauf={lauf} setLauf={setLauf} onNeu={() => { if (lauf.uebergeben || confirm('Ergebnis wurde noch nicht an den Lernplan übergeben. Trotzdem neu beginnen?')) setLauf(null); }} />}

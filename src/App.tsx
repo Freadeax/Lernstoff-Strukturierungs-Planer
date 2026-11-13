@@ -1,4 +1,4 @@
-import { lazy, useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { Shell } from './ui/shell/Shell';
 import { navigate, useRoute } from './ui/shell/router';
 import { REDIRECTS, gruppenPfad } from './ui/shell/nav';
@@ -52,11 +52,15 @@ const RechtTrainer = lazy(() => import('./features/recht/RechtTrainer'));
 const Schnellsuche = lazy(() => import('./features/schnellsuche/Schnellsuche'));
 const UebenSeite = lazy(() => import('./features/ueben/UebenSeite'));
 const ThemaSeite = lazy(() => import('./features/thema/ThemaSeite'));
+const Wegweiser = lazy(() => import('./features/wegweiser/WegweiserSeite'));
+// Kurzhilfe für die beiden Seiten, die hier direkt gebaut werden: eigener kleiner Chunk, das Startpaket bleibt gleich.
+const SeitenHilfe = lazy(() => import('./features/wegweiser/SeitenHilfe'));
 
-function Page({ title, intro, children }: { title: string; intro?: string; children: React.ReactNode }) {
+function Page({ title, intro, hilfe, children }: { title: string; intro?: string; hilfe?: string; children: React.ReactNode }) {
   return (
     <section className="page">
       <PageHeading title={title} description={intro ?? ''} />
+      {hilfe && <Suspense fallback={null}><SeitenHilfe path={hilfe} /></Suspense>}
       {children}
     </section>
   );
@@ -69,13 +73,14 @@ function View() {
   switch (path) {
     case '/': return <Dashboard />;
     case '/lernen/plan': return <Lernplan />;
-    case '/lernen/themen': return <Page title="Themen" intro="Alle Themen des Fachmoduls. Arbeitsstand direkt in der Tabelle ändern oder mehrere auswählen."><WidgetGrid widgets={[WIDGETS.themen]} allowHide={false} /></Page>;
+    case '/lernen/themen': return <Page title="Themen" hilfe="/lernen/themen" intro="Alle Themen des Fachmoduls. Arbeitsstand direkt in der Tabelle ändern oder mehrere auswählen."><WidgetGrid widgets={[WIDGETS.themen]} allowHide={false} /></Page>;
     case '/lernen/ce': return <CeSeite />;
+    case '/lernen/wegweiser': return <Wegweiser />;
     case '/lernen/thema': return <ThemaSeite />;
     case '/lernen/ueben': return <UebenSeite />;
     case '/lernen/fortschritt': return <Fortschritt />;
     case '/lernen/landkarte': return <Landkarte />;
-    case '/lernen/board': return <Page title="Mein Themenboard" intro="Dein Arbeitsstand je Thema: Themenpool, diese Woche, in Arbeit, erarbeitet. Ob du ein Thema sicher kannst, zeigt der Wissensstand aus Abfragen im Lernplan."><WidgetGrid widgets={[WIDGETS.board]} allowHide={false} /></Page>;
+    case '/lernen/board': return <Page title="Mein Themenboard" hilfe="/lernen/board" intro="Dein Arbeitsstand je Thema: Themenpool, diese Woche, in Arbeit, erarbeitet. Ob du ein Thema sicher kannst, zeigt der Wissensstand aus Abfragen im Lernplan."><WidgetGrid widgets={[WIDGETS.board]} allowHide={false} /></Page>;
     case '/lernen/skript': return <Skript />;
     case '/lernen/karten': return <Karteikarten />;
     case '/lernen/schnellsuche': return <Schnellsuche />;

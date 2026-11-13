@@ -74,7 +74,7 @@ const futureDate = new Date(Date.now() + 21 * 86400000).toISOString().slice(0, 1
     await page.locator('.ueben__gruppe h2').first().waitFor();
     assert.deepEqual(await page.locator('.ueben__gruppe h2').allTextContents(),[name],'Kachel öffnet nur ihre Kategorie: '+name);
   }
-  for(const [name,ziel] of [['Prüfung planen','/lernen/plan'],['Quelle finden','/material/dokumente'],['Fällige Karten lernen','/lernen/karten'],['Fall starten','/lernen/praxis'],['Sicherung erstellen','/system/sicherung']]){
+  for(const [name,ziel] of [['Prüfung planen','/lernen/plan'],['Quelle finden','/material/dokumente'],['Fällige Karten lernen','/lernen/karten'],['Fall starten','/lernen/praxis'],['Sicherung erstellen','/system/sicherung'],['So lernst du hier','/lernen/wegweiser']]){
     await go('/');await page.getByRole('navigation',{name:'Schnellwege'}).getByRole('link',{name,exact:true}).click();
     await page.waitForFunction(z=>location.hash.startsWith('#'+z),ziel);await page.locator('main .page').first().waitFor();
   }

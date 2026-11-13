@@ -1,3 +1,4 @@
+import { SeitenHilfe } from '../wegweiser/SeitenHilfe';
 import { useMemo, useState } from 'react';
 import '../faecher.css';
 import './examen.css';
@@ -41,6 +42,7 @@ export default function ExamenSeite() {
     <section className="page examen">
       <PageHeading eyebrow="Staatliche Prüfung" title="Examen. Gezielt statt auf gut Glück."
         description="Wo stehst du je Kompetenzbereich und Prüfungsteil? Übe die mündliche Prüfung laut und plane die praktische Prüfung rückwärts vom Termin." />
+      <SeitenHilfe path="/lernen/examen" />
       <div className="pills" role="tablist" aria-label="Ansicht">
         {ANSICHTEN.map((a, index) => (
           <button key={a.id} id={`examen-tab-${a.id}`} type="button" role="tab" className="pill" aria-selected={ansicht === a.id} aria-controls="examen-panel" tabIndex={ansicht === a.id ? 0 : -1}

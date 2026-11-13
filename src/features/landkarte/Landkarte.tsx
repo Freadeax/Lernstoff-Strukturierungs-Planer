@@ -1,3 +1,4 @@
+import { SeitenHilfe } from '../wegweiser/SeitenHilfe';
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import './landkarte.css';
 import { db } from '../../core/db';
@@ -390,6 +391,7 @@ export default function Landkarte() {
           <span className="karte__intro">Pfeile zeigen, was worauf aufbaut, die Farbe deinen Arbeitsstand. Thema antippen zeigt den Lernpfad. </span><span className="karte__stand" aria-live="polite"><strong>{erarbeitet}</strong> von {gesamt} erarbeitet, <strong>{ready.size}</strong> bereit.</span>
         </p>
       </div>
+      <SeitenHilfe path="/lernen/landkarte" />
 
       <div className="karte__werkzeuge">
         <div className="pills karte__ansicht" role="group" aria-label="Ansicht">
