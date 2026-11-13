@@ -222,6 +222,8 @@ try {
     await page.waitForTimeout(600);
     await audit('Fallsimulator Rückblick'); await page.screenshot({ path: path.join(output, `fall-rueckblick-${width}.png`), fullPage: true });
     assert(await page.getByRole('heading', { name: 'Weiterlernen' }).isVisible(), 'Rückweg zu Theorie');
+    assert(await page.getByRole('heading', { name: 'Alle Wege dieses Falls' }).isVisible(), 'Alle Wege nach dem Probefall');
+    assert((await page.locator('.fall__wege-liste .is-gewaehlt').count()) >= 3, 'eigene Wahl je Szene markiert');
     await context.close();
     // Fehlendes Medium: Raumfoto blockiert (ohne Service Worker, damit die Sperre greift) → gezeichnete Ersatzansicht
     {

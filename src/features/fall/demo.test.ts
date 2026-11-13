@@ -122,3 +122,15 @@ describe('Rückblick-Maßstab', () => {
     expect(massstabFuer(rueckblickPunkte(spiele(beste))).name).toBe('NEWS2');
   });
 });
+
+describe('Alle Wege (Entscheidungswege)', () => {
+  it('Karte zeigt Hauptlinie mit Abzweigen und markiert den gegangenen Weg', async () => {
+    const { wegeKarte } = await import('./Entscheidungswege');
+    for (const p of PROBEFAELLE) {
+      const karte = wegeKarte(p, new Set([p.reihe[0]!]));
+      expect(karte.map((k) => k.id), p.szenario.id).toEqual(p.reihe);
+      expect(karte[0]!.besucht).toBe(true);
+      expect(karte.flatMap((k) => k.abzweige).length, p.szenario.id).toBeGreaterThan(0);
+    }
+  });
+});

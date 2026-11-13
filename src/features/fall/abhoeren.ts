@@ -21,6 +21,10 @@ const BEFUND: Record<string, AbhoerBefund> = {
   nachblutung: { ...NORMAL_SCHNELL, text: 'Atemgeräusch unauffällig, die Herztöne sind regelmäßig und schnell. Die Ursache liegt hier nicht in der Lunge, sondern im Volumenmangel.' },
   'demo-hypo': { ...NORMAL_SCHNELL, text: 'Atemgeräusch unauffällig, die Herztöne sind regelmäßig und etwas schnell. Das Abhören erklärt die Unruhe nicht, der Blutzucker schon.' },
   lungenembolie: { ...NORMAL_SCHNELL, text: 'Atemgeräusch oft unauffällig, das Herz schlägt schnell. Ein unauffälliger Lungenbefund schließt eine Lungenembolie nicht aus.' },
+  'demo-sepsis': { ...NORMAL_SCHNELL, text: 'Atemgeräusch beidseits unauffällig, die Herztöne sind regelmäßig und schnell. Die Ursache liegt nicht in der Lunge, sondern im Infekt der Harnwege.' },
+  'demo-schlaganfall': { lunge: 'atem-vesikulaer', herz: 'herz-normal', text: 'Atemgeräusch und Herztöne unauffällig. Beim Schlaganfall liegt der Befund im Kopf: Entscheidend sind BE-FAST und der Zeitpunkt. Hört man nach dem Verschlucken Rasseln, droht eine Aspiration.' },
+  'demo-anaphylaxie': { lunge: 'atem-stridor', herz: 'herz-tachy', text: 'Beim Einatmen ein pfeifendes Geräusch über dem Hals (Stridor), das Herz schlägt schnell: Die oberen Atemwege schwellen zu. Das ist ein Notfall.' },
+  'demo-fieberkrampf': { lunge: 'atem-vesikulaer', herz: 'herz-tachy', text: 'Normales, schnelles Atemgeräusch beidseits, das Herz schlägt schnell, passend zum hohen Fieber. Nach dem Krampf auf Schnarchen und Röcheln achten.' },
   'sturz-nacht': { lunge: 'atem-vesikulaer', herz: 'herz-arrhythmie', text: 'Normales Atemgeräusch. Die Herztöne sind völlig unregelmäßig: passend zum bekannten Vorhofflimmern.' },
 };
 
