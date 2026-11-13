@@ -205,7 +205,7 @@ export function Zusammenfassen() {
     <section className="page summary-workspace">
       <PageHeading eyebrow="Material verstehen" title="Aus Quellen wird Lernstoff."
         description="Wähle dein Ziel, lege die Quellen fest und passe das Ergebnis an deinen Lernbedarf an." />
-      {!hasKey && <div className="note">Für die Erstellung benötigst du deinen Claude-API-Schlüssel. <a href="#/einstellungen">KI-Unterstützung einrichten</a></div>}
+      {!hasKey && <div className="note">Für die Erstellung hier benötigst du deinen Claude-API-Schlüssel. <a href="#/einstellungen">KI-Unterstützung einrichten</a>. Ohne Schlüssel: im <a href="#/lernen/skript?laden=1">Skript</a> ein Dokument „Mit der Claude-App zusammenfassen“ oder wörtlich übernehmen.</div>}
       <form className="card form-card" noValidate aria-busy={!!busy} onSubmit={(e) => { e.preventDefault(); if (feedback.validate(e.currentTarget) && !busy) run(); }}>
         <p className="required-note">Mit <span className="required-mark">*</span> markierte Angaben sind erforderlich.</p>
         <fieldset className="form-section" disabled={!!busy}>
