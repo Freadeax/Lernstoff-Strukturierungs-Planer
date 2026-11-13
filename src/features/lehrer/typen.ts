@@ -42,5 +42,4 @@ export const STATUS_LABEL: Record<Status, string> = {
   neu: 'neue Abgabe seit Bewertung',
 };
 
-/** Gleicher Mensch trotz anderer Schreibweise: Groß/Klein, doppelte Leerzeichen, Punkt am Ende. */
-export const nameSchluessel = (name: string) => name.normalize('NFC').trim().toLowerCase().replace(/\s+/g, ' ').replace(/\.$/, '');
+export { nameSchluessel } from '../klasse/typen';

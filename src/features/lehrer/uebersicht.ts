@@ -45,7 +45,9 @@ export function klassenMatrix(klasse: Klasse, faelle: KlassenFall[], q: Quellen)
   for (const f of faelle) for (const a of q.abgaben(f.id)) if (!namen.has(nameSchluessel(a.name))) namen.set(nameSchluessel(a.name), { name: a.name, inListe: false });
 
   const jeFall = faelle.map((f) => {
-    const ab = new Map(q.abgaben(f.id).map((a) => [nameSchluessel(a.name), a]));
+    // Ältere Stände mit gleicher Person (z. B. „Lea K.“ und „Lea K“): die neueste Abgabe zählt
+    const ab = new Map<string, Abgabe>();
+    for (const a of q.abgaben(f.id)) { const k = nameSchluessel(a.name); const alt = ab.get(k); if (!alt || alt.abgegeben < a.abgegeben) ab.set(k, a); }
     return { f, ab, bw: q.bewertungen(f.id) };
   });
 

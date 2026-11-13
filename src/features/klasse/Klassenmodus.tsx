@@ -189,7 +189,12 @@ function RueckmeldungEinfuegen({ fertig }: { fertig: (r: Rueckmeldung) => void }
   );
 }
 
-const fristTage = (frist: string) => Math.ceil((new Date(`${frist}T23:59:59`).getTime() - Date.now()) / 864e5);
+/** Kalendertage bis zur Frist (heute = 0, morgen = 1, gestern = -1), in lokaler Zeit. */
+export function fristTage(frist: string, jetzt = new Date()): number {
+  const [j, m, t] = frist.split('-').map(Number);
+  const heute = Date.UTC(jetzt.getFullYear(), jetzt.getMonth(), jetzt.getDate());
+  return Math.round((Date.UTC(j!, m! - 1, t!) - heute) / 864e5);
+}
 
 function Start() {
   const [eigene] = useState(eigeneFaelle);

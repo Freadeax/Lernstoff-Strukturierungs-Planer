@@ -38,7 +38,7 @@ function RueckmeldungTeilen({ fall, b, schluessel, fertig }: { fall: KlassenFall
         <span>Note in der Rückmeldung zeigen</span>
       </label>
       <div className="row klasse__knoepfe">
-        <button type="button" className="primary" disabled={!link} onClick={async () => { await teile({ title: `Rückmeldung: ${fall.titel}`, text: rueckmeldungText(r, link) }, 'Rückmeldung'); gesendet(); }}>Rückmeldung an {b.name} teilen …</button>
+        <button type="button" className="primary" disabled={!link} onClick={async () => { if (await teile({ title: `Rückmeldung: ${fall.titel}`, text: rueckmeldungText(r, link) }, 'Rückmeldung')) gesendet(); }}>Rückmeldung an {b.name} teilen …</button>
         <button type="button" disabled={!link} onClick={async () => { if (await kopiere(rueckmeldungText(r, link), 'Rückmeldung')) gesendet(); }}>Kopieren</button>
         <button type="button" className="ghost" disabled={!link || !qrPfad(link)} onClick={() => setQr(true)}>QR-Code</button>
       </div>
@@ -80,9 +80,10 @@ function Einzeln({ fall, abgabe, abgaben, aendereFall }: { fall: KlassenFall; ab
   const veraltet = !!b.bewertet && b.abgabeVom < abgabe.abgegeben;
 
   // Entwurf sofort sichern: nichts geht verloren, „bewertet“ setzt erst „Bewertung abschließen“.
+  const [speicherFehler, setSpeicherFehler] = useState(false);
   useEffect(() => {
     const leer = !b.bewertet && !Object.keys(b.punkte).length && !Object.values(b.kommentare).some((k) => k.trim()) && !b.kommentar.trim();
-    if (!leer || bewertungVon(fall.id, b.name)) speichereBewertung(b);
+    if (!leer || bewertungVon(fall.id, b.name)) setSpeicherFehler(!speichereBewertung(b));
   }, [b, fall.id]);
 
   const setzePunkte = (id: string, wert: string) => setB((x) => {
@@ -105,7 +106,8 @@ function Einzeln({ fall, abgabe, abgaben, aendereFall }: { fall: KlassenFall; ab
   function abschliessen(weiter: boolean) {
     const fertig = { ...b, abgabeVom: abgabe.abgegeben, bewertet: new Date().toISOString() };
     setB(fertig);
-    speichereBewertung(fertig);
+    // Nicht weiterspringen, wenn nicht gespeichert werden konnte: sonst wären Punkte und Kommentare weg
+    if (!speichereBewertung(fertig)) { setSpeicherFehler(true); return; }
     if (weiter) { const n = naechsteOffene(); if (n) zu(n); else navigate(`/lehren/bewerten?fall=${fall.id}`); }
   }
 
@@ -195,6 +197,7 @@ function Einzeln({ fall, abgabe, abgaben, aendereFall }: { fall: KlassenFall; ab
           <button type="button" onClick={() => abschliessen(false)}>Abschließen</button>
           <span className="muted">{b.bewertet ? `Abgeschlossen am ${datumText(b.bewertet)}` : 'Entwurf, wird laufend gespeichert'}</span>
         </div>
+        {speicherFehler && <div className="note warn" role="alert">Speichern nicht möglich (privater Modus oder Speicher voll). Bitte die Seite nicht verlassen: Punkte und Kommentare abschreiben oder Speicher freigeben (z. B. alte Abgaben löschen) und erneut abschließen.</div>}
         {b.bewertet && !veraltet && <RueckmeldungTeilen fall={fall} b={b} schluessel={schluessel} fertig={() => { setB((x) => ({ ...x, gesendet: new Date().toISOString() })); setGesendet((n) => n + 1); }} />}
       </div>
     </>

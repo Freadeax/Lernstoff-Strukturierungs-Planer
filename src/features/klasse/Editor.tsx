@@ -48,6 +48,8 @@ export function Editor({ start }: { start: KlassenFall }) {
     };
     const kaputt = fall.aufgaben.findIndex((a) => a.typ === 'wahl' && (a.optionen?.length ?? 0) < 2);
     if (kaputt >= 0) { setFehler(`Aufgabe ${kaputt + 1}: Eine Auswahlaufgabe braucht mindestens zwei Antworten.`); return; }
+    const zuViele = fall.aufgaben.findIndex((a) => a.typ === 'wahl' && !a.mehrfach && (a.richtig?.length ?? 0) > 1);
+    if (zuViele >= 0) { setFehler(`Aufgabe ${zuViele + 1}: Nur eine Antwort darf richtig sein, oder „Mehrere Antworten können richtig sein“ anhaken.`); return; }
     if (!speichereEigenen(fall)) { setFehler('Speichern nicht möglich (privater Modus oder Speicher voll).'); return; }
     navigate(`/lernen/klasse/lehrkraft?id=${fall.id}`);
   }
@@ -125,7 +127,7 @@ export function Editor({ start }: { start: KlassenFall }) {
             {a.typ === 'wahl' && (
               <div className="klasse__optionen">
                 <label className="klasse__haken">
-                  <input type="checkbox" checked={!!a.mehrfach} onChange={(e) => setzeAufgabe(i, { mehrfach: e.target.checked || undefined })} />
+                  <input type="checkbox" checked={!!a.mehrfach} onChange={(e) => setzeAufgabe(i, { mehrfach: e.target.checked || undefined, richtig: e.target.checked ? a.richtig : a.richtig?.slice(0, 1) })} />
                   <span>Mehrere Antworten können richtig sein</span>
                 </label>
                 {(a.optionen ?? []).map((o, j) => (

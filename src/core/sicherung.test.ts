@@ -161,6 +161,12 @@ describe('Datensicherung', () => {
     expect(fuehreWertZusammen([1, 2], [2, 3])).toEqual([1, 2, 3]);
     expect(fuehreWertZusammen('lokal', 'fremd')).toBe('lokal');
     expect(fuehreWertZusammen(undefined, 'fremd')).toBe('fremd');
+    // Lehrermodus: Fall → Name → Bewertung, beide Geräte haben Bewertungen zum selben Fall
+    const bw = (name: string, bewertet: string, p: number) => ({ fallId: 'f', name, punkte: { a: p }, kommentare: {}, kommentar: '', abgabeVom: '', bewertet });
+    expect(fuehreWertZusammen(
+      { f: { lea: bw('Lea', '2026-11-10T10:00:00Z', 1), tom: bw('Tom', '2026-11-12T10:00:00Z', 5) } },
+      { f: { lea: bw('Lea', '2026-11-11T10:00:00Z', 2), tom: bw('Tom', '2026-11-11T10:00:00Z', 3), ayse: bw('Ayşe', '2026-11-11T10:00:00Z', 4) } },
+    )).toEqual({ f: { lea: bw('Lea', '2026-11-11T10:00:00Z', 2), tom: bw('Tom', '2026-11-12T10:00:00Z', 5), ayse: bw('Ayşe', '2026-11-11T10:00:00Z', 4) } });
   });
 
   it('mischt laufende Sitzungen zweier Geräte nicht', () => {

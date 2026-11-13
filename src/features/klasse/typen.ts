@@ -145,3 +145,6 @@ export interface Rueckmeldung {
   kommentar?: string;
   bewertet: string; // ISO
 }
+
+/** Gleicher Mensch trotz anderer Schreibweise: Groß/Klein, doppelte Leerzeichen, Punkt am Ende. */
+export const nameSchluessel = (name: string) => name.normalize('NFC').trim().toLowerCase().replace(/\s+/g, ' ').replace(/\.$/, '');

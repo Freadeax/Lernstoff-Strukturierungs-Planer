@@ -235,3 +235,21 @@ describe('Klassen, Bewertungen, Übersicht', () => {
     expect(k.titel).toBe('Herr Weber, Pneumonie (Kopie)');
   });
 });
+
+describe('Frist in Kalendertagen', () => {
+  it('heute, morgen, gestern unabhängig von der Uhrzeit', async () => {
+    const { fristTage } = await import('../klasse/Klassenmodus');
+    expect(fristTage('2026-11-13', new Date('2026-11-13T07:00:00'))).toBe(0);
+    expect(fristTage('2026-11-13', new Date('2026-11-13T23:30:00'))).toBe(0);
+    expect(fristTage('2026-11-14', new Date('2026-11-13T23:30:00'))).toBe(1);
+    expect(fristTage('2026-11-12', new Date('2026-11-13T00:10:00'))).toBe(-1);
+  });
+});
+
+describe('Gleiche Person, andere Schreibweise', () => {
+  it('neuere Abgabe ersetzt die ältere, egal in welcher Reihenfolge eingelesen', () => {
+    nimmAbgabenAuf([abgabe('Lea K', { a1: 'neu' }, '2026-11-09T12:00:00.000Z')]);
+    expect(nimmAbgabenAuf([abgabe('lea k.', { a1: 'alt' }, '2026-11-09T08:00:00.000Z')])).toMatchObject({ neu: 0, doppelt: 1 });
+    expect(abgabenZu(fall.id).map((a) => a.antworten.a1)).toEqual(['neu']);
+  });
+});

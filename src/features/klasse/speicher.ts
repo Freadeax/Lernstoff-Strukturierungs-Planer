@@ -1,6 +1,6 @@
 import { istObjekt, storage } from '../../ui/lib/store';
 import { pruefeFall } from './kodierung';
-import type { Abgabe, KlassenFall, Rueckmeldung } from './typen';
+import { nameSchluessel, type Abgabe, type KlassenFall, type Rueckmeldung } from './typen';
 
 // Alles nur in diesem Browser. Keine DB-Tabelle, damit der Klassenmodus ohne Schemawechsel auskommt.
 const EIGENE = 'lernstoff.klasse.eigene';       // Fälle, die ich als Lehrkraft verteile (mit Lösung)
@@ -56,7 +56,7 @@ export function nimmAbgabenAuf(neue: Abgabe[]): { neu: number; ersetzt: number; 
   let neu = 0; let ersetzt = 0; let doppelt = 0;
   for (const a of neue) {
     const liste = alle[a.fallId] ?? [];
-    const i = liste.findIndex((x) => x.name.trim().toLowerCase() === a.name.trim().toLowerCase());
+    const i = liste.findIndex((x) => nameSchluessel(x.name) === nameSchluessel(a.name));
     if (i < 0) { liste.push(a); neu++; }
     else if (liste[i]!.abgegeben === a.abgegeben) doppelt++;
     else if (liste[i]!.abgegeben < a.abgegeben) { liste[i] = a; ersetzt++; }
@@ -129,7 +129,7 @@ export function benenneAbgabeUm(fallId: string, alt: string, neu: string): boole
   const a = liste.find((x) => x.name === alt);
   if (!a || !neu.trim()) return false;
   const rest = liste.filter((x) => x !== a);
-  const gleich = rest.find((x) => x.name.trim().toLowerCase() === neu.trim().toLowerCase());
+  const gleich = rest.find((x) => nameSchluessel(x.name) === nameSchluessel(neu));
   const umbenannt = { ...a, name: neu.trim() };
   alle[fallId] = gleich
     ? [...rest.filter((x) => x !== gleich), gleich.abgegeben >= a.abgegeben ? gleich : umbenannt]
