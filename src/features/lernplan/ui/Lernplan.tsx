@@ -68,9 +68,15 @@ export function OhnePruefung() {
   return (
     <div className="card lernplan__leer">
       <h3>Noch keine Prüfung eingetragen</h3>
-      <p>Der Plan verteilt den Stoff rückwärts vom Prüfungstermin. Trag zuerst eine Klausur oder Prüfung mit ihren Themen ein.</p>
+      <p>Der Plan verteilt den Stoff rückwärts vom Prüfungstermin. So startest du:</p>
+      <ol className="lernplan__start">
+        <li><strong>Prüfung eintragen</strong> mit Datum und Themen. Für die Klausur einer CE geht es schneller über die <a href="#/lernen/ce">CE-Seite</a>, dann sind alle Themen der CE schon drin.</li>
+        <li><strong>Lernzeit eintragen:</strong> An welchen Tagen und wie lange kannst du lernen? <a href="#/lernen/plan?ansicht=zeit">Lernzeit</a></li>
+        <li><strong>Jeden Tag „Heute“ abarbeiten.</strong> Der Plan rechnet nach jeder Abfrage neu.</li>
+      </ol>
       <button type="button" className="primary" onClick={() => navigate('/lernen/plan?ansicht=pruefungen&neu=1')}>Prüfung eintragen</button>
       <button type="button" className="ghost" onClick={() => navigate('/lernen/plan?ansicht=wissensstand')}>Wissensstand ohne Prüfung prüfen</button>
+      <p className="muted">Wie Plan, Board und Wissensstand zusammenhängen, steht unter <a href="#/lernen/wegweiser">So lernst du hier</a>.</p>
     </div>
   );
 }
