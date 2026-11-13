@@ -1,7 +1,10 @@
 // „Mehr verstehen“ im Grundlagen-Trainer. Übliches Lehrbuchwissen zur medizinischen Terminologie;
 // die Abkürzungsliste der Einrichtung geht vor.
 
+import { PFLEGEBERUF_VERTIEFUNG } from './pflegeberuf';
+
 export const VERTIEFUNG: Record<string, string[]> = {
+  ...PFLEGEBERUF_VERTIEFUNG,
   'wort.zu.suffixe': [
     'Die meisten Bausteine stammen aus dem Griechischen oder Lateinischen. Griechische Stämme werden eher für Krankheiten und Eingriffe benutzt (Nephritis), lateinische eher für Anatomie (Arteria renalis).',
     'Vorsicht bei -ose: Arthrose ist Verschleiß, Thrombose ein Blutgerinnsel, Tuberkulose dagegen eine Infektion. Die Endung beschreibt oft nur „krankhafter Zustand“ ohne Entzündung als Hauptmerkmal.',

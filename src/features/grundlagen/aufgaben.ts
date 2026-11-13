@@ -1,9 +1,11 @@
-// Grundlagen-Trainer, Teil Fachsprache: Wortbausteine, Lage- und Richtungsbezeichnungen, Abkürzungen in Klinik und Dokumentation.
+// Grundlagen-Trainer. Teil Fachsprache hier, Teil Pflegeberuf in pflegeberuf.ts.
+// Fachsprache: Wortbausteine, Lage- und Richtungsbezeichnungen, Abkürzungen in Klinik und Dokumentation.
 // Grundlage: übliche Lehrbuchinhalte der medizinischen Terminologie. Abkürzungen unterscheiden sich zwischen
 // Einrichtungen; maßgeblich ist die Abkürzungsliste des Hauses. Die Seite sagt das.
 
 import { mitVertiefung, type Aufgabe, type AuswahlAufgabe } from '../quiz/quiz';
 import { VERTIEFUNG } from './vertiefung';
+import { PFLEGEBERUF, PFLEGEBERUF_BEREICHE, PFLEGEBERUF_THEMEN, type PflegeBereich } from './pflegeberuf';
 
 export const THEMEN = {
   wortbildung: 'thema.fs.wortbildung',
@@ -11,7 +13,7 @@ export const THEMEN = {
   abkuerzungen: 'thema.fs.abkuerzungen',
 } as const;
 
-export type BereichId = 'wortbildung' | 'lage' | 'abkuerzungen';
+export type BereichId = 'wortbildung' | 'lage' | 'abkuerzungen' | PflegeBereich;
 export interface Bereich { id: BereichId; label: string; kurz: string; wissen: string[] }
 
 function frage(id: string, thema: string, titel: string, f: string, optionen: string[], erklaerung: string[], richtig = [0], mehrfach = false): AuswahlAufgabe {
@@ -294,9 +296,10 @@ export const BEREICHE: Bereich[] = [
       'Nur Abkürzungen aus der Liste des Hauses verwenden, im Zweifel ausschreiben.',
     ],
   },
+  ...PFLEGEBERUF_BEREICHE,
 ];
 
-export const AUFGABEN: Record<BereichId, Aufgabe[]> = mitVertiefung({ wortbildung, lage, abkuerzungen }, VERTIEFUNG);
+export const AUFGABEN: Record<BereichId, Aufgabe[]> = mitVertiefung({ wortbildung, lage, abkuerzungen, ...PFLEGEBERUF }, VERTIEFUNG);
 export const ALLE_AUFGABEN: Aufgabe[] = Object.values(AUFGABEN).flat();
 /** Thema → Bereich, für Lernplan-Links. */
-export const BEREICH_ZU_THEMA: Record<string, BereichId> = { [THEMEN.wortbildung]: 'wortbildung', [THEMEN.lage]: 'lage', [THEMEN.abkuerzungen]: 'abkuerzungen' };
+export const BEREICH_ZU_THEMA: Record<string, BereichId> = { [THEMEN.wortbildung]: 'wortbildung', [THEMEN.lage]: 'lage', [THEMEN.abkuerzungen]: 'abkuerzungen', ...PFLEGEBERUF_THEMEN };
