@@ -160,7 +160,14 @@ export function parseSkript(datei: string, markdown: string, o: ParseOptionen): 
   const h1Index = zeilen.findIndex((z) => /^#\s+\S/.test(z));
   if (h1Index < 0) throw new Error(`${datei}: keine Überschrift (# Titel) gefunden.`);
   const h1 = zeilen[h1Index]!.replace(/^#\s+/, '').trim();
-  const { gruppe, titel } = teileTitel(kopf.titel ? `${kopf.gruppe ?? ''} · ${kopf.titel}` : h1, datei);
+  const geteilt = teileTitel(kopf.titel ? `${kopf.gruppe ?? ''} · ${kopf.titel}` : h1, datei);
+  const { gruppe } = geteilt;
+  let { titel } = geteilt;
+  // Eigene Gruppe im Kopf (z. B. gruppe: Arzneimittellehre): gleichen Vorsatz im Titel nicht doppelt zeigen
+  if (kopf.gruppe && !kopf.titel) {
+    const vor = titel.match(/^(.+?)\s*[·:|–]\s+(.+)$/);
+    if (vor && vor[1]!.trim().toLowerCase() === kopf.gruppe.trim().toLowerCase()) titel = vor[2]!.trim();
+  }
 
   // In Abschnitte an ## teilen; ## innerhalb von Codeblöcken zählt nicht
   const bloecke: { kopf?: string; zeilen: string[] }[] = [{ zeilen: [] }];

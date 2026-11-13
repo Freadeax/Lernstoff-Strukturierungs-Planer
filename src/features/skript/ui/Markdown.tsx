@@ -2,7 +2,8 @@
 // Tabellen, Zitate, fett/kursiv, Code, Links. Belege [D, S. 18] werden zu antippbaren Marken,
 // ⚠-Stellen (nicht belegt) farbig abgesetzt. Kein HTML aus dem Text wird ausgeführt.
 
-import { Fragment, type ReactNode } from 'react';
+import { Fragment, useEffect, useState, type ReactNode } from 'react';
+import { BILDER_GEAENDERT, bildSpeicher, repoPfad } from '../bilder';
 import { leseBelegKlammer } from '../parser';
 import { markiere } from '../suche';
 import type { SkriptBeleg } from '../typen';
@@ -30,7 +31,7 @@ function hebeHervor(text: string, k: MdKontext, key: string): ReactNode {
   return out;
 }
 
-const INLINE = /(\*\*[^*]+?\*\*|__[^_]+?__|\*[^*\s][^*]*?\*|`[^`]+`|\[[^\]\n]{1,80}\]\([^)\s]+\)|\[[^\]\n]{1,80}\]|⚠)/g;
+const INLINE = /(!\[[^\]\n]{0,300}\]\([^)\s]+(?:\s+"[^"\n]{0,300}")?\)|\*\*[^*]+?\*\*|__[^_]+?__|\*[^*\s][^*]*?\*|`[^`]+`|\[[^\]\n]{1,80}\]\([^)\s]+\)|\[[^\]\n]{1,80}\]|⚠)/g;
 
 export function inline(text: string, k: MdKontext, key = 'i'): ReactNode[] {
   const out: ReactNode[] = [];
@@ -42,7 +43,10 @@ export function inline(text: string, k: MdKontext, key = 'i'): ReactNode[] {
     if (i > pos) out.push(<Fragment key={`${key}t${n++}`}>{hebeHervor(text.slice(pos, i), k, `${key}h${n}`)}</Fragment>);
     pos = i + t.length;
     const kk = `${key}x${n++}`;
-    if (t.startsWith('**') || t.startsWith('__')) out.push(<strong key={kk}>{inline(t.slice(2, -2), k, kk)}</strong>);
+    if (t.startsWith('![')) {
+      const bm = t.match(/^!\[([^\]]*)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)$/)!;
+      out.push(<SkriptBild key={kk} src={bm[2]!} alt={bm[1]!} titel={bm[3]} k={k} id={kk} />);
+    } else if (t.startsWith('**') || t.startsWith('__')) out.push(<strong key={kk}>{inline(t.slice(2, -2), k, kk)}</strong>);
     else if (t.startsWith('`')) out.push(<code key={kk}>{t.slice(1, -1)}</code>);
     else if (t === '⚠') out.push(<span key={kk} className="sk-warn-icon" role="img" aria-label="nicht im Material belegt" title="Nicht im Material belegt">⚠</span>);
     else if (t.startsWith('*')) out.push(<em key={kk}>{inline(t.slice(1, -1), k, kk)}</em>);
@@ -63,6 +67,42 @@ export function inline(text: string, k: MdKontext, key = 'i'): ReactNode[] {
   }
   if (pos < text.length) out.push(<Fragment key={`${key}e`}>{hebeHervor(text.slice(pos), k, `${key}he`)}</Fragment>);
   return out;
+}
+
+// ---------------------------------------------------------------- Bilder
+
+/**
+ * Abbildung aus dem Material-Repo, offline vom Gerät geladen. Bilder aus dem Netz werden nicht
+ * nachgeladen (Datenschutz, offline): Dann steht nur die Bildunterschrift da.
+ */
+function SkriptBild({ src, alt, titel, k, id }: { src: string; alt: string; titel?: string; k: MdKontext; id: string }) {
+  const pfad = repoPfad(src);
+  const [zustand, setZustand] = useState<{ url?: string; fehlt?: boolean }>({});
+  const [stand, setStand] = useState(0);
+  useEffect(() => {
+    const neu = () => setStand((n) => n + 1);
+    window.addEventListener(BILDER_GEAENDERT, neu);
+    return () => window.removeEventListener(BILDER_GEAENDERT, neu);
+  }, []);
+  useEffect(() => {
+    if (!pfad) { setZustand({ fehlt: true }); return; }
+    let url: string | undefined;
+    let aus = false;
+    bildSpeicher().hole(pfad)
+      .then((b) => { if (aus) return; if (b) { url = URL.createObjectURL(b.blob); setZustand({ url }); } else setZustand({ fehlt: true }); })
+      .catch(() => { if (!aus) setZustand({ fehlt: true }); });
+    return () => { aus = true; if (url) URL.revokeObjectURL(url); };
+  }, [pfad, stand]);
+  // Bildunterschrift nur aus dem Titel ("…"): Im Skript steht die Beschreibung meist schon im Text davor
+  const unterschrift = titel;
+  return (
+    <figure className="sk-bild">
+      {zustand.url
+        ? <a href={zustand.url} target="_blank" rel="noopener" title="Groß öffnen"><img src={zustand.url} alt={alt} loading="lazy" decoding="async" /></a>
+        : <span className="sk-bild__fehlt" role="img" aria-label={alt}>{zustand.fehlt ? (pfad ? 'Bild noch nicht auf diesem Gerät. Unter „Skripte laden“ aus dem Material-Repo laden.' : 'Bild nur im Netz, wird offline nicht angezeigt.') : 'Bild wird geladen …'}</span>}
+      {unterschrift && <figcaption>{inline(unterschrift, k, `${id}u`)}</figcaption>}
+    </figure>
+  );
 }
 
 // ---------------------------------------------------------------- Blöcke
@@ -187,7 +227,9 @@ function BlockAnsicht({ b, k, id }: { b: Block; k: MdKontext; id: string }) {
     }
     case 'absatz': {
       const warn = /^⚠/.test(b.text.trim());
-      return <p className={warn ? 'sk-luecke' : undefined}>{inline(b.text, k, id)}</p>;
+      // Ein Bild (figure) darf nicht in <p> stehen
+      const Tag = /!\[[^\]\n]*\]\(/.test(b.text) ? 'div' : 'p';
+      return <Tag className={warn ? 'sk-luecke' : undefined}>{inline(b.text, k, id)}</Tag>;
     }
     case 'liste': {
       const Tag = b.geordnet ? 'ol' : 'ul';

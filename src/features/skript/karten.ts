@@ -12,7 +12,7 @@ const MAX_PUNKTE = 6;
 export const skriptDokId = (skriptId: ID) => `skript:${skriptId}`;
 
 function ohneMarkdown(s: string): string {
-  return s.replace(/\*\*|__|`/g, '').replace(/\s*\[([^\]\n]{1,80})\](?!\()/g, (ganz, inhalt: string) => (/^[A-ZÄÖÜ][\w/-]*(,|;|$)/.test(inhalt) ? '' : ganz)).replace(/\s+/g, ' ').trim();
+  return s.replace(/!\[[^\]\n]*\]\([^)\n]*\)/g, '').replace(/\*\*|__|`/g, '').replace(/\s*\[([^\]\n]{1,80})\](?!\()/g, (ganz, inhalt: string) => (/^[A-ZÄÖÜ][\w/-]*(,|;|$)/.test(inhalt) ? '' : ganz)).replace(/\s+/g, ' ').trim();
 }
 
 interface Punkt { text: string; belege: SkriptBeleg[]; unterpunkt?: boolean; /** Zwischenüberschrift, unter der der Punkt steht. */ gruppe?: string }
