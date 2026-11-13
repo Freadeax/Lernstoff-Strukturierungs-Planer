@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { UmzugsHinweis } from '../../features/sicherung/UmzugsHinweis';
 import { Icon } from '../icons';
 import { Menu } from '../Menu';
@@ -132,6 +132,31 @@ function OhneSpeicherHinweis() {
   );
 }
 
+const TIPPFELD = "input:not([type='checkbox'], [type='radio'], [type='range'], [type='file'], [type='button'], [type='submit'], [type='reset'], [type='color']), textarea, [contenteditable='true']";
+
+/**
+ * Markiert den Rahmen, solange im Inhalt ein Textfeld den Fokus hat (blendet am Handy die untere Leiste aus).
+ * Nach dem Verlassen erst mit kurzer Verzögerung zurück, damit der Tipp auf einen Knopf direkt unter dem Feld
+ * nicht von der wieder auftauchenden Leiste geschluckt wird (Fingerdruck ist dann schon unten, Loslassen träfe die Leiste).
+ */
+function useTippModus(main: React.RefObject<HTMLElement | null>) {
+  const [tippen, setTippen] = useState(false);
+  useEffect(() => {
+    const el = main.current;
+    if (!el) return;
+    let t: number | undefined;
+    const rein = (e: FocusEvent) => { if ((e.target as Element).matches?.(TIPPFELD)) { window.clearTimeout(t); setTippen(true); } };
+    const raus = () => {
+      window.clearTimeout(t);
+      t = window.setTimeout(() => setTippen(!!document.activeElement?.matches?.(TIPPFELD) && el.contains(document.activeElement)), 400);
+    };
+    el.addEventListener('focusin', rein);
+    el.addEventListener('focusout', raus);
+    return () => { window.clearTimeout(t); el.removeEventListener('focusin', rein); el.removeEventListener('focusout', raus); };
+  }, [main]);
+  return tippen;
+}
+
 /** App-Rahmen: Seitenleiste, Kopf, Inhalt, untere Leiste (Handy), Toasts. */
 export function Shell({ children }: { children: ReactNode }) {
   const collapsed = useStore(session, (s) => s.sidebarCollapsed);
@@ -139,6 +164,7 @@ export function Shell({ children }: { children: ReactNode }) {
   const { path } = useRoute();
   const main = useRef<HTMLElement>(null);
   useMenueGesten();
+  const tippen = useTippModus(main);
   useEffect(() => beobachteAktualisierung(), []);
   // Steht eine neue Version an, beim Seitenwechsel neu laden: die alte Seite wird ohnehin verlassen.
   const vorher = useRef(path);
@@ -159,7 +185,7 @@ export function Shell({ children }: { children: ReactNode }) {
   }, [path]);
 
   return (
-    <div className="shell" data-sidebar={collapsed ? 'collapsed' : 'expanded'} data-bereich={bereichVon(path)}>
+    <div className="shell" data-sidebar={collapsed ? 'collapsed' : 'expanded'} data-bereich={bereichVon(path)} data-tippen={tippen || undefined}>
       <a className="skip-link" href="#main" onClick={(e) => { e.preventDefault(); main.current?.focus(); }}>Zum Inhalt springen</a>
       <Sidebar />
       <Header />
