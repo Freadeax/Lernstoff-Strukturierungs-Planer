@@ -4,6 +4,7 @@ import { deleteAll } from '../core/db';
 import { loescheLokaleEintraege, loescheRueckfall } from '../core/sicherung';
 import { navigate } from '../ui/shell/router';
 import { BUILD_ID } from '../core/build';
+import { pruefeAufNeueVersion, type Pruefergebnis } from '../ui/shell/aktualisierung';
 import { adressText, NEUE_ADRESSE } from '../core/hosting';
 import { apiKeyDauerhaft, apiKeyOrt, getApiKey, setApiKey } from '../core/settings';
 import { tokenOrt, vergissToken } from './ablage/ablage';
@@ -71,6 +72,22 @@ function Zugaenge({ onVergessen }: { onVergessen: () => void }) {
       </details>
     </section>
   );
+}
+
+const PRUEF_TEXT: Record<Pruefergebnis, string> = {
+  neu: 'Es gibt eine neue Version. Tippe oben auf „Jetzt neu laden“.',
+  aktuell: 'Du hast die neueste Version.',
+  unbekannt: 'Gerade nicht prüfbar (kein Internet?). Die App sucht von selbst wieder, sobald sie online ist.',
+};
+
+/** Neue Versionen kommen von selbst; hier lässt sich sofort nachsehen. */
+function VersionPruefen() {
+  const [stand, setStand] = useState<Pruefergebnis | 'laeuft' | null>(null);
+  async function pruefen() { setStand('laeuft'); setStand(await pruefeAufNeueVersion()); }
+  return <div className="settings-data-actions">
+    <button type="button" disabled={stand === 'laeuft'} onClick={() => void pruefen()}>Nach neuer Version suchen</button>
+    {stand && stand !== 'laeuft' && <span role="status" className="muted">{PRUEF_TEXT[stand]}</span>}
+  </div>;
 }
 
 /** Offline-Dateien der App (Service-Worker-Cache) entfernen. Lerndaten bleiben. */
@@ -175,6 +192,7 @@ export function Einstellungen() {
         <li>Adresse: <strong>{adressText()}</strong></li>
         {NEUE_ADRESSE && <li>Hauptadresse: <a className="text-link" href={NEUE_ADRESSE}>{NEUE_ADRESSE.replace(/^https:\/\//, '').replace(/\/$/, '')}</a></li>}
       </ul>
+      <VersionPruefen />
       <p className="muted">Jede Adresse hat ihren eigenen Speicher. Lernstand und Einstellungen wandern nur per Datensicherung von einer Adresse oder einem Gerät zum anderen. Die App-Version hilft, wenn du einen Fehler meldest.</p>
     </section>
     <p className="muted settings-intern">Für Entwicklung und Gestaltung: <a href="#/system/design">Designsystem ansehen</a>.</p>

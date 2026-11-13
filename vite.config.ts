@@ -49,6 +49,24 @@ function fachmodulTeilen(): Plugin {
   };
 }
 
+/** Eine Build-ID für den ganzen Build: im Code (__BUILD_ID__) und in version.json müssen sie gleich sein. */
+const BUILD_ID = process.env.LERNSTOFF_BUILD_ID || buildId();
+
+/**
+ * `version.json` neben index.html: die laufende App fragt sie regelmäßig ab (src/ui/shell/aktualisierung.ts)
+ * und erkennt so eine neue Veröffentlichung, auch wenn der Browser den Service Worker selten prüft (iPhone).
+ * Nicht im Vorab-Cache (kein .json in globPatterns), der Service Worker reicht die Anfrage ans Netz durch.
+ */
+function versionsDatei(): Plugin {
+  return {
+    name: 'versions-datei',
+    apply: 'build',
+    generateBundle() {
+      this.emitFile({ type: 'asset', fileName: 'version.json', source: JSON.stringify({ build: BUILD_ID }) + '\n' });
+    },
+  };
+}
+
 export default defineConfig({
   base: './',
   test: {
@@ -59,9 +77,10 @@ export default defineConfig({
     // Glossar und Steckbriefe der Fachmodule vor jedem Test laden (in der App übernimmt das PageBoundary).
     setupFiles: ['src/test-setup.ts'],
   },
-  define: { __BUILD_ID__: JSON.stringify(process.env.LERNSTOFF_BUILD_ID || buildId()) },
+  define: { __BUILD_ID__: JSON.stringify(BUILD_ID) },
   plugins: [
     fachmodulTeilen(),
+    versionsDatei(),
     react(),
     VitePWA({
       registerType: 'autoUpdate',
@@ -73,10 +92,30 @@ export default defineConfig({
         // Texterkennung (ca. 13 MB) nicht vorab laden, sondern beim ersten Gebrauch zwischenspeichern.
         globIgnores: ['tesseract/**', 'bildgebung/**'],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
+        // Seitenaufrufe (Start, Neuladen) zuerst übers Netz: so bringt schon EIN Neuladen die neue Version,
+        // auch wenn der neue Service Worker noch nicht fertig ist (Safari/iPhone prüft ihn nur selten).
+        // Ohne Netz oder nach 4 s ohne Antwort kommt index.html aus dem Vorab-Cache, passend zu dessen Dateien.
+        // Ersetzt den Standard „index.html immer aus dem Cache“, der auf dem iPhone alte Stände festhielt.
+        navigateFallback: null,
+        // Sonst beantwortet der Vorab-Cache „/“ selbst mit index.html, bevor die Regel unten greift.
+        directoryIndex: null as unknown as string,
         runtimeCaching: [{
-          urlPattern: ({ url }) => url.pathname.includes('/tesseract/'),
-          handler: 'CacheFirst',
-          options: { cacheName: 'tesseract', expiration: { maxEntries: 10 } },
+          urlPattern: ({ request }) => request.mode === 'navigate',
+          handler: 'NetworkFirst',
+          options: {
+            cacheName: 'seitenaufrufe',
+            networkTimeoutSeconds: 4,
+            // Nichts speichern: eine zwischengespeicherte neuere Startseite könnte offline auf Dateien zeigen,
+            // die noch nicht im Vorab-Cache liegen. Stattdessen die Startseite aus dem Vorab-Cache nehmen
+            // (Workbox speichert sie dort als „index.html?__WB_REVISION__=…“, daher ignoreSearch).
+            // Die Funktion wird als Text in sw.js übernommen und läuft dort, nicht in Node.
+            cacheableResponse: { statuses: [] },
+            plugins: [{
+              cachedResponseWillBeUsed: async ({ cachedResponse }) => cachedResponse
+                ?? (await caches.match(new URL('index.html', (globalThis as unknown as { location: Location }).location.href).href, { ignoreSearch: true }))
+                ?? null,
+            }],
+          },
         }, {
           // Handlungsvideos des Simulators erst beim Ansehen laden, danach offline verfügbar.
           urlPattern: ({ url }) => url.pathname.includes('/sim-videos/'),
