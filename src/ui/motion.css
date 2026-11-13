@@ -80,6 +80,7 @@
 .sidebar__nav[data-markierung='an']::before { transition: transform var(--dur-slow) var(--ease-spring), width var(--dur-normal) var(--ease-out), height var(--dur-normal) var(--ease-out), opacity var(--dur-fast); }
 .nav__item { transition: color var(--dur-fast), background var(--dur-fast), transform var(--dur-normal) var(--ease-spring); }
 @media (hover: hover) { .nav__item:hover { transform: translateX(3px); } }
+.shell__stern[aria-pressed='true'] svg { animation: m-wiggle var(--dur-slow) var(--ease-standard); }
 .nav__item--active > svg, .tab--active > svg { animation: m-bounce var(--dur-slow) var(--ease-standard); }
 .nav__chevron { transition: transform var(--dur-normal) var(--ease-spring); }
 .nav__toggle[aria-expanded='true'] .nav__chevron { transform: rotate(90deg); }

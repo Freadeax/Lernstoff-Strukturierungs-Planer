@@ -4,6 +4,7 @@ import { useStore } from '../lib/store';
 import { isActive, useRoute } from './router';
 import { flatNav, NAV, TABS, visibleNav, type NavItem } from './nav';
 import { session } from './session';
+import { merkliste } from './merkliste';
 
 function NavTree({ items, level, path, collapsed }: { items: NavItem[]; level: number; path: string; collapsed: boolean }) {
   return (
@@ -72,10 +73,32 @@ function useMarkierung(nav: React.RefObject<HTMLElement | null>, deps: unknown[]
     if (typeof ResizeObserver === 'undefined') return;
     const ro = new ResizeObserver(messen);
     // Die Liste wächst und schrumpft beim Auf- und Zuklappen der Gruppen.
-    ro.observe(el.firstElementChild ?? el);
+    for (const kind of el.children) ro.observe(kind);
     return () => ro.disconnect();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
+}
+
+/** Favoriten oben im Menü. Bewusst ohne Aktiv-Markierung: die wandert weiter über den eigentlichen Menüpunkt. */
+function Favoriten({ items, collapsed }: { items: NavItem[]; collapsed: boolean }) {
+  const pfade = useStore(merkliste, (m) => m.favoriten);
+  const alle = flatNav(items);
+  const favoriten = pfade.map((p) => alle.find((i) => i.path === p)).filter((i): i is NavItem => !!i);
+  if (!favoriten.length) return null;
+  return (
+    <div className="nav__favoriten">
+      <h2 className="nav__item nav__toggle" id="nav-favoriten"><Icon name="star" /><span className="nav__label">Favoriten</span></h2>
+      <ul className="nav__list nav__list--l2" role="list" aria-labelledby="nav-favoriten">
+        {favoriten.map((i) => (
+          <li key={i.id}>
+            <a className="nav__item" href={`#${i.path}`} onClick={() => session.set({ drawerOpen: false })} aria-label={collapsed ? i.label : undefined} title={collapsed ? i.label : undefined}>
+              {i.icon && <Icon name={i.icon} />}<span className="nav__label">{i.label}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }
 
 export function Sidebar() {
@@ -86,7 +109,8 @@ export function Sidebar() {
   const items = visibleNav(NAV, roles);
   const aside = useRef<HTMLElement>(null);
   const nav = useRef<HTMLElement>(null);
-  useMarkierung(nav, [path, collapsed, drawer]);
+  const favoriten = useStore(merkliste, (m) => m.favoriten.length);
+  useMarkierung(nav, [path, collapsed, drawer, favoriten]);
   useEffect(() => {
     if (!drawer) return;
     const previous = document.activeElement;
@@ -119,7 +143,9 @@ export function Sidebar() {
           <button type="button" className="icon ghost sidebar__close" aria-label="Navigation schließen" onClick={() => session.set({ drawerOpen: false })}><Icon name="close" /></button>
         </div>
         <nav ref={nav} className="sidebar__nav" aria-label="Bereiche">
-          <NavTree items={items} level={1} path={path} collapsed={collapsed && !drawer} />
+          <NavTree items={items.slice(0, 1)} level={1} path={path} collapsed={collapsed && !drawer} />
+          <Favoriten items={items} collapsed={collapsed && !drawer} />
+          <NavTree items={items.slice(1)} level={1} path={path} collapsed={collapsed && !drawer} />
         </nav>
         <a className="sidebar__import" href="#/material/import" aria-label="Material hinzufügen" onClick={() => session.set({ drawerOpen: false })}><Icon name="plus" size={18} /><span className="nav__label">Material hinzufügen</span></a>
         <div className="sidebar__local"><span aria-hidden="true" /> <span className="nav__label">Deine Lerndaten bleiben bei dir</span></div>

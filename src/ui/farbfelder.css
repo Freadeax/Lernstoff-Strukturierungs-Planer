@@ -47,7 +47,9 @@ select:focus-visible, input:not([type='checkbox']):not([type='radio']):not([type
 .brand-wordmark { letter-spacing: -0.5px; }
 .brand-wordmark > span { font-size: 0.6875rem; }
 .sidebar__nav { position: relative; }
-.sidebar__nav > .nav__list { position: relative; z-index: 1; }
+.sidebar__nav > .nav__list, .nav__favoriten { position: relative; z-index: 1; }
+.nav__favoriten { margin: 3px 0; } .nav__favoriten h2 { margin: 0; cursor: default; }
+.shell[data-sidebar='collapsed'] .shell__sidebar:not(.is-open) .nav__favoriten h2 { display: none; }
 .sidebar__nav::before {
   content: ''; position: absolute; left: 0; top: 0; width: var(--mark-w, 0); height: var(--mark-h, 0);
   transform: translate(var(--mark-x, 0), var(--mark-y, 0)); border-radius: 12px;
@@ -240,3 +242,13 @@ dialog { border: 2px solid var(--color-outline); }
 .omnibar__type--quelle { color: var(--color-text); font-weight: 700; }
 .filterbar__gilt { margin: 8px 0 0; font-size: 0.8125rem; }
 .datenhinweise { margin: 0; display: grid; gap: 14px; } .datenhinweise dt { font-weight: 600; } .datenhinweise dd { margin: 4px 0 0; color: var(--color-text-muted); }
+
+/* ---------- Favoriten und „Zuletzt“ ---------- */
+.shell__stern { flex-shrink: 0; color: var(--color-text-muted); }
+.shell__stern[aria-pressed='true'] { color: var(--color-text); }
+.shell__stern[aria-pressed='true'] svg { fill: var(--color-sun); }
+.schnellwege--zuletzt { align-items: center; margin-top: -8px; }
+.schnellwege__titel { font-size: 0.6875rem; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--color-text-muted); }
+.schnellweg--leise { min-height: 36px; border-width: 1.5px; box-shadow: none; font-weight: 500; font-size: 0.8125rem; }
+.omnibar__gruppe { margin: 0; padding: 10px 12px 2px; font-size: 0.6875rem; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--color-text-muted); }
+.omnibar__type--aktion { color: var(--color-text); font-weight: 700; }

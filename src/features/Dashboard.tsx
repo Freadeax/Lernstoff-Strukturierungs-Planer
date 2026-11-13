@@ -3,6 +3,9 @@ import { FilterBar } from '../widgets/filter/FilterBar';
 import { WIDGETS } from '../widgets/registry';
 import { Icon, type IconName } from '../ui/icons';
 import { PageHeading } from '../ui/PageHeading';
+import { useStore } from '../ui/lib/store';
+import { merkliste } from '../ui/shell/merkliste';
+import { seitenName } from '../ui/shell/nav';
 import { HeuteKarte } from './lernplan/ui/HeuteKarte';
 import { SicherungsHinweis } from './sicherung/SicherungsHinweis';
 import { FehlerheftHinweis } from './fehlerheft/FehlerheftHinweis';
@@ -30,10 +33,19 @@ function Schnellwege() {
     [fallLaeuft() ? 'Fall fortsetzen' : 'Fall starten', '/lernen/praxis', 'user'],
     ['Sicherung erstellen', '/system/sicherung', 'save'],
   ];
+  const zuletzt = useStore(merkliste, (m) => m.zuletzt).filter((p) => seitenName(p)).slice(0, 4);
   return (
-    <nav className="schnellwege" aria-label="Schnellwege">
-      {wege.map(([name, ziel, icon]) => <a key={ziel} className="schnellweg" href={`#${ziel}`}><Icon name={icon} size={18} />{name}</a>)}
-    </nav>
+    <>
+      <nav className="schnellwege" aria-label="Schnellwege">
+        {wege.map(([name, ziel, icon]) => <a key={ziel} className="schnellweg" href={`#${ziel}`}><Icon name={icon} size={18} />{name}</a>)}
+      </nav>
+      {zuletzt.length > 0 && (
+        <nav className="schnellwege schnellwege--zuletzt" aria-label="Zuletzt genutzt">
+          <span className="schnellwege__titel">Zuletzt</span>
+          {zuletzt.map((p) => <a key={p} className="schnellweg schnellweg--leise" href={`#${p}`}>{seitenName(p)}</a>)}
+        </nav>
+      )}
+    </>
   );
 }
 

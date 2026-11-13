@@ -5,6 +5,7 @@
 // Medikamente nur „nach Anordnung“ bzw. Hausstandard, ohne Dosierungen.
 
 import type { Szenario } from './faelle';
+import { PROBEFAELLE_2 } from './probefaelle2';
 import type { Abschluss, Fall, Note, Schritt, Vitalwerte, Wertung, Zug, Zustand } from './simulator';
 
 interface Option {
@@ -285,7 +286,7 @@ const ASTHMA: Probefall = {
 
 // ---------- Engine ----------
 
-export const PROBEFAELLE: Probefall[] = [HERZ, HYPO, BLUTUNG, ASTHMA];
+export const PROBEFAELLE: Probefall[] = [HERZ, HYPO, BLUTUNG, ASTHMA, ...PROBEFAELLE_2];
 export const DEMO_SZENARIO = HERZ.szenario;
 const NACH_ID = new Map(PROBEFAELLE.map((p) => [p.szenario.id, p]));
 export const probefallVon = (f: Pick<Fall, 'szenario'>) => NACH_ID.get(f.szenario.id) ?? null;

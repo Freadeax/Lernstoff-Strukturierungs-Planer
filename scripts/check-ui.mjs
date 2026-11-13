@@ -93,6 +93,17 @@ const futureDate = new Date(Date.now() + 21 * 86400000).toISOString().slice(0, 1
   await page.keyboard.press('Escape');assert.equal(await page.locator('.notif__panel').count(),0);assert.equal(await glocke.evaluate(e=>e===document.activeElement),true,'Mitteilungen: Fokus zurück');
   const profil=page.getByRole('button',{name:'Profil und Darstellung'});await profil.focus();await page.keyboard.press('Enter');await page.waitForTimeout(100);
   await page.keyboard.press('Escape');assert.equal(await profil.evaluate(e=>e===document.activeElement),true,'Profilmenü: Fokus zurück');
+  // Favoriten und Befehle: Stern merkt die Seite im Menü, die Suche führt Befehle aus.
+  await go('/lernen/karten');
+  const stern=page.locator('.shell__stern');await stern.click();assert.equal(await stern.getAttribute('aria-pressed'),'true');
+  assert(await page.locator('.nav__favoriten a[href="#/lernen/karten"]').isVisible(),'Favorit steht im Menü');
+  await go('/');assert(await page.getByRole('navigation',{name:'Zuletzt genutzt'}).getByRole('link',{name:'Karteikarten'}).isVisible(),'Zuletzt genutzt auf Heute');
+  await suche.click();await page.waitForTimeout(200);assert((await page.locator('.omnibar__hit').first().textContent()).includes('Favorit'),'Leere Suche zeigt Favoriten');
+  await page.keyboard.type('dunkel');await page.waitForTimeout(450);await page.keyboard.press('Enter');
+  assert.equal(await page.evaluate(()=>document.documentElement.dataset.theme),'dark','Befehl „dunkel“ schaltet um');
+  await suche.click();await page.keyboard.type('Darstellung wie');await page.waitForTimeout(450);await page.keyboard.press('Enter');
+  assert.equal(await page.evaluate(()=>document.documentElement.dataset.theme),undefined,'Befehl „wie System“ stellt zurück');
+  await go('/lernen/karten');await page.locator('.shell__stern').click();assert.equal(await page.locator('.nav__favoriten').count(),0,'Favorit wieder gelöst');
   await context.close();
   const mobile=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:'de-DE',timezoneId:'Europe/Berlin',colorScheme:'light'});
   const mp=await mobile.newPage();mp.on('pageerror',e=>pageErrors.push(e.message));
