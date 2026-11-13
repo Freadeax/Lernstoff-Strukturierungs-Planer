@@ -567,8 +567,26 @@ export async function bitteUmDauerhaftenSpeicher(): Promise<boolean> {
   try { return (await navigator.storage?.persist?.()) ?? false; } catch { return false; }
 }
 
+/**
+ * Ergebnis der Weitergabe. `nochmalTeilen`: Safari hat das Teilen-Menü abgelehnt, weil zwischen Tipp und Menü zu viel
+ * Zeit lag (Daten lesen, 600 000 Runden Passwort-Ableitung). Die fertige Datei kommt zurück und wird mit einem
+ * zweiten Tipp über `teileSicherungsDatei` geteilt.
+ */
+export type SicherungsErgebnis = 'geteilt' | 'gespeichert' | 'abgebrochen' | { nochmalTeilen: File };
+
+function alsDownload(blob: Blob, name: string) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  setzeMerker({ zuletzt: new Date().toISOString() });
+}
+
 /** Sicherung erstellen und weitergeben: Teilen-Menü (AirDrop, „In Dateien sichern“) oder Download. */
-export async function sichereUndGibWeiter(art: 'teilen' | 'datei' = 'datei', passwort?: string, meta: { fachmodul?: string } = {}): Promise<'geteilt' | 'gespeichert' | 'abgebrochen'> {
+export async function sichereUndGibWeiter(art: 'teilen' | 'datei' = 'datei', passwort?: string, meta: { fachmodul?: string } = {}): Promise<SicherungsErgebnis> {
   const klar = JSON.stringify(await erstelleSicherung(db, meta));
   const text = passwort ? await verschluessele(klar, passwort) : klar;
   const name = dateiName(new Date(), !!passwort);
@@ -581,19 +599,25 @@ export async function sichereUndGibWeiter(art: 'teilen' | 'datei' = 'datei', pas
         return 'geteilt';
       } catch (e) {
         if (e instanceof DOMException && e.name === 'AbortError') return 'abgebrochen';
+        if (e instanceof DOMException && e.name === 'NotAllowedError') return { nochmalTeilen: file };
         // sonst unten als Datei
       }
     }
   }
-  const blob = new Blob([text], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = name;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-  setzeMerker({ zuletzt: new Date().toISOString() });
+  alsDownload(new Blob([text], { type: 'application/json' }), name);
+  return 'gespeichert';
+}
+
+/** Zweiter Schritt nach `nochmalTeilen`: direkt im Tipp-Handler aufrufen, ohne vorher etwas abzuwarten. */
+export async function teileSicherungsDatei(file: File): Promise<'geteilt' | 'gespeichert' | 'abgebrochen'> {
+  try {
+    await navigator.share({ files: [file], title: 'Lernstoff-Planer Sicherung' });
+    setzeMerker({ zuletzt: new Date().toISOString() });
+    return 'geteilt';
+  } catch (e) {
+    if (e instanceof DOMException && e.name === 'AbortError') return 'abgebrochen';
+  }
+  alsDownload(file, file.name);
   return 'gespeichert';
 }
 

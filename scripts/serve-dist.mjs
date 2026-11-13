@@ -38,6 +38,10 @@ http.createServer((req, res) => {
   if (!fs.existsSync(datei) || path.basename(datei) === '_headers') { res.writeHead(404).end('nicht gefunden'); return; }
   const header = { 'Content-Type': TYPEN[path.extname(datei)] ?? 'application/octet-stream' };
   for (const r of regeln) if (r.re.test(url.pathname)) for (const [k, v] of r.header) header[k] = v;
+  // Lokal läuft alles über http://127.0.0.1. Chrome lässt Adressen auf dem eigenen Rechner bei
+  // „upgrade-insecure-requests“ aus, Safari/WebKit (und damit Playwright webkit) schreibt sie auf https um
+  // und die Seite bleibt leer. Die echte Seite ist https, dort ändert die Anweisung nichts.
+  if (header['Content-Security-Policy']) header['Content-Security-Policy'] = header['Content-Security-Policy'].replace(/;\s*upgrade-insecure-requests/, '');
   res.writeHead(200, header);
   fs.createReadStream(datei).pipe(res);
 }).listen(port, '127.0.0.1', () => console.log(`dist/ mit _headers auf http://127.0.0.1:${port}/`));

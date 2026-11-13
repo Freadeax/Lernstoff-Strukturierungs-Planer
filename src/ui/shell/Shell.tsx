@@ -114,7 +114,7 @@ function AktualisierungsHinweis() {
     <div className="note shell__aktualisierung" role="status">
       <span>{grund === 'datenbank'
         ? 'Die App wurde in einem anderen Fenster aktualisiert. Bitte neu laden, damit hier nichts verloren geht.'
-        : 'Eine neue Version ist bereit. Sie startet beim nächsten Seitenwechsel.'}</span>
+        : 'Eine neue Version ist da. Sie startet beim nächsten Seitenwechsel oder sofort per Knopf.'}</span>
       <button type="button" className="small primary" onClick={() => location.reload()}>Jetzt neu laden</button>
     </div>
   );

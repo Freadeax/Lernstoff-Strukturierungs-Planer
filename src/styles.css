@@ -71,6 +71,12 @@ select, input:not([type='checkbox']):not([type='radio']):not([type='file']), tex
   max-width: 100%;
 }
 textarea { padding: var(--space-2); }
+/* Safari/WebKit: Auswahllisten mit langen Einträgen (Fallsimulator, SIS) machten die ganze Seite seitlich verschiebbar,
+   obwohl die Liste selbst schmal genug ist. Eigener Layout-Rahmen hält den Überstand in der Liste. */
+select { contain: layout; }
+/* Aufklapper mit display: flex/grid: Chrome und Firefox blenden das Dreieck dann aus, Safari bis iOS 18.3 nicht
+   (dort steckt es im eigenen ::-webkit-details-marker). Gleiches Bild in allen Browsern. */
+:is(.sim-zustand summary, .dnqp__details summary, .karten__bewerthilfe summary, .karten__unsicher summary, .steckbrief summary, .ce-matrix__details > summary, .sk-pruefung > summary, .thema__korrektur > summary, .qz-seite__wissen summary, .qz-vertiefung summary, details.qz-vertiefung__begriffe summary, .block__warum summary, .nachtragen summary, .lernplan details > summary, .karte__warum > summary)::-webkit-details-marker { display: none; }
 input[type='checkbox'], input[type='radio'] { width: 1.15em; height: 1.15em; accent-color: var(--color-primary); }
 input.wide, textarea.wide { width: 100%; }
 .field { display: flex; flex-direction: column; gap: var(--space-1); margin-bottom: var(--space-2); }
@@ -178,6 +184,14 @@ mark { background: var(--color-highlight); color: inherit; }
   button, .tab, .nav__item { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
   /* Aufklappbare Abschnitte („So funktioniert …“) sind sonst nur eine Textzeile hoch. */
   summary { padding-block: 10px; cursor: pointer; }
+}
+/* Nur iPhone/iPad (Safari-Eigenschaft): Datums- und Zeitfelder stehen sonst mittig, sind leer niedriger als andere Felder
+   und lassen sich nicht schmaler als ihr eingebautes Mindestmaß machen. */
+@supports (-webkit-touch-callout: none) {
+  input:is([type='date'], [type='time'], [type='datetime-local'], [type='month']) {
+    -webkit-appearance: none; appearance: none; min-width: 0; display: inline-flex; align-items: center;
+  }
+  input::-webkit-date-and-time-value { text-align: start; min-height: 1.5em; }
 }
 @media (max-width: 767px) and (pointer: coarse) {
   /* Während getippt wird, braucht die Tastatur den Platz; die untere Leiste kommt danach zurück.
