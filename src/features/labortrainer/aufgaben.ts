@@ -4,10 +4,11 @@
 
 import { mitVertiefung, type Aufgabe, type AuswahlAufgabe } from '../quiz/quiz';
 import { VERTIEFUNG } from './vertiefung';
+import { KINDER_AUFGABEN } from './kinder';
 import { ROEHRCHEN } from '../../ui/sim/labor/praeanalytik';
 import { deuteBga, type Bga } from '../../ui/sim/labor/bga';
 
-export type BereichId = 'praeanalytik' | 'bga' | 'befund';
+export type BereichId = 'praeanalytik' | 'bga' | 'befund' | 'kinder';
 export interface Bereich { id: BereichId; label: string; kurz: string; wissen: string[] }
 
 export const THEMEN = {
@@ -17,6 +18,7 @@ export const THEMEN = {
   niere: 'thema.ap.niere',
   diabetes: 'thema.kl.diabetes',
   herz: 'thema.kl.herz',
+  kinder: 'thema.kl.paediatrie',
 } as const;
 
 const wahl = (id: string, thema: string, titel: string, frage: string, optionen: string[], erklaerung: string[], richtig: number[] = [0]): AuswahlAufgabe =>
@@ -208,7 +210,8 @@ export const BEREICHE: Bereich[] = [
   { id: 'praeanalytik', label: 'Blutentnahme und Präanalytik', kurz: 'Reihenfolge, Stauen, Hämolyse, Identität, Transport', wissen: ['Reihenfolge: Blutkultur → Citrat → Serum → Heparin → EDTA → Fluorid.', 'Höchstens etwa 1 Minute stauen, nicht am Infusionsarm abnehmen.', 'Identität aktiv erfragen, am Bett beschriften, zügig transportieren.'] },
   { id: 'bga', label: 'Blutgasanalyse', kurz: 'pH, pCO₂, HCO₃⁻, Kompensation', wissen: ['pH 7,35–7,45, pCO₂ 35–45 mmHg, HCO₃⁻ 22–26 mmol/l.', 'Zuerst pH, dann: welche Achse zeigt in dieselbe Richtung?', 'Die Gegenseite zeigt die Kompensation.'] },
   { id: 'befund', label: 'Befunde einordnen', kurz: 'Kritische Werte, CRP, Laktat, Troponin, D-Dimere', wissen: ['Kritischer Wert: zurücklesen, dokumentieren, sofort melden.', 'Verlauf zählt mehr als ein Einzelwert.', 'Vor Kontrastmittel: Niere, Schilddrüse, Allergien, Metformin.'] },
+  { id: 'kinder', label: 'Kinder und Säuglinge', kurz: 'Fersenblut, Blutmenge, Kinderwerte, Gelbsucht, Brechdurchfall, Ketoazidose', wissen: ['Ferse seitlich, vorwärmen, nicht quetschen.', 'Nur angeordnete Werte, Kinderröhrchen, Mengen im Blick.', 'Immer den Referenzbereich für das Alter lesen.'] },
 ];
 
-export const AUFGABEN: Record<BereichId, Aufgabe[]> = mitVertiefung({ praeanalytik: [...praeanalytik, ...mehrPraeanalytik], bga: [...bga, ...mehrBga], befund: [...befund, ...mehrBefund] }, VERTIEFUNG);
+export const AUFGABEN: Record<BereichId, Aufgabe[]> = mitVertiefung({ praeanalytik: [...praeanalytik, ...mehrPraeanalytik], bga: [...bga, ...mehrBga], befund: [...befund, ...mehrBefund], kinder: KINDER_AUFGABEN }, VERTIEFUNG);
 export const ALLE_AUFGABEN: Aufgabe[] = Object.values(AUFGABEN).flat();
