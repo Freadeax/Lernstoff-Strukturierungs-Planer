@@ -19,7 +19,9 @@ Gemeinsamer Baustein für Praxis-, Fall- und Diagnostik-Simulator: `src/ui/sim/r
   `raumVarianten(id)` listet alle Bilder, die diese Regeln von einem Raum aus erreichen.
 - **Asset-Status:** `src/features/assetstatus/inventar.ts` prüft je Datei: vorhanden, zugeordnet, im Fall erreichbar,
   fachlich geprüft (`freigaben.ts`), offline. Bericht und Lückenliste: [`ASSET-STATUS.md`](ASSET-STATUS.md),
-  neu erzeugen mit `npm run assets:status`.
+  neu erzeugen mit `npm run assets:status`. Fachliche Bildprüfung in der App: System → Bildprüfung (`#/system/bilder`),
+  Export übernehmen mit `npm run assets:freigaben -- <datei>`. Neue Lieferungen vorher mit `npm run material:pruefen -- <ordner>`.
+- **Weitere Nutzer:** Hygiene-Trainer (Suchbilder 14 und 19, `src/features/hygiene/suchbilder.ts`).
 - **Bühne** (`RaumBuehne.tsx`):
   - `raum`, `hotspots` (`{id, label, kurz?, x, y, gedrueckt?, aktiv?, onClick}`, echte Buttons mit aria-label, mind. 44 px)
   - `monitor` (`{werte, zustand: 'abwesend'|'standby'|'laeuft'|'signalausfall', ausfall?, titel?}`): PatientenMonitor

@@ -89,6 +89,7 @@ export const NAV: NavItem[] = [
   {
     id: 'system', label: 'System', icon: 'settings', children: [
       { id: 'sicherung', label: 'Datensicherung', path: '/system/sicherung', icon: 'save' },
+      { id: 'bilder', label: 'Bildprüfung', path: '/system/bilder', icon: 'check' },
       { id: 'einstellungen', label: 'Einstellungen', path: '/einstellungen', icon: 'settings' },
     ],
   },

@@ -14,6 +14,7 @@ const Zusammenfassen = lazy(() => import('./features/Zusammenfassen').then((m) =
 const Faecher = lazy(() => import('./features/Faecher').then((m) => ({ default: m.Faecher })));
 const Einstellungen = lazy(() => import('./features/Einstellungen').then((m) => ({ default: m.Einstellungen })));
 const Designsystem = lazy(() => import('./features/Designsystem'));
+const Bildpruefung = lazy(() => import('./features/assetstatus/Bildpruefung'));
 const Ablage = lazy(() => import('./features/ablage/AblageSeite'));
 const Rechentrainer = lazy(() => import('./features/rechnen/Rechentrainer'));
 const Fehlerheft = lazy(() => import('./features/fehlerheft/FehlerheftSeite'));
@@ -111,6 +112,7 @@ function View() {
     case '/einstellungen': return <Einstellungen />;
     case '/system/sicherung': return <Datensicherung />;
     case '/system/design': return <Designsystem />;
+    case '/system/bilder': return <Bildpruefung />;
     default:
       return (
         <Page title="Seite nicht gefunden">
