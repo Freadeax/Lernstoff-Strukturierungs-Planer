@@ -392,8 +392,12 @@ try {
       // Auslöser gestoppt, Alarm, Adrenalin: stabilisiert, Auswertung erscheint.
       await ab.getByRole('button', { name: /^Adrenalin/ }).click();
       await ab.locator('.abcde__ergebnis').waitFor();
-      assert.match(await ab.locator('.abcde__ergebnis h4').textContent(), /Stabilisiert/);
-      assert(await ab.locator('.abcde__bewertung .is-offen').count() >= 1, 'Fehlende Einschätzung wird bewertet');
+      assert.match(await ab.locator('.abcde__ergebnis > h4').textContent(), /Stabilisiert/);
+      // Gemeinsame Auswertung: Lücken mit Begründung, zuerst das zu Verbessernde
+      assert(await ab.locator('.abcde__ergebnis .sim-auswertung li.is-fehler').count() >= 1, 'Fehlende Einschätzung wird bewertet');
+      assert.match(await ab.locator('.sim-auswertung__punkte > li').first().textContent(), /Warum:/);
+      const axeAusw = await new AxeBuilder({ page: ab }).include('.sim-auswertung').withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+      audits.push({ width, name: 'Auswertung ABCDE', violations: axeAusw.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => ({ html: n.html, summary: n.failureSummary })) })) });
       await ctx.close();
     }
   }

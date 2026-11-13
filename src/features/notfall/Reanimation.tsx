@@ -12,11 +12,13 @@ import { spiele } from '../../ui/audio/spieler';
 import { useReducedMotion } from '../praxis/MiniMonitor';
 import { LEITLINIEN, PROFIL_FREIGABE } from './freigaben';
 import {
-  auswerten, beendetKompression, hinweise, medikamentHinweis, PROFIL_IDS, PROFILE, rate, RHYTHMUS_NAME, richtigeEntscheidung, schockEnergie, szenarienFuer,
+  auswerten, beendetKompression, medikamentHinweis, PROFIL_IDS, PROFILE, rate, RHYTHMUS_NAME, richtigeEntscheidung, schockEnergie, szenarienFuer,
   type Analyse, type Entscheidung, type ProfilId, type ReaSzenario, type Rhythmus,
 } from './rea';
 import { artefakt, kurve } from './rhythmus';
 import './notfall.css';
+import { AuswertungsKarte } from '../../ui/sim/AuswertungsKarte';
+import { reaAuswertung } from './auswertung';
 
 type Phase = 'start' | 'erkennen' | 'cpr' | 'analyse' | 'laden' | 'ende';
 /** Brustmitte des Patienten auf der Trage im Schockraumfoto bzw. des Neugeborenen in der Zeichnung (Prozent). */
@@ -311,7 +313,8 @@ export function Reanimation() {
       {medis.length > 0 && phase !== 'ende' && <ul className="rea__medis">{medis.map(m => <li key={m}>{m}</li>)}</ul>}
 
       {phase === 'ende' && ergebnis && <div className="rea__ergebnis">
-        <h4>Auswertung</h4>
+        <AuswertungsKarte a={reaAuswertung(ergebnis, sp)} />
+        <h4>Messwerte</h4>
         <dl>
           <div><dt>Bis zur 1. Kompression</dt><dd>{ergebnis.bisDruck ?? '–'} s</dd></div>
           <div><dt>{sp.beatmungImTakt ? 'Mittlerer Takt' : 'Mittlere Rate'}</dt><dd>{ergebnis.mittel ?? '–'}/min</dd></div>
@@ -320,7 +323,6 @@ export function Reanimation() {
           <div><dt>Längste Pause</dt><dd>{ergebnis.laengstePause.toLocaleString('de-DE')} s</dd></div>
           <div><dt>{sp.defi ? 'Rhythmen richtig' : 'Herzfrequenz richtig eingeordnet'}</dt><dd>{ergebnis.richtigeAnalysen} / {ergebnis.analysen}</dd></div>
         </dl>
-        <ul>{hinweise(ergebnis, sp).map(h => <li key={h}>{h}</li>)}</ul>
         <div className="rea__knoepfe"><button type="button" className="primary" onClick={() => neu()}>Noch einmal</button><button type="button" onClick={() => setPhase('start')}>Anderes Szenario</button></div>
       </div>}
       <ZustandsTafel z={reaZustand({ profil: sp, szenario, phase, erledigt, defiDa, schocks, medis, rate: aktuelleRate, zyklus: analyse })} titel={sp.id === 'neugeborene' ? 'Zustand an der Reanimationseinheit' : 'Zustand im Schockraum'} />

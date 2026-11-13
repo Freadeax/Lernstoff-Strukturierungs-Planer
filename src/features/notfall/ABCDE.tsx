@@ -17,6 +17,8 @@ import {
 } from './abcde';
 import { NOTFALL_FREIGABE } from './freigaben';
 import './notfall.css';
+import { AuswertungsKarte } from '../../ui/sim/AuswertungsKarte';
+import { abcdeAuswertung } from './auswertung';
 
 const ART_TEXT = { befund: 'Befund', massnahme: 'Maßnahme', falsch: 'Ungünstig', hinweis: 'Hinweis', kritisch: 'Kritisch' } as const;
 
@@ -96,8 +98,7 @@ export function ABCDE() {
 
       {bewertung && <div className="rea__ergebnis abcde__ergebnis">
         <h4>{s.ende === 'stabil' ? 'Stabilisiert' : s.ende === 'kritisch' ? 'Kritisch verschlechtert' : 'Übergeben'} · {bewertung.punkte} von {bewertung.max}</h4>
-        <ul className="abcde__bewertung">{bewertung.zeilen.map(z => <li key={z.text} className={z.ok ? 'is-ok' : 'is-offen'}><span aria-hidden="true">{z.ok ? '✓' : '✗'}</span> {z.text}</li>)}</ul>
-        <p><strong>Lernziel:</strong> {f.lernziel}</p>
+        <AuswertungsKarte a={abcdeAuswertung(s)} />
         <div className="rea__knoepfe"><button type="button" className="primary" onClick={() => { setS(beginne(f)); setAktiv(null); }}>Noch einmal</button><button type="button" onClick={() => setS(null)}>Anderer Notfall</button></div>
       </div>}
 
