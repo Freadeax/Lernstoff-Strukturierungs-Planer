@@ -10,7 +10,7 @@ import { blockTitel, dauer, inTagen } from './format';
 import { usePlan } from './usePlan';
 import { daysBetween } from '../dates';
 import { zaehleHeute } from '../../karteikarten/store';
-import { faellig, ladeFehler } from '../../fehlerheft/fehlerheft';
+import { heuteDran, ladeFehler } from '../../fehlerheft/fehlerheft';
 import { PRAXIS_THEMEN } from '../../praxis/themen';
 import { ceZuThema } from '../../ce/modell';
 import { heuteAktion } from '../../thema/thema';
@@ -57,7 +57,7 @@ function useNebenZaehler(modul: CatalogModule | undefined) {
     window.addEventListener('fehlerheft', neu);
     return () => { aktiv = false; window.removeEventListener('fehlerheft', neu); };
   }, [modul]);
-  return z && { ...z, fehlerFaellig: faellig(fehler).length, fehlerGesamt: fehler.length };
+  return z && { ...z, fehlerFaellig: heuteDran(fehler), fehlerGesamt: fehler.length };
 }
 
 /** „Heute lernen“: die eine nächste Aktion vor Kennzahlen und Werkzeugen. */

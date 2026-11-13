@@ -9,6 +9,7 @@ import { Runde, type Figur, type RundenErgebnis } from './Runde';
 import type { FehlerQuelle } from '../fehlerheft/fehlerheft';
 import type { TrainerId } from '../lernplan/trainer';
 import { FachListe } from './FachText';
+import { ladeZwischenstand, speichereZwischenstand, type Zwischenstand } from './zwischenstand';
 import type { Grundlage } from './grundlage';
 
 export interface TrainerBereich { id: string; label: string; kurz: string; wissen: string[] }
@@ -48,6 +49,11 @@ export function TrainerSeite({ titel, intro, hinweis, pfad, quelle, bereiche, au
   const stufe: Stufe | 0 = stufeParam === 1 || stufeParam === 2 || stufeParam === 3 ? stufeParam : 0;
   const laeuft = params.get('runde') === '1';
   const [nr, setNr] = useState(0);
+  // Begonnene Runde (nach Neuladen, App-Wechsel oder Abbrechen) und Nachübung falscher Aufgaben
+  const [offen, setOffen] = useState<Zwischenstand | null>(() => ladeZwischenstand(quelle));
+  // Neuladen mitten in der Runde (?runde=1): an derselben Stelle weitermachen
+  const [fortsetzen, setFortsetzen] = useState<Zwischenstand | null>(() => (laeuft && offen?.bereich === bereichParam ? offen : null));
+  const [nachuebung, setNachuebung] = useState<Aufgabe[] | null>(null);
 
   const roh = useMemo(() => (bereich === MIX ? alle : bereich === SCHWACH ? schwach : aufgaben[bereich] ?? []), [aufgaben, alle, schwach, bereich]);
   const pool = useMemo(() => (stufe ? roh.filter((a) => stufeVon(a) === stufe) : roh), [roh, stufe]);
@@ -56,6 +62,14 @@ export function TrainerSeite({ titel, intro, hinweis, pfad, quelle, bereiche, au
   const liste = useMemo(() => runde(pool, anzahl), [pool, nr, anzahl]);
   const info = bereiche.find((b) => b.id === bereich);
   const label = info?.label ?? (bereich === SCHWACH ? 'Meine Schwachstellen' : 'Gemischte Runde');
+
+  function weiterMachen(z: Zwischenstand) {
+    setFortsetzen(z); setNachuebung(null);
+    const st = z.stufe === 1 || z.stufe === 2 || z.stufe === 3 ? z.stufe : 0;
+    gehe(z.bereich, true, st);
+  }
+  function verwerfen() { speichereZwischenstand(quelle, null); setOffen(null); }
+  function zurAuswahl() { setFortsetzen(null); setNachuebung(null); setOffen(ladeZwischenstand(quelle)); gehe(bereich); }
 
   function gehe(b: string, start = false, st: Stufe | 0 = stufe) {
     const q = new URLSearchParams({ bereich: b });
@@ -87,13 +101,34 @@ export function TrainerSeite({ titel, intro, hinweis, pfad, quelle, bereiche, au
         <p className="muted">{intro}</p>
       </div>
 
-      {laeuft && liste.length ? (
+      {laeuft && (liste.length || fortsetzen || nachuebung) ? (
         <Runde
-          key={`${bereich}-${stufe}-${nr}`} aufgaben={liste} quelle={quelle} trainer={quelle} figuren={figuren} minProThema={minProThema} grundlage={grundlage} weiter={weiter}
-          onFertig={fertig} onNeu={() => setNr((n) => n + 1)} onEnde={() => gehe(bereich)}
+          key={`${bereich}-${stufe}-${nr}${fortsetzen ? `-f${fortsetzen.rundeId}` : ''}${nachuebung ? '-n' : ''}`}
+          aufgaben={nachuebung ?? liste} quelle={quelle} trainer={quelle} figuren={figuren} minProThema={minProThema} grundlage={grundlage} weiter={weiter}
+          bereich={bereich} stufe={stufe} fortsetzen={fortsetzen} nachuebung={!!nachuebung || !!fortsetzen?.nachuebung}
+          onFertig={fertig}
+          onNeu={() => { setFortsetzen(null); setNachuebung(null); setNr((n) => n + 1); }}
+          onEnde={zurAuswahl}
+          onNachuebung={(falsche) => { setFortsetzen(null); setNachuebung(falsche); setNr((n) => n + 1); }}
         />
       ) : (
         <>
+          {offen && (
+            <div className="card qz-seite__fortsetzen" role="status">
+              <div>
+                <strong>Begonnene Runde fortsetzen</strong>
+                <p className="muted">
+                  {offen.nachuebung ? 'Nachübung' : bereiche.find((b) => b.id === offen.bereich)?.label ?? (offen.bereich === SCHWACH ? 'Meine Schwachstellen' : 'Gemischte Runde')}
+                  {' · '}{offen.ergebnisse.length} von {offen.aufgaben.length} Aufgaben geprüft
+                  {' · '}{offen.ergebnisse.filter((e) => e.b.richtig).length} ganz richtig
+                </p>
+              </div>
+              <div className="row">
+                <button type="button" className="primary" onClick={() => weiterMachen(offen)}>Fortsetzen</button>
+                <button type="button" className="ghost" onClick={verwerfen}>Verwerfen</button>
+              </div>
+            </div>
+          )}
           <ul className="qz-seite__bereiche" aria-label="Bereich wählen">
             {karten.map((b) => {
               const s = stand[b.id];

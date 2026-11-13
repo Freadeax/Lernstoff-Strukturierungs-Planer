@@ -1,0 +1,11 @@
+/* „Im Skript nachlesen“ nach dem Prüfen (Übungsrunde, Fehlerheft, Prüfungssimulation) */
+.skript-stellen {
+  margin: var(--space-2) 0; padding: var(--space-2) var(--space-3);
+  border-left: 3px solid var(--color-primary); border-radius: var(--radius-sm); background: var(--color-primary-soft);
+}
+.skript-stellen__kopf { margin: 0 0 var(--space-1); font-weight: var(--weight-medium); font-size: var(--text-sm); }
+.skript-stellen ul { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--space-2); }
+.skript-stellen a { display: inline-block; min-height: 44px; padding: var(--space-1) 0; overflow-wrap: anywhere; }
+.skript-stellen__ausschnitt { display: block; margin-top: 2px; font-size: var(--text-sm); color: var(--color-text-muted); font-style: italic; }
+.skript-stellen--kompakt { border: 0; background: none; padding: 0; margin: var(--space-1) 0 0; font-size: var(--text-sm); }
+.skript-stellen--kompakt a { min-height: 0; padding: 0; }
