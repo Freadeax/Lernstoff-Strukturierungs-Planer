@@ -42,6 +42,7 @@ const Examen = lazy(() => import('./features/examen/ExamenSeite'));
 const HygieneTrainer = lazy(() => import('./features/hygiene/HygieneTrainer'));
 const AnatomieTrainer = lazy(() => import('./features/anatomie/AnatomieTrainer'));
 const ExpertenstandardsTrainer = lazy(() => import('./features/expertenstandards/ExpertenstandardsTrainer'));
+const DnqpSeite = lazy(() => import('./features/dnqp/DnqpSeite'));
 const NormwerteTrainer = lazy(() => import('./features/normwerte/NormwerteTrainer'));
 const NotfallTrainer = lazy(() => import('./features/notfall/NotfallTrainer'));
 const HoerTrainer = lazy(() => import('./features/hoeren/HoerTrainer'));
@@ -94,6 +95,7 @@ function View() {
     case '/lernen/hygiene': return <HygieneTrainer />;
     case '/lernen/anatomie': return <AnatomieTrainer />;
     case '/lernen/expertenstandards': return <ExpertenstandardsTrainer />;
+    case '/lernen/dnqp': return <DnqpSeite />;
     case '/lernen/normwerte': return <NormwerteTrainer />;
     case '/lernen/diagnostik': return <Diagnostik />;
     case '/lernen/labor': return <LaborTrainer />;

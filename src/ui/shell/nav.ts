@@ -25,6 +25,7 @@ export const NAV: NavItem[] = [
       { id: 'ce', label: 'Curriculare Einheiten', path: '/lernen/ce', icon: 'layers' },
       { id: 'themen', label: 'Themen', path: '/lernen/themen', icon: 'table' },
       { id: 'skript', label: 'Skript', path: '/lernen/skript', icon: 'book' },
+      { id: 'dnqp', label: 'Expertenstandards (DNQP)', path: '/lernen/dnqp', icon: 'star' },
       { id: 'karten', label: 'Karteikarten', path: '/lernen/karten', icon: 'cards' },
       { id: 'schnellsuche', label: 'Standard-Schnellsucher', path: '/lernen/schnellsuche', icon: 'search' },
       { id: 'landkarte', label: 'Themen-Landkarte', path: '/lernen/landkarte', icon: 'map' },
