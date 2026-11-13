@@ -1,7 +1,7 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { assetBericht, assetInventar, raumVerwendungen, zustandsLuecken } from './inventar';
+import { PRUEFPUNKTE, assetBericht, assetInventar, pruefEinheit, pruefEinheiten, raumVerwendungen, zustandsLuecken } from './inventar';
 import { RAEUME, raumFuerZustand, raumVarianten } from '../../ui/sim/raeume/katalog';
 import { FREIGABEN } from './freigaben';
 
@@ -23,9 +23,10 @@ describe('Asset-Status (SIM-06)', () => {
 
   it('jede Datei hat Lizenzangabe und Offline-Weg; Freigaben nennen nur vorhandene Dateien', () => {
     for (const e of inv) { expect(e.lizenz, e.datei).not.toBe(''); expect(e.offline).toBeTruthy(); }
-    for (const [datei, f] of Object.entries(FREIGABEN)) {
-      expect(inv.some((e) => e.datei === datei), datei).toBe(true);
+    for (const [einheit, f] of Object.entries(FREIGABEN)) {
+      expect(inv.some((e) => e.einheit === einheit), einheit).toBe(true);
       expect(f.am).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      if (f.status === 'mangel') expect(f.hinweis, einheit).toBeTruthy();
     }
   });
 
@@ -45,6 +46,18 @@ describe('Asset-Status (SIM-06)', () => {
       expect(v.get(id)?.length, id).toBeGreaterThan(0);
     }
     expect(zustandsLuecken().length).toBeGreaterThan(0);
+  });
+
+  it('Prüfeinheiten fassen Videos und Bildserien zusammen', () => {
+    expect(pruefEinheit('sim-videos/insulingabe-3.webp')).toBe('sim-videos/insulingabe.mp4');
+    expect(pruefEinheit('bildgebung/lungenembolie-ct/schicht-07.png')).toBe('bildgebung/lungenembolie-ct');
+    const einheiten = pruefEinheiten(inv);
+    const ct = einheiten.find((e) => e.schluessel === 'bildgebung/lungenembolie-ct')!;
+    expect(ct.dateien).toHaveLength(32);
+    const video = einheiten.find((e) => e.schluessel === 'sim-videos/insulingabe.mp4')!;
+    expect(video.dateien).toHaveLength(5);
+    expect(video.vorschau).toBe('sim-videos/insulingabe-1.webp');
+    for (const e of einheiten) expect(PRUEFPUNKTE[e.art].length, e.art).toBeGreaterThan(1);
   });
 
   it('docs/ASSET-STATUS.md ist aktuell', () => {

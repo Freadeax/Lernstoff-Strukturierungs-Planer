@@ -1,0 +1,24 @@
+.bildpruefung__kopf { display: grid; gap: var(--space-2); margin-bottom: var(--space-3); }
+.bildpruefung__zahlen { margin: 0; }
+.bildpruefung__feld { display: grid; gap: var(--space-1); max-width: 28rem; }
+.bildpruefung .pills { margin-bottom: var(--space-2); }
+.bildpruefung__liste { list-style: none; padding: 0; margin: var(--space-3) 0 0; display: grid; gap: var(--space-3); }
+.bildpruefung__karte {
+  display: grid; grid-template-columns: minmax(0, 22rem) minmax(0, 1fr); gap: var(--space-3);
+  padding: var(--space-3); border: 1.5px solid var(--color-border); border-radius: var(--radius-md, 12px); background: var(--color-surface);
+}
+.bildpruefung__karte.is-freigegeben { border-color: var(--color-success); }
+.bildpruefung__karte.is-mangel { border-color: var(--color-danger); }
+.bildpruefung__bild img, .bildpruefung__bild video { width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: contain; background: var(--color-surface-sunken); border-radius: 8px; display: block; }
+.bildpruefung__text { display: grid; gap: var(--space-1); align-content: start; min-width: 0; }
+.bildpruefung__text h3 { margin: 0; }
+.bildpruefung__text p { margin: 0; }
+.bildpruefung__klein { font-size: 0.875rem; overflow-wrap: anywhere; }
+.bildpruefung__hinweis { border-left: 3px solid var(--color-danger); padding-left: var(--space-2); }
+.bildpruefung__badge.is-freigegeben { border-color: var(--color-success); }
+.bildpruefung__badge.is-mangel { border-color: var(--color-danger); }
+.bildpruefung__aktionen { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; margin-top: var(--space-1); }
+.bildpruefung__pruefung { display: grid; gap: var(--space-1); border: 1px solid var(--color-border); border-radius: 8px; padding: var(--space-2); margin: var(--space-2) 0 0; }
+@media (max-width: 640px) {
+  .bildpruefung__karte { grid-template-columns: minmax(0, 1fr); }
+}

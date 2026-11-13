@@ -12,6 +12,8 @@
     "preview": "vite preview --host",
     "test": "vitest run",
     "assets:status": "ASSET_STATUS_SCHREIBEN=1 vitest run src/features/assetstatus",
+    "assets:freigaben": "node scripts/freigaben-uebernehmen.mjs",
+    "material:pruefen": "node scripts/lieferung-pruefen.mjs",
     "test:ui": "node scripts/check-ui.mjs",
     "typecheck": "tsc -b --noEmit",
     "test:material": "node scripts/check-material.mjs",
