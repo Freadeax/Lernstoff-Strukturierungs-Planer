@@ -201,3 +201,4 @@
   .szene--foto .szene__orte { display: grid; grid-template-columns: 1fr 1fr; }
   .szene--foto .praxis-hotspot { gap: var(--space-1); }
 }
+.foto__beispiel { margin: 0; padding: var(--space-1) var(--space-2) 0; font-size: var(--text-sm, .875rem); color: #eef3f1; }

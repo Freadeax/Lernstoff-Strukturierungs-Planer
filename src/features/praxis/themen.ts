@@ -21,6 +21,9 @@ export const PRAXIS_THEMEN: Record<string, string[]> = {
   delir: ['thema.pro.delir', 'thema.re.fem', 'thema.ph.periop', 'thema.ph.ausscheidung'],
   asthma: ['thema.kl.atmung', 'thema.kl.paediatrie', 'thema.re.schweigepflicht'],
   demenz: ['thema.kl.demenz', 'thema.pro.pneumonie', 'thema.pro.dekubitus', 'thema.kom.ethik'],
+  bronchiolitis: ['thema.kl.paediatrie', 'thema.kl.atmung', 'thema.ph.hygiene', 'thema.pro.dehydratation'],
+  herzschwaeche: ['thema.kl.herz.insuffizienz', 'thema.fa.ambulant', 'thema.ph.medikamente', 'thema.kom.beratung'],
+  rausch: ['thema.beo.bewusstsein', 'thema.pro.aspiration', 'thema.kl.paediatrie', 'thema.kom.gespraech'],
 };
 
 /** Fälle, die ein Thema üben, in der Reihenfolge des Katalogs. */
