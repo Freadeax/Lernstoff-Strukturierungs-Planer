@@ -1,6 +1,6 @@
 import { storage } from '../../ui/lib/store';
 import { DatenHinweis } from '../../ui/DatenHinweis';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import './pflegeplanung.css';
 import { logActivity } from '../../core/activity';
 import { getApiKey } from '../../core/settings';
@@ -18,6 +18,7 @@ import { PersonenWarnung, personenbezug } from '../../ui/PersonenWarnung';
 import { bewerteMitClaude, type KiRueckmeldung } from './claude';
 import { lernplanErgebnisse } from './lernplan';
 import { AkteLeiste } from '../fallakte/AkteLeiste';
+import { vergleicheMitBeispiel } from './beispiel';
 
 // ---------- Entwürfe und Bestwerte (nur dieses Gerät) ----------
 
@@ -338,6 +339,39 @@ function Ergebnis({ e }: { e: Pruefergebnis }) {
   );
 }
 
+/** Geprüfte Musterlösung, Problem für Problem neben der eigenen Planung. */
+function Musterloesung({ fall, plan }: { fall: PlanFall; plan: Plan }) {
+  const vergleich = useMemo(() => vergleicheMitBeispiel(fall, plan), [fall, plan]);
+  return (
+    <details className="pp__bsp">
+      <summary>Musterlösung zum Vergleichen</summary>
+      <p className="muted">Eine mögliche Planung, keine einzig richtige. Sie besteht dieselbe Checkliste wie deine. Lies Problem für Problem: Was hast du auch, was fehlt dir, wie genau sind Wann und Wer?</p>
+      {vergleich.map((v) => (
+        <article key={v.problem.id} className="pp__bspproblem">
+          <header>
+            <strong>{v.problem.p}</strong>
+            <span className="pill small">{v.problem.art === 'risiko' ? 'Risiko' : 'aktuell'}</span>
+            <span className={`pp__bspdu ${v.auchBeiDir ? 'is-ok' : 'is-fehlt'}`}>{v.auchBeiDir ? '✓ auch bei dir' : 'fehlt bei dir'}</span>
+          </header>
+          <dl className="pp__bspliste">
+            {v.problem.e && <><dt>E</dt><dd>{v.problem.e}</dd></>}
+            {v.problem.s && <><dt>S</dt><dd>{v.problem.s}</dd></>}
+            {v.problem.r && <><dt>R</dt><dd>{v.problem.r}</dd></>}
+            {v.ziele.map((z) => <Fragment key={z.id}><dt>Ziel</dt><dd>{z.text}{z.termin && <span className="muted"> Überprüfung: {z.termin}</span>}</dd></Fragment>)}
+            {v.massnahmen.map((m) => (
+              <Fragment key={m.id}><dt>Maßnahme</dt>
+              <dd>{m.was}
+                <span className="pp__bspwie"><b>Wann:</b> {m.wann} · <b>Wer:</b> {m.wer}</span>
+                {m.begruendung && <span className="pp__bspwie"><b>Warum:</b> {m.begruendung}</span>}
+              </dd></Fragment>
+            ))}
+          </dl>
+        </article>
+      ))}
+    </details>
+  );
+}
+
 function KiErgebnis({ r }: { r: KiRueckmeldung }) {
   const regelName = (id: string) => pflegeModule.checkRules.find((x) => x.id === id)?.description ?? id;
   return (
@@ -567,12 +601,7 @@ export default function Pflegeplanung() {
                 </p>
               )}
               <LernplanHinweis uebernahme={lernplan.uebernahme} fehler={lernplan.fehler} />
-              {fall.beispiel && (
-                <details>
-                  <summary>Beispiel-Planung ansehen</summary>
-                  <p className="pre pp__muster">{fall.beispiel}</p>
-                </details>
-              )}
+              {fall.beispiel && <Musterloesung fall={fall} plan={plan} />}
             </div>
             {ki && <KiErgebnis r={ki} />}
           </>
