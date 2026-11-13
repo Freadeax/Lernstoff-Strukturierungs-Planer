@@ -87,11 +87,14 @@ try {
       await neu.locator('.shell__tabbar a', { hasText: 'Lernplan' }).click();
       await neu.locator('.shell__tabbar a', { hasText: 'Üben' }).click();
       await neu.waitForFunction(() => location.hash === '#/lernen/ueben');
+      await neu.locator('.shell__back').waitFor({ state: 'attached', timeout: 2000 }).catch(() => undefined);
       assert.equal(await neu.locator('.shell__back').count(), 1, 'Zurück nach Seitenwechsel');
       await neu.locator('.shell__back').evaluate((b) => b.click()); // im Browser per CSS verborgen
       await neu.waitForFunction(() => location.hash === '#/lernen/plan');
       await neu.locator('.shell__back').evaluate((b) => b.click());
       await neu.waitForFunction(() => location.hash === '#/');
+      // Der Seitenwechsel läuft als kurzer Übergang, die neue Seite steht einen Bildaufbau später: darauf warten statt sofort zählen.
+      await neu.locator('.shell__back').waitFor({ state: 'detached', timeout: 2000 }).catch(() => undefined);
       assert.equal(await neu.locator('.shell__back').count(), 0, 'Zurück verschwindet am Einstieg');
 
       // Offline-Hinweis

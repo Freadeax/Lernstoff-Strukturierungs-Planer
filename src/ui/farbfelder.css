@@ -233,6 +233,8 @@ dialog { border: 2px solid var(--color-outline); }
 .page-heading--bild .page-heading__action { margin-top: 20px; }
 .page-heading__bild { flex: 0 0 min(34%, 400px); rotate: 2deg; box-shadow: var(--shadow-hard-lg); }
 @media (max-width: 1200px) { .page-heading__bild { flex: none; width: min(100%, 400px); } }
+/* iPad quer: genug Breite, das Bild bleibt rechts neben der Überschrift. */
+@media (min-width: 1000px) and (max-width: 1200px) { .page-heading--bild { flex-direction: row; align-items: center; } .page-heading__bild { flex: 0 0 min(32%, 320px); width: auto; } }
 @media (max-width: 767px) { .page-heading--bild { gap: 18px; } .page-heading__bild { width: 100%; aspect-ratio: 21 / 8; rotate: none; box-shadow: var(--shadow-hard); border-radius: 18px; } }
 
 /* ---------- Schnellwege auf „Heute“ ---------- */
