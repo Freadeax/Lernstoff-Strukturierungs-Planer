@@ -65,7 +65,7 @@ export function eindeutig(belege: SkriptBeleg[]): SkriptBeleg[] {
 
 // ---------------------------------------------------------------- Kopf
 
-interface Kopf { themen: string[]; gruppe?: string; titel?: string; dokument?: string; freigabe?: { am: string; von: string } }
+interface Kopf { themen: string[]; gruppe?: string; titel?: string; dokument?: string; weitergabe?: 'erlaubt' | 'nein'; freigabe?: { am: string; von: string } }
 
 function leseKopf(text: string): { kopf: Kopf; rest: string } {
   const kopf: Kopf = { themen: [] };
@@ -78,6 +78,7 @@ function leseKopf(text: string): { kopf: Kopf; rest: string } {
     if (z[1] === 'themen') kopf.themen = wert.replace(/^\[|\]$/g, '').split(',').map((s) => s.trim().replace(/^["']|["']$/g, '')).filter(Boolean);
     if (z[1] === 'gruppe') kopf.gruppe = wert.replace(/^["']|["']$/g, '');
     if (z[1] === 'titel') kopf.titel = wert.replace(/^["']|["']$/g, '');
+    if (z[1] === 'weitergabe') { const w = wert.replace(/^["']|["']$/g, '').toLowerCase(); if (w === 'erlaubt' || w === 'nein') kopf.weitergabe = w; }
     if (z[1] === 'dokument') kopf.dokument = wert.replace(/^["']|["']$/g, '');
     if (z[1] === 'freigabe') {
       const f = wert.replace(/^["']|["']$/g, '').match(/^(\d{4}-\d{2}-\d{2})\s*,\s*(.+)$/);
@@ -195,7 +196,7 @@ export function parseSkript(datei: string, markdown: string, o: ParseOptionen): 
   const jetzt = o.jetzt ?? new Date().toISOString();
   return {
     id: skriptId(datei), datei, gruppe: kopf.gruppe ? normalisiereGruppe(kopf.gruppe) : gruppe, titel,
-    einleitung, quellen, abschnitte, topicIds: kopf.themen, ...(kopf.freigabe ? { freigabe: kopf.freigabe } : {}), ...(kopf.dokument ? { dokumentId: kopf.dokument } : {}), hash: inhaltsHash(text),
+    einleitung, quellen, abschnitte, topicIds: kopf.themen, ...(kopf.freigabe ? { freigabe: kopf.freigabe } : {}), ...(kopf.dokument ? { dokumentId: kopf.dokument } : {}), ...(kopf.weitergabe ? { weitergabe: kopf.weitergabe } : {}), hash: inhaltsHash(text),
     herkunft: o.herkunft, importiert: jetzt, geaendert: jetzt,
   };
 }

@@ -55,6 +55,8 @@ export interface Skript {
   fassungen?: SkriptFassung[];
   /** Aus einem eigenen Dokument erzeugt (Kopf `dokument: <id>`): Belege führen dorthin zurück. */
   dokumentId?: ID;
+  /** Kopf `weitergabe: erlaubt` (selbst geschrieben, darf weitergegeben werden) oder `nein` (bleibt immer privat). */
+  weitergabe?: 'erlaubt' | 'nein';
   herkunft: 'repo' | 'datei' | 'dokument';
   importiert: string;
   geaendert: string;

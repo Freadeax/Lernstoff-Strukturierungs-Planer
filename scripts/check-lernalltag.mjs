@@ -175,6 +175,14 @@ try {
     assert.match(meta, /Quelle fehlt: \[X\]/);
     assert.match(meta, /Seite fehlt: \[A\]/);
     await axe(page, 'Skript Belegprüfung');
+    // Weitergabe: eigenes Skript erst nach Bestätigung teilbar
+    await page.goto(base + '#/lernen/skript?id=pruefskript-alltag&nr=1', { waitUntil: 'networkidle' });
+    await page.getByText('An Mitschüler weitergeben').click();
+    const teilen = page.getByRole('button', { name: 'Als Datei teilen' });
+    assert(await teilen.isDisabled(), 'Teilen erst nach Bestätigung');
+    await page.getByLabel(/selbst geschrieben oder darf es weitergeben/).check();
+    const [skriptDatei] = await Promise.all([page.waitForEvent('download'), teilen.click()]);
+    assert.equal(skriptDatei.suggestedFilename(), 'pruefskript-alltag.md');
     await page.goto(base + '#/lernen/skript', { waitUntil: 'networkidle' });
     const importFeld = page.locator('input[type=file][accept*=".md"]');
     if (!(await importFeld.count())) await page.getByText(/Skripte (laden|aktualisieren)|Weitere Skripte|Importieren/).first().click();
