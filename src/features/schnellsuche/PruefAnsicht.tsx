@@ -19,17 +19,25 @@ export const BEISPIEL = [
  * bekannte veraltete Aussagen werden erkannt, zu jedem Satz stehen die passendsten Kriterien daneben.
  * Alles bleibt auf dem Gerät.
  */
+const MAX_SAETZE = 40;
+
 export function PruefAnsicht({ index }: { index: Index }) {
   const [text, setText] = useState('');
-  const ergebnis = useMemo(() => {
+  const { ergebnis, warnungen, gesamt } = useMemo(() => {
     const treffer = pruefeText(text);
-    return saetze(text).slice(0, 40).map((satz) => ({
-      satz,
-      hinweise: treffer.filter((t) => t.satz === satz),
-      kriterien: suche(index, satz.replace(/["„“]/g, ' '), { art: 'kriterium' }, 2).treffer,
-    }));
+    const alle = saetze(text);
+    // Kriterienbezug (Suche) nur für die ersten Sätze; Sätze mit Hinweis werden immer gezeigt.
+    const gezeigt = alle.filter((satz, i) => i < MAX_SAETZE || treffer.some((t) => t.satz === satz));
+    return {
+      gesamt: alle.length,
+      warnungen: treffer.filter((t) => !t.wirktRichtiggestellt).length,
+      ergebnis: gezeigt.map((satz, i) => ({
+        satz,
+        hinweise: treffer.filter((t) => t.satz === satz),
+        kriterien: i < MAX_SAETZE ? suche(index, satz.replace(/["„“]/g, ' '), { art: 'kriterium' }, 2).treffer : [],
+      })),
+    };
   }, [text, index]);
-  const warnungen = ergebnis.reduce((n, z) => n + z.hinweise.filter((h) => !h.wirktRichtiggestellt).length, 0);
 
   return (
     <div className="sus__pruefen">
@@ -48,7 +56,8 @@ export function PruefAnsicht({ index }: { index: Index }) {
       </div>
       {text.trim() && (
         <p className="sus__status" role="status">
-          {ergebnis.length} {ergebnis.length === 1 ? 'Satz' : 'Sätze'} geprüft, {warnungen ? `${warnungen} ${warnungen === 1 ? 'Hinweis' : 'Hinweise'} auf veraltete Aussagen` : 'keine bekannte veraltete Aussage gefunden'}.
+          {gesamt} {gesamt === 1 ? 'Satz' : 'Sätze'} geprüft, {warnungen ? `${warnungen} ${warnungen === 1 ? 'Hinweis' : 'Hinweise'} auf veraltete Aussagen` : 'keine bekannte veraltete Aussage gefunden'}.
+          {gesamt > MAX_SAETZE ? ` Passende Kriterien stehen bei den ersten ${MAX_SAETZE} Sätzen; Hinweise gelten für den ganzen Text.` : ''}
         </p>
       )}
       <ol className="sus__liste">
