@@ -11,6 +11,7 @@ import { navigate } from './router';
 import { session, setWorkspace, type Theme } from './session';
 import { merkliste } from './merkliste';
 import { kuerzelHilfe } from './Tastenkuerzel';
+import { schalteFokus } from './fokus';
 
 interface Hit extends TrieEntry { id: string; type: 'Seite' | 'Fach' | 'Thema' | 'Begriff' | 'Quelle' | 'Aktion'; hint?: string; to?: string; definition?: string; run?: () => void }
 
@@ -32,6 +33,7 @@ function aktionen(): Hit[] {
     { id: 'aktion:sicherung', type: 'Aktion', label: 'Sicherung erstellen', keywords: ['Backup', 'übertragen', 'exportieren'], hint: 'Datensicherung', to: '/system/sicherung' },
     { id: 'aktion:rueckmeldung', type: 'Aktion', label: 'Rückmeldung geben', keywords: ['Feedback', 'Fehler melden', 'Testphase', 'Problem'], hint: 'Testphase', to: '/system/test?ansicht=rueckmeldung' },
     { id: 'aktion:qualitaet', type: 'Aktion', label: 'Inhaltsqualität prüfen', keywords: ['Qualitätsmanagement', 'QM', 'Frage melden', 'Abdeckung', 'Lücken', 'Überarbeitung', 'veraltet'], hint: 'Überarbeitungsliste', to: '/system/qualitaet?ansicht=liste' },
+    { id: 'aktion:fokus', type: 'Aktion', label: 'Fokus-Modus', keywords: ['ablenkungsfrei', 'Zen', 'Konzentration', 'Pomodoro', 'Timer', 'Lernzeit', 'Vollbild'], hint: 'Menüs ausblenden, Timer', run: schalteFokus },
     { id: 'aktion:kuerzel', type: 'Aktion', label: 'Tastenkürzel anzeigen', keywords: ['Hilfe', 'Shortcuts'], hint: 'Übersicht', run: () => kuerzelHilfe.set({ offen: true }) },
   ];
 }

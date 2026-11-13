@@ -1,5 +1,6 @@
 import { RepoUploadAuswahl, bestaetigeRepoUpload } from './ablage/RepoUploadAuswahl';
 import { DatenHinweis } from '../ui/DatenHinweis';
+import { TextEinfuegen } from './dokumente/TextEinfuegen';
 import { useEffect, useState } from 'react';
 import { liveQuery } from 'dexie';
 import { ThemenZuordnung } from './dokumente/ThemenZuordnung';
@@ -37,6 +38,7 @@ export function Dokumente() {
   const [open, setOpen] = useState<string | null>(null);
   const [chunks, setChunks] = useState<SourceChunk[]>([]);
   const [loeschen, setLoeschen] = useState<string | null>(null);
+  const [ziehen, setZiehen] = useState(false);
   useEffect(() => { if (ziel) setOpen(ziel); }, [ziel]);
   useEffect(() => {
     // Dubletten aus den gespeicherten Fingerabdrücken, aktuell bei jedem Import oder Löschen
@@ -80,7 +82,7 @@ export function Dokumente() {
     } catch (e) { notify('critical', 'Als Skript übernehmen fehlgeschlagen', e instanceof Error ? e.message : String(e)); }
   }
 
-  async function onFiles(files: FileList | null) {
+  async function onFiles(files: FileList | File[] | null) {
     if (!files?.length) return;
     try {
       const liste = Array.from(files);
@@ -125,13 +127,17 @@ export function Dokumente() {
         </label>
         <RepoUploadAuswahl checked={archive} disabled={!!busy} onChange={setArchive} />
         <DatenHinweis art="import" />
-        <label className="upload">
+        <label className={`upload${ziehen ? ' is-ziehen' : ''}`}
+          onDragOver={(e) => { if (busy || !subjectId || !e.dataTransfer.types.includes('Files')) return; e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; setZiehen(true); }}
+          onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setZiehen(false); }}
+          onDrop={(e) => { e.preventDefault(); setZiehen(false); if (!busy && subjectId) void onFiles(e.dataTransfer.files); }}>
           <input type="file" multiple accept={ACCEPT}
             disabled={!!busy || !subjectId} onChange={(e) => { onFiles(e.target.files); e.target.value = ''; }} />
           <Icon name="upload" size={28} />
-          <strong>{busy || 'Dateien auswählen und importieren'}</strong>
-          <small>PDF, Word, PowerPoint, Text, Foto oder ZIP</small>
+          <strong>{busy || (ziehen ? 'Loslassen zum Importieren' : 'Dateien auswählen und importieren')}</strong>
+          <small>PDF, Word, PowerPoint, Text, Foto oder ZIP. Am Computer auch hierher ziehen.</small>
         </label>
+        <TextEinfuegen disabled={!!busy || !subjectId} onSpeichern={(f) => onFiles([f])} />
         {busy && <p className="note" role="status" aria-live="polite">{busy}{abbruch && <> <button type="button" className="small ghost" disabled={abbruch.signal.aborted} onClick={() => { abbruch.abort(); setBusy('Wird abgebrochen …'); }}>Abbrechen</button></>}</p>}
         {reports.map((r, i) => (
           <div key={`${r.name}-${i}`} className={r.error || r.archiveError ? 'note warn' : 'note'}>

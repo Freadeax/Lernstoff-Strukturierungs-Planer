@@ -53,9 +53,14 @@ export const SEITEN: SeitenInfo[] = [
   },
   {
     path: '/lernen/themen', name: 'Themen',
-    wozu: 'Die vollständige Liste aller Themen als Tabelle, zum Suchen, Filtern und Ändern mehrerer Themen auf einmal.',
-    wann: 'Wenn du ein bestimmtes Thema suchst oder viele Themen gleichzeitig verschieben willst.',
-    soGehts: ['Thema antippen öffnet die Themenseite mit allem Material.', 'Mehrere Zeilen auswählen und den Arbeitsstand gemeinsam ändern.'],
+    wozu: 'Alle Themen als Baum (Fach › Bereich › Thema) mit Fortschrittsbalken je Ebene, oder als Tabelle zum Sortieren und Ändern vieler Themen auf einmal.',
+    wann: 'Wenn du sehen willst, welche Bereiche noch offen sind, ein bestimmtes Thema suchst oder eigenen Stoff gliedern willst.',
+    soGehts: [
+      'Baum: Bereiche aufklappen, Filter „Fällig“ oder „Unsicher“ zeigt nur, was jetzt dran ist. „Als Nächstes“ schlägt ein Thema vor.',
+      'Eigene Themen anlegen und am Griff in einen anderen Bereich ziehen (oder „Umhängen“).',
+      'Tabelle: mehrere Zeilen auswählen und den Arbeitsstand gemeinsam ändern.',
+      'Thema antippen öffnet die Themenseite mit allem Material.',
+    ],
     weiter: { label: 'Themen als Board sehen', path: '/lernen/board' },
   },
   {
