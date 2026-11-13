@@ -91,6 +91,7 @@ export const NAV: NavItem[] = [
       { id: 'sicherung', label: 'Datensicherung', path: '/system/sicherung', icon: 'save' },
       { id: 'bilder', label: 'Bildprüfung', path: '/system/bilder', icon: 'check' },
       { id: 'einstellungen', label: 'Einstellungen', path: '/einstellungen', icon: 'settings' },
+      { id: 'testphase', label: 'Testphase und Rückmeldung', path: '/system/test', icon: 'chat' },
     ],
   },
 ];
@@ -115,6 +116,12 @@ let _ueben: Set<string> | undefined;
 function uebenPfade(): Set<string> {
   _ueben ??= new Set(flatNav(NAV.find((i) => i.id === 'ueben')?.children ?? []).map((i) => i.path!));
   return _ueben;
+}
+
+/** Menü-ID einer Übungsseite (unter „Üben“, ohne die Übersicht), sonst undefined. Für die Leiste „Passt dazu“. */
+export function uebungsId(path: string): string | undefined {
+  if (!uebenPfade().has(path) || path === '/lernen/ueben') return undefined;
+  return flatNav(NAV.find((i) => i.id === 'ueben')?.children ?? []).find((i) => i.path === path)?.id;
 }
 
 /** Die drei Bündel unter „Üben“ (für die Übersichtsseite). */

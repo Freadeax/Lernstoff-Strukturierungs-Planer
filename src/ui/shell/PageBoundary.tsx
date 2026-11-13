@@ -26,7 +26,11 @@ export function einmalNeuLaden(jetzt = Date.now()): boolean {
   return true;
 }
 
-function Fehler({ error, reset }: { error: Error; reset: () => void }) {
+/** Rückmeldeseite mit Seite und Fehlermeldung vorausgefüllt (ohne die Testphase ins Startpaket zu ziehen). */
+export const fehlerMeldenPfad = (seite: string, meldung: string) =>
+  `/system/test?${new URLSearchParams({ ansicht: 'rueckmeldung', art: 'fehler', seite, technik: meldung.slice(0, 300) })}`;
+
+function Fehler({ error, reset, path }: { error: Error; reset: () => void; path: string }) {
   const laden = istLadefehler(error);
   if (laden && einmalNeuLaden()) return <p className="muted">Neue Version wird geladen …</p>;
   return (
@@ -39,6 +43,7 @@ function Fehler({ error, reset }: { error: Error; reset: () => void }) {
         {!laden && <button type="button" className="primary" onClick={reset}>Nochmal versuchen</button>}
         <button type="button" className={laden ? 'primary' : ''} onClick={() => location.reload()}>Seite neu laden</button>
         <button type="button" className="ghost" onClick={() => navigate('/')}>Zur Übersicht</button>
+        {!laden && path !== '/system/test' && <button type="button" className="ghost" onClick={() => navigate(fehlerMeldenPfad(path, error.message))}>Fehler melden</button>}
       </div>
       {!laden && <details className="muted"><summary>Technische Angabe</summary><code>{error.message}</code><br />App-Version: <code>{BUILD_ID}</code></details>}
     </section>
@@ -52,7 +57,7 @@ function Fehler({ error, reset }: { error: Error; reset: () => void }) {
  */
 export function PageBoundary({ path, children }: { path: string; children: ReactNode }) {
   return (
-    <ErrorBoundary resetKey={path} fallback={(error, reset) => <Fehler error={error} reset={reset} />}>
+    <ErrorBoundary resetKey={path} fallback={(error, reset) => <Fehler error={error} reset={reset} path={path} />}>
       <Suspense fallback={<p className="muted route-laden" role="status"><span aria-hidden="true" /><span aria-hidden="true" /><span aria-hidden="true" />Lädt …</p>}>{children}</Suspense>
     </ErrorBoundary>
   );

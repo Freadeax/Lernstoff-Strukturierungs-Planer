@@ -1,7 +1,7 @@
-import { lazy, useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { Shell } from './ui/shell/Shell';
 import { navigate, useRoute } from './ui/shell/router';
-import { REDIRECTS, gruppenPfad } from './ui/shell/nav';
+import { REDIRECTS, gruppenPfad, uebungsId } from './ui/shell/nav';
 import { PageBoundary } from './ui/shell/PageBoundary';
 import { WidgetGrid } from './ui/widget/Dashboard';
 import { WIDGETS } from './widgets/registry';
@@ -51,6 +51,8 @@ const ArzneimittelTrainer = lazy(() => import('./features/arzneimittel/Arzneimit
 const RechtTrainer = lazy(() => import('./features/recht/RechtTrainer'));
 const Schnellsuche = lazy(() => import('./features/schnellsuche/Schnellsuche'));
 const UebenSeite = lazy(() => import('./features/ueben/UebenSeite'));
+const PasstDazu = lazy(() => import('./features/ueben/PasstDazuLeiste'));
+const Testphase = lazy(() => import('./features/testphase/TestphaseSeite'));
 const ThemaSeite = lazy(() => import('./features/thema/ThemaSeite'));
 
 function Page({ title, intro, children }: { title: string; intro?: string; children: React.ReactNode }) {
@@ -113,6 +115,7 @@ function View() {
     case '/system/sicherung': return <Datensicherung />;
     case '/system/design': return <Designsystem />;
     case '/system/bilder': return <Bildpruefung />;
+    case '/system/test': return <Testphase />;
     default:
       return (
         <Page title="Seite nicht gefunden">
@@ -128,5 +131,7 @@ export function App() {
   // Schlüssel je Seite: beim Seitenwechsel wird der Rahmen neu aufgebaut, die Einblend-Animation läuft erneut.
   // Unterseiten des Klassenmodus teilen sich einen Schlüssel, damit ihr Zustand erhalten bleibt.
   const seite = path.startsWith('/lernen/klasse') ? '/lernen/klasse' : path;
-  return <Shell><PageBoundary path={path}><div className="route" key={seite} style={{ '--kopf-marke': JSON.stringify(gruppenPfad(seite)) } as React.CSSProperties}><View /></div></PageBoundary></Shell>;
+  const uebung = uebungsId(path);
+  return <Shell><PageBoundary path={path}><div className="route" key={seite} style={{ '--kopf-marke': JSON.stringify(gruppenPfad(seite)) } as React.CSSProperties}><View />
+    {uebung && <Suspense fallback={null}><PasstDazu id={uebung} path={path} /></Suspense>}</div></PageBoundary></Shell>;
 }
