@@ -8,6 +8,7 @@ import { pflegeModule } from '../../modules/pflege';
 import { ladeZiel, type AblageZiel } from '../ablage/ablage';
 import { bildSpeicher, bildVerweise, holeBilder, raeumeBilderAuf, type BildErgebnis, type BildSpeicher } from './bilder';
 import { parseSkript } from './parser';
+import { dokumentSkriptId, skriptAusDokument } from './ausDokument';
 import { neueFassung } from './fassung';
 import { schlageThemenVor } from './themen';
 import type { Skript } from './typen';
@@ -75,6 +76,19 @@ export async function leseDateien(files: File[]): Promise<Array<{ name: string; 
     }
   }
   return out;
+}
+
+/**
+ * Ein importiertes Dokument als Skript übernehmen (offline, ohne KI). Ein erneuter Aufruf nach
+ * einem neuen Import desselben Dokuments legt eine neue Fassung an, Lesestand und Karten bleiben.
+ */
+export async function uebernehmeDokument(documentId: string, database: LernstoffDB = db): Promise<{ id: string; ergebnis: ImportErgebnis }> {
+  const doc = await database.documents.get(documentId);
+  if (!doc) throw new Error('Dokument nicht gefunden.');
+  const chunks = await database.chunks.where('documentId').equals(documentId).toArray();
+  if (!chunks.some((c) => c.text.trim())) throw new Error(`„${doc.title}“ enthält keinen erkannten Text.`);
+  const ergebnis = await uebernehmeDateien([skriptAusDokument(doc, chunks)], 'dokument', database);
+  return { id: dokumentSkriptId(doc), ergebnis };
 }
 
 // ---------------------------------------------------------------- Material-Repo

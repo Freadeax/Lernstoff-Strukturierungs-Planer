@@ -1,7 +1,7 @@
-import { lazy, useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { Shell } from './ui/shell/Shell';
 import { navigate, useRoute } from './ui/shell/router';
-import { REDIRECTS, gruppenPfad } from './ui/shell/nav';
+import { REDIRECTS, gruppenPfad, uebungsId } from './ui/shell/nav';
 import { PageBoundary } from './ui/shell/PageBoundary';
 import { WidgetGrid } from './ui/widget/Dashboard';
 import { WIDGETS } from './widgets/registry';
@@ -52,12 +52,18 @@ const ArzneimittelTrainer = lazy(() => import('./features/arzneimittel/Arzneimit
 const RechtTrainer = lazy(() => import('./features/recht/RechtTrainer'));
 const Schnellsuche = lazy(() => import('./features/schnellsuche/Schnellsuche'));
 const UebenSeite = lazy(() => import('./features/ueben/UebenSeite'));
+const PasstDazu = lazy(() => import('./features/ueben/PasstDazuLeiste'));
+const Testphase = lazy(() => import('./features/testphase/TestphaseSeite'));
 const ThemaSeite = lazy(() => import('./features/thema/ThemaSeite'));
+const Wegweiser = lazy(() => import('./features/wegweiser/WegweiserSeite'));
+// Kurzhilfe für die beiden Seiten, die hier direkt gebaut werden: eigener kleiner Chunk, das Startpaket bleibt gleich.
+const SeitenHilfe = lazy(() => import('./features/wegweiser/SeitenHilfe'));
 
-function Page({ title, intro, children }: { title: string; intro?: string; children: React.ReactNode }) {
+function Page({ title, intro, hilfe, children }: { title: string; intro?: string; hilfe?: string; children: React.ReactNode }) {
   return (
     <section className="page">
       <PageHeading title={title} description={intro ?? ''} />
+      {hilfe && <Suspense fallback={null}><SeitenHilfe path={hilfe} /></Suspense>}
       {children}
     </section>
   );
@@ -70,13 +76,14 @@ function View() {
   switch (path) {
     case '/': return <Dashboard />;
     case '/lernen/plan': return <Lernplan />;
-    case '/lernen/themen': return <Page title="Themen" intro="Alle Themen des Fachmoduls. Arbeitsstand direkt in der Tabelle ändern oder mehrere auswählen."><WidgetGrid widgets={[WIDGETS.themen]} allowHide={false} /></Page>;
+    case '/lernen/themen': return <Page title="Themen" hilfe="/lernen/themen" intro="Alle Themen des Fachmoduls. Arbeitsstand direkt in der Tabelle ändern oder mehrere auswählen."><WidgetGrid widgets={[WIDGETS.themen]} allowHide={false} /></Page>;
     case '/lernen/ce': return <CeSeite />;
+    case '/lernen/wegweiser': return <Wegweiser />;
     case '/lernen/thema': return <ThemaSeite />;
     case '/lernen/ueben': return <UebenSeite />;
     case '/lernen/fortschritt': return <Fortschritt />;
     case '/lernen/landkarte': return <Landkarte />;
-    case '/lernen/board': return <Page title="Mein Themenboard" intro="Dein Arbeitsstand je Thema: Themenpool, diese Woche, in Arbeit, erarbeitet. Ob du ein Thema sicher kannst, zeigt der Wissensstand aus Abfragen im Lernplan."><WidgetGrid widgets={[WIDGETS.board]} allowHide={false} /></Page>;
+    case '/lernen/board': return <Page title="Mein Themenboard" hilfe="/lernen/board" intro="Dein Arbeitsstand je Thema: Themenpool, diese Woche, in Arbeit, erarbeitet. Ob du ein Thema sicher kannst, zeigt der Wissensstand aus Abfragen im Lernplan."><WidgetGrid widgets={[WIDGETS.board]} allowHide={false} /></Page>;
     case '/lernen/skript': return <Skript />;
     case '/lernen/karten': return <Karteikarten />;
     case '/lernen/schnellsuche': return <Schnellsuche />;
@@ -115,6 +122,7 @@ function View() {
     case '/system/sicherung': return <Datensicherung />;
     case '/system/design': return <Designsystem />;
     case '/system/bilder': return <Bildpruefung />;
+    case '/system/test': return <Testphase />;
     default:
       return (
         <Page title="Seite nicht gefunden">
@@ -130,5 +138,7 @@ export function App() {
   // Schlüssel je Seite: beim Seitenwechsel wird der Rahmen neu aufgebaut, die Einblend-Animation läuft erneut.
   // Unterseiten des Klassenmodus teilen sich einen Schlüssel, damit ihr Zustand erhalten bleibt.
   const seite = path.startsWith('/lernen/klasse') ? '/lernen/klasse' : path;
-  return <Shell><PageBoundary path={path}><div className="route" key={seite} style={{ '--kopf-marke': JSON.stringify(gruppenPfad(seite)) } as React.CSSProperties}><View /></div></PageBoundary></Shell>;
+  const uebung = uebungsId(path);
+  return <Shell><PageBoundary path={path}><div className="route" key={seite} style={{ '--kopf-marke': JSON.stringify(gruppenPfad(seite)) } as React.CSSProperties}><View />
+    {uebung && <Suspense fallback={null}><PasstDazu id={uebung} path={path} /></Suspense>}</div></PageBoundary></Shell>;
 }

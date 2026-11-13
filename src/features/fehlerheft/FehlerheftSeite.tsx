@@ -1,3 +1,4 @@
+import { SeitenHilfe } from '../wegweiser/SeitenHilfe';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import './fehlerheft.css';
 import { logActivity } from '../../core/activity';
@@ -251,6 +252,7 @@ export default function FehlerheftSeite() {
           damit du nicht nur die eben gesehene Lösung wiederholst. Das Fehlerheft zählt nicht als Abfrage im Lernplan.
         </p>
       </div>
+      <SeitenHilfe path="/lernen/fehler" />
 
       <div className="kpi-grid fehlerheft__kpis">
         <div className="kpi"><p className="kpi__label">Offen</p><div className="kpi__value">{ue.offen}</div></div>

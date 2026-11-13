@@ -1,3 +1,4 @@
+import { SeitenHilfe } from '../wegweiser/SeitenHilfe';
 import { useMemo, useState } from 'react';
 import '../faecher.css';
 import '../lernplan/ui/lernplan.css';
@@ -83,6 +84,7 @@ function Uebersicht({ daten, ctx, status, minuten }: { daten: GeraeteDaten; ctx?
   return (
     <>
       <PageHeading title="Curriculare Einheiten" description="Alle CE der generalistischen Pflegeausbildung mit ihren Themen und deinem Wissensstand. Tippe auf eine CE, um die Themen aufzuschlüsseln." />
+      <SeitenHilfe path="/lernen/ce" />
       <div><button type="button" className="small" onClick={() => navigate('/lernen/ce?ansicht=matrix')}>Materialstand aller CE (Matrix)</button></div>
       <div className="ce__liste">
         {karten.map(({ ce, themen, pfad, skripte: nSkripte, steckbriefe, faelle }) => {

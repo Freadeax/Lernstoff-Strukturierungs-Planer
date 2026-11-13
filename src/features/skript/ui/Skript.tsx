@@ -13,7 +13,7 @@ import { begriffe, suche } from '../suche';
 import { mitOberthemen } from '../themen';
 import {
   holeAusRepo, ladeLesestaende, ladeSkriptBilder, ladeSkripte, leseDateien, loescheSkript, markiereGelesen, merkeZuletzt,
-  repoEingerichtet, REPO_ORDNER, setzeThemen, uebernehmeDateien, type ImportErgebnis,
+  repoEingerichtet, setzeThemen, uebernehmeDateien, uebernehmeDokument, type ImportErgebnis,
 } from '../store';
 import type { Abschnitt, Lesestand, Skript as SkriptT, SkriptBeleg } from '../typen';
 import { PageHeading } from '../../../ui/PageHeading';
@@ -27,6 +27,9 @@ const blaetter = pflegeModule.topics.filter((t) => !pflegeModule.topics.some((k)
 const fachVon = (topicIds: ID[]) => [...new Set(topicIds.map((id) => topics.get(id)?.subjectId).filter((x): x is ID => !!x))];
 
 /** Link auf einen Abschnitt: mit Nummer (stabil über Fassungen hinweg), sonst mit Reihenfolge-ID. */
+/** Erste Seitenzahl eines Belegs („S. 12–14“, „Folie 3“) für den Sprung ins Original. */
+const seiteAus = (b: SkriptBeleg) => b.stelle?.match(/\d+/)?.[0];
+
 const zuAbschnitt = (a?: Pick<Abschnitt, 'id' | 'nummer'>) => (a?.nummer ? { nr: a.nummer } : { a: a?.id });
 
 const pfad = (p: Record<string, string | undefined>) => {
@@ -47,6 +50,66 @@ function meldeImport(e: ImportErgebnis) {
   const teile = [e.neu.length && `${e.neu.length} neu`, e.aktualisiert.length && `${e.aktualisiert.length} aktualisiert`, e.unveraendert.length && `${e.unveraendert.length} unverändert`].filter(Boolean);
   if (e.fehler.length) notify('warning', 'Nicht alle Dateien übernommen', e.fehler.join(' '));
   notify('info', 'Skripte geladen', teile.join(', ') || 'Keine passenden Dateien gefunden.');
+}
+
+/** Leere Vorlage im Skript-Format, damit man eigene Mitschriften ohne Werkzeug schreiben kann. */
+export const SKRIPT_VORLAGE = `---
+gruppe: Eigene Unterlagen
+---
+# Titel deiner Zusammenfassung
+
+Kurze Einleitung: Worum geht es?
+
+- **[M]** Meine Mitschrift aus dem Unterricht vom …
+- **[B]** Buch oder Arbeitsblatt (Titel, Auflage)
+
+## 1 · Erster Abschnitt
+
+- Kernaussage mit Seite der Quelle [B, S. 12]
+- **Begriff**: Erklärung, daraus wird eine Definitionskarte [M, S. 1]
+- ⚠ Eigene Ergänzung ohne Beleg: wird markiert und nicht zur Karte
+
+## 2 · Zweiter Abschnitt
+
+- … [B, S. 14]
+`;
+
+function ladeVorlageHerunter() {
+  const url = URL.createObjectURL(new Blob([SKRIPT_VORLAGE], { type: 'text/markdown;charset=utf-8' }));
+  const a = Object.assign(document.createElement('a'), { href: url, download: 'skript-vorlage.md' });
+  document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/** Eigene importierte Dokumente als Skript übernehmen: ohne KI, ohne Schlüssel, ohne GitHub. */
+function AusDokumenten({ onFertig, gesperrt, setGesperrt }: { onFertig: () => void; gesperrt: boolean; setGesperrt: (b: boolean) => void }) {
+  const [docs, setDocs] = useState<Array<{ id: string; title: string; kind: string }> | null>(null);
+  const [wahl, setWahl] = useState('');
+  useEffect(() => { db.documents.toArray().then((d) => { setDocs(d.sort((a, b) => b.importedAt.localeCompare(a.importedAt))); setWahl(d[0]?.id ?? ''); }).catch(() => setDocs([])); }, []);
+  if (!docs) return null;
+  if (!docs.length) return <p className="muted">Noch keine Dokumente importiert. Unter <a href="#/material/dokumente">Material → Dokumente</a> liest die App PDF, Word und PowerPoint offline ein, danach kannst du sie hier als Skript übernehmen.</p>;
+  const los = async () => {
+    setGesperrt(true);
+    try {
+      const { id, ergebnis } = await uebernehmeDokument(wahl);
+      meldeImport(ergebnis);
+      onFertig();
+      navigate(pfad({ id }));
+    } catch (e) { notify('critical', 'Übernehmen fehlgeschlagen', e instanceof Error ? e.message : String(e)); }
+    finally { setGesperrt(false); }
+  };
+  return (
+    <div className="sk-import__dok">
+      <label htmlFor="sk-dok-wahl">Aus deinen Dokumenten</label>
+      <div className="sk-import__knoepfe">
+        <select id="sk-dok-wahl" value={wahl} onChange={(e) => setWahl(e.target.value)} disabled={gesperrt}>
+          {docs.map((d) => <option key={d.id} value={d.id}>{d.title} ({d.kind.toUpperCase()})</option>)}
+        </select>
+        <button type="button" className="primary" disabled={gesperrt || !wahl} onClick={() => void los()}>Als Skript übernehmen</button>
+      </div>
+      <p className="muted">Der Text bleibt wörtlich, jeder Punkt nennt seine Seite. Keine KI, nichts verlässt dein Gerät.</p>
+    </div>
+  );
 }
 
 function ImportPanel({ onFertig, offen }: { onFertig: () => void; offen?: boolean }) {
@@ -73,18 +136,22 @@ function ImportPanel({ onFertig, offen }: { onFertig: () => void; offen?: boolea
     <details className="card sk-import" open={offen}>
       <summary>Skripte laden oder aktualisieren</summary>
       <p className="muted">
-        Deine Zusammenfassungen stützen sich auf Unterrichtsmaterial und lizenzierte Bücher. Sie sind deshalb nicht in der App eingebaut,
-        sondern kommen von dir: aus deinem privaten Material-Repo (Ordner <code>{REPO_ORDNER}/</code>) oder als Datei. Danach liegen sie offline auf diesem Gerät.
+        Skripte stützen sich auf Unterrichtsmaterial und Bücher. Sie sind deshalb nicht in der App eingebaut, sondern kommen von dir
+        und liegen danach offline auf diesem Gerät. Dafür brauchst du weder einen API-Schlüssel noch ein GitHub-Konto.
       </p>
+      <AusDokumenten onFertig={onFertig} gesperrt={laeuft} setGesperrt={setLaeuft} />
       <div className="sk-import__knoepfe">
-        <button type="button" className="primary" disabled={!repo || laeuft} onClick={() => lauf(() => holeAusRepo(), 'repo')}>
-          {laeuft ? 'Lädt …' : 'Aus dem Material-Repo laden'}
-        </button>
-        <button type="button" disabled={laeuft} onClick={() => datei.current?.click()}>Dateien wählen (.md oder .zip)</button>
+        <button type="button" disabled={laeuft} onClick={() => datei.current?.click()}>Eigene Datei wählen (.md, .txt oder .zip)</button>
+        <button type="button" className="ghost" onClick={ladeVorlageHerunter}>Vorlage herunterladen</button>
+        {repo && (
+          <button type="button" disabled={laeuft} onClick={() => lauf(() => holeAusRepo(), 'repo')}>
+            {laeuft ? 'Lädt …' : 'Aus dem Material-Repo laden'}
+          </button>
+        )}
         <input ref={datei} type="file" accept=".md,.markdown,.txt,.zip,text/markdown,application/zip" multiple hidden
           onChange={(e) => { const f = [...(e.target.files ?? [])]; e.target.value = ''; if (f.length) void lauf(() => leseDateien(f), 'datei'); }} />
       </div>
-      {!repo && <p className="muted">Für das Material-Repo zuerst unter <a href="#/material/ablage">Material → Große Dateien</a> Repo und Token eintragen.</p>}
+      {!repo && <p className="muted">Optional: Wer ein eigenes privates Material-Repo nutzt, trägt es unter <a href="#/material/ablage">Material → Große Dateien</a> ein und lädt dann alle Skripte auf einmal.</p>}
       <p className="muted">Gibst du die App an andere weiter, sehen sie deine Skripte nicht: Sie liegen nur auf deinen Geräten. Mit der <a href="#/system/sicherung">Datensicherung</a> nimmst du sie auf ein anderes Gerät mit.</p>
     </details>
   );
@@ -334,7 +401,8 @@ function Leser({ skript, aId, nr, q, staende, onNeu, setStaende }: {
         {beleg && (
           <div className="sk-belegbox" role="status">
             {beleg.map((b) => (
-              <p key={belegText(b)}><strong>[{belegText(b)}]</strong> {quellen.get(b.kuerzel) ?? 'Quelle nicht in der Liste'}</p>
+              <p key={belegText(b)}><strong>[{belegText(b)}]</strong> {quellen.get(b.kuerzel) ?? 'Quelle nicht in der Liste'}
+                {skript.dokumentId && <> <a href={`#/material/dokumente?dokument=${encodeURIComponent(skript.dokumentId)}${seiteAus(b) ? `&seite=${seiteAus(b)}` : ''}`}>Im Original zeigen</a></>}</p>
             ))}
             <button type="button" className="ghost small" onClick={() => setBeleg(null)} aria-label="Schließen">×</button>
           </div>
@@ -409,7 +477,7 @@ export default function Skript() {
         <>
           <div className="state">
             <p className="state__title">Noch keine Skripte auf diesem Gerät</p>
-            <p className="state__msg">Lade deine Zusammenfassungen einmal aus dem Material-Repo oder als Datei. Danach kannst du sie auch ohne Internet lesen.</p>
+            <p className="state__msg">Übernimm ein eigenes Dokument, eine eigene Zusammenfassung als Datei oder lade dein Material-Repo. Danach kannst du alles auch ohne Internet lesen.</p>
           </div>
           <ImportPanel onFertig={neuLaden} offen />
         </>
