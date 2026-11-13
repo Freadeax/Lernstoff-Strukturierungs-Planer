@@ -1,3 +1,5 @@
+import { FrageMelden } from '../qm/FrageMelden';
+import { meldeZiel } from '../qm/meldungen';
 import { SeitenHilfe } from '../wegweiser/SeitenHilfe';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { notiereFehler } from '../fehlerheft/fehlerheft';
@@ -560,6 +562,7 @@ function Ergebnis({ lauf, setLauf, onNeu }: { lauf: Lauf; setLauf: (l: Lauf) => 
             <p className="pre">{f.frage}</p>
             <Loesung f={f} a={lauf.antworten[f.id]} w={x} />
             {x.art !== 'offen' && x.punkte < x.max && <SkriptStellen ziel={simZiel(f)} max={1} kompakt />}
+            <FrageMelden key={`m-${f.id}`} {...meldeZiel(f.id)} fp="" titel={f.hinweis?.split(' · ').slice(0, 2).join(' · ') || `Frage ${i + 1}`} frage={f.frage} seite="/lernen/simulation" />
             {f.art === 'offen' && <OffeneBewertung f={f} a={lauf.antworten[f.id]} w={x} onWertung={(n) => setWertung(f.id, n)} />}
           </article>
         ))}

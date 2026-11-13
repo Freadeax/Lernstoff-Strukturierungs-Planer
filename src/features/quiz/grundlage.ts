@@ -176,3 +176,59 @@ export const hygieneGrundlage: Grundlage = (a) => {
   out.push({ label: 'Quelle', text: `KRINKO-Empfehlungen (RKI) und Infektionsschutzgesetz, Inhaltsstand ${INHALTSSTAND}. Maßgeblich ist der Hygieneplan deiner Einrichtung.` });
   return out;
 };
+
+// ---------------------------------------------------------------- Anatomie
+
+export const anatomieGrundlage: Grundlage = (a) => [
+  { label: 'Quelle', text: 'Grundlagenwissen aus Anatomie und Physiologie nach gängigen Lehrbüchern der Pflegeausbildung, in eigenen Worten.' },
+  ...(a.art === 'beschriften' ? [{ label: 'Abbildung', text: 'Schemazeichnung der App, vereinfacht und nicht maßstabsgetreu. Lage und Größe dienen der Orientierung.' }] : []),
+  { label: 'Stand', text: `Inhaltsstand ${INHALTSSTAND}. Lehrbuchwissen ändert sich selten; maßgeblich bleibt dein Unterrichtsmaterial.` },
+];
+
+// ---------------------------------------------------------------- Notfall
+
+const KIND = /Kind|Säugling|Neugeboren|Jährig|-jährig|pädiatr/i;
+const ABCDE = /ABCDE|\bA-Problem|\bB-Problem|\bC-Problem|Atemweg|Schock|Anaphylax|Sepsis|NEWS/i;
+
+export const notfallGrundlage: Grundlage = (a) => {
+  const t = texteVon(a);
+  const kind = KIND.test(t);
+  const out: GrundlageZeile[] = [
+    { label: 'Leitlinie', text: kind ? 'ERC Guidelines: Paediatric Life Support, Fassung 2021' : 'ERC Guidelines: Basic Life Support, Fassung 2021; Ablauf „erst Hilfe rufen, dann Atmung prüfen“ nach ERC 2025' },
+  ];
+  if (ABCDE.test(t)) out.push({ label: 'Schema', text: 'ABCDE-Vorgehen nach Resuscitation Council UK, Fassung 2021' });
+  out.push({ label: 'Aktualität', text: 'Die ERC-Leitlinien 2025 sind am 27.10.2025 erschienen. Der vollständige Abgleich steht aus (siehe Inhaltsqualität).' });
+  out.push({ label: 'Geltung', text: 'Der Notfallablauf deiner Einrichtung geht vor. Übung ersetzt kein praktisches Reanimationstraining.' });
+  return out;
+};
+
+// ---------------------------------------------------------------- Labor
+
+const PRAEANALYTIK = /Röhrchen|Stauschlauch|Abnahme|Hämolyse|Entnahme|Präanalytik|Reihenfolge der/i;
+
+export const laborGrundlage: Grundlage = (a) => {
+  const t = texteVon(a);
+  if (PRAEANALYTIK.test(t)) return [
+    { label: 'Quelle', text: 'Präanalytik nach Lehrbuch und den Empfehlungen zur Abnahmereihenfolge (CLSI GP41), wie sie Röhrchenhersteller übernehmen.' },
+    { label: 'Geltung', text: 'Farben und Reihenfolge der Röhrchen hängen vom System ab (Sarstedt, BD …). Maßgeblich ist der Laborleitfaden deiner Einrichtung.' },
+    { label: 'Stand', text: `Inhaltsstand ${INHALTSSTAND}.` },
+  ];
+  return normwertGrundlage(a);
+};
+
+// ---------------------------------------------------------------- Grundlagen (Fachsprache, Pflegeberuf)
+
+export const grundlagenGrundlage: Grundlage = (a) => {
+  const t = texteVon(a);
+  const normen = normenIn(t);
+  if (normen.length) return [
+    { label: 'Norm', text: normen.join(', ') },
+    { label: 'Geltung', text: `Deutschland, Bundesrecht. Gesetzesstand der App: ${INHALTSSTAND}.` },
+  ];
+  const abk = /Abkürzung|Abk\./i.test(t);
+  return [
+    { label: 'Quelle', text: 'Medizinische Terminologie und Berufskunde nach gängigen Lehrbüchern der Pflegeausbildung, in eigenen Worten.' },
+    ...(abk ? [{ label: 'Geltung', text: 'Abkürzungen unterscheiden sich zwischen Einrichtungen. Maßgeblich ist die Abkürzungsliste deines Hauses.' }] : []),
+    { label: 'Stand', text: `Inhaltsstand ${INHALTSSTAND}.` },
+  ];
+};

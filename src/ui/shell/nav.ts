@@ -106,6 +106,7 @@ export const NAV: NavItem[] = [
       { id: 'bilder', label: 'Bildprüfung', path: '/system/bilder', icon: 'check' },
       { id: 'einstellungen', label: 'Einstellungen', path: '/einstellungen', icon: 'settings' },
       { id: 'testphase', label: 'Testphase und Rückmeldung', path: '/system/test', icon: 'chat' },
+      { id: 'qualitaet', label: 'Inhaltsqualität', path: '/system/qualitaet', icon: 'check' },
     ],
   },
 ];

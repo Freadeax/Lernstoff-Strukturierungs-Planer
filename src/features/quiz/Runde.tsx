@@ -15,6 +15,11 @@ import { storage } from '../../ui/lib/store';
 import { BegriffListe, FachListe, ThemenLinks } from './FachText';
 import { spiele } from '../../ui/audio/spieler';
 import { Vorlesen } from '../../ui/audio/Vorlesen';
+import { FrageMelden } from '../qm/FrageMelden';
+import { gesperrteAufgaben } from '../qm/meldungen';
+import { notiereVersuch } from '../qm/statistik';
+import { fingerabdruck } from '../qm/fingerabdruck';
+import { useRoute } from '../../ui/shell/router';
 
 /** Eine Abbildung zum Beschriften: Zeichnung ohne Nummern, die Marken legt die Runde darüber. */
 export interface Figur { viewBox: string; beschreibung: string; zeichnung: ReactNode }
@@ -354,6 +359,7 @@ export function Runde({ aufgaben: neueAufgaben, quelle, trainer, figuren = {}, m
   const [serie, setSerie] = useState(fortsetzen?.serie ?? 0);
   const [besteSerie, setBesteSerie] = useState(fortsetzen?.besteSerie ?? 0);
   const lernplan = useLernplanUebernahme(trainer);
+  const { path } = useRoute();
   // Schutz gegen doppeltes Absenden: jede Aufgabe wird einmal bewertet, die Runde einmal abgeschlossen
   const rundeId = useRef(fortsetzen?.rundeId ?? `${quelle}:runde:${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`);
   const bewertetBei = useRef(start - 1);
@@ -370,6 +376,7 @@ export function Runde({ aufgaben: neueAufgaben, quelle, trainer, figuren = {}, m
     setGeprueft(b);
     const alle = [...ergebnisse, { a, b, sicherheit }];
     setErgebnisse(alle);
+    notiereVersuch(quelle, a, antwort, b);
     const neu = b.richtig ? serie + 1 : 0;
     const beste = Math.max(besteSerie, neu);
     setSerie(neu); setBesteSerie(beste);
@@ -397,7 +404,10 @@ export function Runde({ aufgaben: neueAufgaben, quelle, trainer, figuren = {}, m
     spiele(prozent >= 90 ? 'erfolg' : 'fertig');
     if (nachuebung) return;
     onFertig?.({ punkte: ergebnisse.reduce((s, e) => s + e.b.punkte, 0), max: ergebnisse.reduce((s, e) => s + e.b.max, 0), prozent, richtig: ergebnisse.filter((e) => e.b.richtig).length, anzahl: ergebnisse.length });
-    lernplan.uebernimm(proThema(ergebnisse.map((e) => alsTreffer(e.a, e.b)), minProThema), rundeId.current);
+    // Als fachlich falsch oder mehrdeutig gemeldete Aufgaben zählen bis zur Klärung nicht (qm/meldungen.ts)
+    const gesperrt = gesperrteAufgaben();
+    const zaehlen = ergebnisse.filter((e) => !gesperrt.has(`${quelle}:${e.a.id}`));
+    lernplan.uebernimm(proThema(zaehlen.map((e) => alsTreffer(e.a, e.b)), minProThema), rundeId.current);
   }
 
   if (fertig) {
@@ -516,6 +526,8 @@ export function Runde({ aufgaben: neueAufgaben, quelle, trainer, figuren = {}, m
             </p>
           )}
           <MehrVerstehen a={a} />
+          <FrageMelden key={`m-${a.id}`} quelle={quelle} aufgabeId={a.id} fp={fingerabdruck(a)} titel={a.titel} frage={a.frage} seite={path}
+            antwort={geprueft.richtig ? 'richtig gelöst' : `${geprueft.punkte} von ${geprueft.max}`} />
           <div className="row">
             <button type="button" className="primary" onClick={weiter}>{i + 1 < aufgaben.length ? 'Weiter' : 'Auswertung'}</button>
             <Vorlesen key={`e-${a.id}`} label="Erklärung vorlesen" text={() => a.erklaerung.join(' ')} />

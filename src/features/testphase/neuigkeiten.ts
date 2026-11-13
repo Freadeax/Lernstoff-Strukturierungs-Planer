@@ -5,6 +5,7 @@
 export interface Neuigkeit { datum: string; titel: string; text: string; pfad: string }
 
 export const NEUIGKEITEN: Neuigkeit[] = [
+  { datum: '2026-11-13', titel: 'Frage melden und Inhaltsqualität', text: 'Unter jeder Trainer- und Simulationsfrage: „Frage melden“, wenn etwas unklar oder falsch ist. Neue Seite Inhaltsqualität mit Überarbeitungsliste, Lücken je Thema und Prüfstand. Der Reanimationsablauf folgt jetzt den ERC-Leitlinien 2025.', pfad: '/system/qualitaet' },
   { datum: '2026-11-13', titel: 'Themenbaum mit Fortschritt je Bereich', text: 'Fach, Bereich und Thema aufklappbar, je Ebene ein Balken (sicher, unsicher, bearbeitet, offen), Filter „Fällig“ und „Eingeplant“, Vorschlag „Als Nächstes“. Eigene Themen anlegen und umhängen.', pfad: '/lernen/themen' },
   { datum: '2026-11-13', titel: 'Fokus-Modus', text: 'Taste F oder Profilmenü: Menüs verschwinden, dazu ein Lernzeit-Timer (15, 25 oder 45 Minuten) und ein Knopf für Hell/Dunkel. Esc beendet.', pfad: '/lernen/karten' },
   { datum: '2026-11-13', titel: 'Einfügen statt abtippen', text: 'Text aus Webseite, Word oder PDF direkt als Dokument übernehmen (Überschriften bleiben Kapitel), Dateien aufs Upload-Feld ziehen und unter Karteikarten → Eigene Karten viele Karten auf einmal einfügen.', pfad: '/material/dokumente' },

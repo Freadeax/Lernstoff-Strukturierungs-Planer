@@ -7,7 +7,7 @@ import type { Freigabe, Quelle } from '../../ui/sim/freigabe';
 import type { ProfilId } from './rea';
 
 const ROLLE = 'Reanimationstrainer:in (z. B. ERC-Instruktor:in) und Pflegefachperson mit Praxisanleitung; Medikamente zusätzlich ärztliche Durchsicht';
-const ERC_2025 = 'Abgleich mit den ERC-Leitlinien 2025 (Inhalte stehen auf ERC 2021)';
+const ERC_2025 = 'Abgleich mit den ERC-Leitlinien 2025 (veröffentlicht 27.10.2025; Inhalte stehen auf ERC 2021, nur der BLS-Ablauf im Wissens-Trainer ist angepasst)';
 const VERLAUF = [{ datum: '2026-11-11', text: 'Reanimationsübung Erwachsene angelegt' }, { datum: '2026-11-11', text: 'Profile Kinder und Neugeborene ergänzt, Freigabe ausstehend' }];
 
 /** Leitlinienstand je Inhalt: Quelle und Stand, sichtbar am Start. */

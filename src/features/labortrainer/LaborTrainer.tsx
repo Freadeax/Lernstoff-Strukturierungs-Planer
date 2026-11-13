@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { TrainerSeite } from '../quiz/TrainerSeite';
+import { laborGrundlage } from '../quiz/grundlage';
 import { navigate, useRoute } from '../../ui/shell/router';
 import { AUFGABEN, BEREICHE } from './aufgaben';
 
@@ -22,7 +23,7 @@ export default function LaborTrainer() {
           <Suspense fallback={<p className="muted">Werkbank wird geladen …</p>}><Werkbank /></Suspense>
         </section>
       ) : (
-        <TrainerSeite
+        <TrainerSeite grundlage={laborGrundlage}
           titel="Labor-Trainer"
           intro="Blutentnahme ohne Präanalytikfehler, Blutgasanalysen in Schritten deuten und Laborbefunde pflegerisch einordnen. Funktioniert offline. Zum Ausprobieren im Fall: Labor und Bildgebung."
           hinweis="Übliche Richtwerte für Erwachsene, im Bereich Kinder und Säuglinge altersabhängige Werte, didaktisch vereinfacht. Röhrchenfarben und Grenzwerte richten sich nach dem eigenen Haus und dem Referenzbereich auf dem Befund."

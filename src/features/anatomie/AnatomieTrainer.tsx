@@ -1,4 +1,5 @@
 import { TrainerSeite } from '../quiz/TrainerSeite';
+import { anatomieGrundlage } from '../quiz/grundlage';
 import { AUFGABEN, BEREICHE } from './aufgaben';
 import { FIGUREN } from './figuren';
 import { anatomieWeiter } from './verknuepfung';
@@ -9,7 +10,7 @@ const weiter = anatomieWeiter(modules[0] as CatalogModule);
 
 export default function AnatomieTrainer() {
   return (
-    <TrainerSeite
+    <TrainerSeite grundlage={anatomieGrundlage}
       titel="Anatomie-Trainer"
       intro="Abbildungen beschriften, Wege durch den Körper ordnen und Funktionen zuordnen: Zelle und Gewebe, Herz, Atmung, Niere, Verdauung, Skelett, Nervensystem, Auge und Ohr, Haut, Hormone sowie Fortpflanzung. Funktioniert offline."
       hinweis="Die Abbildungen sind Schemazeichnungen, nicht maßstabsgetreu. Wie im Lehrbuch liegt die rechte Körperseite in der Abbildung links. Ohne Bild lösbar: Beim Beschriften zeigt „Ohne Bild lösen“ die Lage jeder Nummer als Text, alles geht auch per Tastatur (Tab und Pfeiltasten)."
