@@ -1,0 +1,34 @@
+/* Testphase: Einstieg, Testaufträge, Rückmeldung, Auswertung */
+.testphase__spalte { display: flex; flex-direction: column; gap: var(--space-3); max-width: 52rem; }
+.testphase__wahl a.pill { display: inline-flex; align-items: center; border: 2px solid var(--color-outline); color: var(--color-text); text-decoration: none; font-weight: 600; min-height: 44px; padding: 0 16px; }
+.testphase__wahl a.pill[aria-current] { background: var(--color-text); color: var(--color-surface); }
+.testphase__schritte { padding-left: 1.25rem; display: flex; flex-direction: column; gap: var(--space-2); }
+.testphase__stand { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+.testphase__stand progress { flex: 1 1 12rem; height: 10px; accent-color: var(--color-primary); }
+.testphase__auftraege { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.testphase__auftrag p { margin: var(--space-1) 0; }
+.testphase__auftrag .check { margin: 0; align-items: center; min-height: 44px; }
+.testphase__auftrag--fertig { opacity: 0.8; }
+.testphase__auftrag-kopf { display: flex; align-items: center; gap: var(--space-2); }
+.testphase__auftrag-kopf h3 { margin: 0; flex: 1; font-size: var(--text-md, 1rem); }
+.testphase__nr { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: var(--color-surface-sunken); color: var(--color-primary); font-weight: 700; font-variant-numeric: tabular-nums; }
+.testphase__auftrag--fertig .testphase__nr { background: var(--color-primary); color: var(--color-on-primary); }
+.testphase__formular { display: flex; flex-direction: column; gap: var(--space-3); }
+.testphase__formular label:not(.check):not(.testphase__art) { display: flex; flex-direction: column; gap: var(--space-1); font-weight: 600; }
+.testphase__formular fieldset { border: 0; margin: 0; padding: 0; }
+.testphase__formular legend { font-weight: 600; margin-bottom: var(--space-1); }
+.testphase__arten { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr)); gap: var(--space-2); }
+.testphase__art { position: relative; display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; min-height: 44px; border: 1.5px solid var(--color-border); border-radius: 10px; background: var(--color-surface); cursor: pointer; }
+.testphase__art input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.testphase__art:focus-within { outline: 3px solid var(--color-focus, var(--color-primary)); outline-offset: 2px; }
+.testphase__art--an { border-color: var(--color-primary); background: var(--color-primary-soft); }
+.testphase__art small { color: var(--color-text-muted); font-size: 0.75rem; line-height: 1.5; }
+.testphase__sterne .pill { min-height: 44px; letter-spacing: 1px; }
+.testphase__vorschau { white-space: pre-wrap; word-break: break-word; font-size: 0.75rem; max-height: 18rem; overflow: auto; background: var(--color-surface-sunken); padding: var(--space-2); border-radius: 8px; }
+.testphase__liste { list-style: none; margin: var(--space-2) 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.testphase__liste--gesammelt li { border-top: 1px solid var(--color-border); padding-top: var(--space-2); }
+.testphase__liste--gesammelt p { margin: var(--space-1) 0; white-space: pre-wrap; word-break: break-word; }
+.testphase__zahlen { display: grid; grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr)); gap: var(--space-2); margin: 0; }
+.testphase__zahlen div { background: var(--color-surface-sunken); border-radius: 8px; padding: var(--space-2); }
+.testphase__zahlen dt { font-size: 0.75rem; color: var(--color-text-muted); }
+.testphase__zahlen dd { margin: 0; font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; }
