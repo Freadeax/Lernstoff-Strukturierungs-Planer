@@ -35,8 +35,8 @@ describe('Lieferprüfung', () => {
   });
 
   it('kennt die Bestellliste', () => {
-    const ids = bestellteIds(readFileSync('docs/MATERIAL-BEDARF.md', 'utf8'));
+    const ids = bestellteIds(readFileSync('docs/MATERIAL-BEDARF.md', 'utf8') + readFileSync('docs/BESTELLUNG.md', 'utf8'));
     expect(ids).toContain('42_station_bewusstlos');
-    expect(ids).toContain('21s_paediatrie_schulkind_sensor_ab');
+    expect(ids).toContain('21_paediatrie_schulkind_sensor_ab');
   });
 });

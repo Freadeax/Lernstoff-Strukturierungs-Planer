@@ -115,13 +115,17 @@ export function sprechblase(s: Session, e: Event | undefined): Sprechblase | und
   return { ...base, quelle: el === 'patient' ? 'pflege' : el, ton: 'info' };
 }
 
+/** Spielt der Fall nachts? (Titel, Umgebung oder Situation nennen Nacht oder eine Nachtuhrzeit) */
+export function istNachtFall(sc: { title: string; environment: string; situation: string }): boolean {
+  return /nacht|nachts|nachtdienst|2 uhr|3 uhr|4 uhr/i.test(`${sc.title} ${sc.environment} ${sc.situation}`);
+}
+
 export function szene(s: Session): SzenenZustand {
   const r = RESOURCES[s.scenario.setting];
   const zuhause = r.longVisits;
   const v = s.vitals;
   const avpu = consciousness(s);
-  const text = `${s.scenario.title} ${s.scenario.environment} ${s.scenario.situation}`;
-  const nacht = /nacht|nachts|nachtdienst|2 uhr|3 uhr|4 uhr/i.test(text);
+  const nacht = istNachtFall(s.scenario);
   const trail = s.trail ?? [];
   const seit = (id: string) => trail.filter(t => t.id === id).map(t => t.at).sort((a, b) => b - a)[0];
 

@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { PRUEFPUNKTE, assetBericht, assetInventar, pruefEinheit, pruefEinheiten, raumVerwendungen, zustandsLuecken } from './inventar';
 import { RAEUME, raumFuerZustand, raumVarianten } from '../../ui/sim/raeume/katalog';
 import { FREIGABEN } from './freigaben';
+import { bestellBericht, bestellung } from './bestellung';
 
 const ORDNER = ['raeume', 'personen', 'sim-videos', 'bildgebung', 'titelbilder'];
 function dateienUnter(dir: string): string[] {
@@ -58,6 +59,23 @@ describe('Asset-Status (SIM-06)', () => {
     expect(video.dateien).toHaveLength(5);
     expect(video.vorschau).toBe('sim-videos/insulingabe-1.webp');
     for (const e of einheiten) expect(PRUEFPUNKTE[e.art].length, e.art).toBeGreaterThan(1);
+  });
+
+  it('Bestellliste: feste IDs, Prompts, keine Dopplungen', () => {
+    const liste = bestellung();
+    expect(new Set(liste.map((p) => p.id)).size).toBe(liste.length);
+    for (const p of liste) {
+      expect(p.id, p.id).toMatch(/^[a-z0-9][a-z0-9_-]+$/);
+      expect(p.prompt.length, p.id).toBeGreaterThan(80);
+      if (p.referenz) expect(existsSync(join('public', p.referenz)), p.referenz).toBe(true);
+    }
+    expect(liste.some((p) => p.id === '21_paediatrie_schulkind_sensor_ab' && p.prioritaet === 'P1')).toBe(true);
+  });
+
+  it('docs/BESTELLUNG.md ist aktuell', () => {
+    const bericht = bestellBericht();
+    if (process.env.ASSET_STATUS_SCHREIBEN) writeFileSync('docs/BESTELLUNG.md', bericht);
+    expect(readFileSync('docs/BESTELLUNG.md', 'utf8'), 'npm run assets:status ausführen').toBe(bericht);
   });
 
   it('docs/ASSET-STATUS.md ist aktuell', () => {

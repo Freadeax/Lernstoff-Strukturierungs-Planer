@@ -191,6 +191,8 @@ export const RAUM_FUER_FALL: Record<string, FotoRaumId> = {
   'demo-fieberkrampf': '20f_paediatrie_kleinkind_fieberkrampf',
   'demo-bronchiolitis': '20n_paediatrie_kleinkind_nacht',
   'demo-herzschwaeche': '09_ambulant_kueche_diabetes',
+  'demo-copd': '09_ambulant_kueche_diabetes',
+  'demo-sturz': '10_pflegeheim_nacht',
   herzinsuffizienz: '12_station_kardiologie_monitoring',
   lungenembolie: '12_station_kardiologie_monitoring',
   anaphylaxie: '30_station_zimmer_frau',

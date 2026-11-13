@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import './passt-dazu.css';
 import { Icon } from '../../ui/icons';
 import { passtDazu } from './passtDazu';
+import { letztesThema } from '../thema/letztesThema';
 
 const enc = encodeURIComponent;
 
@@ -9,9 +10,16 @@ const enc = encodeURIComponent;
 export default function PasstDazuLeiste({ id, path }: { id: string; path: string }) {
   const p = useMemo(() => passtDazu(id), [id]);
   const ziele = [...p.verwandt, ...p.weiter];
+  // Rückweg zum Thema, von dem aus man hergekommen ist (nur in dieser Sitzung)
+  const zurueck = useMemo(() => letztesThema(), []);
   return (
     <aside className="passt-dazu" aria-labelledby="passt-dazu-titel">
       <h2 id="passt-dazu-titel" className="passt-dazu__titel">Passt dazu</h2>
+      {zurueck && (
+        <p className="passt-dazu__zurueck">
+          <a className="button-link" href={`#/lernen/thema?id=${enc(zurueck.id)}`}><Icon name="chevronLeft" size={16} /> Zurück zum Thema „{zurueck.name}“</a>
+        </p>
+      )}
       {ziele.length > 0 && (
         <ul className="passt-dazu__ziele">
           {ziele.map((z) => (

@@ -26,6 +26,8 @@ const BEFUND: Record<string, AbhoerBefund> = {
   'demo-anaphylaxie': { lunge: 'atem-stridor', herz: 'herz-tachy', text: 'Beim Einatmen ein pfeifendes Geräusch über dem Hals (Stridor), das Herz schlägt schnell: Die oberen Atemwege schwellen zu. Das ist ein Notfall.' },
   'demo-fieberkrampf': { lunge: 'atem-vesikulaer', herz: 'herz-tachy', text: 'Normales, schnelles Atemgeräusch beidseits, das Herz schlägt schnell, passend zum hohen Fieber. Nach dem Krampf auf Schnarchen und Röcheln achten.' },
   'demo-bronchiolitis': { lunge: 'atem-rg', herz: 'herz-tachy', text: 'Feinblasige Rasselgeräusche und leises Giemen beidseits, das Herz schlägt sehr schnell: typisch für eine Bronchiolitis beim Säugling. Beim Säugling ist die Beobachtung der Atemarbeit wichtiger als das Abhören.' },
+  'demo-copd': { lunge: 'atem-giemen', herz: 'herz-tachy', text: 'Giemen und Brummen, die Ausatmung ist deutlich verlängert, insgesamt leises Atemgeräusch. Das Herz schlägt schnell: passend zur COPD-Verschlechterung mit Infekt.' },
+  'demo-sturz': { lunge: 'atem-vesikulaer', herz: 'herz-arrhythmie', text: 'Normales Atemgeräusch. Die Herztöne sind völlig unregelmäßig: passend zum bekannten Vorhofflimmern, für das er den Blutverdünner nimmt.' },
   'demo-herzschwaeche': { lunge: 'atem-rg', herz: 'herz-arrhythmie', text: 'Feuchte Rasselgeräusche über beiden Lungenunterfeldern, die Herztöne sind völlig unregelmäßig: Lungenstauung bei Herzinsuffizienz und bekanntes Vorhofflimmern.' },
   'sturz-nacht': { lunge: 'atem-vesikulaer', herz: 'herz-arrhythmie', text: 'Normales Atemgeräusch. Die Herztöne sind völlig unregelmäßig: passend zum bekannten Vorhofflimmern.' },
 };
