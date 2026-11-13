@@ -7,6 +7,12 @@ export const SETTINGS = {
   reha: 'Rehabilitation', palliativ: 'Palliativversorgung',
 } as const;
 export type Setting = keyof typeof SETTINGS;
+/** Alter lesbar: Säuglinge (Alter unter 1, in Jahren als Bruch) in Monaten, sonst in Jahren. */
+export function alterText(age: number): string {
+  if (age >= 1) return `${Math.floor(age)} Jahre`;
+  const m = Math.max(0, Math.round(age * 12));
+  return m < 1 ? 'Neugeborenes' : `${m} ${m === 1 ? 'Monat' : 'Monate'}`;
+}
 export type Vitals = { pulse: number; sys: number; dia: number; spo2: number; resp: number; temp: number; glucose: number; pain: number };
 export type Vital = keyof Vitals;
 export type Category = 'gespraech' | 'untersuchung' | 'pflege' | 'diagnostik' | 'kommunikation' | 'geraete';

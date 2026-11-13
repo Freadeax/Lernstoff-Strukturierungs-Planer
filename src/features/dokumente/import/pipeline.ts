@@ -102,7 +102,11 @@ export async function importFile(file: InputFile, ctxIn: ImportContext = {}): Pr
   const documentId = newId();
   const title = ex.meta.title || file.name.replace(/\.[^.]+$/, '');
   if (!ex.meta.modified && file.lastModified) ex.meta.modified = new Date(file.lastModified).toISOString();
-  const { chunks, chapters } = chunkPages(documentId, ex.pages, newId);
+  // Ohne vorgegebene IDs fortlaufend nummerieren: Die Datenbank liefert Chunks nach ID sortiert,
+  // so bleibt die Reihenfolge innerhalb einer Seite erhalten (Lesefolge im Original und im Skript).
+  let lfd = 0;
+  const chunkId = ctx.newId ?? (() => `${documentId}-${String(++lfd).padStart(5, '0')}`);
+  const { chunks, chapters } = chunkPages(documentId, ex.pages, chunkId);
   const { fingerprint: fp, paragraphTexts } = await fingerprint(documentId, title, file.bytes, chunks, ex.meta);
   ctx.onParagraphs?.(paragraphTexts);
   const matches = findMatches(fp, ex.kind, ctx.existing ?? [], paragraphTexts, ctx.existingParagraphText);

@@ -13,6 +13,7 @@ import { DiktatFrage } from '../uebergabe/DiktatFrage';
 import { BAUSTEIN_KURZ, BAUSTEIN_LABEL, BAUSTEINE, BERICHT_FAELLE, BEREICH_LABEL, type BerichtFall } from './faelle';
 import { markiere, pruefeBericht, sprachpruefung, type BerichtErgebnis, type FundArt } from './pruefung';
 import { bewerteMitClaude, type KiRueckmeldung } from './claude';
+import { AkteLeiste } from '../fallakte/AkteLeiste';
 
 const ENTWURF_KEY = 'lernstoff.bericht.entwuerfe';
 const BESTE_KEY = 'lernstoff.bericht.beste';
@@ -202,6 +203,7 @@ export default function Berichttrainer() {
         <h2>Pflegebericht-Trainer</h2>
         <p className="muted">Schreib Berichtseinträge sachlich: was du gesehen, gehört und getan hast, ohne Wertung. Die Checkliste prüft offline und markiert wertende, ungenaue und vermutende Wörter.</p>
       </div>
+      <AkteLeiste art="bericht" fallId={fallId} />
 
       <div className="card bericht__auswahl">
         <label className="field">

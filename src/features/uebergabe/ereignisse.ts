@@ -1,6 +1,7 @@
 // Fallereignisse der Übergabe-Übungen: daraus leitet rufanlass() Rufgrund, Priorität, Empfehlung und
 // Rückfrage ab (gemeinsame SBAR-Grundkriterien, siehe grundkriterien.ts). Alle Angaben frei erfunden.
 import type { SbarEreignis } from './grundkriterien';
+import { AKTEN_EREIGNISSE } from '../fallakte/akten';
 
 export const EREIGNISSE: Record<string, SbarEreignis[]> = {
   sepsis: [
@@ -38,4 +39,6 @@ export const EREIGNISSE: Record<string, SbarEreignis[]> = {
     { minute: 0, stufe: 'kritisch', text: 'Seit 14:25 Uhr hängender Mundwinkel, Armschwäche rechts, verwaschene Sprache (FAST positiv)', muster: ['schlaganfall', 'apoplex', 'insult', 'stroke', 'fast', 'verwaschen', 'mundwinkel'],
       empfehlung: 'Sofort kommen, Stroke-Unit oder CT veranlassen', rueckfrage: 'Soll ich schon einen Zugang legen lassen und den Transport vorbereiten?' },
   ],
+  // Teilfälle der Fallakten
+  ...AKTEN_EREIGNISSE,
 };

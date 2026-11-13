@@ -1,7 +1,7 @@
 // Datenhinweis direkt am jeweiligen Schritt: was wohin geht, bevor es passiert.
 // Ein Ort für alle Texte, damit Import, KI, Diktat und Teilen dieselbe Sprache sprechen.
 
-export type DatenArt = 'import' | 'ki' | 'ki-bild' | 'diktat' | 'teilen' | 'abgabe';
+export type DatenArt = 'import' | 'ki' | 'ki-bild' | 'diktat' | 'teilen' | 'abgabe' | 'rueckmeldung';
 
 export const FIKTIV = 'Für SIS, Übergaben, Pflegeberichte und Wundbilder nur ausgedachte Übungsdaten verwenden. Auch Kürzel, geänderte Namen, Zimmernummern oder Fotos können auf echte Personen hinweisen.';
 
@@ -29,6 +29,10 @@ export const DATEN_TEXT: Record<DatenArt, { kurz: string; lang: string }> = {
   abgabe: {
     kurz: 'Name und Antworten stecken im Code.',
     lang: 'Der Abgabe-Code enthält deinen Namen und deine Antworten, kodiert, aber weder verschlüsselt noch unterschrieben. Ein Kürzel oder Vorname reicht.',
+  },
+  rueckmeldung: {
+    kurz: 'Geht nur an die Person, der du sie schickst.',
+    lang: 'Die Rückmeldung enthält deinen Text, die gewählte Seite, die Zahl erledigter Testaufträge und, wenn angehakt, grobe Geräteangaben, aber keinen Lernstand. Sie ist kodiert, nicht verschlüsselt. Ein Kürzel oder Vorname reicht.',
   },
 };
 

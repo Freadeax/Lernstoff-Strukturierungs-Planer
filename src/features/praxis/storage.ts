@@ -1,6 +1,7 @@
 import type { Scenario, Session } from './types';
 import { BEWERTET, KETTEN, SETTINGS, STORY_KINDS } from './types';
 import { AVPU } from './news2';
+import { modellGrenzen } from './engine';
 import { notiereFehler } from '../fehlerheft/fehlerheft';
 import { ausPraxis } from '../fehlerheft/quellen';
 
@@ -24,7 +25,7 @@ export function parseScenario(json: string): Scenario {
   for (const k of ['title', 'focus', 'patient', 'background', 'situation', 'assessment', 'recommendation', 'environment', 'renal']) if (!text(d[k]) || !d[k].trim()) throw new Error(`Text fehlt: ${k}`);
   if (!positive(d.age) || (d.age as number) > 120 || !positive(d.weight) || (d.weight as number) < 1 || (d.weight as number) > 400 || !strings(d.allergies) || !strings(d.stabilizers)) throw new Error('Patientenangaben ungültig.');
   if (!object(d.initial) || !KEYS.every(k => number(d.initial && (d.initial as Record<string, unknown>)[k])) || !deltas(d.drift)) throw new Error('Vitalparameter oder zeitlicher Verlauf ungültig.');
-  const limits: Record<string, [number, number]> = { pulse: [30, 180], sys: [60, 220], dia: [30, 130], spo2: [70, 100], resp: [6, 45], temp: [34, 41], glucose: [30, 500], pain: [0, 10] };
+  const limits: Record<string, [number, number]> = modellGrenzen(d.age as number);
   for (const [k, [min, max]] of Object.entries(limits)) if ((d.initial[k] as number) < min || (d.initial[k] as number) > max) throw new Error(`Startwert außerhalb des Modells: ${k}`);
   if (!object(d.findings) || !['inspect', 'palpate', 'listen', 'percuss'].every(k => text((d.findings as Record<string, unknown>)[k])) || !object(d.dialogue) || !['patient', 'family'].every(k => text((d.dialogue as Record<string, unknown>)[k]))) throw new Error('Untersuchungs- oder Gesprächsbefunde fehlen.');
   if (!Array.isArray(d.actions) || !d.actions.length || d.actions.length > 60 || !Array.isArray(d.medications) || d.medications.length > 20 || !Array.isArray(d.criteria) || !d.criteria.length || d.criteria.length > 40) throw new Error('Module fehlen oder überschreiten die erlaubte Größe.');

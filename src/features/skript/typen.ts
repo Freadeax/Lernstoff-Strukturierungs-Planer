@@ -53,7 +53,9 @@ export interface Skript {
   hash: string;
   /** Frühere Fassungen, neueste zuerst (höchstens zehn). */
   fassungen?: SkriptFassung[];
-  herkunft: 'repo' | 'datei';
+  /** Aus einem eigenen Dokument erzeugt (Kopf `dokument: <id>`): Belege führen dorthin zurück. */
+  dokumentId?: ID;
+  herkunft: 'repo' | 'datei' | 'dokument';
   importiert: string;
   geaendert: string;
 }

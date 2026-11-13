@@ -42,6 +42,7 @@ export const UEBUNG_INFO: Record<string, UebungsInfo> = {
   fall: { minuten: 20, offline: 'nein', stufe: 'fortgeschritten', lernstand: 'Bewertung des Falls je Thema (braucht KI-Zugang).' },
   diagnostik: { minuten: 12, offline: 'ja', stufe: 'beide', lernstand: 'Ergebnis je Fall und Thema, ein Versuch zählt einmal.', fehlerheft: 'Verpasste Kriterien mit Beleg.' },
   assessment: { ...RUNDE, minuten: 10, lernstand: 'Fälle: Ergebnis je Instrument und Thema.', fehlerheft: 'Falsch eingeschätzte Fälle.' },
+  fallakte: { ...SCHREIBEN, minuten: 90, lernstand: 'Ergebnis jedes Schritts im jeweiligen Trainer (SIS, Assessment, Pflegeplanung, Bericht, Übergabe).' },
   pflegeplanung: { ...SCHREIBEN, minuten: 25 }, sis: { ...SCHREIBEN, minuten: 20 }, bericht: SCHREIBEN, uebergabe: { ...SCHREIBEN, minuten: 10 },
   simulation: { minuten: 45, offline: 'teils', stufe: 'fortgeschritten', lernstand: 'Nach „Übergeben“: Ergebnis je Thema. Im Lernmodus nur als Übung.', fehlerheft: 'Falsch beantwortete Auswahl- und Rechenfragen.' },
   examen: { minuten: 5, offline: 'ja', stufe: 'beide' },

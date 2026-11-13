@@ -10,10 +10,16 @@ export const SOURCES = {
   news2: NEWS2_QUELLE,
 };
 const BOUNDS: Record<Vital, [number, number]> = { pulse: [30, 180], sys: [60, 220], dia: [30, 130], spo2: [70, 100], resp: [6, 45], temp: [34, 41], glucose: [30, 500], pain: [0, 10] };
-const effect = (v: Vitals, delta: Partial<Vitals>, factor = 1): Vitals => Object.fromEntries(Object.entries(v).map(([k, n]) => {
-  const key = k as Vital;
-  return [k, Math.min(BOUNDS[key][1], Math.max(BOUNDS[key][0], n + (delta[key] ?? 0) * factor))];
-})) as Vitals;
+/** Säuglinge und Kleinkinder atmen und schlagen schneller: weitere Modellgrenzen unter 6 Jahren. */
+const BOUNDS_KIND: Record<Vital, [number, number]> = { ...BOUNDS, pulse: [30, 230], resp: [6, 90], sys: [40, 220], dia: [20, 130] };
+export const modellGrenzen = (age: number) => age < 6 ? BOUNDS_KIND : BOUNDS;
+const effect = (s: Pick<Session, 'vitals' | 'scenario'>, delta: Partial<Vitals>, factor = 1): Vitals => {
+  const b = modellGrenzen(s.scenario.age);
+  return Object.fromEntries(Object.entries(s.vitals).map(([k, n]) => {
+    const key = k as Vital;
+    return [k, Math.min(b[key][1], Math.max(b[key][0], n + (delta[key] ?? 0) * factor))];
+  })) as Vitals;
+};
 const add = (s: Session, kind: Event['kind'], title: string, detail = '') => {
   s.events.push({ id: (s.events.at(-1)?.id ?? 0) + 1, at: s.time, kind, title, detail });
 };
@@ -68,7 +74,7 @@ function story(s: Session) {
     if (e.unless?.some(f => s.flags[f] !== undefined)) { c.story[e.id] = 'prevented'; continue; }
     c.story[e.id] = 'fired';
     mark(s, `ereignis:${e.id}`);
-    if (e.effect) s.vitals = effect(s.vitals, e.effect);
+    if (e.effect) s.vitals = effect(s, e.effect);
     if (e.avpu) c.avpu = e.avpu;
     if (e.flag) s.flags[e.flag] ??= s.time;
     if (e.drift && e.stoppedBy?.length) c.drifts.push({ id: e.id, drift: e.drift, stoppedBy: e.stoppedBy });
@@ -77,7 +83,7 @@ function story(s: Session) {
   }
   for (const d of [...c.drifts]) {
     if (d.stoppedBy.some(f => s.flags[f] !== undefined)) { c.drifts.splice(c.drifts.indexOf(d), 1); continue; }
-    s.vitals = effect(s.vitals, d.drift, 1 / 60);
+    s.vitals = effect(s, d.drift, 1 / 60);
   }
 }
 
@@ -93,7 +99,7 @@ function advance(s: Session, seconds: number) {
     }
     const supported = s.scenario.stabilizers.some(f => s.flags[f] !== undefined);
     const factor = supported ? 0 : [0, 0.6, 1, 1.4][s.level];
-    s.vitals = effect(s.vitals, s.scenario.drift, factor / 60);
+    s.vitals = effect(s, s.scenario.drift, factor / 60);
     s.deterioration += factor / 60;
     story(s);
     const ready = s.pending.filter(p => p.due <= s.time);
@@ -106,12 +112,14 @@ function advance(s: Session, seconds: number) {
           const k = key as Vital; const distance = target - s.vitals[k]; const limit = med.effect[k] ?? 0;
           return [k, Math.sign(distance) === Math.sign(limit) ? Math.sign(distance) * Math.min(Math.abs(limit), Math.abs(distance) * 0.3) : 0];
         }));
-        s.vitals = effect(s.vitals, delta);
-      } else s.vitals = effect(s.vitals, p.effect ?? {});
+        s.vitals = effect(s, delta);
+      } else s.vitals = effect(s, p.effect ?? {});
       if (p.flag) s.flags[p.flag] = s.time;
       add(s, 'result', p.title, p.result);
     }
-    const critical = s.vitals.spo2 < 85 || s.vitals.sys < 80 || s.vitals.pulse > 150 || s.vitals.glucose < 40 || ['P', 'U'].includes(consciousness(s));
+    // Säuglinge haben physiologisch höhere Herzfrequenz und niedrigeren Blutdruck (didaktische Grenzen, ungeprüft).
+    const saeugling = s.scenario.age < 1;
+    const critical = s.vitals.spo2 < 85 || s.vitals.sys < (saeugling ? 60 : 80) || s.vitals.pulse > (saeugling ? 200 : 150) || s.vitals.glucose < 40 || ['P', 'U'].includes(consciousness(s));
     if (critical && !s.critical) add(s, 'warning', 'Kritische Veränderung', 'Erneut beurteilen und frühzeitig Unterstützung organisieren.');
     s.critical = critical;
     if (s.monitoring) observe(s, false);
@@ -135,7 +143,7 @@ function execute(previous: Session, command: Command): Session {
     s.decisions.push({ at: s.time, event: event.id, choice: choice.id });
     mark(s, `wahl:${event.id}:${choice.id}`);
     add(s, 'action', `Entscheidung: ${choice.label}`, choice.result);
-    if (choice.effect) s.vitals = effect(s.vitals, choice.effect);
+    if (choice.effect) s.vitals = effect(s, choice.effect);
     if (choice.avpu) s.avpu = choice.avpu;
     if (choice.oxygen !== undefined) s.oxygen = choice.oxygen;
     if (choice.flag) s.flags[choice.flag] ??= s.time;
@@ -167,7 +175,7 @@ function execute(previous: Session, command: Command): Session {
     if (action.avpu) s.avpu = action.avpu;
     if (action.oxygen !== undefined) s.oxygen = action.oxygen;
     if (delay) s.pending.push({ id: action.id, title: action.label, result: action.result, due: s.time + delay, effect: action.effect, flag: action.flag, sample: { ...s.vitals }, requestedBy: s.events.at(-1)?.id });
-    else { s.vitals = effect(s.vitals, action.effect ?? {}); if (action.flag) { if (action.repeatable || s.flags[action.flag] === undefined) s.flags[action.flag] = s.time; } }
+    else { s.vitals = effect(s, action.effect ?? {}); if (action.flag) { if (action.repeatable || s.flags[action.flag] === undefined) s.flags[action.flag] = s.time; } }
     if (action.id === 'vitals' || action.id === 'reassess') observe(s);
     if (action.id === 'reassess' && s.flags.medication_effect !== undefined) s.flags.medication_reviewed = s.time;
     if (action.id === 'monitor') { s.monitoring = true; observe(s); }

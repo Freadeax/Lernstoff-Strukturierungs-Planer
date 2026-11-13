@@ -31,6 +31,7 @@ const TEXT: Record<string, string> = {
   labor: 'Laborwerte, Präanalytik und Blutgas einordnen.',
   hoeren: 'Herz, Lunge, Darm, Alarme und Blutdruck nach Gehör.',
   assessment: 'Braden, Barthel, Schmerzskalen an Fällen.',
+  fallakte: 'Eine Person von der SIS bis zur Übergabe.',
   pflegeplanung: 'Probleme, Ziele, Maßnahmen formulieren.',
   sis: 'Strukturierte Informationssammlung üben.',
   bericht: 'Pflegeberichte sachlich und knapp schreiben.',

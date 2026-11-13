@@ -2,6 +2,7 @@
 // Personen und Daten sind erfunden.
 
 import type { InstrumentId } from './instrumente';
+import { AKTEN_VIGNETTEN } from '../fallakte/akten';
 
 export type Gruppe = 'braden' | 'norton' | 'barthel' | 'schmerz' | 'mna' | 'gcs' | 'sturz';
 
@@ -513,4 +514,6 @@ export const VIGNETTEN: Vignette[] = [
     begruendung: { zeit: '14 Sekunden liegen zwischen 10 und 19 Sekunden.' },
     fazit: 'Geringe Einschränkung nach der Originaleinteilung. Für ältere Menschen sind 14 Sekunden aber schon ein Hinweis auf erhöhtes Sturzrisiko, und zwei Stürze im letzten halben Jahr sind selbst ein starker Risikofaktor: Sturzrisiko genauer einschätzen, Bad sichern (Haltegriffe, rutschfeste Matte), Hausnotruf besprechen.',
   },
+  // Teilfälle der Fallakten (durchgehende Fälle, siehe ../fallakte)
+  ...AKTEN_VIGNETTEN,
 ];

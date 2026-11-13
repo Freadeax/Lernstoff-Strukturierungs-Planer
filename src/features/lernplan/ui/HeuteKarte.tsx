@@ -28,7 +28,7 @@ function ErsterBesuch() {
       <div className="today-focus__main">
         <span className="today-label"><span aria-hidden="true" /> Willkommen</span>
         <h2 id="today-title">Womit möchtest du anfangen?</h2>
-        <p>Alles Weitere, auch die optionale KI, richtest du ein, wenn du es brauchst.</p>
+        <p>Alles Weitere, auch die optionale KI, richtest du ein, wenn du es brauchst. Du testest mit? <a href="#/system/test">Einstieg und Testaufträge</a></p>
       </div>
       <ol className="today-start" role="list">
         {ERSTE_SCHRITTE.map((s) => (

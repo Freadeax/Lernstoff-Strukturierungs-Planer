@@ -5,6 +5,7 @@
 // - Eine Alternative mit „ + “ verlangt alle Teile (z. B. 'nrs + 6').
 // - Text wird vorher vereinfacht: klein, ä→ae, ß→ss, „38 Komma 9“→„38,9“.
 // - Wortteile genügen („sturz“ trifft „Sturzgefahr“), reine Zahlen nur als ganze Zahl.
+import { AKTEN_PLAENE } from '../fallakte/akten';
 
 export type Setting = 'akut' | 'langzeit' | 'ambulant' | 'paediatrie';
 export type ProblemArt = 'aktuell' | 'risiko';
@@ -382,6 +383,8 @@ R: ist wach und kooperativ, kann Husten, sitzt mit Hilfe aufrecht
 Ziel: Herr Krüger isst und trinkt ohne Aspiration (kein Husten, keine feuchte Stimme, kein Fieber) während des Aufenthalts.
 Maßnahme: Zu jeder Mahlzeit aufrecht (90°) im Stuhl oder Bett positionieren, nur angedickte Getränke und pürierte Kost nach Anordnung, kleine Portionen; 20 Minuten nach dem Essen aufrecht sitzen lassen, danach Mundpflege (Pflegefachperson). Logopädie einbeziehen.`,
   },
+  // Teilfälle der Fallakten (durchgehende Fälle, siehe ../fallakte)
+  ...AKTEN_PLAENE,
 ];
 
 /** Leerer Fall für „eigener Fall“: keine Erwartungen, nur Strukturprüfung. */

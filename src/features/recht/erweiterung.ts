@@ -33,6 +33,32 @@ export const ERWEITERUNG: Partial<Record<B, Aufgabe[]>> = {
       ],
       erklaerung: ['Ob eine Straftat vorliegt, hängt im Einzelfall auch von Vorsatz, Rechtfertigung und Schuld ab. Die Zuordnung zeigt, welcher Tatbestand geprüft wird.'],
     },
+    {
+      id: 'fall.verwechslung', art: 'fall', topicIds: ['thema.re.haftung'], titel: 'Fall: Tabletten verwechselt', stufe: 3,
+      frage: 'Gehst du mit einem eigenen Fehler richtig um?',
+      einstieg: 'Spätdienst. Du merkst beim Abräumen, dass du Herrn L. die Abendtabletten seines Zimmernachbarn gegeben hast, darunter ein blutdrucksenkendes Mittel, das er nicht bekommt.',
+      schritte: [
+        {
+          lage: 'Herr L. sitzt im Bett und unterhält sich.',
+          frage: 'Was tust du zuerst?', optionen: ['Sofort die Ärztin informieren, Vitalzeichen messen und ihn beobachten', 'Abwarten, ob etwas passiert, und dann entscheiden', 'Niemandem etwas sagen, weil es Ärger gibt', 'Ihm zur Sicherheit seine eigenen Tabletten zusätzlich geben'],
+          richtig: [0], mehrfach: false,
+          warum: 'Die Sicherheit des Patienten geht vor. Nur wenn die Ärztin Bescheid weiß, kann sie Gegenmaßnahmen anordnen.',
+        },
+        {
+          lage: 'Die Ärztin ordnet Blutdruckkontrollen an. Herrn L. geht es gut.',
+          frage: 'Was gehört jetzt dazu? Wähle alle zutreffenden.', optionen: ['Sachlich dokumentieren, was gegeben wurde, wann und was veranlasst wurde', 'Die Stationsleitung informieren', 'Den Vorfall im Fehlermeldesystem (z. B. CIRS) melden, damit sich die Abläufe verbessern', 'Die Dokumentation so formulieren, dass der Fehler nicht auffällt'],
+          richtig: [0, 1, 2], mehrfach: true,
+          warum: 'Nachträgliches Verschleiern der Dokumentation kann selbst strafbar sein (Urkundenfälschung). Ehrliche Meldung schützt den Patienten und dich.',
+        },
+        {
+          lage: 'Eine Kollegin fragt, ob das strafrechtliche Folgen haben kann.',
+          frage: 'Was trifft zu?', optionen: ['Hätte der Patient einen Schaden erlitten, käme eine fahrlässige Körperverletzung (§ 229 StGB) in Betracht', 'Fehler in der Pflege sind nie strafbar', 'Es ist automatisch eine vorsätzliche Körperverletzung', 'Strafbar ist nur die Ärztin, weil sie die Tabletten angeordnet hat'],
+          richtig: [0], mehrfach: false,
+          warum: 'Fahrlässig handelt, wer die erforderliche Sorgfalt außer Acht lässt. Für die Durchführung trägt die Pflegefachperson die Verantwortung. Ob es zu Folgen kommt, hängt vom Einzelfall ab.',
+        },
+      ],
+      erklaerung: ['Bei einem eigenen Fehler: Patient zuerst, sofort melden, ehrlich dokumentieren, im Fehlermeldesystem melden.', 'Strafrechtlich zählt die Sorgfalt in der Durchführung. Verschleiern macht alles schlimmer.'],
+    },
   ],
   delegation: [
     {
@@ -73,6 +99,32 @@ export const ERWEITERUNG: Partial<Record<B, Aufgabe[]>> = {
       ],
       erklaerung: ['Vorsorge ist abgestuft: Was die Person selbst festgelegt hat, geht vor. Eine Betreuung wird nur eingerichtet, wenn es keine passende Vollmacht gibt.'],
     },
+    {
+      id: 'fall.verfuegung', art: 'fall', topicIds: ['thema.re.betreuung'], titel: 'Fall: Patientenverfügung und Vollmacht', stufe: 3,
+      frage: 'Wer entscheidet, wenn die Patientin es nicht mehr kann?',
+      einstieg: 'Frau G., 86 Jahre, ist nach einem schweren Schlaganfall nicht mehr ansprechbar. In ihren Unterlagen liegen eine Patientenverfügung und eine Vorsorgevollmacht für ihre Tochter.',
+      schritte: [
+        {
+          lage: 'In der Verfügung steht: Bei schwerer, dauerhafter Hirnschädigung ohne Aussicht auf Besserung lehnt sie künstliche Ernährung ab.',
+          frage: 'Was gilt für das Behandlungsteam?', optionen: ['Trifft die Verfügung auf die Lage zu, ist sie bindend', 'Sie ist nur ein unverbindlicher Wunsch', 'Sie gilt nur, wenn sie notariell beglaubigt ist', 'Sie gilt nur, wenn Frau G. sie jährlich erneuert hat'],
+          richtig: [0], mehrfach: false,
+          warum: 'Eine schriftliche Patientenverfügung ist nach § 1827 BGB bindend, wenn sie auf die konkrete Lebens- und Behandlungssituation zutrifft. Eine notarielle Form ist nicht nötig.',
+        },
+        {
+          lage: 'Ärztin und Tochter besprechen, ob die Lage zutrifft.',
+          frage: 'Welche Rolle hat die bevollmächtigte Tochter?', optionen: ['Sie prüft mit der Ärztin, ob die Verfügung passt, und verschafft dem Willen der Mutter Geltung', 'Sie darf frei nach eigenem Geschmack entscheiden', 'Sie hat keine Rolle, weil eine Verfügung vorliegt', 'Sie muss erst ein Gericht um Erlaubnis bitten, bevor sie mit der Ärztin sprechen darf'],
+          richtig: [0], mehrfach: false,
+          warum: 'Die Bevollmächtigte ist an den Willen der Mutter gebunden, nicht an ihren eigenen. Ein Gericht wird nur nötig, wenn Ärztin und Bevollmächtigte sich über den Willen nicht einig sind.',
+        },
+        {
+          lage: 'Ein Neffe ruft an und verlangt, dass „alles getan wird“.',
+          frage: 'Wie reagierst du?', optionen: ['Freundlich auf die Tochter als Bevollmächtigte und die Ärztin verweisen, keine Auskünfte ohne Erlaubnis', 'Ihm alle Befunde am Telefon vorlesen', 'Die Behandlung sofort nach seinen Wünschen ändern', 'Ihm sagen, die Tochter habe falsch entschieden'],
+          richtig: [0], mehrfach: false,
+          warum: 'Angehörige ohne Vollmacht entscheiden nicht mit und erhalten ohne Einwilligung keine Auskunft. Die Schweigepflicht gilt auch innerhalb der Familie.',
+        },
+      ],
+      erklaerung: ['Eine zutreffende Patientenverfügung bindet alle. Bevollmächtigte setzen den Willen der Person um, nicht den eigenen.', 'Der mutmaßliche Wille zählt, wenn nichts Passendes festgelegt ist.'],
+    },
   ],
   sozialrecht: [
     {
@@ -86,6 +138,32 @@ export const ERWEITERUNG: Partial<Record<B, Aufgabe[]>> = {
         { links: 'Behandlung nach einem Arbeitsunfall', rechts: 'SGB VII (Unfallversicherung)' },
       ],
       erklaerung: ['Behandlung und Behandlungspflege zahlt die Krankenkasse, Hilfe im Alltag bei Pflegebedürftigkeit die Pflegekasse, Arbeitsunfälle die Unfallversicherung.'],
+    },
+    {
+      id: 'fall.pflegegrad', art: 'fall', topicIds: ['thema.re.sgb11'], titel: 'Fall: Pflegegrad beantragen', stufe: 3,
+      frage: 'Kannst du Angehörige durch den Antrag begleiten?',
+      einstieg: 'Herr N., 79 Jahre, wird nach einem Sturz mit Oberschenkelbruch bald nach Hause entlassen. Seine Frau fragt, wie sie zu Hause Hilfe bekommen.',
+      schritte: [
+        {
+          lage: 'Bisher hat Herr N. keinen Pflegegrad.',
+          frage: 'Wo wird der Pflegegrad beantragt?', optionen: ['Bei der Pflegekasse, die zu seiner Krankenkasse gehört', 'Beim Sozialamt', 'Beim Hausarzt', 'Beim Amtsgericht'],
+          richtig: [0], mehrfach: false,
+          warum: 'Leistungen der Pflegeversicherung (SGB XI) gibt es auf Antrag bei der Pflegekasse. Ein formloser Anruf reicht für den Beginn, das Antragsdatum zählt.',
+        },
+        {
+          lage: 'Der Medizinische Dienst kündigt einen Besuch zur Begutachtung an.',
+          frage: 'Was wird dabei vor allem bewertet?', optionen: ['Wie selbstständig er in sechs Lebensbereichen ist, z. B. Mobilität und Selbstversorgung', 'Nur die Zahl der Diagnosen', 'Nur, wie viele Minuten die Pflege am Tag dauert', 'Sein Einkommen'],
+          richtig: [0], mehrfach: false,
+          warum: 'Seit 2017 zählt die Selbstständigkeit in sechs Modulen, nicht mehr die Pflegezeit in Minuten. Daraus ergibt sich eine Punktzahl und der Pflegegrad 1 bis 5.',
+        },
+        {
+          lage: 'Der Bescheid kommt: kein Pflegegrad. Frau N. hält das für falsch.',
+          frage: 'Was kann sie tun?', optionen: ['Innerhalb eines Monats schriftlich Widerspruch bei der Pflegekasse einlegen', 'Nichts, der Bescheid ist endgültig', 'Sofort vor dem Bundesverfassungsgericht klagen', 'Einen neuen Antrag frühestens nach fünf Jahren stellen'],
+          richtig: [0], mehrfach: false,
+          warum: 'Gegen Bescheide der Sozialversicherung ist ein Widerspruch innerhalb eines Monats möglich. Ein Pflegetagebuch hilft zu zeigen, wo Hilfe nötig ist.',
+        },
+      ],
+      erklaerung: ['Antrag bei der Pflegekasse, Begutachtung durch den Medizinischen Dienst nach Selbstständigkeit, Widerspruch innerhalb eines Monats.'],
     },
   ],
   arbeitsrecht: [
@@ -131,5 +209,17 @@ export const ERWEITERUNG_VERTIEFUNG: Record<string, string[]> = {
   'fall.dienstplan': [
     'Für Auszubildende über 18 gilt das Arbeitszeitgesetz, für Jüngere das strengere Jugendarbeitsschutzgesetz. Unterrichtszeiten in der Schule zählen als Arbeitszeit.',
     'Wer übermüdet arbeitet, gefährdet sich und andere. Eine Überlastungsanzeige an die Leitung dokumentiert Risiken, wenn sich der Dienstplan nicht anders lösen lässt.',
+  ],
+  'fall.verwechslung': [
+    'Fehlermeldesysteme wie CIRS sind anonym und sanktionsfrei gedacht. Sie sollen zeigen, wo Abläufe Fehler begünstigen, etwa ähnlich aussehende Verpackungen oder Unterbrechungen beim Richten.',
+    'Zivilrechtlich haftet bei Schäden meist zuerst der Träger der Einrichtung über seine Haftpflichtversicherung. Bei grober Fahrlässigkeit kann er die Pflegekraft in Regress nehmen.',
+  ],
+  'fall.verfuegung': [
+    'Liegt keine passende Verfügung vor, gelten die Behandlungswünsche oder der mutmaßliche Wille: frühere Äußerungen, Werte und Überzeugungen der Person. Pflegende tragen dazu oft wichtige Beobachtungen bei.',
+    'Die Regeln standen bis Ende 2022 in § 1901a BGB. Seit der Betreuungsrechtsreform 2023 stehen sie in § 1827 BGB, ältere Bücher nennen noch die alte Nummer.',
+  ],
+  'fall.pflegegrad': [
+    'Die sechs Module sind: Mobilität, kognitive und kommunikative Fähigkeiten, Verhaltensweisen und psychische Problemlagen, Selbstversorgung, Umgang mit krankheits- und therapiebedingten Anforderungen sowie Gestaltung des Alltagslebens und sozialer Kontakte.',
+    'Im Krankenhaus hilft das Entlassmanagement (Expertenstandard Entlassungsmanagement): Sozialdienst und Pflege klären früh Hilfsmittel, Pflegedienst und einen Eilantrag, wenn die Versorgung zu Hause sonst nicht gesichert ist.',
   ],
 };

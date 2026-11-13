@@ -1,12 +1,12 @@
 import { storage } from '../../ui/lib/store';
 import { DatenHinweis } from '../../ui/DatenHinweis';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import './uebergabe.css';
 import { logActivity } from '../../core/activity';
 import { UEBERGABE_THEMA } from '../lernplan/trainer';
 import { LernplanHinweis, useLernplanUebernahme } from '../lernplan/ui/LernplanHinweis';
 import { getApiKey } from '../../core/settings';
-import { navigate } from '../../ui/shell/router';
+import { navigate, useRoute } from '../../ui/shell/router';
 import { ANLASS_LABEL, FAELLE, TEIL_HILFE, TEIL_LABEL, type Fall, type Teil } from './faelle';
 import { dauer, pruefe, TEILE, type Pruefergebnis, type PunktStatus, type TeilStatus } from './pruefung';
 import { bewerteMitClaude, type KiRueckmeldung } from './claude';
@@ -15,6 +15,7 @@ import { EREIGNISSE } from './ereignisse';
 import { felderAusText, pruefeGrundkriterien, rufanlass } from './grundkriterien';
 import { SbarGrundkriterien } from './Grundkriterien';
 import { DiktatFrage } from './DiktatFrage';
+import { AkteLeiste } from '../fallakte/AkteLeiste';
 
 type Modus = 'gefuehrt' | 'frei';
 type Felder = Record<Teil, string>;
@@ -112,7 +113,8 @@ function KiErgebnis({ r }: { r: KiRueckmeldung }) {
 }
 
 export default function Uebergabetrainer() {
-  const [fallId, setFallId] = useState(FAELLE[0]!.id);
+  const wunsch = useRoute().params.get('fall') ?? '';
+  const [fallId, setFallId] = useState(() => (FAELLE.some((f) => f.id === wunsch) ? wunsch : FAELLE[0]!.id));
   const [modus, setModus] = useState<Modus>('gefuehrt');
   const [felder, setFelder] = useState<Felder>(LEER);
   const [frei, setFrei] = useState('');
@@ -138,6 +140,12 @@ export default function Uebergabetrainer() {
     else setFelder((f) => ({ ...f, [ziel]: anhaengen(f[ziel]) }));
     zuruecksetzen();
   });
+
+  // Link mit ?fall= (z. B. aus der Fallakte) wechselt den Fall
+  useEffect(() => {
+    if (wunsch && wunsch !== fallId && FAELLE.some((f) => f.id === wunsch)) waehleFall(wunsch);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wunsch]);
 
   function zuruecksetzen() { setErgebnis(null); setKi(null); setKiFehler(''); lernplan.zuruecksetzen(); }
 
@@ -189,6 +197,7 @@ export default function Uebergabetrainer() {
         <h2>Übergabe-Trainer (SBAR)</h2>
         <p className="muted">Lies den Fall, dann übergib ihn: tippen oder diktieren. Die Checkliste prüft offline, ob Situation, Hintergrund, Einschätzung und Empfehlung vollständig sind.</p>
       </div>
+      <AkteLeiste art="uebergabe" fallId={fallId} />
 
       <div className="card sbar__auswahl">
         <label className="field">

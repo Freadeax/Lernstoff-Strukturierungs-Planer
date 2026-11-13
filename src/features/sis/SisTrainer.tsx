@@ -17,6 +17,7 @@ import {
   type FeldStatus, type Felder, type Matrix, type MatrixErgebnis, type MatrixEingabe, type PunktStatus, type SisErgebnis,
 } from './pruefung';
 import { bewerteMitClaude, type KiRueckmeldung } from './claude';
+import { AkteLeiste } from '../fallakte/AkteLeiste';
 
 type Abschnitt = 'B' | 'TF' | 'matrix';
 interface Entwurf { felder: Felder; matrix: Matrix }
@@ -304,6 +305,7 @@ export default function SisTrainer() {
         <h2>SIS-Trainer</h2>
         <p className="muted">Strukturierte Informationssammlung nach dem Strukturmodell: Lies das Erstgespräch, dann fülle Feld B, die sechs Themenfelder und die Risikomatrix aus. Die Checkliste prüft offline, eine ausführliche Rückmeldung gibt es optional von Claude.</p>
       </div>
+      <AkteLeiste art="sis" fallId={fallId} />
 
       <div className="card sis__auswahl">
         <label className="field">
