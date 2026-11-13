@@ -8,9 +8,10 @@ import { uebungenFuer } from '../lernplan/trainer';
 import { Rueckwege } from './Rueckwege';
 import { FachListe } from '../quiz/FachText';
 import {
-  auswahlRichtig, BEHOBEN_NACH, faellig, heutigerTag, istOffen, ladeFehler, mischeAuswahl, nachThema, QUELLE_LABEL,
-  speichereFehler, ueberblick, wiederholt, type Fehler, type FehlerQuelle, type Wiederholung,
+  auffrischen, auswahlRichtig, BEHOBEN_NACH, faellig, heutigerTag, INTERVALLE, istGefestigt, istHartnaeckig, istOffen, ladeFehler, mischeAuswahl, nachThema, naechsterTermin, QUELLE_LABEL,
+  SICHERHEIT_LABEL, speichereFehler, ueberblick, vorschau, wiederholt, type Fehler, type FehlerQuelle, type Wiederholung,
 } from './fehlerheft';
+import { SkriptStellen } from '../skript/SkriptStellen';
 
 const SITZUNG_MAX = 10;
 const THEMEN = new Map(pflegeModule.topics.map((t) => [t.id, t.name]));
@@ -64,7 +65,13 @@ function Eintrag({ f, onEntfernen }: { f: Fehler; onEntfernen: () => void }) {
     <li className={`fehlerheft__eintrag ${klasse}`}>
       <div className="fehlerheft__zeile">
         <strong>{f.titel}</strong>
-        <span className="fehlerheft__meta">{QUELLE_LABEL[f.quelle]}{f.kriterium && <> · <span className="tag fehlerheft__kriterium">{f.kriterium}</span></>} · {f.fehlerAnzahl}× falsch · {f.behoben ? `behoben am ${datum(f.behoben)}` : <Punkte f={f} />}</span>
+        <span className="fehlerheft__meta">
+          {QUELLE_LABEL[f.quelle]}{f.kriterium && <> · <span className="tag fehlerheft__kriterium">{f.kriterium}</span></>}
+          {f.sicherheit && <> · <span className={`tag ${f.sicherheit === 'sicherer-irrtum' ? 'tag--warning' : 'tag--info'}`}>{SICHERHEIT_LABEL[f.sicherheit]}</span></>}
+          {istHartnaeckig(f) && <> · <span className="tag tag--warning" title="Kam oft falsch: besser nachlesen als nur wiederholen">Hartnäckig</span></>}
+          {' · '}{f.fehlerAnzahl}× falsch · {f.behoben ? `behoben am ${datum(f.behoben)}` : <Punkte f={f} />}
+          {' · '}<span className="fehlerheft__termin">{termin(f)}</span>
+        </span>
       </div>
       <details>
         <summary>Letztes Beispiel und Lösung</summary>
@@ -73,6 +80,13 @@ function Eintrag({ f, onEntfernen }: { f: Fehler; onEntfernen: () => void }) {
         <p>Richtig: <strong>{f.loesung}</strong></p>
         {f.erklaerung.length > 0 && <FachListe texte={f.erklaerung} className="fehlerheft__weg" nummeriert />}
         {f.beleg && <p className="muted fehlerheft__beleg">Quelle: {f.beleg}</p>}
+        {istHartnaeckig(f) && (
+          <p className="note warn fehlerheft__hartnaeckig">
+            Diese Aufgabe ging schon {f.fehlerAnzahl}-mal daneben. Reines Wiederholen hilft hier wenig: Lies die Stelle im Skript nach,
+            formuliere die Lösung in eigenen Worten oder lege eine eigene <a href="#/lernen/karten">Karteikarte</a> an.
+          </p>
+        )}
+        <SkriptStellen ziel={{ topicIds: f.topicIds, texte: [f.titel, f.frage, f.loesung, ...f.erklaerung] }} kompakt />
         <div className="row">
           {link && <a className="button-link" href={`#${link.path}`}>{link.label}</a>}
           <button type="button" className="ghost" onClick={onEntfernen}>Aus dem Fehlerheft entfernen</button>
@@ -83,6 +97,46 @@ function Eintrag({ f, onEntfernen }: { f: Fehler; onEntfernen: () => void }) {
 }
 
 const datum = (t: string) => new Date(`${t}T12:00:00`).toLocaleDateString('de-DE', { day: 'numeric', month: 'short' });
+const wochentag = (t: string) => new Date(`${t}T12:00:00`).toLocaleDateString('de-DE', { weekday: 'short' });
+
+/** Nächster Termin im Wiederholungsplan, kurz: „heute dran“, „wieder am 14. Nov.“, „gefestigt“. */
+function termin(f: Fehler): string {
+  if (istGefestigt(f)) return 'gefestigt';
+  if (!f.faelligAm) return f.behoben ? 'ohne Auffrischung' : 'dran';
+  if (f.faelligAm <= heutigerTag()) return f.behoben ? 'Auffrischen dran' : 'dran';
+  return `${f.behoben ? 'Auffrischen' : 'wieder'} am ${datum(f.faelligAm)}`;
+}
+
+/** Was nach einer richtigen Antwort passiert, in Tagen (gleiche Rechnung wie wiederholt()). */
+function abstandNachTreffer(f: Fehler): number | null {
+  if (f.treffer.includes(heutigerTag())) return null;
+  const stufe = (f.stufe ?? f.treffer.length) + 1;
+  return naechsterTermin(heutigerTag(), stufe) ? INTERVALLE[stufe] ?? null : null;
+}
+
+/** Vorschau: wie viel an den nächsten sieben Tagen dran ist (wie Ankis Prognose). */
+function Vorschau({ liste }: { liste: Fehler[] }) {
+  const v = vorschau(liste);
+  const max = Math.max(1, ...v.map((x) => x.offen + x.auffrischen));
+  if (v.every((x) => x.offen + x.auffrischen === 0)) return null;
+  return (
+    <div className="fehlerheft__vorschau" aria-label="Wiederholungen der nächsten sieben Tage">
+      <p className="muted">Nächste 7 Tage</p>
+      <ol>
+        {v.map((x, k) => {
+          const n = x.offen + x.auffrischen;
+          return (
+            <li key={x.tag} title={`${datum(x.tag)}: ${x.offen} Wiederholungen, ${x.auffrischen} Auffrischungen`}>
+              <span className="fehlerheft__vorschau-saeule" aria-hidden="true"><span style={{ height: `${(n / max) * 100}%` }} /></span>
+              <span className="fehlerheft__vorschau-zahl">{n}</span>
+              <span className="muted">{k === 0 ? 'heute' : wochentag(x.tag)}</span>
+            </li>
+          );
+        })}
+      </ol>
+    </div>
+  );
+}
 
 function Wiederholen({ aufgaben, onAntwort, onEnde }: {
   aufgaben: Aufgabe2[];
@@ -174,12 +228,16 @@ function Wiederholen({ aufgaben, onAntwort, onEnde }: {
       {ergebnis !== null && (
         <div className={`note ${ergebnis ? 'ok' : 'warn'}`} role="status">
           <strong>{ergebnis ? 'Richtig!' : 'Noch nicht.'}</strong>
-          {ergebnis && (a.fehler.treffer.length + (a.fehler.treffer.includes(heutigerTag()) ? 0 : 1) >= BEHOBEN_NACH
-            ? ' Damit ist der Fehler behoben.'
-            : ' Klappt es an einem anderen Tag noch einmal, ist der Fehler behoben.')}
+          {ergebnis && (a.fehler.behoben
+            ? ` Sitzt weiter.${abstandNachTreffer(a.fehler) ? ` Nächste Auffrischung in ${abstandNachTreffer(a.fehler)} Tagen.` : ' Damit gilt der Eintrag als gefestigt.'}`
+            : a.fehler.treffer.length + (a.fehler.treffer.includes(heutigerTag()) ? 0 : 1) >= BEHOBEN_NACH
+              ? ` Damit ist der Fehler behoben.${abstandNachTreffer(a.fehler) ? ` Zum Auffrischen kommt er in ${abstandNachTreffer(a.fehler)} Tagen noch einmal.` : ''}`
+              : ` Klappt es an einem anderen Tag noch einmal, ist der Fehler behoben.${abstandNachTreffer(a.fehler) ? ` Nächste Wiederholung in ${abstandNachTreffer(a.fehler)} Tagen.` : ''}`)}
+          {ergebnis === false && ' Er kommt morgen wieder.'}
           {a.art === 'rechnen'
             ? <ol className="fehlerheft__weg">{a.aufgabe.schritte.map((s, k) => <li key={k}>{s}</li>)}<li>Ergebnis: <strong>{zahl(a.aufgabe.loesung)} {a.aufgabe.einheit}</strong></li></ol>
             : a.fehler.erklaerung.length > 0 && <FachListe texte={a.fehler.erklaerung} className="fehlerheft__weg" nummeriert />}
+          <SkriptStellen ziel={{ topicIds: a.fehler.topicIds, texte: [a.fehler.titel, a.fehler.frage, a.fehler.loesung, ...a.fehler.erklaerung] }} />
         </div>
       )}
 
@@ -218,7 +276,8 @@ export default function FehlerheftSeite() {
   const aendere = (n: Fehler[]) => { setListe(n); speichereFehler(n); };
 
   function starte(auchHeutige: boolean) {
-    const auswahl = faellig(gefiltert, new Date(), auchHeutige).slice(0, SITZUNG_MAX);
+    // Offene Fehler zuerst, dann behobene zum Auffrischen
+    const auswahl = [...faellig(gefiltert, new Date(), auchHeutige), ...auffrischen(gefiltert)].slice(0, SITZUNG_MAX);
     if (!auswahl.length) return;
     setFazit(null);
     setSitzung(auswahl.map(baue));
@@ -238,7 +297,8 @@ export default function FehlerheftSeite() {
     void logActivity({ kind: 'uebung', severity: 'info', title: `Fehlerheft: ${richtig} von ${n} richtig`, detail: behobenJetzt ? `${behobenJetzt} behoben` : undefined });
   }
 
-  const heuteDran = faellig(gefiltert).length;
+  const heuteAuffrischen = auffrischen(gefiltert).length;
+  const heuteDran = faellig(gefiltert).length + heuteAuffrischen;
   const nurHeutige = faellig(gefiltert, new Date(), true).length - heuteDran;
 
   return (
@@ -249,7 +309,8 @@ export default function FehlerheftSeite() {
           Falsche Antworten aus Rechentrainer, Fachbegriff-Duell, Prüfungssimulation, Krankheitsbildern, Assessments, Praxissimulator und allen Übungstrainern landen automatisch hier.
           Dieselbe Aufgabe bleibt ein Eintrag; ein Versuch zählt auch nach Neuladen nur einmal.
           Ein Fehler gilt als behoben, wenn du ihn an {BEHOBEN_NACH} verschiedenen Tagen richtig löst. Heute gemachte Fehler kommen ab morgen dran,
-          damit du nicht nur die eben gesehene Lösung wiederholst. Das Fehlerheft zählt nicht als Abfrage im Lernplan.
+          damit du nicht nur die eben gesehene Lösung wiederholst. Danach wachsen die Abstände ({INTERVALLE.join(', ')} Tage), auch behobene Fehler kommen
+          zum Auffrischen wieder, bis sie gefestigt sind. Das Fehlerheft zählt nicht als Abfrage im Lernplan.
         </p>
       </div>
       <SeitenHilfe path="/lernen/fehler" />
@@ -259,7 +320,9 @@ export default function FehlerheftSeite() {
         <div className="kpi"><p className="kpi__label">Heute dran</p><div className="kpi__value">{ue.faellig}</div></div>
         <div className="kpi"><p className="kpi__label">Heute neu</p><div className="kpi__value">{ue.heuteNeu}</div></div>
         <div className="kpi"><p className="kpi__label">Behoben</p><div className="kpi__value">{ue.behoben}</div></div>
+        {ue.hartnaeckig > 0 && <div className="kpi"><p className="kpi__label">Hartnäckig</p><div className="kpi__value">{ue.hartnaeckig}</div></div>}
       </div>
+      {!sitzung && <Vorschau liste={gefiltert} />}
 
       {sitzung ? (
         <Wiederholen aufgaben={sitzung} onAntwort={antwort} onEnde={ende} />
@@ -289,7 +352,7 @@ export default function FehlerheftSeite() {
               )}
               <div className="row">
                 {heuteDran > 0
-                  ? <button type="button" className="primary" onClick={() => starte(false)}>Wiederholen ({Math.min(heuteDran, SITZUNG_MAX)})</button>
+                  ? <button type="button" className="primary" onClick={() => starte(false)}>Wiederholen ({Math.min(heuteDran, SITZUNG_MAX)}{heuteAuffrischen ? `, davon ${Math.min(heuteAuffrischen, SITZUNG_MAX)} zum Auffrischen` : ''})</button>
                   : <p className="muted">Für heute ist nichts mehr zur Wiederholung dran.</p>}
                 {nurHeutige > 0 && <button type="button" onClick={() => starte(true)}>Heutige Fehler sofort üben ({nurHeutige})</button>}
               </div>

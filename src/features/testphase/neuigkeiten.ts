@@ -5,6 +5,7 @@
 export interface Neuigkeit { datum: string; titel: string; text: string; pfad: string }
 
 export const NEUIGKEITEN: Neuigkeit[] = [
+  { datum: '2026-11-13', titel: 'Üben mit Wiederholungsplan', text: 'Fehler kommen in wachsenden Abständen wieder (morgen, 3, 7, 14 Tage …), nach jeder Antwort zeigt die App die passende Stelle im Skript. Neu: „Wie sicher?“ vor dem Prüfen, falsche Aufgaben gleich noch einmal, begonnene Runden fortsetzen, Nachprüfung schwacher Themen.', pfad: '/lernen/fehler' },
   { datum: '2026-11-13', titel: 'Wege zwischen den Seiten', text: '„Passt dazu“ jetzt auch unter Karteikarten, Skript, Expertenstandards, CE, Fortschritt und Dokumenten. Aus einer Übung führt ein Knopf zurück zum Thema, von dem du kamst.', pfad: '/lernen/karten' },
   { datum: '2026-11-13', titel: 'Krankheitsbilder: sechs neue Steckbriefe', text: 'Mit Fallaufgaben zum direkten Anwenden.', pfad: '/lernen/krankheitsbilder' },
   { datum: '2026-11-13', titel: 'Kinder und Säuglinge', text: 'Eigener Bereich im Notfall- und im Labor-Trainer, dazu neue Probefälle und Praxisfälle mit Säuglingen und Jugendlichen.', pfad: '/lernen/notfall' },

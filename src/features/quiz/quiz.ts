@@ -337,6 +337,41 @@ export function alsFehler(a: Aufgabe, antwort: Antwort, quelle: FehlerQuelle): N
   }));
 }
 
+/**
+ * Richtig gelöst, aber nach eigener Einschätzung geraten: Die Aufgabe kommt zum Festigen ins Fehlerheft
+ * (Kennzeichen „Geraten“), damit Glückstreffer nicht als sicheres Wissen durchrutschen.
+ * Mehrteilige Aufgaben (Zuordnen, Beschriften, Reihenfolge) kommen mit einer stellvertretenden Teilfrage.
+ */
+export function alsUnsicher(a: Aufgabe, antwort: Antwort, quelle: FehlerQuelle): NeuerFehler[] {
+  const b = bewerte(a, antwort);
+  if (!b.richtig) return [];
+  const id = `${quelle}:${a.id}`;
+  const erklaerung = [...a.erklaerung, ...(a.vertiefung ?? [])];
+  const basis = { quelle, topicIds: a.topicIds, titel: a.titel, deineAntwort: 'Richtig, aber geraten', erklaerung, sicherheit: 'geraten' as const };
+  if (a.art === 'auswahl') {
+    return [{ ...basis, id, frage: a.frage, loesung: a.richtig.map((i) => a.optionen[i]).join(' · '), wiederholung: { art: 'auswahl', optionen: a.optionen, richtig: a.richtig, mehrfach: a.mehrfach } }];
+  }
+  if (a.art === 'fall') {
+    return a.schritte.map((st, k) => ({
+      ...basis, id: `${id}:${k + 1}`, titel: `${a.titel} (Schritt ${k + 1})`, frage: `${a.einstieg} ${st.lage} ${st.frage}`,
+      loesung: st.richtig.map((i) => st.optionen[i]).join(' · '), erklaerung: [st.warum, ...erklaerung],
+      wiederholung: { art: 'auswahl' as const, optionen: st.optionen, richtig: st.richtig, mehrfach: st.mehrfach },
+    }));
+  }
+  if (a.art === 'reihenfolge') {
+    const soll = a.schritte[1] ?? a.schritte[0]!;
+    const frage = a.schritte.length > 1 ? `${a.frage} Was kommt direkt nach „${a.schritte[0]}“?` : a.frage;
+    return [{ ...basis, id, frage, loesung: a.schritte.join(' → '), wiederholung: { art: 'auswahl', optionen: [soll, ...ablenker(soll, a.schritte.slice(1))], richtig: [0], mehrfach: false } }];
+  }
+  if (a.art === 'zuordnen') {
+    const p = a.paare[0]!;
+    return [{ ...basis, id: `${id}:${p.links}`, frage: `${a.frage} Was gehört zu „${p.links}“?`, loesung: p.rechts, wiederholung: { art: 'auswahl', optionen: [p.rechts, ...ablenker(p.rechts, zuordnenOptionen(a))], richtig: [0], mehrfach: false } }];
+  }
+  const m = a.marken[0]!;
+  const labels = a.marken.map((x) => x.label);
+  return [{ ...basis, id: `${id}:${m.nr}`, frage: `${a.titel}: Wie heißt die Struktur? ${m.hinweis}`, loesung: m.label, erklaerung: [`Nummer ${m.nr} in der Abbildung: ${m.label}. ${m.hinweis}`], wiederholung: { art: 'auswahl', optionen: [m.label, ...ablenker(m.label, labels)], richtig: [0], mehrfach: false } }];
+}
+
 // ---------------------------------------------------------------- Prüfen der Inhalte (für Tests)
 
 /** Findet Baufehler in einer Aufgabensammlung. Leere Liste = in Ordnung. */
