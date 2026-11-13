@@ -328,3 +328,18 @@ a.pill { display: inline-flex; align-items: center; text-decoration: none; color
 .fall__weiter ul { margin: var(--space-1) 0 0; padding-left: 1.2rem; }
 .fall__weiter li { margin-bottom: var(--space-1); }
 .fall__ersatz { margin: 0; font-size: var(--text-sm); }
+
+/* Alle Wege dieses Falls (Probefälle) */
+.fall__wege { margin-top: var(--space-4); }
+.fall__wege-karte { list-style: none; display: flex; flex-wrap: wrap; gap: var(--space-2); padding: 0; margin: var(--space-2) 0; }
+.fall__wege-karte > li { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-1); }
+.fall__wege-knoten { display: inline-block; padding: 2px 10px; border-radius: 999px; border: 1px solid var(--color-border-strong); background: var(--color-surface); font-size: .85rem; }
+.fall__wege-knoten.is-abzweig { border-style: dashed; }
+.fall__wege-knoten.is-besucht { border-width: 2px; border-color: var(--color-primary); font-weight: 600; }
+.fall__wege-liste { padding-left: 0; list-style: none; display: grid; gap: var(--space-2); }
+.fall__wege-liste ul { list-style: none; padding: 0; display: grid; gap: var(--space-2); }
+.fall__wege-liste .fall__rb-wertung p { margin: 0 0 var(--space-1); }
+.fall__wege-liste .is-gewaehlt { outline: 2px solid var(--color-primary); outline-offset: 1px; }
+.fall__wege-marke { margin-left: var(--space-1); }
+.fall__wege-liste .badge { margin-left: var(--space-1); }
+.fall__wege-situation { font-style: italic; }

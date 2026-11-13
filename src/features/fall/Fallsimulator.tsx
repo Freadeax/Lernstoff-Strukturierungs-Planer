@@ -20,6 +20,7 @@ import { raumFuerSetting } from '../../ui/audio/klaenge';
 import { demoAbschluss, demoZug, istDemo, PROBEFAELLE } from './demo';
 import { Szene } from './Szene';
 import { Rueckblick } from './Rueckblick';
+import { Entscheidungswege } from './Entscheidungswege';
 import { abhoerBefund } from './abhoeren';
 import { OfflinePaket } from '../../ui/sim/OfflinePaket';
 import { FreigabeHinweis } from '../../ui/sim/FreigabeHinweis';
@@ -291,6 +292,7 @@ function Auswertung({ fall, onNeu, onNochmal }: { fall: Fall; onNeu: () => void;
         </>
       ) : <p className="muted">Dieser Fall wurde ohne Auswertung beendet.</p>}
       {fall.runden.length > 1 && <Rueckblick fall={fall} />}
+      <Entscheidungswege fall={fall} />
       <details>
         <summary>Verlauf nachlesen</summary>
         <Verlauf fall={fall} />
@@ -308,6 +310,7 @@ function Auswertung({ fall, onNeu, onNochmal }: { fall: Fall; onNeu: () => void;
 /** Krankheitsbilder zu Probefällen (KI-Fälle über KI_KRANKHEITEN) */
 const PROBE_KRANKHEITEN: Record<string, string[]> = {
   'demo-atemnot': ['kh.herzinsuffizienz'], 'demo-hypo': ['kh.diabetes-typ2'], 'demo-asthma': ['kh.asthma'],
+  'demo-sepsis': ['kh.sepsis'], 'demo-schlaganfall': ['kh.schlaganfall'], 'demo-fieberkrampf': ['kh.fieberkrampf'],
 };
 
 function Weiterlernen({ fall, themen }: { fall: Fall; themen: string[] }) {
