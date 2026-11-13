@@ -8,6 +8,9 @@ import { useStore } from '../../ui/lib/store';
 import { session } from '../../ui/shell/session';
 import { useRoute } from '../../ui/shell/router';
 import { baueBestand, type Suchbestand } from './aufbau';
+import { PruefAnsicht } from './PruefAnsicht';
+import { VergleichAnsicht } from './VergleichAnsicht';
+import type { StandardInfo } from './quellen';
 import {
   ART_NAME, ARTEN, ausschnitt, EBENE_NAME, markierungen, suche, vorschlaege,
   type Art, type Ebene, type Ergebnis, type Treffer,
@@ -18,6 +21,13 @@ import {
 
 const PFAD = '/lernen/schnellsuche';
 const VERLAUF_KEY = 'lernstoff.schnellsuche.verlauf';
+const MERK_KEY = 'lernstoff.schnellsuche.merkliste';
+
+type Ansicht = 'suchen' | 'vergleichen' | 'pruefen';
+const ANSICHTEN: Array<{ id: Ansicht; label: string }> = [
+  { id: 'suchen', label: 'Suchen' }, { id: 'vergleichen', label: 'Kriterien vergleichen' }, { id: 'pruefen', label: 'Aussagen prüfen' },
+];
+const istAnsicht = (x: string | null): x is Ansicht => x === 'suchen' || x === 'vergleichen' || x === 'pruefen';
 const BEISPIELE = ['Druckgeschwür Einschätzung', 'Sturz Ergebnis', 'Schmerz Demenz', 'Kontinenzprofile', 'Braden', 'Entlassung Angehörige', '"Konsensus-Konferenz"', 'Mundpflege'];
 
 const cache = new Map<string, Suchbestand>();
@@ -34,8 +44,9 @@ const istEbene = (x: string | null): x is Ebene => x === 'S' || x === 'P' || x =
 const istArt = (x: string | null): x is Art => !!x && (ARTEN as string[]).includes(x);
 
 /** Suchzustand in der Adresse (teilbar, Zurück-Taste), ohne bei jedem Tastendruck einen Verlaufseintrag anzulegen. */
-function schreibeAdresse(q: string, standards: string[], ebene?: Ebene, art?: Art) {
+function schreibeAdresse(ansicht: Ansicht, q: string, standards: string[], ebene?: Ebene, art?: Art) {
   const p = new URLSearchParams();
+  if (ansicht !== 'suchen') p.set('ansicht', ansicht);
   if (q.trim()) p.set('q', q.trim());
   if (standards.length) p.set('s', standards.join(','));
   if (ebene) p.set('e', ebene);
@@ -64,8 +75,9 @@ function EbenenMarke({ t }: { t: Treffer }) {
   return <span className={`sus__ebene sus__ebene--${d.ebene.toLowerCase()}`} title={`${EBENE_NAME[d.ebene]}kriterium ${d.kriterium ?? ''}`}>{d.ebene}{d.kriterium ?? ''}</span>;
 }
 
-function TrefferKarte({ t, nr, offen, umschalten, standardName, listId }: {
+function TrefferKarte({ t, nr, offen, umschalten, standardName, listId, gemerkt, merken }: {
   t: Treffer; nr: number; offen: boolean; umschalten: () => void; standardName: (id: string) => string; listId: string;
+  gemerkt: boolean; merken: () => void;
 }) {
   const d = t.dok;
   const detailId = `${listId}-d${nr}`;
@@ -100,6 +112,7 @@ function TrefferKarte({ t, nr, offen, umschalten, standardName, listId }: {
       <div className="sus__fuss">
         {stds.length > 0 && <span className="muted sus__std">{stds.join(' · ')}{d.standardIds.length > 2 ? ` · +${d.standardIds.length - 2}` : ''}</span>}
         <span className="sus__aktionen">
+          <button type="button" className="ghost small" aria-pressed={gemerkt} onClick={merken}>{gemerkt ? '★ Gemerkt' : '☆ Merken'}</button>
           <button type="button" className="ghost small" aria-expanded={offen} aria-controls={detailId} onClick={umschalten}>{offen ? 'Weniger' : 'Details'}</button>
           {d.link && <a className="button-link small" href={`#${d.link}`}>Öffnen</a>}
         </span>
@@ -116,6 +129,8 @@ export default function Schnellsuche() {
   const [ebene, setEbene] = useState<Ebene | undefined>(() => { const e = params.get('e'); return istEbene(e) ? e : undefined; });
   const [art, setArt] = useState<Art | undefined>(() => { const a = params.get('a'); return istArt(a) ? a : undefined; });
   const [offen, setOffen] = useState<Set<string>>(new Set());
+  const [ansicht, setAnsicht] = useState<Ansicht>(() => { const a = params.get('ansicht'); return istAnsicht(a) ? a : 'suchen'; });
+  const [merkliste, setMerkliste] = useState<string[]>(() => storage.read<string[]>(MERK_KEY, []).filter((x) => typeof x === 'string'));
   const [verlauf, setVerlauf] = useState<string[]>(() => storage.read<string[]>(VERLAUF_KEY, []).filter((x) => typeof x === 'string').slice(0, 8));
   const eingabe = useRef<HTMLInputElement>(null);
   const liste = useRef<HTMLOListElement>(null);
@@ -132,7 +147,7 @@ export default function Schnellsuche() {
   const letztes = /(?:^|\s)([^\s"„:-][^\s":]*)$/.exec(q)?.[1] ?? '';
   const tipps = useMemo(() => (letztes.length >= 2 ? vorschlaege(index, letztes, 5) : []), [index, letztes]);
 
-  useEffect(() => { schreibeAdresse(frage, stdWahl, ebene, art); }, [frage, stdWahl, ebene, art]);
+  useEffect(() => { schreibeAdresse(ansicht, frage, stdWahl, ebene, art); }, [ansicht, frage, stdWahl, ebene, art]);
   useEffect(() => {
     // Auf Geräten mit Maus sofort tippen können; auf dem Handy nicht ungefragt die Tastatur öffnen.
     if (typeof matchMedia !== 'undefined' && matchMedia('(hover: hover) and (pointer: fine)').matches) eingabe.current?.focus();
@@ -155,6 +170,17 @@ export default function Schnellsuche() {
     merke();
     setOffen((alt) => { const n = new Set(alt); if (n.has(id)) n.delete(id); else n.add(id); return n; });
   }
+  function merken(id: string) {
+    setMerkliste((alt) => {
+      const neu = alt.includes(id) ? alt.filter((x) => x !== id) : [id, ...alt].slice(0, 100);
+      storage.write(MERK_KEY, neu.length ? neu : null);
+      return neu;
+    });
+  }
+  const gemerkteTreffer: Treffer[] = useMemo(() => merkliste
+    .map((id) => index.doks.find((d) => d.id === id))
+    .filter((d): d is NonNullable<typeof d> => !!d)
+    .map((dok) => ({ dok, punkte: 0, woerter: [], guete: 'exakt' as const })), [merkliste, index]);
   function toggleStandard(id: string) { setStdWahl((alt) => (alt.includes(id) ? alt.filter((x) => x !== id) : [...alt, id])); }
   function zuruecksetzen() { setQ(''); setStdWahl([]); setEbene(undefined); setArt(undefined); eingabe.current?.focus(); }
 
@@ -182,9 +208,16 @@ export default function Schnellsuche() {
 
   return (
     <section className="page sus">
-      <PageHeading eyebrow="Expertenstandards" title="Schnellsucher"
-        description="Ein Suchfeld für alle Expertenstandards: Kriterien nach Struktur, Prozess und Ergebnis, Kernaussagen, Instrumente, Fachbegriffe und passende Übungen. Versteht Tippfehler, Synonyme und Abkürzungen. Funktioniert offline." />
+      <PageHeading eyebrow="Standards" title="Schnellsucher"
+        description="Ein Suchfeld für alle Expertenstandards und weitere Standards der Pflege (Hygiene, Notfall, Arzneimittel, Recht): Kriterien nach Struktur, Prozess und Ergebnis, häufige Irrtümer, Kernaussagen, Instrumente, Fachbegriffe und passende Übungen. Versteht Tippfehler, Synonyme und Abkürzungen. Funktioniert offline." />
 
+      <div className="pills sus__ansichten" role="tablist" aria-label="Ansicht">
+        {ANSICHTEN.map((a) => (
+          <button type="button" key={a.id} role="tab" className="pill" aria-selected={ansicht === a.id} onClick={() => setAnsicht(a.id)}>{a.label}</button>
+        ))}
+      </div>
+
+      {ansicht === 'suchen' && (<>
       <form role="search" className="sus__suche card" onSubmit={(e) => { e.preventDefault(); merke(); }}>
         <label htmlFor={`${listId}-q`} className="sus__label">Suchen in Expertenstandards</label>
         <div className="sus__feld">
@@ -231,18 +264,26 @@ export default function Schnellsuche() {
 
       <div className="sus__layout">
         <aside className="sus__seite" aria-label="Standards">
-          <h2 className="sus__h2">Standards</h2>
-          <ul className="sus__standards">
-            {sichtbareStandards.map((s) => (
-              <li key={s.id}>
-                <button type="button" className="sus__standard" aria-pressed={stdWahl.includes(s.id)} onClick={() => toggleStandard(s.id)}
-                  title={s.name}>
-                  <span className="sus__standard-name">{s.kurz}</span>
-                  <span className="muted sus__standard-info">{aktiv && frage.trim() ? `${facS.get(s.id) ?? 0} Treffer` : (s.details ?? '').replace(/\.$/, '')}{s.ungeprueft ? ' · ungeprüft' : ''}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
+          {([['dnqp', 'Expertenstandards (DNQP)'], ['regelwerk', 'Weitere Standards']] as const).map(([gruppe, titel]) => {
+            const liste: StandardInfo[] = sichtbareStandards.filter((s) => s.gruppe === gruppe);
+            if (!liste.length) return null;
+            return (
+              <Fragment key={gruppe}>
+                <h2 className="sus__h2">{titel}</h2>
+                <ul className="sus__standards">
+                  {liste.map((s) => (
+                    <li key={s.id}>
+                      <button type="button" className="sus__standard" aria-pressed={stdWahl.includes(s.id)} onClick={() => toggleStandard(s.id)}
+                        title={s.name}>
+                        <span className="sus__standard-name">{s.kurz}</span>
+                        <span className="muted sus__standard-info">{aktiv && frage.trim() ? `${facS.get(s.id) ?? 0} Treffer` : (s.details ?? '').replace(/\.$/, '')}{s.ungeprueft ? ' · ungeprüft' : ''}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </Fragment>
+            );
+          })}
         </aside>
 
         <div className="sus__haupt">
@@ -257,7 +298,7 @@ export default function Schnellsuche() {
             <p className="sus__korrektur">
               Meintest du{' '}
               {ergebnis.korrekturen.map((k, i) => (
-                <Fragment key={k.von}>{i > 0 && ', '}<button type="button" className="link" onClick={() => setze(q.replace(k.von, k.zu))}>{k.zu}</button></Fragment>
+                <Fragment key={k.von}>{i > 0 && ', '}<button type="button" className="link" onClick={() => setze(q.replace(new RegExp(k.von.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'), k.zu))}>{k.zu}</button></Fragment>
               ))}? Die Treffer berücksichtigen das schon.
             </p>
           )}
@@ -271,11 +312,23 @@ export default function Schnellsuche() {
           {aktiv ? (
             <ol ref={liste} className="sus__liste" aria-label="Treffer" onKeyDown={tastenListe}>
               {ergebnis.treffer.map((t, i) => (
-                <TrefferKarte key={t.dok.id} t={t} nr={i} listId={listId} offen={offen.has(t.dok.id)} umschalten={() => umschalten(t.dok.id)} standardName={standardName} />
+                <TrefferKarte key={t.dok.id} t={t} nr={i} listId={listId} offen={offen.has(t.dok.id)} umschalten={() => umschalten(t.dok.id)} standardName={standardName}
+                  gemerkt={merkliste.includes(t.dok.id)} merken={() => merken(t.dok.id)} />
               ))}
             </ol>
           ) : (
             <div className="sus__start">
+              {gemerkteTreffer.length > 0 && (
+                <section>
+                  <h2 className="sus__h2">Meine Merkliste ({gemerkteTreffer.length})</h2>
+                  <ol ref={liste} className="sus__liste" aria-label="Merkliste" onKeyDown={tastenListe}>
+                    {gemerkteTreffer.map((t, i) => (
+                      <TrefferKarte key={t.dok.id} t={t} nr={i} listId={`${listId}m`} offen={offen.has(t.dok.id)} umschalten={() => umschalten(t.dok.id)}
+                        standardName={standardName} gemerkt merken={() => merken(t.dok.id)} />
+                    ))}
+                  </ol>
+                </section>
+              )}
               {verlauf.length > 0 && (
                 <section>
                   <h2 className="sus__h2">Zuletzt gesucht</h2>
@@ -290,13 +343,16 @@ export default function Schnellsuche() {
                 <div className="pills">{BEISPIELE.map((b) => <button type="button" key={b} className="pill" onClick={() => setze(b)}>{b}</button>)}</div>
               </section>
               <p className="muted sus__klein">
-                Durchsucht {index.doks.length} Einträge aus {standards.length} Standards{hatKriterien ? ', ihren Kriterien' : ''}, dem Expertenstandards-Trainer, dem Glossar und den Assessment-Instrumenten.
-                Die Einträge fassen zusammen und ersetzen nicht den Originaltext. Maßgeblich ist die aktuelle Fassung des DNQP.
+                Durchsucht {index.doks.length} Einträge: {standards.filter((s) => s.gruppe === 'dnqp').length} Expertenstandards{hatKriterien ? ' mit ihren Kriterien' : ''}, {standards.filter((s) => s.gruppe === 'regelwerk').length} weitere Standards, die Trainer, das Glossar und die Assessment-Instrumente.
+                Die Einträge fassen zusammen und ersetzen nicht den Originaltext. Maßgeblich sind die aktuelle Fassung des DNQP, die KRINKO-Empfehlungen, die ERC-Leitlinien und der Gesetzestext.
               </p>
             </div>
           )}
         </div>
       </div>
+      </>)}
+      {ansicht === 'vergleichen' && <VergleichAnsicht />}
+      {ansicht === 'pruefen' && <PruefAnsicht index={index} />}
     </section>
   );
 }

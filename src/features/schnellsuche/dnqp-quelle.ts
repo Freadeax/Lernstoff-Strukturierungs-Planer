@@ -20,6 +20,10 @@ export const DNQP_STANDARDS: DnqpStandard[] = STANDARDS.map((s) => ({
     struktur: texte(k.struktur), prozess: texte(k.prozess), ergebnis: texte(k.ergebnis),
     stichworte: k.stichworte,
   })),
-  kernaussagen: [...s.merke, ...s.fehlvorstellungen.map((f) => f.richtig)],
+  kernaussagen: s.merke,
+  praeambel: s.praeambel,
+  geltung: s.geltung,
+  fehlvorstellungen: s.fehlvorstellungen.map(({ id, falsch, richtig, beleg }) => ({ id, falsch, richtig, beleg })),
+  status: s.status,
   themaIds: s.themaIds,
 }));

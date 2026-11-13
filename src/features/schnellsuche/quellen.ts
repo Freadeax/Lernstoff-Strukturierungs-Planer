@@ -32,6 +32,14 @@ export interface DnqpStandard {
   begruendung?: string;
   kriterien: DnqpKriterium[];
   kernaussagen?: string[];
+  /** Wichtige Aussagen der Präambel (sinngemäß). */
+  praeambel?: string[];
+  /** Für wen der Standard gilt. */
+  geltung?: string[];
+  /** Häufige veraltete oder falsche Aussagen mit Richtigstellung. */
+  fehlvorstellungen?: Array<{ id: string; falsch: string; richtig: string; beleg: string }>;
+  /** z. B. 'nicht-eingefuehrt' (Mobilität). */
+  status?: string;
   themaIds?: string[];
 }
 
@@ -63,8 +71,19 @@ export function ausDnqp(standards: DnqpStandard[]): SuchDok[] {
       details: [
         ...(s.zielsetzung ? [{ label: 'Zielsetzung', text: s.zielsetzung }] : []),
         ...(s.begruendung ? [{ label: 'Begründung', text: s.begruendung }] : []),
+        ...(s.geltung?.length ? [{ label: 'Gilt für', text: s.geltung.join(' · ') }] : []),
         ...(fassung ? [{ label: 'Fassung', text: fassung }] : []),
+        ...(s.status === 'nicht-eingefuehrt' ? [{ label: 'Hinweis', text: 'Dieser Standard ist nicht verbindlich eingeführt.' }] : []),
       ],
+    });
+    (s.praeambel ?? []).forEach((text, i) => out.push({
+      id: `${s.id}:praeambel${i + 1}`, art: 'kernaussage', titel: kurzerTitel(text), text, standardIds: [s.id],
+      pfad: `${s.kurztitel} · Präambel`, link: dnqpLink(s.id),
+    }));
+    for (const f of s.fehlvorstellungen ?? []) out.push({
+      id: `${s.id}:irrtum:${f.id}`, art: 'irrtum', titel: `Nicht mehr: ${f.falsch}`, text: f.richtig, standardIds: [s.id],
+      pfad: `${s.kurztitel} · Häufiger Irrtum`, link: dnqpLink(s.id),
+      details: [{ label: 'Veraltet oder falsch', text: f.falsch }, { label: 'Richtig ist', text: f.richtig }, { label: 'Beleg', text: f.beleg }],
     });
     for (const k of s.kriterien) {
       for (const [ebene, feld, name] of EBENEN) {
@@ -95,7 +114,8 @@ export function kurzname(name: string): string {
   return name.replace(/^Expertenstandard\s+/i, '').replace(/\s+in der Pflege$/i, '').trim();
 }
 
-export interface StandardInfo { id: string; name: string; kurz: string; details?: string; url?: string; ungeprueft: boolean }
+export type StandardGruppe = 'dnqp' | 'regelwerk';
+export interface StandardInfo { id: string; name: string; kurz: string; details?: string; url?: string; ungeprueft: boolean; gruppe: StandardGruppe }
 
 /** Alle Standards des Fachmoduls (Referenzen der Art „standard“). DNQP-Daten ergänzen Titel und Fassung. */
 export function standardsAus(modul: CatalogModule, dnqp: DnqpStandard[] = []): StandardInfo[] {
@@ -105,7 +125,7 @@ export function standardsAus(modul: CatalogModule, dnqp: DnqpStandard[] = []): S
     const r = ausKatalog.find((x) => x.id === id);
     const d = dnqp.find((x) => x.id === id);
     const name = d?.titel ?? r?.name ?? id;
-    return { id, name, kurz: d?.kurztitel ?? kurzname(name), details: (d && fassungText(d)) ?? r?.details, url: r?.url, ungeprueft: r?.pruefstatus === 'ungeprueft' };
+    return { id, name, kurz: d?.kurztitel ?? kurzname(name), details: (d && fassungText(d)) ?? r?.details, url: r?.url, ungeprueft: r?.pruefstatus === 'ungeprueft', gruppe: 'dnqp' as const };
   });
 }
 
@@ -183,15 +203,27 @@ function loesung(a: Aufgabe): string[] {
   }
 }
 
-export function ausTrainer(aufgaben: Array<{ bereich: string; aufgabe: Aufgabe }>, themen: Map<string, string[]>): SuchDok[] {
+export interface TrainerQuelle {
+  /** Seite des Trainers, z. B. '/lernen/hygiene'. */
+  pfad: string;
+  name: string;
+  /** Standards je Aufgabe; leer = keinem Standard zugeordnet. */
+  standardsVon: (a: Aufgabe) => string[];
+}
+
+/** Standards einer Expertenstandard-Aufgabe über ihre Katalogthemen. */
+export function esStandardsVon(themen: Map<string, string[]>): (a: Aufgabe) => string[] {
+  return (a) => [...new Set(a.topicIds.filter((t) => t !== ES_THEMA).flatMap((t) => themen.get(t) ?? []))];
+}
+
+export function ausTrainer(aufgaben: Array<{ bereich: string; aufgabe: Aufgabe }>, quelle: TrainerQuelle): SuchDok[] {
   return aufgaben.map(({ bereich, aufgabe: a }) => {
-    const std = [...new Set(a.topicIds.filter((t) => t !== ES_THEMA).flatMap((t) => themen.get(t) ?? []))];
     const antwort = loesung(a);
     const einstieg = a.art === 'fall' ? `${a.einstieg} ` : '';
     return {
-      id: `trainer:${a.id}`, art: 'uebung' as const, titel: a.frage, standardIds: std, pfad: `Trainer · ${a.titel}`,
+      id: `trainer:${quelle.pfad}:${a.id}`, art: 'uebung' as const, titel: a.frage, standardIds: quelle.standardsVon(a), pfad: `${quelle.name} · ${a.titel}`,
       text: `${einstieg}${antwort.join(' ')} ${a.erklaerung.join(' ')} ${(a.vertiefung ?? []).join(' ')}`.trim(),
-      link: `/lernen/expertenstandards?bereich=${bereich}`,
+      link: `${quelle.pfad}?bereich=${bereich}`,
       details: [
         ...(a.art === 'fall' ? [{ label: 'Fall', text: a.einstieg }] : []),
         { label: antwort.length > 1 ? 'Lösung' : 'Richtig', text: antwort.join(' · ') },
@@ -202,15 +234,18 @@ export function ausTrainer(aufgaben: Array<{ bereich: string; aufgabe: Aufgabe }
   });
 }
 
-export function ausKurzwissen(bereiche: Array<{ id: string; label: string; wissen: string[] }>, standards: StandardInfo[]): SuchDok[] {
+/**
+ * Kurzwissen der Trainer-Bereiche. `fest`: alle Einträge gehören zu diesem Regelwerk; sonst wird
+ * „Sturz: …“ über den Satzanfang dem passenden Standard zugeordnet.
+ */
+export function ausKurzwissen(bereiche: Array<{ id: string; label: string; wissen: string[] }>, standards: StandardInfo[], quelle: { pfad: string; name: string; fest?: string } = { pfad: '/lernen/expertenstandards', name: 'Trainer' }): SuchDok[] {
   return bereiche.flatMap((b) => b.wissen.map((text, i) => {
-    // Kurzwissen „Sturz: …“ dem passenden Standard zuordnen
     const kopf = /^([^:]{3,40}):/.exec(text)?.[1]?.toLowerCase();
     const wurzel = kopf?.split(' ')[0]?.slice(0, 6);
-    const std = wurzel ? standards.filter((s) => s.kurz.toLowerCase().includes(wurzel)).map((s) => s.id) : [];
+    const std = quelle.fest ? [quelle.fest] : wurzel ? standards.filter((s) => s.gruppe === 'dnqp' && s.kurz.toLowerCase().includes(wurzel)).map((s) => s.id) : [];
     return {
-      id: `kurz:${b.id}:${i}`, art: 'kernaussage' as const, titel: kurzerTitel(text), text, standardIds: std,
-      pfad: `Trainer · ${b.label}`, link: `/lernen/expertenstandards?bereich=${b.id}`,
+      id: `kurz:${quelle.pfad}:${b.id}:${i}`, art: 'kernaussage' as const, titel: kurzerTitel(text), text, standardIds: std,
+      pfad: `${quelle.name} · ${b.label}`, link: `${quelle.pfad}?bereich=${b.id}`,
     };
   }));
 }

@@ -39,7 +39,12 @@ export function Omnibar() {
   const [quellen, setQuellen] = useState<Quelle[]>([]);
   const index = useMemo(() => buildIndex(moduleId, roles, quellen), [moduleId, roles, quellen]);
   const debounced = useDebounced(query, 250);
-  const hits = useMemo(() => index.search(debounced, 12), [index, debounced]);
+  // Letzter Eintrag führt in den Schnellsucher (Tippfehler, Synonyme, Kriterien der Standards)
+  const hits = useMemo(() => {
+    const h = index.search(debounced, 12);
+    const q = debounced.trim();
+    return q.length >= 2 ? [...h, { id: 'schnellsuche', type: 'Seite' as const, label: `„${q}“ in Standards suchen`, hint: 'Standard-Schnellsucher', to: `/lernen/schnellsuche?q=${encodeURIComponent(q)}` }] : h;
+  }, [index, debounced]);
   const listId = useId();
 
   const open = () => {
@@ -104,6 +109,7 @@ export function Omnibar() {
               </li>
             ))}
           </ul>
+          {debounced && hits.length <= 1 && hits[0]?.id === 'schnellsuche' && <p className="omnibar__empty muted">Keine direkten Treffer. Der Schnellsucher findet auch Tippfehler und Synonyme.</p>}
           {debounced && !hits.length && <p className="omnibar__empty muted">Keine Treffer für „{debounced}“.</p>}
           {!debounced && <p className="omnibar__empty muted">Tipp: Wortanfänge genügen, z. B. „dek pro“ für Dekubitusprophylaxe.</p>}
           {current?.definition && (
