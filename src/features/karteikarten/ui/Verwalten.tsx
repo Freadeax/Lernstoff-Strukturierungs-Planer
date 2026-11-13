@@ -10,6 +10,7 @@ import { loescheKarte, setzeAus, speichereConfig, speichereKarte, uebernehme } f
 import { QUELLE_LABEL, type Karte, type KartenConfig, type Richtung } from '../typen';
 import { alleThemen, blaetter, fachVon, modul, type KartenCtx } from './kontext';
 import { Rueckseite } from './Sitzung';
+import { KartenEinfuegen } from './Einfuegen';
 
 async function sicher(fn: () => Promise<unknown>, ok: string, ctx: KartenCtx) {
   try { await fn(); notify('info', ok); await ctx.neuLaden(); } catch (e) { notify('critical', 'Nicht gespeichert', e instanceof Error ? e.message : String(e)); }
@@ -285,6 +286,10 @@ export function Eigene({ ctx }: { ctx: KartenCtx }) {
         <h3>Neue Karte</h3>
         <KartenForm ctx={ctx} onDone={() => undefined} />
       </div>
+      <details className="card karten__einfuegen-box">
+        <summary><h3>Viele Karten auf einmal einfügen</h3></summary>
+        <KartenEinfuegen ctx={ctx} />
+      </details>
       <div className="card">
         <div className="karten__liste-kopf">
           <h3>Gespeicherte Karten ({ctx.daten.gespeichert.length})</h3>

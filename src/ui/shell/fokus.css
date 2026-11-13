@@ -1,0 +1,35 @@
+/* Fokus-Modus: Menü, Kopf- und Handy-Leiste weg, Inhalt schmaler und ruhiger. */
+:root[data-fokus] .shell,
+:root[data-fokus] .shell[data-sidebar='collapsed'] { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'head' 'main'; }
+:root[data-fokus] .shell__sidebar,
+:root[data-fokus] .shell__header,
+:root[data-fokus] .shell__tabbar,
+:root[data-fokus] .shell__scrim { display: none !important; }
+:root[data-fokus] .content { padding-bottom: calc(var(--space-6) + env(safe-area-inset-bottom)); }
+/* Titelbilder und Kurzhilfen lenken beim Lernen ab. */
+:root[data-fokus] .titelbild, :root[data-fokus] .seitenhilfe { display: none; }
+
+.fokusleiste {
+  grid-area: head; position: sticky; top: 0; z-index: var(--z-sticky);
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-3);
+  padding: calc(var(--space-1) + env(safe-area-inset-top)) var(--space-3) var(--space-1);
+  background: var(--color-background); border-bottom: 2px solid var(--color-outline, var(--color-border));
+}
+.fokusleiste__titel { display: inline-flex; align-items: center; gap: var(--space-1); flex: 1 1 12rem; min-width: 0; font-size: var(--text-sm); }
+.fokusleiste__titel > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fokusleiste__timer, .fokusleiste__aktionen { display: inline-flex; align-items: center; gap: var(--space-1); flex-wrap: wrap; }
+.fokusleiste__label { font-size: var(--text-sm); color: var(--color-text-muted); }
+.fokusleiste__uhr { font-variant-numeric: tabular-nums; font-weight: 700; font-size: var(--text-lg, 1.125rem); min-width: 4.5rem; }
+.fokusleiste__uhr.is-pause { color: var(--color-success); }
+.fokusleiste__kurz { display: none; }
+.fokusleiste__fortschritt {
+  position: absolute; left: 0; right: 0; bottom: -2px; height: 3px; background: var(--color-coral, var(--color-primary));
+  transform-origin: left; pointer-events: none;
+}
+@media (max-width: 599px) {
+  .fokusleiste { padding-inline: var(--space-2); }
+  .fokusleiste__titel { flex: 1 1 0; }
+  .fokusleiste__timer { order: 3; flex-basis: 100%; }
+  .fokusleiste__lang { display: none; }
+  .fokusleiste__kurz { display: inline; }
+}

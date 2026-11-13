@@ -1,0 +1,69 @@
+/* Baum: Fach › Bereich › Thema mit Fortschrittsbalken. Farben wie Wissensstand im Lernplan. */
+.baum, .baum__liste { list-style: none; margin: 0; padding: 0; }
+.baum { display: flex; flex-direction: column; gap: 2px; }
+.baum__liste { display: flex; flex-direction: column; gap: 2px; margin-top: 2px; }
+.baum__knoten { --einzug: calc(var(--tiefe, 0) * 1.1rem); }
+
+.baum__zeile {
+  display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-1) var(--space-2);
+  min-height: var(--row-h); padding: 2px var(--space-2) 2px calc(var(--space-1) + var(--einzug));
+  border-radius: var(--radius-sm); position: relative;
+}
+.baum__zeile:hover { background: var(--color-surface-sunken); }
+.baum__zeile--wurzel { background: var(--color-surface-sunken); font-weight: var(--weight-semibold, 600); }
+.baum__knoten.is-markiert > .baum__zeile { outline: 2px solid var(--color-focus); outline-offset: -2px; }
+.baum__knoten.is-ziel > .baum__zeile { background: var(--color-primary-soft); outline: 2px dashed var(--color-primary); outline-offset: -2px; }
+.baum__knoten.is-gezogen > .baum__zeile { opacity: .55; }
+
+.baum__auf {
+  display: inline-flex; align-items: center; gap: var(--space-1); flex: 1 1 12rem; min-width: 0; min-height: var(--control-h);
+  background: none; border: 0; box-shadow: none; padding: 0 var(--space-1); color: inherit; font: inherit; text-align: start;
+  cursor: pointer; text-decoration: none; border-radius: var(--radius-sm); justify-content: flex-start; font-weight: inherit;
+}
+.baum__auf:hover { background: none; text-decoration: underline; }
+.baum__auf svg { flex: none; transition: transform var(--duration-fast, .15s) ease; }
+.baum__auf[aria-expanded="true"] svg { transform: rotate(90deg); }
+.baum__auf--blatt { padding-left: calc(var(--space-1) + 20px); color: var(--color-primary); }
+.baum__name { overflow-wrap: anywhere; }
+.baum__oeffnen { font-size: var(--text-sm); display: inline-flex; align-items: center; min-height: var(--control-h); padding: 0 var(--space-1); }
+
+.baum__stand { display: inline-flex; align-items: center; gap: var(--space-2); flex: 0 1 15rem; min-width: 9rem; }
+.baum__zahl { font-size: var(--text-sm); color: var(--color-text-muted); white-space: nowrap; font-variant-numeric: tabular-nums; min-width: 4.5rem; text-align: end; }
+.baum__hinweis { font-size: var(--text-xs, .75rem); color: var(--color-text-muted); border: 1px solid var(--color-border-strong); border-radius: var(--radius-pill); padding: 0 var(--space-2); white-space: nowrap; }
+.baum__zusatz { display: inline-flex; gap: var(--space-1); align-items: center; }
+
+.baum__griff {
+  display: inline-grid; place-items: center; width: var(--control-h); height: var(--control-h); padding: 0;
+  background: none; border: 0; box-shadow: none; color: var(--color-text-muted); cursor: grab; touch-action: none;
+}
+.baum.is-ziehen, .baum.is-ziehen * { cursor: grabbing; user-select: none; -webkit-user-select: none; }
+.baum__geist {
+  position: fixed; left: 0; top: 0; z-index: 1000; pointer-events: none; max-width: 70vw;
+  background: var(--color-surface-raised); color: var(--color-text); border: 2px solid var(--color-outline, var(--color-border-strong));
+  box-shadow: var(--shadow-hard, var(--shadow-md)); border-radius: var(--radius-sm); padding: var(--space-1) var(--space-2); font-size: var(--text-sm);
+}
+
+.baum-balken { display: flex; flex: 1 1 auto; min-width: 4rem; height: 10px; border-radius: var(--radius-pill); overflow: hidden; background: var(--color-surface-sunken); gap: 2px; box-shadow: inset 0 0 0 1px var(--color-border); }
+.baum-balken--klein { height: 6px; }
+.baum-balken__teil { flex-basis: 0; min-width: 3px; }
+.baum-ton--sicher { background: var(--color-success); }
+.baum-ton--unsicher { background: var(--color-warning); }
+.baum-ton--arbeit { background: var(--color-info); }
+.baum-ton--offen { background: var(--color-border-strong); }
+.baum-ton--luecke { background: var(--color-danger); }
+.baum-ton--neutral { background: var(--color-primary); }
+
+/* Handy: Balken unter den Namen, damit Namen nicht abgeschnitten werden. */
+@media (max-width: 599px) {
+  .baum__knoten { --einzug: calc(var(--tiefe, 0) * .7rem); }
+  .baum__stand { flex: 1 1 100%; padding-left: calc(var(--space-1) + 20px); min-width: 0; order: 5; }
+  .baum__hinweis { order: 6; }
+  /* Blätter: Punkt in der Statusfarbe statt Balken, alles in einer Zeile. */
+  .baum__knoten[data-kinder="nein"] .baum__auf { flex-basis: 8rem; }
+  .baum__knoten[data-kinder="nein"] .baum__stand { flex: 0 0 auto; order: 0; padding-left: 0; gap: var(--space-1); }
+  .baum__knoten[data-kinder="nein"] .baum-balken--klein { flex: 0 0 .7rem; min-width: .7rem; height: .7rem; box-shadow: none; }
+  .baum__knoten[data-kinder="nein"] .baum__zahl { min-width: 0; }
+  .baum__knoten[data-kinder="nein"] .baum__hinweis { margin-left: calc(var(--space-1) + 20px); }
+}
+@media (prefers-reduced-motion: reduce) { .baum__auf svg { transition: none; } }
+:root[data-motion="reduce"] .baum__auf svg { transition: none; }
