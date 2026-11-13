@@ -10,7 +10,7 @@ import { ABSCHNITTE, aufgabenThemen } from '../krankheitsbilder/bewertung';
 import { INSTRUMENTE } from '../assessment/instrumente';
 import type { Vignette } from '../assessment/vignetten';
 import type { VignettenErgebnis } from '../assessment/bewertung';
-import type { Scenario } from '../praxis/types';
+import { alterText, type Scenario } from '../praxis/types';
 import { PRAXIS_THEMEN } from '../praxis/themen';
 import type { FehlerQuelle, NeuerFehler } from './fehlerheft';
 
@@ -143,7 +143,7 @@ export function ausPraxis(scenario: Scenario, entscheidungen: { event: string; c
     return [{
       id: `praxis:${scenario.id}:${e.id}`, quelle: 'praxis' as const, topicIds: PRAXIS_THEMEN[scenario.id] ?? [],
       titel: `${scenario.title} · ${e.title}`,
-      frage: `${scenario.patient}, ${scenario.age} Jahre (${scenario.focus}). ${e.detail} Was tust du?`,
+      frage: `${scenario.patient}, ${alterText(scenario.age)} (${scenario.focus}). ${e.detail} Was tust du?`,
       deineAntwort: gewaehlt.label,
       loesung: richtig.map((i) => optionen[i]!.label).join(' · '),
       erklaerung: [...richtig.map((i) => optionen[i]!.why), `Deine Wahl: ${gewaehlt.why}`],

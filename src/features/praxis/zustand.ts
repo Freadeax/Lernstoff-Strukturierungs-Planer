@@ -5,7 +5,7 @@ import { auftragsSchritte } from './auftrag';
 import { clock } from './engine';
 import { szene, type Lage } from './szene';
 import { RESOURCES } from './catalog';
-import type { Session } from './types';
+import { alterText, type Session } from './types';
 
 const LAGE: Record<Lage, string> = { normal: 'Rückenlage', erhoeht: 'Oberkörper hoch', flach: 'flach', schock: 'Schocklage', bein: 'Bein hochgelagert', sitzend: 'sitzend' };
 const AVPU: Record<string, string> = { A: 'wach', C: 'neu verwirrt', V: 'reagiert auf Ansprache', P: 'reagiert auf Schmerz', U: 'reagiert nicht' };
@@ -17,7 +17,7 @@ export function praxisZustand(s: Session): SimZustand {
   const m = s.measured;
 
   const patient: ZustandEintrag[] = [
-    { id: 'person', label: s.scenario.patient, wert: `${s.scenario.age} Jahre`, stufe: 'normal' },
+    { id: 'person', label: s.scenario.patient, wert: alterText(s.scenario.age), stufe: 'normal' },
     { id: 'bewusstsein', label: 'Bewusstsein', wert: AVPU[z.avpu] ?? z.avpu, stufe: z.avpu === 'A' ? 'normal' : z.avpu === 'C' || z.avpu === 'V' ? 'achtung' : 'kritisch' },
     { id: 'atmung', label: 'Atmung', wert: ['ruhig', 'angestrengt', 'schwere Atemnot'][z.atemnot]!, stufe: STUFE3[z.atemnot]! },
     { id: 'schmerz', label: 'Schmerz', wert: ['kaum', 'mäßig', 'stark'][z.schmerz]!, stufe: STUFE3[z.schmerz]! },

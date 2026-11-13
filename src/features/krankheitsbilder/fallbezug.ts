@@ -17,6 +17,9 @@ export const PRAXIS_KRANKHEITEN: Record<string, string[]> = {
   delir: ['kh.delir'],
   asthma: ['kh.asthma'],
   demenz: ['kh.demenz', 'kh.pneumonie'],
+  bronchiolitis: ['kh.bronchiolitis'],
+  herzschwaeche: ['kh.herzinsuffizienz'],
+  rausch: ['kh.alkohol'],
 };
 
 /** KI-Fallsimulator: Szenario-ID → Krankheitsbild-IDs. */
