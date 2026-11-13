@@ -38,6 +38,8 @@ import { archive, download, parseScenario, readArchive, readSession, saveSession
 import { xapiDraft } from './tracking';
 import { SchichtAnsicht } from './Schicht';
 import { beginneSchicht, leseSchicht, SCHICHTEN, speichereSchicht, type Schicht } from './schicht';
+import { AuswertungsKarte } from '../../ui/sim/AuswertungsKarte';
+import { praxisAuswertung } from './auswertung';
 import { alterText, BEWERTET, KETTEN, SETTINGS, STORY_KINDS, type Action, type Command, type Medication, type Scenario, type Session, type Vital } from './types';
 import './praxis.css';
 
@@ -443,6 +445,7 @@ export default function Praxissimulator() {
         <p className="muted praxis-clockhint">Handlungen verbrauchen auch bei pausierter Uhr ihre angezeigte Simulationszeit. Beim Verlassen der Seite pausiert die Uhr. Tageswechsel erst nach Versorgung, SBAR und Abschluss offener Aufträge.</p>
         <Arbeitsplatz s={s} send={send} panel={panel} setPanel={setPanel} zeitraffer={running ? speed : 1} uhrLaeuft={running} onAbschluss={() => { setRunning(false); send({ type: 'finish' }); setPanel('Verlauf'); }} />
       </> : <div className="card praxis-debrief"><span className="eyebrow">Debriefing</span><h3>Deine Entscheidungen im Rückblick</h3><p>{debrief(s).filter(c => c.met).length} von {s.scenario.criteria.length} Szenariokriterien erfüllt · {s.events.filter(e => e.kind === 'warning').length} Warnungen · {s.pending.length} offene Aufträge bei Abschluss.</p><p className="muted">Die Auswertung prüft ausgeführte Handlungen und Zeitpunkte. Sie ist kein Kompetenznachweis. Freitexte und klinische Angemessenheit müssen mit einer Lehrperson reflektiert werden.</p>
+        <AuswertungsKarte a={praxisAuswertung(s)} />
         <KernHinweis scenario={s.scenario} />
         <details className="praxis-legende"><summary>Was wurde wie bewertet?</summary><dl>
           <div><dt>{BEWERTET.vorliegen}</dt><dd>Die Handlung wurde ausgeführt oder ein Text liegt vor. Ob sie gut gemacht oder der Text richtig ist, prüft die App nicht.</dd></div>

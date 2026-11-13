@@ -1,3 +1,5 @@
+import { AuswertungsKarte } from '../../ui/sim/AuswertungsKarte';
+import { fallAuswertung } from './auswertung';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { fallZustand } from './zustand';
 import { ZustandsTafel } from '../../ui/sim/ZustandsTafel';
@@ -264,6 +266,7 @@ function Kurve({ fall, news = true }: { fall: Fall; news?: boolean }) {
 
 function Auswertung({ fall, onNeu, onNochmal }: { fall: Fall; onNeu: () => void; onNochmal: () => void }) {
   const a = fall.abschluss;
+  const aus = fallAuswertung(fall);
   return (
     <div className="card fall__auswertung" aria-live="polite">
       <p className="muted">{fall.szenario.titel} · {SETTING_LABEL[fall.szenario.setting]} · {STUFE_LABEL[fall.stufe]} · {fall.runden.filter((r) => r.eingabe).length} Entscheidungen</p>
@@ -271,6 +274,8 @@ function Auswertung({ fall, onNeu, onNochmal }: { fall: Fall; onNeu: () => void;
         <>
           <h3 className={`fall__note fall__note--${a.note}`}>{NOTE_LABEL[a.note]}</h3>
           <p>{a.gesamt}</p>
+          {aus && <AuswertungsKarte a={aus} titel="Deine Entscheidungen mit Begründung" />}
+          <details><summary>Bewertung nach Pflegeprozess</summary>
           <table className="fall__schritte">
             <thead><tr><th>Schritt</th><th>Bewertung</th><th>Kommentar</th></tr></thead>
             <tbody>
@@ -283,6 +288,7 @@ function Auswertung({ fall, onNeu, onNochmal }: { fall: Fall; onNeu: () => void;
               ))}
             </tbody>
           </table>
+          </details>
           <div className="fall__zweispaltig">
             <div><h4>Das war stark</h4><ul>{a.staerken.map((x, i) => <li key={i}>{x}</li>)}</ul></div>
             <div><h4>Das nächste Mal</h4><ul>{a.verbesserungen.map((x, i) => <li key={i}>{x}</li>)}</ul></div>

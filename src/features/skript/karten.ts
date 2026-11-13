@@ -67,6 +67,38 @@ export function definitionen(markdown: string, bekannte?: Set<string>): Array<{ 
   return out;
 }
 
+/** Abschnitte mit Lernfragen: „Selbstcheck“, „Wissenscheck“, „Lernfragen“, „Wiederholungsfragen“, „Prüfungsfragen“. */
+export const istFragenAbschnitt = (a: Pick<Abschnitt, 'titel'>) => /\b(selbstcheck|wissenscheck|selbsttest|lernfragen|wiederholungsfragen|prüfungsfragen|kontrollfragen)\b/i.test(a.titel);
+
+export interface SkriptFrage { frage: string; antwort: string; belege: SkriptBeleg[]; unbelegt: boolean }
+
+/**
+ * Fragen eines Fragen-Abschnitts. Erkannt werden Aufzählungspunkte in zwei Formen:
+ * „- **Frage** Antwort [Beleg]“ (Frage fett) und „- Frage? Antwort [Beleg]“ (bis zum ersten Fragezeichen).
+ * Unterpunkte hängen an der Antwort. Punkte ohne Antwort bleiben draußen.
+ */
+export function fragen(markdown: string, bekannte?: Set<string>): SkriptFrage[] {
+  const out: SkriptFrage[] = [];
+  for (const zeile of markdown.split('\n')) {
+    const unter = zeile.match(/^\s{2,}[-*+]\s+(.+)$/);
+    if (unter && out.length) { const f = out[out.length - 1]!; f.antwort += `\n- ${unter[1]!.trim()}`; f.belege = eindeutig([...f.belege, ...findeBelege(unter[1]!, bekannte)]); if (/⚠/.test(unter[1]!)) f.unbelegt = true; continue; }
+    const m = zeile.match(/^[-*+]\s+(.+)$/);
+    if (!m) continue;
+    const roh = m[1]!.trim();
+    let frage: string | undefined;
+    let antwort: string | undefined;
+    const fett = roh.match(/^\*\*(.+?)\*\*\s*:?\s*(.*)$/);
+    if (fett && fett[2]!.trim()) { frage = fett[1]!.trim(); antwort = fett[2]!.trim(); }
+    else {
+      const q = roh.indexOf('? ');
+      if (q > 3) { frage = roh.slice(0, q + 1).trim(); antwort = roh.slice(q + 2).trim(); }
+    }
+    if (!frage || !antwort || ohneMarkdown(antwort).length < 2) continue;
+    out.push({ frage: ohneMarkdown(frage), antwort, belege: findeBelege(antwort, bekannte), unbelegt: /⚠/.test(antwort) });
+  }
+  return out;
+}
+
 /** „Quellen“, „Literatur“, „Ergänzende Fachquellen“: Verzeichnisse, aus denen keine Karten entstehen. */
 export const istQuellenAbschnitt = (a: Pick<Abschnitt, 'titel'>) => /^(ergänzende\s+|weitere\s+)?(fach)?(quellen|literatur)(verzeichnis|angaben)?\b/i.test(a.titel.trim());
 
@@ -80,6 +112,15 @@ export function kartenAusAbschnitt(skript: Skript, abschnitt: Abschnitt, subject
   const titel = `${skript.titel} › ${abschnitt.titel}`;
   // Nummer statt Reihenfolge in der ID: Kommt vorne ein Abschnitt dazu, überschreiben neue Karten keine alten.
   const schluessel = abschnittSchluessel(abschnitt).replace(/^nr:/, 'n');
+  // Lernfragen werden je eine Karte: Frage vorn, Antwort hinten (unbelegte ⚠-Antworten bleiben draußen)
+  if (istFragenAbschnitt(abschnitt)) {
+    return fragen(abschnitt.markdown, bekannte).filter((f) => !f.unbelegt && f.belege.length).map((f, i) => ({
+      ...basis, id: `skf:${skript.id}:${schluessel}:${i + 1}`, art: 'Lernfrage', vorne: f.frage,
+      hinten: ohneMarkdown(f.antwort.split('\n')[0]!),
+      ...(f.antwort.includes('\n') ? { liste: f.antwort.split('\n').slice(1).map((z) => ohneMarkdown(z.replace(/^- /, ''))) } : {}),
+      belege: eindeutig(f.belege).map((b) => alsKartenBeleg(skript.id, b)),
+    }));
+  }
   const ps = punkte(abschnitt.markdown, bekannte, kopf).filter((p) => p.belege.length);
   const out: Karte[] = [];
   // Punkte unter derselben Zwischenüberschrift bilden eine Karte, sonst fehlt der Zusammenhang
