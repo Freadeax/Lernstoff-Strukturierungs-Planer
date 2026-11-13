@@ -66,7 +66,7 @@ export const SCHMERZ: Expertenstandard = {
   fehlvorstellungen: [
     { id: 'zwei-standards', falsch: 'Es gibt zwei Expertenstandards: Schmerzmanagement bei akuten und bei chronischen Schmerzen.', richtig: 'Seit der Aktualisierung 2020 gibt es einen gemeinsamen Standard „Schmerzmanagement in der Pflege“.', beleg: 'Fassung 2020', muster: ['schmerzmanagement[^.]{0,30}bei (akuten|chronischen) schmerzen', 'expertenstandards?[^.]{0,40}(akut|chronisch)e?n? schmerz'] },
     { id: 'grenzwert', falsch: 'Der Standard legt feste Interventionsgrenzen fest (z. B. ab 3/10 in Ruhe oder 5/10 bei Belastung muss behandelt werden).', richtig: 'Die Fassung 2020 setzt keine festen Grenzwerte. Maßgeblich ist, ob der Mensch seine Schmerzsituation als akzeptabel erlebt (stabil oder instabil); die Kriterien werden mit ihm ausgehandelt.', beleg: 'Präambel, Zielsetzung', muster: ['(>|über|ab|größer als)\\s*3\\s*(/\\s*10|von 10)?[^.]{0,30}ruhe', '(>|über|ab|größer als)\\s*5\\s*(/\\s*10|von 10)?[^.]{0,30}belastung', 'interventionsgrenze'] },
-    { id: 'sechs-monate', falsch: 'Chronisch ist ein Schmerz erst nach sechs Monaten.', richtig: 'Der Standard spricht von mindestens drei Monaten Dauer oder Wiederkehr, ohne starren Stichtag.', beleg: 'Präambel', muster: ['chronisch[^.]{0,60}(6|sechs)\\s*monat', '(6|sechs)\\s*monat[^.]{0,40}chronisch'] },
+    { id: 'sechs-monate', falsch: 'Chronisch ist ein Schmerz erst nach sechs Monaten.', richtig: 'Der Standard spricht von mindestens drei Monaten Dauer oder Wiederkehr, ohne starren Stichtag.', beleg: 'Präambel', muster: ['chronisch[^.]{0,20}schmerz[^.]{0,60}(6|sechs)\\s*monat', 'schmerz[^.]{0,40}chronisch[^.]{0,40}(6|sechs)\\s*monat', '(6|sechs)\\s*monat[^.]{0,40}chronisch[^.]{0,20}schmerz'] },
     { id: 'schmerzfrei', falsch: 'Ziel des Schmerzmanagements ist immer Schmerzfreiheit.', richtig: 'Ziel ist Schmerzfreiheit oder eine für den Menschen akzeptable, stabile Schmerzsituation; bei chronischen Schmerzen stehen Stabilität und Selbstmanagement im Vordergrund.', beleg: 'Zielsetzung, Präambel' },
   ],
   ceIds: ['ce.05', 'ce.08'],
@@ -134,7 +134,7 @@ export const WUNDEN: Expertenstandard = {
     'Selbstmanagement und Lebensqualität stehen gleichrangig neben der Wundheilung.',
   ],
   fehlvorstellungen: [
-    { id: 'chronisch-4', falsch: 'Eine Wunde gilt nach vier Wochen ohne Heilung als chronisch.', richtig: 'Der Standard nennt acht Wochen ohne Abheilung. Vier Wochen ist die späteste Frist für die Evaluation der Maßnahmen.', beleg: 'Präambel, P5', muster: ['chronisch[^.]{0,60}(4|vier|6|sechs)\\s*woche', '(4|vier|6|sechs)\\s*woche[^.]{0,40}chronisch'] },
+    { id: 'chronisch-4', falsch: 'Eine Wunde gilt nach vier Wochen ohne Heilung als chronisch.', richtig: 'Der Standard nennt acht Wochen ohne Abheilung. Vier Wochen ist die späteste Frist für die Evaluation der Maßnahmen.', beleg: 'Präambel, P5', muster: ['chronisch[^.]{0,60}(4|vier|6|sechs)\\s*woche', '(4|vier|6|sechs)\\s*woche[^.]{0,40}chronisch', '(4|vier)\\s*(bis|–|-)\\s*(12|zwölf)\\s*woche'] },
     { id: 'fassung-2015', falsch: 'Beim Standard chronische Wunden gilt aktuell die 1. Aktualisierung 2015.', richtig: 'Aktuell ist die 2. Aktualisierung 2025.', beleg: 'DNQP-Übersicht 09/2026', muster: ['wunde[^.]{0,80}(1\\.|erste)\\s*aktualisierung', 'wunde[^.]{0,60}2015'] },
     { id: 'heilung-immer', falsch: 'Ziel ist bei jeder chronischen Wunde die Heilung.', richtig: 'Je nach Lebenssituation können andere Ziele (z. B. Schmerz, Geruch, Lebensqualität) Vorrang haben.', beleg: 'Präambel' },
   ],
@@ -353,7 +353,7 @@ export const DEMENZ: Expertenstandard = {
 export const MOBILITAET: Expertenstandard = {
   id: 'es.mobilitaet',
   titel: 'Expertenstandard Erhaltung und Förderung der Mobilität in der Pflege',
-  kurztitel: 'Mobilität (§ 113a SGB XI)',
+  kurztitel: 'Mobilität (nie eingeführt)',
   synonyme: ['Mobilität', 'Mobilitätsförderung', 'Bewegung', 'Bewegungsförderung', '§ 113a'],
   status: 'nicht-eingefuehrt',
   fassungen: [
@@ -361,22 +361,24 @@ export const MOBILITAET: Expertenstandard = {
     { jahr: 2020, art: 'Aktualisierung', hinweis: 'Konsentiert und Ende Oktober 2020 übergeben' },
   ],
   geltung: [
-    'Nach § 113a SGB XI können Expertenstandards für Pflegeeinrichtungen verbindlich werden, wenn die Vertragsparteien sie einführen. Für diesen Standard ist das bisher nicht geschehen.',
+    'Er wurde nach dem früheren § 113a SGB XI entwickelt, über den Expertenstandards für Pflegeeinrichtungen verbindlich werden sollten. In Kraft gesetzt wurde er nie.',
+    '§ 113a SGB XI wurde mit dem Pflegeunterstützungs- und -entlastungsgesetz (PUEG) zum 1. Juli 2023 aufgehoben. Damit gibt es diesen Weg zur Verbindlichkeit nicht mehr.',
     'Er steht nicht in der aktuellen DNQP-Übersicht der Expertenstandards (Stand 09/2026).',
   ],
   zielsetzung: 'Erhalt und Förderung der Mobilität pflegebedürftiger Menschen. Wortlaut und Kriterien sind hier nicht hinterlegt, weil kein frei zugänglicher Auszug geprüft wurde.',
   begruendung: 'Mobilität ist Voraussetzung für Selbstständigkeit und Teilhabe; Bewegungsmangel begünstigt Folgeprobleme wie Dekubitus, Stürze und Kontrakturen.',
   praeambel: [
     'Der Standard wurde vom DNQP im Auftrag der Selbstverwaltung entwickelt (wissenschaftliche Leitung Prof. Klaus Wingenfeld) und 2020 aktualisiert.',
-    'Er wurde bislang nicht nach § 113a SGB XI in Kraft gesetzt. Lehrbuchangaben, er sei „verbindlich“, sind deshalb vorsichtig zu lesen.',
+    'Er wurde nie nach § 113a SGB XI in Kraft gesetzt. Lehrbuchangaben, er sei „verbindlich“, stimmen nicht.',
   ],
   kriterien: [],
   merke: [
-    'Einziger Standard mit dem Weg über § 113a SGB XI – bisher nicht verbindlich eingeführt.',
+    'Einziger Standard, der über § 113a SGB XI verbindlich werden sollte. Er wurde nie eingeführt, und § 113a ist seit 1. Juli 2023 aufgehoben.',
     'Nicht in der aktuellen DNQP-Übersicht geführt.',
   ],
   fehlvorstellungen: [
-    { id: 'verbindlich', falsch: 'Der Expertenstandard Mobilität ist nach § 113a SGB XI für alle Pflegeeinrichtungen verbindlich.', richtig: 'Er wurde bisher nicht in Kraft gesetzt und ist daher nicht nach § 113a SGB XI verbindlich.', beleg: 'DNQP-Pressemitteilung 13.07.2020, Fachpresse', muster: ['mobilität[^.]{0,80}(verbindlich|in kraft)'] },
+    { id: 'verbindlich', falsch: 'Der Expertenstandard Mobilität ist nach § 113a SGB XI für alle Pflegeeinrichtungen verbindlich.', richtig: 'Er wurde nie in Kraft gesetzt, und § 113a SGB XI ist seit 1. Juli 2023 aufgehoben. Verbindlich ist er nicht.', beleg: 'DNQP-Pressemitteilung 13.07.2020; PUEG vom 19.06.2023 (BGBl. 2023 I Nr. 155)', muster: ['mobilität[^.]{0,30}\\b(ist|sind|wird|wurde)\\b[^.]{0,80}\\b(verbindlich|in kraft gesetzt)'] },
+    { id: 'paragraf-113a', falsch: 'Nach § 113a SGB XI werden Expertenstandards für Pflegeeinrichtungen verbindlich eingeführt.', richtig: '§ 113a SGB XI wurde mit dem PUEG zum 1. Juli 2023 aufgehoben. Die Pflicht zur Pflege nach dem allgemein anerkannten Stand ergibt sich aus § 11 Abs. 1 SGB XI.', beleg: 'PUEG vom 19.06.2023 (BGBl. 2023 I Nr. 155), Art. 1', muster: ['113\\s?a\\s*(abs\\.?\\s*\\d\\s*)?sgb\\s*xi[^.]{0,80}(verbindlich|eingeführt|einführ|regelt)', '(verbindlich|eingeführt)[^.]{0,60}113\\s?a'] },
   ],
   ceIds: ['ce.02'],
   themaIds: ['thema.ph.mobilisation'],

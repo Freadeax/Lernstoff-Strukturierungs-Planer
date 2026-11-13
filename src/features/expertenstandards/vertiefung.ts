@@ -39,8 +39,8 @@ export const VERTIEFUNG: Record<string, string[]> = {
     'Bei der Aktualisierung prüft eine Expertengruppe die neue Literatur. Deshalb gibt es von älteren Standards mehrere Fassungen (z. B. Dekubitusprophylaxe 2000, 2010, 2017).',
   ],
   'aufbau.dnqp': [
-    'Das DNQP arbeitet seit den 1990er-Jahren. Bekannte Standards: Dekubitusprophylaxe, Entlassungsmanagement, Schmerzmanagement, Sturzprophylaxe, Kontinenzförderung, chronische Wunden, Ernährungsmanagement, Beziehungsgestaltung bei Demenz, Mundgesundheit.',
-    'Daneben gibt es nach § 113a SGB XI Expertenstandards für die Langzeitpflege, die für Pflegeeinrichtungen verbindlich werden können, etwa zur Erhaltung und Förderung der Mobilität.',
+    'Das DNQP arbeitet seit den 1990er-Jahren an der Hochschule Osnabrück und entwickelt seit 1999 Expertenstandards mit dem Deutschen Pflegerat. Aktuell sind es zehn: Dekubitusprophylaxe, chronische Wunden, Entlassungsmanagement, Ernährungsmanagement, Schmerzmanagement, Beziehungsgestaltung bei Demenz, Sturzprophylaxe, Mundgesundheit, Kontinenzförderung und Hautintegrität.',
+    'Der frühere § 113a SGB XI sah vor, Expertenstandards für Pflegeeinrichtungen verbindlich einzuführen. Der dafür entwickelte Standard zur Mobilität (2014, aktualisiert 2020) wurde nie in Kraft gesetzt, und der Paragraf wurde zum 1. Juli 2023 aufgehoben (PUEG).',
   ],
   'aufbau.bedeutung': [
     'Expertenstandards sind keine Gesetze, gelten aber als vorweggenommenes Sachverständigengutachten. Gerichte orientieren sich daran, was eine sorgfältige Pflegefachkraft wissen und tun musste.',
@@ -112,10 +112,10 @@ export const VERTIEFUNG: Record<string, string[]> = {
   ],
   'versorgung.entlassung': [
     'Ein initiales Assessment fragt nach Selbstversorgung, häuslicher Situation, Angehörigen und Hilfsmitteln. Bei erkennbarem Bedarf folgt ein differenziertes Assessment und ein individueller Entlassungsplan.',
-    'Spätestens 24 Stunden vor der Entlassung wird überprüft, ob alles organisiert ist. Nach der Entlassung wird bis zu 48 bis 72 Stunden später nachgefragt, ob die Versorgung klappt.',
+    'Die erste Einschätzung erfolgt innerhalb von 24 Stunden nach Übernahme, spätestens 24 Stunden vor der Entlassung wird überprüft, ob alles organisiert ist. 48 bis 72 Stunden nach der Entlassung wird nachgefragt, ob die Versorgung klappt.',
   ],
   'versorgung.demenz': [
     'Tom Kitwood beschrieb psychische Grundbedürfnisse von Menschen mit Demenz: Trost, Bindung, Einbeziehung, Beschäftigung und Identität. Werden sie nicht erfüllt, zeigt sich das oft als herausforderndes Verhalten.',
-    'Herausforderndes Verhalten ist aus dieser Sicht eine Form von Kommunikation. Verstehende Diagnostik fragt, welches Bedürfnis dahintersteht, statt das Verhalten nur abzustellen.',
+    'Herausforderndes Verhalten ist aus dieser Sicht eine Form von Kommunikation. Der Standard arbeitet dafür mit der Verstehenshypothese: einer begründeten Annahme, was die Person erlebt und braucht. Den Umgang mit herausforderndem Verhalten selbst regelt er (Fassung 2018/2019) nicht.',
   ],
 };

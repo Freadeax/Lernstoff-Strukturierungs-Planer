@@ -5,6 +5,7 @@
 // der aktuellen Fassung im Unterricht.
 
 import type { Aufgabe } from './quiz';
+import { aktuelleFassung, STANDARDS as DNQP_STANDARDS } from '../dnqp/standards';
 
 /** Inhaltsstand der Trainer. Bei einer inhaltlichen Überarbeitung anheben. */
 export const INHALTSSTAND = '11/2026';
@@ -70,19 +71,30 @@ export const rechtGrundlage = rechtGrundlageMit(() => undefined);
 
 // ---------------------------------------------------------------- Expertenstandards
 
-/** DNQP-Expertenstandards mit der letzten der App bekannten Fassung. Stichworte erkennen das Thema. */
-export const STANDARDS: Array<{ id: string; name: string; fassung: string; stichworte: RegExp }> = [
-  { id: 'dekubitus', name: 'Dekubitusprophylaxe in der Pflege', fassung: '2. Aktualisierung 2017', stichworte: /dekubitus|druckentlast|druckgeschw/i },
-  { id: 'sturz', name: 'Sturzprophylaxe in der Pflege', fassung: '2. Aktualisierung 2022', stichworte: /sturz/i },
-  { id: 'ernaehrung', name: 'Ernährungsmanagement zur Sicherung und Förderung der oralen Ernährung in der Pflege', fassung: '1. Aktualisierung 2017', stichworte: /ernährung|mangelernähr|screening.*ernähr/i },
-  { id: 'kontinenz', name: 'Förderung der Harnkontinenz in der Pflege', fassung: '1. Aktualisierung 2014', stichworte: /kontinenz/i },
-  { id: 'schmerz', name: 'Schmerzmanagement in der Pflege', fassung: 'Aktualisierung 2020 (akute und chronische Schmerzen zusammengeführt)', stichworte: /schmerz/i },
-  { id: 'wunden', name: 'Pflege von Menschen mit chronischen Wunden', fassung: '1. Aktualisierung 2015', stichworte: /chronische?n? wunde|wundversorg|wunden/i },
-  { id: 'entlassung', name: 'Entlassungsmanagement in der Pflege', fassung: '2. Aktualisierung 2019', stichworte: /entlass/i },
-  { id: 'demenz', name: 'Beziehungsgestaltung in der Pflege von Menschen mit Demenz', fassung: '2018', stichworte: /demenz|beziehungsgestalt/i },
-  { id: 'mobilitaet', name: 'Erhaltung und Förderung der Mobilität in der Pflege', fassung: '2020', stichworte: /mobilität/i },
-  { id: 'mund', name: 'Förderung der Mundgesundheit in der Pflege', fassung: '2023', stichworte: /mundgesund|mundpflege|mundhöhle/i },
-];
+/** Stichworte, an denen eine Aufgabe ihren Standard erkennt (Schlüssel = Katalog-ID es.*). */
+const STICHWORTE: Record<string, RegExp> = {
+  'es.dekubitus': /dekubitus|druckentlast|druckgeschw/i,
+  'es.sturz': /sturz/i,
+  'es.ernaehrung': /ernährung|mangelernähr|screening.*ernähr/i,
+  'es.kontinenz': /kontinenz/i,
+  'es.schmerz': /schmerz/i,
+  'es.wunden': /chronische?n? wunde|wundversorg|wunden/i,
+  'es.entlassung': /entlass/i,
+  'es.demenz': /demenz|beziehungsgestalt/i,
+  'es.mobilitaet': /mobilität/i,
+  'es.mundgesundheit': /mundgesund|mundpflege|mundhöhle/i,
+  'es.hautintegritaet': /hautintegrität|inkontinenz-?assoziiert|\bIAD\b|intertrigo|skin tears?|xerosis/i,
+};
+
+/** DNQP-Expertenstandards mit aktueller Fassung, abgeleitet aus dem DNQP-Lernmodul (eine Datenquelle). */
+export const STANDARDS: Array<{ id: string; name: string; fassung: string; stichworte: RegExp }> = DNQP_STANDARDS
+  .filter((s) => STICHWORTE[s.id])
+  .map((s) => ({
+    id: s.id.replace(/^es\./, ''),
+    name: s.titel.replace(/^Expertenstandard\s+/, ''),
+    fassung: s.status === 'aktuell' ? aktuelleFassung(s) : `${aktuelleFassung(s)}, nie in Kraft gesetzt`,
+    stichworte: STICHWORTE[s.id],
+  }));
 
 export function standardsIn(text: string) {
   return STANDARDS.filter((s) => s.stichworte.test(text));
