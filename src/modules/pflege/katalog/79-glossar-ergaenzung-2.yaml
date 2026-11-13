@@ -1,0 +1,77 @@
+# Glossar, Teil 10: Ergänzung 2026-11-13 für Themen mit weniger als sechs Begriffen
+# (Neugeborenes und Wochenbett, Fallarbeit in allen Settings, Deprivation, Hypertonie, Intertrigo,
+# Parkinson, Soor, Delir, Pflegeziele, Schweigepflicht). Damit hat jedes Thema genug Begriffe
+# für ein eigenes Fachbegriff-Duell. Format wie 70-glossar.yaml. Übliches Lehrbuchwissen,
+# nicht mit dem Unterrichtsmaterial abgeglichen; Rechtsangaben ungeprüft bis zum Abgleich.
+
+glossary:
+  # --- Neugeborenes und Wochenbett ---
+  - { id: gl.u1, term: "U1", topicIds: [thema.ph.neugeborenes], definition: "Erste Vorsorgeuntersuchung direkt nach der Geburt mit APGAR-Bewertung, Messung von Gewicht, Länge und Kopfumfang und Untersuchung auf Fehlbildungen." }
+  - { id: gl.mekonium, term: "Mekonium", topicIds: [thema.ph.neugeborenes], definition: "Erster, zähflüssiger, schwarzgrüner Stuhl des Neugeborenen, normalerweise innerhalb von 24 bis 48 Stunden nach der Geburt.", synonyms: [Kindspech] }
+  - { id: gl.kolostrum, term: "Kolostrum", topicIds: [thema.ph.neugeborenes], definition: "Erste, gelbliche Muttermilch in den Tagen nach der Geburt; reich an Abwehrstoffen und Eiweiß.", synonyms: [Vormilch] }
+  - { id: gl.lochien, term: "Lochien", topicIds: [thema.ph.neugeborenes], definition: "Wochenfluss nach der Geburt aus der Wundfläche der Gebärmutter; wird über Wochen von blutig zu bräunlich, gelblich und weißlich." }
+  - { id: gl.involution, term: "Involution des Uterus", topicIds: [thema.ph.neugeborenes], definition: "Rückbildung der Gebärmutter nach der Geburt; die Pflege kontrolliert täglich den Fundusstand.", synonyms: [Uterusrückbildung] }
+  - { id: gl.vitamin-k-prophylaxe, term: "Vitamin-K-Prophylaxe", topicIds: [thema.ph.neugeborenes], definition: "Gabe von Vitamin K bei den ersten Vorsorgeuntersuchungen, um Blutungen durch einen Vitamin-K-Mangel beim Neugeborenen vorzubeugen." }
+  - { id: gl.bonding, term: "Bonding", topicIds: [thema.ph.neugeborenes], definition: "Aufbau der emotionalen Bindung zwischen Eltern und Kind, gefördert durch frühen Haut-zu-Haut-Kontakt nach der Geburt." }
+  - { id: gl.neugeborenen-screening, term: "Neugeborenen-Screening", topicIds: [thema.ph.neugeborenes], definition: "Untersuchung weniger Bluttropfen aus der Ferse in den ersten Lebenstagen auf angeborene Stoffwechsel- und Hormonstörungen.", synonyms: [Fersenblut-Test] }
+
+  # --- Fallarbeit Pädiatrie ---
+  - { id: gl.perzentile, term: "Perzentile", topicIds: [thema.fa.paediatrie, thema.kl.paediatrie], definition: "Kurve, die zeigt, wie Gewicht, Größe oder Kopfumfang eines Kindes im Vergleich zu Gleichaltrigen liegen; die 50. Perzentile entspricht dem Durchschnitt." }
+  - { id: gl.rooming-in, term: "Rooming-in", topicIds: [thema.fa.paediatrie, thema.ph.neugeborenes], definition: "Eltern bleiben mit ihrem Kind gemeinsam im Zimmer, im Krankenhaus wie auf der Wochenstation." }
+  - { id: gl.kuss, term: "Kindliche Unbehagens- und Schmerzskala", abbreviation: "KUSS", topicIds: [thema.fa.paediatrie, thema.kl.paediatrie, thema.beo.bewusstsein], definition: "Beobachtungsskala für Schmerzen bei Säuglingen und Kleinkindern bis etwa vier Jahre mit Weinen, Gesichtsausdruck, Rumpf- und Beinhaltung sowie motorischer Unruhe." }
+  - { id: gl.kindeswohlgefaehrdung, term: "Kindeswohlgefährdung", topicIds: [thema.fa.paediatrie], definition: "Gefahr für die körperliche, geistige oder seelische Entwicklung eines Kindes, z. B. durch Vernachlässigung, Misshandlung oder Missbrauch; Hinweise werden dokumentiert und nach Verfahren des Hauses weitergegeben." }
+
+  # --- Fallarbeit Akutpflege ---
+  - { id: gl.fruehwarnscore, term: "Frühwarnscore", topicIds: [thema.fa.akut, thema.beo.vitalzeichen], definition: "Punktesystem aus mehreren Vitalwerten, das eine Verschlechterung früh anzeigt und festlegt, wann ärztlich informiert wird, z. B. NEWS2." }
+  - { id: gl.postoperative-ueberwachung, term: "Postoperative Überwachung", topicIds: [thema.fa.akut, thema.ph.periop], definition: "Engmaschige Kontrolle von Bewusstsein, Vitalzeichen, Schmerz, Wunde, Drainagen und Ausscheidung nach einer Operation." }
+
+  # --- Fallarbeit Langzeitpflege ---
+  - { id: gl.heimeinzug, term: "Heimeinzug", topicIds: [thema.fa.langzeit], definition: "Übergang in eine stationäre Pflegeeinrichtung; eine kritische Lebensphase, die mit Eingewöhnung, Biografiearbeit und Einbezug der Angehörigen begleitet wird." }
+  - { id: gl.tagesstruktur, term: "Tagesstrukturierung", topicIds: [thema.fa.langzeit, thema.pro.deprivation], definition: "Planung eines verlässlichen Tagesablaufs mit festen Zeiten und Angeboten, die Orientierung und Teilhabe fördern." }
+  - { id: gl.qualitaetsindikatoren, term: "Qualitätsindikatoren", topicIds: [thema.fa.langzeit, thema.qw.qm], definition: "Kennzahlen zur Ergebnisqualität in Pflegeeinrichtungen, z. B. Dekubitusentstehung, Stürze mit Folgen oder Gewichtsverlust; werden halbjährlich erhoben." }
+  - { id: gl.pflegevisite, term: "Pflegevisite", topicIds: [thema.fa.langzeit, thema.fa.evaluation], definition: "Geplantes Gespräch mit der pflegebedürftigen Person über ihre Pflege, um Wünsche zu erfragen und die Pflegeplanung zu überprüfen." }
+
+  # --- Fallarbeit Psychiatrie ---
+  - { id: gl.deeskalation, term: "Deeskalation", topicIds: [thema.fa.psychiatrie, thema.kom.gespraech], definition: "Verhalten und Techniken, die eine angespannte oder aggressive Situation entschärfen, z. B. ruhige Sprache, Abstand, Wahlmöglichkeiten anbieten." }
+  - { id: gl.milieutherapie, term: "Milieutherapie", topicIds: [thema.fa.psychiatrie], definition: "Gestaltung von Station, Tagesablauf und Gemeinschaft so, dass sie selbst therapeutisch wirkt." }
+  - { id: gl.recovery, term: "Recovery", topicIds: [thema.fa.psychiatrie], definition: "Ansatz, der Genesung als persönlichen Weg zu einem selbstbestimmten Leben versteht, auch wenn Symptome bleiben." }
+  - { id: gl.psychkg, term: "Psychisch-Kranken-Gesetz", abbreviation: "PsychKG", topicIds: [thema.fa.psychiatrie, thema.re.fem], definition: "Landesgesetz, das unter anderem die Unterbringung psychisch kranker Menschen gegen ihren Willen bei erheblicher Selbst- oder Fremdgefährdung regelt." }
+
+  # --- Fallarbeit allgemein ---
+  - { id: gl.risikoeinschaetzung, term: "Risikoeinschätzung", topicIds: [thema.fa.analyse], definition: "Fachliche Beurteilung, ob ein Risiko besteht, z. B. für Dekubitus oder Sturz; Instrumente unterstützen sie, ersetzen sie aber nicht." }
+  - { id: gl.pflegebedarf, term: "Pflegebedarf", topicIds: [thema.fa.analyse], definition: "Unterstützung, die ein Mensch aus fachlicher Sicht braucht, abgeleitet aus Problemen, Ressourcen und Wünschen." }
+  - { id: gl.handlungsbegruendung, term: "Handlungsbegründung", topicIds: [thema.fa.planung], definition: "Fachliche Herleitung, warum eine Maßnahme bei diesem Menschen passt, z. B. aus Expertenstandard, Studienlage oder Fallsituation." }
+  - { id: gl.evidenzbasierte-massnahme, term: "Evidenzbasierte Maßnahme", topicIds: [thema.fa.planung, thema.qw.ebn], definition: "Maßnahme, deren Wirksamkeit durch Studien belegt ist und die mit Erfahrung und Wünschen der Person abgestimmt wird." }
+  - { id: gl.verlaufsdokumentation, term: "Verlaufsdokumentation", topicIds: [thema.fa.evaluation, thema.pp.evaluation], definition: "Laufende Beschreibung von Veränderungen, Reaktionen und Abweichungen vom Plan; Grundlage für die Evaluation." }
+  - { id: gl.planrevision, term: "Anpassung der Pflegeplanung", topicIds: [thema.fa.evaluation], definition: "Änderung von Zielen oder Maßnahmen, wenn die Evaluation zeigt, dass ein Ziel nicht erreicht wurde oder sich die Situation verändert hat." }
+
+  # --- Fallarbeit ambulant ---
+  - { id: gl.tourenplanung, term: "Tourenplanung", topicIds: [thema.fa.ambulant], definition: "Planung der Reihenfolge und Zeiten der Hausbesuche eines ambulanten Pflegedienstes." }
+  - { id: gl.hausnotruf, term: "Hausnotruf", topicIds: [thema.fa.ambulant], definition: "Notrufsystem mit Funksender, über das allein lebende Menschen zu Hause per Knopfdruck Hilfe rufen können." }
+  - { id: gl.beratungsbesuch, term: "Beratungsbesuch", topicIds: [thema.fa.ambulant, thema.re.sgb11], definition: "Regelmäßiger Pflicht-Besuch einer Pflegefachperson bei Menschen, die Pflegegeld beziehen, zur Sicherung der Pflegequalität und Beratung der Angehörigen." }
+
+  # --- Deprivation ---
+  - { id: gl.snoezelen, term: "Snoezelen", topicIds: [thema.pro.deprivation], definition: "Angebot in einem gestalteten Raum mit Licht, Klängen, Düften und Berührung zur Entspannung und Sinnesanregung." }
+  - { id: gl.reizarmut, term: "Reizarmut", topicIds: [thema.pro.deprivation], definition: "Zu wenige Sinnesreize und Kontakte, z. B. bei Bettlägerigkeit oder Isolation; fördert Rückzug, Verwirrtheit und Abbau." }
+
+  # --- Hypertonie ---
+  - { id: gl.hypertensive-entgleisung, term: "Hypertensive Entgleisung", topicIds: [thema.kl.herz.hypertonie], definition: "Stark erhöhter Blutdruck ohne Zeichen einer akuten Organschädigung; wird ärztlich meist langsam gesenkt." }
+  - { id: gl.hypertensiver-notfall, term: "Hypertensiver Notfall", topicIds: [thema.kl.herz.hypertonie, thema.beo.notfall], definition: "Stark erhöhter Blutdruck mit Organzeichen wie Brustschmerz, Atemnot, Sehstörung, Lähmung oder Verwirrtheit; sofort ärztlich behandeln." }
+  - { id: gl.weisskittelhypertonie, term: "Weißkittelhypertonie", topicIds: [thema.kl.herz.hypertonie], definition: "Erhöhte Blutdruckwerte nur in ärztlicher oder pflegerischer Umgebung, zu Hause dagegen normal." }
+
+  # --- Intertrigo ---
+  - { id: gl.mazeration, term: "Mazeration", topicIds: [thema.pro.intertrigo, thema.ph.wunde], definition: "Aufweichen der Haut durch lange Feuchtigkeit, z. B. in Hautfalten oder am Wundrand; die Haut wird weißlich und verletzlich." }
+  - { id: gl.hautfalte, term: "Hautfaltenpflege", topicIds: [thema.pro.intertrigo], definition: "Reinigen, sorgfältiges Trocknen und Trennen von Hautflächen, die aufeinanderliegen, z. B. mit Leinenstreifen; keine Puder." }
+
+  # --- Parkinson ---
+  - { id: gl.on-off, term: "On-Off-Phänomen", topicIds: [thema.kl.neuro.parkinson], definition: "Plötzlicher Wechsel zwischen guter Beweglichkeit (on) und starker Bewegungsarmut (off) bei langjähriger Parkinson-Behandlung." }
+  - { id: gl.levodopa, term: "Levodopa", abbreviation: "L-Dopa", topicIds: [thema.kl.neuro.parkinson, thema.ph.medikamente], definition: "Vorstufe von Dopamin und wichtigstes Parkinson-Medikament; pünktlich und mit Abstand zu eiweißreichen Mahlzeiten geben." }
+
+
+  # --- Delir ---
+  - { id: gl.hypoaktives-delir, term: "Hypoaktives Delir", topicIds: [thema.pro.delir], definition: "Stille Form des Delirs mit Schläfrigkeit, Rückzug und verlangsamtem Denken; wird oft übersehen." }
+  - { id: gl.reorientierung, term: "Reorientierung", topicIds: [thema.pro.delir, thema.kl.demenz], definition: "Hilfe zur Orientierung durch Uhr, Kalender, Tageslicht, vertraute Gegenstände, Brille und Hörgerät sowie häufige kurze Erklärungen." }
+
+
+  # --- Schweigepflicht ---
+  - { id: gl.offenbarungspflicht, term: "Offenbarungspflicht", topicIds: [thema.re.schweigepflicht], definition: "Gesetzliche Pflicht, bestimmte Informationen trotz Schweigepflicht weiterzugeben, z. B. Meldungen nach dem Infektionsschutzgesetz." }

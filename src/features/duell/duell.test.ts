@@ -104,3 +104,13 @@ describe('Duell im Lernplan', () => {
     expect(trefferVon(zuege, 1)).toEqual([{ topicIds: ['thema.fs.lage'], punkte: 0, max: 1 }]);
   });
 });
+
+describe('Abdeckung', () => {
+  it('jedes Blatt-Thema des Pflegekatalogs hat genug Begriffe für ein eigenes Duell', async () => {
+    const { pflegeModule } = await import('../../modules/pflege');
+    const { uebungenFuer } = await import('../lernplan/trainer');
+    const eltern = new Set(pflegeModule.topics.map((t) => t.parentId).filter(Boolean));
+    const ohne = pflegeModule.topics.filter((t) => !eltern.has(t.id) && !uebungenFuer(t.id).some((u) => u.trainer === 'duell')).map((t) => t.id);
+    expect(ohne).toEqual([]);
+  });
+});

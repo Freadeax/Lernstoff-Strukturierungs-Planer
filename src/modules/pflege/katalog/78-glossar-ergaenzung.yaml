@@ -6,7 +6,7 @@
 glossary:
   # --- Pflegeprozess ---
   - { id: gl.evaluationsdatum, term: "Evaluationsdatum", topicIds: [thema.pp.evaluation], definition: "Im Pflegeplan festgelegter Zeitpunkt, an dem die Zielerreichung überprüft wird." }
-  - { id: gl.zielerreichung, term: "Zielerreichungsgrad", topicIds: [thema.pp.evaluation, thema.fa.evaluation], definition: "Einschätzung, ob ein Pflegeziel erreicht, teilweise erreicht oder nicht erreicht wurde, mit Begründung." }
+  - { id: gl.zielerreichung, term: "Zielerreichungsgrad", topicIds: [thema.pp.evaluation, thema.fa.evaluation, thema.pp.ziele], definition: "Einschätzung, ob ein Pflegeziel erreicht, teilweise erreicht oder nicht erreicht wurde, mit Begründung." }
   - { id: gl.durchfuehrungsnachweis, term: "Durchführungsnachweis", topicIds: [thema.pp.evaluation], definition: "Dokumentation, dass eine geplante Maßnahme zu einem bestimmten Zeitpunkt durch eine bestimmte Person durchgeführt wurde, meist mit Handzeichen.", synonyms: [Leistungsnachweis] }
   - { id: gl.aktuelles-problem, term: "Aktuelles Pflegeproblem", topicIds: [thema.pp.diagnosen], definition: "Pflegeproblem, das bereits besteht und an Symptomen erkennbar ist, z. B. Schmerzen bei Bewegung." }
   - { id: gl.ergebnisziel, term: "Ergebnisorientiertes Ziel", topicIds: [thema.pp.ziele], definition: "Pflegeziel, das den erwünschten Zustand der Person beschreibt und nicht die Tätigkeit der Pflegenden, z. B. „Frau B. geht mit Rollator 20 m allein“." }
@@ -25,7 +25,7 @@ glossary:
   - { id: gl.rechtfertigender-notstand, term: "Rechtfertigender Notstand", topicIds: [thema.re.schweigepflicht, thema.re.fem], definition: "Rechtfertigungsgrund nach § 34 StGB: Eine sonst verbotene Handlung ist erlaubt, wenn nur so eine gegenwärtige, erhebliche Gefahr abgewendet werden kann." }
   - { id: gl.begutachtung, term: "Pflegebegutachtung", topicIds: [thema.re.pflegegrade], definition: "Feststellung der Pflegebedürftigkeit durch den Medizinischen Dienst bzw. bei Privatversicherten durch Medicproof, meist im Hausbesuch." }
   - { id: gl.nba-module, term: "Module des NBA", topicIds: [thema.re.pflegegrade], definition: "Sechs gewichtete Lebensbereiche des Begutachtungsinstruments: Mobilität, kognitive und kommunikative Fähigkeiten, Verhaltensweisen und psychische Problemlagen, Selbstversorgung, Umgang mit krankheits- und therapiebedingten Anforderungen sowie Gestaltung des Alltagslebens und sozialer Kontakte." }
-  - { id: gl.entlastungsbetrag, term: "Entlastungsbetrag", topicIds: [thema.re.pflegegrade], definition: "Zweckgebundener monatlicher Betrag der Pflegeversicherung ab Pflegegrad 1 für Angebote zur Unterstützung im Alltag." }
+  - { id: gl.entlastungsbetrag, term: "Entlastungsbetrag", topicIds: [thema.re.pflegegrade, thema.fa.ambulant], definition: "Zweckgebundener monatlicher Betrag der Pflegeversicherung ab Pflegegrad 1 für Angebote zur Unterstützung im Alltag." }
   - { id: gl.betreuungsgericht, term: "Betreuungsgericht", topicIds: [thema.re.fem, thema.re.betreuung], definition: "Abteilung des Amtsgerichts, die Betreuungen einrichtet und regelmäßige oder längere freiheitsentziehende Maßnahmen genehmigen muss." }
   - { id: gl.fem-alternativen, term: "Alternativen zu FEM", topicIds: [thema.re.fem, thema.pro.sturz], definition: "Maßnahmen, die freiheitsentziehende Maßnahmen überflüssig machen, z. B. Niederflurbett, Sensormatte, Hüftprotektoren, Sturzmatte, Beschäftigung und Begleitung." }
 

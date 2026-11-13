@@ -85,14 +85,14 @@ glossary:
   - { id: gl.who-stufenschema, term: "WHO-Stufenschema", topicIds: [thema.ph.medikamente, thema.ph.palliativ], definition: "Stufenweise Schmerztherapie: Nicht-Opioide, zusätzlich schwach wirksame und dann stark wirksame Opioide, jeweils ergänzt um Begleitmedikamente." }
 
   # --- Assessments und Skalen ---
-  - { id: gl.assessment, term: "Assessment", topicIds: [thema.pp.anamnese], definition: "Systematische Einschätzung eines Pflegephänomens, oft mit standardisierten Instrumenten." }
+  - { id: gl.assessment, term: "Assessment", topicIds: [thema.pp.anamnese, thema.fa.analyse], definition: "Systematische Einschätzung eines Pflegephänomens, oft mit standardisierten Instrumenten." }
   - { id: gl.braden, term: "Braden-Skala", topicIds: [thema.pro.dekubitus], definition: "Instrument zur Einschätzung des Dekubitusrisikos mit sechs Kategorien (u. a. Mobilität, Feuchtigkeit, Ernährung, Reibung); niedrige Punktzahl bedeutet höheres Risiko." }
   - { id: gl.norton, term: "Norton-Skala", topicIds: [thema.pro.dekubitus], definition: "Älteres Instrument zur Einschätzung des Dekubitusrisikos; der Expertenstandard empfiehlt vor allem die fachliche Einschätzung." }
   - { id: gl.barthel, term: "Barthel-Index", topicIds: [thema.pp.anamnese, thema.kl.geriatrie], definition: "Instrument zur Erfassung der Selbstständigkeit bei Alltagsaktivitäten wie Essen, Waschen und Gehen; 0 bis 100 Punkte." }
   - { id: gl.mna, term: "Mini Nutritional Assessment", abbreviation: "MNA", topicIds: [thema.ph.ernaehrung, thema.kl.geriatrie], definition: "Screening- und Assessmentinstrument zur Erkennung von Mangelernährung bei älteren Menschen." }
   - { id: gl.mmst, term: "Mini-Mental-Status-Test", abbreviation: "MMST", topicIds: [thema.kl.demenz], definition: "Kurztest zur Einschätzung kognitiver Fähigkeiten; maximal 30 Punkte, niedrige Werte sprechen für kognitive Einschränkungen.", synonyms: [MMSE] }
   - { id: gl.tug, term: "Timed-up-and-go-Test", abbreviation: "TUG", topicIds: [thema.pro.sturz, thema.kl.geriatrie], definition: "Mobilitätstest: Aufstehen vom Stuhl, drei Meter gehen, umdrehen, zurückgehen und hinsetzen; die benötigte Zeit weist auf das Sturzrisiko hin." }
-  - { id: gl.cam, term: "Confusion Assessment Method", abbreviation: "CAM", topicIds: [thema.pro.delir], definition: "Kurzes Instrument zur Erkennung eines Delirs anhand von akutem Beginn, Aufmerksamkeitsstörung, desorganisiertem Denken und veränderter Bewusstseinslage." }
+  - { id: gl.cam, term: "Confusion Assessment Method", abbreviation: "CAM", topicIds: [thema.pro.delir, thema.fa.akut], definition: "Kurzes Instrument zur Erkennung eines Delirs anhand von akutem Beginn, Aufmerksamkeitsstörung, desorganisiertem Denken und veränderter Bewusstseinslage." }
   - { id: gl.news2, term: "National Early Warning Score 2", abbreviation: "NEWS2", topicIds: [thema.beo.vitalzeichen, thema.beo.notfall], definition: "Frühwarnscore aus Atemfrequenz, Sauerstoffsättigung, Sauerstoffgabe, Blutdruck, Puls, Bewusstsein und Temperatur, um eine Verschlechterung früh zu erkennen." }
   - { id: gl.screening, term: "Screening", topicIds: [thema.pp.anamnese], definition: "Kurze Suchuntersuchung, mit der Personen mit einem möglichen Risiko erkannt werden, bevor ein ausführliches Assessment folgt." }
 
