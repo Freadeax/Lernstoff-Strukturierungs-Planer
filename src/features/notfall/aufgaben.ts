@@ -1,5 +1,6 @@
 // Notfall-Trainer: Basismaßnahmen der Reanimation, ABCDE-Einschätzung und typische Notfälle auf Station.
-// Grundlage: Leitlinien des European Resuscitation Council (ERC 2021, Basic Life Support Erwachsene)
+// Grundlage: Leitlinien des European Resuscitation Council (ERC 2021, Basic Life Support Erwachsene;
+// Ablauf „erst Hilfe rufen, dann Atmung prüfen“ seit 13.11.2026 nach ERC 2025, fachliche Freigabe offen)
 // und gängige Lehrbuchinhalte. Interne Notfallabläufe der Einrichtung gehen vor.
 
 import { ergaenze, mitVertiefung, type Aufgabe, type AuswahlAufgabe } from '../quiz/quiz';
@@ -22,8 +23,8 @@ const bls: Aufgabe[] = [
   {
     id: 'bls.ablauf', art: 'reihenfolge', topicIds: [NOTFALL_THEMA], titel: 'Basismaßnahmen der Reanimation',
     frage: 'Du findest eine Bewohnerin leblos im Zimmer. In welcher Reihenfolge gehst du vor?',
-    schritte: ['Laut ansprechen und an den Schultern rütteln', 'Atemweg freimachen: Kopf überstrecken, Kinn anheben', 'Atmung höchstens 10 Sekunden prüfen', 'Notruf absetzen und Defibrillator (AED) holen lassen', '30 Thoraxkompressionen', '2 Beatmungen', 'AED anschließen, sobald er da ist, und den Anweisungen folgen'],
-    erklaerung: ['Keine normale Atmung = Kreislaufstillstand. Schnappatmung zählt nicht als normale Atmung.', 'Danach 30 Kompressionen und 2 Beatmungen im Wechsel, Pausen so kurz wie möglich.'],
+    schritte: ['Laut ansprechen und an den Schultern rütteln', 'Keine Reaktion: sofort Hilfe rufen beziehungsweise Notruf absetzen und AED holen lassen', 'Atemweg freimachen: Kopf überstrecken, Kinn anheben', 'Atmung höchstens 10 Sekunden prüfen', '30 Thoraxkompressionen', '2 Beatmungen', 'AED anschließen, sobald er da ist, und den Anweisungen folgen'],
+    erklaerung: ['Seit den ERC-Leitlinien 2025 gilt: Wer nicht reagiert, für den wird sofort Hilfe gerufen. Die Atmung wird geprüft, während der Notruf läuft, nicht vorher.', 'Keine normale Atmung = Kreislaufstillstand. Schnappatmung zählt nicht als normale Atmung. Im Zweifel mit der Reanimation beginnen.', 'Danach 30 Kompressionen und 2 Beatmungen im Wechsel, Pausen so kurz wie möglich.'],
   },
   frage('bls.frequenz', 'Thoraxkompression', 'Mit welcher Frequenz und Tiefe drückst du bei Erwachsenen?',
     ['100 bis 120 pro Minute, 5 bis 6 cm tief', '60 bis 80 pro Minute, 2 bis 3 cm tief', '140 bis 160 pro Minute, 8 bis 10 cm tief', 'So schnell wie möglich, Tiefe egal'],
@@ -105,8 +106,8 @@ export const BEREICHE: Bereich[] = [
   {
     id: 'bls', label: 'Reanimation', kurz: 'Ablauf, Druckpunkt, 30 : 2, AED',
     wissen: [
-      'Prüfen: ansprechen, Atemweg frei, Atmung höchstens 10 Sekunden. Keine normale Atmung = Reanimation.',
-      'Notruf, AED holen lassen, 30 Kompressionen und 2 Beatmungen im Wechsel.',
+      'Ansprechen. Keine Reaktion: sofort Hilfe rufen und AED holen lassen (ERC 2025), dann Atemweg frei und Atmung höchstens 10 Sekunden prüfen.',
+      'Keine normale Atmung = Reanimation: 30 Kompressionen und 2 Beatmungen im Wechsel. Im Zweifel beginnen.',
       '100 bis 120 pro Minute, 5 bis 6 cm tief, Mitte des Brustkorbs.',
     ],
   },

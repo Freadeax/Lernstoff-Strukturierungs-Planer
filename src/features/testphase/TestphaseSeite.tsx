@@ -14,6 +14,7 @@ import {
   leseRueckmeldungen, merkeGesendet, merkeName, neueId, rueckmeldungText, sammle, setzeErledigt, ueberblick, type Art, type Rueckmeldung,
   bearbeitungen, leseSammelDatei, sammelDatei, setzeBearbeitung, STAND_LABEL, standVon, type Stand,
 } from './testphase';
+import { GRUND_LABEL, ladeMeldungen, type Grund } from '../qm/meldungen';
 import { alsGesehenMerken, NEUIGKEITEN, ungesehen, zuletztGesehen } from './neuigkeiten';
 
 type Ansicht = 'start' | 'neu' | 'auftraege' | 'rueckmeldung' | 'auswerten';
@@ -147,7 +148,9 @@ function Rueckmelden() {
   const startArt = (params.get('art') as Art | null) ?? (params.get('technik') ? 'fehler' : 'unklar');
   const [art, setArt] = useState<Art>(startArt in ART_LABEL ? startArt : 'unklar');
   const [seite, setSeite] = useState(seiten.some((s) => s.path === vorschlag) ? vorschlag : '');
-  const [text, setText] = useState('');
+  // Aus „Frage melden“ in einer Übung: die Meldung reist im Code mit (Überarbeitungsliste der Testleitung)
+  const meldung = useMemo(() => { const id = params.get('meldung'); return id ? ladeMeldungen().find((m) => m.id === id) : undefined; }, [params]);
+  const [text, setText] = useState(() => (meldung ? `${GRUND_LABEL[meldung.grund]}.${meldung.notiz ? ` ${meldung.notiz}` : ''}` : ''));
   const [sterne, setSterne] = useState(0);
   const [wer, setWer] = useState(gemerkterName);
   const [mitGeraet, setMitGeraet] = useState(true);
@@ -166,6 +169,7 @@ function Rueckmelden() {
       const r: Rueckmeldung = {
         v: 1, id: neueId(), art, seite: seite || undefined, text: text.trim(), sterne: sterne || undefined, name: wer.trim() || undefined,
         geraet: mitGeraet ? geraet : undefined, auftraege: erledigte(), technik, erstellt: new Date().toISOString(),
+        frage: meldung ? { quelle: meldung.quelle, aufgabeId: meldung.aufgabeId, fp: meldung.fp, titel: meldung.titel, frage: meldung.frage, grund: meldung.grund, antwort: meldung.antwort } : undefined,
       };
       const t = await rueckmeldungText(r, seite ? name(seite) : undefined);
       merkeGesendet(r); setAlte(gesendete());
@@ -220,6 +224,7 @@ function Rueckmelden() {
           <textarea rows={6} value={text} maxLength={4000} required onChange={(e) => setText(e.target.value)}
             placeholder={art === 'fehler' ? 'Was hast du gemacht, was ist passiert, was hättest du erwartet?' : art === 'idee' ? 'Was fehlt dir, und wofür würdest du es nutzen?' : 'Beschreibe es in ein paar Sätzen.'} />
         </label>
+        {meldung && <p className="note">Die gemeldete Frage wird mitgeschickt: <strong>{meldung.titel}</strong> („{meldung.frage.slice(0, 140)}“)</p>}
         {technik && <p className="note">Die technische Fehlermeldung wird mitgeschickt: <code>{technik}</code></p>}
         <fieldset className="testphase__sterne">
           <legend>Wie hilfreich ist die App für dich bisher? (freiwillig)</legend>
@@ -328,6 +333,7 @@ function Auswerten() {
                 <li key={r.id}>
                   <div><strong>{ART_LABEL[r.art]}</strong>{r.sterne ? ` · ${'★'.repeat(r.sterne)}` : ''} · {r.seite ? <a href={`#${r.seite}`}>{name(r.seite)}</a> : 'Allgemein'} · {r.name ?? 'ohne Namen'} · <span className="muted">{datum(r.erstellt)}</span></div>
                   <p>{r.text}</p>
+                  {r.frage && <p className="muted">Gemeldete Frage: <strong>{r.frage.titel}</strong> · {GRUND_LABEL[r.frage.grund as Grund] ?? r.frage.grund} · <a href="#/system/qualitaet?ansicht=liste">In der Überarbeitungsliste</a></p>}
                   {(r.geraet || r.technik) && <p className="muted">{r.geraet ? geraetText(r.geraet) : ''}{r.technik ? ` · Fehler: ${r.technik}` : ''}</p>}
                   <div className="testphase__bearbeiten">
                     <label>Stand

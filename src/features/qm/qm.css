@@ -1,0 +1,41 @@
+/* Inhaltsqualität: Überarbeitungsliste, Abdeckung, Prüfstand; „Frage melden“ in den Übungen */
+.qm-spalte { display: flex; flex-direction: column; gap: var(--space-3); max-width: 56rem; }
+.qm__wahl a.pill { display: inline-flex; align-items: center; border: 2px solid var(--color-outline); color: var(--color-text); text-decoration: none; font-weight: 600; min-height: 44px; padding: 0 16px; }
+.qm__wahl a.pill[aria-current] { background: var(--color-text); color: var(--color-surface); }
+.qm-zahlen { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 9.5rem), 1fr)); gap: var(--space-2); margin: 0 0 var(--space-2); }
+.qm-zahl { background: var(--color-surface-sunken); border-radius: 8px; padding: var(--space-2); border-left: 4px solid transparent; }
+.qm-zahl--gut { border-left-color: var(--color-success, var(--color-primary)); }
+.qm-zahl--warn { border-left-color: var(--color-warning, #b7791f); }
+.qm-zahl--kritisch { border-left-color: var(--color-critical, #c53030); }
+.qm-zahl dt { font-size: 0.75rem; color: var(--color-text-muted); }
+.qm-zahl dd { margin: 0; font-size: 1.375rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.qm-liste { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.qm-liste--klein li { border-top: 1px solid var(--color-border); padding-top: var(--space-2); }
+.qm-eintrag h3 { margin: var(--space-1) 0; font-size: 1rem; overflow-wrap: anywhere; }
+.qm-eintrag p { margin: var(--space-1) 0; overflow-wrap: anywhere; }
+.qm-eintrag--p1 { border-left: 4px solid var(--color-critical, #c53030); }
+.qm-eintrag--p2 { border-left: 4px solid var(--color-warning, #b7791f); }
+.qm-eintrag__kopf { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.qm-eintrag__kopf h2 { margin: 0; font-size: 1.125rem; }
+.qm-eintrag__notiz, .qm-filter label:not(.check), .qm-vermerk label { display: flex; flex-direction: column; gap: 2px; font-size: 0.75rem; font-weight: 600; }
+.qm-filter { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-3); }
+.qm-themen { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+.qm-thema p { margin: var(--space-1) 0; }
+.qm-thema__kopf { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-2); }
+.qm-stufen { display: flex; flex-wrap: wrap; gap: var(--space-1); }
+.qm-stufe { font-size: 0.8125rem; padding: 2px 10px; border-radius: 999px; background: var(--color-primary-soft); }
+.qm-stufe--leer { background: var(--color-surface-sunken); color: var(--color-text-muted); outline: 1px dashed var(--color-border); }
+.qm-stufenlink { display: inline-flex; align-items: center; justify-content: center; min-width: 28px; min-height: 28px; margin-left: 2px; border-radius: 50%; background: var(--color-surface-sunken); font-size: 0.75rem; text-decoration: none; }
+.qm-dl { display: grid; grid-template-columns: minmax(7rem, max-content) 1fr; gap: 4px var(--space-3); margin: var(--space-2) 0; }
+.qm-dl dt { color: var(--color-text-muted); font-size: 0.8125rem; }
+.qm-dl dd { margin: 0; overflow-wrap: anywhere; }
+@media (max-width: 34rem) { .qm-dl { grid-template-columns: 1fr; } .qm-dl dd { margin-bottom: var(--space-1); } }
+.qm-vermerk { display: flex; flex-direction: column; gap: var(--space-2); }
+.qm-melden { display: flex; flex-direction: column; gap: var(--space-2); margin: var(--space-2) 0; }
+.qm-melden fieldset { border: 0; margin: 0; padding: 0; }
+.qm-melden legend { font-weight: 600; margin-bottom: var(--space-1); }
+.qm-melden__gruende { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr)); gap: 0 var(--space-2); }
+.qm-melden__gruende .check { min-height: 44px; align-items: center; margin: 0; }
+.qm-melden label:not(.check) { display: flex; flex-direction: column; gap: 2px; font-weight: 600; }
+.qm-melden__knopf { align-self: flex-start; margin: var(--space-1) 0; min-height: 44px; }
+.qm-melden__danke { margin: var(--space-2) 0; }

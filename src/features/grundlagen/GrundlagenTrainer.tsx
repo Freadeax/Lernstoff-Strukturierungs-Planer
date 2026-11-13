@@ -1,9 +1,10 @@
 import { TrainerSeite } from '../quiz/TrainerSeite';
+import { grundlagenGrundlage } from '../quiz/grundlage';
 import { AUFGABEN, BEREICHE } from './aufgaben';
 
 export default function GrundlagenTrainer() {
   return (
-    <TrainerSeite
+    <TrainerSeite grundlage={grundlagenGrundlage}
       titel="Grundlagen-Trainer"
       intro="Fachsprache sicher nutzen (Wortbausteine, Lage und Richtung, Abkürzungen) und die Grundlagen des Pflegeberufs üben: Kommunikation, Pflegemodelle, Qualität und Forschung, Versorgungsstrukturen. Funktioniert offline."
       hinweis="Grundlage ist übliches Lehrbuchwissen; für die Prüfung gilt dein Unterrichtsmaterial. Abkürzungen unterscheiden sich zwischen Einrichtungen: Maßgeblich ist die Abkürzungsliste deines Hauses."

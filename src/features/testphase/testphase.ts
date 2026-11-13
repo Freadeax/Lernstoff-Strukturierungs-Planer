@@ -41,8 +41,13 @@ export interface Rueckmeldung {
   auftraege?: string[];
   /** Technische Fehlermeldung, nur bei „Fehler melden“ von der Fehlerseite */
   technik?: string;
+  /** Gemeldete Aufgabe (seit 13.11.2026, optional): landet bei der betreuenden Person in der Überarbeitungsliste. */
+  frage?: GemeldeteFrage;
   erstellt: string;
 }
+
+/** Kurzform einer gemeldeten Aufgabe (siehe qm/meldungen.ts). */
+export interface GemeldeteFrage { quelle: string; aufgabeId: string; fp: string; titel: string; frage: string; grund: string; antwort?: string }
 
 // ---------- Testaufträge ----------
 
@@ -135,6 +140,7 @@ export async function rueckmeldungText(r: Rueckmeldung, seitenName?: string): Pr
     '', r.text.trim(), '',
   ];
   if (r.technik) zeilen.push(`Fehlermeldung: ${r.technik}`);
+  if (r.frage) zeilen.push(`Gemeldete Frage: ${r.frage.titel} („${r.frage.frage.slice(0, 120)}“)`);
   if (r.geraet) zeilen.push(`Gerät: ${geraetText(r.geraet)}`);
   if (r.auftraege?.length) zeilen.push(`Testaufträge erledigt: ${r.auftraege.length} von ${AUFTRAEGE.length}`);
   zeilen.push('', 'Code für den Lernstoff-Planer (bitte nicht ändern):', await rueckmeldungCode(r));
@@ -142,6 +148,15 @@ export async function rueckmeldungText(r: Rueckmeldung, seitenName?: string): Pr
 }
 
 const text = (x: unknown, max: number): string | undefined => (typeof x === 'string' && x.trim() ? x.trim().slice(0, max) : undefined);
+
+function pruefeFrage(f: unknown): GemeldeteFrage | undefined {
+  const g = f as GemeldeteFrage | undefined;
+  if (!g || typeof g !== 'object' || !text(g.quelle, 40) || !text(g.aufgabeId, 120) || !text(g.grund, 20)) return undefined;
+  return {
+    quelle: text(g.quelle, 40)!, aufgabeId: text(g.aufgabeId, 120)!, fp: text(g.fp, 16) ?? '', titel: text(g.titel, 120) ?? '',
+    frage: text(g.frage, 600) ?? '', grund: text(g.grund, 20)!, antwort: text(g.antwort, 400),
+  };
+}
 
 export function pruefeRueckmeldung(x: unknown): Rueckmeldung {
   const r = x as Rueckmeldung;
@@ -155,7 +170,7 @@ export function pruefeRueckmeldung(x: unknown): Rueckmeldung {
     v: 1, id: text(r.id, 20)!, art: r.art, seite: text(r.seite, 200)?.startsWith('/') ? text(r.seite, 200) : undefined,
     text: r.text.trim().slice(0, 4000), sterne, name: text(r.name, 40), geraet,
     auftraege: Array.isArray(r.auftraege) ? r.auftraege.filter((a) => typeof a === 'string').slice(0, 30) : undefined,
-    technik: text(r.technik, 500), erstellt: text(r.erstellt, 40) ?? new Date().toISOString(),
+    technik: text(r.technik, 500), frage: pruefeFrage(r.frage), erstellt: text(r.erstellt, 40) ?? new Date().toISOString(),
   };
 }
 
