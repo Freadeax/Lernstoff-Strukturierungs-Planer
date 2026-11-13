@@ -310,7 +310,7 @@ function Auswertung({ fall, onNeu, onNochmal }: { fall: Fall; onNeu: () => void;
 /** Krankheitsbilder zu Probefällen (KI-Fälle über KI_KRANKHEITEN) */
 const PROBE_KRANKHEITEN: Record<string, string[]> = {
   'demo-atemnot': ['kh.herzinsuffizienz'], 'demo-hypo': ['kh.diabetes-typ2'], 'demo-asthma': ['kh.asthma'],
-  'demo-sepsis': ['kh.sepsis'], 'demo-schlaganfall': ['kh.schlaganfall'], 'demo-fieberkrampf': ['kh.fieberkrampf'],
+  'demo-sepsis': ['kh.sepsis'], 'demo-schlaganfall': ['kh.schlaganfall'], 'demo-fieberkrampf': ['kh.fieberkrampf'], 'demo-bronchiolitis': ['kh.bronchiolitis'], 'demo-herzschwaeche': ['kh.herzinsuffizienz'],
 };
 
 function Weiterlernen({ fall, themen }: { fall: Fall; themen: string[] }) {

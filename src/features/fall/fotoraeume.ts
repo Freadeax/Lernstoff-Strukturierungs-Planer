@@ -11,7 +11,7 @@ export type FotoRaumId = Extract<RaumId,
   | '07_ambulant_wohnzimmer_kompression' | '08_ambulant_pflegebad' | '09_ambulant_kueche_diabetes'
   | '10_pflegeheim_nacht' | '11_pflegeheim_speiseraum'
   | '12_station_kardiologie_monitoring' | '13_station_postop'
-  | '20f_paediatrie_kleinkind_fieberkrampf' | '21_paediatrie_schulkind'
+  | '20f_paediatrie_kleinkind_fieberkrampf' | '20n_paediatrie_kleinkind_nacht' | '21_paediatrie_schulkind'
   | '26_pflegeheim_zimmer_tag' | '26b_pflegeheim_zimmer_fruehstueck_unberuehrt' | '26h_pflegeheim_zimmer_hypoglykaemie' | '26p_pflegeheim_zimmer_pneumonie'
   | '27_station_zweibett_nacht' | '30_station_zimmer_frau' | '30b_station_zimmer_frau_sepsis'>;
 
@@ -137,6 +137,14 @@ export const FOTORAEUME: Record<FotoRaumId, FotoRaum> = {
       { id: 'nachttisch', nr: 3, name: 'Nachttisch mit Trinkbecher und Thermometer', ort: 'wagen', x: 0.09, y: 0.62 },
     ],
   },
+  '20n_paediatrie_kleinkind_nacht': {
+    id: '20n_paediatrie_kleinkind_nacht', person: 'kind', titel: 'Kinderzimmer bei Nacht', monitor: true,
+    marker: [
+      { id: 'patient', nr: 1, name: 'Kind', ort: 'bett', x: 0.45, y: 0.4 },
+      { id: 'monitor', nr: 2, name: 'Monitor und Messgeräte', ort: 'monitor', x: 0.86, y: 0.55 },
+      { id: 'nachttisch', nr: 3, name: 'Nachttisch mit Flasche und Thermometer', ort: 'wagen', x: 0.09, y: 0.62 },
+    ],
+  },
   '21_paediatrie_schulkind': {
     id: '21_paediatrie_schulkind', person: 'kind', titel: 'Kinderzimmer mit Sauerstoffanschluss', monitor: true,
     marker: [
@@ -181,6 +189,8 @@ export const RAUM_FUER_FALL: Record<string, FotoRaumId> = {
   'demo-schlaganfall': '13_station_postop',
   'demo-anaphylaxie': '30_station_zimmer_frau',
   'demo-fieberkrampf': '20f_paediatrie_kleinkind_fieberkrampf',
+  'demo-bronchiolitis': '20n_paediatrie_kleinkind_nacht',
+  'demo-herzschwaeche': '09_ambulant_kueche_diabetes',
   herzinsuffizienz: '12_station_kardiologie_monitoring',
   lungenembolie: '12_station_kardiologie_monitoring',
   anaphylaxie: '30_station_zimmer_frau',
