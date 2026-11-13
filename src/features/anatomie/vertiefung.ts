@@ -5,6 +5,62 @@ import { ERWEITERUNG_VERTIEFUNG } from './erweiterung';
 
 export const VERTIEFUNG: Record<string, string[]> = {
   ...ERWEITERUNG_VERTIEFUNG,
+  'zelle.beschriften': [
+    'Der Mensch besteht aus vielen Billionen Zellen von über 200 Arten. Bau und Organellen unterscheiden sich je nach Aufgabe: Muskelzellen haben besonders viele Mitochondrien, Drüsenzellen viel ER und Golgi-Apparat.',
+    'Viele Arzneimittel wirken an der Zellmembran, etwa an Rezeptoren oder Ionenkanälen. Antibiotika nutzen Unterschiede zwischen Bakterien- und Menschenzellen, zum Beispiel die Zellwand, die menschliche Zellen nicht haben.',
+  ],
+  'zelle.ebenen': [
+    'Krankheiten lassen sich auf allen Ebenen beschreiben: Ein Gendefekt in der Zelle (Mukoviszidose) verändert das Gewebe (zäher Schleim), das Organ (Lunge) und schließlich den ganzen Menschen.',
+    'In der Pflege denkt man oft vom Organismus aus rückwärts: Welche Beobachtung beim Menschen passt zu welchem Organ, und was passiert dort im Gewebe?',
+  ],
+  'zelle.zu.gewebe': [
+    'Epithelgewebe hat keine eigenen Blutgefäße und wird aus dem darunterliegenden Bindegewebe ernährt. Deshalb blutet eine reine Oberhautverletzung nicht.',
+    'Muskelgewebe gibt es in drei Formen: Skelettmuskulatur (willkürlich), glatte Muskulatur in Organwänden (unwillkürlich) und Herzmuskulatur mit eigenem Takt.',
+  ],
+  'zelle.osmose': [
+    'Physiologische Kochsalzlösung (0,9 %) hat etwa denselben Teilchendruck wie das Blut und heißt deshalb isoton. Destilliertes Wasser direkt in die Vene würde rote Blutkörperchen platzen lassen.',
+    'Auch Ödeme hängen mit Teilchen im Blut zusammen: Fehlt Eiweiß (z. B. bei Mangelernährung oder Lebererkrankung), hält das Blut weniger Wasser in den Gefäßen, und es tritt ins Gewebe aus.',
+  ],
+  'zelle.mitose': [
+    'Krebs entsteht, wenn sich Zellen ungebremst teilen. Viele Chemotherapien greifen deshalb sich schnell teilende Zellen an und treffen dabei auch Haarwurzeln, Schleimhäute und Knochenmark.',
+    'Daraus folgen typische Nebenwirkungen: Haarausfall, entzündete Mundschleimhaut (Mukositis) und erhöhte Infektanfälligkeit durch wenige weiße Blutkörperchen.',
+  ],
+  'zelle.regeneration': [
+    'Die Oberhaut erneuert sich etwa alle vier Wochen, die Darmschleimhaut sogar in wenigen Tagen. Deshalb heilen Schürfwunden und kleine Schleimhautschäden schnell.',
+    'Leberzellen können sich ebenfalls gut erneuern. Nach Teilentfernung wächst die Leber wieder zu ihrer Größe heran, solange sie nicht dauerhaft geschädigt ist.',
+  ],
+  'zelle.fall.heilung': [
+    'Narbengewebe ist weniger elastisch und hat keine Haare, Talg- oder Schweißdrüsen. Große Narben an Gelenken können die Beweglichkeit einschränken.',
+    'Nach einem Schlaganfall sind die ersten Wochen und Monate besonders wichtig für die Rehabilitation. Die Pflege nutzt jede Alltagshandlung als Übung, zum Beispiel beim Anziehen und Essen.',
+  ],
+  'fortpflanzung.zu.organe': [
+    'Eierstöcke und Hoden entstehen im Mutterleib aus derselben Anlage. Die Hoden wandern vor der Geburt in den Hodensack, weil Samenzellen eine etwas niedrigere Temperatur brauchen als der Bauchraum.',
+    'Bei Frauen ist die Harnröhre mit etwa 4 cm viel kürzer als bei Männern mit etwa 20 cm. Deshalb haben Frauen häufiger Blasenentzündungen.',
+  ],
+  'fortpflanzung.zyklus': [
+    'Die Basaltemperatur steigt nach dem Eisprung durch Progesteron um etwa 0,3 bis 0,5 °C an. Manche Frauen nutzen das zur Familienplanung.',
+    'Hormonelle Verhütungsmittel unterdrücken meist den Eisprung. Bei Erbrechen oder Durchfall und bei manchen Arzneimitteln, etwa einigen Antiepileptika, kann ihre Wirkung nachlassen.',
+  ],
+  'fortpflanzung.zu.hormone': [
+    'FSH heißt follikelstimulierendes Hormon, LH luteinisierendes Hormon. Ein steiler Anstieg von LH löst den Eisprung aus.',
+    'Testosteron wird in geringer Menge auch bei Frauen gebildet, Östrogen in geringer Menge auch bei Männern. Entscheidend ist das Verhältnis.',
+  ],
+  'fortpflanzung.befruchtung': [
+    'Typische Zeichen einer Eileiterschwangerschaft sind einseitige Unterbauchschmerzen und Schmierblutungen einige Wochen nach der letzten Regel. Platzt der Eileiter, droht ein lebensgefährlicher Blutverlust.',
+    'Samenzellen können im weiblichen Körper einige Tage überleben, die Eizelle nach dem Eisprung nur etwa einen Tag.',
+  ],
+  'fortpflanzung.dauer': [
+    'Die Schwangerschaft wird in drei Abschnitte (Trimenon) gegliedert. Im ersten Drittel entstehen alle Organe, deshalb ist das Kind dann besonders empfindlich für Arzneimittel, Alkohol und Infektionen.',
+    'Vor der 37. Woche spricht man von einer Frühgeburt. Mit intensivmedizinischer Versorgung überleben heute viele Kinder ab etwa der 24. Woche.',
+  ],
+  'fortpflanzung.wechseljahre': [
+    'Die letzte Regelblutung heißt Menopause und liegt in Deutschland im Mittel um das 51. Lebensjahr. Die Jahre davor und danach heißen Klimakterium.',
+    'Typische Beschwerden sind Hitzewallungen, Schlafstörungen und Stimmungsschwankungen. Bewegung, kalziumreiche Ernährung und Vitamin D stärken die Knochen.',
+  ],
+  'fortpflanzung.fall.prostata': [
+    'Die gutartige Prostatavergrößerung (benigne Prostatahyperplasie) betrifft mit steigendem Alter einen großen Teil der Männer. Sie ist nicht dasselbe wie Prostatakrebs, der meist am Rand der Drüse wächst.',
+    'Für Männer mit Prostatavergrößerung gibt es Katheter mit gebogener Spitze (Tiemann-Katheter). Ob und wer sie legt, regelt die Einrichtung.',
+  ],
   'herz.beschriften': [
     'Die Klappen sind Ventile: Segelklappen werden in der Systole von Sehnenfäden und Papillarmuskeln gehalten, damit sie nicht in die Vorhöfe durchschlagen. Taschenklappen schließen sich passiv, wenn das Blut zurückfließen will.',
     'Pflegebezug: Eine undichte oder verengte Klappe (Insuffizienz bzw. Stenose) hört man als Herzgeräusch. Eine Mitralinsuffizienz staut Blut zurück in die Lunge, typisch sind Atemnot und Rasselgeräusche.',
