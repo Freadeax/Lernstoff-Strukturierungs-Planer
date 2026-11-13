@@ -6,6 +6,7 @@
 
 import type { Szenario } from './faelle';
 import { PROBEFAELLE_2 } from './probefaelle2';
+import { PROBEFAELLE_4 } from './probefaelle4';
 import { PROBEFAELLE_3 } from './probefaelle3';
 import type { Abschluss, Fall, Note, Schritt, Vitalwerte, Wertung, Zug, Zustand } from './simulator';
 
@@ -287,7 +288,7 @@ const ASTHMA: Probefall = {
 
 // ---------- Engine ----------
 
-export const PROBEFAELLE: Probefall[] = [HERZ, HYPO, BLUTUNG, ASTHMA, ...PROBEFAELLE_2, ...PROBEFAELLE_3];
+export const PROBEFAELLE: Probefall[] = [HERZ, HYPO, BLUTUNG, ASTHMA, ...PROBEFAELLE_2, ...PROBEFAELLE_3, ...PROBEFAELLE_4];
 export const DEMO_SZENARIO = HERZ.szenario;
 const NACH_ID = new Map(PROBEFAELLE.map((p) => [p.szenario.id, p]));
 export const probefallVon = (f: Pick<Fall, 'szenario'>) => NACH_ID.get(f.szenario.id) ?? null;

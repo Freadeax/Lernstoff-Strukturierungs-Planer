@@ -12,11 +12,14 @@ import { kopiere, speichereDatei, teile } from '../klasse/teilen';
 import {
   alsCsv, ART_HILFE, ART_LABEL, AUFTRAEGE, diesesGeraet, entferneGesammelt, erledigte, geraetText, gemerkterName, gesammelte, gesendete,
   leseRueckmeldungen, merkeGesendet, merkeName, neueId, rueckmeldungText, sammle, setzeErledigt, ueberblick, type Art, type Rueckmeldung,
+  bearbeitungen, leseSammelDatei, sammelDatei, setzeBearbeitung, STAND_LABEL, standVon, type Stand,
 } from './testphase';
+import { alsGesehenMerken, NEUIGKEITEN, ungesehen, zuletztGesehen } from './neuigkeiten';
 
-type Ansicht = 'start' | 'auftraege' | 'rueckmeldung' | 'auswerten';
+type Ansicht = 'start' | 'neu' | 'auftraege' | 'rueckmeldung' | 'auswerten';
 const ANSICHTEN: Array<{ id: Ansicht; label: string }> = [
   { id: 'start', label: 'Willkommen' },
+  { id: 'neu', label: 'Was ist neu' },
   { id: 'auftraege', label: 'Testaufträge' },
   { id: 'rueckmeldung', label: 'Rückmeldung' },
   { id: 'auswerten', label: 'Auswerten' },
@@ -27,8 +30,10 @@ const name = (p?: string) => (p ? seitenName(p.split('?')[0]!) ?? p : 'allgemein
 
 function Willkommen() {
   const fertig = erledigte().length;
+  const neu = ungesehen(zuletztGesehen()).length;
   return (
     <div className="testphase__spalte">
+      {neu > 0 && <p className="note"><strong>{neu === 1 ? 'Eine Neuerung' : `${neu} Neuerungen`} seit deinem letzten Blick.</strong> <a href="#/system/test?ansicht=neu">Was ist neu</a></p>}
       <section className="card">
         <h2>Schön, dass du testest</h2>
         <p>Der Lernstoff-Planer hilft dir in der generalistischen Pflegeausbildung beim Lernen: Lernplan, Karteikarten, Trainer, Fall- und Praxissimulationen und Prüfungsvorbereitung an einem Ort. Er ist noch in Entwicklung, deshalb ist deine Rückmeldung wichtig.</p>
@@ -70,6 +75,33 @@ function Willkommen() {
           <li>Unter jeder Übung zeigt <strong>„Passt dazu“</strong>, wie es sinnvoll weitergeht.</li>
         </ul>
       </section>
+    </div>
+  );
+}
+
+function WasIstNeu() {
+  // Stand beim Öffnen festhalten, dann als gesehen merken: Markierungen bleiben sichtbar, bis man die Seite verlässt.
+  const [gesehen] = useState(zuletztGesehen);
+  useEffect(() => { alsGesehenMerken(); }, []);
+  const neu = new Set(ungesehen(gesehen));
+  const tage = [...new Set(NEUIGKEITEN.map((n) => n.datum))];
+  return (
+    <div className="testphase__spalte">
+      <p className="muted">Was sich zuletzt getan hat. Am besten gleich ausprobieren und rückmelden.</p>
+      {tage.map((d) => (
+        <section key={d} className="card">
+          <h2>{new Date(d + 'T12:00:00').toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' })}</h2>
+          <ul className="testphase__liste">
+            {NEUIGKEITEN.filter((n) => n.datum === d).map((n) => (
+              <li key={n.titel} className="testphase__neu">
+                <div><a href={`#${n.pfad}`}><strong>{n.titel}</strong></a>{neu.has(n) && <span className="badge testphase__marke">Neu für dich</span>}</div>
+                <p>{n.text}</p>
+                <a className="testphase__klein" href={`#/system/test?ansicht=rueckmeldung&seite=${encodeURIComponent(n.pfad)}`}>Dazu rückmelden</a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
     </div>
   );
 }
@@ -226,8 +258,22 @@ function Auswerten() {
   const [liste, setListe] = useState(gesammelte);
   const [eingabe, setEingabe] = useState('');
   const [filter, setFilter] = useState<Art | ''>('');
+  const [stand, setStand] = useState(bearbeitungen);
+  const [nurOffen, setNurOffen] = useState(true);
   const ue = useMemo(() => ueberblick(liste), [liste]);
-  const sichtbar = filter ? liste.filter((r) => r.art === filter) : liste;
+  const offen = (r: Rueckmeldung) => ['neu', 'in-arbeit'].includes(standVon(stand, r.id));
+  const sichtbar = liste.filter((r) => (!filter || r.art === filter) && (!nurOffen || offen(r)));
+  const anzahlOffen = liste.filter(offen).length;
+  const setze = (id: string, b: { stand: Stand; notiz?: string }) => setStand(setzeBearbeitung(id, b));
+
+  async function dateiLesen(f: File | undefined) {
+    if (!f) return;
+    try {
+      const r = leseSammelDatei(await f.text());
+      setListe(r.liste); setStand(bearbeitungen());
+      notify(r.fehler ? 'warning' : 'info', `${r.neu} neu aufgenommen`, [r.doppelt ? `${r.doppelt} waren schon da.` : '', r.fehler ? `${r.fehler} Einträge waren beschädigt.` : ''].filter(Boolean).join(' ') || undefined);
+    } catch (e) { notify('critical', 'Datei nicht gelesen', e instanceof Error ? e.message : String(e)); }
+  }
 
   async function aufnehmen() {
     const { neu, fehler } = await leseRueckmeldungen(eingabe);
@@ -245,7 +291,11 @@ function Auswerten() {
         <label>Eingefügte Nachrichten
           <textarea rows={4} value={eingabe} onChange={(e) => setEingabe(e.target.value)} placeholder="… LSP-RUECKMELDUNG[z…]" />
         </label>
-        <div className="row"><button type="button" className="primary" disabled={!eingabe.trim()} onClick={() => void aufnehmen()}>Aufnehmen</button></div>
+        <div className="row">
+          <button type="button" className="primary" disabled={!eingabe.trim()} onClick={() => void aufnehmen()}>Aufnehmen</button>
+          <label className="button-link testphase__datei">Sammel-Datei einlesen<input type="file" accept="application/json,.json" onChange={(e) => { void dateiLesen(e.target.files?.[0]); e.target.value = ''; }} /></label>
+        </div>
+        <p className="muted">Mit der Sammel-Datei nimmst du alle Rückmeldungen samt Bearbeitungsstand auf ein anderes Gerät mit.</p>
       </section>
       {liste.length > 0 && (
         <>
@@ -261,8 +311,9 @@ function Auswerten() {
               {ue.jeSeite.slice(0, 8).map((s) => <li key={s.seite}>{s.seite ? <a href={`#${s.seite}`}>{name(s.seite)}</a> : 'Allgemein'}: {s.anzahl}{s.fehler ? `, davon ${s.fehler} Fehler` : ''}</li>)}
             </ul>
             <div className="row">
-              <button type="button" onClick={() => speichereDatei(`rueckmeldungen-${new Date().toISOString().slice(0, 10)}.csv`, alsCsv(liste, (p) => seitenName(p)), 'text/csv;charset=utf-8')}>Als CSV speichern</button>
-              <button type="button" className="ghost" onClick={() => { if (confirm('Alle gesammelten Rückmeldungen auf diesem Gerät löschen?')) setListe(entferneGesammelt()); }}>Alle löschen</button>
+              <button type="button" onClick={() => speichereDatei(`rueckmeldungen-${new Date().toISOString().slice(0, 10)}.csv`, alsCsv(liste, (p) => seitenName(p), stand), 'text/csv;charset=utf-8')}>Als CSV speichern</button>
+              <button type="button" onClick={() => speichereDatei(`rueckmeldungen-${new Date().toISOString().slice(0, 10)}.json`, sammelDatei(), 'application/json')}>Sammel-Datei speichern</button>
+              <button type="button" className="ghost" onClick={() => { if (confirm('Alle gesammelten Rückmeldungen auf diesem Gerät löschen?')) { setListe(entferneGesammelt()); setStand(bearbeitungen()); } }}>Alle löschen</button>
             </div>
           </section>
           <section className="card">
@@ -270,13 +321,26 @@ function Auswerten() {
               <button type="button" className="pill" aria-pressed={!filter} onClick={() => setFilter('')}>Alle</button>
               {(Object.keys(ART_LABEL) as Art[]).map((a) => <button key={a} type="button" className="pill" aria-pressed={filter === a} onClick={() => setFilter(a)}>{ART_LABEL[a]} ({ue.jeArt[a]})</button>)}
             </div>
+            <label className="check"><input type="checkbox" checked={nurOffen} onChange={(e) => setNurOffen(e.target.checked)} /><span>Nur offene zeigen ({anzahlOffen} von {liste.length})</span></label>
+            {!sichtbar.length && <p className="muted">Nichts Offenes in dieser Auswahl.</p>}
             <ul className="testphase__liste testphase__liste--gesammelt">
               {sichtbar.map((r) => (
                 <li key={r.id}>
                   <div><strong>{ART_LABEL[r.art]}</strong>{r.sterne ? ` · ${'★'.repeat(r.sterne)}` : ''} · {r.seite ? <a href={`#${r.seite}`}>{name(r.seite)}</a> : 'Allgemein'} · {r.name ?? 'ohne Namen'} · <span className="muted">{datum(r.erstellt)}</span></div>
                   <p>{r.text}</p>
                   {(r.geraet || r.technik) && <p className="muted">{r.geraet ? geraetText(r.geraet) : ''}{r.technik ? ` · Fehler: ${r.technik}` : ''}</p>}
-                  <button type="button" className="ghost" onClick={() => setListe(entferneGesammelt(r.id))}>Entfernen</button>
+                  <div className="testphase__bearbeiten">
+                    <label>Stand
+                      <select value={standVon(stand, r.id)} onChange={(e) => setze(r.id, { stand: e.target.value as Stand, notiz: stand[r.id]?.notiz })}>
+                        {(Object.keys(STAND_LABEL) as Stand[]).map((x) => <option key={x} value={x}>{STAND_LABEL[x]}</option>)}
+                      </select>
+                    </label>
+                    <label>Notiz
+                      <input type="text" maxLength={500} defaultValue={stand[r.id]?.notiz ?? ''} placeholder="z. B. PR #…, Antwort an Tester"
+                        onBlur={(e) => { if (e.target.value !== (stand[r.id]?.notiz ?? '')) setze(r.id, { stand: standVon(stand, r.id), notiz: e.target.value }); }} />
+                    </label>
+                    <button type="button" className="ghost" onClick={() => { setListe(entferneGesammelt(r.id)); setStand(bearbeitungen()); }}>Entfernen</button>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -299,6 +363,7 @@ export default function TestphaseSeite() {
         {ANSICHTEN.map((a) => <a key={a.id} className="pill" href={`#/system/test?ansicht=${a.id}`} aria-current={a.id === ansicht ? 'page' : undefined}>{a.label}</a>)}
       </nav>
       {ansicht === 'start' && <Willkommen />}
+      {ansicht === 'neu' && <WasIstNeu />}
       {ansicht === 'auftraege' && <Auftraege />}
       {ansicht === 'rueckmeldung' && <Rueckmelden />}
       {ansicht === 'auswerten' && <Auswerten />}

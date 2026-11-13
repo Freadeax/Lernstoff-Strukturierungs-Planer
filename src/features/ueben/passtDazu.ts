@@ -5,7 +5,7 @@
 
 import type { CatalogModule } from '../../modules/catalog-types';
 import { modules } from '../../modules/registry';
-import { flatNav, NAV } from '../../ui/shell/nav';
+import { flatNav, LERNSEITEN, NAV } from '../../ui/shell/nav';
 import { leafTopics } from '../lernplan/store';
 import { uebungenFuer, type TrainerId } from '../lernplan/trainer';
 import { UEBUNG_INFO } from './katalog';
@@ -34,6 +34,19 @@ const SCHRITT: Record<string, Ziel> = {
   schnellsuche: { label: 'Standard-Schnellsucher', path: '/lernen/schnellsuche', grund: 'Kriterien eines Standards schnell finden.' },
   hoeren: { label: 'Hör-Trainer', path: '/lernen/hoeren', grund: 'Alarme, Herz und Lunge nach Gehör erkennen.' },
   diagnostik: { label: 'Labor und Bildgebung', path: '/lernen/diagnostik', grund: 'Befunde an Fällen lesen.' },
+  fallakte: { label: 'Fallakte', path: '/lernen/fallakte', grund: 'Einen Fall von der SIS bis zur Übergabe durcharbeiten.' },
+  recht: { label: 'Recht-Trainer', path: '/lernen/recht', grund: 'Haftung, Schweigepflicht und Betreuung anwenden.' },
+  duell: { label: 'Fachbegriff-Duell', path: '/lernen/duell', grund: 'Fachbegriffe schnell und sicher abrufen.' },
+  krankheitsbilder: { label: 'Krankheitsbilder', path: '/lernen/krankheitsbilder', grund: 'Steckbriefe mit Belegen und Fallaufgaben.' },
+  ueben: { label: 'Alle Übungen', path: '/lernen/ueben', grund: 'Passende Übung nach CE, Fach oder Dauer finden.' },
+  plan: { label: 'Lernplan', path: '/lernen/plan', grund: 'Den Stoff bis zur Prüfung verteilen.' },
+  skript: { label: 'Skript', path: '/lernen/skript', grund: 'Den Stoff in Ruhe nachlesen.' },
+  themen: { label: 'Themen', path: '/lernen/themen', grund: 'Alle Themen mit Arbeitsstand auf einen Blick.' },
+  landkarte: { label: 'Themen-Landkarte', path: '/lernen/landkarte', grund: 'Sehen, wie die Themen zusammenhängen.' },
+  board: { label: 'Mein Themenboard', path: '/lernen/board', grund: 'Themen für diese Woche einplanen.' },
+  import: { label: 'Import-Assistent', path: '/material/import', grund: 'Eigenes Skript als PDF, Foto oder Text holen.' },
+  dokumente: { label: 'Dokumente', path: '/material/dokumente', grund: 'Dein Material mit Fundstellen durchsuchen.' },
+  zusammenfassen: { label: 'Zusammenfassen', path: '/material/zusammenfassen', grund: 'Aus deinem Material eine belegte Zusammenfassung machen.' },
 };
 
 /** Feste nächste Schritte je Seite (zusätzlich zu den abgeleiteten). */
@@ -55,6 +68,20 @@ const WEITER: Record<string, string[]> = {
   notfall: ['hoeren', 'praxis'],
   labor: ['diagnostik'],
   normwerte: ['diagnostik'],
+  fallakte: ['pflegeplanung', 'uebergabe'],
+  grundlagen: ['recht', 'duell'],
+  // Lern- und Materialseiten ohne eigene Aufgaben: vom Lesen zum Üben und zurück
+  karten: ['fehler', 'ueben', 'fortschritt'],
+  skript: ['karten', 'krankheitsbilder', 'ueben'],
+  dnqp: ['expertenstandards', 'schnellsuche', 'pflegeplanung'],
+  schnellsuche: ['dnqp', 'expertenstandards', 'assessment'],
+  ce: ['plan', 'ueben', 'examen'],
+  themen: ['board', 'landkarte', 'plan'],
+  landkarte: ['themen', 'ce', 'ueben'],
+  board: ['plan', 'ueben', 'fortschritt'],
+  fortschritt: ['fehler', 'plan', 'examen'],
+  dokumente: ['zusammenfassen', 'skript', 'karten'],
+  zusammenfassen: ['karten', 'skript', 'dokumente'],
 };
 
 /** Übungsseiten (Menü-IDs unter „Üben“), auf denen die Leiste erscheint. */
@@ -106,10 +133,10 @@ export function passtDazu(id: string, modul: CatalogModule = modules[0] as Catal
     .slice(0, 4)
     .map((t) => ({ id: t.id, name: namen.get(t.id) ?? t.id }));
 
-  const fest = [...(WEITER[id] ?? []), ...(UEBUNG_INFO[id]?.fehlerheft && id !== 'fehler' ? ['fehler'] : []), 'karten'];
+  const fest = [...(WEITER[id] ?? []), ...(UEBUNG_INFO[id]?.fehlerheft && id !== 'fehler' ? ['fehler'] : []), 'karten', 'ueben'];
   // Höchstens fünf Ziele: feste Schritte füllen auf, mindestens zwei
-  const platz = Math.max(2, 5 - verwandt.length);
-  const schon = new Set([seiten.get(id), ...verwandt.map((v) => v.path.split('?')[0])]);
+  const platz = Math.max(LERNSEITEN.has(id) ? 3 : 2, 5 - verwandt.length);
+  const schon = new Set([seiten.get(id), SCHRITT[id]?.path, ...verwandt.map((v) => v.path.split('?')[0])]);
   const weiter: Ziel[] = [];
   for (const k of fest) {
     const z = SCHRITT[k];

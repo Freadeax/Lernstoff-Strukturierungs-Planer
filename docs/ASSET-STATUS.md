@@ -4,7 +4,7 @@ Automatisch erzeugt aus `src/features/assetstatus/inventar.ts`. Neu erzeugen mit
 der normale Testlauf schlägt fehl, wenn diese Datei nicht mehr zum Code passt.
 
 Spalten: **zugeordnet** = steht im Katalog, **erreichbar** = ein Fall oder eine Seite zeigt die Datei
-(über Zuordnung und Zustandsregeln), **geprüft** = fachliche BildFreigabe in `src/features/assetstatus/freigaben.ts`,
+(über Zuordnung und Zustandsregeln), **geprüft** = fachliche BildFreigabe in `src/ui/sim/bildfreigaben.ts`,
 **offline** = vorab im Service Worker oder nach dem ersten Ansehen im Laufzeit-Cache. „Vorhanden“ prüft der Test:
 jede Datei unter `public/{raeume,personen,sim-videos,bildgebung,titelbilder}` steht hier und umgekehrt.
 
@@ -66,8 +66,8 @@ Sensor abgefallen: Bild mit Sensor, der Monitor zeigt den Ausfall). Reihenfolge 
 |---|---|---|---|---|---|---|
 | `raeume/07_ambulant_wohnzimmer_kompression.webp` | 07_ambulant_wohnzimmer_kompression | ja | praxis:hausbesuch, fall:ambulant (Thema) | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
 | `raeume/08_ambulant_pflegebad.webp` | 08_ambulant_pflegebad | ja | praxis:reha | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
-| `raeume/09_ambulant_kueche_diabetes.webp` | 09_ambulant_kueche_diabetes | ja | praxis:herzschwaeche, fall:demo-herzschwaeche, fall:dekubitus, fall:copd | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
-| `raeume/10_pflegeheim_nacht.webp` | 10_pflegeheim_nacht | ja | praxis:palliativ, fall:palliativ, fall:sturz-nacht | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `raeume/09_ambulant_kueche_diabetes.webp` | 09_ambulant_kueche_diabetes | ja | praxis:herzschwaeche, fall:demo-herzschwaeche, fall:demo-copd, fall:dekubitus, fall:copd | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `raeume/10_pflegeheim_nacht.webp` | 10_pflegeheim_nacht | ja | praxis:palliativ, fall:demo-sturz, fall:palliativ, fall:sturz-nacht | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
 | `raeume/11_pflegeheim_speiseraum.webp` | 11_pflegeheim_speiseraum | ja | praxis:pflegeheim, praxis:psychiatrie | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
 | `raeume/12_station_kardiologie_monitoring.webp` | 12_station_kardiologie_monitoring | ja | praxis:nachtwache, praxis:lungenembolie, fall:demo-atemnot, fall:herzinsuffizienz, fall:lungenembolie, diagnostik:sepsis-pneumonie, diagnostik:hyperkaliaemie | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
 | `raeume/12a_station_kardiologie_ohne_monitor.webp` | 12a_station_kardiologie_ohne_monitor | ja | praxis:nachtwache (Variante), praxis:lungenembolie (Variante), fall:demo-atemnot (Variante), fall:herzinsuffizienz (Variante), fall:lungenembolie (Variante), diagnostik:sepsis-pneumonie (Variante), diagnostik:hyperkaliaemie (Variante) | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |

@@ -22,6 +22,7 @@ import { uebungenFuer } from '../lernplan/trainer';
 import { blockTitel, inTagen, kurzDatum, STATUS_LABEL } from '../lernplan/ui/format';
 import { usePlan } from '../lernplan/ui/usePlan';
 import { kartenLage, naechsterBlock } from './thema';
+import { merkeThema } from './letztesThema';
 import { istEigenesThema } from './pflege';
 import { ThemaVerwalten, ZuordnungKorrigieren } from './ThemaPflege';
 
@@ -103,6 +104,8 @@ export default function ThemaSeite() {
     return ce ? f : { ...f, testZiel: f.testZiel?.startsWith('/lernen/ce') ? uebungenFuer(id, modul)[0]?.path : f.testZiel };
   }, [eintrag, modul, daten, ctx, ce, id]);
   const pfad = useMemo(() => (fakten ? themaPfad(fakten) : undefined), [fakten]);
+  // Für den Rückweg aus Übungen („Passt dazu“ → „Zurück zum Thema“)
+  useEffect(() => { if (topic?.name) merkeThema(id, topic.name); }, [id, topic?.name]);
 
   if (!id || (!topic && ctx && (!istEigenesThema(id) || eigen))) {
     return (

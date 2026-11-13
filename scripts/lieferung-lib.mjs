@@ -76,7 +76,7 @@ export function pruefeLieferung(dateien, { katalog, vorhandeneIds, bestellteIds 
 
     const basisId = art === 'videophase' ? VIDEO_PHASE.exec(id)[1] : art === 'portraet' ? id : id;
     if (vorhandeneIds.includes(basisId)) w('ersetzt eine vorhandene Datei (gewollt?)');
-    else if (art !== 'portraet' && art !== 'videophase' && !bestellteIds.includes(basisId)) w('ID steht nicht in MATERIAL-BEDARF.md');
+    else if (art !== 'portraet' && art !== 'videophase' && !bestellteIds.includes(basisId)) w('ID steht nicht in der Bestellliste (MATERIAL-BEDARF.md, BESTELLUNG.md)');
 
     if (art !== 'videophase') {
       const k = nachDatei.get(name);

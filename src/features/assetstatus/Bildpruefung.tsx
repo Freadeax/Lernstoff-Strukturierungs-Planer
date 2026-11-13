@@ -7,7 +7,7 @@ import { HANDLUNGSVIDEOS, type HandlungsVideoId } from '../../ui/sim/handlungsvi
 import { TITELBILDER } from '../../ui/Titelbild';
 import type { BildFreigabe } from './freigaben';
 import { PRUEFPUNKTE, pruefEinheiten, type AssetArt, type PruefEinheit } from './inventar';
-import { erstelleExport, heute, leseLokal, leseVon, speichereLokal, speichereVon } from './pruefung';
+import { erstelleExport, heute, verwendungZiel, leseLokal, leseVon, speichereLokal, speichereVon } from './pruefung';
 import './bildpruefung.css';
 
 const ART_LABEL: Record<AssetArt, string> = { raum: 'Räume', portraet: 'Porträts', handlungsvideo: 'Videos', bildgebung: 'Bildgebung', titelbild: 'Titelbilder' };
@@ -26,6 +26,14 @@ function titelVon(e: PruefEinheit): { titel: string; alt: string } {
 }
 
 const verwendungText = (w: string) => { const [sim, rest] = w.split(':'); return `${SIM_LABEL[sim!] ?? sim} · ${rest}`; };
+
+function Verwendung({ liste }: { liste: string[] }) {
+  if (!liste.length) return <strong>In keinem Fall eingebunden</strong>;
+  return <>Erscheint in: {liste.map((w, i) => {
+    const ziel = verwendungZiel(w);
+    return <span key={w}>{i > 0 && ', '}{ziel ? <a href={ziel}>{verwendungText(w)}</a> : verwendungText(w)}</span>;
+  })}</>;
+}
 
 function Karte({ e, lokal, von, setzen }: { e: PruefEinheit; lokal?: BildFreigabe; von: string; setzen: (f: BildFreigabe | null) => void }) {
   const f = lokal ?? e.freigabe;
@@ -53,7 +61,7 @@ function Karte({ e, lokal, von, setzen }: { e: PruefEinheit; lokal?: BildFreigab
         </p>
         {f?.status === 'mangel' && f.hinweis && <p className="bildpruefung__hinweis">{f.hinweis}</p>}
         <p className="muted bildpruefung__klein"><code>{e.schluessel}</code>{e.dateien.length > 1 ? ` (${e.dateien.length} Dateien)` : ''}</p>
-        <p className="bildpruefung__klein">{e.verwendung.length ? <>Erscheint in: {e.verwendung.map(verwendungText).join(', ')}</> : <strong>In keinem Fall eingebunden</strong>}</p>
+        <p className="bildpruefung__klein"><Verwendung liste={e.verwendung} /></p>
         <p className="muted bildpruefung__klein">Lizenz: {e.lizenz}</p>
         <div className="bildpruefung__aktionen">
           <button type="button" aria-expanded={offen} aria-controls={idBasis} onClick={() => setOffen((o) => !o)}>{offen ? 'Prüfung schließen' : 'Prüfen'}</button>
