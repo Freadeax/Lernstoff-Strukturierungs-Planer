@@ -8,3 +8,5 @@
 .passt-dazu__ziel small { display: block; font-size: 0.75rem; color: var(--color-text-muted); line-height: 1.5; margin-top: 2px; }
 .passt-dazu__ziel > svg { margin-left: auto; flex-shrink: 0; color: var(--color-text-muted); }
 .passt-dazu__themen, .passt-dazu__rueck { margin: 0; font-size: 0.8125rem; line-height: 1.8; }
+.passt-dazu__zurueck { margin: 0; }
+.passt-dazu__zurueck .button-link { gap: 6px; min-height: 44px; max-width: 100%; }

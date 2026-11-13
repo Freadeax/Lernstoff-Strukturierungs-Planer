@@ -25,3 +25,32 @@ describe('Passt dazu', () => {
     expect(p.weiter.map((w) => w.path)).toContain('/lernen/fehler');
   });
 });
+
+import { passtDazuId, LERNSEITEN } from '../../ui/shell/nav';
+import { letztesThema, merkeThema } from '../thema/letztesThema';
+import { vi } from 'vitest';
+
+describe('Passt dazu auf Lern- und Materialseiten', () => {
+  it('jede Lernseite hat ein Ziel und einen Menüeintrag', () => {
+    for (const id of LERNSEITEN) {
+      const p = passtDazu(id);
+      expect(p.weiter.length, id).toBeGreaterThanOrEqual(2);
+    }
+    expect(passtDazuId('/lernen/karten')).toBe('karten');
+    expect(passtDazuId('/material/dokumente')).toBe('dokumente');
+    expect(passtDazuId('/')).toBeUndefined();
+    expect(passtDazuId('/lernen/plan')).toBeUndefined();
+  });
+});
+
+describe('Zurück zum Thema', () => {
+  it('merkt das Thema nur für kurze Zeit', () => {
+    const m = new Map<string, string>();
+    vi.stubGlobal('sessionStorage', { getItem: (k: string) => m.get(k) ?? null, setItem: (k: string, v: string) => void m.set(k, v) });
+    expect(letztesThema()).toBeUndefined();
+    merkeThema('t1', 'Diabetes', 1000);
+    expect(letztesThema(2000)?.name).toBe('Diabetes');
+    expect(letztesThema(1000 + 4 * 3600_000)).toBeUndefined();
+    vi.unstubAllGlobals();
+  });
+});
