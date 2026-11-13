@@ -181,7 +181,10 @@ S: angezeigt durch AF 28/min nach dem Anziehen, 30 Minuten Pause nötig
 R: orientiert, wäscht und kleidet sich selbst, will zu Hause bleiben
 
 Ziel: Herr Albers wendet beim Anziehen die Lippenbremse an und braucht danach höchstens 15 Minuten Pause. Überprüfung: bei jedem Duschbesuch, Ziel in 14 Tagen.
-Maßnahme: Lippenbremse und Kutschersitz zeigen und gemeinsam üben (Pflegefachperson, bei jedem Besuch); Sauerstoff auch beim Waschen tragen.
+Maßnahme: Lippenbremse und Kutschersitz zeigen und gemeinsam üben; Sauerstoff auch beim Waschen tragen.
+Wann: bei jedem Besuch, vor dem Anziehen
+Wer: Pflegefachperson
+Begründung: Die Lippenbremse hält die Atemwege offen und verkürzt die Erholung. Sauerstoff bei Belastung ist ärztlich verordnet.
 
 P: Unsichere Inhalationstechnik
 E: beeinflusst durch fehlende Schulung nach dem Krankenhaus
@@ -189,14 +192,20 @@ S: angezeigt durch fehlendes Ausatmen vor und Luftanhalten nach dem Sprühstoß
 R: motiviert, möchte wissen, ob das Spray wirkt
 
 Ziel: Herr Albers inhaliert in 7 Tagen ohne Fehler (vorher ausatmen, danach 5 bis 10 Sekunden Luft anhalten).
-Maßnahme: Inhalation zeigen und von ihm vormachen lassen, Technik bei jedem Besuch kontrollieren.
+Maßnahme: Inhalation zeigen und von ihm vormachen lassen, Technik kontrollieren.
+Wann: bei jedem Besuch
+Wer: Pflegefachperson
+Begründung: Nur mit richtiger Technik kommt das Medikament in die Lunge. Wer vormacht, zeigt seine Fehler.
 
 P: Gefahr einer erneuten Exazerbation
 E: beeinflusst durch unsichere Inhalation, Kortison, Untergewicht
 R: Ehefrau beobachtet aufmerksam, Notfallplan liegt vor
 
-Ziel: Zeichen einer Exazerbation werden am selben Tag erkannt und dem Hausarzt gemeldet.
-Maßnahme: Bei jedem Besuch Atemfrequenz, SpO₂, Temperatur und Auswurf erfassen; Notfallplan mit beiden besprechen.`,
+Ziel: Herr Albers nennt drei Warnzeichen (mehr Atemnot, Fieber, verfärbter Auswurf) und ruft bei diesen Zeichen am selben Tag den Hausarzt an. Überprüfung: in 7 Tagen.
+Maßnahme: Atemfrequenz, SpO₂, Temperatur und Auswurf erfassen; Notfallplan mit beiden besprechen.
+Wann: bei jedem Besuch
+Wer: Pflegefachperson
+Begründung: Eine früh erkannte Exazerbation lässt sich oft zu Hause behandeln. Der Notfallplan sagt beiden, wann sie anrufen.`,
 };
 
 export const ALBERS_BERICHT: BerichtFall = {

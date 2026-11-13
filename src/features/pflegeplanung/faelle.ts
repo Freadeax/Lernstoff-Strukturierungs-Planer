@@ -110,14 +110,20 @@ S: angezeigt durch NRS 6 bei Bewegung, Schonhaltung
 R: kann Schmerzen benennen und einschätzen, nimmt Schmerzmittel an
 
 Ziel: Herr Weber gibt bei der Mobilisation höchstens NRS 3 an. Überprüfung: täglich, Ziel bis in 3 Tagen.
-Maßnahme: 30 Minuten vor jeder Mobilisation Bedarfsmedikation nach AVO anbieten (Pflegefachperson), Schmerz mit NRS vor und 30 Min. nach Gabe erfassen und dokumentieren.
+Maßnahme: Bedarfsmedikation nach AVO anbieten, Schmerz mit NRS vor und 30 Min. nach der Gabe erfassen und dokumentieren.
+Wann: 30 Minuten vor jeder Mobilisation
+Wer: Pflegefachperson
+Begründung: Expertenstandard Schmerzmanagement: Das Mittel wirkt, wenn die Bewegung beginnt. Die NRS vorher und nachher zeigt, ob die Medikation reicht.
 
 P: Sturzgefahr
 E: beeinflusst durch Schmerzen, Angst vor Bewegung, neue Gehhilfe
 R: motiviert, kann klingeln, Ehefrau ist täglich da
 
 Ziel: Herr Weber stürzt während des Aufenthalts nicht und klingelt vor jedem Aufstehen.
-Maßnahme: Bett in tiefster Position, Klingel und Rollator in Reichweite (bei jeder Versorgung), festes Schuhwerk; Begleitung bei jedem Gang bis zur sicheren Gehfähigkeit.`,
+Maßnahme: Bett in tiefster Position, Klingel und Rollator in Reichweite, festes Schuhwerk; Begleitung bei jedem Gang bis zur sicheren Gehfähigkeit.
+Wann: bei jeder Versorgung und vor jedem Aufstehen
+Wer: Pflegefachperson, Ehefrau nach Anleitung
+Begründung: Expertenstandard Sturzprophylaxe: Umgebung sichern und begleiten, bis Herr Weber mit der neuen Gehhilfe sicher ist.`,
   },
   {
     id: 'demenz-ernaehrung',
@@ -172,7 +178,10 @@ S: angezeigt durch Gewichtsverlust von 4 kg in 3 Monaten, BMI 19, MNA-SF 6
 R: läuft selbstständig, isst Süßes gern, Biografie: hat gern gebacken
 
 Ziel: Frau Schmitt hält ihr Gewicht von 52 kg. Überprüfung: wöchentliches Wiegen, Auswertung in 4 Wochen.
-Maßnahme: Zu jeder Mahlzeit Fingerfood in kleinen Portionen anbieten, das sie im Gehen essen kann (Bezugspflegekraft); zweimal täglich eine süße, kalorienreiche Zwischenmahlzeit; Tellerprotokoll führen.`,
+Maßnahme: Fingerfood in kleinen Portionen anbieten, das sie im Gehen essen kann; eine süße, kalorienreiche Zwischenmahlzeit; Tellerprotokoll führen.
+Wann: zu jeder Mahlzeit, Zwischenmahlzeit zweimal täglich (10 und 15 Uhr)
+Wer: Bezugspflegekraft
+Begründung: Expertenstandard Ernährungsmanagement: Das Angebot passt sich an Bewegungsdrang und Vorlieben an. Das Tellerprotokoll zeigt, was sie wirklich isst.`,
   },
   {
     id: 'diabetes-insulin',
@@ -223,7 +232,10 @@ S: angezeigt durch Aussage „Spritzen kann ich nicht“, hat noch nie einen Pen
 R: motiviert, Ehefrau will mitlernen, spricht seine Angst offen aus
 
 Ziel: Herr Yılmaz bereitet den Insulin-Pen mit Brille richtig vor und spritzt sich bis zur Entlassung (in 5 Tagen) selbst in die Bauchhaut.
-Maßnahme: Lesebrille von der Ehefrau mitbringen lassen; täglich vor dem Frühstück Pen-Technik zeigen, dann von Herrn Yılmaz am Übungskissen und danach am eigenen Bauch durchführen lassen (Pflegefachperson, Diabetesberatung).`,
+Maßnahme: Lesebrille von der Ehefrau mitbringen lassen; Pen-Technik zeigen, dann von Herrn Yılmaz am Übungskissen und danach am eigenen Bauch durchführen lassen, Ehefrau einbeziehen.
+Wann: täglich vor dem Frühstück bis zur Entlassung
+Wer: Pflegefachperson, Diabetesberatung
+Begründung: Zeigen, üben, selbst machen baut die Angst Schritt für Schritt ab. Ohne Brille kann er die Einheiten am Pen nicht sicher ablesen.`,
   },
   {
     id: 'copd-ambulant',
@@ -249,7 +261,7 @@ Maßnahme: Lesebrille von der Ehefrau mitbringen lassen; täglich vor dem Frühs
       { id: 'schleim', text: 'Zäher Schleim morgens', muster: ['schleim', 'sekret', 'auswurf', 'sputum', 'husten'], pflicht: true },
       { id: 'rauchen', text: 'Raucht 5 Zigaretten am Tag', muster: ['rauch', 'zigarett', 'nikotin'], pflicht: true },
       { id: 'lippenbremse', text: 'Kennt Lippenbremse, nutzt sie selten', muster: ['lippenbremse'], pflicht: true },
-      { id: 'isolation', text: 'Verlässt die Wohnung kaum, „nur noch eine Last“', muster: ['last', 'kaum', 'verlaesst', 'isol', 'allein', 'rueckzug'], pflicht: true },
+      { id: 'isolation', text: 'Verlässt die Wohnung kaum, „nur noch eine Last“', muster: [' last', 'kaum', 'verlaesst', 'isol', 'allein', 'rueckzug'], pflicht: true },
       { id: 'wohnung', text: '2. Stock ohne Aufzug, Badewanne', muster: ['stock', 'aufzug', 'treppe', 'badewanne'], pflicht: false },
     ],
     probleme: [
@@ -262,7 +274,7 @@ Maßnahme: Lesebrille von der Ehefrau mitbringen lassen; täglich vor dem Frühs
       { id: 'pneumonie', art: 'risiko', pflicht: true, text: 'Pneumoniegefahr',
         muster: ['pneumonie', 'infekt', 'lungenentz'], massnahmen: { text: 'Atemübungen, Rauchentwöhnung beraten, Impfungen ansprechen', muster: ['atemuebung', 'atemtrain', 'rauchentwoehn', 'rauchstopp', 'impf', 'mundpflege', 'mobilis'] } },
       { id: 'sozial', art: 'aktuell', pflicht: true, text: 'Soziale Isolation, Gefühl, eine Last zu sein',
-        muster: ['isol', 'einsam', 'sozial', 'rueckzug', 'last', 'selbstwert', 'teilhabe'], massnahmen: { text: 'Gespräch, Kontakte fördern, Lungensport oder Besuchsdienst vorschlagen', muster: ['gespraech', 'kontakt', 'besuchsdienst', 'selbsthilfe', 'lungensport', 'nachbarin', 'tochter', 'telefon', 'spazier', 'hund'] } },
+        muster: ['isol', 'einsam', 'sozial', 'rueckzug', ' last', 'selbstwert', 'teilhabe'], massnahmen: { text: 'Gespräch, Kontakte fördern, Lungensport oder Besuchsdienst vorschlagen', muster: ['gespraech', 'kontakt', 'besuchsdienst', 'selbsthilfe', 'lungensport', 'nachbarin', 'tochter', 'telefon', 'spazier', 'hund'] } },
     ],
     ressourcen: [
       { id: 'lippenbremse', text: 'Kennt die Lippenbremse aus der Reha', muster: ['lippenbremse', 'reha', 'kennt'], pflicht: true },
@@ -276,7 +288,10 @@ S: angezeigt durch SpO₂ 86 % und AF 26/min nach dem Duschen, Pausen beim Anzie
 R: kennt die Lippenbremse aus der Reha, hat Sauerstoff zu Hause
 
 Ziel: Frau Berger wendet beim Duschen selbstständig die Lippenbremse an, die SpO₂ liegt danach mit Sauerstoff bei mindestens 88 %. Überprüfung: in 2 Wochen.
-Maßnahme: Bei jedem Einsatz vor dem Duschen Sauerstoff nach AVO anlegen, Duschhocker nutzen, an die Lippenbremse erinnern und gemeinsam üben; SpO₂ vor und nach dem Duschen messen und dokumentieren (Pflegefachperson).`,
+Maßnahme: Sauerstoff nach AVO anlegen, Duschhocker nutzen, an die Lippenbremse erinnern und gemeinsam üben; SpO₂ vor und nach dem Duschen messen und dokumentieren.
+Wann: bei jedem Einsatz vor dem Duschen
+Wer: Pflegefachperson
+Begründung: Sitzen und Lippenbremse senken die Atemarbeit, Sauerstoff ist bei Belastung verordnet. Die SpO₂-Werte zeigen, ob das Ziel erreicht wird.`,
   },
   {
     id: 'kind-gastroenteritis',
@@ -329,7 +344,10 @@ S: angezeigt durch Gewichtsverlust von 0,8 kg, trockene Lippen, keine Tränen, l
 R: Mutter ist anwesend, Lena trinkt gern Apfelsaft
 
 Ziel: Lena hat innerhalb von 24 Stunden wieder eine nasse Windel mindestens alle 4 Stunden und weint mit Tränen.
-Maßnahme: Mutter anleiten, alle 5 Minuten einen Teelöffel Rehydratationslösung (mit etwas Apfelsaft) zu geben, nach jedem Stuhlgang zusätzlich 100 ml anbieten; Windeln wiegen, Ein- und Ausfuhr bilanzieren, täglich morgens wiegen (Pflegefachperson mit Mutter).`,
+Maßnahme: Mutter anleiten, einen Teelöffel Rehydratationslösung (mit etwas Apfelsaft) zu geben, nach jedem Stuhlgang zusätzlich 100 ml anbieten; Windeln wiegen, Ein- und Ausfuhr bilanzieren, Lena wiegen.
+Wann: Lösung alle 5 Minuten, Bilanz fortlaufend, Gewicht täglich morgens
+Wer: Pflegefachperson mit der Mutter
+Begründung: Kleine, häufige Mengen behält Lena trotz Erbrechen. Windelgewicht und Körpergewicht zeigen, ob die Dehydratation zurückgeht.`,
   },
   {
     id: 'schlaganfall',
@@ -381,7 +399,10 @@ E: beeinflusst durch Schluckstörung nach Schlaganfall
 R: ist wach und kooperativ, kann Husten, sitzt mit Hilfe aufrecht
 
 Ziel: Herr Krüger isst und trinkt ohne Aspiration (kein Husten, keine feuchte Stimme, kein Fieber) während des Aufenthalts.
-Maßnahme: Zu jeder Mahlzeit aufrecht (90°) im Stuhl oder Bett positionieren, nur angedickte Getränke und pürierte Kost nach Anordnung, kleine Portionen; 20 Minuten nach dem Essen aufrecht sitzen lassen, danach Mundpflege (Pflegefachperson). Logopädie einbeziehen.`,
+Maßnahme: Aufrecht (90°) im Stuhl oder Bett positionieren, nur angedickte Getränke und pürierte Kost nach Anordnung, kleine Portionen; 20 Minuten nach dem Essen aufrecht sitzen lassen, danach Mundpflege. Logopädie einbeziehen.
+Wann: zu jeder Mahlzeit und zu jedem Getränk
+Wer: Pflegefachperson, Logopädie
+Begründung: Aufrechte Haltung und angepasste Konsistenz senken das Aspirationsrisiko. Die Mundpflege entfernt Speisereste, die sonst in die Lunge gelangen können.`,
   },
   // Teilfälle der Fallakten (durchgehende Fälle, siehe ../fallakte)
   ...AKTEN_PLAENE,
