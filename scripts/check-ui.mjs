@@ -93,6 +93,10 @@ const futureDate = new Date(Date.now() + 21 * 86400000).toISOString().slice(0, 1
   await page.keyboard.press('Escape');assert.equal(await page.locator('.notif__panel').count(),0);assert.equal(await glocke.evaluate(e=>e===document.activeElement),true,'Mitteilungen: Fokus zurück');
   const profil=page.getByRole('button',{name:'Profil und Darstellung'});await profil.focus();await page.keyboard.press('Enter');await page.waitForTimeout(100);
   await page.keyboard.press('Escape');assert.equal(await profil.evaluate(e=>e===document.activeElement),true,'Profilmenü: Fokus zurück');
+  // iPad hoch (820 px, Seitenleiste sichtbar): in der Kopfleiste überlappt nichts.
+  await page.setViewportSize({width:820,height:1180});await go('/lernen/expertenstandards');
+  assert.equal(await page.evaluate(()=>{const k=[...document.querySelectorAll('.shell__header > *, .shell__actions > *')].filter(e=>e.getClientRects().length&&!e.classList.contains('shell__actions')).map(e=>e.getBoundingClientRect());let n=0;for(let i=0;i<k.length;i++)for(let j=i+1;j<k.length;j++)if(k[i].left<k[j].right-1&&k[j].left<k[i].right-1)n++;return n+Math.max(0,document.documentElement.scrollWidth-innerWidth);}),0,'iPad: Kopfleiste ohne Überlappung');
+  await page.setViewportSize({width:1440,height:1050});
   // Favoriten und Befehle: Stern merkt die Seite im Menü, die Suche führt Befehle aus.
   await go('/lernen/karten');
   const stern=page.locator('.shell__stern');await stern.click();assert.equal(await stern.getAttribute('aria-pressed'),'true');
