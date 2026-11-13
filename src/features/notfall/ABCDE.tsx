@@ -2,6 +2,8 @@
 // sich die Werte. Kein Echtzeit-Timer: jede Handlung rückt die Uhr vor, damit der Verlauf
 // reproduzierbar bleibt. Raumfoto als Bühne, Monitor erst nach dem Anschließen.
 
+import { abcdeZustand } from './zustand';
+import { ZustandsTafel } from '../../ui/sim/ZustandsTafel';
 import { useState } from 'react';
 import { logActivity } from '../../core/activity';
 import { FreigabeHinweis } from '../../ui/sim/FreigabeHinweis';
@@ -74,6 +76,7 @@ export function ABCDE() {
         <strong>{letzter.titel}.</strong> {letzter.text}
       </p>
       {s.monitor && !raum.monitor && <PatientenMonitor kompakt werte={monitorWerte(s)} titel={`Monitor · ${uhr(s.zeit)}`} />}
+      <ZustandsTafel z={abcdeZustand(s)} titel="Zustand am Bett" />
 
       {!s.ende && <>
         <div className="abcde__abc" role="group" aria-label="Einschätzen">

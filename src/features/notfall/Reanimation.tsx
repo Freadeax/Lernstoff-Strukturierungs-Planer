@@ -2,6 +2,8 @@
 // 3:1), Rhythmusanalyse am Defibrillator bzw. Herzfrequenz beim Neugeborenen, Schock mit kurzer
 // Unterbrechung, Auswertung von Takt, Kompressionsanteil und Pausen.
 
+import { reaZustand } from './zustand';
+import { ZustandsTafel } from '../../ui/sim/ZustandsTafel';
 import { useEffect, useRef, useState } from 'react';
 import { logActivity } from '../../core/activity';
 import { FreigabeHinweis } from '../../ui/sim/FreigabeHinweis';
@@ -321,6 +323,7 @@ export function Reanimation() {
         <ul>{hinweise(ergebnis, sp).map(h => <li key={h}>{h}</li>)}</ul>
         <div className="rea__knoepfe"><button type="button" className="primary" onClick={() => neu()}>Noch einmal</button><button type="button" onClick={() => setPhase('start')}>Anderes Szenario</button></div>
       </div>}
+      <ZustandsTafel z={reaZustand({ profil: sp, szenario, phase, erledigt, defiDa, schocks, medis, rate: aktuelleRate, zyklus: analyse })} titel={sp.id === 'neugeborene' ? 'Zustand an der Reanimationseinheit' : 'Zustand im Schockraum'} />
       {phase !== 'ende' && <button type="button" className="ghost small" onClick={() => abschliessen('Übung abgebrochen. Die Auswertung bezieht sich auf den bisherigen Verlauf.')}>Übung beenden</button>}
     </aside>
   </div>;
