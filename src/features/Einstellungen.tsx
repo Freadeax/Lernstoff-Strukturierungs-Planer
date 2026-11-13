@@ -34,7 +34,7 @@ function Zeitzone() {
   );
 }
 
-const DATEN_NAME: Record<DatenArt, string> = { import: 'Import', ki: 'KI-Funktionen', 'ki-bild': 'Handschrift erkennen', diktat: 'Diktat', teilen: 'Fall teilen', abgabe: 'Abgabe im Klassenmodus' };
+const DATEN_NAME: Record<DatenArt, string> = { import: 'Import', ki: 'KI-Funktionen', 'ki-bild': 'Handschrift erkennen', diktat: 'Diktat', teilen: 'Fall teilen', abgabe: 'Abgabe im Klassenmodus', rueckmeldung: 'Rückmeldung im Lehrermodus', lehrer: 'Lehrermodus' };
 
 const ORT_TEXT = {
   keiner: 'nicht eingetragen',

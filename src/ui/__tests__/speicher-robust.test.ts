@@ -5,7 +5,8 @@ import { gleicheForm, storage } from '../lib/store';
 import { istLadefehler } from '../shell/PageBoundary';
 import { ladeAktuell, ladeArchiv } from '../../features/fall/simulator';
 import { ladeEinstellungen, ladeLauf, ladeVerlauf } from '../../features/simulation/speicher';
-import { abgabenZu, alleAbgaben, arbeitZu, eigeneFaelle, erhalteneFaelle, meinName } from '../../features/klasse/speicher';
+import { abgabenZu, alleAbgaben, arbeitZu, eigeneFaelle, erhalteneFaelle, meinName, rueckmeldungZu } from '../../features/klasse/speicher';
+import { bausteine, bewertungenZu, klassen, notenschluessel } from '../../features/lehrer/speicher';
 import { ladeStatistik } from '../../features/rechnen/statistik';
 
 let data: Map<string, string>;
@@ -62,7 +63,8 @@ describe('Module überstehen kaputte Speicherstände', () => {
   it.each(KAPUTT)('Wert %s', (wert) => {
     for (const k of ['lernstoff.fall.aktuell', 'lernstoff.fall.archiv', 'lernstoff.simulation.laufend', 'lernstoff.simulation.verlauf',
       'lernstoff.simulation.einstellungen', 'lernstoff.klasse.eigene', 'lernstoff.klasse.erhalten', 'lernstoff.klasse.abgaben',
-      'lernstoff.klasse.arbeit', 'lernstoff.klasse.name', 'lernstoff.rechnen.statistik']) data.set(k, wert);
+      'lernstoff.klasse.arbeit', 'lernstoff.klasse.name', 'lernstoff.rechnen.statistik', 'lernstoff.klasse.rueckmeldungen',
+      'lernstoff.lehrer.klassen', 'lernstoff.lehrer.bewertungen', 'lernstoff.lehrer.schluessel', 'lernstoff.lehrer.bausteine']) data.set(k, wert);
     expect(ladeAktuell()).toBeNull();
     expect(ladeArchiv()).toEqual([]);
     expect(ladeLauf()).toBeNull();
@@ -75,6 +77,11 @@ describe('Module überstehen kaputte Speicherstände', () => {
     expect(arbeitZu('f')).toEqual({ antworten: {} });
     expect(typeof meinName()).toBe('string');
     expect(typeof ladeStatistik()).toBe('object');
+    expect(rueckmeldungZu('f')).toBeNull();
+    expect(klassen()).toEqual([]);
+    expect(bewertungenZu('f')).toEqual({});
+    expect(notenschluessel().length).toBeGreaterThan(1);
+    expect(bausteine().length).toBeGreaterThan(0);
   });
 
   it('Klassenmodus: kaputte Einträge fallen weg, gültige bleiben', () => {

@@ -79,6 +79,15 @@ export const NAV: NavItem[] = [
     ],
   },
   {
+    // Lehrermodus: für Lehrkräfte und Praxisanleitung (Klassen, Fälle verteilen, bewerten). Startet eingeklappt.
+    id: 'lehren', label: 'Lehren', icon: 'klasse', zu: true, children: [
+      { id: 'lehrer', label: 'Lehrermodus', path: '/lehren', icon: 'klasse' },
+      { id: 'lehrer-klassen', label: 'Klassen', path: '/lehren/klassen', icon: 'user' },
+      { id: 'lehrer-aufgaben', label: 'Fälle und Aufgaben', path: '/lehren/aufgaben', icon: 'clipboard' },
+      { id: 'lehrer-abgaben', label: 'Abgaben', path: '/lehren/abgaben', icon: 'upload' },
+    ],
+  },
+  {
     id: 'material', label: 'Material', icon: 'folder', children: [
       { id: 'dokumente', label: 'Dokumente', path: '/material/dokumente', icon: 'folder' },
       { id: 'import', label: 'Import-Assistent', path: '/material/import', icon: 'upload' },
@@ -139,14 +148,15 @@ export function seitenName(path: string): string | undefined {
 }
 
 /** Bereich einer Seite (oberste Menügruppe): steuert die Akzentfarbe der Shell über `data-bereich`. */
-export type Bereich = 'heute' | 'lernen' | 'ueben' | 'material' | 'system';
-export const BEREICH_NAME: Record<Bereich, string> = { heute: 'Heute', lernen: 'Lernen', ueben: 'Üben', material: 'Material', system: 'System' };
+export type Bereich = 'heute' | 'lernen' | 'ueben' | 'lehren' | 'material' | 'system';
+export const BEREICH_NAME: Record<Bereich, string> = { heute: 'Heute', lernen: 'Lernen', ueben: 'Üben', lehren: 'Lehren', material: 'Material', system: 'System' };
 
 export function bereichVon(path: string): Bereich {
   if (path === '/') return 'heute';
   const gruppe = NAV.find((g) => flatNav(g.children ?? []).some((i) => i.path === path || path.startsWith(i.path + '/')));
   if (gruppe) return gruppe.id as Bereich;
   if (path.startsWith('/material/')) return 'material';
+  if (path === '/lehren' || path.startsWith('/lehren/')) return 'lehren';
   if (path.startsWith('/lernen/')) return 'lernen';
   return 'system';
 }

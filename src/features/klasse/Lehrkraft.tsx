@@ -5,7 +5,8 @@ import { gesamtQuote, pruefeAntwort } from './auswertung';
 import { FallAnsicht } from './FallAnsicht';
 import { qrPfad, QrVollbild } from './qr';
 import { fallLink, leseAbgaben } from './kodierung';
-import { abgabenZu, entferneAbgabe, loescheAbgaben, loescheEigenen, nimmAbgabenAuf } from './speicher';
+import { abgabenZu, nimmAbgabenAuf } from './speicher';
+import { entferneAbgabeUndBewertung, klassen, klassenVonFall, loescheAbgabenUndBewertungen, loescheFallKomplett, ordneFallZu } from '../lehrer/speicher';
 import { appBasis, dateiname, datumText, fristText, kopiere, speichereDatei, teile } from './teilen';
 import { hatLoesung, klassenFassung, LINK_LABEL, linkInhalt, loesungsFassung, type Abgabe, type KlassenFall, type LinkZiel } from './typen';
 
@@ -20,6 +21,25 @@ function LinkInhalt({ fall, ziel }: { fall: KlassenFall; ziel: LinkZiel }) {
   );
 }
 import { DatenHinweis } from '../../ui/DatenHinweis';
+
+/** Fall einer oder mehreren Klassen aus dem Lehrermodus zuordnen. */
+function KlassenWahl({ fallId }: { fallId: string }) {
+  const [, setStand] = useState(0);
+  const ks = klassen();
+  if (!ks.length) return <p className="muted">Tipp: Im <button type="button" className="link" onClick={() => navigate('/lehren/klassen?neu=1')}>Lehrermodus</button> eine Klasse anlegen, dann siehst du, wer noch fehlt.</p>;
+  const ihre = new Set(klassenVonFall(fallId).map((k) => k.id));
+  return (
+    <fieldset className="klasse__teil">
+      <legend>Für Klasse</legend>
+      {ks.map((k) => (
+        <label key={k.id} className="klasse__haken">
+          <input type="checkbox" checked={ihre.has(k.id)} onChange={(e) => { ordneFallZu(fallId, k.id, e.target.checked); setStand((n) => n + 1); }} />
+          <span>{k.name}</span>
+        </label>
+      ))}
+    </fieldset>
+  );
+}
 
 /** Übersicht eines verteilten Falls: Link teilen, Abgaben einlesen und vergleichen. */
 export function Lehrkraft({ fall }: { fall: KlassenFall }) {
@@ -73,7 +93,7 @@ export function Lehrkraft({ fall }: { fall: KlassenFall }) {
 
   function loeschen() {
     if (!confirm(`„${fall.titel}“ und ${abgaben.length} Abgaben von diesem Gerät löschen?`)) return;
-    loescheEigenen(fall.id);
+    loescheFallKomplett(fall.id);
     navigate('/lernen/klasse');
   }
 
@@ -119,6 +139,7 @@ export function Lehrkraft({ fall }: { fall: KlassenFall }) {
             <LinkInhalt fall={fall} ziel="loesung" />
           </div>
         )}
+        <KlassenWahl fallId={fall.id} />
         <details className="klasse__block">
           <summary>Mehr</summary>
           <div className="row klasse__knoepfe">
@@ -150,7 +171,10 @@ export function Lehrkraft({ fall }: { fall: KlassenFall }) {
         <div className="card">
           <div className="klasse__kopf">
             <h3>Abgaben vergleichen</h3>
-            <button type="button" className="small" onClick={csv}>Als Tabelle (CSV)</button>
+            <span className="row">
+              <button type="button" className="small primary" onClick={() => navigate(`/lehren/bewerten?fall=${fall.id}`)}>Bewerten</button>
+              <button type="button" className="small" onClick={csv}>Als Tabelle (CSV)</button>
+            </span>
           </div>
           <div className="pills klasse__tabs" role="tablist" aria-label="Aufgabe">
             <button type="button" role="tab" className="pill" aria-selected={aufgabeId === 'alle'} onClick={() => setAufgabeId('alle')}>Alle</button>
@@ -199,12 +223,12 @@ export function Lehrkraft({ fall }: { fall: KlassenFall }) {
           <details className="klasse__block">
             <summary>Abgaben verwalten</summary>
             <p className="muted">Abgaben enthalten Namen und Antworten der Lernenden und liegen nur in diesem Browser. Zum Aufbewahren „Als Tabelle (CSV)“ sichern, nach der Bewertung hier löschen. Sie sind auch in Datensicherungen dieses Geräts enthalten.</p>
-            <div className="row"><button type="button" className="danger small" onClick={() => { if (confirm(`Alle ${sortiert.length} Abgaben zu „${fall.titel}“ von diesem Gerät löschen?`)) { loescheAbgaben(fall.id); setAbgaben(abgabenZu(fall.id)); } }}>Alle Abgaben dieses Falls löschen</button></div>
+            <div className="row"><button type="button" className="danger small" onClick={() => { if (confirm(`Alle ${sortiert.length} Abgaben zu „${fall.titel}“ von diesem Gerät löschen?`)) { loescheAbgabenUndBewertungen(fall.id); setAbgaben(abgabenZu(fall.id)); } }}>Alle Abgaben dieses Falls löschen</button></div>
             <ul className="klasse__liste">
               {sortiert.map((a) => (
                 <li key={a.name}>
                   <span><strong>{a.name}</strong> <span className="muted">{datumText(a.abgegeben)}</span></span>
-                  <button type="button" className="ghost small" onClick={() => { if (confirm(`Abgabe von ${a.name} entfernen?`)) { entferneAbgabe(fall.id, a.name); setAbgaben(abgabenZu(fall.id)); } }}>Entfernen</button>
+                  <button type="button" className="ghost small" onClick={() => { if (confirm(`Abgabe von ${a.name} entfernen?`)) { entferneAbgabeUndBewertung(fall.id, a.name); setAbgaben(abgabenZu(fall.id)); } }}>Entfernen</button>
                 </li>
               ))}
             </ul>

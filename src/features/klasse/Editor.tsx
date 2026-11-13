@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { navigate } from '../../ui/shell/router';
 import { kernpunkteAlsText, leseKernpunkte } from './auswertung';
 import { abgabenZu, speichereEigenen } from './speicher';
-import { ART_LABEL, neueId, type Abschnitt, type Aufgabe, type FallArt, type KlassenFall } from './typen';
+import { ART_LABEL, maxPunkte, neueId, type Abschnitt, type Aufgabe, type FallArt, type KlassenFall } from './typen';
+import { buchstabe } from './wahl';
 
 interface AufgabeEntwurf extends Aufgabe { kpText: string }
 
@@ -37,9 +38,16 @@ export function Editor({ start }: { start: KlassenFall }) {
       material: f.material.filter((m) => m.text.trim()).map((m) => ({ titel: m.titel.trim() || 'Material', text: m.text.trim() })),
       aufgaben: fertig.map(({ kpText, ...a }) => {
         const kp = leseKernpunkte(kpText);
-        return { ...a, frage: a.frage.trim(), hinweis: a.hinweis?.trim() || undefined, erwartung: a.erwartung?.trim() || undefined, kernpunkte: kp.length ? kp : undefined };
+        const basis: Aufgabe = { id: a.id, frage: a.frage.trim(), hinweis: a.hinweis?.trim() || undefined, erwartung: a.erwartung?.trim() || undefined, kernpunkte: kp.length ? kp : undefined, punkte: a.punkte && a.punkte > 0 ? a.punkte : undefined };
+        if (a.typ !== 'wahl') return basis;
+        // Leere Optionen fallen weg, die richtigen Antworten wandern mit
+        const behalten = (a.optionen ?? []).map((o, i) => ({ o: o.trim(), i })).filter((x) => x.o);
+        const richtig = behalten.flatMap((x, j) => (a.richtig?.includes(x.i) ? [j] : []));
+        return { ...basis, kernpunkte: undefined, typ: 'wahl', optionen: behalten.map((x) => x.o), mehrfach: a.mehrfach || undefined, richtig: richtig.length ? richtig : undefined };
       }),
     };
+    const kaputt = fall.aufgaben.findIndex((a) => a.typ === 'wahl' && (a.optionen?.length ?? 0) < 2);
+    if (kaputt >= 0) { setFehler(`Aufgabe ${kaputt + 1}: Eine Auswahlaufgabe braucht mindestens zwei Antworten.`); return; }
     if (!speichereEigenen(fall)) { setFehler('Speichern nicht möglich (privater Modus oder Speicher voll).'); return; }
     navigate(`/lernen/klasse/lehrkraft?id=${fall.id}`);
   }
@@ -102,14 +110,54 @@ export function Editor({ start }: { start: KlassenFall }) {
             <label className="field"><span>Hinweis für die Klasse (optional)</span>
               <input value={a.hinweis ?? ''} onChange={(e) => setzeAufgabe(i, { hinweis: e.target.value })} />
             </label>
+            <div className="klasse__zeile">
+              <div className="field">
+                <span id={`typ-${a.id}`}>Antwort</span>
+                <div className="pills" role="radiogroup" aria-labelledby={`typ-${a.id}`}>
+                  <button type="button" role="radio" className="pill" aria-checked={a.typ !== 'wahl'} onClick={() => setzeAufgabe(i, { typ: undefined })}>Freitext</button>
+                  <button type="button" role="radio" className="pill" aria-checked={a.typ === 'wahl'} onClick={() => setzeAufgabe(i, { typ: 'wahl', optionen: a.optionen?.length ? a.optionen : ['', '', ''] })}>Auswahl (A, B, C …)</button>
+                </div>
+              </div>
+              <label className="field"><span>Punkte (optional, für die Bewertung)</span>
+                <input type="number" inputMode="decimal" min={0} step={0.5} value={a.punkte ?? ''} onChange={(e) => setzeAufgabe(i, { punkte: e.target.value ? Math.max(0, Number(e.target.value)) : undefined })} />
+              </label>
+            </div>
+            {a.typ === 'wahl' && (
+              <div className="klasse__optionen">
+                <label className="klasse__haken">
+                  <input type="checkbox" checked={!!a.mehrfach} onChange={(e) => setzeAufgabe(i, { mehrfach: e.target.checked || undefined })} />
+                  <span>Mehrere Antworten können richtig sein</span>
+                </label>
+                {(a.optionen ?? []).map((o, j) => (
+                  <div key={j} className="klasse__option">
+                    <span className="klasse__nr" aria-hidden>{buchstabe(j)}</span>
+                    <input aria-label={`Antwort ${buchstabe(j)}`} value={o} onChange={(e) => setzeAufgabe(i, { optionen: a.optionen!.map((x, k) => (k === j ? e.target.value : x)) })} />
+                    <label className="klasse__haken">
+                      <input type="checkbox" checked={!!a.richtig?.includes(j)} onChange={(e) => {
+                        const r = new Set(a.mehrfach ? a.richtig ?? [] : []);
+                        if (e.target.checked) r.add(j); else r.delete(j);
+                        setzeAufgabe(i, { richtig: [...r].sort((x, y) => x - y) });
+                      }} />
+                      <span>richtig</span>
+                    </label>
+                    <button type="button" className="ghost small" aria-label={`Antwort ${buchstabe(j)} entfernen`} disabled={(a.optionen?.length ?? 0) <= 2} onClick={() => setzeAufgabe(i, {
+                      optionen: a.optionen!.filter((_, k) => k !== j),
+                      richtig: (a.richtig ?? []).filter((r) => r !== j).map((r) => (r > j ? r - 1 : r)),
+                    })}>✕</button>
+                  </div>
+                ))}
+                {(a.optionen?.length ?? 0) < 8 && <button type="button" className="small" onClick={() => setzeAufgabe(i, { optionen: [...(a.optionen ?? []), ''] })}>+ Antwort</button>}
+                <p className="muted">Die richtige Antwort steht nie im Link für die Klasse. Nach der Abgabe rechnet der Lehrermodus die Punkte vor.</p>
+              </div>
+            )}
             <details className="klasse__block" open={!!(a.erwartung || a.kpText)}>
               <summary>Lösung (optional)</summary>
               <label className="field"><span>Erwartungshorizont</span>
                 <textarea rows={4} value={a.erwartung ?? ''} onChange={(e) => setzeAufgabe(i, { erwartung: e.target.value })} />
               </label>
-              <label className="field"><span>Kernpunkte für die Checkliste: eine Zeile je Punkt, nach „:“ Suchwörter mit Komma</span>
+              {a.typ !== 'wahl' && <label className="field"><span>Kernpunkte für die Checkliste: eine Zeile je Punkt, nach „:“ Suchwörter mit Komma</span>
                 <textarea rows={3} value={a.kpText} onChange={(e) => setzeAufgabe(i, { kpText: e.target.value })} placeholder={'Sturzgefahr: sturz, gestuerzt\nDekubitusgefahr: dekubitus, druckgeschwuer'} />
-              </label>
+              </label>}
             </details>
             <div className="row">
               <span>
@@ -121,6 +169,7 @@ export function Editor({ start }: { start: KlassenFall }) {
           </fieldset>
         ))}
         <button type="button" className="small" onClick={() => setAufgaben((xs) => [...xs, { id: neueId(4), frage: '', kpText: '' }])}>+ Aufgabe</button>
+        {(() => { const m = maxPunkte({ ...f, aufgaben }); return m ? <p className="muted">Zusammen {m.toLocaleString('de-DE')} Punkte.</p> : null; })()}
       </div>
 
       <div className="card">
