@@ -15,6 +15,7 @@ import { kuerzelHilfe, Tastenkuerzel } from './Tastenkuerzel';
 import { BEWEGUNGEN, SCHRIFTEN, session, setWorkspace, type Theme } from './session';
 import { BEREICH_NAME, bereichVon, seitenName } from './nav';
 import { besucht, merkliste, toggleFavorit } from './merkliste';
+import { aktualisierung, beobachteAktualisierung, neuLadenBeimWechsel } from './aktualisierung';
 
 function WorkspaceSwitcher() {
   const moduleId = useStore(session, (s) => s.moduleId);
@@ -104,6 +105,20 @@ function Header() {
   );
 }
 
+/** Neue Version oder neuere Datenbank in einem anderen Fenster: Hinweis, bis neu geladen wird. */
+function AktualisierungsHinweis() {
+  const grund = useStore(aktualisierung, (s) => s.grund);
+  if (!grund) return null;
+  return (
+    <div className="note shell__aktualisierung" role="status">
+      <span>{grund === 'datenbank'
+        ? 'Die App wurde in einem anderen Fenster aktualisiert. Bitte neu laden, damit hier nichts verloren geht.'
+        : 'Eine neue Version ist bereit. Sie startet beim nächsten Seitenwechsel.'}</span>
+      <button type="button" className="small primary" onClick={() => location.reload()}>Jetzt neu laden</button>
+    </div>
+  );
+}
+
 /** App-Rahmen: Seitenleiste, Kopf, Inhalt, untere Leiste (Handy), Toasts. */
 export function Shell({ children }: { children: ReactNode }) {
   const collapsed = useStore(session, (s) => s.sidebarCollapsed);
@@ -111,6 +126,14 @@ export function Shell({ children }: { children: ReactNode }) {
   const { path } = useRoute();
   const main = useRef<HTMLElement>(null);
   useMenueGesten();
+  useEffect(() => beobachteAktualisierung(), []);
+  // Steht eine neue Version an, beim Seitenwechsel neu laden: die alte Seite wird ohnehin verlassen.
+  const vorher = useRef(path);
+  useEffect(() => {
+    const von = vorher.current;
+    vorher.current = path;
+    if (neuLadenBeimWechsel(aktualisierung.get().grund, von, path)) location.reload();
+  }, [path]);
   // Nach Seitenwechsel Fokus auf den Inhalt (Screenreader) und nach oben scrollen.
   const first = useRef(true);
   useEffect(() => {
@@ -127,7 +150,7 @@ export function Shell({ children }: { children: ReactNode }) {
       <Sidebar />
       <Header />
       <main id="main" ref={main} className="shell__main" tabIndex={-1} inert={drawer}>
-        <div className="content"><UmzugsHinweis />{children}</div>
+        <div className="content"><AktualisierungsHinweis /><UmzugsHinweis />{children}</div>
       </main>
       <TabBar />
       <Toaster />

@@ -2,6 +2,7 @@
 //   • Service Worker installiert sich und übernimmt die Seite
 //   • ohne Netz: Neuladen und kalter Start (neuer Tab) zeigen die App, alle Menüseiten laden ihre Teile aus dem Cache
 //   • die Build-ID ist sichtbar (Datensicherung) und nicht der Entwicklungs-Platzhalter
+//   • neuere Datenbank aus einem anderen Fenster: Upgrade wird nicht blockiert, alter Tab zeigt „neu laden“
 // Gedacht nach jedem Update von vite-plugin-pwa/Workbox.
 import { chromium } from 'playwright';
 import fs from 'node:fs';
@@ -55,8 +56,30 @@ try {
   await neu.locator('main h1').first().waitFor({ timeout: 10000 }).catch(() => undefined);
   assert((await neu.locator('main').first().innerText()).trim().length > 20, 'kalter Offline-Start zeigt die Startseite');
   await ctx.close();
+
+  // Ein anderes Fenster bringt eine neuere Datenbankversion mit (Update in zweitem Tab):
+  // Dieses Fenster darf nicht stumm kaputtgehen, sondern zeigt den Hinweis zum Neuladen.
+  const ctx2 = await browser.newContext({ locale: 'de-DE', timezoneId: 'Europe/Berlin' });
+  const alt = await ctx2.newPage();
+  await alt.goto(base, { waitUntil: 'networkidle' });
+  await alt.locator('main').first().waitFor();
+  const anderes = await ctx2.newPage();
+  await anderes.goto(base + 'manifest.webmanifest');
+  await anderes.evaluate(async () => {
+    const info = (await indexedDB.databases()).find((d) => d.name === 'lernstoff-planer');
+    await new Promise((resolve, reject) => {
+      const r = indexedDB.open('lernstoff-planer', (info?.version ?? 1) + 10);
+      r.onsuccess = () => { r.result.close(); resolve(); };
+      r.onerror = () => reject(r.error);
+      r.onblocked = () => reject(new Error('Upgrade blockiert: das alte Fenster gibt die Datenbank nicht frei'));
+    });
+  });
+  await alt.bringToFront();
+  await alt.locator('.shell__aktualisierung').waitFor({ timeout: 10000 })
+    .catch(() => fehler.push('Neuere Datenbank in anderem Fenster: kein Hinweis zum Neuladen'));
+  await ctx2.close();
 } finally {
   await browser.close();
 }
 if (fehler.length) { console.error(fehler.join('\n')); process.exit(1); }
-console.log(`Offline-Start ok: ${routes.length} Seiten ohne Netz geladen.`);
+console.log(`Offline-Start ok: ${routes.length} Seiten ohne Netz geladen; neuere Datenbank in anderem Fenster zeigt den Hinweis.`);
