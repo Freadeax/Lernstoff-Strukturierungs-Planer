@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { liveQuery } from 'dexie';
 import { ThemenZuordnung } from './dokumente/ThemenZuordnung';
 import { QuellenangabeEditor } from './dokumente/QuellenangabeEditor';
-import { useRoute } from '../ui/shell/router';
+import { navigate, useRoute } from '../ui/shell/router';
+import { notify } from '../ui/shell/notifications';
 import { db, deleteDocument } from '../core/db';
 import type { Document, SourceChunk } from '../core/types';
 import { logActivity } from '../core/activity';
@@ -23,7 +24,7 @@ export function Dokumente() {
   const quelleOffen = params.get('quelle');
   // Sprung zur Fundstelle: #/material/dokumente?dokument=<id>&abschnitt=<chunkId>&von=<n>&bis=<n>
   const ziel = params.get('dokument');
-  const zielAbschnitt = params.get('abschnitt');
+  const zielSeite = params.get('seite');
   const von = Number(params.get('von')), bis = Number(params.get('bis'));
   const [doppelt, setDoppelt] = useState<Map<string, DuplicateMatch[]>>(new Map());
   const [docs, setDocs] = useState<Document[]>([]);
@@ -46,6 +47,10 @@ export function Dokumente() {
     }).subscribe({ next: setDoppelt, error: () => setDoppelt(new Map()) });
     return () => sub.unsubscribe();
   }, []);
+  // Sprung per Seite (aus dem Skript eines eigenen Dokuments): gedruckte Seite zuerst, sonst physische Seite
+  const zielAbschnitt = params.get('abschnitt') ?? (zielSeite && open === ziel
+    ? (chunks.find((c) => c.printedPage?.trim() === zielSeite) ?? chunks.find((c) => String(c.page) === zielSeite))?.id ?? null
+    : null);
   useEffect(() => {
     if (!zielAbschnitt || open !== ziel || !chunks.some((c) => c.id === zielAbschnitt)) return;
     const el = document.getElementById(`abschnitt-${zielAbschnitt}`);
@@ -65,6 +70,15 @@ export function Dokumente() {
     if (open) db.chunks.where('documentId').equals(open).sortBy('page').then((rows) => { if (active) setChunks(rows); });
     return () => { active = false; };
   }, [open]);
+
+  /** Dokument wörtlich als Skript übernehmen (offline, ohne KI) und dort öffnen. */
+  async function alsSkript(id: string) {
+    try {
+      const { uebernehmeDokument } = await import('./skript/store');
+      const { id: skriptId } = await uebernehmeDokument(id);
+      navigate(`/lernen/skript?id=${encodeURIComponent(skriptId)}`);
+    } catch (e) { notify('critical', 'Als Skript übernehmen fehlgeschlagen', e instanceof Error ? e.message : String(e)); }
+  }
 
   async function onFiles(files: FileList | null) {
     if (!files?.length) return;
@@ -150,6 +164,7 @@ export function Dokumente() {
             <span className={d.repository ? 'tag' : 'tag tag--warning'} title={d.repository ? `Ordner ${d.repository.ordner}` : undefined}>
               {d.repository ? `Original im Repo ${d.repository.owner}/${d.repository.repo}` : 'Original nicht gespeichert, nur der Text'}
             </span>
+            <button type="button" className="small" disabled={!!busy} onClick={() => void alsSkript(d.id)}>Als Skript lesen</button>
             <a className="button-link" href={`#/material/zusammenfassen?dokument=${encodeURIComponent(d.id)}`}>Wichtigste Inhalte zusammenfassen</a>
             <button className="danger small" aria-expanded={loeschen === d.id} onClick={() => setLoeschen(loeschen === d.id ? null : d.id)}>Löschen</button>
           </div>
