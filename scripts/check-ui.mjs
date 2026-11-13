@@ -137,6 +137,18 @@ const futureDate = new Date(Date.now() + 21 * 86400000).toISOString().slice(0, 1
   const close=mp.getByRole('button',{name:'Navigation schließen',exact:true});assert(await close.evaluate(e=>e===document.activeElement));await close.press('Shift+Tab');assert(await mp.locator('.shell__sidebar').evaluate(e=>e.contains(document.activeElement)));await mp.keyboard.press('Escape');assert.equal(await mp.locator('.shell__sidebar.is-open').count(),0);
   await mp.emulateMedia({colorScheme:'dark'});await mp.goto(base+'#/einstellungen',{waitUntil:'networkidle'});await mp.screenshot({path:'settings-dark-mobile.png',fullPage:true});
   const darkAxe=await new AxeBuilder({page:mp}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();audits.push({route:'dark:settings',violations:darkAxe.violations.map(v=>({id:v.id,impact:v.impact,nodes:v.nodes.map(n=>({html:n.html,summary:n.failureSummary}))}))});
+  // Speicherprobleme: ohne IndexedDB (privates Fenster, Sperrmodus) läuft die App mit deutlichem Hinweis;
+  // ein Schreibfehler wegen vollem Speicher führt zu einer Mitteilung statt still verlorener Eingaben.
+  const ohne=await browser.newContext({viewport:{width:390,height:844},locale:'de-DE',timezoneId:'Europe/Berlin'});
+  await ohne.addInitScript(()=>{Object.defineProperty(window,'indexedDB',{value:undefined,configurable:true});});
+  const op=await ohne.newPage();await op.goto(base+'#/',{waitUntil:'networkidle'});
+  await op.getByRole('alert').filter({hasText:'Dieser Browser speichert hier nichts'}).waitFor();
+  assert((await op.locator('.shell__header').count())===1,'Ohne Datenbank: App-Rahmen bleibt bedienbar');
+  await ohne.close();
+  await mp.goto(base+'#/',{waitUntil:'networkidle'});
+  await mp.evaluate(()=>{Promise.reject(new DOMException('Speicher voll','QuotaExceededError'));});
+  await mp.locator('.toast').filter({hasText:'Gerätespeicher voll'}).waitFor();
+  {const echte=pageErrors.filter(e=>!/Speicher voll/.test(e));pageErrors.length=0;pageErrors.push(...echte);}
   fs.writeFileSync('audit.json',JSON.stringify({audits,pageErrors},null,2));
   console.log(JSON.stringify({flows:'completed',audits:audits.map(a=>({route:a.route,violations:a.violations.map(v=>({id:v.id,n:v.nodes.length}))})),pageErrors},null,2));
   assert.deepEqual(pageErrors, [], 'Keine Laufzeitfehler in den geprüften Abläufen');

@@ -156,7 +156,13 @@ export function Einstellungen() {
     </section>
     <section className="card form-card" aria-labelledby="datenhinweise-title">
       <h2 id="datenhinweise-title">Datenhinweise</h2>
-      <p className="form-section__description">Diese Hinweise stehen in der App jeweils direkt am Schritt. Hier findest du sie alle an einem Ort.</p>
+      <ul className="datenhinweise-kurz">
+        <li><strong>Kein Konto, keine Werbung, keine Nutzungsstatistik.</strong> Die App setzt keine Cookies und lädt außer ihren eigenen Programmdateien nichts von selbst aus dem Internet.</li>
+        <li><strong>Dein Lernstand liegt nur in diesem Browser auf diesem Gerät.</strong> Niemand sonst kann ihn sehen, auch nicht die Person, die dir den Link gegeben hat. Auf ein anderes Gerät kommt er nur über die Datensicherung.</li>
+        <li><strong>Beim Öffnen der Website</strong> sieht der Dienst, der sie ausliefert (Cloudflare oder GitHub), wie bei jeder Website deine IP-Adresse.</li>
+        <li><strong>Ins Internet geht sonst nur, was du selbst auslöst:</strong> Claude-Funktionen mit deinem API-Schlüssel, „Große Dateien“ mit deinem GitHub-Zugang und Links oder Codes, die du teilst.</li>
+      </ul>
+      <p className="form-section__description">Die folgenden Hinweise stehen in der App jeweils direkt am Schritt. Hier findest du sie alle an einem Ort.</p>
       <dl className="datenhinweise">
         {(Object.keys(DATEN_TEXT) as DatenArt[]).map((a) => <div key={a}><dt>{DATEN_NAME[a]}: {DATEN_TEXT[a].kurz}</dt><dd>{DATEN_TEXT[a].lang}</dd></div>)}
       </dl>

@@ -16,6 +16,7 @@ import { BEWEGUNGEN, SCHRIFTEN, session, setWorkspace, type Theme } from './sess
 import { BEREICH_NAME, bereichVon, seitenName } from './nav';
 import { besucht, merkliste, toggleFavorit } from './merkliste';
 import { aktualisierung, beobachteAktualisierung, neuLadenBeimWechsel } from './aktualisierung';
+import { beobachteSpeicher, speicher } from './speicherwaechter';
 
 function WorkspaceSwitcher() {
   const moduleId = useStore(session, (s) => s.moduleId);
@@ -119,6 +120,18 @@ function AktualisierungsHinweis() {
   );
 }
 
+/** Ohne Datenbank (privates Fenster, Sperrmodus) läuft die App, speichert aber nichts: deutlich sagen. */
+function OhneSpeicherHinweis() {
+  const ohne = useStore(speicher, (s) => s.ohneDatenbank);
+  if (!ohne) return null;
+  return (
+    <div className="note warn" role="alert">
+      <strong>Dieser Browser speichert hier nichts.</strong> Wahrscheinlich ein privates Fenster oder gesperrte Website-Daten.
+      Du kannst dich umsehen, aber Lernstand, Pläne und Material gehen beim Schließen verloren. Öffne die App in einem normalen Fenster.
+    </div>
+  );
+}
+
 /** App-Rahmen: Seitenleiste, Kopf, Inhalt, untere Leiste (Handy), Toasts. */
 export function Shell({ children }: { children: ReactNode }) {
   const collapsed = useStore(session, (s) => s.sidebarCollapsed);
@@ -134,6 +147,7 @@ export function Shell({ children }: { children: ReactNode }) {
     vorher.current = path;
     if (neuLadenBeimWechsel(aktualisierung.get().grund, von, path)) location.reload();
   }, [path]);
+  useEffect(() => beobachteSpeicher(), []);
   // Nach Seitenwechsel Fokus auf den Inhalt (Screenreader) und nach oben scrollen.
   const first = useRef(true);
   useEffect(() => {
@@ -150,7 +164,7 @@ export function Shell({ children }: { children: ReactNode }) {
       <Sidebar />
       <Header />
       <main id="main" ref={main} className="shell__main" tabIndex={-1} inert={drawer}>
-        <div className="content"><AktualisierungsHinweis /><UmzugsHinweis />{children}</div>
+        <div className="content"><OhneSpeicherHinweis /><AktualisierungsHinweis /><UmzugsHinweis />{children}</div>
       </main>
       <TabBar />
       <Toaster />
