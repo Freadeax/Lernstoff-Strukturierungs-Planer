@@ -27,10 +27,11 @@ import { NOTFALL_THEMA } from '../notfall/aufgaben';
 import { AM_THEMA } from '../arzneimittel/aufgaben';
 import { PRAXIS_THEMEN } from '../praxis/themen';
 import { BEREICH_ZU_THEMA as RECHT_BEREICH } from '../recht/aufgaben';
+import { BEREICH_ZU_THEMA as GRUNDLAGEN_BEREICH } from '../grundlagen/aufgaben';
 import { diagnostikFaelleZuThema } from '../diagnostik/themen';
 import { heute, leafTopics, logReview, TRAINER_NAME } from './store';
 
-export type TrainerId = 'diagnostik' | 'rechnen' | 'duell' | 'fall' | 'uebergabe' | 'pflegeplanung' | 'sis' | 'mindmap' | 'bericht' | 'assessment' | 'krankheitsbilder' | 'selbsttest' | 'hygiene' | 'anatomie' | 'expertenstandards' | 'normwerte' | 'notfall' | 'arzneimittel' | 'praxis' | 'recht' | 'labor';
+export type TrainerId = 'diagnostik' | 'rechnen' | 'duell' | 'fall' | 'uebergabe' | 'pflegeplanung' | 'sis' | 'mindmap' | 'bericht' | 'assessment' | 'krankheitsbilder' | 'selbsttest' | 'hygiene' | 'anatomie' | 'expertenstandards' | 'normwerte' | 'notfall' | 'arzneimittel' | 'praxis' | 'recht' | 'labor' | 'grundlagen';
 
 export const TRAINER_LABEL = TRAINER_NAME as Record<TrainerId, string>;
 
@@ -126,6 +127,7 @@ export function uebungenFuer(topicId: string, modul: CatalogModule = pflegeModul
   const normBereich: Record<string, string> = { [NORMWERT_THEMEN.vital]: 'vital', [NORMWERT_THEMEN.diabetes]: 'labor', [NORMWERT_THEMEN.blut]: 'labor', [NORMWERT_THEMEN.niere]: 'labor', [NORMWERT_THEMEN.ausscheidung]: 'ausscheidung' };
   if (topicId === NOTFALL_THEMA) out.push({ trainer: 'notfall', label: 'Notfall-Trainer', path: '/lernen/notfall' });
   if (topicId === AM_THEMA) out.push({ trainer: 'arzneimittel', label: 'Arzneimittel-Trainer', path: '/lernen/arzneimittel' });
+  if (GRUNDLAGEN_BEREICH[topicId]) out.push({ trainer: 'grundlagen', label: 'Grundlagen-Trainer', path: `/lernen/grundlagen?bereich=${GRUNDLAGEN_BEREICH[topicId]}` });
   if (RECHT_BEREICH[topicId]) out.push({ trainer: 'recht', label: 'Recht-Trainer', path: `/lernen/recht?bereich=${RECHT_BEREICH[topicId]}` });
   const laborBereich: Record<string, string> = { [LABOR_THEMEN.entnahme]: 'praeanalytik', [LABOR_THEMEN.atmung]: 'bga', [LABOR_THEMEN.blut]: 'befund', [LABOR_THEMEN.niere]: 'befund', [LABOR_THEMEN.diabetes]: 'befund', [LABOR_THEMEN.herz]: 'befund' };
   if (topicId === LABOR_THEMEN.entnahme) out.push({ trainer: 'labor', label: 'Labor-Werkbank: Blutentnahme', path: '/lernen/labor?modus=werkbank&station=entnahme' });

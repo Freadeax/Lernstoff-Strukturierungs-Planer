@@ -10,6 +10,7 @@ import { ALLE_AUFGABEN as notfall } from '../notfall/aufgaben';
 import { ALLE_AUFGABEN as arzneimittel } from '../arzneimittel/aufgaben';
 import { ALLE_AUFGABEN as recht } from '../recht/aufgaben';
 import { ALLE_AUFGABEN as labor } from '../labortrainer/aufgaben';
+import { ALLE_AUFGABEN as grundlagen } from '../grundlagen/aufgaben';
 
 export const TRAINER_POOLS: TrainerPool[] = [
   { quelle: 'hygiene', name: 'Hygiene', aufgaben: hygiene },
@@ -20,4 +21,5 @@ export const TRAINER_POOLS: TrainerPool[] = [
   { quelle: 'arzneimittel', name: 'Arzneimittel', aufgaben: arzneimittel },
   { quelle: 'recht', name: 'Recht', aufgaben: recht },
   { quelle: 'labor', name: 'Labor', aufgaben: labor },
+  { quelle: 'grundlagen', name: 'Grundlagen', aufgaben: grundlagen },
 ];

@@ -34,7 +34,7 @@ const SCHREIBEN: UebungsInfo = {
 
 export const UEBUNG_INFO: Record<string, UebungsInfo> = {
   krankheitsbilder: { ...RUNDE, minuten: 10, lernstand: 'Fallaufgaben und Detektiv-Runden: Ergebnis je Thema, erster Versuch des Tages.', fehlerheft: 'Falsch beantwortete Fallaufgaben mit Begründung.' },
-  anatomie: RUNDE, arzneimittel: RUNDE, normwerte: RUNDE, hygiene: RUNDE, expertenstandards: RUNDE, recht: RUNDE, notfall: RUNDE, labor: RUNDE,
+  anatomie: RUNDE, arzneimittel: RUNDE, normwerte: RUNDE, hygiene: RUNDE, expertenstandards: RUNDE, recht: RUNDE, notfall: RUNDE, labor: RUNDE, grundlagen: RUNDE,
   rechnen: { ...RUNDE, minuten: 10, lernstand: 'Nur die Prüfungsrunde zählt, je Rechenthema.', fehlerheft: 'Falsche Rechnungen mit Rechenweg.' },
   duell: { ...RUNDE, minuten: 3, stufe: 'einstieg', lernstand: 'Treffer je Thema nach der Runde.', fehlerheft: 'Verwechselte Fachbegriffe.' },
   mindmap: { minuten: 15, offline: 'ja', stufe: 'beide', lernstand: 'Im Prüfen-Modus: Ergebnis je Thema.' },
