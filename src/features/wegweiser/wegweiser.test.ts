@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { flatNav, NAV, UNTERSEITEN } from '../../ui/shell/nav';
-import { BEGRIFFE, BUENDEL, KREISLAUF, PRUEFUNGSPHASEN, SEITEN, seitenInfo, WEGWEISER_PFAD, WISSENSSTUFEN } from './inhalt';
+import { BEGRIFFE, BUENDEL, FRAGEN, KREISLAUF, PRUEFUNGSPHASEN, SEITEN, seitenInfo, WEGWEISER_PFAD, WISSENSSTUFEN } from './inhalt';
 import { MASTERY_RULES } from '../lernplan/progress';
 
 const bekannt = new Set([...flatNav(NAV), ...UNTERSEITEN].map((i) => i.path!));
@@ -17,6 +17,7 @@ describe('Wegweiser', () => {
       ...KREISLAUF.flatMap((k) => k.links.map((l) => l.path)),
       ...PRUEFUNGSPHASEN.flatMap((p) => p.schritte.map((s) => s.link?.path)),
       ...BEGRIFFE.map((b) => b.link?.path),
+      ...FRAGEN.map((f) => f.link?.path),
     ].filter((p): p is string => !!p);
     for (const l of links) expect(bekannt, l).toContain(pfad(l));
   });

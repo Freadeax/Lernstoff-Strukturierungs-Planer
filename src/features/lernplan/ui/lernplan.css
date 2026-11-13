@@ -35,6 +35,9 @@
 .block__art { font-weight: var(--weight-medium); color: var(--color-text-muted); }
 .block__min { font-variant-numeric: tabular-nums; }
 .block__thema { font-size: var(--text-lg); line-height: var(--leading-tight); }
+.block__warum { font-size: var(--text-sm); }
+.block__warum summary { cursor: pointer; color: var(--color-text-muted); font-weight: var(--weight-medium); min-height: 32px; display: flex; align-items: center; }
+.block__warum p { margin: var(--space-1) 0 0; }
 .block__aktionen { display: flex; flex-wrap: wrap; gap: var(--space-1); margin-top: var(--space-1); }
 
 .abfrage { display: flex; flex-direction: column; gap: var(--space-2); margin-top: var(--space-2); padding-top: var(--space-2); border-top: 1px solid var(--color-border); }

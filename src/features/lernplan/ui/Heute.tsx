@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { warumHeute } from '../warumHeute';
 import type { Topic } from '../../../core/types';
 import { navigate } from '../../../ui/shell/router';
 import { notify } from '../../../ui/shell/notifications';
@@ -84,6 +85,10 @@ function BlockKarte({ block, ctx }: { block: PlanBlock; ctx: PlanCtx }) {
         {fach?.code ?? fach?.name}{exam ? ` · für „${exam.name}“` : ''}
         {prog && prog.status !== 'offen' ? ` · ${STATUS_LABEL[prog.status]}` : ''}
       </p>
+      <details className="block__warum">
+        <summary>Warum heute?</summary>
+        <p>{warumHeute(block, prog, exam, ctx.data.today)}</p>
+      </details>
       {offen === null && (
         <div className="block__aktionen">
           {block.kind === 'erarbeiten' ? <>
