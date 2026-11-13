@@ -76,7 +76,9 @@ try {
       await page.locator('main input[type=search]').first().focus();
       assert(!(await leiste.isVisible()), 'Untere Leiste beim Tippen ausgeblendet');
       await page.locator('main input[type=search]').first().blur();
-      assert(await leiste.isVisible(), 'Untere Leiste nach dem Tippen wieder da');
+      // Kommt mit kurzer Verzögerung zurück, damit ein Tipp auf einen Knopf direkt unter dem Feld ankommt.
+      assert(!(await leiste.isVisible()), 'Untere Leiste bleibt einen Moment nach dem Verlassen des Felds weg');
+      await leiste.waitFor({ state: 'visible', timeout: 2000 });
 
       // Zurück in der installierten App: nur wenn es innerhalb der App zurückgeht
       const neu = await ctx.newPage();

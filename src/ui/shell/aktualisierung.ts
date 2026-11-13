@@ -9,7 +9,7 @@ import { createStore } from '../lib/store';
  * - Übernimmt ein neuer Service Worker, passt der geladene Code nicht mehr zu den Dateien auf dem Server.
  *   Die App lädt dann beim nächsten Seitenwechsel neu (die Seite wird ohnehin verlassen) und zeigt bis dahin einen Hinweis.
  * - Öffnet ein anderes Fenster eine neuere Datenbankversion, schließt Dexie hier die Verbindung; jeder weitere
- *   Zugriff schlüge fehl. Auch dann: Hinweis und Neuladen beim nächsten Seitenwechsel oder im Hintergrund.
+ *   Zugriff schlüge fehl. Auch dann: Hinweis und Neuladen beim nächsten Seitenwechsel oder per Knopf.
  */
 export type Grund = 'version' | 'datenbank';
 export const aktualisierung = createStore<{ grund: Grund | null }>({ grund: null });
@@ -32,8 +32,9 @@ export function beobachteAktualisierung(): () => void {
   const sw = typeof navigator !== 'undefined' ? navigator.serviceWorker : undefined;
   if (sw) {
     // Erstinstallation übernimmt ebenfalls (clientsClaim) – das ist keine neue Version.
-    const hatteSteuerung = !!sw.controller;
-    const uebernommen = () => { if (hatteSteuerung) melde('version'); };
+    // Nach der Erstinstallation gilt jede weitere Übernahme als neue Version.
+    let hatteSteuerung = !!sw.controller;
+    const uebernommen = () => { if (hatteSteuerung) melde('version'); hatteSteuerung = true; };
     sw.addEventListener('controllerchange', uebernommen);
     weg.push(() => sw.removeEventListener('controllerchange', uebernommen));
     let zuletzt = Date.now();
@@ -46,18 +47,12 @@ export function beobachteAktualisierung(): () => void {
     const takt = window.setInterval(pruefe, PRUEF_ABSTAND);
     weg.push(() => { document.removeEventListener('visibilitychange', pruefe); window.clearInterval(takt); });
   }
-  const versionchange = () => {
-    melde('datenbank');
-    // Im Hintergrund sofort neu laden: niemand tippt gerade, und beim Zurückkommen läuft schon die neue Version.
-    if (document.visibilityState === 'hidden') location.reload();
-  };
+  // Nicht automatisch neu laden, auch nicht im Hintergrund: Manche Seiten halten Eingaben nur im Speicher
+  // (z. B. eingefügter Aufgabentext beim Zusammenfassen). Neu geladen wird per Knopf oder beim Seitenwechsel.
+  const versionchange = () => melde('datenbank');
   db.on('versionchange', versionchange);
   // Umgekehrt: Die Datenbank ist schon neuer als dieser Code (anderes Fenster war schneller).
   db.open().catch((e: unknown) => { if ((e as { name?: string })?.name === 'VersionError') melde('datenbank'); });
   weg.push(() => db.on('versionchange').unsubscribe(versionchange));
-  // Kommt die Seite im Hintergrund an die Reihe, nachträglich neu laden.
-  const sichtbar = () => { if (document.visibilityState === 'hidden' && aktualisierung.get().grund === 'datenbank') location.reload(); };
-  document.addEventListener('visibilitychange', sichtbar);
-  weg.push(() => document.removeEventListener('visibilitychange', sichtbar));
   return () => weg.forEach((f) => f());
 }

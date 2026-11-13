@@ -180,8 +180,10 @@ mark { background: var(--color-highlight); color: inherit; }
   summary { padding-block: 10px; cursor: pointer; }
 }
 @media (max-width: 767px) and (pointer: coarse) {
-  /* Während getippt wird, braucht die Tastatur den Platz; die untere Leiste kommt danach zurück. */
-  .shell:has(main :is(input:not([type='checkbox'], [type='radio'], [type='range'], [type='file'], [type='button'], [type='submit']), textarea, [contenteditable='true']):focus) .shell__tabbar { display: none; }
+  /* Während getippt wird, braucht die Tastatur den Platz; die untere Leiste kommt danach zurück.
+     data-tippen setzt Shell.tsx und nimmt es erst kurz nach dem Verlassen des Felds weg: sonst schiebt sich die Leiste
+     beim Tippen auf „Speichern“ unter den Finger und schluckt den Tipp. */
+  .shell[data-tippen] .shell__tabbar { display: none; }
 }
 
 /* Belegprüfung je Aussage: drei Stufen, Quellenangabe, fachliche Freigabe */
