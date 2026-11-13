@@ -1,6 +1,6 @@
 import { istObjekt, storage } from '../../ui/lib/store';
 import { pruefeFall } from './kodierung';
-import type { Abgabe, KlassenFall } from './typen';
+import { nameSchluessel, type Abgabe, type KlassenFall, type Rueckmeldung } from './typen';
 
 // Alles nur in diesem Browser. Keine DB-Tabelle, damit der Klassenmodus ohne Schemawechsel auskommt.
 const EIGENE = 'lernstoff.klasse.eigene';       // Fälle, die ich als Lehrkraft verteile (mit Lösung)
@@ -8,6 +8,7 @@ const ABGABEN = 'lernstoff.klasse.abgaben';     // fallId → eingelesene Abgabe
 const ERHALTEN = 'lernstoff.klasse.erhalten';   // Fälle, die ich bearbeite
 const ARBEIT = 'lernstoff.klasse.arbeit';       // fallId → meine Antworten
 const NAME = 'lernstoff.klasse.name';
+const RUECKMELDUNGEN = 'lernstoff.klasse.rueckmeldungen'; // fallId → Rückmeldung der Lehrkraft an mich
 
 const lese = storage.read;
 const schreibe = (key: string, wert: unknown) => storage.write(key, wert);
@@ -55,7 +56,7 @@ export function nimmAbgabenAuf(neue: Abgabe[]): { neu: number; ersetzt: number; 
   let neu = 0; let ersetzt = 0; let doppelt = 0;
   for (const a of neue) {
     const liste = alle[a.fallId] ?? [];
-    const i = liste.findIndex((x) => x.name.trim().toLowerCase() === a.name.trim().toLowerCase());
+    const i = liste.findIndex((x) => nameSchluessel(x.name) === nameSchluessel(a.name));
     if (i < 0) { liste.push(a); neu++; }
     else if (liste[i]!.abgegeben === a.abgegeben) doppelt++;
     else if (liste[i]!.abgegeben < a.abgegeben) { liste[i] = a; ersetzt++; }
@@ -91,6 +92,9 @@ export function vergiss(id: string) {
   const a = leseArbeit();
   delete a[id];
   schreibe(ARBEIT, a);
+  const r = leseRueckmeldungen();
+  delete r[id];
+  schreibe(RUECKMELDUNGEN, r);
 }
 export const arbeitZu = (fallId: string): Arbeit => leseArbeit()[fallId] ?? { antworten: {} };
 export function speichereArbeit(fallId: string, a: Arbeit) {
@@ -101,3 +105,34 @@ export function speichereArbeit(fallId: string, a: Arbeit) {
 
 export const meinName = () => lese<string>(NAME, '');
 export const merkeName = (n: string) => schreibe(NAME, n);
+
+const istRueckmeldung = (v: unknown) => istObjekt(v) && typeof v.name === 'string' && Array.isArray(v.aufgaben) && typeof v.bewertet === 'string';
+const leseRueckmeldungen = () => leseJeFall<Rueckmeldung>(RUECKMELDUNGEN, istRueckmeldung);
+export const rueckmeldungZu = (fallId: string): Rueckmeldung | null => leseRueckmeldungen()[fallId] ?? null;
+export const alleRueckmeldungen = () => leseRueckmeldungen();
+/** Neuere Rückmeldung ersetzt ältere zum selben Fall. */
+export function merkeRueckmeldung(r: Rueckmeldung): boolean {
+  const alle = leseRueckmeldungen();
+  const alt = alle[r.fallId];
+  if (alt && alt.bewertet > r.bewertet) return false;
+  alle[r.fallId] = r;
+  return schreibe(RUECKMELDUNGEN, alle);
+}
+
+/**
+ * Abgabe einem anderen Namen zuordnen (Tippfehler, Kürzel statt Name). Gibt es unter dem neuen
+ * Namen schon eine Abgabe, bleibt die neuere.
+ */
+export function benenneAbgabeUm(fallId: string, alt: string, neu: string): boolean {
+  const alle = alleAbgaben();
+  const liste = alle[fallId] ?? [];
+  const a = liste.find((x) => x.name === alt);
+  if (!a || !neu.trim()) return false;
+  const rest = liste.filter((x) => x !== a);
+  const gleich = rest.find((x) => nameSchluessel(x.name) === nameSchluessel(neu));
+  const umbenannt = { ...a, name: neu.trim() };
+  alle[fallId] = gleich
+    ? [...rest.filter((x) => x !== gleich), gleich.abgegeben >= a.abgegeben ? gleich : umbenannt]
+    : [...rest, umbenannt];
+  return schreibe(ABGABEN, alle);
+}

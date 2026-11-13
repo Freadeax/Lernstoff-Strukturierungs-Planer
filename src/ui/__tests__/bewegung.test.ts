@@ -24,11 +24,13 @@ describe('Bereich einer Seite', () => {
     expect(bereichVon('/lernen/praxis')).toBe('ueben');
     expect(bereichVon('/lernen/klasse/abgabe')).toBe('ueben');
     expect(bereichVon('/material/import')).toBe('material');
+    expect(bereichVon('/lehren')).toBe('lehren');
+    expect(bereichVon('/lehren/bewerten')).toBe('lehren');
     expect(bereichVon('/einstellungen')).toBe('system');
     expect(bereichVon('/lernen/thema')).toBe('lernen');
     expect(bereichVon('/gibt-es-nicht')).toBe('system');
   });
   it('kennt für alle Pfade einen der fünf Bereiche', () => {
-    for (const i of [...flatNav(NAV), ...UNTERSEITEN]) expect(['heute', 'lernen', 'ueben', 'material', 'system']).toContain(bereichVon(i.path!));
+    for (const i of [...flatNav(NAV), ...UNTERSEITEN]) expect(['heute', 'lernen', 'ueben', 'lehren', 'material', 'system']).toContain(bereichVon(i.path!));
   });
 });

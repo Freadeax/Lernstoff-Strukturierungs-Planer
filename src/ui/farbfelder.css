@@ -12,6 +12,7 @@
 .shell[data-bereich='lernen'] { --area: #9fdcc6; }
 .shell[data-bereich='ueben'] { --area: #ffb199; }
 .shell[data-bereich='material'] { --area: #bdbfff; }
+.shell[data-bereich='lehren'] { --area: #ffd98a; }
 .shell[data-bereich='system'] { --area: #b9d8f3; }
 
 body { background-color: var(--color-background); background-image: var(--body-deko); background-size: 100% 44px, 44px 100%, 100% 100%; background-attachment: fixed; }

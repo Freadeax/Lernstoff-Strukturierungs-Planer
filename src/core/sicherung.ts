@@ -346,7 +346,7 @@ export async function vergleiche(s: Sicherung, database: LernstoffDB = db): Prom
 
 export type Modus = 'zusammenfuehren' | 'ersetzen';
 
-const ZEIT_FELDER = ['geaendert', 'updatedAt', 'lastReview', 'aktualisiert', 'at', 'createdAt', 'importedAt', 'begonnen', 'erstellt'];
+const ZEIT_FELDER = ['geaendert', 'updatedAt', 'lastReview', 'aktualisiert', 'at', 'createdAt', 'importedAt', 'begonnen', 'erstellt', 'bewertet', 'abgegeben'];
 
 function zeit(x: unknown): string | undefined {
   if (!x || typeof x !== 'object') return undefined;
@@ -396,6 +396,8 @@ export function fuehreWertZusammen(lokal: unknown, fremd: unknown): unknown {
       else if (typeof out[k] === 'number' && typeof v === 'number') out[k] = Math.max(out[k] as number, v);
       else if (Array.isArray(out[k]) && Array.isArray(v)) out[k] = fuehreWertZusammen(out[k], v);
       else if (istObjekt(out[k]) && istObjekt(v) && zeit(out[k]) && zeit(v)) out[k] = neuerer(out[k], v);
+      // Verschachtelte Zuordnungen ohne eigene Zeit (z. B. Fall → Name → Bewertung): Ebene für Ebene zusammenführen
+      else if (istObjekt(out[k]) && istObjekt(v) && !zeit(out[k]) && !zeit(v)) out[k] = fuehreWertZusammen(out[k], v);
     }
     return out;
   }

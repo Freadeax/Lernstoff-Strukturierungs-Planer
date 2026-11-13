@@ -35,6 +35,7 @@ const Pflegeplanung = lazy(() => import('./features/pflegeplanung/Pflegeplanung'
 const Lernplan = lazy(() => import('./features/lernplan/ui/Lernplan'));
 const Landkarte = lazy(() => import('./features/landkarte/Landkarte'));
 const Klassenmodus = lazy(() => import('./features/klasse/Klassenmodus'));
+const Lehrermodus = lazy(() => import('./features/lehrer/Lehrermodus'));
 const Datensicherung = lazy(() => import('./features/sicherung/Datensicherung'));
 const Karteikarten = lazy(() => import('./features/karteikarten/ui/Karteikarten'));
 const Skript = lazy(() => import('./features/skript/ui/Skript'));
@@ -74,6 +75,7 @@ function View() {
   const { path } = useRoute();
   useEffect(() => { if (REDIRECTS[path]) navigate(REDIRECTS[path]!); }, [path]);
   if (path === '/lernen/klasse' || path.startsWith('/lernen/klasse/')) return <Klassenmodus />;
+  if (path === '/lehren' || path.startsWith('/lehren/')) return <Lehrermodus />;
   switch (path) {
     case '/': return <Dashboard />;
     case '/lernen/plan': return <Lernplan />;

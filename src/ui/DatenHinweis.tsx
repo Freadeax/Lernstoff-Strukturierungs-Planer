@@ -1,7 +1,7 @@
 // Datenhinweis direkt am jeweiligen Schritt: was wohin geht, bevor es passiert.
 // Ein Ort für alle Texte, damit Import, KI, Diktat und Teilen dieselbe Sprache sprechen.
 
-export type DatenArt = 'import' | 'ki' | 'ki-bild' | 'diktat' | 'teilen' | 'abgabe' | 'rueckmeldung';
+export type DatenArt = 'import' | 'ki' | 'ki-bild' | 'diktat' | 'teilen' | 'abgabe' | 'rueckmeldung' | 'bewertung' | 'lehrer';
 
 export const FIKTIV = 'Für SIS, Übergaben, Pflegeberichte und Wundbilder nur ausgedachte Übungsdaten verwenden. Auch Kürzel, geänderte Namen, Zimmernummern oder Fotos können auf echte Personen hinweisen.';
 
@@ -33,6 +33,14 @@ export const DATEN_TEXT: Record<DatenArt, { kurz: string; lang: string }> = {
   rueckmeldung: {
     kurz: 'Geht nur an die Person, der du sie schickst.',
     lang: 'Die Rückmeldung enthält deinen Text, die gewählte Seite, die Zahl erledigter Testaufträge und, wenn angehakt, grobe Geräteangaben, aber keinen Lernstand. Sie ist kodiert, nicht verschlüsselt. Ein Kürzel oder Vorname reicht.',
+  },
+  bewertung: {
+    kurz: 'Name, Punkte und Kommentare stecken im Link.',
+    lang: 'Der Rückmeldelink enthält Namen, Punkte, Kommentare und, wenn gewählt, die Note, kodiert, aber nicht verschlüsselt. Nur direkt an die betreffende Person schicken, nicht in eine Gruppe. Er ist nicht unterschrieben und ersetzt keine offizielle Notenmitteilung.',
+  },
+  lehrer: {
+    kurz: 'Namen, Abgaben und Noten bleiben auf diesem Gerät.',
+    lang: 'Der Lehrermodus speichert Klassenlisten, Abgaben und Bewertungen nur in diesem Browser und in Datensicherungen dieses Geräts. Nichts geht an einen Server. Nach Abschluss eines Kurses bitte die Daten exportieren und hier löschen.',
   },
 };
 

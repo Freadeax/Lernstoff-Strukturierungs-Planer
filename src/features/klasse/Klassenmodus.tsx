@@ -3,11 +3,12 @@ import './klasse.css';
 import { navigate, useRoute } from '../../ui/shell/router';
 import { Bearbeiten } from './Bearbeiten';
 import { Editor } from './Editor';
-import { leseFall } from './kodierung';
+import { findeRueckmeldung, leseAbgabeCode, leseFall, leseRueckmeldung } from './kodierung';
 import { Lehrkraft } from './Lehrkraft';
-import { arbeitZu, eigeneFaelle, erhalteneFaelle, merkeErhalten, speichereEigenen, abgabenZu, vergiss } from './speicher';
-import { fristText } from './teilen';
-import { ART_LABEL, type KlassenFall } from './typen';
+import { Rueckmeldungsansicht } from './Rueckmeldungsansicht';
+import { arbeitZu, eigeneFaelle, erhalteneFaelle, merkeErhalten, merkeRueckmeldung, nimmAbgabenAuf, rueckmeldungZu, speichereEigenen, abgabenZu, vergiss } from './speicher';
+import { datumText, fristText } from './teilen';
+import { ART_LABEL, type Abgabe, type KlassenFall, type Rueckmeldung } from './typen';
 import { leererFall, VORLAGE_GRUPPEN, VORLAGEN } from './vorlagen';
 
 // Routen: /lernen/klasse (Start), …/neu (Editor), …/lehrkraft?id|d (Übersicht eines verteilten Falls),
@@ -89,10 +90,123 @@ function Neu() {
   );
 }
 
+/** Abgabe-Link (QR-Code der Lernenden): auf dem Gerät der Lehrkraft mit einem Tippen einlesen. */
+function AbgabeAusLink() {
+  const { params } = useRoute();
+  const d = params.get('d');
+  const [abgabe, setAbgabe] = useState<Abgabe | null>(null);
+  const [fehler, setFehler] = useState('');
+  const [fertig, setFertig] = useState('');
+  useEffect(() => {
+    if (!d) { setFehler('Der Link enthält keine Abgabe.'); return; }
+    let aktiv = true;
+    leseAbgabeCode(d).then((a) => { if (aktiv) setAbgabe(a); }).catch((e: Error) => { if (aktiv) setFehler(e.message); });
+    return () => { aktiv = false; };
+  }, [d]);
+  if (fehler) return <Seite titel="Abgabe einlesen"><Fehler text={fehler} /></Seite>;
+  if (!abgabe) return <Seite titel="Abgabe einlesen"><p className="muted">Abgabe wird gelesen …</p></Seite>;
+  const fall = eigeneFaelle().find((f) => f.id === abgabe.fallId);
+  const beantwortet = Object.values(abgabe.antworten).filter((x) => x.trim()).length;
+  function einlesen() {
+    const r = nimmAbgabenAuf([abgabe!]);
+    setFertig(r.neu ? 'Abgabe eingelesen.' : r.ersetzt ? 'Neuere Abgabe übernommen, die ältere ist ersetzt.' : 'Diese Abgabe war schon da.');
+  }
+  return (
+    <Seite titel="Abgabe einlesen" intro="Eine Abgabe aus dem Klassenmodus. Einlesen nur auf dem Gerät der Lehrkraft.">
+      <div className="card">
+        <h3>{abgabe.name}</h3>
+        <p className="muted">{fall?.titel ?? abgabe.titel} · {beantwortet} Antworten · abgegeben {datumText(abgabe.abgegeben)}</p>
+        {!fall && <div className="note warn" role="status">Diesen Fall hast du auf diesem Gerät nicht verteilt. Du kannst die Abgabe trotzdem einlesen; sie erscheint beim Fall, sobald du dessen Lehrkraft-Link hier öffnest.</div>}
+        {fertig
+          ? (
+            <>
+              <div className="note ok" role="status">{fertig}</div>
+              <div className="row klasse__knoepfe">
+                {fall && <button type="button" className="primary" onClick={() => navigate(`/lehren/bewerten?fall=${fall.id}&name=${encodeURIComponent(abgabe.name)}`)}>Jetzt bewerten</button>}
+                <button type="button" onClick={() => navigate('/lehren/abgaben')}>Alle Abgaben</button>
+              </div>
+            </>
+          )
+          : (
+            <div className="row klasse__knoepfe">
+              <button type="button" className="primary" onClick={einlesen}>Abgabe einlesen</button>
+              <button type="button" className="ghost" onClick={() => navigate('/lernen/klasse')}>Abbrechen</button>
+            </div>
+          )}
+      </div>
+    </Seite>
+  );
+}
+
+/** Rückmeldelink der Lehrkraft: merken und neben den eigenen Antworten zeigen. */
+function RueckmeldungAusLink() {
+  const { params } = useRoute();
+  const d = params.get('d');
+  const id = params.get('id');
+  const [fehler, setFehler] = useState('');
+  useEffect(() => {
+    if (!d) return;
+    let aktiv = true;
+    leseRueckmeldung(d).then((r) => {
+      if (!aktiv) return;
+      merkeRueckmeldung(r);
+      const bekannt = erhalteneFaelle().some((f) => f.id === r.fallId);
+      location.replace(bekannt ? `#/lernen/klasse/fall?id=${r.fallId}` : `#/lernen/klasse/rueckmeldung?id=${r.fallId}`);
+    }).catch((e: Error) => { if (aktiv) setFehler(e.message); });
+    return () => { aktiv = false; };
+  }, [d]);
+  if (fehler) return <Seite titel="Rückmeldung"><Fehler text={fehler} /></Seite>;
+  const r = id ? rueckmeldungZu(id) : null;
+  if (!r) return <Seite titel="Rückmeldung"><p className="muted">{d ? 'Rückmeldung wird geöffnet …' : 'Diese Rückmeldung gibt es auf diesem Gerät nicht.'}</p></Seite>;
+  return (
+    <Seite titel={r.titel || 'Rückmeldung'} intro="Den Fall selbst hast du auf diesem Gerät nicht geöffnet. Öffnest du den Link zum Fall hier, steht die Rückmeldung neben deinen Antworten.">
+      <Rueckmeldungsansicht r={r} />
+    </Seite>
+  );
+}
+
+/** Rückmeldung, die als Text (Mail, Lernplattform) kam: einfügen statt Link öffnen. */
+function RueckmeldungEinfuegen({ fertig }: { fertig: (r: Rueckmeldung) => void }) {
+  const [text, setText] = useState('');
+  const [fehler, setFehler] = useState('');
+  async function los() {
+    setFehler('');
+    try {
+      const r = await findeRueckmeldung(text);
+      if (!r) { setFehler('Keine Rückmeldung gefunden. Sie steht als Link mit „rueckmeldung“ oder als „LSP-BEWERTUNG[…]“ im Text.'); return; }
+      merkeRueckmeldung(r);
+      setText('');
+      fertig(r);
+    } catch (e) { setFehler((e as Error).message); }
+  }
+  return (
+    <details className="klasse__block">
+      <summary>Rückmeldung als Text bekommen?</summary>
+      <label className="field"><span>Text der Lehrkraft einfügen</span><textarea rows={3} value={text} onChange={(e) => setText(e.target.value)} /></label>
+      <button type="button" disabled={!text.trim()} onClick={los}>Rückmeldung öffnen</button>
+      {fehler && <div className="note warn" role="alert">{fehler}</div>}
+    </details>
+  );
+}
+
+/** Kalendertage bis zur Frist (heute = 0, morgen = 1, gestern = -1), in lokaler Zeit. */
+export function fristTage(frist: string, jetzt = new Date()): number {
+  const [j, m, t] = frist.split('-').map(Number);
+  const heute = Date.UTC(jetzt.getFullYear(), jetzt.getMonth(), jetzt.getDate());
+  return Math.round((Date.UTC(j!, m! - 1, t!) - heute) / 864e5);
+}
+
 function Start() {
   const [eigene] = useState(eigeneFaelle);
   const [erhalten, setErhalten] = useState(erhalteneFaelle);
   const [vorlage, setVorlage] = useState('');
+  const [, setNeu] = useState(0);
+  // Offene zuerst, nach Frist; abgegebene danach
+  const sortiert = [...erhalten].sort((x, y) => {
+    const ax = arbeitZu(x.id).abgegeben ? 1 : 0; const ay = arbeitZu(y.id).abgegeben ? 1 : 0;
+    if (ax !== ay) return ax - ay;
+    return (x.frist ?? '9999').localeCompare(y.frist ?? '9999');
+  });
 
   return (
     <Seite titel="Klassenmodus" intro="Eine Lehrkraft verteilt einen Fall per Link, alle bearbeiten ihn auf ihrem Handy, Tablet oder Rechner und schicken die Abgabe zurück. Ohne Anmeldung und ohne Server: Der Fall steckt im Link, die Abgaben kommen als Nachricht.">
@@ -103,23 +217,29 @@ function Start() {
             ? <p className="muted">Noch keiner. Öffne den Link, den du von deiner Lehrkraft bekommen hast.</p>
             : (
               <ul className="klasse__liste">
-                {erhalten.map((f) => {
+                {sortiert.map((f) => {
                   const a = arbeitZu(f.id);
+                  const r = rueckmeldungZu(f.id);
+                  const tage = f.frist && !a.abgegeben ? fristTage(f.frist) : null;
+                  const stand = r ? `Rückmeldung${r.max ? `: ${r.punkte ?? 0}/${r.max} P.` : ''}${r.note ? `, Note ${r.note}` : ''}`
+                    : a.abgegeben ? 'abgegeben'
+                    : tage === null ? 'offen' : tage < 0 ? 'Frist vorbei' : tage === 0 ? 'heute fällig' : tage === 1 ? 'morgen fällig' : `noch ${tage} Tage`;
                   return (
                     <li key={f.id}>
                       <button type="button" className="link" onClick={() => navigate(`/lernen/klasse/fall?id=${f.id}`)}>{f.titel}</button>
-                      <span className="muted">{ART_LABEL[f.art]}{f.frist ? ` · bis ${fristText(f.frist)}` : ''} · {a.abgegeben ? 'abgegeben' : 'offen'}</span>
+                      <span className="muted">{ART_LABEL[f.art]}{f.frist ? ` · bis ${fristText(f.frist)}` : ''} · <span className={tage !== null && tage <= 1 ? 'klasse__dringend' : ''}>{stand}</span></span>
                       <button type="button" className="ghost small" onClick={() => { if (confirm(`„${f.titel}“ und deine Antworten von diesem Gerät löschen?`)) { vergiss(f.id); setErhalten(erhalteneFaelle()); } }}>Entfernen</button>
                     </li>
                   );
                 })}
               </ul>
             )}
+          <RueckmeldungEinfuegen fertig={(r) => { setNeu((n) => n + 1); navigate(erhalten.some((f) => f.id === r.fallId) ? `/lernen/klasse/fall?id=${r.fallId}` : `/lernen/klasse/rueckmeldung?id=${r.fallId}`); }} />
         </div>
 
         <div className="card">
           <h3>Fall an die Klasse verteilen</h3>
-          <p className="muted">Für Lehrkräfte und Praxisanleitung, oder um mit der Lerngruppe zu üben.</p>
+          <p className="muted">Für Lehrkräfte und Praxisanleitung, oder um mit der Lerngruppe zu üben. Klassen, Bewertung mit Punkten und Noten und Rückmeldungen findest du im <button type="button" className="link" onClick={() => navigate('/lehren')}>Lehrermodus</button>.</p>
           <div className="row klasse__knoepfe">
             <button type="button" className="primary" onClick={() => navigate('/lernen/klasse/neu')}>Eigenen Fall schreiben</button>
           </div>
@@ -161,6 +281,8 @@ export default function Klassenmodus() {
     case 'fall': return <KlasseFall />;
     case 'lehrkraft': return <LehrkraftFall />;
     case 'neu': return <Neu />;
+    case 'abgabe': return <AbgabeAusLink />;
+    case 'rueckmeldung': return <RueckmeldungAusLink />;
     default: return <Start />;
   }
 }

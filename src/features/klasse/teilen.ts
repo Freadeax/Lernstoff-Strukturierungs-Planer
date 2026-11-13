@@ -15,13 +15,14 @@ export async function kopiere(text: string, was = 'Text'): Promise<boolean> {
 }
 
 /** Teilen-Menü des Geräts (iPhone, iPad, Android); sonst kopieren. */
-export async function teile(daten: { title: string; text?: string; url?: string }, was = 'Text'): Promise<void> {
+/** Gibt zurück, ob geteilt oder kopiert wurde (false bei Abbruch oder Fehler). */
+export async function teile(daten: { title: string; text?: string; url?: string }, was = 'Text'): Promise<boolean> {
   if (typeof navigator.share === 'function') {
-    try { await navigator.share(daten); return; } catch (e) {
-      if ((e as Error).name === 'AbortError') return;
+    try { await navigator.share(daten); return true; } catch (e) {
+      if ((e as Error).name === 'AbortError') return false;
     }
   }
-  await kopiere([daten.text, daten.url].filter(Boolean).join('\n'), was);
+  return kopiere([daten.text, daten.url].filter(Boolean).join('\n'), was);
 }
 
 export function speichereDatei(name: string, inhalt: string, typ = 'text/plain;charset=utf-8') {
