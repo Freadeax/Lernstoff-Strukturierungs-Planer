@@ -54,6 +54,7 @@ const NICHT_SICHERN = new Set([
   'lernstoff.mindmaps.fassungen', // frühere Fassungen der Mindmaps: Rückgängig je Gerät
   'lernstoff.lernplan.icsUids', // zuletzt in den Kalender dieses Geräts exportierte Termine
   'lernstoff.quiz.vertiefungOffen', // „Mehr verstehen“ auf- oder zugeklappt: Anzeige je Gerät
+  'lernstoff.quiz.laufend',    // halbe Übungsrunde: nur auf diesem Gerät fortsetzen
   'lernstoff.audio',           // Töne und Vorlesestimme: je Gerät
 ]);
 const PRAEFIXE = ['lernstoff.', 'duell.'];

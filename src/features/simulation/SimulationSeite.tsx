@@ -25,6 +25,8 @@ import {
 import { spiele } from '../../ui/audio/spieler';
 import { ergaenzeVerlauf, fortsetzen, uhrzeit, ladeEinstellungen, ladeLauf, ladeVerlauf, speichereEinstellungen, speichereLauf, type Einstellungen, type Lauf, type VerlaufEintrag } from './speicher';
 import { DatenHinweis } from '../../ui/DatenHinweis';
+import { SkriptStellen } from '../skript/SkriptStellen';
+import { uebungenFuer } from '../lernplan/trainer';
 
 const K = katalog(pflegeModule);
 const KB = [...K.kbName.entries()].map(([id, name]) => ({ id, code: name.split(' · ')[0]!, name: name.split(' · ')[1]! }));
@@ -74,19 +76,27 @@ function Einrichten({ onStart, saetze, exams, pools, verlauf }: { onStart: (l: L
   const [seed] = useState(neuerSeed);
   const set = (patch: Partial<Einstellungen>) => setE((cur) => { const n = { ...cur, ...patch }; speichereEinstellungen(n); return n; });
   const pruefung = exams.find((x) => x.id === e.pruefungId);
-  const auswahl = { ...e, seed, satzIds, topicIds: pruefung?.topicIds ?? [] };
+  // ?themen=a,b: Nachprüfung zu den schwachen Themen einer vorigen Simulation
+  const nachThemen = (params.get('themen') ?? '').split(',').filter((id) => K.topics.has(id));
+  const auswahl = { ...e, seed, satzIds, topicIds: pruefung?.topicIds ?? nachThemen };
   const z = useMemo(() => stelleZusammen(K, auswahl, saetze, pools), [JSON.stringify(auswahl), saetze, pools]);
   const minuten = e.minuten ?? z.minuten;
 
   const start = () => {
     const jetzt = Date.now();
-    const titel = pruefung ? `Simulation: ${pruefung.name}` : VORLAGEN.find((v) => v.e.anzahl === e.anzahl && v.e.minuten === e.minuten)?.label ?? 'Prüfungssimulation';
+    const titel = pruefung ? `Simulation: ${pruefung.name}` : nachThemen.length ? 'Nachprüfung schwacher Themen' : VORLAGEN.find((v) => v.e.anzahl === e.anzahl && v.e.minuten === e.minuten)?.label ?? 'Prüfungssimulation';
     const modus = e.modus ?? 'pruefung';
     onStart({ id: crypto.randomUUID(), titel: modus === 'lernen' ? `${titel} (Lernmodus)` : titel, auswahl, fragen: z.fragen, antworten: {}, markiert: [], start: jetzt, deadline: jetzt + minuten * 60_000, i: 0, modus });
   };
 
   return (
     <>
+      {!pruefung && nachThemen.length > 0 && (
+        <p className="note sim__nachpruefung">
+          Nachprüfung: nur {nachThemen.length === 1 ? 'das Thema' : `die ${nachThemen.length} Themen`} {nachThemen.map(themaName).join(', ')}.{' '}
+          <button type="button" className="link" onClick={() => navigate('/lernen/simulation')}>Alle Themen</button>
+        </p>
+      )}
       <div className="card sim__einstellungen">
         <div className="sim__zeile">
           <span className="muted">Vorlage</span>
@@ -390,6 +400,42 @@ function Loesung({ f, a, w }: { f: SimFrage; a?: Antwort; w: Wertung }) {
   );
 }
 
+/** Wonach im Skript gesucht wird: Frage, Lösung, Erklärung (nicht die falschen Optionen). */
+function simZiel(f: SimFrage): { topicIds: string[]; texte: string[] } {
+  const loesung = f.art === 'auswahl' ? [...f.richtig.map((i) => f.optionen[i] ?? ''), f.erklaerung ?? ''] : f.art === 'zahl' ? [f.hinweis ?? ''] : [f.musterloesung];
+  return { topicIds: f.topicId ? [f.topicId] : [], texte: [f.frage, ...loesung] };
+}
+
+/**
+ * Nach der Analyse gezielt weiter (Vorbild: Fragenbanken führen von der Themenauswertung direkt
+ * zum Nachlesen und zu einer Nachrunde): je schwachem Thema Lesen, Üben, Karten, dazu eine Nachprüfung.
+ */
+function Nacharbeiten({ schwach, onNeu }: { schwach: string[]; onNeu: () => void }) {
+  const themen = schwach.slice(0, 6);
+  return (
+    <div className="card sim__nacharbeiten">
+      <h3>Schwache Themen nacharbeiten</h3>
+      <p className="muted">Erst nachlesen, dann üben, nach ein paar Tagen die Nachprüfung. Falsche Fragen stehen außerdem im <a href="#/lernen/fehler">Fehlerheft</a>.</p>
+      <ul>
+        {themen.map((id) => {
+          const u = uebungenFuer(id).find((x) => x.trainer !== 'mindmap' && x.trainer !== 'praxis');
+          return (
+            <li key={id}>
+              <strong>{themaName(id)}</strong>
+              <span className="sim__nacharbeiten-links">
+                <a href={`#/lernen/thema?id=${encodeURIComponent(id)}`}>Nachlesen</a>
+                {u && <a href={`#${u.path}`}>{u.label}</a>}
+                <a href={`#/lernen/karten?thema=${encodeURIComponent(id)}`}>Karteikarten</a>
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+      <button type="button" onClick={() => { onNeu(); navigate(`/lernen/simulation?themen=${themen.map(encodeURIComponent).join(',')}`); }}>Nachprüfung zu {themen.length === 1 ? 'diesem Thema' : `diesen ${themen.length} Themen`} einrichten</button>
+    </div>
+  );
+}
+
 function Ergebnis({ lauf, setLauf, onNeu }: { lauf: Lauf; setLauf: (l: Lauf) => void; onNeu: () => void }) {
   const w = lauf.wertungen ?? {};
   const a: Auswertung = useMemo(() => auswerten(K, lauf.fragen, w), [lauf]);
@@ -483,6 +529,8 @@ function Ergebnis({ lauf, setLauf, onNeu }: { lauf: Lauf; setLauf: (l: Lauf) => 
           <ul className="sim__balkenliste">{a.jeThema.map((g) => <Balken key={g.key} g={g} />)}</ul></div>
       </div>
 
+      {a.schwach.length > 0 && <Nacharbeiten schwach={a.schwach} onNeu={onNeu} />}
+
       <div className="card sim__lernplan">
         <h3>An den Lernplan übergeben</h3>
         {lauf.uebergeben ? (
@@ -513,6 +561,7 @@ function Ergebnis({ lauf, setLauf, onNeu }: { lauf: Lauf; setLauf: (l: Lauf) => 
             <Kopfzeile f={f} />
             <p className="pre">{f.frage}</p>
             <Loesung f={f} a={lauf.antworten[f.id]} w={x} />
+            {x.art !== 'offen' && x.punkte < x.max && <SkriptStellen ziel={simZiel(f)} max={1} kompakt />}
             <FrageMelden key={`m-${f.id}`} {...meldeZiel(f.id)} fp="" titel={f.hinweis?.split(' · ').slice(0, 2).join(' · ') || `Frage ${i + 1}`} frage={f.frage} seite="/lernen/simulation" />
             {f.art === 'offen' && <OffeneBewertung f={f} a={lauf.antworten[f.id]} w={x} onWertung={(n) => setWertung(f.id, n)} />}
           </article>

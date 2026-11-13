@@ -2,10 +2,12 @@ import { useMemo, useRef, useState, type ReactNode } from 'react';
 import { Ergebnisring } from '../../ui/Ergebnisring';
 import './quiz.css';
 import {
-  alsFehler, alsTreffer, bewerte, schrittRichtig, startFolge, stufeVon, zuordnenOptionen, STUFE_LABEL,
+  alsFehler, alsTreffer, alsUnsicher, bewerte, schrittRichtig, startFolge, stufeVon, zuordnenOptionen, STUFE_LABEL,
   type Antwort, type Aufgabe, type AuswahlAufgabe, type BeschriftenAufgabe, type Bewertung, type FallAufgabe, type ReihenfolgeAufgabe, type ZuordnenAufgabe,
 } from './quiz';
-import { notiereFehler, type FehlerQuelle } from '../fehlerheft/fehlerheft';
+import { notiereFehler, type FehlerQuelle, type Sicherheit } from '../fehlerheft/fehlerheft';
+import { speichereZwischenstand, type RundenErgebnisEintrag, type Zwischenstand } from './zwischenstand';
+import { SkriptStellen } from '../skript/SkriptStellen';
 import { proThema, type TrainerId } from '../lernplan/trainer';
 import { LernplanHinweis, useLernplanUebernahme } from '../lernplan/ui/LernplanHinweis';
 import type { Grundlage, GrundlageZeile } from './grundlage';
@@ -38,6 +40,25 @@ interface Props {
   onFertig?: (e: RundenErgebnis) => void;
   onNeu: () => void;
   onEnde: () => void;
+  /** Bereich und Stufe für den Zwischenstand (Fortsetzen nach Neuladen). Ohne `bereich` wird nichts gespeichert. */
+  bereich?: string;
+  stufe?: number;
+  /** Begonnene Runde an dieser Stelle fortsetzen. */
+  fortsetzen?: Zwischenstand | null;
+  /** Nachübung: nur die eben falsch gelösten Aufgaben, zählt nicht im Lernplan. */
+  nachuebung?: boolean;
+  /** „Falsche gleich noch einmal“ am Rundenende. */
+  onNachuebung?: (aufgaben: Aufgabe[]) => void;
+}
+
+/** Eigene Einschätzung vor dem Prüfen (freiwillig). */
+type Gefuehl = 'sicher' | 'unsicher' | null;
+
+/** Selbsteinschätzung gegen Ergebnis: Glückstreffer und sichere Irrtümer (Kalibrierung). */
+export function sicherheitAus(gefuehl: Gefuehl, richtig: boolean): Sicherheit | undefined {
+  if (gefuehl === 'unsicher' && richtig) return 'geraten';
+  if (gefuehl === 'sicher' && !richtig) return 'sicherer-irrtum';
+  return undefined;
 }
 
 // ---------------------------------------------------------------- Auswahl
@@ -247,6 +268,19 @@ function aufgabenTexte(a: Aufgabe): string[] {
 }
 
 /**
+ * Wonach im Skript gesucht wird: Frage, richtige Lösung und Begründung, nicht die falschen Antworten
+ * (sonst führt ein Ablenker in das Kapitel, das gerade nicht gemeint ist).
+ */
+export function skriptZiel(a: Aufgabe): { topicIds: string[]; texte: string[] } {
+  const loesung = a.art === 'auswahl' ? a.richtig.map((i) => a.optionen[i] ?? '')
+    : a.art === 'reihenfolge' ? a.schritte
+      : a.art === 'zuordnen' ? a.paare.flatMap((p) => [p.links, p.rechts])
+        : a.art === 'fall' ? a.schritte.flatMap((st) => [st.frage, ...st.richtig.map((i) => st.optionen[i] ?? ''), st.warum])
+          : a.marken.map((m) => m.label);
+  return { topicIds: a.topicIds, texte: [a.titel, a.frage, ...loesung, ...a.erklaerung] };
+}
+
+/**
  * Aufklappbare Vertiefung nach dem Prüfen: Hintergrund, Fachbegriffe der Aufgabe, Themenlinks.
  * Erst nach dem Prüfen, damit Definitionen keine Antwort vorwegnehmen. Bleibt offen, wenn man sie einmal geöffnet hat.
  */
@@ -311,18 +345,24 @@ const ART_HINWEIS: Record<Aufgabe['art'], string> = {
   fall: 'Der Fall entwickelt sich. Jeden Schritt festlegen, dann geht es weiter.',
 };
 
-export function Runde({ aufgaben, quelle, trainer, figuren = {}, minProThema = 3, grundlage, weiter: weiterLinks, onFertig, onNeu, onEnde }: Props) {
-  const [i, setI] = useState(0);
-  const [antwort, setAntwort] = useState<Antwort>(() => leereAntwort(aufgaben[0]!));
-  const [ergebnisse, setErgebnisse] = useState<Array<{ a: Aufgabe; b: Bewertung }>>([]);
+export function Runde({ aufgaben: neueAufgaben, quelle, trainer, figuren = {}, minProThema = 3, grundlage, weiter: weiterLinks, onFertig, onNeu, onEnde, bereich, stufe = 0, fortsetzen, nachuebung = false, onNachuebung }: Props) {
+  // Beim Fortsetzen gelten die gespeicherten Aufgaben (mit ihrer gemischten Reihenfolge)
+  const [aufgaben] = useState<Aufgabe[]>(() => fortsetzen?.aufgaben ?? neueAufgaben);
+  const start = fortsetzen?.ergebnisse.length ?? 0;
+  const [i, setI] = useState(start);
+  const [antwort, setAntwort] = useState<Antwort>(() => leereAntwort(aufgaben[start] ?? aufgaben[0]!));
+  const [ergebnisse, setErgebnisse] = useState<Array<{ a: Aufgabe; b: Bewertung; sicherheit?: Sicherheit }>>(
+    () => (fortsetzen?.ergebnisse ?? []).flatMap((e, k) => (aufgaben[k]?.id === e.id ? [{ a: aufgaben[k]!, b: e.b, sicherheit: e.sicherheit }] : [])),
+  );
   const [geprueft, setGeprueft] = useState<Bewertung | null>(null);
-  const [serie, setSerie] = useState(0);
-  const [besteSerie, setBesteSerie] = useState(0);
+  const [gefuehl, setGefuehl] = useState<Gefuehl>(null);
+  const [serie, setSerie] = useState(fortsetzen?.serie ?? 0);
+  const [besteSerie, setBesteSerie] = useState(fortsetzen?.besteSerie ?? 0);
   const lernplan = useLernplanUebernahme(trainer);
   const { path } = useRoute();
   // Schutz gegen doppeltes Absenden: jede Aufgabe wird einmal bewertet, die Runde einmal abgeschlossen
-  const rundeId = useRef(`${quelle}:runde:${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`);
-  const bewertetBei = useRef(-1);
+  const rundeId = useRef(fortsetzen?.rundeId ?? `${quelle}:runde:${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`);
+  const bewertetBei = useRef(start - 1);
   const abgeschlossen = useRef(false);
   const a = aufgaben[i];
   const fertig = ergebnisse.length === aufgaben.length && !geprueft;
@@ -331,18 +371,30 @@ export function Runde({ aufgaben, quelle, trainer, figuren = {}, minProThema = 3
     if (!a || bewertetBei.current === i) return;
     bewertetBei.current = i;
     const b = bewerte(a, antwort);
+    const sicherheit = sicherheitAus(gefuehl, b.richtig);
     spiele(b.richtig ? 'richtig' : b.punkte > 0 ? 'teilweise' : 'falsch');
     setGeprueft(b);
-    setErgebnisse((e) => [...e, { a, b }]);
+    const alle = [...ergebnisse, { a, b, sicherheit }];
+    setErgebnisse(alle);
     notiereVersuch(quelle, a, antwort, b);
     const neu = b.richtig ? serie + 1 : 0;
-    setSerie(neu); setBesteSerie((x) => Math.max(x, neu));
-    const fehler = alsFehler(a, antwort, quelle);
-    if (fehler.length) notiereFehler(fehler.map((f) => ({ ...f, versuchId: `${rundeId.current}:${i}` })));
+    const beste = Math.max(besteSerie, neu);
+    setSerie(neu); setBesteSerie(beste);
+    const fehler = [...alsFehler(a, antwort, quelle), ...(sicherheit === 'geraten' ? alsUnsicher(a, antwort, quelle) : [])];
+    if (fehler.length) notiereFehler(fehler.map((f) => ({ ...f, ...(sicherheit ? { sicherheit } : {}), versuchId: `${rundeId.current}:${i}` })));
+    // Zwischenstand nach jeder geprüften Aufgabe, damit Neuladen oder App-Wechsel nichts kosten
+    if (bereich !== undefined) {
+      speichereZwischenstand(quelle, alle.length < aufgaben.length ? {
+        rundeId: rundeId.current, bereich, stufe, aufgaben, nachuebung,
+        ergebnisse: alle.map((e): RundenErgebnisEintrag => ({ id: e.a.id, b: e.b, ...(e.sicherheit ? { sicherheit: e.sicherheit } : {}) })),
+        serie: neu, besteSerie: beste, gespeichert: Date.now(),
+      } : null);
+    }
   }
 
   function weiter() {
     setGeprueft(null);
+    setGefuehl(null);
     const naechste = aufgaben[i + 1];
     if (naechste) { setAntwort(leereAntwort(naechste)); setI(i + 1); return; }
     if (abgeschlossen.current) return;
@@ -350,6 +402,7 @@ export function Runde({ aufgaben, quelle, trainer, figuren = {}, minProThema = 3
     const punkte = ergebnisse.reduce((s, e) => s + e.b.punkte / e.b.max, 0);
     const prozent = Math.round((punkte / Math.max(1, ergebnisse.length)) * 100);
     spiele(prozent >= 90 ? 'erfolg' : 'fertig');
+    if (nachuebung) return;
     onFertig?.({ punkte: ergebnisse.reduce((s, e) => s + e.b.punkte, 0), max: ergebnisse.reduce((s, e) => s + e.b.max, 0), prozent, richtig: ergebnisse.filter((e) => e.b.richtig).length, anzahl: ergebnisse.length });
     // Als fachlich falsch oder mehrdeutig gemeldete Aufgaben zählen bis zur Klärung nicht (qm/meldungen.ts)
     const gesperrt = gesperrteAufgaben();
@@ -360,6 +413,8 @@ export function Runde({ aufgaben, quelle, trainer, figuren = {}, minProThema = 3
   if (fertig) {
     const prozent = Math.round((ergebnisse.reduce((s, e) => s + e.b.punkte / e.b.max, 0) / ergebnisse.length) * 100);
     const falsch = ergebnisse.filter((e) => !e.b.richtig);
+    const geraten = ergebnisse.filter((e) => e.sicherheit === 'geraten').length;
+    const irrtum = ergebnisse.filter((e) => e.sicherheit === 'sicherer-irrtum').length;
     return (
       <div className="card qz__ende m-pop" aria-live="polite">
         <div className="qz__ende-kopf">
@@ -390,12 +445,25 @@ export function Runde({ aufgaben, quelle, trainer, figuren = {}, minProThema = 3
             <ul className="qz__falsch">
               {falsch.map((e) => <li key={e.a.id}><strong>{e.a.titel}:</strong> {e.a.frage} <span className="muted">({e.b.punkte} von {e.b.max})</span></li>)}
             </ul>
-            <p className="muted">Die Fehler stehen im <a href="#/lernen/fehler">Fehlerheft</a> und kommen dort wieder.</p>
+            <p className="muted">Die Fehler stehen im <a href="#/lernen/fehler">Fehlerheft</a> und kommen dort in wachsenden Abständen wieder: morgen, dann nach 3, 7 und 14 Tagen.</p>
           </>
         )}
-        <LernplanHinweis uebernahme={lernplan.uebernahme} fehler={lernplan.fehler} leer={`Für den Lernplan braucht es mindestens ${minProThema} Aufgaben je Thema.`} />
+        {(geraten > 0 || irrtum > 0) && (
+          <p className="note qz__kalibrierung">
+            <strong>Selbsteinschätzung:</strong>{' '}
+            {irrtum > 0 && <>{irrtum} {irrtum === 1 ? 'sicherer Irrtum' : 'sichere Irrtümer'} (sicher, aber falsch: genau diese lohnen das Nachlesen am meisten)</>}
+            {irrtum > 0 && geraten > 0 && ' · '}
+            {geraten > 0 && <>{geraten} {geraten === 1 ? 'Glückstreffer' : 'Glückstreffer'} (richtig, aber geraten: zum Festigen im Fehlerheft)</>}
+          </p>
+        )}
+        {nachuebung
+          ? <p className="muted">Nachübung: zählt nicht im Lernplan, die Wiederholung über Tage übernimmt das Fehlerheft.</p>
+          : <LernplanHinweis uebernahme={lernplan.uebernahme} fehler={lernplan.fehler} leer={`Für den Lernplan braucht es mindestens ${minProThema} Aufgaben je Thema.`} />}
         <div className="row">
-          <button type="button" className="primary" onClick={onNeu}>Neue Runde</button>
+          {falsch.length > 0 && onNachuebung && (
+            <button type="button" className="primary" onClick={() => onNachuebung(falsch.map((e) => e.a))}>Falsche gleich noch einmal ({falsch.length})</button>
+          )}
+          <button type="button" className={falsch.length > 0 && onNachuebung ? '' : 'primary'} onClick={onNeu}>Neue Runde</button>
           <button type="button" onClick={onEnde}>Zur Auswahl</button>
         </div>
       </div>
@@ -447,7 +515,10 @@ export function Runde({ aufgaben, quelle, trainer, figuren = {}, minProThema = 3
           <div className={`note qz__rueckmeldung ${geprueft.richtig ? 'ok m-pop' : 'warn m-rise'}`} role="status">
             <strong>{geprueft.richtig ? 'Richtig.' : geprueft.punkte > 0 ? `Teilweise richtig: ${geprueft.punkte} von ${geprueft.max}.` : 'Leider falsch.'}</strong>
             <FachListe texte={a.erklaerung} className="qz__erklaerung" />
+            {ergebnisse[i]?.sicherheit === 'sicherer-irrtum' && <p className="qz__sicherheit">Du warst dir sicher. Solche Irrtümer bleiben besonders gut hängen, wenn du die Begründung jetzt genau liest. Die Aufgabe kommt im Fehlerheft zuerst dran.</p>}
+            {ergebnisse[i]?.sicherheit === 'geraten' && <p className="qz__sicherheit">Richtig, aber geraten: Die Aufgabe kommt zum Festigen ins Fehlerheft.</p>}
           </div>
+          <SkriptStellen ziel={skriptZiel(a)} />
           {grundlage && <GrundlageBox zeilen={grundlage(a)} />}
           {weiterLinks && weiterLinks(a).length > 0 && (
             <p className="qz-weiter">Weiter mit:{' '}
@@ -463,6 +534,13 @@ export function Runde({ aufgaben, quelle, trainer, figuren = {}, minProThema = 3
           </div>
         </>
       ) : (
+        <div className="qz__gefuehl" role="group" aria-label="Wie sicher bist du? (freiwillig)">
+          <span className="muted">Wie sicher?</span>
+          <button type="button" className="small" aria-pressed={gefuehl === 'sicher'} onClick={() => setGefuehl(gefuehl === 'sicher' ? null : 'sicher')}>Sicher</button>
+          <button type="button" className="small" aria-pressed={gefuehl === 'unsicher'} onClick={() => setGefuehl(gefuehl === 'unsicher' ? null : 'unsicher')}>Geraten</button>
+        </div>
+      )}
+      {!geprueft && (
         <div className="row">
           <button type="button" className="primary" disabled={!bereit} onClick={pruefen}>Prüfen</button>
           <button type="button" className="ghost" onClick={onEnde}>Abbrechen</button>
