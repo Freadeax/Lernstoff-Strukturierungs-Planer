@@ -67,7 +67,13 @@ export function Omnibar() {
     const hit = (p: string, hint: string): Hit[] => { const n = seiten.find((i) => i.path === p); return n ? [{ id: `start:${hint}:${p}`, type: 'Seite', label: n.label, hint, to: p }] : []; };
     return [...merk.favoriten.flatMap((p) => hit(p, 'Favorit')), ...merk.zuletzt.filter((p) => !merk.favoriten.includes(p)).flatMap((p) => hit(p, 'Zuletzt'))].slice(0, 8);
   }, [merk, roles]);
-  const hits = useMemo(() => (debounced ? index.search(debounced, 12) : start), [index, debounced, start]);
+  // Bei Eingabe führt der letzte Eintrag in den Schnellsucher (Tippfehler, Synonyme, Kriterien der Standards)
+  const hits = useMemo(() => {
+    if (!debounced) return start;
+    const h = index.search(debounced, 12);
+    const q = debounced.trim();
+    return q.length >= 2 ? [...h, { id: 'schnellsuche', type: 'Seite' as const, label: `„${q}“ in Standards suchen`, hint: 'Standard-Schnellsucher', to: `/lernen/schnellsuche?q=${encodeURIComponent(q)}` }] : h;
+  }, [index, debounced, start]);
   const listId = useId();
 
   const open = () => {
@@ -132,6 +138,7 @@ export function Omnibar() {
               </li>
             ))}
           </ul>
+          {debounced && hits.length <= 1 && hits[0]?.id === 'schnellsuche' && <p className="omnibar__empty muted">Keine direkten Treffer. Der Schnellsucher findet auch Tippfehler und Synonyme.</p>}
           {debounced && !hits.length && <p className="omnibar__empty muted">Keine Treffer für „{debounced}“.</p>}
           {!debounced && <p className="omnibar__empty muted">Tipp: Wortanfänge genügen, z. B. „dek pro“ für Dekubitusprophylaxe. Auch Befehle gehen, z. B. „dunkel“ oder „Sicherung“.</p>}
           {current?.definition && (

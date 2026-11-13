@@ -13,13 +13,13 @@
 // keine Datenbanktabelle, keine DB-Version.
 
 export type Ebene = 'S' | 'P' | 'E';
-export type Art = 'standard' | 'kriterium' | 'kernaussage' | 'instrument' | 'begriff' | 'uebung';
+export type Art = 'standard' | 'kriterium' | 'kernaussage' | 'irrtum' | 'instrument' | 'begriff' | 'uebung';
 
 export const EBENE_NAME: Record<Ebene, string> = { S: 'Struktur', P: 'Prozess', E: 'Ergebnis' };
 export const ART_NAME: Record<Art, string> = {
-  standard: 'Standard', kriterium: 'Kriterium', kernaussage: 'Kernaussage', instrument: 'Instrument', begriff: 'Fachbegriff', uebung: 'Übung',
+  standard: 'Standard', kriterium: 'Kriterium', kernaussage: 'Kernaussage', irrtum: 'Häufiger Irrtum', instrument: 'Instrument', begriff: 'Fachbegriff', uebung: 'Übung',
 };
-export const ARTEN: Art[] = ['standard', 'kriterium', 'kernaussage', 'instrument', 'begriff', 'uebung'];
+export const ARTEN: Art[] = ['standard', 'kriterium', 'kernaussage', 'irrtum', 'instrument', 'begriff', 'uebung'];
 
 /** Ein durchsuchbarer Eintrag. Quellen (DNQP-Daten, Trainer, Glossar, Instrumente) werden darauf abgebildet. */
 export interface SuchDok {
@@ -119,7 +119,7 @@ export function toleranz(laenge: number): number {
 
 type Feld = 'titel' | 'stichwort' | 'pfad' | 'text';
 const GEWICHT: Record<Feld, number> = { titel: 4, stichwort: 3, pfad: 1.5, text: 1 };
-const ART_GEWICHT: Record<Art, number> = { standard: 1.4, kriterium: 1.3, kernaussage: 1.15, instrument: 1.1, begriff: 1, uebung: 0.85 };
+const ART_GEWICHT: Record<Art, number> = { standard: 1.4, kriterium: 1.3, kernaussage: 1.15, irrtum: 1.2, instrument: 1.1, begriff: 1, uebung: 0.85 };
 
 export interface Index {
   doks: SuchDok[];
@@ -201,6 +201,7 @@ export interface Anfrage {
 
 const ART_ALIAS: Record<string, Art> = {
   standard: 'standard', standards: 'standard', kriterium: 'kriterium', kriterien: 'kriterium', kernaussage: 'kernaussage', kernaussagen: 'kernaussage',
+  irrtum: 'irrtum', irrtuemer: 'irrtum', irrtumer: 'irrtum', fehlvorstellung: 'irrtum', veraltet: 'irrtum',
   instrument: 'instrument', instrumente: 'instrument', skala: 'instrument', assessment: 'instrument', begriff: 'begriff', glossar: 'begriff', fachbegriff: 'begriff',
   uebung: 'uebung', ubung: 'uebung', übung: 'uebung', aufgabe: 'uebung', aufgaben: 'uebung', quiz: 'uebung',
 };
@@ -384,7 +385,8 @@ export function suche(index: Index, q: string, filter: Filter = {}, max = 60): E
   };
   const leer: Ergebnis = { treffer: [], gesamt: 0, teilweise: false, ohneTreffer: [], korrekturen: [], facetten: { standard: new Map(), ebene: new Map(), art: new Map() }, anfrage, filter: f };
 
-  const slots = anfrage.begriffe.filter((b) => woerter(b).length).map((b) => slotFuer(index, b));
+  // „6-R-Regel“, „Sturz-Risiko“: Bindestrich-Wörter in Teile zerlegen, jeder Teil muss passen
+  const slots = anfrage.begriffe.flatMap((b) => woerter(b).map((w) => w.form)).map((b) => slotFuer(index, b));
   const phrasen = anfrage.phrasen.map(flach).map((p) => p.trim()).filter(Boolean);
   const ohne = anfrage.ohne.map((o) => woerter(o)[0]?.schluessel).filter((x): x is string => !!x);
   const nurFilter = !slots.length && !phrasen.length;
