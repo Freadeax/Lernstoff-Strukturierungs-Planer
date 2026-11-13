@@ -1,0 +1,18 @@
+.sim-auswertung { border: var(--border-card, 1px) solid var(--color-border); border-left-width: 6px; border-radius: var(--radius-md, 10px); background: var(--color-surface); padding: var(--space-3); margin: var(--space-3) 0; display: grid; gap: var(--space-3); }
+.sim-auswertung.is-stabil { border-left-color: var(--color-success); }
+.sim-auswertung.is-unsicher { border-left-color: var(--color-warning); }
+.sim-auswertung.is-kritisch { border-left-color: var(--color-danger); }
+.sim-auswertung__kopf { display: grid; gap: var(--space-1); }
+.sim-auswertung__kopf h3, .sim-auswertung__kopf p { margin: 0; }
+.sim-auswertung__zahlen { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-3); font-size: var(--text-sm); font-weight: var(--weight-medium); }
+.sim-auswertung__punkte { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+.sim-auswertung__punkte > li { display: grid; grid-template-columns: 1.5rem 1fr; gap: var(--space-2); padding: var(--space-2); border-radius: var(--radius-sm, 6px); border: 1px solid var(--color-border); background: var(--color-surface); }
+.sim-auswertung__punkte p { margin: 0 0 2px; }
+.sim-auswertung__marke { font-weight: var(--weight-bold, 700); text-align: center; line-height: 1.5; }
+.sim-auswertung__urteil { font-size: var(--text-sm); font-weight: var(--weight-medium); }
+li.is-gut .sim-auswertung__marke, li.is-gut .sim-auswertung__urteil, .sim-auswertung__zahlen .is-gut { color: var(--color-success); }
+li.is-teilweise .sim-auswertung__marke, li.is-teilweise .sim-auswertung__urteil { color: var(--color-text); }
+li.is-fehler .sim-auswertung__marke, li.is-fehler .sim-auswertung__urteil, .sim-auswertung__zahlen .is-fehler { color: var(--color-danger); }
+.sim-auswertung__merk h4 { margin: 0 0 var(--space-1); }
+.sim-auswertung__merk ul { margin: 0; padding-left: 1.2rem; display: grid; gap: 2px; }
+.sim-auswertung__grenzen { margin: 0; font-size: var(--text-sm); }
