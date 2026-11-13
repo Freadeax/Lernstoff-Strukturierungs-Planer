@@ -129,7 +129,7 @@ export function uebungenFuer(topicId: string, modul: CatalogModule = pflegeModul
   if (topicId === AM_THEMA) out.push({ trainer: 'arzneimittel', label: 'Arzneimittel-Trainer', path: '/lernen/arzneimittel' });
   if (GRUNDLAGEN_BEREICH[topicId]) out.push({ trainer: 'grundlagen', label: 'Grundlagen-Trainer', path: `/lernen/grundlagen?bereich=${GRUNDLAGEN_BEREICH[topicId]}` });
   if (RECHT_BEREICH[topicId]) out.push({ trainer: 'recht', label: 'Recht-Trainer', path: `/lernen/recht?bereich=${RECHT_BEREICH[topicId]}` });
-  const laborBereich: Record<string, string> = { [LABOR_THEMEN.entnahme]: 'praeanalytik', [LABOR_THEMEN.atmung]: 'bga', [LABOR_THEMEN.blut]: 'befund', [LABOR_THEMEN.niere]: 'befund', [LABOR_THEMEN.diabetes]: 'befund', [LABOR_THEMEN.herz]: 'befund' };
+  const laborBereich: Record<string, string> = { [LABOR_THEMEN.entnahme]: 'praeanalytik', [LABOR_THEMEN.atmung]: 'bga', [LABOR_THEMEN.blut]: 'befund', [LABOR_THEMEN.niere]: 'befund', [LABOR_THEMEN.diabetes]: 'befund', [LABOR_THEMEN.herz]: 'befund', [LABOR_THEMEN.kinder]: 'kinder' };
   if (topicId === LABOR_THEMEN.entnahme) out.push({ trainer: 'labor', label: 'Labor-Werkbank: Blutentnahme', path: '/lernen/labor?modus=werkbank&station=entnahme' });
   if (topicId === UEBERGABE_THEMA) out.push({ trainer: 'labor', label: 'Labor-Werkbank: kritischen Wert melden', path: '/lernen/labor?modus=werkbank&station=meldung' });
   if (laborBereich[topicId]) out.push({ trainer: 'labor', label: 'Labor-Trainer', path: `/lernen/labor?bereich=${laborBereich[topicId]}` });

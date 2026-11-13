@@ -3,9 +3,11 @@
 // es gilt der Notfallstandard der Einrichtung.
 
 import { ERWEITERUNG_VERTIEFUNG } from './erweiterung';
+import { KINDER_VERTIEFUNG } from './kinder';
 
 export const VERTIEFUNG: Record<string, string[]> = {
   ...ERWEITERUNG_VERTIEFUNG,
+  ...KINDER_VERTIEFUNG,
   'bls.ablauf': [
     'Ohne Kreislauf sterben Gehirnzellen nach etwa 3 bis 5 Minuten. Der Rettungsdienst braucht meist länger. Deshalb überbrückt die Herzdruckmassage die Zeit, bis ein Defibrillator den Rhythmus wiederherstellen kann.',
     'Im Krankenhaus wird statt 112 das interne Reanimationsteam alarmiert (Nummer der Einrichtung). Den Ablauf und den Standort des Notfallwagens kennt man am besten schon vor dem Ernstfall.',

@@ -5,10 +5,11 @@
 import { ergaenze, mitVertiefung, type Aufgabe, type AuswahlAufgabe } from '../quiz/quiz';
 import { VERTIEFUNG } from './vertiefung';
 import { ERWEITERUNG } from './erweiterung';
+import { KINDER_AUFGABEN } from './kinder';
 
 export const NOTFALL_THEMA = 'thema.beo.notfall';
 
-export type BereichId = 'bls' | 'abcde' | 'situationen';
+export type BereichId = 'bls' | 'abcde' | 'situationen' | 'kinder';
 export interface Bereich { id: BereichId; label: string; kurz: string; wissen: string[] }
 
 function frage(id: string, titel: string, f: string, optionen: string[], erklaerung: string[], richtig = [0], mehrfach = false, weitere: string[] = []): AuswahlAufgabe {
@@ -125,7 +126,15 @@ export const BEREICHE: Bereich[] = [
       'Atemnot bei Herzinsuffizienz: Herzbettlage. Schocklage nur bei Volumenmangel.',
     ],
   },
+  {
+    id: 'kinder', label: 'Kinder und Säuglinge', kurz: 'Reanimation, Verschlucken, Atemnot, Krupp, Fieberkrampf, Normwerte',
+    wissen: [
+      'Kinder: zuerst 5 Beatmungen, dann 15 : 2. Säugling: zwei Finger oder Daumen, ein Drittel des Brustkorbs.',
+      'Verschluckt: 5 Rückenschläge, dann Brustkompressionen (Säugling) bzw. Oberbauchkompressionen (Kind).',
+      'Je jünger, desto schneller Atmung und Puls. NEWS2 gilt nicht für Kinder.',
+    ],
+  },
 ];
 
-export const AUFGABEN: Record<BereichId, Aufgabe[]> = mitVertiefung(ergaenze({ bls, abcde, situationen }, ERWEITERUNG), VERTIEFUNG);
+export const AUFGABEN: Record<BereichId, Aufgabe[]> = mitVertiefung(ergaenze<BereichId>({ bls, abcde, situationen, kinder: KINDER_AUFGABEN }, ERWEITERUNG), VERTIEFUNG);
 export const ALLE_AUFGABEN: Aufgabe[] = Object.values(AUFGABEN).flat();

@@ -2,7 +2,10 @@
 // Übliches Lehrbuchwissen ohne Beleg aus eigenem Material. Röhrchenfarben, Abnahmereihenfolge und
 // Referenzbereiche richten sich nach Labor und Hausstandard.
 
+import { KINDER_VERTIEFUNG } from './kinder';
+
 export const VERTIEFUNG: Record<string, string[]> = {
+  ...KINDER_VERTIEFUNG,
   'pa.reihenfolge': [
     'Präanalytik umfasst alles vor der eigentlichen Messung: Vorbereitung der Person, Entnahme, Beschriftung, Lagerung und Transport. Ein großer Teil aller Laborfehler entsteht in dieser Phase, nicht im Labor.',
     'Die Röhrchen enthalten Zusätze: Citrat und EDTA binden Calcium und verhindern so die Gerinnung, Heparin hemmt sie direkt, Fluorid stoppt den Zuckerabbau der Blutzellen. Ein Tropfen Zusatz im falschen Röhrchen verfälscht die Werte dort.',
