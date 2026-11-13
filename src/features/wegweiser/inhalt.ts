@@ -225,3 +225,39 @@ export const PRUEFUNGSPHASEN: Array<{ wann: string; titel: string; schritte: Arr
     ],
   },
 ];
+
+/** Häufige Fragen von Neuen. Antworten beschreiben das echte Verhalten von Lernplan, Board und Fehlerheft. */
+export const FRAGEN: Array<{ frage: string; antwort: string; link?: Link }> = [
+  {
+    frage: 'Ich hatte 100 %, warum ist das Thema trotzdem nicht „sicher“?',
+    antwort: `Eine einzelne gute Abfrage zeigt nur, dass du es heute weißt. „Sicher“ verlangt mindestens ${MASTERY_RULES.minSuccessfulDays} gute Abfragen an verschiedenen Tagen und ein Gedächtnis, das mindestens ${MASTERY_RULES.minStability} Tage hält. Frag das Thema an einem anderen Tag noch einmal ab, wenn der Plan es vorschlägt.`,
+    link: { label: 'Wissensstand mit Begründung je Thema', path: '/lernen/plan?ansicht=wissensstand' },
+  },
+  {
+    frage: 'Auf dem Board steht „Erarbeitet“, im Lernplan aber nur „Bearbeitet“. Was stimmt?',
+    antwort: 'Beides. Das Board zeigt, was du getan hast (durchgearbeitet), der Lernplan, was du nachweislich kannst. Nach der ersten guten Abfrage rückt der Wissensstand nach.',
+  },
+  {
+    frage: 'Warum kommt ein Thema wieder, das ich schon konnte?',
+    antwort: 'Wissen verblasst. Der Lernplan rechnet für jedes Thema aus, wann du dich nur noch unsicher erinnern würdest, und holt es kurz davor zurück. Jede gelungene Wiederholung macht den Abstand bis zur nächsten länger.',
+  },
+  {
+    frage: 'Ich habe einen Tag ausgelassen. Ist jetzt alles durcheinander?',
+    antwort: 'Nein. Der Plan wird jeden Tag aus deinem echten Stand neu berechnet. „Heute“ zeigt oben, was liegen geblieben ist und auf welchen Tag es gerutscht ist. Du musst nichts von Hand umplanen.',
+    link: { label: 'Lernplan heute', path: '/lernen/plan' },
+  },
+  {
+    frage: 'Der Lernplan warnt, die Zeit reicht nicht. Was tun?',
+    antwort: 'Trag mehr Lernzeit ein, nimm Themen mit geringer Prüfungsrelevanz aus der Prüfung oder setze die wichtigsten Themen auf dem Board auf „Diese Woche“, dann kommen sie zuerst.',
+    link: { label: 'Lernzeit ändern', path: '/lernen/plan?ansicht=zeit' },
+  },
+  {
+    frage: 'Zählt es, wenn ich „verstanden“ ankreuze oder das Fehlerheft wiederhole?',
+    antwort: 'Für den Wissensstand nicht. Selbsteinschätzungen werden gespeichert, aber nur echte Abfragen zählen. Das Fehlerheft trainiert gezielt Schwächen und würde den Stand sonst schönrechnen. Bei Trainern zählt die erste Runde am Tag.',
+  },
+  {
+    frage: 'Wo sind meine Daten, und was passiert, wenn ich das Handy wechsle?',
+    antwort: 'Alles bleibt auf diesem Gerät. Mit der Datensicherung erstellst du eine Datei, die du auf einem anderen Gerät wieder einspielst.',
+    link: { label: 'Datensicherung', path: '/system/sicherung' },
+  },
+];
