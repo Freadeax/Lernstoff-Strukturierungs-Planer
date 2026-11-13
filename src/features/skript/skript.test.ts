@@ -2,7 +2,7 @@ import 'fake-indexeddb/auto';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { LernstoffDB } from '../../core/db';
 import { pflegeModule } from '../../modules/pflege';
-import { definitionen, kartenAusAbschnitt, punkte } from './karten';
+import { definitionen, fragen, istFragenAbschnitt, kartenAusAbschnitt, punkte } from './karten';
 import { findeBelege, gruppenRang, leseBelegKlammer, parseSkript, skriptId, teileTitel } from './parser';
 import { begriffe, klartext, markiere, suche } from './suche';
 import { schlageThemenVor } from './themen';
@@ -262,5 +262,25 @@ describe('Eigene Gruppen und Abbildungen', () => {
   it('bricht bei ungültigem Token ab', async () => {
     const f = (async () => new Response('', { status: 401 })) as unknown as typeof fetch;
     await expect(holeBilder(['skripte/a.png'], { owner: 'o', repo: 'r', token: 't' }, speicherImArbeitsspeicher(), f)).rejects.toThrow(/Token/);
+  });
+});
+
+describe('Lernfragen', () => {
+  const md = '---\ngruppe: Arzneimittellehre\n---\n# Arzneimittellehre · Kap. 15 Herz\n\n**Quellen**\n- **[AML]** Buch\n- **[WC]** Wissenscheck\n\n## 1 · Nitrate [AML, S. 214]\n- Nitrate erweitern Venen [AML, S. 214]\n\n## 2 · Selbstcheck [AML, S. 209]\n- Wann ist Nitrat verboten? Bei RR unter 90 mmHg [AML, S. 214].\n- Ohne Antwort?\n- Was hilft sonst? ⚠ Lehrbuch: Ruhe.\n\n## 3 · Wissenscheck des Buchs [WC, S. 1]\nFragen aus dem Buch.\n- **Nennen Sie 2 Wirkstoffe.** Nitrate und Betablocker [AML, S. 213]\n  - dazu ASS [AML, S. 217]\n';
+  it('liest beide Fragenformen und macht je eine Karte mit Frage vorn', () => {
+    const s = parseSkript('AML-15.md', md, { herkunft: 'repo' });
+    expect(istFragenAbschnitt(s.abschnitte[1]!)).toBe(true);
+    expect(istFragenAbschnitt(s.abschnitte[0]!)).toBe(false);
+    const f = fragen(s.abschnitte[2]!.markdown);
+    expect(f).toHaveLength(1);
+    expect(f[0]).toMatchObject({ frage: 'Nennen Sie 2 Wirkstoffe.', unbelegt: false });
+    expect(f[0]!.antwort).toContain('\n- dazu ASS');
+    expect(fragen(s.abschnitte[1]!.markdown).map((x) => x.frage)).toEqual(['Wann ist Nitrat verboten?', 'Was hilft sonst?']);
+    const k1 = kartenAusAbschnitt(s, s.abschnitte[1]!);
+    expect(k1).toHaveLength(1);
+    expect(k1[0]).toMatchObject({ id: 'skf:aml-15:n2:1', art: 'Lernfrage', vorne: 'Wann ist Nitrat verboten?', hinten: 'Bei RR unter 90 mmHg.' });
+    const k2 = kartenAusAbschnitt(s, s.abschnitte[2]!);
+    expect(k2[0]).toMatchObject({ hinten: 'Nitrate und Betablocker', liste: ['dazu ASS'] });
+    expect((k2[0]!.belege ?? []).map((b) => b.printedPage)).toEqual(['AML, S. 213', 'AML, S. 217']);
   });
 });
