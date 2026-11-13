@@ -1675,7 +1675,8 @@
       "id": "gl.pflegediagnose",
       "term": "Pflegediagnose",
       "topicIds": [
-        "thema.pp.diagnosen"
+        "thema.pp.diagnosen",
+        "thema.fa.analyse"
       ],
       "definition": "Klinische Beurteilung der Reaktion eines Menschen auf Gesundheitsprobleme oder Lebensprozesse, die Grundlage für Pflegeziele und Maßnahmen ist.",
       "origin": "katalog"
@@ -1709,7 +1710,8 @@
       "term": "Ressource",
       "topicIds": [
         "thema.pp.diagnosen",
-        "thema.fa.analyse"
+        "thema.fa.analyse",
+        "thema.fa.planung"
       ],
       "definition": "Fähigkeit, Stärke oder Unterstützung (körperlich, geistig, seelisch, sozial, materiell), die ein Mensch zur Bewältigung seiner Situation einbringen kann.",
       "origin": "katalog"
@@ -1738,7 +1740,8 @@
       "term": "Evaluation",
       "topicIds": [
         "thema.pp.evaluation",
-        "thema.fa.evaluation"
+        "thema.fa.evaluation",
+        "thema.fa.planung"
       ],
       "definition": "Überprüfung, ob und in welchem Maß Pflegeziele erreicht wurden, mit Anpassung der Pflegeplanung.",
       "origin": "katalog"
@@ -4251,7 +4254,8 @@
       "term": "Validation",
       "topicIds": [
         "thema.kl.demenz",
-        "thema.kom.gespraech"
+        "thema.kom.gespraech",
+        "thema.pro.deprivation"
       ],
       "definition": "Kommunikationsmethode (nach Naomi Feil, integrativ nach Nicole Richard), die Gefühle und Antriebe von Menschen mit Demenz wertschätzend annimmt, statt sie zu korrigieren.",
       "origin": "katalog"
@@ -5001,7 +5005,8 @@
       "term": "APGAR-Score",
       "abbreviation": "APGAR",
       "topicIds": [
-        "thema.kl.paediatrie"
+        "thema.kl.paediatrie",
+        "thema.ph.neugeborenes"
       ],
       "definition": "Punkteschema zur Beurteilung von Neugeborenen nach 1, 5 und 10 Minuten anhand von Atmung, Puls, Grundtonus, Aussehen (Hautfarbe) und Reflexen; 0 bis 10 Punkte.",
       "origin": "katalog"
@@ -5010,7 +5015,8 @@
       "id": "gl.neugeborenenikterus",
       "term": "Neugeborenenikterus",
       "topicIds": [
-        "thema.kl.paediatrie"
+        "thema.kl.paediatrie",
+        "thema.ph.neugeborenes"
       ],
       "definition": "Gelbfärbung der Haut in den ersten Lebenstagen durch vorübergehend erhöhtes Bilirubin; meist harmlos, bei hohen Werten Phototherapie.",
       "origin": "katalog"
@@ -5068,7 +5074,8 @@
       "id": "gl.entwicklungsmeilenstein",
       "term": "Entwicklungsmeilenstein",
       "topicIds": [
-        "thema.kl.paediatrie"
+        "thema.kl.paediatrie",
+        "thema.fa.paediatrie"
       ],
       "definition": "Fähigkeit, die die meisten Kinder in einem bestimmten Alter erreichen, z. B. freies Gehen um das erste Lebensjahr.",
       "origin": "katalog"
@@ -5866,7 +5873,8 @@
       "id": "gl.assessment",
       "term": "Assessment",
       "topicIds": [
-        "thema.pp.anamnese"
+        "thema.pp.anamnese",
+        "thema.fa.analyse"
       ],
       "definition": "Systematische Einschätzung eines Pflegephänomens, oft mit standardisierten Instrumenten.",
       "origin": "katalog"
@@ -5939,7 +5947,8 @@
       "term": "Confusion Assessment Method",
       "abbreviation": "CAM",
       "topicIds": [
-        "thema.pro.delir"
+        "thema.pro.delir",
+        "thema.fa.akut"
       ],
       "definition": "Kurzes Instrument zur Erkennung eines Delirs anhand von akutem Beginn, Aufmerksamkeitsstörung, desorganisiertem Denken und veränderter Bewusstseinslage.",
       "origin": "katalog"
@@ -6358,7 +6367,8 @@
       "id": "gl.mundinspektion",
       "term": "Mundinspektion",
       "topicIds": [
-        "thema.ph.mund"
+        "thema.ph.mund",
+        "thema.pro.soor"
       ],
       "definition": "Begutachtung von Lippen, Zunge, Zähnen und Mundschleimhaut auf Beläge, Verletzungen und Entzündungen.",
       "origin": "katalog"
@@ -6377,7 +6387,8 @@
       "term": "Frühmobilisation",
       "topicIds": [
         "thema.ph.mobilisation",
-        "thema.ph.periop"
+        "thema.ph.periop",
+        "thema.fa.akut"
       ],
       "definition": "Möglichst frühes Aufsetzen und Aufstehen nach Operation oder Erkrankung zur Vermeidung von Komplikationen.",
       "origin": "katalog"
@@ -7045,7 +7056,8 @@
       "term": "Adhärenz",
       "topicIds": [
         "thema.ph.medikamente",
-        "thema.kom.beratung"
+        "thema.kom.beratung",
+        "thema.fa.psychiatrie"
       ],
       "definition": "Ausmaß, in dem eine Person gemeinsam vereinbarte Therapieempfehlungen einhält.",
       "synonyms": [
@@ -7567,7 +7579,8 @@
       "term": "Aufwachraum",
       "abbreviation": "AWR",
       "topicIds": [
-        "thema.ph.periop"
+        "thema.ph.periop",
+        "thema.fa.akut"
       ],
       "definition": "Überwachungsbereich, in dem Patientinnen und Patienten nach einer Narkose bis zur Stabilisierung betreut werden.",
       "origin": "katalog"
@@ -7725,7 +7738,8 @@
       "id": "gl.pflegeanamnese",
       "term": "Pflegeanamnese",
       "topicIds": [
-        "thema.pp.anamnese"
+        "thema.pp.anamnese",
+        "thema.fa.analyse"
       ],
       "definition": "Erste systematische Informationssammlung über die pflegebedürftige Person, ihre Situation, Probleme, Ressourcen und Wünsche.",
       "origin": "katalog"
@@ -7828,7 +7842,8 @@
       "id": "gl.pflegemassnahme",
       "term": "Pflegemaßnahme",
       "topicIds": [
-        "thema.pp.massnahmen"
+        "thema.pp.massnahmen",
+        "thema.fa.planung"
       ],
       "definition": "Konkret geplante pflegerische Handlung, beschrieben mit Was, Wie, Wann, Wie oft, Wer und Womit.",
       "synonyms": [
@@ -7893,7 +7908,8 @@
       "topicIds": [
         "thema.pp.uebergabe",
         "thema.qw.expertenstandards",
-        "thema.re.sgb5"
+        "thema.re.sgb5",
+        "thema.fa.akut"
       ],
       "definition": "Strukturierte Vorbereitung der Entlassung aus dem Krankenhaus, damit die Anschlussversorgung lückenlos gesichert ist.",
       "origin": "katalog"
@@ -7923,7 +7939,8 @@
       "topicIds": [
         "thema.pp.massnahmen",
         "thema.fa.psychiatrie",
-        "thema.kl.psych"
+        "thema.kl.psych",
+        "thema.fa.langzeit"
       ],
       "definition": "Organisationsform, bei der eine Pflegefachperson für eine Patientengruppe über den gesamten Aufenthalt verantwortlich ist.",
       "synonyms": [
@@ -8385,7 +8402,8 @@
       "term": "Pflegegeld",
       "topicIds": [
         "thema.re.sgb11",
-        "thema.re.pflegegrade"
+        "thema.re.pflegegrade",
+        "thema.fa.ambulant"
       ],
       "definition": "Geldleistung der Pflegeversicherung ab Pflegegrad 2, wenn die Pflege selbst sichergestellt wird, z. B. durch Angehörige.",
       "origin": "katalog"
@@ -8406,7 +8424,8 @@
       "term": "Verhinderungspflege",
       "topicIds": [
         "thema.re.sgb11",
-        "thema.re.pflegegrade"
+        "thema.re.pflegegrade",
+        "thema.fa.ambulant"
       ],
       "definition": "Leistung der Pflegeversicherung für eine Ersatzpflege, wenn die private Pflegeperson z. B. wegen Urlaub oder Krankheit ausfällt.",
       "origin": "katalog"
@@ -9086,7 +9105,9 @@
       "term": "Biografiearbeit",
       "topicIds": [
         "thema.kom.kultur",
-        "thema.kl.demenz"
+        "thema.kl.demenz",
+        "thema.fa.langzeit",
+        "thema.pro.deprivation"
       ],
       "definition": "Einbeziehen der Lebensgeschichte eines Menschen in die Pflege, um Verhalten zu verstehen und Identität zu stärken.",
       "origin": "katalog"
@@ -11153,7 +11174,8 @@
       "term": "Zielerreichungsgrad",
       "topicIds": [
         "thema.pp.evaluation",
-        "thema.fa.evaluation"
+        "thema.fa.evaluation",
+        "thema.pp.ziele"
       ],
       "definition": "Einschätzung, ob ein Pflegeziel erreicht, teilweise erreicht oder nicht erreicht wurde, mit Begründung.",
       "origin": "katalog"
@@ -11312,7 +11334,8 @@
       "id": "gl.entlastungsbetrag",
       "term": "Entlastungsbetrag",
       "topicIds": [
-        "thema.re.pflegegrade"
+        "thema.re.pflegegrade",
+        "thema.fa.ambulant"
       ],
       "definition": "Zweckgebundener monatlicher Betrag der Pflegeversicherung ab Pflegegrad 1 für Angebote zur Unterstützung im Alltag.",
       "origin": "katalog"
@@ -11853,6 +11876,426 @@
       "synonyms": [
         "Lyse"
       ],
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.u1",
+      "term": "U1",
+      "topicIds": [
+        "thema.ph.neugeborenes"
+      ],
+      "definition": "Erste Vorsorgeuntersuchung direkt nach der Geburt mit APGAR-Bewertung, Messung von Gewicht, Länge und Kopfumfang und Untersuchung auf Fehlbildungen.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.mekonium",
+      "term": "Mekonium",
+      "topicIds": [
+        "thema.ph.neugeborenes"
+      ],
+      "definition": "Erster, zähflüssiger, schwarzgrüner Stuhl des Neugeborenen, normalerweise innerhalb von 24 bis 48 Stunden nach der Geburt.",
+      "synonyms": [
+        "Kindspech"
+      ],
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.kolostrum",
+      "term": "Kolostrum",
+      "topicIds": [
+        "thema.ph.neugeborenes"
+      ],
+      "definition": "Erste, gelbliche Muttermilch in den Tagen nach der Geburt; reich an Abwehrstoffen und Eiweiß.",
+      "synonyms": [
+        "Vormilch"
+      ],
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.lochien",
+      "term": "Lochien",
+      "topicIds": [
+        "thema.ph.neugeborenes"
+      ],
+      "definition": "Wochenfluss nach der Geburt aus der Wundfläche der Gebärmutter; wird über Wochen von blutig zu bräunlich, gelblich und weißlich.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.involution",
+      "term": "Involution des Uterus",
+      "topicIds": [
+        "thema.ph.neugeborenes"
+      ],
+      "definition": "Rückbildung der Gebärmutter nach der Geburt; die Pflege kontrolliert täglich den Fundusstand.",
+      "synonyms": [
+        "Uterusrückbildung"
+      ],
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.vitamin-k-prophylaxe",
+      "term": "Vitamin-K-Prophylaxe",
+      "topicIds": [
+        "thema.ph.neugeborenes"
+      ],
+      "definition": "Gabe von Vitamin K bei den ersten Vorsorgeuntersuchungen, um Blutungen durch einen Vitamin-K-Mangel beim Neugeborenen vorzubeugen.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.bonding",
+      "term": "Bonding",
+      "topicIds": [
+        "thema.ph.neugeborenes"
+      ],
+      "definition": "Aufbau der emotionalen Bindung zwischen Eltern und Kind, gefördert durch frühen Haut-zu-Haut-Kontakt nach der Geburt.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.neugeborenen-screening",
+      "term": "Neugeborenen-Screening",
+      "topicIds": [
+        "thema.ph.neugeborenes"
+      ],
+      "definition": "Untersuchung weniger Bluttropfen aus der Ferse in den ersten Lebenstagen auf angeborene Stoffwechsel- und Hormonstörungen.",
+      "synonyms": [
+        "Fersenblut-Test"
+      ],
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.perzentile",
+      "term": "Perzentile",
+      "topicIds": [
+        "thema.fa.paediatrie",
+        "thema.kl.paediatrie"
+      ],
+      "definition": "Kurve, die zeigt, wie Gewicht, Größe oder Kopfumfang eines Kindes im Vergleich zu Gleichaltrigen liegen; die 50. Perzentile entspricht dem Durchschnitt.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.rooming-in",
+      "term": "Rooming-in",
+      "topicIds": [
+        "thema.fa.paediatrie",
+        "thema.ph.neugeborenes"
+      ],
+      "definition": "Eltern bleiben mit ihrem Kind gemeinsam im Zimmer, im Krankenhaus wie auf der Wochenstation.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.kuss",
+      "term": "Kindliche Unbehagens- und Schmerzskala",
+      "abbreviation": "KUSS",
+      "topicIds": [
+        "thema.fa.paediatrie",
+        "thema.kl.paediatrie",
+        "thema.beo.bewusstsein"
+      ],
+      "definition": "Beobachtungsskala für Schmerzen bei Säuglingen und Kleinkindern bis etwa vier Jahre mit Weinen, Gesichtsausdruck, Rumpf- und Beinhaltung sowie motorischer Unruhe.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.kindeswohlgefaehrdung",
+      "term": "Kindeswohlgefährdung",
+      "topicIds": [
+        "thema.fa.paediatrie"
+      ],
+      "definition": "Gefahr für die körperliche, geistige oder seelische Entwicklung eines Kindes, z. B. durch Vernachlässigung, Misshandlung oder Missbrauch; Hinweise werden dokumentiert und nach Verfahren des Hauses weitergegeben.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.fruehwarnscore",
+      "term": "Frühwarnscore",
+      "topicIds": [
+        "thema.fa.akut",
+        "thema.beo.vitalzeichen"
+      ],
+      "definition": "Punktesystem aus mehreren Vitalwerten, das eine Verschlechterung früh anzeigt und festlegt, wann ärztlich informiert wird, z. B. NEWS2.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.postoperative-ueberwachung",
+      "term": "Postoperative Überwachung",
+      "topicIds": [
+        "thema.fa.akut",
+        "thema.ph.periop"
+      ],
+      "definition": "Engmaschige Kontrolle von Bewusstsein, Vitalzeichen, Schmerz, Wunde, Drainagen und Ausscheidung nach einer Operation.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.heimeinzug",
+      "term": "Heimeinzug",
+      "topicIds": [
+        "thema.fa.langzeit"
+      ],
+      "definition": "Übergang in eine stationäre Pflegeeinrichtung; eine kritische Lebensphase, die mit Eingewöhnung, Biografiearbeit und Einbezug der Angehörigen begleitet wird.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.tagesstruktur",
+      "term": "Tagesstrukturierung",
+      "topicIds": [
+        "thema.fa.langzeit",
+        "thema.pro.deprivation"
+      ],
+      "definition": "Planung eines verlässlichen Tagesablaufs mit festen Zeiten und Angeboten, die Orientierung und Teilhabe fördern.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.qualitaetsindikatoren",
+      "term": "Qualitätsindikatoren",
+      "topicIds": [
+        "thema.fa.langzeit",
+        "thema.qw.qm"
+      ],
+      "definition": "Kennzahlen zur Ergebnisqualität in Pflegeeinrichtungen, z. B. Dekubitusentstehung, Stürze mit Folgen oder Gewichtsverlust; werden halbjährlich erhoben.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.pflegevisite",
+      "term": "Pflegevisite",
+      "topicIds": [
+        "thema.fa.langzeit",
+        "thema.fa.evaluation"
+      ],
+      "definition": "Geplantes Gespräch mit der pflegebedürftigen Person über ihre Pflege, um Wünsche zu erfragen und die Pflegeplanung zu überprüfen.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.deeskalation",
+      "term": "Deeskalation",
+      "topicIds": [
+        "thema.fa.psychiatrie",
+        "thema.kom.gespraech"
+      ],
+      "definition": "Verhalten und Techniken, die eine angespannte oder aggressive Situation entschärfen, z. B. ruhige Sprache, Abstand, Wahlmöglichkeiten anbieten.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.milieutherapie",
+      "term": "Milieutherapie",
+      "topicIds": [
+        "thema.fa.psychiatrie"
+      ],
+      "definition": "Gestaltung von Station, Tagesablauf und Gemeinschaft so, dass sie selbst therapeutisch wirkt.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.recovery",
+      "term": "Recovery",
+      "topicIds": [
+        "thema.fa.psychiatrie"
+      ],
+      "definition": "Ansatz, der Genesung als persönlichen Weg zu einem selbstbestimmten Leben versteht, auch wenn Symptome bleiben.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.psychkg",
+      "term": "Psychisch-Kranken-Gesetz",
+      "abbreviation": "PsychKG",
+      "topicIds": [
+        "thema.fa.psychiatrie",
+        "thema.re.fem"
+      ],
+      "definition": "Landesgesetz, das unter anderem die Unterbringung psychisch kranker Menschen gegen ihren Willen bei erheblicher Selbst- oder Fremdgefährdung regelt.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.risikoeinschaetzung",
+      "term": "Risikoeinschätzung",
+      "topicIds": [
+        "thema.fa.analyse"
+      ],
+      "definition": "Fachliche Beurteilung, ob ein Risiko besteht, z. B. für Dekubitus oder Sturz; Instrumente unterstützen sie, ersetzen sie aber nicht.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.pflegebedarf",
+      "term": "Pflegebedarf",
+      "topicIds": [
+        "thema.fa.analyse"
+      ],
+      "definition": "Unterstützung, die ein Mensch aus fachlicher Sicht braucht, abgeleitet aus Problemen, Ressourcen und Wünschen.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.handlungsbegruendung",
+      "term": "Handlungsbegründung",
+      "topicIds": [
+        "thema.fa.planung"
+      ],
+      "definition": "Fachliche Herleitung, warum eine Maßnahme bei diesem Menschen passt, z. B. aus Expertenstandard, Studienlage oder Fallsituation.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.evidenzbasierte-massnahme",
+      "term": "Evidenzbasierte Maßnahme",
+      "topicIds": [
+        "thema.fa.planung",
+        "thema.qw.ebn"
+      ],
+      "definition": "Maßnahme, deren Wirksamkeit durch Studien belegt ist und die mit Erfahrung und Wünschen der Person abgestimmt wird.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.verlaufsdokumentation",
+      "term": "Verlaufsdokumentation",
+      "topicIds": [
+        "thema.fa.evaluation",
+        "thema.pp.evaluation"
+      ],
+      "definition": "Laufende Beschreibung von Veränderungen, Reaktionen und Abweichungen vom Plan; Grundlage für die Evaluation.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.planrevision",
+      "term": "Anpassung der Pflegeplanung",
+      "topicIds": [
+        "thema.fa.evaluation"
+      ],
+      "definition": "Änderung von Zielen oder Maßnahmen, wenn die Evaluation zeigt, dass ein Ziel nicht erreicht wurde oder sich die Situation verändert hat.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.tourenplanung",
+      "term": "Tourenplanung",
+      "topicIds": [
+        "thema.fa.ambulant"
+      ],
+      "definition": "Planung der Reihenfolge und Zeiten der Hausbesuche eines ambulanten Pflegedienstes.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.hausnotruf",
+      "term": "Hausnotruf",
+      "topicIds": [
+        "thema.fa.ambulant"
+      ],
+      "definition": "Notrufsystem mit Funksender, über das allein lebende Menschen zu Hause per Knopfdruck Hilfe rufen können.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.beratungsbesuch",
+      "term": "Beratungsbesuch",
+      "topicIds": [
+        "thema.fa.ambulant",
+        "thema.re.sgb11"
+      ],
+      "definition": "Regelmäßiger Pflicht-Besuch einer Pflegefachperson bei Menschen, die Pflegegeld beziehen, zur Sicherung der Pflegequalität und Beratung der Angehörigen.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.snoezelen",
+      "term": "Snoezelen",
+      "topicIds": [
+        "thema.pro.deprivation"
+      ],
+      "definition": "Angebot in einem gestalteten Raum mit Licht, Klängen, Düften und Berührung zur Entspannung und Sinnesanregung.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.reizarmut",
+      "term": "Reizarmut",
+      "topicIds": [
+        "thema.pro.deprivation"
+      ],
+      "definition": "Zu wenige Sinnesreize und Kontakte, z. B. bei Bettlägerigkeit oder Isolation; fördert Rückzug, Verwirrtheit und Abbau.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.hypertensive-entgleisung",
+      "term": "Hypertensive Entgleisung",
+      "topicIds": [
+        "thema.kl.herz.hypertonie"
+      ],
+      "definition": "Stark erhöhter Blutdruck ohne Zeichen einer akuten Organschädigung; wird ärztlich meist langsam gesenkt.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.hypertensiver-notfall",
+      "term": "Hypertensiver Notfall",
+      "topicIds": [
+        "thema.kl.herz.hypertonie",
+        "thema.beo.notfall"
+      ],
+      "definition": "Stark erhöhter Blutdruck mit Organzeichen wie Brustschmerz, Atemnot, Sehstörung, Lähmung oder Verwirrtheit; sofort ärztlich behandeln.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.weisskittelhypertonie",
+      "term": "Weißkittelhypertonie",
+      "topicIds": [
+        "thema.kl.herz.hypertonie"
+      ],
+      "definition": "Erhöhte Blutdruckwerte nur in ärztlicher oder pflegerischer Umgebung, zu Hause dagegen normal.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.mazeration",
+      "term": "Mazeration",
+      "topicIds": [
+        "thema.pro.intertrigo",
+        "thema.ph.wunde"
+      ],
+      "definition": "Aufweichen der Haut durch lange Feuchtigkeit, z. B. in Hautfalten oder am Wundrand; die Haut wird weißlich und verletzlich.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.hautfalte",
+      "term": "Hautfaltenpflege",
+      "topicIds": [
+        "thema.pro.intertrigo"
+      ],
+      "definition": "Reinigen, sorgfältiges Trocknen und Trennen von Hautflächen, die aufeinanderliegen, z. B. mit Leinenstreifen; keine Puder.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.on-off",
+      "term": "On-Off-Phänomen",
+      "topicIds": [
+        "thema.kl.neuro.parkinson"
+      ],
+      "definition": "Plötzlicher Wechsel zwischen guter Beweglichkeit (on) und starker Bewegungsarmut (off) bei langjähriger Parkinson-Behandlung.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.levodopa",
+      "term": "Levodopa",
+      "abbreviation": "L-Dopa",
+      "topicIds": [
+        "thema.kl.neuro.parkinson",
+        "thema.ph.medikamente"
+      ],
+      "definition": "Vorstufe von Dopamin und wichtigstes Parkinson-Medikament; pünktlich und mit Abstand zu eiweißreichen Mahlzeiten geben.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.hypoaktives-delir",
+      "term": "Hypoaktives Delir",
+      "topicIds": [
+        "thema.pro.delir"
+      ],
+      "definition": "Stille Form des Delirs mit Schläfrigkeit, Rückzug und verlangsamtem Denken; wird oft übersehen.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.reorientierung",
+      "term": "Reorientierung",
+      "topicIds": [
+        "thema.pro.delir",
+        "thema.kl.demenz"
+      ],
+      "definition": "Hilfe zur Orientierung durch Uhr, Kalender, Tageslicht, vertraute Gegenstände, Brille und Hörgerät sowie häufige kurze Erklärungen.",
+      "origin": "katalog"
+    },
+    {
+      "id": "gl.offenbarungspflicht",
+      "term": "Offenbarungspflicht",
+      "topicIds": [
+        "thema.re.schweigepflicht"
+      ],
+      "definition": "Gesetzliche Pflicht, bestimmte Informationen trotz Schweigepflicht weiterzugeben, z. B. Meldungen nach dem Infektionsschutzgesetz.",
       "origin": "katalog"
     }
   ],
@@ -18654,6 +19097,459 @@
       "topicIds": [
         "thema.kl.paediatrie",
         "thema.kl.infektion"
+      ],
+      "pruefstatus": "ungeprueft"
+    },
+    {
+      "id": "kh.diabetes-typ1",
+      "name": "Diabetes mellitus Typ 1",
+      "synonyms": [
+        "Typ-1-Diabetes",
+        "jugendlicher Diabetes"
+      ],
+      "definition": "Autoimmunerkrankung, bei der das Immunsystem die insulinbildenden Betazellen der Bauchspeicheldrüse zerstört. Es entsteht ein absoluter Insulinmangel; Insulin muss lebenslang ersetzt werden.",
+      "formen": [
+        "Manifestation meist im Kindes- und Jugendalter, aber in jedem Alter möglich",
+        "LADA: langsam verlaufende Autoimmunform im Erwachsenenalter"
+      ],
+      "ursachen": [
+        "Autoimmune Zerstörung der Betazellen",
+        "Erbliche Veranlagung, Auslöser wie Virusinfekte werden diskutiert"
+      ],
+      "risikofaktoren": [
+        "Typ-1-Diabetes bei Eltern oder Geschwistern",
+        "Andere Autoimmunerkrankungen (z. B. Hashimoto-Thyreoiditis, Zöliakie)"
+      ],
+      "symptome": [
+        "Starker Durst und häufiges Wasserlassen, bei Kindern erneutes Einnässen",
+        "Gewichtsabnahme trotz Hunger, Müdigkeit, Leistungsknick",
+        "Bei Ketoazidose: Übelkeit, Erbrechen, Bauchschmerzen, Azetongeruch der Atemluft, tiefe Atmung (Kussmaul-Atmung), Bewusstseinsstörung"
+      ],
+      "komplikationen": [
+        "Diabetische Ketoazidose, oft als Erstmanifestation oder bei Insulinmangel, z. B. bei Infekt oder Pumpenausfall",
+        "Hypoglykämie bei zu viel Insulin, zu wenig Kohlenhydraten oder viel Bewegung",
+        "Spätfolgen an Augen, Nieren, Nerven und Gefäßen bei dauerhaft schlechter Einstellung"
+      ],
+      "diagnostik": [
+        "Blutzucker, HbA1c",
+        "Urin oder Blut auf Ketone",
+        "Autoantikörper gegen Betazellen",
+        "Bei Ketoazidose Blutgasanalyse"
+      ],
+      "therapie": [
+        "Lebenslange Insulintherapie nach ärztlichem Plan: intensivierte Therapie mit Basal- und Bolusinsulin oder Insulinpumpe",
+        "Kontinuierliche Glukosemessung (CGM) mit Sensor",
+        "Schulung von Betroffenen und Familie: Kohlenhydrate schätzen, Insulin anpassen, Sport, Krankheitstage",
+        "Ketoazidose: Intensivüberwachung, Flüssigkeit, Insulin und Kalium nach ärztlicher Anordnung"
+      ],
+      "pflege": [
+        "Blutzucker bzw. Sensorwerte nach Plan kontrollieren und dokumentieren, auch nachts",
+        "Zeichen von Hypo- und Hyperglykämie kennen; Ketone messen, wenn der Blutzucker hoch ist oder Übelkeit besteht",
+        "Insulin zeitgerecht zu den Mahlzeiten, Spritzstellen wechseln, Pumpe und Katheter kontrollieren",
+        "Kind und Eltern altersgerecht in die Selbstständigkeit führen, Gefühle zur Diagnose ernst nehmen",
+        "Bei Erbrechen nicht einfach Insulin weglassen: Arzt informieren, Ketone messen"
+      ],
+      "beratung": [
+        "Immer Traubenzucker und Notfallausweis dabeihaben",
+        "Vor Sport Blutzucker messen und Kohlenhydrate oder Insulin anpassen",
+        "Krankheitstage: Basalinsulin weitergeben, häufiger messen, Ketone prüfen, früh Hilfe holen",
+        "Kita, Schule und Sportverein über Hypoglykämie und Notfallplan informieren"
+      ],
+      "prophylaxen": [
+        {
+          "topicId": "thema.pro.dehydratation",
+          "grund": "Hoher Blutzucker und Ketoazidose führen zu großem Flüssigkeitsverlust"
+        }
+      ],
+      "merksatz": "Typ 1 braucht immer Insulin. Bei hohem Zucker und Übelkeit an Ketone denken.",
+      "drugIds": [
+        "arz.normalinsulin",
+        "arz.insulinglargin"
+      ],
+      "topicIds": [
+        "thema.kl.diabetes",
+        "thema.kl.paediatrie"
+      ],
+      "pruefstatus": "ungeprueft"
+    },
+    {
+      "id": "kh.appendizitis",
+      "name": "Appendizitis",
+      "synonyms": [
+        "Blinddarmentzündung",
+        "Wurmfortsatzentzündung"
+      ],
+      "definition": "Akute Entzündung des Wurmfortsatzes (Appendix vermiformis) am Blinddarm. Häufigste Ursache eines akuten Abdomens bei Kindern, Jugendlichen und jungen Erwachsenen.",
+      "formen": [
+        "Unkomplizierte Appendizitis",
+        "Komplizierte Appendizitis mit Abszess oder Perforation"
+      ],
+      "ursachen": [
+        "Verlegung des Wurmfortsatzes, z. B. durch Kotsteine, mit nachfolgender bakterieller Entzündung"
+      ],
+      "risikofaktoren": [
+        "Alter zwischen 10 und 30 Jahren"
+      ],
+      "symptome": [
+        "Schmerzen zunächst um den Nabel oder im Oberbauch, später in den rechten Unterbauch wandernd",
+        "Übelkeit, Erbrechen, Appetitlosigkeit",
+        "Fieber, oft mit Differenz zwischen rektaler und axillärer Temperatur",
+        "Loslassschmerz, Schmerzen beim Hüpfen oder Husten, Schonhaltung mit angezogenem Bein",
+        "Bei Kindern und alten Menschen oft untypisch"
+      ],
+      "komplikationen": [
+        "Perforation mit Bauchfellentzündung (Peritonitis)",
+        "Abszess",
+        "Sepsis",
+        "Nach der OP: Wundinfektion, Darmlähmung"
+      ],
+      "diagnostik": [
+        "Körperliche Untersuchung (Druckpunkte, Loslassschmerz)",
+        "Entzündungswerte im Blut (Leukozyten, CRP)",
+        "Ultraschall, ggf. CT",
+        "Schwangerschaftstest bei Frauen im gebärfähigen Alter"
+      ],
+      "therapie": [
+        "Operative Entfernung (Appendektomie), meist laparoskopisch",
+        "Antibiotika nach ärztlicher Anordnung",
+        "Bei ausgewählten unkomplizierten Fällen Antibiotikatherapie ohne OP möglich (ärztliche Entscheidung)"
+      ],
+      "pflege": [
+        "Vor der OP: nüchtern lassen, Vitalzeichen und Schmerzen beobachten, keine Wärmflasche und keine Abführmittel",
+        "Schmerzmittel nur nach ärztlicher Anordnung; Schmerzverlauf dokumentieren",
+        "Plötzliche Schmerzbesserung mit anschließender Verschlechterung, harter Bauch oder Fieberanstieg sofort melden (Perforation)",
+        "Nach der OP: Vitalzeichen, Wunde, Schmerz, Darmtätigkeit, Frühmobilisation, Kostaufbau nach Anordnung"
+      ],
+      "beratung": [
+        "Nach laparoskopischer OP einige Wochen kein schweres Heben und kein Kampfsport nach ärztlicher Vorgabe",
+        "Wunde beobachten: Rötung, Schwellung, Fieber melden"
+      ],
+      "prophylaxen": [
+        {
+          "topicId": "thema.pro.thrombose",
+          "grund": "Nach der OP liegt der Mensch zunächst mehr, Frühmobilisation beugt vor"
+        },
+        {
+          "topicId": "thema.pro.pneumonie",
+          "grund": "Wundschmerz führt zu flacher Atmung nach Bauchoperation"
+        }
+      ],
+      "merksatz": "Schmerz wandert vom Nabel nach rechts unten. Vor der OP nüchtern, keine Wärme, keine Abführmittel.",
+      "drugIds": [
+        "arz.metamizol",
+        "arz.paracetamol"
+      ],
+      "assessmentIds": [
+        "as.nrs"
+      ],
+      "referenceIds": [
+        "es.schmerz"
+      ],
+      "topicIds": [
+        "thema.kl.verdauung",
+        "thema.ph.periop"
+      ],
+      "pruefstatus": "ungeprueft"
+    },
+    {
+      "id": "kh.mammakarzinom",
+      "name": "Mammakarzinom",
+      "synonyms": [
+        "Brustkrebs"
+      ],
+      "definition": "Bösartiger Tumor der Brustdrüse, die häufigste Krebserkrankung bei Frauen. Auch Männer können selten erkranken.",
+      "formen": [
+        "Duktales und lobuläres Karzinom",
+        "Hormonrezeptor-positiv, HER2-positiv oder triple-negativ (wichtig für die Therapie)",
+        "Früh, lokal fortgeschritten oder metastasiert"
+      ],
+      "ursachen": [
+        "Unkontrolliertes Wachstum entarteter Zellen der Brustdrüse",
+        "Teilweise erbliche Genveränderungen (z. B. BRCA1/2)"
+      ],
+      "risikofaktoren": [
+        "Höheres Alter",
+        "Familiäre Belastung, BRCA-Mutation",
+        "Langer Hormoneinfluss (frühe erste Regel, späte Wechseljahre)",
+        "Übergewicht nach den Wechseljahren, Alkohol, Bewegungsmangel"
+      ],
+      "symptome": [
+        "Tastbarer, meist schmerzloser Knoten",
+        "Einziehung der Haut oder der Brustwarze, Orangenhaut",
+        "Absonderung aus der Brustwarze",
+        "Größen- oder Formveränderung einer Brust, vergrößerte Lymphknoten in der Achsel"
+      ],
+      "komplikationen": [
+        "Metastasen in Knochen, Lunge, Leber, Gehirn",
+        "Lymphödem des Arms nach Entfernung von Lymphknoten",
+        "Belastung durch Therapie: Übelkeit, Fatigue, Infektanfälligkeit, Körperbildveränderung"
+      ],
+      "diagnostik": [
+        "Tastuntersuchung, Mammografie, Ultraschall, ggf. MRT",
+        "Stanzbiopsie mit feingeweblicher Untersuchung",
+        "Mammografie-Screening ab 50 Jahren"
+      ],
+      "therapie": [
+        "Operation: brusterhaltend oder Mastektomie, Wächterlymphknoten",
+        "Strahlentherapie, Chemotherapie, Antihormontherapie, zielgerichtete Therapie je nach Tumortyp (ärztliche Entscheidung im Tumorboard)",
+        "Brustrekonstruktion, Psychoonkologie, Rehabilitation"
+      ],
+      "pflege": [
+        "Nach der OP: Wunde und Drainagen beobachten, Schmerz einschätzen, Arm der operierten Seite schonend mobilisieren",
+        "Am Arm der operierten Seite nach Hausstandard keine Blutdruckmessung, Blutentnahme oder Infusion, wenn Lymphknoten entfernt wurden",
+        "Gefühle zu Diagnose und verändertem Körperbild ansprechen, Gespräch anbieten, Psychoonkologie und Breast Care Nurse einbeziehen",
+        "Nebenwirkungen der Therapie beobachten: Übelkeit, Mundschleimhaut, Haut im Bestrahlungsfeld, Infektzeichen"
+      ],
+      "beratung": [
+        "Armübungen nach Anleitung, Lymphödem-Zeichen (Schwellung, Spannungsgefühl) früh melden",
+        "Verletzungen am betroffenen Arm vermeiden, Hautpflege",
+        "Brustprothese bzw. Spezial-BH, Selbsthilfegruppen, Reha und Nachsorge"
+      ],
+      "prophylaxen": [
+        {
+          "topicId": "thema.pro.soor",
+          "grund": "Chemotherapie schädigt die Mundschleimhaut und schwächt die Abwehr"
+        },
+        {
+          "topicId": "thema.pro.thrombose",
+          "grund": "Tumorerkrankung und Operation erhöhen das Thromboserisiko"
+        }
+      ],
+      "merksatz": "Knoten, Einziehung, Orangenhaut: abklären lassen. Nach Lymphknoten-OP Arm schonen und beobachten.",
+      "drugIds": [
+        "arz.ondansetron",
+        "arz.metamizol"
+      ],
+      "assessmentIds": [
+        "as.nrs"
+      ],
+      "topicIds": [
+        "thema.kl.onko"
+      ],
+      "pruefstatus": "ungeprueft"
+    },
+    {
+      "id": "kh.rheumatoide-arthritis",
+      "name": "Rheumatoide Arthritis",
+      "synonyms": [
+        "chronische Polyarthritis",
+        "Rheuma"
+      ],
+      "definition": "Chronisch-entzündliche Autoimmunerkrankung, die vor allem die Gelenkinnenhaut befällt. Unbehandelt zerstört die Entzündung Knorpel und Knochen und führt zu Fehlstellungen.",
+      "formen": [
+        "Schubweiser oder chronisch fortschreitender Verlauf",
+        "Seropositiv (Rheumafaktor, CCP-Antikörper) oder seronegativ"
+      ],
+      "ursachen": [
+        "Autoimmunreaktion gegen die Gelenkinnenhaut",
+        "Erbliche Veranlagung, Rauchen als Auslöser"
+      ],
+      "risikofaktoren": [
+        "Frauen häufiger betroffen",
+        "Rauchen",
+        "Familiäre Belastung"
+      ],
+      "symptome": [
+        "Morgensteifigkeit der Gelenke länger als 30 Minuten",
+        "Schmerzhafte, geschwollene, warme Finger- und Zehengrundgelenke, meist beidseits symmetrisch",
+        "Müdigkeit, leichtes Fieber, Gewichtsverlust",
+        "Später Fehlstellungen der Finger (z. B. Ulnardeviation), Rheumaknoten"
+      ],
+      "komplikationen": [
+        "Gelenkzerstörung und Funktionsverlust",
+        "Befall von Herz, Lunge, Augen und Gefäßen",
+        "Höheres Risiko für Herz-Kreislauf-Erkrankungen und Osteoporose",
+        "Infektanfälligkeit unter immunsuppressiver Therapie"
+      ],
+      "diagnostik": [
+        "Entzündungswerte (BSG, CRP)",
+        "Rheumafaktor und CCP-Antikörper",
+        "Ultraschall und Röntgen der Gelenke"
+      ],
+      "therapie": [
+        "Frühe Basistherapie (z. B. Methotrexat, Biologika) nach rheumatologischer Anordnung",
+        "Im Schub Glukokortikoide und entzündungshemmende Schmerzmittel",
+        "Physio- und Ergotherapie, Hilfsmittel, Gelenkschutz"
+      ],
+      "pflege": [
+        "Schmerzen und Morgensteifigkeit einschätzen, Pflegemaßnahmen und Termine nicht in die steife Morgenphase legen",
+        "Im akuten Schub Gelenke kühlen nach Anordnung, entlastend lagern, trotzdem schonend bewegen",
+        "Selbstständigkeit mit Hilfsmitteln fördern (Griffverdickungen, Knopfhilfe, Strumpfanzieher)",
+        "Infektzeichen unter Immunsuppression beobachten"
+      ],
+      "beratung": [
+        "Gelenkschutz im Alltag: große Gelenke statt Finger belasten, Hebelwirkung nutzen",
+        "Medikamente regelmäßig einnehmen, Kontrollen und Impfungen nach ärztlicher Empfehlung",
+        "Nicht rauchen, Bewegung im schmerzfreien Bereich, Selbsthilfe (Rheuma-Liga)"
+      ],
+      "prophylaxen": [
+        {
+          "topicId": "thema.pro.kontraktur",
+          "grund": "Schonhaltung entzündeter Gelenke führt zu Bewegungseinschränkungen"
+        }
+      ],
+      "merksatz": "Morgensteif, symmetrisch, kleine Gelenke: früh behandeln, Gelenke schützen und bewegen.",
+      "drugIds": [
+        "arz.prednisolon",
+        "arz.ibuprofen"
+      ],
+      "assessmentIds": [
+        "as.nrs",
+        "as.barthel"
+      ],
+      "topicIds": [
+        "thema.kl.bewegung"
+      ],
+      "pruefstatus": "ungeprueft"
+    },
+    {
+      "id": "kh.ulcus-cruris",
+      "name": "Ulcus cruris venosum",
+      "synonyms": [
+        "offenes Bein",
+        "venöses Beingeschwür",
+        "chronisch venöse Insuffizienz"
+      ],
+      "definition": "Chronische Wunde am Unterschenkel, meist über dem Innenknöchel, als Folge einer chronisch venösen Insuffizienz: Der Rückfluss des Blutes ist gestört, der Druck in den Venen steigt und das Gewebe wird schlecht versorgt.",
+      "formen": [
+        "Venös (häufigste Form)",
+        "Arteriell bei pAVK",
+        "Gemischt arteriell-venös"
+      ],
+      "ursachen": [
+        "Undichte Venenklappen bei Krampfadern (Varikose)",
+        "Folge einer tiefen Beinvenenthrombose (postthrombotisches Syndrom)"
+      ],
+      "risikofaktoren": [
+        "Frühere Thrombose",
+        "Krampfadern, familiäre Belastung",
+        "Bewegungsmangel, langes Stehen oder Sitzen",
+        "Übergewicht, höheres Alter"
+      ],
+      "symptome": [
+        "Schwere, geschwollene Beine, abends stärker",
+        "Bräunliche Hautverfärbung, verhärtete Haut, Ekzem am Unterschenkel",
+        "Flache, nässende Wunde meist am Innenknöchel",
+        "Beschwerden bessern sich beim Hochlegen der Beine"
+      ],
+      "komplikationen": [
+        "Wundinfektion bis Erysipel",
+        "Lange Heilungsdauer und Rückfälle",
+        "Kontaktallergie gegen Wundprodukte",
+        "Einschränkung von Mobilität und Lebensqualität"
+      ],
+      "diagnostik": [
+        "Duplexsonografie der Venen",
+        "Knöchel-Arm-Index (ABI), um eine pAVK auszuschließen",
+        "Wunddokumentation, ggf. Abstrich bei Infektzeichen"
+      ],
+      "therapie": [
+        "Kompressionstherapie ist die wichtigste Maßnahme, nur nach Ausschluss einer relevanten pAVK",
+        "Phasengerechte Wundversorgung nach ärztlicher Anordnung und Expertenstandard",
+        "Behandlung der Venenursache (z. B. Varizen-OP)"
+      ],
+      "pflege": [
+        "Kompression korrekt anlegen (von den Zehen bis unter das Knie), Druckstellen und Durchblutung kontrollieren",
+        "Wunde fachgerecht einschätzen und dokumentieren (Größe, Wundgrund, Exsudat, Wundrand), Fotodokumentation nach Hausstandard",
+        "Bewegung fördern: Gehen, Fußgymnastik, Sprunggelenk bewegen (Muskelpumpe)",
+        "Beine im Liegen hochlagern, Hautpflege der Umgebung",
+        "Wundbezogene Einschränkungen und Selbstmanagement nach dem Expertenstandard erfassen"
+      ],
+      "beratung": [
+        "Kompression dauerhaft tragen, auch nach Abheilung (Kompressionsstrumpf)",
+        "Viel gehen, wenig stehen und sitzen, Beine hochlegen",
+        "Keine Wärme an den Beinen (Sauna, heißes Fußbad)"
+      ],
+      "prophylaxen": [
+        {
+          "topicId": "thema.pro.thrombose",
+          "grund": "Venöse Abflussstörung und wenig Bewegung fördern neue Thrombosen"
+        }
+      ],
+      "merksatz": "Venöses Ulkus: Kompression, Bewegung, Beine hoch. Vorher eine pAVK ausschließen.",
+      "assessmentIds": [
+        "as.nrs"
+      ],
+      "referenceIds": [
+        "es.wunden"
+      ],
+      "topicIds": [
+        "thema.ph.wunde",
+        "thema.kl.geriatrie"
+      ],
+      "pruefstatus": "ungeprueft"
+    },
+    {
+      "id": "kh.hyperthyreose",
+      "name": "Hyperthyreose",
+      "synonyms": [
+        "Schilddrüsenüberfunktion",
+        "Morbus Basedow"
+      ],
+      "definition": "Überfunktion der Schilddrüse mit zu viel Schilddrüsenhormon im Blut. Der Stoffwechsel läuft beschleunigt.",
+      "formen": [
+        "Morbus Basedow: Autoimmunerkrankung, oft mit Augenbeteiligung",
+        "Schilddrüsenautonomie: Knoten bilden unkontrolliert Hormon, häufig im Alter",
+        "Thyreotoxische Krise: lebensbedrohliche Entgleisung"
+      ],
+      "ursachen": [
+        "Autoantikörper regen die Schilddrüse an (Basedow)",
+        "Autonome Knoten",
+        "Zu hohe Dosis Schilddrüsenhormon",
+        "Jodhaltige Kontrastmittel können bei Autonomie eine Überfunktion auslösen"
+      ],
+      "risikofaktoren": [
+        "Frauen häufiger betroffen",
+        "Jodmangelstruma mit Knoten",
+        "Jodgabe, z. B. Kontrastmittel"
+      ],
+      "symptome": [
+        "Herzrasen, Herzrhythmusstörungen (Vorhofflimmern), hoher Blutdruck",
+        "Gewichtsverlust trotz Appetit, Durchfall",
+        "Wärmeempfindlichkeit, Schwitzen, warme feuchte Haut",
+        "Nervosität, Zittern, Schlafstörungen",
+        "Bei der Autoimmunform hervortretende Augen (Exophthalmus)",
+        "Bei alten Menschen oft nur Schwäche und Gewichtsverlust"
+      ],
+      "komplikationen": [
+        "Thyreotoxische Krise mit hohem Fieber, Herzrasen, Unruhe bis Koma",
+        "Vorhofflimmern mit Schlaganfallrisiko",
+        "Osteoporose"
+      ],
+      "diagnostik": [
+        "TSH (erniedrigt), freie Schilddrüsenhormone (erhöht)",
+        "Antikörper, Ultraschall, Szintigrafie"
+      ],
+      "therapie": [
+        "Thyreostatika nach ärztlicher Anordnung, Betablocker gegen Herzrasen",
+        "Radiojodtherapie oder Operation",
+        "Thyreotoxische Krise: Intensivtherapie"
+      ],
+      "pflege": [
+        "Puls, Blutdruck, Temperatur und Gewicht regelmäßig kontrollieren",
+        "Ruhige, kühle Umgebung, leichte Bettwäsche, Schwitzen und Hautpflege beachten",
+        "Ausreichend Kalorien und Flüssigkeit anbieten",
+        "Gereiztheit und Unruhe als Krankheitszeichen verstehen, geduldig bleiben",
+        "Bei Augenbeteiligung Augen befeuchten und schützen",
+        "Vor Kontrastmittelgabe auf die Schilddrüse hinweisen"
+      ],
+      "beratung": [
+        "Medikamente regelmäßig nehmen, Laborkontrollen einhalten",
+        "Warnzeichen melden: Fieber, starkes Herzrasen, Halsschmerzen unter Thyreostatika (Blutbildveränderung möglich)",
+        "Jodreiche Präparate nur nach ärztlicher Rücksprache, nicht rauchen (Augenbeteiligung)"
+      ],
+      "prophylaxen": [
+        {
+          "topicId": "thema.pro.dehydratation",
+          "grund": "Schwitzen und Durchfall erhöhen den Flüssigkeitsbedarf"
+        }
+      ],
+      "merksatz": "Überfunktion: alles zu schnell – Puls, Darm, Gewichtsverlust, Wärme. Unterfunktion: alles zu langsam.",
+      "drugIds": [
+        "arz.metoprolol"
+      ],
+      "topicIds": [
+        "thema.kl.schilddruese"
       ],
       "pruefstatus": "ungeprueft"
     }

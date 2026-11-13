@@ -33,11 +33,11 @@ glossary:
   - { id: gl.parotitis, term: "Parotitis", topicIds: [thema.ph.mund, thema.pro.soor], definition: "Entzündung der Ohrspeicheldrüse, begünstigt durch fehlendes Kauen und verminderten Speichelfluss." }
   - { id: gl.stomatitis, term: "Stomatitis", topicIds: [thema.ph.mund], definition: "Entzündung der Mundschleimhaut." }
   - { id: gl.xerostomie, term: "Xerostomie", topicIds: [thema.ph.mund, thema.ph.palliativ], definition: "Mundtrockenheit durch verminderten Speichelfluss." }
-  - { id: gl.mundinspektion, term: "Mundinspektion", topicIds: [thema.ph.mund], definition: "Begutachtung von Lippen, Zunge, Zähnen und Mundschleimhaut auf Beläge, Verletzungen und Entzündungen." }
+  - { id: gl.mundinspektion, term: "Mundinspektion", topicIds: [thema.ph.mund, thema.pro.soor], definition: "Begutachtung von Lippen, Zunge, Zähnen und Mundschleimhaut auf Beläge, Verletzungen und Entzündungen." }
 
   # --- Mobilisation und Lagerung ---
   - { id: gl.mobilisation, term: "Mobilisation", topicIds: [thema.ph.mobilisation], definition: "Maßnahmen, die die Bewegungsfähigkeit eines Menschen erhalten, fördern oder wiederherstellen." }
-  - { id: gl.fruehmobilisation, term: "Frühmobilisation", topicIds: [thema.ph.mobilisation, thema.ph.periop], definition: "Möglichst frühes Aufsetzen und Aufstehen nach Operation oder Erkrankung zur Vermeidung von Komplikationen." }
+  - { id: gl.fruehmobilisation, term: "Frühmobilisation", topicIds: [thema.ph.mobilisation, thema.ph.periop, thema.fa.akut], definition: "Möglichst frühes Aufsetzen und Aufstehen nach Operation oder Erkrankung zur Vermeidung von Komplikationen." }
   - { id: gl.kinaesthetik, term: "Kinästhetik", topicIds: [thema.ph.mobilisation], definition: "Konzept zur Bewegungsunterstützung, das die eigenen Bewegungsmöglichkeiten der Person nutzt und Pflegende körperlich entlastet." }
   - { id: gl.positionierung, term: "Positionierung", topicIds: [thema.ph.mobilisation, thema.pro.dekubitus], definition: "Gezielte Lagerung des Körpers zur Druckentlastung, Atemförderung, Schmerzlinderung oder Kontrakturprophylaxe.", synonyms: [Lagerung] }
   - { id: gl.mikrolagerung, term: "Mikrolagerung", topicIds: [thema.pro.dekubitus, thema.ph.mobilisation], definition: "Kleine, häufige Veränderungen der Körperposition zur Druckverteilung, z. B. durch Unterschieben eines Handtuchs." }
@@ -112,7 +112,7 @@ glossary:
   - { id: gl.kontraindikation, term: "Kontraindikation", topicIds: [thema.ph.medikamente], definition: "Umstand, der die Anwendung einer Maßnahme oder eines Arzneimittels verbietet oder einschränkt.", synonyms: [Gegenanzeige] }
   - { id: gl.nebenwirkung, term: "Unerwünschte Arzneimittelwirkung", abbreviation: "UAW", topicIds: [thema.ph.medikamente], definition: "Schädliche und unbeabsichtigte Reaktion auf ein Arzneimittel.", synonyms: [Nebenwirkung] }
   - { id: gl.wechselwirkung, term: "Wechselwirkung", topicIds: [thema.ph.medikamente], definition: "Gegenseitige Beeinflussung von Arzneimitteln oder von Arzneimitteln und Nahrung in Wirkung oder Abbau.", synonyms: [Interaktion] }
-  - { id: gl.compliance, term: "Adhärenz", topicIds: [thema.ph.medikamente, thema.kom.beratung], definition: "Ausmaß, in dem eine Person gemeinsam vereinbarte Therapieempfehlungen einhält.", synonyms: [Compliance] }
+  - { id: gl.compliance, term: "Adhärenz", topicIds: [thema.ph.medikamente, thema.kom.beratung, thema.fa.psychiatrie], definition: "Ausmaß, in dem eine Person gemeinsam vereinbarte Therapieempfehlungen einhält.", synonyms: [Compliance] }
   - { id: gl.sechs-r, term: "6-R-Regel", topicIds: [thema.ph.medikamente], definition: "Kontrollregel bei der Arzneimittelgabe: richtige Person, richtiges Arzneimittel, richtige Dosis, richtige Applikationsart, richtiger Zeitpunkt und richtige Dokumentation.", note: "Je nach Lehrbuch auch als 5-R-, 7-R- oder 10-R-Regel mit weiteren Punkten." }
   - { id: gl.applikation, term: "Applikation", topicIds: [thema.ph.medikamente, thema.ph.injektion], definition: "Art und Weise, wie ein Arzneimittel verabreicht wird, z. B. oral, rektal, transdermal oder parenteral." }
   - { id: gl.sublingual, term: "sublingual", topicIds: [thema.ph.medikamente], definition: "Unter der Zunge; der Wirkstoff wird über die Mundschleimhaut schnell aufgenommen." }
@@ -170,7 +170,7 @@ glossary:
   - { id: gl.regionalanaesthesie, term: "Regionalanästhesie", topicIds: [thema.ph.periop], definition: "Schmerzausschaltung eines Körperabschnitts bei erhaltenem Bewusstsein, z. B. Spinal- oder Periduralanästhesie." }
   - { id: gl.pda, term: "Periduralanästhesie", abbreviation: "PDA", topicIds: [thema.ph.periop], definition: "Regionalanästhesie durch Einspritzen von Lokalanästhetika in den Periduralraum, oft über einen Katheter zur postoperativen Schmerztherapie.", synonyms: [Epiduralanästhesie] }
   - { id: gl.ponv, term: "Postoperative Übelkeit und Erbrechen", abbreviation: "PONV", topicIds: [thema.ph.periop], definition: "Häufige Komplikation nach Narkosen; Risikofaktoren u. a. weibliches Geschlecht, Nichtrauchen und Opioidgabe." }
-  - { id: gl.aufwachraum, term: "Aufwachraum", abbreviation: "AWR", topicIds: [thema.ph.periop], definition: "Überwachungsbereich, in dem Patientinnen und Patienten nach einer Narkose bis zur Stabilisierung betreut werden." }
+  - { id: gl.aufwachraum, term: "Aufwachraum", abbreviation: "AWR", topicIds: [thema.ph.periop, thema.fa.akut], definition: "Überwachungsbereich, in dem Patientinnen und Patienten nach einer Narkose bis zur Stabilisierung betreut werden." }
   - { id: gl.op-checkliste, term: "OP-Checkliste", topicIds: [thema.ph.periop, thema.qw.qm], definition: "Strukturierte Prüfung vor der Operation, z. B. Identität, Eingriffsort und Seite, Einwilligung, Nüchternheit, Schmuck und Prothesen, nach dem WHO-Konzept der sicheren Chirurgie." }
   - { id: gl.seitenmarkierung, term: "Seitenmarkierung", topicIds: [thema.ph.periop, thema.qw.qm], definition: "Markierung der Operationsstelle auf der Haut vor dem Eingriff, um Eingriffsverwechslungen zu vermeiden." }
   - { id: gl.nachblutung, term: "Nachblutung", topicIds: [thema.ph.periop], definition: "Blutung nach einer Operation; Zeichen sind durchgeblutete Verbände, steigende Drainagemenge, Tachykardie und Blutdruckabfall." }

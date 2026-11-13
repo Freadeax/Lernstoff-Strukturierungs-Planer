@@ -1656,3 +1656,225 @@ diseaseProfiles:
     drugIds: [arz.ondansetron, arz.paracetamol]
     topicIds: [thema.kl.paediatrie, thema.kl.infektion]
     pruefstatus: ungeprueft
+
+  # ---------------------------------------------------------------- Ergänzung November 2026
+  - id: kh.diabetes-typ1
+    name: Diabetes mellitus Typ 1
+    synonyms: [Typ-1-Diabetes, jugendlicher Diabetes]
+    definition: "Autoimmunerkrankung, bei der das Immunsystem die insulinbildenden Betazellen der Bauchspeicheldrüse zerstört. Es entsteht ein absoluter Insulinmangel; Insulin muss lebenslang ersetzt werden."
+    formen: ["Manifestation meist im Kindes- und Jugendalter, aber in jedem Alter möglich", "LADA: langsam verlaufende Autoimmunform im Erwachsenenalter"]
+    ursachen: ["Autoimmune Zerstörung der Betazellen", "Erbliche Veranlagung, Auslöser wie Virusinfekte werden diskutiert"]
+    risikofaktoren: ["Typ-1-Diabetes bei Eltern oder Geschwistern", "Andere Autoimmunerkrankungen (z. B. Hashimoto-Thyreoiditis, Zöliakie)"]
+    symptome:
+      - "Starker Durst und häufiges Wasserlassen, bei Kindern erneutes Einnässen"
+      - "Gewichtsabnahme trotz Hunger, Müdigkeit, Leistungsknick"
+      - "Bei Ketoazidose: Übelkeit, Erbrechen, Bauchschmerzen, Azetongeruch der Atemluft, tiefe Atmung (Kussmaul-Atmung), Bewusstseinsstörung"
+    komplikationen:
+      - "Diabetische Ketoazidose, oft als Erstmanifestation oder bei Insulinmangel, z. B. bei Infekt oder Pumpenausfall"
+      - "Hypoglykämie bei zu viel Insulin, zu wenig Kohlenhydraten oder viel Bewegung"
+      - "Spätfolgen an Augen, Nieren, Nerven und Gefäßen bei dauerhaft schlechter Einstellung"
+    diagnostik: ["Blutzucker, HbA1c", "Urin oder Blut auf Ketone", "Autoantikörper gegen Betazellen", "Bei Ketoazidose Blutgasanalyse"]
+    therapie:
+      - "Lebenslange Insulintherapie nach ärztlichem Plan: intensivierte Therapie mit Basal- und Bolusinsulin oder Insulinpumpe"
+      - "Kontinuierliche Glukosemessung (CGM) mit Sensor"
+      - "Schulung von Betroffenen und Familie: Kohlenhydrate schätzen, Insulin anpassen, Sport, Krankheitstage"
+      - "Ketoazidose: Intensivüberwachung, Flüssigkeit, Insulin und Kalium nach ärztlicher Anordnung"
+    pflege:
+      - "Blutzucker bzw. Sensorwerte nach Plan kontrollieren und dokumentieren, auch nachts"
+      - "Zeichen von Hypo- und Hyperglykämie kennen; Ketone messen, wenn der Blutzucker hoch ist oder Übelkeit besteht"
+      - "Insulin zeitgerecht zu den Mahlzeiten, Spritzstellen wechseln, Pumpe und Katheter kontrollieren"
+      - "Kind und Eltern altersgerecht in die Selbstständigkeit führen, Gefühle zur Diagnose ernst nehmen"
+      - "Bei Erbrechen nicht einfach Insulin weglassen: Arzt informieren, Ketone messen"
+    beratung:
+      - "Immer Traubenzucker und Notfallausweis dabeihaben"
+      - "Vor Sport Blutzucker messen und Kohlenhydrate oder Insulin anpassen"
+      - "Krankheitstage: Basalinsulin weitergeben, häufiger messen, Ketone prüfen, früh Hilfe holen"
+      - "Kita, Schule und Sportverein über Hypoglykämie und Notfallplan informieren"
+    prophylaxen:
+      - { topicId: thema.pro.dehydratation, grund: "Hoher Blutzucker und Ketoazidose führen zu großem Flüssigkeitsverlust" }
+    merksatz: "Typ 1 braucht immer Insulin. Bei hohem Zucker und Übelkeit an Ketone denken."
+    drugIds: [arz.normalinsulin, arz.insulinglargin]
+    topicIds: [thema.kl.diabetes, thema.kl.paediatrie]
+    pruefstatus: ungeprueft
+
+  - id: kh.appendizitis
+    name: Appendizitis
+    synonyms: [Blinddarmentzündung, Wurmfortsatzentzündung]
+    definition: "Akute Entzündung des Wurmfortsatzes (Appendix vermiformis) am Blinddarm. Häufigste Ursache eines akuten Abdomens bei Kindern, Jugendlichen und jungen Erwachsenen."
+    formen: ["Unkomplizierte Appendizitis", "Komplizierte Appendizitis mit Abszess oder Perforation"]
+    ursachen: ["Verlegung des Wurmfortsatzes, z. B. durch Kotsteine, mit nachfolgender bakterieller Entzündung"]
+    risikofaktoren: ["Alter zwischen 10 und 30 Jahren"]
+    symptome:
+      - "Schmerzen zunächst um den Nabel oder im Oberbauch, später in den rechten Unterbauch wandernd"
+      - "Übelkeit, Erbrechen, Appetitlosigkeit"
+      - "Fieber, oft mit Differenz zwischen rektaler und axillärer Temperatur"
+      - "Loslassschmerz, Schmerzen beim Hüpfen oder Husten, Schonhaltung mit angezogenem Bein"
+      - "Bei Kindern und alten Menschen oft untypisch"
+    komplikationen: ["Perforation mit Bauchfellentzündung (Peritonitis)", "Abszess", "Sepsis", "Nach der OP: Wundinfektion, Darmlähmung"]
+    diagnostik: ["Körperliche Untersuchung (Druckpunkte, Loslassschmerz)", "Entzündungswerte im Blut (Leukozyten, CRP)", "Ultraschall, ggf. CT", "Schwangerschaftstest bei Frauen im gebärfähigen Alter"]
+    therapie:
+      - "Operative Entfernung (Appendektomie), meist laparoskopisch"
+      - "Antibiotika nach ärztlicher Anordnung"
+      - "Bei ausgewählten unkomplizierten Fällen Antibiotikatherapie ohne OP möglich (ärztliche Entscheidung)"
+    pflege:
+      - "Vor der OP: nüchtern lassen, Vitalzeichen und Schmerzen beobachten, keine Wärmflasche und keine Abführmittel"
+      - "Schmerzmittel nur nach ärztlicher Anordnung; Schmerzverlauf dokumentieren"
+      - "Plötzliche Schmerzbesserung mit anschließender Verschlechterung, harter Bauch oder Fieberanstieg sofort melden (Perforation)"
+      - "Nach der OP: Vitalzeichen, Wunde, Schmerz, Darmtätigkeit, Frühmobilisation, Kostaufbau nach Anordnung"
+    beratung:
+      - "Nach laparoskopischer OP einige Wochen kein schweres Heben und kein Kampfsport nach ärztlicher Vorgabe"
+      - "Wunde beobachten: Rötung, Schwellung, Fieber melden"
+    prophylaxen:
+      - { topicId: thema.pro.thrombose, grund: "Nach der OP liegt der Mensch zunächst mehr, Frühmobilisation beugt vor" }
+      - { topicId: thema.pro.pneumonie, grund: "Wundschmerz führt zu flacher Atmung nach Bauchoperation" }
+    merksatz: "Schmerz wandert vom Nabel nach rechts unten. Vor der OP nüchtern, keine Wärme, keine Abführmittel."
+    drugIds: [arz.metamizol, arz.paracetamol]
+    assessmentIds: [as.nrs]
+    referenceIds: [es.schmerz]
+    topicIds: [thema.kl.verdauung, thema.ph.periop]
+    pruefstatus: ungeprueft
+
+  - id: kh.mammakarzinom
+    name: Mammakarzinom
+    synonyms: [Brustkrebs]
+    definition: "Bösartiger Tumor der Brustdrüse, die häufigste Krebserkrankung bei Frauen. Auch Männer können selten erkranken."
+    formen: ["Duktales und lobuläres Karzinom", "Hormonrezeptor-positiv, HER2-positiv oder triple-negativ (wichtig für die Therapie)", "Früh, lokal fortgeschritten oder metastasiert"]
+    ursachen: ["Unkontrolliertes Wachstum entarteter Zellen der Brustdrüse", "Teilweise erbliche Genveränderungen (z. B. BRCA1/2)"]
+    risikofaktoren: ["Höheres Alter", "Familiäre Belastung, BRCA-Mutation", "Langer Hormoneinfluss (frühe erste Regel, späte Wechseljahre)", "Übergewicht nach den Wechseljahren, Alkohol, Bewegungsmangel"]
+    symptome:
+      - "Tastbarer, meist schmerzloser Knoten"
+      - "Einziehung der Haut oder der Brustwarze, Orangenhaut"
+      - "Absonderung aus der Brustwarze"
+      - "Größen- oder Formveränderung einer Brust, vergrößerte Lymphknoten in der Achsel"
+    komplikationen: ["Metastasen in Knochen, Lunge, Leber, Gehirn", "Lymphödem des Arms nach Entfernung von Lymphknoten", "Belastung durch Therapie: Übelkeit, Fatigue, Infektanfälligkeit, Körperbildveränderung"]
+    diagnostik: ["Tastuntersuchung, Mammografie, Ultraschall, ggf. MRT", "Stanzbiopsie mit feingeweblicher Untersuchung", "Mammografie-Screening ab 50 Jahren"]
+    therapie:
+      - "Operation: brusterhaltend oder Mastektomie, Wächterlymphknoten"
+      - "Strahlentherapie, Chemotherapie, Antihormontherapie, zielgerichtete Therapie je nach Tumortyp (ärztliche Entscheidung im Tumorboard)"
+      - "Brustrekonstruktion, Psychoonkologie, Rehabilitation"
+    pflege:
+      - "Nach der OP: Wunde und Drainagen beobachten, Schmerz einschätzen, Arm der operierten Seite schonend mobilisieren"
+      - "Am Arm der operierten Seite nach Hausstandard keine Blutdruckmessung, Blutentnahme oder Infusion, wenn Lymphknoten entfernt wurden"
+      - "Gefühle zu Diagnose und verändertem Körperbild ansprechen, Gespräch anbieten, Psychoonkologie und Breast Care Nurse einbeziehen"
+      - "Nebenwirkungen der Therapie beobachten: Übelkeit, Mundschleimhaut, Haut im Bestrahlungsfeld, Infektzeichen"
+    beratung:
+      - "Armübungen nach Anleitung, Lymphödem-Zeichen (Schwellung, Spannungsgefühl) früh melden"
+      - "Verletzungen am betroffenen Arm vermeiden, Hautpflege"
+      - "Brustprothese bzw. Spezial-BH, Selbsthilfegruppen, Reha und Nachsorge"
+    prophylaxen:
+      - { topicId: thema.pro.soor, grund: "Chemotherapie schädigt die Mundschleimhaut und schwächt die Abwehr" }
+      - { topicId: thema.pro.thrombose, grund: "Tumorerkrankung und Operation erhöhen das Thromboserisiko" }
+    merksatz: "Knoten, Einziehung, Orangenhaut: abklären lassen. Nach Lymphknoten-OP Arm schonen und beobachten."
+    drugIds: [arz.ondansetron, arz.metamizol]
+    assessmentIds: [as.nrs]
+    topicIds: [thema.kl.onko]
+    pruefstatus: ungeprueft
+
+  - id: kh.rheumatoide-arthritis
+    name: Rheumatoide Arthritis
+    synonyms: [chronische Polyarthritis, Rheuma]
+    definition: "Chronisch-entzündliche Autoimmunerkrankung, die vor allem die Gelenkinnenhaut befällt. Unbehandelt zerstört die Entzündung Knorpel und Knochen und führt zu Fehlstellungen."
+    formen: ["Schubweiser oder chronisch fortschreitender Verlauf", "Seropositiv (Rheumafaktor, CCP-Antikörper) oder seronegativ"]
+    ursachen: ["Autoimmunreaktion gegen die Gelenkinnenhaut", "Erbliche Veranlagung, Rauchen als Auslöser"]
+    risikofaktoren: ["Frauen häufiger betroffen", "Rauchen", "Familiäre Belastung"]
+    symptome:
+      - "Morgensteifigkeit der Gelenke länger als 30 Minuten"
+      - "Schmerzhafte, geschwollene, warme Finger- und Zehengrundgelenke, meist beidseits symmetrisch"
+      - "Müdigkeit, leichtes Fieber, Gewichtsverlust"
+      - "Später Fehlstellungen der Finger (z. B. Ulnardeviation), Rheumaknoten"
+    komplikationen: ["Gelenkzerstörung und Funktionsverlust", "Befall von Herz, Lunge, Augen und Gefäßen", "Höheres Risiko für Herz-Kreislauf-Erkrankungen und Osteoporose", "Infektanfälligkeit unter immunsuppressiver Therapie"]
+    diagnostik: ["Entzündungswerte (BSG, CRP)", "Rheumafaktor und CCP-Antikörper", "Ultraschall und Röntgen der Gelenke"]
+    therapie:
+      - "Frühe Basistherapie (z. B. Methotrexat, Biologika) nach rheumatologischer Anordnung"
+      - "Im Schub Glukokortikoide und entzündungshemmende Schmerzmittel"
+      - "Physio- und Ergotherapie, Hilfsmittel, Gelenkschutz"
+    pflege:
+      - "Schmerzen und Morgensteifigkeit einschätzen, Pflegemaßnahmen und Termine nicht in die steife Morgenphase legen"
+      - "Im akuten Schub Gelenke kühlen nach Anordnung, entlastend lagern, trotzdem schonend bewegen"
+      - "Selbstständigkeit mit Hilfsmitteln fördern (Griffverdickungen, Knopfhilfe, Strumpfanzieher)"
+      - "Infektzeichen unter Immunsuppression beobachten"
+    beratung:
+      - "Gelenkschutz im Alltag: große Gelenke statt Finger belasten, Hebelwirkung nutzen"
+      - "Medikamente regelmäßig einnehmen, Kontrollen und Impfungen nach ärztlicher Empfehlung"
+      - "Nicht rauchen, Bewegung im schmerzfreien Bereich, Selbsthilfe (Rheuma-Liga)"
+    prophylaxen:
+      - { topicId: thema.pro.kontraktur, grund: "Schonhaltung entzündeter Gelenke führt zu Bewegungseinschränkungen" }
+    merksatz: "Morgensteif, symmetrisch, kleine Gelenke: früh behandeln, Gelenke schützen und bewegen."
+    drugIds: [arz.prednisolon, arz.ibuprofen]
+    assessmentIds: [as.nrs, as.barthel]
+    topicIds: [thema.kl.bewegung]
+    pruefstatus: ungeprueft
+
+  - id: kh.ulcus-cruris
+    name: Ulcus cruris venosum
+    synonyms: [offenes Bein, venöses Beingeschwür, chronisch venöse Insuffizienz]
+    definition: "Chronische Wunde am Unterschenkel, meist über dem Innenknöchel, als Folge einer chronisch venösen Insuffizienz: Der Rückfluss des Blutes ist gestört, der Druck in den Venen steigt und das Gewebe wird schlecht versorgt."
+    formen: ["Venös (häufigste Form)", "Arteriell bei pAVK", "Gemischt arteriell-venös"]
+    ursachen: ["Undichte Venenklappen bei Krampfadern (Varikose)", "Folge einer tiefen Beinvenenthrombose (postthrombotisches Syndrom)"]
+    risikofaktoren: ["Frühere Thrombose", "Krampfadern, familiäre Belastung", "Bewegungsmangel, langes Stehen oder Sitzen", "Übergewicht, höheres Alter"]
+    symptome:
+      - "Schwere, geschwollene Beine, abends stärker"
+      - "Bräunliche Hautverfärbung, verhärtete Haut, Ekzem am Unterschenkel"
+      - "Flache, nässende Wunde meist am Innenknöchel"
+      - "Beschwerden bessern sich beim Hochlegen der Beine"
+    komplikationen: ["Wundinfektion bis Erysipel", "Lange Heilungsdauer und Rückfälle", "Kontaktallergie gegen Wundprodukte", "Einschränkung von Mobilität und Lebensqualität"]
+    diagnostik: ["Duplexsonografie der Venen", "Knöchel-Arm-Index (ABI), um eine pAVK auszuschließen", "Wunddokumentation, ggf. Abstrich bei Infektzeichen"]
+    therapie:
+      - "Kompressionstherapie ist die wichtigste Maßnahme, nur nach Ausschluss einer relevanten pAVK"
+      - "Phasengerechte Wundversorgung nach ärztlicher Anordnung und Expertenstandard"
+      - "Behandlung der Venenursache (z. B. Varizen-OP)"
+    pflege:
+      - "Kompression korrekt anlegen (von den Zehen bis unter das Knie), Druckstellen und Durchblutung kontrollieren"
+      - "Wunde fachgerecht einschätzen und dokumentieren (Größe, Wundgrund, Exsudat, Wundrand), Fotodokumentation nach Hausstandard"
+      - "Bewegung fördern: Gehen, Fußgymnastik, Sprunggelenk bewegen (Muskelpumpe)"
+      - "Beine im Liegen hochlagern, Hautpflege der Umgebung"
+      - "Wundbezogene Einschränkungen und Selbstmanagement nach dem Expertenstandard erfassen"
+    beratung:
+      - "Kompression dauerhaft tragen, auch nach Abheilung (Kompressionsstrumpf)"
+      - "Viel gehen, wenig stehen und sitzen, Beine hochlegen"
+      - "Keine Wärme an den Beinen (Sauna, heißes Fußbad)"
+    prophylaxen:
+      - { topicId: thema.pro.thrombose, grund: "Venöse Abflussstörung und wenig Bewegung fördern neue Thrombosen" }
+    merksatz: "Venöses Ulkus: Kompression, Bewegung, Beine hoch. Vorher eine pAVK ausschließen."
+    assessmentIds: [as.nrs]
+    referenceIds: [es.wunden]
+    topicIds: [thema.ph.wunde, thema.kl.geriatrie]
+    pruefstatus: ungeprueft
+
+  - id: kh.hyperthyreose
+    name: Hyperthyreose
+    synonyms: [Schilddrüsenüberfunktion, Morbus Basedow]
+    definition: "Überfunktion der Schilddrüse mit zu viel Schilddrüsenhormon im Blut. Der Stoffwechsel läuft beschleunigt."
+    formen: ["Morbus Basedow: Autoimmunerkrankung, oft mit Augenbeteiligung", "Schilddrüsenautonomie: Knoten bilden unkontrolliert Hormon, häufig im Alter", "Thyreotoxische Krise: lebensbedrohliche Entgleisung"]
+    ursachen: ["Autoantikörper regen die Schilddrüse an (Basedow)", "Autonome Knoten", "Zu hohe Dosis Schilddrüsenhormon", "Jodhaltige Kontrastmittel können bei Autonomie eine Überfunktion auslösen"]
+    risikofaktoren: ["Frauen häufiger betroffen", "Jodmangelstruma mit Knoten", "Jodgabe, z. B. Kontrastmittel"]
+    symptome:
+      - "Herzrasen, Herzrhythmusstörungen (Vorhofflimmern), hoher Blutdruck"
+      - "Gewichtsverlust trotz Appetit, Durchfall"
+      - "Wärmeempfindlichkeit, Schwitzen, warme feuchte Haut"
+      - "Nervosität, Zittern, Schlafstörungen"
+      - "Bei der Autoimmunform hervortretende Augen (Exophthalmus)"
+      - "Bei alten Menschen oft nur Schwäche und Gewichtsverlust"
+    komplikationen: ["Thyreotoxische Krise mit hohem Fieber, Herzrasen, Unruhe bis Koma", "Vorhofflimmern mit Schlaganfallrisiko", "Osteoporose"]
+    diagnostik: ["TSH (erniedrigt), freie Schilddrüsenhormone (erhöht)", "Antikörper, Ultraschall, Szintigrafie"]
+    therapie:
+      - "Thyreostatika nach ärztlicher Anordnung, Betablocker gegen Herzrasen"
+      - "Radiojodtherapie oder Operation"
+      - "Thyreotoxische Krise: Intensivtherapie"
+    pflege:
+      - "Puls, Blutdruck, Temperatur und Gewicht regelmäßig kontrollieren"
+      - "Ruhige, kühle Umgebung, leichte Bettwäsche, Schwitzen und Hautpflege beachten"
+      - "Ausreichend Kalorien und Flüssigkeit anbieten"
+      - "Gereiztheit und Unruhe als Krankheitszeichen verstehen, geduldig bleiben"
+      - "Bei Augenbeteiligung Augen befeuchten und schützen"
+      - "Vor Kontrastmittelgabe auf die Schilddrüse hinweisen"
+    beratung:
+      - "Medikamente regelmäßig nehmen, Laborkontrollen einhalten"
+      - "Warnzeichen melden: Fieber, starkes Herzrasen, Halsschmerzen unter Thyreostatika (Blutbildveränderung möglich)"
+      - "Jodreiche Präparate nur nach ärztlicher Rücksprache, nicht rauchen (Augenbeteiligung)"
+    prophylaxen:
+      - { topicId: thema.pro.dehydratation, grund: "Schwitzen und Durchfall erhöhen den Flüssigkeitsbedarf" }
+    merksatz: "Überfunktion: alles zu schnell – Puls, Darm, Gewichtsverlust, Wärme. Unterfunktion: alles zu langsam."
+    drugIds: [arz.metoprolol]
+    topicIds: [thema.kl.schilddruese]
+    pruefstatus: ungeprueft
