@@ -4,6 +4,7 @@
 //   2. Fachmodul-JSON passt zu den YAML-Dateien (scripts/build-module.py --pruefen, falls Python da ist)
 //   3. Produktions-Build und Startgrößen-Budget (scripts/check-bundle.mjs)
 //   4. Browser-Prüfungen gegen den gebauten Stand (check-ui, -material, -wissensstand, -praxis, -geraete, -offline, -csp; mit den Headern aus public/_headers)
+//      check-browser zusätzlich in WebKit (Safari) und Firefox, falls installiert (npx playwright install webkit firefox)
 //
 // Optionen:  --schnell  nur 1–3, ohne Browser.
 // Der Browser kommt aus Playwright; ein anderer Chromium über PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH.
@@ -68,7 +69,7 @@ if (!schnell && gebaut) {
   const vorschau = spawn(process.execPath, ['scripts/serve-dist.mjs', String(port)], { stdio: 'ignore' });
   try {
     await wartenAuf(base);
-    for (const s of ['check-ui', 'check-material', 'check-wissensstand', 'check-praxis', 'check-lernalltag', 'check-geraete', 'check-barrierefreiheit', 'check-offline', 'check-csp']) {
+    for (const s of ['check-ui', 'check-material', 'check-wissensstand', 'check-praxis', 'check-lernalltag', 'check-geraete', 'check-barrierefreiheit', 'check-offline', 'check-csp', 'check-browser']) {
       schritt(`Browser: ${s}`, 'node', [`scripts/${s}.mjs`], { UI_BASE_URL: base });
     }
   } finally {

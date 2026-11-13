@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { notify } from '../../ui/shell/notifications';
 import { relativeTime } from '../../ui/lib/time';
 import {
-  bitteUmDauerhaftenSpeicher, kannTeilen, ladeRueckfall, lesePruefe, leseMerker, leseSicherungsDatei, lokalLabel, setzeMerker, sichereUndGibWeiter, spieleEin,
+  bitteUmDauerhaftenSpeicher, kannTeilen, ladeRueckfall, lesePruefe, leseMerker, leseSicherungsDatei, lokalLabel, setzeMerker, sichereUndGibWeiter, spieleEin, teileSicherungsDatei,
   stelleRueckfallWiederHer, vergleiche, type Ergebnis, type Modus, type Sicherung, type Uebersicht, type Vergleich,
 } from '../../core/sicherung';
 import { entschluessele, istVerschluesselt, passwortProblem } from '../../core/sicherung-krypto';
@@ -18,6 +18,8 @@ function Erstellen({ onFertig }: { onFertig: () => void }) {
   const [mitPasswort, setMitPasswort] = useState(true);
   const [pw, setPw] = useState('');
   const [pw2, setPw2] = useState('');
+  // Safari: Datei ist fertig, das Teilen-Menü braucht aber einen frischen Tipp (siehe SicherungsErgebnis).
+  const [bereit, setBereit] = useState<File | null>(null);
   const teilen = kannTeilen();
   const pwFehler = mitPasswort ? (passwortProblem(pw) ?? (pw2 && pw !== pw2 ? 'Die beiden Passwörter stimmen nicht überein.' : undefined)) : undefined;
   const pwBereit = !mitPasswort || (!pwFehler && pw === pw2);
@@ -27,8 +29,24 @@ function Erstellen({ onFertig }: { onFertig: () => void }) {
     try {
       const fachmodul = await import('../../modules/pflege').then(({ pflegeModule: m }) => `${m.id}@${m.version}`).catch(() => undefined);
       const r = await sichereUndGibWeiter(art, mitPasswort ? pw : undefined, { fachmodul });
-      if (r !== 'abgebrochen') { notify('info', 'Sicherung erstellt', r === 'geteilt' ? 'Die Datei wurde weitergegeben.' : 'Die Datei liegt in deinen Downloads.'); void bitteUmDauerhaftenSpeicher(); }
-      onFertig();
+      if (typeof r === 'object') { setBereit(r.nochmalTeilen); return; }
+      fertig(r);
+    } catch (e) {
+      notify('critical', 'Sicherung fehlgeschlagen', e instanceof Error ? e.message : String(e));
+    } finally { setBusy(false); }
+  }
+  function fertig(r: 'geteilt' | 'gespeichert' | 'abgebrochen') {
+    if (r !== 'abgebrochen') { notify('info', 'Sicherung erstellt', r === 'geteilt' ? 'Die Datei wurde weitergegeben.' : 'Die Datei liegt in deinen Downloads.'); void bitteUmDauerhaftenSpeicher(); }
+    onFertig();
+  }
+  async function jetztTeilen() {
+    if (!bereit) return;
+    // Kein await davor: Safari öffnet das Teilen-Menü nur direkt aus dem Tipp heraus.
+    const datei = bereit;
+    try {
+      const r = await teileSicherungsDatei(datei);
+      setBereit(null);
+      fertig(r);
     } catch (e) {
       notify('critical', 'Sicherung fehlgeschlagen', e instanceof Error ? e.message : String(e));
     } finally { setBusy(false); }
@@ -48,6 +66,15 @@ function Erstellen({ onFertig }: { onFertig: () => void }) {
           <label>Passwort<input type="password" autoComplete="new-password" value={pw} disabled={busy} onChange={(e) => setPw(e.target.value)} /></label>
           <label>Passwort wiederholen<input type="password" autoComplete="new-password" value={pw2} disabled={busy} onChange={(e) => setPw2(e.target.value)} /></label>
           {pw && pwFehler && <p className="field-error" aria-live="polite">{pwFehler}</p>}
+        </div>
+      )}
+      {bereit && (
+        <div className="note" role="status">
+          <p><strong>Die Sicherung ist fertig.</strong> Tippe jetzt auf „Teilen“, um das Teilen-Menü zu öffnen. Safari verlangt dafür einen eigenen Tipp, weil das Verschlüsseln etwas gedauert hat.</p>
+          <div className="row">
+            <button type="button" className="primary" onClick={() => void jetztTeilen()}>Teilen …</button>
+            <button type="button" className="ghost" onClick={() => setBereit(null)}>Abbrechen</button>
+          </div>
         </div>
       )}
       <div className="sicherung__knoepfe">
