@@ -6,7 +6,7 @@ import { notify } from '../../../ui/shell/notifications';
 import { logStudy } from '../../lernplan/store';
 import { uebernehme } from '../../karteikarten/store';
 import { db } from '../../../core/db';
-import { behalteKartenIds, kartenAusAbschnitt } from '../karten';
+import { behalteKartenIds, fragen, istFragenAbschnitt, kartenAusAbschnitt } from '../karten';
 import { findeAbschnitt, pruefeAbschnitt, pruefeSkript, pruefungText } from '../pruefung';
 import { belegText, gruppenRang, leseMinuten, skriptId } from '../parser';
 import { begriffe, suche } from '../suche';
@@ -322,6 +322,47 @@ function ThemenWahl({ skript, onNeu }: { skript: SkriptT; onNeu: () => void }) {
   );
 }
 
+/**
+ * Lernfragen zum Selbstprüfen: Frage lesen, selbst antworten, dann aufdecken und einschätzen.
+ * Text vor den Fragen (Einleitung) bleibt normal lesbar.
+ */
+function FragenAnsicht({ markdown, k }: { markdown: string; k: MdKontext }) {
+  const liste = useMemo(() => fragen(markdown, k.bekannte), [markdown, k.bekannte]);
+  const vorspann = markdown.split('\n').filter((z) => z.trim() && !/^\s*[-*+]\s/.test(z)).join('\n');
+  const [offen, setOffen] = useState<Set<number>>(new Set());
+  const [gewusst, setGewusst] = useState<Record<number, boolean>>({});
+  const auf = (i: number) => setOffen((o) => new Set(o).add(i));
+  const bewertet = Object.keys(gewusst).length;
+  const richtig = Object.values(gewusst).filter(Boolean).length;
+  return (
+    <div className="sk-fragen">
+      {vorspann && <Markdown text={vorspann} k={k} />}
+      <p className="sk-fragen__kopf muted">
+        {liste.length} Fragen. Erst selbst antworten, dann aufdecken.
+        {bewertet > 0 && <> Gewusst: <strong>{richtig} von {bewertet}</strong>.</>}
+        {' '}<button type="button" className="ghost small" onClick={() => setOffen(offen.size === liste.length ? new Set() : new Set(liste.map((_, i) => i)))}>{offen.size === liste.length ? 'Alle zudecken' : 'Alle aufdecken'}</button>
+        {bewertet > 0 && <> <button type="button" className="ghost small" onClick={() => { setGewusst({}); setOffen(new Set()); }}>Neu beginnen</button></>}
+      </p>
+      <ol className="sk-fragen__liste">
+        {liste.map((f, i) => (
+          <li key={i} className={gewusst[i] === undefined ? undefined : gewusst[i] ? 'sk-frage--ja' : 'sk-frage--nein'}>
+            <p className="sk-frage__text">{f.frage}</p>
+            {offen.has(i) ? (
+              <div className="sk-frage__antwort">
+                <Markdown text={f.antwort} k={k} />
+                <div className="sk-frage__wertung" role="group" aria-label="Selbsteinschätzung">
+                  <button type="button" className="small" aria-pressed={gewusst[i] === true} onClick={() => setGewusst((g) => ({ ...g, [i]: true }))}>Gewusst</button>
+                  <button type="button" className="small" aria-pressed={gewusst[i] === false} onClick={() => setGewusst((g) => ({ ...g, [i]: false }))}>Nicht gewusst</button>
+                </div>
+              </div>
+            ) : <button type="button" className="small" onClick={() => auf(i)}>Antwort zeigen</button>}
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
 /** Lesezeit des aktuellen Abschnitts: zählt nur, solange die Seite sichtbar ist. */
 function useLesezeit(key: string) {
   const [sek, setSek] = useState(0);
@@ -494,7 +535,7 @@ function Leser({ skript, aId, nr, q, staende, onNeu, setStaende }: {
               </>; })()}
               {' '}<Vorlesen key={a.id} label="Abschnitt vorlesen" text={() => `${a.titel}. ${markdownAlsText(a.markdown)}`} />
             </p>
-            <Markdown text={a.markdown} k={k} />
+            {istFragenAbschnitt(a) && fragen(a.markdown).length ? <FragenAnsicht key={a.id} markdown={a.markdown} k={k} /> : <Markdown text={a.markdown} k={k} />}
           </section>
         )}
 
