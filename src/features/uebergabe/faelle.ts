@@ -5,6 +5,7 @@
 // - Eine Alternative mit „ + “ verlangt alle Teile (z. B. 'bz + 48').
 // - Text wird vorher vereinfacht: klein, ä→ae, ß→ss, „38 Komma 9“→„38,9“, „92 zu 55“→„92/55“.
 // - Wortteile genügen („verwirr“ trifft „verwirrt“ und „Verwirrung“), reine Zahlen nur als ganze Zahl.
+import type { RaumId } from '../../ui/sim/raeume/katalog';
 import { AKTEN_UEBERGABEN } from '../fallakte/akten';
 
 export type Teil = 'S' | 'B' | 'A' | 'R';
@@ -29,6 +30,8 @@ export interface Fall {
   daten: { label: string; wert: string }[];
   kernpunkte: Kernpunkt[];
   muster: string;      // Beispiel-Übergabe, die alle Kernpunkte enthält
+  /** Raumfoto (sonst über UEBERGABE_RAUM in raum.ts) */
+  raum?: RaumId;
 }
 
 export const TEIL_LABEL: Record<Teil, string> = {

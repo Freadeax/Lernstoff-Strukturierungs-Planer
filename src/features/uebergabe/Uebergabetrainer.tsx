@@ -1,4 +1,8 @@
 import { storage } from '../../ui/lib/store';
+import { findeSitzung, uebergabeFall } from '../praxis/weitergabe';
+import { RAEUME, raumUrl } from '../../ui/sim/raeume/katalog';
+import { Vorlesen } from '../../ui/audio/Vorlesen';
+import { raumFuer, vorlesetext } from './raum';
 import { DatenHinweis } from '../../ui/DatenHinweis';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import './uebergabe.css';
@@ -35,6 +39,21 @@ function merkeBeste(fallId: string, prozent: number): Record<string, number> {
 const PUNKT_ZEICHEN: Record<PunktStatus, string> = { ok: '✓', 'falscher-teil': '↔', fehlt: '✗' };
 const TEIL_STATUS: Record<TeilStatus, string> = { vollstaendig: 'vollständig', teilweise: 'teilweise', fehlt: 'fehlt' };
 
+/** Raumfoto zur Übergabe und Vorlesen der Lage (wie eine mündliche Übernahme am Bett). */
+function RaumBild({ fall }: { fall: Fall }) {
+  const id = raumFuer(fall);
+  const r = id ? RAEUME[id] : undefined;
+  return (
+    <figure className="sbar__raum">
+      {r && <img src={raumUrl(r.id)} alt={r.beschreibung} width={r.breite} height={r.hoehe} loading="lazy" decoding="async" />}
+      <figcaption>
+        {r && <span className="muted">{fall.anlass === 'telefon' ? 'Hier bist du, bevor du anrufst' : 'Hier findet die Übergabe statt'}: {r.titel}. Beispielfoto.</span>}
+        <Vorlesen text={() => vorlesetext(fall)} label="Lage vorlesen" />
+      </figcaption>
+    </figure>
+  );
+}
+
 function Fallkarte({ fall }: { fall: Fall }) {
   return (
     <div className="card sbar__fall">
@@ -43,6 +62,7 @@ function Fallkarte({ fall }: { fall: Fall }) {
         <span className="muted">{fall.bereich}</span>
       </div>
       <h3>{fall.titel}</h3>
+      <RaumBild fall={fall} />
       <p className="sbar__lage">{fall.lage}</p>
       <dl className="sbar__daten">
         <div><dt>Du bist</dt><dd>{fall.rolle}</dd></div>
@@ -113,8 +133,13 @@ function KiErgebnis({ r }: { r: KiRueckmeldung }) {
 }
 
 export default function Uebergabetrainer() {
-  const wunsch = useRoute().params.get('fall') ?? '';
-  const [fallId, setFallId] = useState(() => (FAELLE.some((f) => f.id === wunsch) ? wunsch : FAELLE[0]!.id));
+  const route = useRoute();
+  const wunsch = route.params.get('fall') ?? '';
+  // Fall aus dem Praxissimulator (Link aus dem Debriefing): wird vorne in die Auswahl gestellt
+  const praxisId = route.params.get('aus') === 'praxis' ? route.params.get('sitzung') : null;
+  const praxisFall = useMemo(() => { const s = findeSitzung(praxisId); return s ? uebergabeFall(s) : null; }, [praxisId]);
+  const LISTE = useMemo(() => (praxisFall ? [praxisFall, ...FAELLE] : FAELLE), [praxisFall]);
+  const [fallId, setFallId] = useState(() => (praxisFall?.id ?? (LISTE.some((f) => f.id === wunsch) ? wunsch : LISTE[0]!.id)));
   const [modus, setModus] = useState<Modus>('gefuehrt');
   const [felder, setFelder] = useState<Felder>(LEER);
   const [frei, setFrei] = useState('');
@@ -129,7 +154,7 @@ export default function Uebergabetrainer() {
   const lernplan = useLernplanUebernahme('uebergabe');
   const apiKey = getApiKey();
 
-  const fall = FAELLE.find((f) => f.id === fallId)!;
+  const fall = LISTE.find((f) => f.id === fallId)!;
   const text = modus === 'frei' ? frei : TEILE.filter((t) => felder[t].trim()).map((t) => `${t}: ${felder[t].trim()}`).join('\n');
   const live = useMemo(() => pruefe(fall, text), [fall, text]);
 
@@ -143,7 +168,7 @@ export default function Uebergabetrainer() {
 
   // Link mit ?fall= (z. B. aus der Fallakte) wechselt den Fall
   useEffect(() => {
-    if (wunsch && wunsch !== fallId && FAELLE.some((f) => f.id === wunsch)) waehleFall(wunsch);
+    if (wunsch && wunsch !== fallId && LISTE.some((f) => f.id === wunsch)) waehleFall(wunsch);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wunsch]);
 
@@ -166,7 +191,7 @@ export default function Uebergabetrainer() {
     diktat.stop();
     const e = pruefe(fall, text);
     setErgebnis(e); setKi(null); setKiFehler('');
-    setBeste(merkeBeste(fall.id, e.prozent));
+    if (!fall.id.startsWith('praxis-')) setBeste(merkeBeste(fall.id, e.prozent));
     void logActivity({
       kind: 'uebung', severity: e.prozent >= 85 ? 'info' : 'warning',
       title: `SBAR-Übergabe: ${fall.titel} ${e.prozent} %`,
@@ -185,7 +210,7 @@ export default function Uebergabetrainer() {
   }
 
   function zufall() {
-    const andere = FAELLE.filter((f) => f.id !== fallId);
+    const andere = LISTE.filter((f) => f.id !== fallId);
     waehleFall(andere[Math.floor(Math.random() * andere.length)]!.id);
   }
 
@@ -198,12 +223,14 @@ export default function Uebergabetrainer() {
         <p className="muted">Lies den Fall, dann übergib ihn: tippen oder diktieren. Die Checkliste prüft offline, ob Situation, Hintergrund, Einschätzung und Empfehlung vollständig sind.</p>
       </div>
       <AkteLeiste art="uebergabe" fallId={fallId} />
+      {praxisId && !praxisFall && <p className="note warn">Der Praxisfall ist auf diesem Gerät nicht mehr gespeichert (nur die letzten zehn Fälle bleiben). Wähle einen Übungsfall oder spiel den Fall erneut.</p>}
+      {praxisFall && fallId === praxisFall.id && <p className="note">Dieser Fall stammt aus deinem <a href="#/lernen/praxis">Praxissimulator</a>. Erwartet wird nur, was in deinem Spiel passiert ist. Er zählt nicht für die Bestwerte.</p>}
 
       <div className="card sbar__auswahl">
         <label className="field">
           <span className="muted">Fall</span>
           <select value={fallId} onChange={(e) => waehleFall(e.target.value)}>
-            {FAELLE.map((f) => (
+            {LISTE.map((f) => (
               <option key={f.id} value={f.id}>
                 {f.titel} · {ANLASS_LABEL[f.anlass]}{beste[f.id] !== undefined ? ` · bisher ${beste[f.id]} %` : ''}
               </option>

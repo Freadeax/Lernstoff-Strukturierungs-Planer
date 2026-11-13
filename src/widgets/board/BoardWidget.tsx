@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ladeThemen } from '../../core/topics';
 import { db } from '../../core/db';
@@ -18,6 +18,8 @@ import { getModule } from '../../modules/registry';
 import { arrange, orderForDrop, type Card, type Columns } from './board-model';
 
 const BATCH = 12;
+// Wochenvorschlag braucht Lernplan-Rechnung und Prüfungen: erst beim Öffnen laden.
+const WochePlanen = lazy(() => import('./WochePlanen'));
 type Pill = 'alle' | 'leicht' | 'schwer';
 interface Target { column: BoardColumn; index: number }
 interface Drag { id: string; x: number; y: number; dx: number; dy: number; width: number; mode: 'pointer' | 'keyboard' }
@@ -124,8 +126,9 @@ export function BoardView({ id, state, badge, onRetry, lastSynced, onHide, lifec
 }) {
   const [auswahl, setAuswahl] = useState(false);
   const [gewaehlt, setGewaehlt] = useState(new Set<string>());
-  const [ziel, setZiel] = useState<BoardColumn>('woche');
+  const [ziel0, setZiel] = useState<BoardColumn>('woche');
   const [undo, setUndo] = useState<{ text: string; stand: BoardSnapshot } | null>(null);
+  const [planen, setPlanen] = useState(false);
   const toggle = (c: Card) => setGewaehlt((g) => { const n = new Set(g); if (n.has(c.id)) n.delete(c.id); else n.add(c.id); return n; });
   const [pill, setPill] = useState<Pill>('alle');
   const [fach, setFach] = useState('');
@@ -143,6 +146,9 @@ export function BoardView({ id, state, badge, onRetry, lastSynced, onHide, lifec
       && (pill === 'alle' || (pill === 'leicht' ? (c.difficulty ?? 3) <= 2 : (c.difficulty ?? 3) >= 4)));
     return arrange(cards, data.entries, overrides);
   }, [data, overrides, pill, fach]);
+
+  // Alle Themen ohne Filter, für den Wochenvorschlag (der Filter oben soll den Vorschlag nicht einschränken).
+  const alleKarten = useMemo(() => (data ? BOARD_COLUMNS.flatMap((c) => arrange(data.cards, data.entries)[c.id]) : []), [data]);
 
   // Bestätigte Daten ersetzen die optimistische Vorschau.
   useEffect(() => {
@@ -258,17 +264,19 @@ export function BoardView({ id, state, badge, onRetry, lastSynced, onHide, lifec
     }
   }
 
-  async function verschiebeAuswahl() {
-    if (!cols || !onCommitMany || !gewaehlt.size) return;
+  async function verschiebeAuswahl(ids = gewaehlt, ziel = ziel0) {
+    if (!cols || !onCommitMany || !ids.size) return;
     // Reihenfolge wie auf dem Board (Spalte für Spalte), damit die Themen in derselben Folge ankommen
-    const karten = BOARD_COLUMNS.flatMap((c) => cols[c.id]).filter((c) => gewaehlt.has(c.id) && c.column !== ziel);
+    // Vorschläge können durch den Fach- oder Schwierigkeitsfilter verdeckt sein, deshalb dann aus allen Karten.
+    const quelle = ids === gewaehlt ? BOARD_COLUMNS.flatMap((c) => cols[c.id]) : alleKarten;
+    const karten = quelle.filter((c) => ids.has(c.id) && c.column !== ziel);
     if (!karten.length) { notify('info', `Die Auswahl liegt schon in „${COLUMN_LABEL[ziel]}“`); return; }
     try {
       const stand = await onCommitMany(karten, ziel);
       const text = `${karten.length === 1 ? '1 Thema' : `${karten.length} Themen`} nach „${COLUMN_LABEL[ziel]}“ verschoben.`;
       setAnnounce(text);
       setUndo({ text, stand });
-      setGewaehlt(new Set());
+      if (ids === gewaehlt) setGewaehlt(new Set());
     } catch (e) {
       notify('critical', 'Verschieben fehlgeschlagen', e instanceof Error ? e.message : String(e));
     }
@@ -316,6 +324,7 @@ export function BoardView({ id, state, badge, onRetry, lastSynced, onHide, lifec
           </p>
           {onCommitMany && (
             <div className="board__werkzeuge" role="group" aria-label="Mehrere Themen verschieben">
+              <button type="button" className="small" aria-expanded={planen} onClick={() => setPlanen((x) => !x)}>Woche planen</button>
               <button type="button" className="small" aria-pressed={auswahl} onClick={() => { setAuswahl((a) => !a); setGewaehlt(new Set()); }}>
                 {auswahl ? 'Auswahl beenden' : 'Mehrere auswählen'}
               </button>
@@ -323,7 +332,7 @@ export function BoardView({ id, state, badge, onRetry, lastSynced, onHide, lifec
                 <>
                   <span className="board__anzahl" aria-live="polite">{gewaehlt.size} ausgewählt</span>
                   <label className="board__ziel">Nach
-                    <select value={ziel} onChange={(e) => setZiel(e.target.value as BoardColumn)}>
+                    <select value={ziel0} onChange={(e) => setZiel(e.target.value as BoardColumn)}>
                       {BOARD_COLUMNS.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
                     </select>
                   </label>
@@ -331,6 +340,12 @@ export function BoardView({ id, state, badge, onRetry, lastSynced, onHide, lifec
                 </>
               )}
             </div>
+          )}
+          {planen && onCommitMany && (
+            <Suspense fallback={<p className="muted" role="status">Lädt …</p>}>
+              <WochePlanen karten={alleKarten} onSchliessen={() => setPlanen(false)}
+                onUebernehmen={(ids) => { setPlanen(false); void verschiebeAuswahl(new Set(ids), 'woche'); }} />
+            </Suspense>
           )}
           {undo && onRestore && (
             <div className="board__undo" role="status">

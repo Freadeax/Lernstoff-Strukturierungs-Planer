@@ -1,8 +1,8 @@
 import './wegweiser.css';
 import { PageHeading } from '../../ui/PageHeading';
-import { BEGRIFFE, BOARD_SPALTEN, BUENDEL, KREISLAUF, PRUEFUNGSPHASEN, seitenInfo, WISSENSSTUFEN, type Link } from './inhalt';
+import { BEGRIFFE, FRAGEN, BOARD_SPALTEN, BUENDEL, KREISLAUF, PRUEFUNGSPHASEN, seitenInfo, WISSENSSTUFEN, type Link } from './inhalt';
 
-const ABSCHNITTE = [['ww-kreislauf', 'Lernkreislauf'], ['ww-seiten', 'Welche Seite wofür'], ['ww-stand', 'Arbeits- und Wissensstand'], ['ww-pruefung', 'Prüfungsvorbereitung'], ['ww-begriffe', 'Begriffe']] as const;
+const ABSCHNITTE = [['ww-kreislauf', 'Lernkreislauf'], ['ww-seiten', 'Welche Seite wofür'], ['ww-stand', 'Arbeits- und Wissensstand'], ['ww-pruefung', 'Prüfungsvorbereitung'], ['ww-fragen', 'Häufige Fragen'], ['ww-begriffe', 'Begriffe']] as const;
 
 const Verweis = ({ link }: { link: Link }) => <a href={`#${link.path}`}>{link.label}</a>;
 
@@ -80,6 +80,18 @@ export default function WegweiserSeite() {
             </li>
           ))}
         </ol>
+      </section>
+
+      <section aria-labelledby="ww-fragen">
+        <h2 id="ww-fragen">Häufige Fragen</h2>
+        <div className="wegweiser__fragen">
+          {FRAGEN.map((f) => (
+            <details key={f.frage} className="note">
+              <summary>{f.frage}</summary>
+              <p>{f.antwort}{f.link && <> <Verweis link={f.link} /></>}</p>
+            </details>
+          ))}
+        </div>
       </section>
 
       <section aria-labelledby="ww-begriffe">

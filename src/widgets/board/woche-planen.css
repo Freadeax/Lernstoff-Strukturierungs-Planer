@@ -1,0 +1,6 @@
+/* Wochenvorschlag auf dem Themenboard (lazy, nicht im Startpaket) */
+.board__woche { margin-bottom: var(--space-3); }
+.board__woche h3 { margin: 0 0 var(--space-2); font-size: var(--text-md, 1rem); }
+.board__woche p { margin: 0 0 var(--space-2); }
+.board__woche-liste { list-style: none; margin: 0 0 var(--space-2); padding: 0; display: flex; flex-direction: column; gap: var(--space-1); }
+.board__woche-aktionen { display: flex; flex-wrap: wrap; gap: var(--space-2); }

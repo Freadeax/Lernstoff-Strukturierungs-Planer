@@ -34,6 +34,12 @@
 .karten__bewertung .bew.is-vorschlag { box-shadow: var(--focus-ring); }
 .karten__nebenaktionen { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); }
 .karten__tasten { font-size: var(--text-xs); }
+.karten__nebenaktionen { flex-wrap: wrap; }
+.karten__bewerthilfe { font-size: var(--text-sm); }
+.karten__bewerthilfe[open] { flex-basis: 100%; }
+.karten__bewerthilfe summary { cursor: pointer; color: var(--color-text-muted); min-height: 32px; display: flex; align-items: center; }
+.karten__bewerthilfe ul { margin: var(--space-1) 0; padding-left: 1.2em; }
+.karten__bewerthilfe p { margin: 0; }
 
 /* Handy: Aufdecken und Bewerten unten am Daumen, über der Tab-Leiste */
 @media (max-width: 760px) {

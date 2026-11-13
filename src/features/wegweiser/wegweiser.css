@@ -28,3 +28,6 @@
 .wegweiser__zwei > .card > p { margin: 0 0 var(--space-2); }
 .wegweiser__stufen > div { display: grid; grid-template-columns: 7.5em 1fr; gap: var(--space-2); }
 .wegweiser__stufen dd { margin: 0; }
+.wegweiser__fragen { display: flex; flex-direction: column; gap: var(--space-2); }
+.wegweiser__fragen summary { cursor: pointer; font-weight: 600; }
+.wegweiser__fragen p { margin: var(--space-2) 0 0; }

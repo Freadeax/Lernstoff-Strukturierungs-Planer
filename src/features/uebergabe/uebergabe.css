@@ -76,3 +76,8 @@
 @media (max-width: 480px) {
   .sbar__daten > div { grid-template-columns: minmax(0, 1fr); gap: 0; }
 }
+
+/* Raumfoto zur Übergabe */
+.sbar__raum { margin: var(--space-2) 0; display: grid; gap: var(--space-2); }
+.sbar__raum img { width: 100%; height: auto; max-height: 260px; object-fit: cover; border-radius: var(--radius-md, 8px); }
+.sbar__raum figcaption { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2); font-size: var(--text-sm); }

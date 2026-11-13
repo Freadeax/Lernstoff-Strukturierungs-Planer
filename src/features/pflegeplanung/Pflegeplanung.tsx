@@ -7,6 +7,7 @@ import { getApiKey } from '../../core/settings';
 import { pflegeModule } from '../../modules/pflege';
 import { navigate, useRoute } from '../../ui/shell/router';
 import { LernplanHinweis, useLernplanUebernahme } from '../lernplan/ui/LernplanHinweis';
+import { findeSitzung, planVorlage } from '../praxis/weitergabe';
 import { eigenerFall, FAELLE, SETTING_LABEL, type PlanFall, type ProblemArt } from './faelle';
 import {
   ERREICHT_LABEL, hatInhalt, leererPlan, neueMassnahme, neuesProblem, neuesZiel, ohneProblem, ohneZiel, problemName,
@@ -411,7 +412,9 @@ function KiErgebnis({ r }: { r: KiRueckmeldung }) {
 // ---------- Seite ----------
 
 export default function Pflegeplanung() {
-  const wunsch = useRoute().params.get('fall') ?? '';
+  const route = useRoute();
+  const wunsch = route.params.get('fall') ?? '';
+  const praxisId = route.params.get('aus') === 'praxis' ? route.params.get('sitzung') : null;
   const [fallId, setFallId] = useState(() => (FAELLE.some((f) => f.id === wunsch) ? wunsch : FAELLE[0]!.id));
   const start = ladeEntwurf(fallId);
   const [plan, setPlan] = useState<Plan>(start?.plan ?? leererPlan());
@@ -427,6 +430,24 @@ export default function Pflegeplanung() {
   const ergebnisRef = useRef<HTMLDivElement>(null);
   const apiKey = getApiKey();
   const lernplan = useLernplanUebernahme('pflegeplanung');
+
+  // Fall aus dem Praxissimulator als eigenen Fall übernehmen. Gibt es schon einen Entwurf genau zu
+  // diesem Fall, geht es dort weiter, statt die Planung zu verwerfen.
+  const [praxisStatus, setPraxisStatus] = useState<'' | 'uebernommen' | 'fehlt'>('');
+  useEffect(() => {
+    if (!praxisId) return;
+    const s = findeSitzung(praxisId);
+    if (!s) { setPraxisStatus('fehlt'); return; }
+    const v = planVorlage(s);
+    const e = ladeEntwurf(EIGEN);
+    const gleich = e?.eigenText === v.text;
+    setFallId(EIGEN);
+    setEigen(gleich ? { text: e!.eigenText!, verlauf: e!.eigenVerlauf ?? v.verlauf } : v);
+    setPlan(gleich ? e!.plan : leererPlan());
+    setSchritt(gleich ? e!.schritt : 'info');
+    setPraxisStatus('uebernommen');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [praxisId]);
 
   const istEigen = fallId === EIGEN;
   const fall = istEigen ? eigenerFall(eigen.text, eigen.verlauf) : FAELLE.find((f) => f.id === fallId)!;
@@ -496,6 +517,8 @@ export default function Pflegeplanung() {
         <p className="muted">Plane einen Fall Schritt für Schritt nach dem Pflegeprozess. Die Checkliste prüft offline nach den Regeln des Pflege-Katalogs (PESR, SMART, Maßnahmen), Claude gibt auf Wunsch eine fachliche Rückmeldung.</p>
       </div>
       <AkteLeiste art="pflegeplanung" fallId={fallId} />
+      {praxisStatus === 'fehlt' && <p className="note warn">Der Praxisfall ist auf diesem Gerät nicht mehr gespeichert (nur die letzten zehn Fälle bleiben).</p>}
+      {praxisStatus === 'uebernommen' && istEigen && <p className="note">Fallbeschreibung und Verlauf stammen aus deinem <a href="#/lernen/praxis">Praxissimulator</a>. Du kannst sie ergänzen. Die Checkliste prüft beim eigenen Fall nur Aufbau und Formulierung.</p>}
 
       <div className="card pp__auswahl">
         <label className="field">
