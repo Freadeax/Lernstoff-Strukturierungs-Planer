@@ -7,6 +7,7 @@
 @media (hover: hover) { .lernplan__tabs .pill[aria-pressed='true']:hover:not(:disabled) { background: var(--color-text); } }
 .lernplan__leer { display: flex; flex-direction: column; gap: var(--space-2); align-items: flex-start; }
 .lernplan__leer p { margin: 0; }
+.lernplan__start { margin: 0; padding-left: 1.3em; display: flex; flex-direction: column; gap: var(--space-1); }
 
 .balken { height: 6px; border-radius: var(--radius-pill); background: var(--color-surface-sunken); overflow: hidden; }
 .balken > span { display: block; height: 100%; background: var(--color-primary); border-radius: inherit; }

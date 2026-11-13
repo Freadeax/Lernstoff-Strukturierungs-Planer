@@ -116,6 +116,7 @@ export const SEITEN: SeitenInfo[] = [
     wann: 'Im letzten Ausbildungsjahr, spätestens wenn die Prüfungstermine feststehen.',
     soGehts: [
       '„Überblick“: Schwächen-Radar je Kompetenzbereich und Prüfungsteil, mit Link zu den schwächsten Themen.',
+      '„Fahrplan alle CE“: deine Phase bis zum Examen, ein Wochenpensum und je CE der nächste Schritt.',
       '„Mündlich üben“: Fälle laut beantworten. „Praktisch planen“: Etappen rückwärts vom Termin.',
     ],
     weiter: { label: 'Prüfungssimulation starten', path: '/lernen/simulation' },
@@ -204,7 +205,7 @@ export const PRUEFUNGSPHASEN: Array<{ wann: string; titel: string; schritte: Arr
     schritte: [
       { text: 'Die drei Examenstermine (schriftlich, praktisch, mündlich) eintragen.', link: { label: 'Examen', path: '/lernen/examen' } },
       { text: 'Eine Prüfung mit allen Themen anlegen, damit der Lernplan bis zum Examen über alle CE plant.', link: { label: 'Prüfung anlegen', path: '/lernen/plan?ansicht=pruefungen&neu=1' } },
-      { text: 'Im Fortschritt unter „CE & Kompetenzen“ nachsehen, welche CE noch offen oder unsicher sind.', link: { label: 'Fortschritt je CE', path: '/lernen/fortschritt?ansicht=bereiche' } },
+      { text: 'Der Fahrplan zeigt je CE, was noch offen ist, und wie viele Themen du pro Woche schaffen solltest.', link: { label: 'Fahrplan alle CE', path: '/lernen/examen?ansicht=fahrplan' } },
     ],
   },
   {
