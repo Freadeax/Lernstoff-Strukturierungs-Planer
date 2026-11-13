@@ -102,3 +102,15 @@
 .examen__datenbasis summary { cursor: pointer; font-weight: 600; }
 .examen__datenbasis ul { margin: var(--space-2) 0 0; padding-left: 1.2em; display: grid; gap: var(--space-1); }
 .examen__uebungen { margin: var(--space-1) 0 0; }
+
+/* Fahrplan über alle CE */
+.examen__fahrplan-phase h2 { margin: 0 0 var(--space-1); }
+.examen__fahrplan-phase p { margin: 0 0 var(--space-2); }
+.examen__fahrplan-links { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-3); margin: 0; }
+.examen__fahrplan-fokus { list-style: none; margin: var(--space-2) 0 0; padding: 0; display: grid; gap: var(--space-3); grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); }
+.examen__fahrplan-fokus > li { margin: 0; padding: var(--space-3); display: flex; flex-direction: column; gap: var(--space-2); align-items: flex-start; }
+.examen__fahrplan-liste { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.examen__fahrplan-zeile { padding: var(--space-3) 0; border-top: 1px solid var(--color-border); display: flex; flex-direction: column; gap: var(--space-2); }
+.examen__fahrplan-kopf { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-1) var(--space-3); }
+.examen__fahrplan-schritt { margin: 0; }
+.examen__panel section[aria-labelledby^="fahrplan-"] > h2 { margin: var(--space-3) 0 var(--space-1); }

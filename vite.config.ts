@@ -1,5 +1,6 @@
 /// <reference types="vitest/config" />
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
+import fs from 'node:fs';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import { execSync } from 'node:child_process';
@@ -16,6 +17,38 @@ function buildId(): string {
   } catch { return `lokal · ${datum}`; }
 }
 
+/**
+ * Fachmodul-JSON in zwei Teile schneiden, damit die Startgröße klein bleibt:
+ *   `…json?kern`  alles außer den großen Nachschlage-Listen (startet sofort),
+ *   `…json?gross` nur Glossar und Steckbriefe (per import() nachgeladen, siehe modules/registry.ts).
+ * Die JSON-Datei selbst bleibt unverändert (build-module.py, Schema, Prüfskripte lesen sie wie bisher).
+ */
+const NACHGELADENE_LISTEN = ['glossary', 'diseaseProfiles', 'drugProfiles'];
+function fachmodulTeilen(): Plugin {
+  const praefix = '\0fachmodul:';
+  return {
+    name: 'fachmodul-teilen',
+    enforce: 'pre',
+    async resolveId(source, importer) {
+      const m = /^(.*\.json)\?(kern|gross)$/.exec(source);
+      if (!m) return null;
+      const r = await this.resolve(m[1]!, importer, { skipSelf: true });
+      // Endung .js, sonst greift Vites eingebautes JSON-Plugin auf die erzeugte Datei zu.
+      return r ? `${praefix}${m[2]}:${r.id}.teil.js` : null;
+    },
+    load(id) {
+      if (!id.startsWith(praefix)) return null;
+      const [teil, ...rest] = id.slice(praefix.length).split(':');
+      const datei = rest.join(':').replace(/\.teil\.js$/, '');
+      this.addWatchFile(datei);
+      const alles = JSON.parse(fs.readFileSync(datei, 'utf8')) as Record<string, unknown>;
+      const auswahl = Object.fromEntries(Object.entries(alles).filter(([k]) => NACHGELADENE_LISTEN.includes(k) === (teil === 'gross')));
+      // JSON.parse auf einem String ist bei großen Objekten schneller als ein JS-Objektliteral.
+      return `export default JSON.parse(${JSON.stringify(JSON.stringify(auswahl))});`;
+    },
+  };
+}
+
 export default defineConfig({
   base: './',
   test: {
@@ -23,9 +56,12 @@ export default defineConfig({
     // oder bei vielen parallelen Workern mehr als die 5 s Standard. 20 s ist das im Audit stabil getestete Profil.
     testTimeout: 20_000,
     hookTimeout: 20_000,
+    // Glossar und Steckbriefe der Fachmodule vor jedem Test laden (in der App übernimmt das PageBoundary).
+    setupFiles: ['src/test-setup.ts'],
   },
   define: { __BUILD_ID__: JSON.stringify(process.env.LERNSTOFF_BUILD_ID || buildId()) },
   plugins: [
+    fachmodulTeilen(),
     react(),
     VitePWA({
       registerType: 'autoUpdate',

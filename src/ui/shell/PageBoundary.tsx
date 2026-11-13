@@ -1,4 +1,5 @@
-import { Suspense, type ReactNode } from 'react';
+import { Suspense, use, type ReactNode } from 'react';
+import { fachmodulBereit } from '../../modules/registry';
 import { BUILD_ID } from '../../core/build';
 import { ErrorBoundary } from '../widget/ErrorBoundary';
 import { PageHeading } from '../PageHeading';
@@ -50,6 +51,12 @@ function Fehler({ error, reset, path }: { error: Error; reset: () => void; path:
   );
 }
 
+/** Seiteninhalt erst zeigen, wenn Glossar und Steckbriefe der Fachmodule geladen sind (nicht im Startpaket). */
+function FachmodulVoll({ children }: { children: ReactNode }) {
+  use(fachmodulBereit());
+  return children;
+}
+
 /**
  * Rahmen um jede Seite: Ladeanzeige für nachgeladene Module und Absturzschutz.
  * Ein Fehler in einem Modul zeigt einen Hinweis statt einer weißen Seite; Navigation bleibt bedienbar.
@@ -58,7 +65,7 @@ function Fehler({ error, reset, path }: { error: Error; reset: () => void; path:
 export function PageBoundary({ path, children }: { path: string; children: ReactNode }) {
   return (
     <ErrorBoundary resetKey={path} fallback={(error, reset) => <Fehler error={error} reset={reset} path={path} />}>
-      <Suspense fallback={<p className="muted route-laden" role="status"><span aria-hidden="true" /><span aria-hidden="true" /><span aria-hidden="true" />Lädt …</p>}>{children}</Suspense>
+      <Suspense fallback={<p className="muted route-laden" role="status"><span aria-hidden="true" /><span aria-hidden="true" /><span aria-hidden="true" />Lädt …</p>}><FachmodulVoll>{children}</FachmodulVoll></Suspense>
     </ErrorBoundary>
   );
 }
