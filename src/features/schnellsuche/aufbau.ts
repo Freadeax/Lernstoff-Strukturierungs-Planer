@@ -6,6 +6,7 @@ import * as hygiene from '../hygiene/aufgaben';
 import * as notfall from '../notfall/aufgaben';
 import * as recht from '../recht/aufgaben';
 import * as arznei from '../arzneimittel/aufgaben';
+import * as grundlagen from '../grundlagen/aufgaben';
 import type { Aufgabe } from '../quiz/quiz';
 import { INSTRUMENTE } from '../assessment/instrumente';
 import { STECKBRIEFE } from '../assessment/steckbriefe';
@@ -29,6 +30,8 @@ const WEITERE: Array<{ id: string; aufgaben: Record<string, Aufgabe[]>; bereiche
   { id: 'rw.notfall', aufgaben: notfall.AUFGABEN, bereiche: notfall.BEREICHE },
   { id: 'rw.arzneimittel', aufgaben: arznei.AUFGABEN, bereiche: arznei.BEREICHE },
   { id: 'rw.recht', aufgaben: recht.AUFGABEN, bereiche: recht.BEREICHE },
+  // Aus dem Grundlagen-Trainer nur der Bereich Qualität (Fachsprache, Modelle usw. sind keine Standards)
+  { id: 'rw.qualitaet', aufgaben: { qualitaet: grundlagen.AUFGABEN.qualitaet }, bereiche: grundlagen.BEREICHE.filter((b) => b.id === 'qualitaet') },
 ];
 
 export function baueBestand(modul: CatalogModule, dnqp: DnqpStandard[] = DNQP_STANDARDS): Suchbestand {

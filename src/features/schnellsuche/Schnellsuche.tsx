@@ -10,6 +10,8 @@ import { useRoute } from '../../ui/shell/router';
 import { baueBestand, type Suchbestand } from './aufbau';
 import { PruefAnsicht } from './PruefAnsicht';
 import { VergleichAnsicht } from './VergleichAnsicht';
+import { UebenAnsicht } from './UebenAnsicht';
+import { lernzettel } from './lernzettel';
 import type { StandardInfo } from './quellen';
 import {
   ART_NAME, ARTEN, ausschnitt, EBENE_NAME, markierungen, suche, vorschlaege,
@@ -23,11 +25,11 @@ const PFAD = '/lernen/schnellsuche';
 const VERLAUF_KEY = 'lernstoff.schnellsuche.verlauf';
 const MERK_KEY = 'lernstoff.schnellsuche.merkliste';
 
-type Ansicht = 'suchen' | 'vergleichen' | 'pruefen';
+type Ansicht = 'suchen' | 'vergleichen' | 'ueben' | 'pruefen';
 const ANSICHTEN: Array<{ id: Ansicht; label: string }> = [
-  { id: 'suchen', label: 'Suchen' }, { id: 'vergleichen', label: 'Kriterien vergleichen' }, { id: 'pruefen', label: 'Aussagen prüfen' },
+  { id: 'suchen', label: 'Suchen' }, { id: 'vergleichen', label: 'Kriterien vergleichen' }, { id: 'ueben', label: 'Kriterien üben' }, { id: 'pruefen', label: 'Aussagen prüfen' },
 ];
-const istAnsicht = (x: string | null): x is Ansicht => x === 'suchen' || x === 'vergleichen' || x === 'pruefen';
+const istAnsicht = (x: string | null): x is Ansicht => x === 'suchen' || x === 'vergleichen' || x === 'ueben' || x === 'pruefen';
 const BEISPIELE = ['Druckgeschwür Einschätzung', 'Sturz Ergebnis', 'Schmerz Demenz', 'Kontinenzprofile', 'Braden', 'Entlassung Angehörige', '"Konsensus-Konferenz"', 'Mundpflege'];
 
 const cache = new Map<string, Suchbestand>();
@@ -195,6 +197,16 @@ export default function Schnellsuche() {
     .map((id) => index.doks.find((d) => d.id === id))
     .filter((d): d is NonNullable<typeof d> => !!d)
     .map((dok) => ({ dok, punkte: 0, woerter: [], guete: 'exakt' as const })), [merkliste, index]);
+  const [zettelStatus, setZettelStatus] = useState('');
+  async function lernzettelWeitergeben(wie: 'kopieren' | 'teilen') {
+    const text = lernzettel(gemerkteTreffer.map((t) => t.dok), standardName);
+    try {
+      if (wie === 'teilen') await navigator.share({ title: 'Lernzettel Standards', text });
+      else { await navigator.clipboard.writeText(text); setZettelStatus('Kopiert. Du kannst den Lernzettel jetzt in Notizen oder ein Dokument einfügen.'); }
+    } catch {
+      if (wie === 'kopieren') setZettelStatus('Kopieren hat nicht geklappt. Bitte erneut versuchen.');
+    }
+  }
   function toggleStandard(id: string) { setStdWahl((alt) => (alt.includes(id) ? alt.filter((x) => x !== id) : [...alt, id])); }
   function zuruecksetzen() { setQ(''); setStdWahl([]); setEbene(undefined); setArt(undefined); eingabe.current?.focus(); }
 
@@ -335,6 +347,11 @@ export default function Schnellsuche() {
               {gemerkteTreffer.length > 0 && (
                 <section>
                   <h2 className="sus__h2">Meine Merkliste ({gemerkteTreffer.length})</h2>
+                  <div className="sus__aktionen sus__merk-aktionen">
+                    <button type="button" className="ghost small" onClick={() => void lernzettelWeitergeben('kopieren')}>Als Lernzettel kopieren</button>
+                    {typeof navigator !== 'undefined' && 'share' in navigator && <button type="button" className="ghost small" onClick={() => void lernzettelWeitergeben('teilen')}>Teilen</button>}
+                    {zettelStatus && <span className="muted sus__klein" role="status">{zettelStatus}</span>}
+                  </div>
                   <ol ref={liste} className="sus__liste" aria-label="Merkliste" onKeyDown={tastenListe}>
                     {gemerkteTreffer.map((t, i) => (
                       <TrefferKarte key={t.dok.id} t={t} nr={i} listId={`${listId}m`} offen={offen.has(t.dok.id)} umschalten={() => umschalten(t.dok.id)}
@@ -366,6 +383,7 @@ export default function Schnellsuche() {
       </div>
       </>)}
       {ansicht === 'vergleichen' && <VergleichAnsicht />}
+      {ansicht === 'ueben' && <UebenAnsicht />}
       {ansicht === 'pruefen' && <PruefAnsicht index={index} />}
     </section>
   );
