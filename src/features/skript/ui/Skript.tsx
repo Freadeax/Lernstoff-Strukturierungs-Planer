@@ -11,6 +11,7 @@ import { findeAbschnitt, pruefeAbschnitt, pruefeSkript, pruefungText } from '../
 import { belegText, gruppenRang, leseMinuten } from '../parser';
 import { begriffe, suche } from '../suche';
 import { mitOberthemen } from '../themen';
+import { alsMarkdown, weitergabe } from '../weitergabe';
 import {
   holeAusRepo, ladeLesestaende, ladeSkriptBilder, ladeSkripte, leseDateien, loescheSkript, markiereGelesen, merkeZuletzt,
   repoEingerichtet, setzeThemen, uebernehmeDateien, uebernehmeDokument, type ImportErgebnis,
@@ -303,6 +304,45 @@ function Lernzeit({ skript, sekunden, gesamtSek }: { skript: SkriptT; sekunden: 
   );
 }
 
+/** Ein selbst geschriebenes Skript als Datei an Mitschülerinnen und Mitschüler geben. Buch- und Repo-Inhalte bleiben gesperrt. */
+function Weitergeben({ skript }: { skript: SkriptT }) {
+  const status = useMemo(() => weitergabe(skript), [skript]);
+  const [ok, setOk] = useState(false);
+  const bestaetigt = status.darf && (status.bestaetigt || ok);
+  const gib = async () => {
+    const name = `${skript.id}.md`;
+    const file = new File([alsMarkdown(skript)], name, { type: 'text/markdown' });
+    if (navigator.canShare?.({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: skript.titel }); return; }
+      catch (e) { if (e instanceof DOMException && e.name === 'AbortError') return; }
+    }
+    const url = URL.createObjectURL(file);
+    const a = Object.assign(document.createElement('a'), { href: url, download: name });
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    notify('info', 'Skript gespeichert', `${name} kann jetzt weitergegeben werden. Die andere Person lädt es im Skript über „Eigene Datei wählen“.`);
+  };
+  return (
+    <details className="sk-weitergabe">
+      <summary>An Mitschüler weitergeben</summary>
+      {!status.darf ? (
+        <p className="muted">Dieses Skript bleibt privat. {status.grund}</p>
+      ) : (
+        <>
+          {!status.bestaetigt && (
+            <label className="sk-weitergabe__ok">
+              <input type="checkbox" checked={ok} onChange={(e) => setOk(e.target.checked)} />
+              {' '}Ich habe es selbst geschrieben oder darf es weitergeben. Es enthält keine abgeschriebenen Buchtexte und keine Angaben zu echten Personen.
+            </label>
+          )}
+          <button type="button" disabled={!bestaetigt} onClick={() => void gib()}>Als Datei teilen</button>
+          <p className="muted">Weitergegeben wird nur der Text als Markdown-Datei, ohne Abbildungen, Lesestand und Karten. Wer sie öffnet, kann sie lesen und weitergeben.</p>
+        </>
+      )}
+    </details>
+  );
+}
+
 /** Belegprüfung des ganzen Skripts: fehlende Quellen und fehlende Seiten getrennt, dazu frühere Fassungen. */
 function BelegPruefung({ skript, texte }: { skript: SkriptT; texte: string[] }) {
   const fassungen = skript.fassungen ?? [];
@@ -377,6 +417,7 @@ function Leser({ skript, aId, nr, q, staende, onNeu, setStaende }: {
             </details>
             <BelegPruefung skript={skript} texte={pruefungText(pruefung)} />
             <ThemenWahl skript={skript} onNeu={onNeu} />
+            <Weitergeben skript={skript} />
           </>
         )}
         {a && (
