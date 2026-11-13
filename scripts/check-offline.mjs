@@ -51,6 +51,8 @@ try {
   const neu = await ctx.newPage();
   await neu.goto(base, { waitUntil: 'load' });
   await neu.locator('main').first().waitFor();
+  // Seiten warten auf Glossar und Steckbriefe (nachgeladener Teil des Fachmoduls), deshalb auf die Überschrift warten.
+  await neu.locator('main h1').first().waitFor({ timeout: 10000 }).catch(() => undefined);
   assert((await neu.locator('main').first().innerText()).trim().length > 20, 'kalter Offline-Start zeigt die Startseite');
   await ctx.close();
 } finally {

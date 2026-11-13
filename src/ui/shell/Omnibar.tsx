@@ -3,7 +3,7 @@ import { Icon } from '../icons';
 import { Trie, type TrieEntry } from '../lib/trie';
 import { useDebounced } from '../lib/hooks';
 import { useStore } from '../lib/store';
-import { getModule } from '../../modules/registry';
+import { fachmodulBereit, getModule } from '../../modules/registry';
 import { db } from '../../core/db';
 import { flatNav, gruppenPfad, NAV, visibleNav } from './nav';
 import { imFeld } from './Tastenkuerzel';
@@ -59,7 +59,10 @@ export function Omnibar() {
   const moduleId = useStore(session, (s) => s.moduleId);
   const roles = useStore(session, (s) => s.roles);
   const [quellen, setQuellen] = useState<Quelle[]>([]);
-  const index = useMemo(() => buildIndex(moduleId, roles, quellen), [moduleId, roles, quellen]);
+  // Begriffe des Glossars kommen nach dem Start nach; danach den Index einmal neu bauen.
+  const [glossarDa, setGlossarDa] = useState(false);
+  useEffect(() => { let an = true; fachmodulBereit().then(() => { if (an) setGlossarDa(true); }, () => undefined); return () => { an = false; }; }, []);
+  const index = useMemo(() => buildIndex(moduleId, roles, quellen), [moduleId, roles, quellen, glossarDa]);
   const debounced = useDebounced(query, 250);
   const merk = useStore(merkliste, (m) => m);
   // Leeres Feld: Favoriten und zuletzt genutzte Seiten statt einer leeren Liste.
