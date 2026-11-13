@@ -249,6 +249,22 @@ try {
     await page.getByRole('button', { name: 'Rückgängig' }).click();
     await page.waitForFunction((n) => document.querySelectorAll('[data-col="woche"] [data-card]').length === n, wocheVorher + 3);
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Überlauf Board bei ${width}px`);
+    // Woche planen: Vorschlag mit Begründung, Übernahme nach „Diese Woche“ und Rückgängig
+    const wocheJetzt = await spalte('woche').count();
+    await page.getByRole('button', { name: 'Woche planen' }).click();
+    await page.locator('.board__woche-aktionen').waitFor();
+    const vorschlaege = await page.locator('.board__woche-liste input').count();
+    if (vorschlaege) {
+      assert.match(await page.locator('.board__woche-liste li').first().innerText(), /etwa .*·/);
+      await axe(page, 'Woche planen');
+      await page.locator('.board__woche-aktionen .primary').click();
+      await page.waitForFunction((n) => document.querySelectorAll('[data-col="woche"] [data-card]').length === n, wocheJetzt + vorschlaege);
+      await page.getByRole('button', { name: 'Rückgängig' }).click();
+      await page.waitForFunction((n) => document.querySelectorAll('[data-col="woche"] [data-card]').length === n, wocheJetzt);
+    } else {
+      assert.match(await page.locator('.board__woche').innerText(), /Lernzeit|Themenpool/);
+      await page.getByRole('button', { name: 'Schließen', exact: true }).click();
+    }
 
     // Material: schwer lesbare Seiten, Dubletten, Sprung zur Fundstelle, Original neben der Zusammenfassung
     const thema = blaetter[1];
@@ -314,7 +330,7 @@ try {
     await axe(page, 'Fortschritt');
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Überlauf bei ${width}px`);
     assert.deepEqual(errors, []);
-    console.log(`Lernalltag ${width}px: liegen gebliebene Blöcke, Dienstplan mit Vorschau, Kompetenzbereiche, Kalenderexport, CE-Matrix, Themenpflege, Skript-Belegprüfung und Fassungen, Landkarte als Liste, Board mit Knöpfen und Rückgängig, Fundstelle, Original nebeneinander, Lese-/Dublettenhinweise, Fehlerheft-Rückwege, Lernstufen, Herkunft der Fortschrittszahlen und WCAG bestanden.`);
+    console.log(`Lernalltag ${width}px: liegen gebliebene Blöcke, Dienstplan mit Vorschau, Kompetenzbereiche, Kalenderexport, CE-Matrix, Themenpflege, Skript-Belegprüfung und Fassungen, Landkarte als Liste, Board mit Knöpfen, Rückgängig und Woche planen, Fundstelle, Original nebeneinander, Lese-/Dublettenhinweise, Fehlerheft-Rückwege, Lernstufen, Herkunft der Fortschrittszahlen und WCAG bestanden.`);
     await context.close();
   }
 } finally { await browser.close(); }
