@@ -71,6 +71,13 @@ const futureDate = new Date(Date.now() + 21 * 86400000).toISOString().slice(0, 1
   await page.getByRole('link',{name:'Im Original zeigen'}).first().click();
   await page.waitForFunction(()=>location.hash.startsWith('#/material/dokumente?dokument=')&&location.hash.includes('seite=1'));
   await page.locator('.chunk--ziel').first().waitFor();
+  // Ohne API-Schlüssel: Antwort aus der Claude-App einfügen, als Skript mit Seitenprüfung übernehmen
+  await go('/lernen/skript?laden=1');
+  await page.getByRole('button',{name:'Mit der Claude-App zusammenfassen',exact:true}).click();
+  await page.getByLabel('Die ganze Antwort hier einfügen').fill('# Pflegeprozess kurz\n\n## 1 · Schritte\n\n- Informationssammlung erfasst den Bedarf [D, S. 1]\n- Planung verbindet Ziele und Maßnahmen [D, S. 9]');
+  await page.getByRole('button',{name:'Als Skript übernehmen',exact:true}).click();
+  await page.waitForFunction(()=>location.hash.startsWith('#/lernen/skript?id=ki-pflegeprozess'));
+  await page.getByText('Seiten, die es im Dokument nicht gibt: 9',{exact:false}).first().waitFor();
   await go('/material/zusammenfassen');
   await page.getByRole('button',{name:'Zusammenfassung erstellen',exact:true}).click();assert(await page.getByText('Wähle mindestens ein Dokument als Quelle aus.',{exact:true}).isVisible());
   await page.getByRole('checkbox',{name:'Pflegeprozess TEXT'}).check();

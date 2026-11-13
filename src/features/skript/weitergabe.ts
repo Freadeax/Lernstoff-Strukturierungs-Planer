@@ -8,15 +8,17 @@
 import type { Skript } from './typen';
 
 /** Verlage und lizenzierte Werke, deren Inhalte nie weitergegeben werden. */
-const VERLAGE = /\b(thieme|elsevier|urban\s*&\s*fischer|springer|kohlhammer|hogrefe|verlag\s+hans\s+huber|cornelsen|europa[-\s]lehrmittel|westermann|schl[üu]tersche|recom|enp[-\s]?praxisleitlinien?|i[-\s]?care|pflege\s*heute|arzneimittellehre\s+f[üu]r\s+die\s+pflege)\b/i;
+const VERLAGE = /\b(thieme|elsevier|urban\s*&\s*fischer|springer|kohlhammer|hogrefe|verlag\s+hans\s+huber|cornelsen|europa[-\s]lehrmittel|westermann|schl[üu]tersche|recom|enp|i[-\s]?care|pflege\s*heute|arzneimittellehre\s+f[üu]r\s+die\s+pflege)\b/i;
 
 export type WeitergabeStatus =
   | { darf: true; bestaetigt: boolean }
   | { darf: false; grund: string };
 
 /** Fundstelle eines Verlagsnamens in Titel, Quellen oder Einleitung (für die Begründung). */
-export function verlagErwaehnt(s: Pick<Skript, 'titel' | 'quellen' | 'einleitung' | 'gruppe'>): string | undefined {
-  for (const t of [s.titel, s.gruppe, s.einleitung, ...s.quellen.map((q) => q.text)]) {
+export function verlagErwaehnt(s: Pick<Skript, 'titel' | 'quellen' | 'einleitung' | 'gruppe' | 'abschnitte'>): string | undefined {
+  // Überall suchen: Kopf, Quellen (Kürzel und Text) und jeder Abschnitt, denn exportiert wird alles
+  const texte = [s.titel, s.gruppe, s.einleitung, ...s.quellen.flatMap((q) => [q.kuerzel, q.text]), ...s.abschnitte.flatMap((a) => [a.titel, a.markdown])];
+  for (const t of texte) {
     const m = t?.match(VERLAGE);
     if (m) return m[0];
   }
@@ -35,7 +37,8 @@ export function weitergabe(s: Skript): WeitergabeStatus {
 
 /** Skript wieder als Markdown im Skript-Format (für die Weitergabe). Abbildungen fallen weg, sie liegen nur privat. */
 export function alsMarkdown(s: Skript): string {
-  const ohneBilder = (t: string) => t.replace(/!\[[^\]\n]*\]\([^)\n]*\)\s*/g, '');
+  // Nur Leerzeichen dahinter entfernen, nie Zeilenumbrüche (sonst verschmelzen Aufzählungspunkte)
+  const ohneBilder = (t: string) => t.replace(/[ \t]*!\[[^\]\n]*\]\([^)\n]*\)[ \t]*/g, ' ').replace(/ +$/gm, '');
   const kopf = [
     '---',
     ...(s.topicIds.length ? [`themen: [${s.topicIds.join(', ')}]`] : []),

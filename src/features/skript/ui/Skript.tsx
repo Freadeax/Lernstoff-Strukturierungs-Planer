@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { ID, Topic } from '../../../core/types';
+import type { Document, ID, SourceChunk, Topic } from '../../../core/types';
 import { pflegeModule } from '../../../modules/pflege';
 import { navigate, useRoute } from '../../../ui/shell/router';
 import { notify } from '../../../ui/shell/notifications';
@@ -8,9 +8,10 @@ import { uebernehme } from '../../karteikarten/store';
 import { db } from '../../../core/db';
 import { behalteKartenIds, kartenAusAbschnitt } from '../karten';
 import { findeAbschnitt, pruefeAbschnitt, pruefeSkript, pruefungText } from '../pruefung';
-import { belegText, gruppenRang, leseMinuten } from '../parser';
+import { belegText, gruppenRang, leseMinuten, skriptId } from '../parser';
 import { begriffe, suche } from '../suche';
 import { mitOberthemen } from '../themen';
+import { baueAuftrag, uebernehmeAntwort } from '../ohneSchluessel';
 import { alsMarkdown, weitergabe } from '../weitergabe';
 import {
   holeAusRepo, ladeLesestaende, ladeSkriptBilder, ladeSkripte, leseDateien, loescheSkript, markiereGelesen, merkeZuletzt,
@@ -86,6 +87,7 @@ function ladeVorlageHerunter() {
 function AusDokumenten({ onFertig, gesperrt, setGesperrt }: { onFertig: () => void; gesperrt: boolean; setGesperrt: (b: boolean) => void }) {
   const [docs, setDocs] = useState<Array<{ id: string; title: string; kind: string }> | null>(null);
   const [wahl, setWahl] = useState('');
+  const [chat, setChat] = useState(false);
   useEffect(() => { db.documents.toArray().then((d) => { setDocs(d.sort((a, b) => b.importedAt.localeCompare(a.importedAt))); setWahl(d[0]?.id ?? ''); }).catch(() => setDocs([])); }, []);
   if (!docs) return null;
   if (!docs.length) return <p className="muted">Noch keine Dokumente importiert. Unter <a href="#/material/dokumente">Material → Dokumente</a> liest die App PDF, Word und PowerPoint offline ein, danach kannst du sie hier als Skript übernehmen.</p>;
@@ -106,9 +108,66 @@ function AusDokumenten({ onFertig, gesperrt, setGesperrt }: { onFertig: () => vo
         <select id="sk-dok-wahl" value={wahl} onChange={(e) => setWahl(e.target.value)} disabled={gesperrt}>
           {docs.map((d) => <option key={d.id} value={d.id}>{d.title} ({d.kind.toUpperCase()})</option>)}
         </select>
-        <button type="button" className="primary" disabled={gesperrt || !wahl} onClick={() => void los()}>Als Skript übernehmen</button>
+        <button type="button" className="primary" disabled={gesperrt || !wahl} onClick={() => void los()}>Wörtlich übernehmen</button>
+        <button type="button" disabled={gesperrt || !wahl} aria-expanded={chat} onClick={() => setChat(!chat)}>Mit der Claude-App zusammenfassen</button>
       </div>
-      <p className="muted">Der Text bleibt wörtlich, jeder Punkt nennt seine Seite. Keine KI, nichts verlässt dein Gerät.</p>
+      {chat && wahl ? <MitClaudeApp key={wahl} documentId={wahl} onFertig={onFertig} /> : (
+        <p className="muted">„Wörtlich übernehmen“: Der Text bleibt, wie er ist, jeder Punkt nennt seine Seite. Keine KI, nichts verlässt dein Gerät.</p>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Zusammenfassen ohne API-Schlüssel: Auftrag mit dem Text kopieren, in der Claude-App (kostenloses Konto genügt)
+ * einfügen, Antwort zurückkopieren. Die App übernimmt sie als Skript und prüft die Seitenangaben.
+ */
+function MitClaudeApp({ documentId, onFertig }: { documentId: string; onFertig: () => void }) {
+  const [daten, setDaten] = useState<{ doc: Document; chunks: SourceChunk[] } | null>(null);
+  const [antwort, setAntwort] = useState('');
+  const [kopiert, setKopiert] = useState(false);
+  const [fehler, setFehler] = useState('');
+  useEffect(() => {
+    void Promise.all([db.documents.get(documentId), db.chunks.where('documentId').equals(documentId).toArray()])
+      .then(([doc, chunks]) => { if (doc) setDaten({ doc, chunks }); });
+  }, [documentId]);
+  const auftrag = useMemo(() => (daten ? baueAuftrag(daten.doc, daten.chunks) : null), [daten]);
+  if (!daten || !auftrag) return <p className="muted">Lädt …</p>;
+  const kopiere = async () => {
+    try { await navigator.clipboard.writeText(auftrag.text); setKopiert(true); }
+    catch { setFehler('Kopieren ging nicht. Markiere den Auftrag im Feld unten und kopiere ihn von Hand.'); }
+  };
+  const uebernimm = async () => {
+    setFehler('');
+    try {
+      const r = uebernehmeAntwort(daten.doc, daten.chunks, antwort);
+      const e = await uebernehmeDateien([{ name: r.name, text: r.text }], 'datei');
+      meldeImport(e);
+      if (r.hinweise.length) notify('warning', 'Bitte Belege prüfen', r.hinweise.join(' '));
+      onFertig();
+      navigate(pfad({ id: skriptId(r.name) }));
+    } catch (err) { setFehler(err instanceof Error ? err.message : String(err)); }
+  };
+  return (
+    <div className="sk-chat">
+      <ol>
+        <li>
+          <button type="button" onClick={() => void kopiere()}>{kopiert ? 'Auftrag kopiert ✓' : 'Auftrag kopieren'}</button>
+          {' '}<span className="muted">{auftrag.seiten} {daten.doc.kind === 'pptx' ? (auftrag.seiten === 1 ? 'Folie' : 'Folien') : (auftrag.seiten === 1 ? 'Seite' : 'Seiten')}{auftrag.gekuerzt ? `, gekürzt bis ${auftrag.bisSeite ?? '…'} (zu lang für einen Chat)` : ''}</span>
+          {fehler && !kopiert && <textarea className="sk-chat__auftrag" readOnly value={auftrag.text} aria-label="Auftrag zum Kopieren" rows={4} />}
+        </li>
+        <li>In der <a href="https://claude.ai/new" target="_blank" rel="noopener noreferrer">Claude-App</a> einfügen und senden. Ein kostenloses Konto genügt.</li>
+        <li>
+          <label htmlFor="sk-chat-antwort">Die ganze Antwort hier einfügen</label>
+          <textarea id="sk-chat-antwort" rows={6} value={antwort} onChange={(e) => setAntwort(e.target.value)} placeholder="# Titel …" />
+          <button type="button" className="primary" disabled={!antwort.trim()} onClick={() => void uebernimm()}>Als Skript übernehmen</button>
+        </li>
+      </ol>
+      {fehler && <p className="note warn" role="alert">{fehler}</p>}
+      <p className="muted">
+        Den Text gibst du hier selbst an Claude (Anthropic) weiter. Nimm Dokumente mit Angaben zu echten Personen vorher heraus.
+        Die App prüft danach, ob jede Seite im Dokument vorkommt. Ob die Aussage dort wirklich steht, prüfst du mit „Im Original zeigen“.
+      </p>
     </div>
   );
 }
@@ -160,7 +219,7 @@ function ImportPanel({ onFertig, offen }: { onFertig: () => void; offen?: boolea
 
 // ---------------------------------------------------------------- Übersicht
 
-function Uebersicht({ skripte, staende, thema, onNeu }: { skripte: SkriptT[]; staende: Record<string, Lesestand>; thema?: string; onNeu: () => void }) {
+function Uebersicht({ skripte, staende, thema, onNeu, laden }: { skripte: SkriptT[]; staende: Record<string, Lesestand>; thema?: string; onNeu: () => void; laden?: boolean }) {
   const [q, setQ] = useState('');
   const t = thema ? topics.get(thema) : undefined;
   const sichtbar = t ? skripte.filter((s) => mitOberthemen(s.topicIds, topics).has(t.id)) : skripte;
@@ -232,7 +291,7 @@ function Uebersicht({ skripte, staende, thema, onNeu }: { skripte: SkriptT[]; st
           {t && !sichtbar.length && <p className="muted">Zu diesem Thema ist noch kein Skript zugeordnet.</p>}
         </>
       )}
-      <ImportPanel onFertig={onNeu} />
+      <ImportPanel onFertig={onNeu} offen={laden} />
     </>
   );
 }
@@ -523,7 +582,7 @@ export default function Skript() {
           <ImportPanel onFertig={neuLaden} offen />
         </>
       )}
-      {skripte && !id && !!skripte.length && <Uebersicht skripte={skripte} staende={staende} thema={params.get('thema') ?? undefined} onNeu={neuLaden} />}
+      {skripte && !id && !!skripte.length && <Uebersicht skripte={skripte} staende={staende} thema={params.get('thema') ?? undefined} onNeu={neuLaden} laden={params.get('laden') === '1'} />}
     </section>
   );
 }

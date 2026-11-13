@@ -31,6 +31,10 @@ describe('Weitergabe von Skripten', () => {
     expect(!st.darf && st.grund).toMatch(/Fachbüchern/);
     expect(weitergabe(lies(EIGEN.replace('gruppe: CE 09', 'gruppe: CE 09\nweitergabe: erlaubt').replace('Mitschrift Unterricht', 'Thieme I care'))).darf).toBe(false);
     expect(weitergabe(lies(EIGEN.replace('gruppe: CE 09', 'gruppe: CE 09\nweitergabe: nein'))).darf).toBe(false);
+    // Verlag nur im Abschnitt, ENP als Kürzel oder allein im Text
+    expect(weitergabe(lies(`${EIGEN}\n## 2 · Mehr\n\nAus Thieme I care übernommen.\n`)).darf).toBe(false);
+    expect(weitergabe(lies(EIGEN.replace('- **[M]** Mitschrift Unterricht 3. November', '- **[ENP]** Praxisleitlinien, Buchseite'))).darf).toBe(false);
+    expect(weitergabe(lies(EIGEN.replace('Mitschrift Unterricht', 'ENP Version 2.9'))).darf).toBe(false);
   });
 
   it('erlaubt eigene Dateien nach Bestätigung, mit „weitergabe: erlaubt“ ohne', () => {
@@ -42,6 +46,7 @@ describe('Weitergabe von Skripten', () => {
     const s = lies(EIGEN);
     const md = alsMarkdown(s);
     expect(md).not.toContain('bilder/x.jpg');
+    expect(md).toContain('- Kurze Sätze\n- **Validation**');
     const zurueck = parseSkript(`${s.id}.md`, md, { herkunft: 'datei' });
     expect(zurueck.id).toBe(s.id);
     expect(zurueck.gruppe).toBe('CE 09');
