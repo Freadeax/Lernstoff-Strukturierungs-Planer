@@ -62,6 +62,15 @@ const futureDate = new Date(Date.now() + 21 * 86400000).toISOString().slice(0, 1
   await page.getByRole('button',{name:'1 Datei importieren',exact:true}).click();await page.getByText('Import fertig: 1 Dokument verfügbar',{exact:false}).waitFor();
   assert(await page.getByText('Schritt 4 von 4',{exact:true}).isVisible());
   await go('/material/dokumente');assert(await page.getByRole('button',{name:'Pflegeprozess TEXT'}).isVisible());
+  // Eigenes Dokument ohne KI als Skript lesen: Seitenbeleg, Sprung zurück ins Original
+  await page.getByRole('button',{name:'Als Skript lesen',exact:true}).click();
+  await page.waitForFunction(()=>location.hash.startsWith('#/lernen/skript?id=dok-pflegeprozess'));
+  await page.locator('.sk-leser').getByText('Die Pflegeplanung verbindet',{exact:false}).first().waitFor();
+  assert.match(await page.locator('.sk-toc').innerText(),/Eigene Unterlagen/);
+  await page.locator('.sk-beleg',{hasText:/^D, S\. 1$/}).first().click();
+  await page.getByRole('link',{name:'Im Original zeigen'}).first().click();
+  await page.waitForFunction(()=>location.hash.startsWith('#/material/dokumente?dokument=')&&location.hash.includes('seite=1'));
+  await page.locator('.chunk--ziel').first().waitFor();
   await go('/material/zusammenfassen');
   await page.getByRole('button',{name:'Zusammenfassung erstellen',exact:true}).click();assert(await page.getByText('Wähle mindestens ein Dokument als Quelle aus.',{exact:true}).isVisible());
   await page.getByRole('checkbox',{name:'Pflegeprozess TEXT'}).check();
