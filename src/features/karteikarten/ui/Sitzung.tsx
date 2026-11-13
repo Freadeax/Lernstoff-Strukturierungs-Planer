@@ -283,6 +283,18 @@ export function Sitzung({ karten, staende: start, retention, heute, topics, titl
           <Vorlesen key={`${karte.id}-${offen}`} label={offen ? 'Karte vorlesen' : 'Frage vorlesen'}
             text={() => [karte.vorne, offen ? karte.hinten ?? '' : '', offen && karte.liste ? karte.liste.join('. ') : ''].filter(Boolean).join('. ')} />
           {offen && <span className="muted karten__tasten">Tasten 1–4</span>}
+          {offen && (
+            <details className="karten__bewerthilfe">
+              <summary>Wie bewerte ich?</summary>
+              <ul>
+                <li><strong>{RATING_LABEL[1]}:</strong> nicht gewusst oder falsch. Die Karte kommt gleich noch einmal.</li>
+                <li><strong>{RATING_LABEL[2]}:</strong> nur teilweise oder mit langem Überlegen.</li>
+                <li><strong>{RATING_LABEL[3]}:</strong> richtig gewusst. Der Normalfall.</li>
+                <li><strong>{RATING_LABEL[4]}:</strong> sofort und ohne Zweifel.</li>
+              </ul>
+              <p>Bewerte lieber zu streng als zu gut: Eine zu gute Bewertung schiebt die Karte zu weit nach hinten, und dein Wissensstand wirkt besser, als er ist.</p>
+            </details>
+          )}
         </div>
       </div>
     </div>

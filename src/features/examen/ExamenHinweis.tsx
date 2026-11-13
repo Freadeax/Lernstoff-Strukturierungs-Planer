@@ -14,7 +14,7 @@ export function ExamenHinweis() {
       {weitere.length > 0 && <> ({weitere.map((t) => `${TERMIN_NAME[t.art].toLocaleLowerCase('de')} ${inTagen(t.tage)}`).join(', ')})</>}.{' '}
       {h.schritt
         ? <>{h.schritt.text} <a href={`#${h.schritt.path}`}>{h.schritt.label}</a></>
-        : <a href="#/lernen/examen">Schwächen-Radar ansehen</a>}
+        : <a href="#/lernen/examen?ansicht=fahrplan">Fahrplan für diese Woche</a>}
     </p>
   );
 }
