@@ -21,6 +21,7 @@ export const NAV: NavItem[] = [
   { id: 'heute', label: 'Heute', path: '/', icon: 'home' },
   {
     id: 'lernen', label: 'Lernen', icon: 'book', children: [
+      { id: 'wegweiser', label: 'So lernst du hier', path: '/lernen/wegweiser', icon: 'sparkle' },
       { id: 'plan', label: 'Lernplan', path: '/lernen/plan', icon: 'calendar' },
       { id: 'ce', label: 'Curriculare Einheiten', path: '/lernen/ce', icon: 'layers' },
       { id: 'themen', label: 'Themen', path: '/lernen/themen', icon: 'table' },
@@ -69,6 +70,8 @@ export const NAV: NavItem[] = [
       {
         id: 'pruefung-gruppe', label: 'Prüfung', icon: 'timer', zu: true, children: [
           { id: 'simulation', label: 'Prüfungssimulation', path: '/lernen/simulation', icon: 'timer' },
+          // Fallakte: ein Fall durch alle Dokumentationstrainer, wie in der praktischen Prüfung
+          { id: 'fallakte', label: 'Fallakte', path: '/lernen/fallakte', icon: 'folder' },
           { id: 'examen', label: 'Examen', path: '/lernen/examen', icon: 'examen' },
           { id: 'fehler', label: 'Fehlerheft', path: '/lernen/fehler', icon: 'alert' },
           // Praxis und Fachwissen sind mit je zehn Einträgen voll; Blutdruck nach Gehör ist auch Prüfungsstoff (praktische Prüfung).
@@ -100,6 +103,7 @@ export const NAV: NavItem[] = [
       { id: 'sicherung', label: 'Datensicherung', path: '/system/sicherung', icon: 'save' },
       { id: 'bilder', label: 'Bildprüfung', path: '/system/bilder', icon: 'check' },
       { id: 'einstellungen', label: 'Einstellungen', path: '/einstellungen', icon: 'settings' },
+      { id: 'testphase', label: 'Testphase und Rückmeldung', path: '/system/test', icon: 'chat' },
     ],
   },
 ];
@@ -124,6 +128,12 @@ let _ueben: Set<string> | undefined;
 function uebenPfade(): Set<string> {
   _ueben ??= new Set(flatNav(NAV.find((i) => i.id === 'ueben')?.children ?? []).map((i) => i.path!));
   return _ueben;
+}
+
+/** Menü-ID einer Übungsseite (unter „Üben“, ohne die Übersicht), sonst undefined. Für die Leiste „Passt dazu“. */
+export function uebungsId(path: string): string | undefined {
+  if (!uebenPfade().has(path) || path === '/lernen/ueben') return undefined;
+  return flatNav(NAV.find((i) => i.id === 'ueben')?.children ?? []).find((i) => i.path === path)?.id;
 }
 
 /** Die drei Bündel unter „Üben“ (für die Übersichtsseite). */

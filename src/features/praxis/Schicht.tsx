@@ -3,7 +3,7 @@ import { Arbeitsplatz, Klinik, type Panel } from './Praxissimulator';
 import { clock } from './engine';
 import { beendeSchicht, handle, neuBei, schichtAuswertung, warte, wechsle, WEGEZEIT, type Schicht } from './schicht';
 import { archive } from './storage';
-import type { Command } from './types';
+import { alterText, type Command } from './types';
 
 const ESKALATION_KURZ: Record<string, string> = { 'kein Auslöser gemessen': 'kein Auslöser gemessen', 'nicht eskaliert': 'nicht eskaliert', vorausschauend: 'vorausschauend', zeitnah: 'zeitnah', 'verspätet': 'verspätet' };
 
@@ -42,7 +42,7 @@ export function SchichtAnsicht({ schicht, setSchicht, onClose }: { schicht: Schi
       <div className="praxis-patienten" role="group" aria-label="Patienten in deiner Schicht">{schicht.sessions.map((p, i) => {
         const neu = neuBei(schicht, i); const punkt = p.chart?.at(-1);
         return <button key={p.id} className="praxis-patient" aria-pressed={i === schicht.active} onClick={() => geheZu(i)}>
-          <span className="praxis-patient__name">{p.scenario.patient}, {p.scenario.age}</span>
+          <span className="praxis-patient__name">{p.scenario.patient}, {alterText(p.scenario.age)}</span>
           <small>{p.scenario.title}</small>
           <small>{punkt ? `zuletzt gemessen ${clock(punkt.at)}` : 'noch nicht gemessen'}{schicht.first[i] === null ? ' · noch nicht gesehen' : ''}</small>
           {i !== schicht.active && (neu.entscheidung || neu.ereignisse > 0) && <span className="praxis-patient__neu">{neu.entscheidung ? 'Entscheidung wartet' : `${neu.ereignisse} neue Meldung${neu.ereignisse === 1 ? '' : 'en'}`}</span>}

@@ -1,7 +1,7 @@
 // Datenhinweis direkt am jeweiligen Schritt: was wohin geht, bevor es passiert.
 // Ein Ort für alle Texte, damit Import, KI, Diktat und Teilen dieselbe Sprache sprechen.
 
-export type DatenArt = 'import' | 'ki' | 'ki-bild' | 'diktat' | 'teilen' | 'abgabe' | 'rueckmeldung' | 'lehrer';
+export type DatenArt = 'import' | 'ki' | 'ki-bild' | 'diktat' | 'teilen' | 'abgabe' | 'rueckmeldung' | 'bewertung' | 'lehrer';
 
 export const FIKTIV = 'Für SIS, Übergaben, Pflegeberichte und Wundbilder nur ausgedachte Übungsdaten verwenden. Auch Kürzel, geänderte Namen, Zimmernummern oder Fotos können auf echte Personen hinweisen.';
 
@@ -31,6 +31,10 @@ export const DATEN_TEXT: Record<DatenArt, { kurz: string; lang: string }> = {
     lang: 'Der Abgabe-Code enthält deinen Namen und deine Antworten, kodiert, aber weder verschlüsselt noch unterschrieben. Ein Kürzel oder Vorname reicht.',
   },
   rueckmeldung: {
+    kurz: 'Geht nur an die Person, der du sie schickst.',
+    lang: 'Die Rückmeldung enthält deinen Text, die gewählte Seite, die Zahl erledigter Testaufträge und, wenn angehakt, grobe Geräteangaben, aber keinen Lernstand. Sie ist kodiert, nicht verschlüsselt. Ein Kürzel oder Vorname reicht.',
+  },
+  bewertung: {
     kurz: 'Name, Punkte und Kommentare stecken im Link.',
     lang: 'Der Rückmeldelink enthält Namen, Punkte, Kommentare und, wenn gewählt, die Note, kodiert, aber nicht verschlüsselt. Nur direkt an die betreffende Person schicken, nicht in eine Gruppe. Er ist nicht unterschrieben und ersetzt keine offizielle Notenmitteilung.',
   },

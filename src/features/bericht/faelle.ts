@@ -4,6 +4,7 @@
 // - 'umschreiben': Ein wertender, ungenauer Eintrag liegt vor und wird sachlich neu geschrieben.
 // - 'schreiben': Aus einer beobachteten Situation entsteht ein neuer Eintrag.
 // Muster für die Prüfung per Code wie im Übergabe-Trainer (siehe ../uebergabe/faelle.ts).
+import { AKTEN_BERICHTE } from '../fallakte/akten';
 
 export type Art = 'umschreiben' | 'schreiben';
 export type Bereich = 'langzeit' | 'akut' | 'ambulant';
@@ -186,4 +187,6 @@ export const BERICHT_FAELLE: BerichtFall[] = [
     ],
     muster: '16:20 Uhr: Die Tochter von Frau Lindner sagt im Dienstzimmer: „Meine Mutter sitzt seit Stunden in nassen Sachen!“ Nachgesehen: Einlage nass, Kleidung trocken, letzte Versorgung laut Plan 13:30 Uhr. 16:30 Uhr Einlage gewechselt, Gespräch mit der Tochter. Vereinbart: Toilettengang alle 3 Stunden wie im Plan. Tochter: „Gut, dass wir darüber gesprochen haben.“ Wohnbereichsleitung informiert.',
   },
+  // Teilfälle der Fallakten (durchgehende Fälle, siehe ../fallakte)
+  ...AKTEN_BERICHTE,
 ];

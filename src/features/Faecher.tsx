@@ -1,3 +1,4 @@
+import { SeitenHilfe } from './wegweiser/SeitenHilfe';
 import { useMemo } from 'react';
 import './faecher.css';
 import type { MasteryStatus } from '../core/types';
@@ -30,6 +31,7 @@ export function Faecher() {
         <h2>Fächer</h2>
         <p className="muted">Wissensstand je Fach. Sicher wird ein Thema erst nach erfolgreichen Abfragen, zum Beispiel aus einem Trainer oder einer Prüfungssimulation.</p>
       </div>
+      <SeitenHilfe path="/lernen/faecher" />
       <details className="note faecher__erklaerung">
         <summary>Fach, Curriculare Einheit, Prüfungsbereich: was ist was?</summary>
         <p>Ein <strong>Fach</strong> ordnet Themen nach Wissensgebiet, zum Beispiel Anatomie. Eine <a href="#/lernen/ce">Curriculare Einheit</a> ordnet dieselben Themen nach Pflegesituation, so wie sie im Unterricht drankommen. Die <a href="#/lernen/examen">Kompetenzbereiche I bis V</a> sagen, was in der staatlichen Prüfung verlangt wird. Jedes Thema gehört zu genau einem Fach, kann aber in mehreren CE vorkommen.</p>

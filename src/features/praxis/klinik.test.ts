@@ -4,7 +4,7 @@ import { clinicalDebrief, consciousness, dispatch as roh, news2Of, replay, start
 import { dispatch } from './testhilfe';
 import { news2Punkte } from './news2';
 import { parseScenario } from './storage';
-import type { Scenario, Session } from './types';
+import { alterText, type Scenario, type Session } from './types';
 
 const byId = (id: string) => SCENARIOS.find(s => s.id === id)!;
 const act = (s: Session, id: string) => dispatch(s, { type: 'action', id });
@@ -285,6 +285,49 @@ describe('Praxissimulator – Entscheidungsmomente', () => {
     expect(clinicalDebrief(wait(start(scenario, 2), 1500)).final.unstable).toBe(true);
     const mit = wait(act(act(act(start(scenario, 2), 'verfuegung'), 'help'), 'orders'), 1500);
     expect(mit.story?.atemnot).toBe('prevented'); expect(clinicalDebrief(mit).final.unstable).toBe(false);
+  });
+
+  it('Säugling mit Bronchiolitis: Erschöpfung ohne Therapie, Alter in Monaten, weite Kindergrenzen', () => {
+    const scenario = byId('bronchiolitis');
+    expect(alterText(scenario.age)).toBe('4 Monate');
+    expect(start(scenario, 2).vitals.resp).toBe(64);
+    const ohne = wait(start(scenario, 2), 1300);
+    expect(ohne.story?.erschoepfung).toBe('fired');
+    expect(clinicalDebrief(ohne).final.unstable).toBe(true);
+    const mit = wait(act(act(act(start(scenario, 2), 'care'), 'help'), 'orders'), 1300);
+    expect(mit.story?.erschoepfung).toBe('prevented');
+    expect(clinicalDebrief(mit).final.unstable).toBe(false);
+    const flasche = wait(act(start(scenario, 2), 'flasche'), 60);
+    expect(flasche.story?.verschluckt).toBe('fired');
+  });
+
+  it('Herzschwäche zu Hause: Lungenödem ohne Rücksprache, Kompression schadet bis zum Ausziehen', () => {
+    const scenario = byId('herzschwaeche');
+    const ohne = wait(start(scenario, 2), 1900);
+    expect(ohne.story?.lungenoedem).toBe('fired');
+    expect(clinicalDebrief(ohne).final.unstable).toBe(true);
+    expect(clinicalDebrief(wait(act(ohne, 'ems'), 60)).activeComplications).not.toContain('Es brodelt beim Atmen');
+    const mit = wait(act(act(act(start(scenario, 2), 'wiegen'), 'help'), 'orders'), 1900);
+    expect(mit.story?.lungenoedem).toBe('prevented');
+    expect(clinicalDebrief(mit).final.unstable).toBe(false);
+    const strumpf = wait(act(act(act(start(scenario, 2), 'kompression'), 'help'), 'orders'), 200);
+    expect(strumpf.story?.strumpf_folge).toBe('fired');
+    expect(clinicalDebrief(strumpf).activeComplications).toContain('Die Atemnot nimmt zu');
+    expect(clinicalDebrief(act(strumpf, 'strumpf_aus')).activeComplications).not.toContain('Die Atemnot nimmt zu');
+  });
+
+  it('Jugendliche nach Alkohol: Seitenlage verhindert Aspiration, Glukose den Unterzucker', () => {
+    const scenario = byId('rausch');
+    const ohne = wait(start(scenario, 2), 1300);
+    expect(ohne.story?.erbrechen).toBe('fired');
+    expect(ohne.story?.unterzucker).toBe('fired');
+    expect(consciousness(ohne)).toBe('P');
+    expect(clinicalDebrief(ohne).final.unstable).toBe(true);
+    const mit = wait(act(act(act(start(scenario, 2), 'care'), 'help'), 'orders'), 1300);
+    expect(mit.story?.erbrechen).toBe('prevented');
+    expect(mit.story?.unterzucker).toBe('prevented');
+    expect(clinicalDebrief(mit).final.unstable).toBe(false);
+    expect(clinicalDebrief(mit).harms).toHaveLength(0);
   });
 
   it('prüft importierte Entscheidungsmomente', () => {

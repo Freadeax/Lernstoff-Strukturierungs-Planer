@@ -5,6 +5,7 @@
 // - Eine Alternative mit „ + “ verlangt alle Teile (z. B. 'bz + 48').
 // - Text wird vorher vereinfacht: klein, ä→ae, ß→ss, „38 Komma 9“→„38,9“, „92 zu 55“→„92/55“.
 // - Wortteile genügen („verwirr“ trifft „verwirrt“ und „Verwirrung“), reine Zahlen nur als ganze Zahl.
+import { AKTEN_UEBERGABEN } from '../fallakte/akten';
 
 export type Teil = 'S' | 'B' | 'A' | 'R';
 export type Anlass = 'telefon' | 'schicht' | 'notfall';
@@ -358,4 +359,6 @@ B: Symptombeginn 14:20 Uhr, da war sie noch unauffällig. Sie liegt seit gestern
 A: Der rechte Mundwinkel hängt, der rechte Arm sinkt ab, die Sprache ist verwaschen. Blutdruck 190/105, Puls 84, Sättigung 96 %, Blutzucker 112. Ich vermute einen Schlaganfall, die Zeichen bestehen erst seit wenigen Minuten.
 R: Bitte kommen Sie sofort, sie braucht schnell ein CT und die Stroke-Unit. Ich bleibe bei ihr und halte sie nüchtern. Ich wiederhole: Sie kommen sofort, ich bereite den Transport zum CT vor.`,
   },
+  // Teilfälle der Fallakten (durchgehende Fälle, siehe ../fallakte)
+  ...AKTEN_UEBERGABEN,
 ];

@@ -30,6 +30,7 @@ function aktionen(): Hit[] {
     { id: 'aktion:pruefung', type: 'Aktion', label: 'Prüfung anlegen', keywords: ['Klausur', 'Termin', 'Examen planen'], hint: 'Lernplan', to: '/lernen/plan?ansicht=pruefungen&neu=1' },
     { id: 'aktion:import', type: 'Aktion', label: 'Material importieren', keywords: ['hochladen', 'PDF', 'Skript hinzufügen'], hint: 'Import-Assistent', to: '/material/import' },
     { id: 'aktion:sicherung', type: 'Aktion', label: 'Sicherung erstellen', keywords: ['Backup', 'übertragen', 'exportieren'], hint: 'Datensicherung', to: '/system/sicherung' },
+    { id: 'aktion:rueckmeldung', type: 'Aktion', label: 'Rückmeldung geben', keywords: ['Feedback', 'Fehler melden', 'Testphase', 'Problem'], hint: 'Testphase', to: '/system/test?ansicht=rueckmeldung' },
     { id: 'aktion:kuerzel', type: 'Aktion', label: 'Tastenkürzel anzeigen', keywords: ['Hilfe', 'Shortcuts'], hint: 'Übersicht', run: () => kuerzelHilfe.set({ offen: true }) },
   ];
 }

@@ -45,7 +45,7 @@ function RueckmeldungTeilen({ fall, b, schluessel, fertig }: { fall: KlassenFall
       {link && !qrPfad(link) && <p className="muted">Für einen QR-Code ist die Rückmeldung zu lang (lange Kommentare).</p>}
       {qr && <QrVollbild text={link} titel={`Rückmeldung für ${b.name}`} onClose={() => { setQr(false); gesendet(); }} />}
       {b.gesendet && <p className="muted">Zuletzt geteilt am {datumText(b.gesendet)}{b.gesendet < b.bewertet ? ', danach geändert: bitte neu schicken' : ''}.</p>}
-      <DatenHinweis art="rueckmeldung" fiktiv={false} kompakt />
+      <DatenHinweis art="bewertung" fiktiv={false} kompakt />
     </div>
   );
 }

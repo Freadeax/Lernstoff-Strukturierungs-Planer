@@ -20,6 +20,8 @@ export type RaumFoto = {
   details?: Detail[];
   /** Bildvariante, solange eine Maßnahme läuft (z. B. 21b Inhalation, nachdem die Anordnung vorliegt). */
   waehrend?: { id: RaumId; flag: string; minuten: number };
+  /** Das Foto zeigt eine andere Altersgruppe als der Fall: Hinweis unter dem Bild (bis passendes Material da ist). */
+  beispiel?: string;
 };
 
 export const RAUMFOTOS: Record<string, RaumFoto> = {
@@ -53,6 +55,12 @@ export const RAUMFOTOS: Record<string, RaumFoto> = {
     namen: { wagen: 'Infusion', telefon: 'Rufanlage' } },
   innereSepsis: { id: '30b_station_zimmer_frau_sepsis', orte: { patient: { x: 46, y: 46 }, monitor: { x: 79, y: 48 }, wagen: { x: 23, y: 24 }, telefon: { x: 51, y: 87 } },
     namen: { wagen: 'Infusion', telefon: 'Rufanlage' } },
+  kleinkindNacht: { id: '20n_paediatrie_kleinkind_nacht', nacht: true, orte: { patient: { x: 45, y: 40 }, monitor: { x: 86, y: 56 }, wagen: { x: 9, y: 62 }, telefon: { x: 55, y: 86 } },
+    namen: { wagen: 'Nachttisch mit Flasche und Thermometer', telefon: 'Rufanlage' }, beispiel: 'Beispielfoto: Das Bild zeigt ein Kleinkind. Im Fall liegt Mila, ein Säugling von 4 Monaten.' },
+  kuecheHerz: { id: '09_ambulant_kueche_diabetes', orte: { patient: { x: 73, y: 36 }, monitor: { x: 60, y: 84 }, wagen: { x: 43, y: 80 }, telefon: { x: 30, y: 78 } },
+    namen: { monitor: 'Messgeräte auf dem Tablett', wagen: 'Küchentisch mit Tablettendispenser', telefon: 'Diensthandy' } },
+  jugend: { id: '21_paediatrie_schulkind', orte: { patient: { x: 42, y: 32 }, monitor: { x: 88, y: 54 }, wagen: { x: 24, y: 72 }, telefon: { x: 52, y: 88 } },
+    namen: { wagen: 'Tisch mit Nierenschale', telefon: 'Rufanlage' }, beispiel: 'Beispielfoto: Das Bild zeigt ein jüngeres Kind mit Mutter. Im Fall liegt Lea, 15 Jahre.' },
   schockraum: { id: '18_notaufnahme_schockraum_nacht', nacht: true, orte: { patient: { x: 42, y: 45 }, monitor: { x: 9, y: 40 }, wagen: { x: 90, y: 64 }, telefon: { x: 63, y: 30 } } },
 };
 
@@ -62,6 +70,7 @@ export const FALL_RAUM: Record<string, keyof typeof RAUMFOTOS> = {
   kind: 'kleinkind', psychiatrie: 'speiseraum', reha: 'bad', palliativ: 'heimNacht', sepsis: 'innereSepsis',
   nachblutung: 'postop', schlaganfall: 'heimSessel', anaphylaxie: 'innere', lungenembolie: 'kardiologie',
   delir: 'zweibettNacht', asthma: 'schulkind', demenz: 'heimTag',
+  bronchiolitis: 'kleinkindNacht', herzschwaeche: 'kuecheHerz', rausch: 'jugend',
 };
 
 export function raumFotoFuer(fallId: string): RaumFoto | undefined {
