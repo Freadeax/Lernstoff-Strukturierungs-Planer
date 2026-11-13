@@ -10,6 +10,7 @@ import { WizardView } from '../widgets/wizard/ImportWizard';
 import { mockBoard, mockChart, mockFeed, mockKpis, mockThemen, mockWizard } from '../widgets/mocks';
 import { notify } from '../ui/shell/notifications';
 import { Icon } from '../ui/icons';
+import { SystemLabor } from './designsystem/SystemLabor';
 import { RaumBuehne } from '../ui/sim/raeume/RaumBuehne';
 import { RAEUME, RAUM_IDS, type MonitorZustand, type RaumId } from '../ui/sim/raeume/katalog';
 
@@ -123,12 +124,18 @@ export default function Designsystem() {
     <section className="page">
       <div className="page__head">
         <h2>Designsystem</h2>
-        <p className="muted">Tokens, Bausteine und alle sechs Zustände jedes Moduls mit Beispieldaten. Nichts hier verändert deine Daten.</p>
+        <p className="muted">Tokens, Bausteine, alle sechs Zustände jedes Moduls und fünf Systemzustände mit Beispieldaten. Nichts hier verändert deine Daten.</p>
       </div>
 
       <div className="card ds-section">
         <h3>Zustands-Labor</h3>
         <StateLab />
+      </div>
+
+      <div className="card ds-section">
+        <h3>Systemzustände</h3>
+        <p className="muted">Wie die App aussieht, wenn etwas außerhalb des Moduls nicht ideal ist. Jede Ansicht nennt die Regel, an die sich neue Module halten.</p>
+        <SystemLabor />
       </div>
 
       <div className="card ds-section">

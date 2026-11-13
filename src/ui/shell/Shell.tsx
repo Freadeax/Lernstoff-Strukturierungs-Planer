@@ -14,6 +14,7 @@ import { useMenueGesten } from './gesten';
 import { kuerzelHilfe, Tastenkuerzel } from './Tastenkuerzel';
 import { BEWEGUNGEN, SCHRIFTEN, session, setWorkspace, type Theme } from './session';
 import { BEREICH_NAME, bereichVon, seitenName } from './nav';
+import { besucht, merkliste, toggleFavorit } from './merkliste';
 
 function WorkspaceSwitcher() {
   const moduleId = useStore(session, (s) => s.moduleId);
@@ -69,6 +70,7 @@ function Header() {
   const drawer = useStore(session, (s) => s.drawerOpen);
   const { path, depth } = useRoute();
   const current = seitenName(path) ?? 'Lernarbeitsplatz';
+  const favorit = useStore(merkliste, (m) => m.favoriten.includes(path));
   return (
     <header className="shell__header" inert={drawer}>
       <button type="button" className="icon ghost shell__menu-btn" aria-label="Navigation öffnen" aria-controls="sidebar"
@@ -85,6 +87,12 @@ function Header() {
         <span className="header-context__bereich">{BEREICH_NAME[bereichVon(path)]}</span>
         {path !== '/' && <><Icon name="chevronRight" size={14} /><strong key={path}>{current}</strong></>}
       </div>
+      {path !== '/' && seitenName(path) && (
+        <button type="button" className="icon ghost shell__stern" aria-pressed={favorit} onClick={() => toggleFavorit(path)}
+          aria-label={favorit ? `${current} aus den Favoriten entfernen` : `${current} zu den Favoriten`} title={favorit ? 'Favorit entfernen' : 'Als Favorit merken'}>
+          <Icon name="star" size={20} />
+        </button>
+      )}
       <OnlineStatus />
       <div className="shell__search"><Omnibar /></div>
       <div className="shell__actions">
@@ -107,6 +115,7 @@ export function Shell({ children }: { children: ReactNode }) {
   const first = useRef(true);
   useEffect(() => {
     document.title = `${seitenName(path) ?? 'Lernarbeitsplatz'} · Lernstoff`;
+    if (seitenName(path)) besucht(path);
     if (first.current) { first.current = false; return; }
     main.current?.focus({ preventScroll: true });
     window.scrollTo({ top: 0 });

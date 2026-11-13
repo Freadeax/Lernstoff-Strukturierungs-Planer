@@ -58,6 +58,16 @@ Jede Seite hat denselben Kopf: Marke, großer Titel, Einleitung. Seiten mit `Pag
 - Das Designsystem steht nicht mehr im Menü, der Einstieg liegt am Ende der Einstellungen (`#/system/design`). Dort stehen auch alle Datenhinweise gesammelt.
 - `scripts/check-ui.mjs` prüft diese Wege und die Fokusrückgabe bei jedem Lauf.
 
+### Favoriten, „Zuletzt“ und Befehle
+
+- `src/ui/shell/merkliste.ts` hält Favoriten (höchstens 8) und zuletzt genutzte Seiten (höchstens 6) in `lernstoff.merkliste`. Der Stern in der Kopfleiste setzt oder löst den Favoriten der aktuellen Seite. Favoriten stehen als eigene Gruppe oben im Menü, ohne Aktiv-Markierung (die wandernde Markierung bleibt am eigentlichen Menüpunkt).
+- „Heute“ zeigt unter den Schnellwegen die zuletzt genutzten Seiten. Die leere Suche zeigt Favoriten und „Zuletzt“.
+- Die Suche führt Befehle aus (Treffer-Art „Aktion“ in `Omnibar.tsx`, Funktion `aktionen()`): Darstellung, Schrift, Bewegung, Prüfung anlegen, Material importieren, Sicherung erstellen, Tastenkürzel. Neue Befehle dort mit Stichwörtern eintragen.
+
+### Systemzustände
+
+`#/system/design` zeigt neben den sechs Modulzuständen fünf Systemzustände (`src/features/designsystem/SystemLabor.tsx`): Speicher voll, Offline-Medium (drei Stufen aus `ui/sim/offline`), langsames Gerät, fachlicher Prüfstand (`FreigabeHinweis`) und wenig Bewegung. Jede Ansicht nennt die Regel für neue Module.
+
 ### Titelbilder
 
 Sechs Bereichsfotos liegen unter `public/titelbilder/` (1200 × 675, WebP, je 50 bis 100 KB) und werden für Offline vorab geladen (`titelbilder/*.webp` in `vite.config.ts`; andere WebP-Ordner bleiben beim Laufzeit-Cache). Baustein: `<Titelbild motiv="heute|lernen|material|ueben|simulation|system" />` aus `src/ui/Titelbild.tsx`, standardmäßig dekorativ (leerer Alternativtext), mit `beschreiben` kommt der Text aus dem Katalog. `PageHeading` nimmt `bild="…"` für die Einstiegsseiten der Bereiche. Neue Fotos zuerst auf diese Größe verkleinern.

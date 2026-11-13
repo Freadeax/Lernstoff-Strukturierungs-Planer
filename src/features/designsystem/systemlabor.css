@@ -1,0 +1,8 @@
+.ds-system { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-2); padding: var(--space-3); border: 1.5px dashed var(--color-border-strong); border-radius: 14px; }
+.ds-system > * { margin: 0; max-width: 100%; }
+.ds-stufen { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); }
+.ds-speicher { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); font-size: var(--text-sm); }
+.ds-speicher__balken { width: min(100%, 240px); height: 12px; border: 1.5px solid var(--color-outline); border-radius: 999px; overflow: hidden; background: var(--color-surface-sunken); }
+.ds-speicher__balken span { display: block; height: 100%; background: var(--color-primary); }
+.ds-langsam { width: 100%; min-height: 3.5rem; display: flex; flex-direction: column; justify-content: center; }
+.ds-langsam p { margin: 0; }
