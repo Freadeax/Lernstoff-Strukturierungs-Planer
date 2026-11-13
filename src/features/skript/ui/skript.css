@@ -108,3 +108,9 @@
 .sk-pruefung p { margin: var(--space-1) 0 0; }
 .sk-warn { color: var(--color-text); background: var(--color-warning-soft); border-radius: 4px; padding: 0 4px; }
 .sk-fassung-hinweis { margin-bottom: var(--space-2); }
+
+/* Abbildungen aus dem Material-Repo (offline gespeichert) */
+.sk-bild { display: block; margin: var(--space-2) 0; max-width: 100%; }
+.sk-bild img { display: block; max-width: 100%; height: auto; max-height: 70vh; border-radius: var(--radius-sm); border: 1px solid var(--color-border); background: #fff; }
+.sk-bild figcaption { font-size: var(--text-sm); color: var(--color-text-muted); margin-top: var(--space-1); line-height: var(--leading-normal); }
+.sk-bild__fehlt { display: block; padding: var(--space-3); border: 1px dashed var(--color-border-strong); border-radius: var(--radius-sm); color: var(--color-text-muted); font-size: var(--text-sm); background: var(--color-surface-sunken); }

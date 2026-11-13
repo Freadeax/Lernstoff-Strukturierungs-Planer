@@ -6,13 +6,15 @@ import { db, type LernstoffDB } from '../../core/db';
 import { logActivity } from '../../core/activity';
 import { pflegeModule } from '../../modules/pflege';
 import { ladeZiel, type AblageZiel } from '../ablage/ablage';
+import { bildSpeicher, bildVerweise, holeBilder, raeumeBilderAuf, type BildErgebnis, type BildSpeicher } from './bilder';
 import { parseSkript } from './parser';
 import { neueFassung } from './fassung';
 import { schlageThemenVor } from './themen';
 import type { Skript } from './typen';
 import { ladeLesestaende, speichereLesestaende, verschiebeLesestand } from './lesestand';
 
-export const REPO_ORDNER = 'skripte';
+import { REPO_ORDNER } from './konstanten';
+export { REPO_ORDNER };
 
 export async function ladeSkripte(database: LernstoffDB = db): Promise<Skript[]> {
   return database.skripte.toArray();
@@ -100,6 +102,23 @@ export async function holeAusRepo(z: AblageZiel = ladeZiel(), f: Fetch = fetch):
   const liste = (await (await gh(z, REPO_ORDNER, false, f)).json()) as Array<{ name: string; type: string; path: string }>;
   const md = liste.filter((e) => e.type === 'file' && /\.(md|markdown)$/i.test(e.name) && !/^readme\.md$/i.test(e.name));
   return Promise.all(md.map(async (e) => ({ name: e.name, text: await (await gh(z, e.path.split('/').map(encodeURIComponent).join('/'), true, f)).text() })));
+}
+
+/** Alle Bildpfade (im Material-Repo), auf die gespeicherte Skripte verweisen. */
+export async function bilderDerSkripte(database: LernstoffDB = db): Promise<string[]> {
+  const pfade = new Set<string>();
+  for (const s of await database.skripte.toArray()) {
+    for (const t of [s.einleitung, ...s.abschnitte.map((a) => a.markdown)]) for (const p of bildVerweise(t ?? '')) pfade.add(p);
+  }
+  return [...pfade].sort();
+}
+
+/** Abbildungen zu allen Skripten aus dem Material-Repo holen (nur fehlende oder geänderte) und verwaiste entfernen. */
+export async function ladeSkriptBilder(z: AblageZiel = ladeZiel(), speicher: BildSpeicher = bildSpeicher(), database: LernstoffDB = db, f: Fetch = fetch): Promise<BildErgebnis & { entfernt: number }> {
+  const pfade = await bilderDerSkripte(database);
+  const erg = await holeBilder(pfade, z, speicher, f);
+  const entfernt = await raeumeBilderAuf(new Set(pfade), speicher);
+  return { ...erg, entfernt };
 }
 
 // ---------------------------------------------------------------- Ändern

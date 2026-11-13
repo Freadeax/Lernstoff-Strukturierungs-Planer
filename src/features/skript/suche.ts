@@ -14,6 +14,7 @@ export interface Treffer {
 /** Markdown in lesbaren Klartext (für Ausschnitte). */
 export function klartext(md: string): string {
   return md
+    .replace(/!\[([^\]\n]*)\]\([^)\n]*\)/g, '$1')
     .replace(/^\s*\|?[-:| ]+\|\s*$/gm, ' ')
     .replace(/\*\*|__|`/g, '')
     .replace(/^\s*(?:[-*+]|\d+\.)\s+/gm, '')
