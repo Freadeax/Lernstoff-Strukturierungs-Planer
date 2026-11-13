@@ -23,6 +23,7 @@ import { demoAbschluss, demoZug, istDemo, PROBEFAELLE } from './demo';
 import { Szene } from './Szene';
 import { Rueckblick } from './Rueckblick';
 import { Entscheidungswege } from './Entscheidungswege';
+import { probeStand } from './probestand';
 import { abhoerBefund } from './abhoeren';
 import { OfflinePaket } from '../../ui/sim/OfflinePaket';
 import { FreigabeHinweis } from '../../ui/sim/FreigabeHinweis';
@@ -48,6 +49,10 @@ import {
 
 const modul = pflegeModule;
 const themaName = (id: string) => modul.topics.find((t) => t.id === id)?.name ?? id;
+/** Probefälle nach Bereich geordnet, in der Reihenfolge der Bereiche. */
+const PROBE_GRUPPEN = (Object.keys(SETTING_LABEL) as Setting[])
+  .map((setting) => ({ setting, faelle: PROBEFAELLE.filter((p) => p.szenario.setting === setting) }))
+  .filter((g) => g.faelle.length > 0);
 const PRAXISANLEITUNG = 'Ich frage meine Praxisanleitung kurz um Rat, was ich als Nächstes beachten sollte.';
 
 const VITAL: Array<{ key: keyof Vitalwerte; label: string; einheit?: string }> = [
@@ -114,19 +119,33 @@ function Start({ onStart, apiKey }: { onStart: (s: Szenario, stufe: Stufe) => vo
           <strong id="fall-probe-titel">Probefälle ohne KI</strong>
           <p className="muted">Fest geschriebene Kurzfälle mit Raumfoto und Monitor. Deine Entscheidungen verzweigen den Verlauf. Laufen ohne Schlüssel und offline, zählen nicht für den Lernplan.</p>
         </div>
-        <ul className="fall__probe-liste">
-          {PROBEFAELLE.map((p, i) => (
-            <li key={p.szenario.id}>
-              <span className="fall__probe-info">
-                <span><strong>{p.szenario.titel.replace(/^Probefall: /, '')}</strong> <span className="muted">· {SETTING_LABEL[p.szenario.setting]}</span></span>
-                <OfflinePaket bedarf={fallOfflineBedarf(p.szenario)} kompakt />
-                <FreigabeHinweis freigabe={freigabeFuerFall(p.szenario)} ort="chip" />
-              </span>
-              <button type="button" className={i === 0 ? 'primary' : ''} aria-label={`Probefall starten: ${p.szenario.titel.replace(/^Probefall: /, '')}`}
-                onClick={() => onStart(p.szenario, 1)}>Starten</button>
-            </li>
-          ))}
-        </ul>
+        {PROBE_GRUPPEN.map(({ setting, faelle }) => (
+          <div key={setting} className="fall__probe-gruppe">
+            <h4>{SETTING_LABEL[setting]}</h4>
+            <ul className="fall__probe-liste">
+              {faelle.map((p) => {
+                const stand = probeStand(p, archiv);
+                const titel = p.szenario.titel.replace(/^Probefall: /, '');
+                return (
+                  <li key={p.szenario.id}>
+                    <span className="fall__probe-info">
+                      <span><strong>{titel}</strong></span>
+                      <span className="fall__probe-stand muted">
+                        {stand.gespielt
+                          ? <>Bestes Ergebnis: <strong>{NOTE_LABEL[stand.beste!]}</strong> · Wendungen {stand.wendungen.gesehen} von {stand.wendungen.gesamt} · Möglichkeiten {stand.optionen.gesehen} von {stand.optionen.gesamt}</>
+                          : 'Noch nicht gespielt'}
+                      </span>
+                      <OfflinePaket bedarf={fallOfflineBedarf(p.szenario)} kompakt />
+                      <FreigabeHinweis freigabe={freigabeFuerFall(p.szenario)} ort="chip" />
+                    </span>
+                    <button type="button" className={p === PROBEFAELLE[0] ? 'primary' : ''} aria-label={`Probefall starten: ${titel}`}
+                      onClick={() => onStart(p.szenario, 1)}>{stand.gespielt ? 'Nochmal' : 'Starten'}</button>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ))}
       </section>
       <div className="card fall__einstellungen">
         <span className="muted">Schwierigkeit</span>
@@ -317,6 +336,7 @@ function Auswertung({ fall, onNeu, onNochmal }: { fall: Fall; onNeu: () => void;
 const PROBE_KRANKHEITEN: Record<string, string[]> = {
   'demo-atemnot': ['kh.herzinsuffizienz'], 'demo-hypo': ['kh.diabetes-typ2'], 'demo-asthma': ['kh.asthma'],
   'demo-sepsis': ['kh.sepsis'], 'demo-schlaganfall': ['kh.schlaganfall'], 'demo-fieberkrampf': ['kh.fieberkrampf'], 'demo-bronchiolitis': ['kh.bronchiolitis'], 'demo-herzschwaeche': ['kh.herzinsuffizienz'],
+  'demo-copd': ['kh.copd'],
 };
 
 function Weiterlernen({ fall, themen }: { fall: Fall; themen: string[] }) {
