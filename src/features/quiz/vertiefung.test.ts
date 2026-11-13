@@ -16,6 +16,8 @@ import * as labor from '../labortrainer/aufgaben';
 import * as laborV from '../labortrainer/vertiefung';
 import * as recht from '../recht/aufgaben';
 import * as rechtV from '../recht/vertiefung';
+import * as grundlagen from '../grundlagen/aufgaben';
+import * as grundlagenV from '../grundlagen/vertiefung';
 
 const TRAINER: Array<[string, readonly Aufgabe[], Record<string, string[]>]> = [
   ['Hygiene', hygiene.ALLE_AUFGABEN, hygieneV.VERTIEFUNG],
@@ -26,6 +28,7 @@ const TRAINER: Array<[string, readonly Aufgabe[], Record<string, string[]>]> = [
   ['Arzneimittel', arzneimittel.ALLE_AUFGABEN, arzneimittelV.VERTIEFUNG],
   ['Labor', labor.ALLE_AUFGABEN, laborV.VERTIEFUNG],
   ['Recht', recht.ALLE_AUFGABEN, rechtV.VERTIEFUNG],
+  ['Grundlagen', grundlagen.ALLE_AUFGABEN, grundlagenV.VERTIEFUNG],
 ];
 
 describe('Vertiefung („Mehr verstehen“) in allen Trainern', () => {
