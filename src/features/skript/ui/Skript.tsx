@@ -12,7 +12,7 @@ import { belegText, gruppenRang, leseMinuten } from '../parser';
 import { begriffe, suche } from '../suche';
 import { mitOberthemen } from '../themen';
 import {
-  holeAusRepo, ladeLesestaende, ladeSkripte, leseDateien, loescheSkript, markiereGelesen, merkeZuletzt,
+  holeAusRepo, ladeLesestaende, ladeSkriptBilder, ladeSkripte, leseDateien, loescheSkript, markiereGelesen, merkeZuletzt,
   repoEingerichtet, REPO_ORDNER, setzeThemen, uebernehmeDateien, type ImportErgebnis,
 } from '../store';
 import type { Abschnitt, Lesestand, Skript as SkriptT, SkriptBeleg } from '../typen';
@@ -55,7 +55,17 @@ function ImportPanel({ onFertig, offen }: { onFertig: () => void; offen?: boolea
   const repo = repoEingerichtet();
   const lauf = async (fn: () => Promise<Array<{ name: string; text: string }>>, herkunft: SkriptT['herkunft']) => {
     setLaeuft(true);
-    try { meldeImport(await uebernehmeDateien(await fn(), herkunft)); onFertig(); }
+    try {
+      meldeImport(await uebernehmeDateien(await fn(), herkunft));
+      onFertig();
+      if (repoEingerichtet()) {
+        // Abbildungen nachladen (auch für Skripte aus Dateien, wenn das Bild im Repo liegt)
+        const b = await ladeSkriptBilder();
+        if (b.neu || b.aktualisiert) notify('info', 'Abbildungen geladen', [b.neu && `${b.neu} neu`, b.aktualisiert && `${b.aktualisiert} aktualisiert`].filter(Boolean).join(', '));
+        if (b.fehlend.length) notify('warning', 'Abbildungen fehlen im Material-Repo', `${b.fehlend.length} Bild(er) nicht gefunden, z. B. ${b.fehlend.slice(0, 3).join(', ')}.`);
+        if (b.neu || b.aktualisiert) onFertig();
+      }
+    }
     catch (e) { notify('critical', 'Laden fehlgeschlagen', e instanceof Error ? e.message : String(e)); }
     finally { setLaeuft(false); }
   };

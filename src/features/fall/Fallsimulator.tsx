@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { fallZustand } from './zustand';
+import { ZustandsTafel } from '../../ui/sim/ZustandsTafel';
 import { DatenHinweis } from '../../ui/DatenHinweis';
 import { Titelbild } from '../../ui/Titelbild';
 import './fall.css';
@@ -629,6 +631,8 @@ export default function Fallsimulator() {
                 </div>
               </div>
             )}
+
+            {bild && <ZustandsTafel z={fallZustand(fall, gruppe)} titel="Zustand im Zimmer" />}
 
             {bild && letzter && !letzter.beendet && (
               <Werkzeuge fall={fall} bild={bild} raum={raum} demo={demo} foto={zeigeFoto} marker={marker} setMarker={waehleMarker} onWahl={uebernimm} onUebersicht={() => { setMarker(null); setKamera('raum'); }} />

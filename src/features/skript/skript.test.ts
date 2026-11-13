@@ -6,7 +6,8 @@ import { definitionen, kartenAusAbschnitt, punkte } from './karten';
 import { findeBelege, gruppenRang, leseBelegKlammer, parseSkript, skriptId, teileTitel } from './parser';
 import { begriffe, klartext, markiere, suche } from './suche';
 import { schlageThemenVor } from './themen';
-import { holeAusRepo, markiereGelesen, merkeZuletzt, ladeLesestaende, uebernehmeDateien } from './store';
+import { bildVerweise, holeBilder, repoPfad, speicherImArbeitsspeicher } from './bilder';
+import { holeAusRepo, ladeSkriptBilder, markiereGelesen, merkeZuletzt, ladeLesestaende, uebernehmeDateien } from './store';
 import { bloecke } from './ui/Markdown';
 
 // Erfundene Beispiel-Zusammenfassung im Format der echten Lernzusammenfassungen (keine Originalinhalte).
@@ -208,5 +209,58 @@ describe('Datenbank-Version 7', () => {
     expect(await db.skripte.count()).toBe(1);
     expect(await db.pipelineRuns.count()).toBe(1);
     expect(db.verno).toBe(7);
+  });
+});
+
+describe('Eigene Gruppen und Abbildungen', () => {
+  it('nimmt die Gruppe aus dem Dateikopf und zeigt sie im Titel nicht doppelt', () => {
+    const s = parseSkript('AML-15-Herz.md', '---\ngruppe: Arzneimittellehre\n---\n# Arzneimittellehre · Kap. 15 Herz\n\n## 1 · A [B]\n- x [B]', { herkunft: 'datei' });
+    expect(s.gruppe).toBe('Arzneimittellehre');
+    expect(s.titel).toBe('Kap. 15 Herz');
+    expect(parseSkript('x.md', '# Arzneimittellehre · Kap. 1\n\n## 1 · A\n- y', { herkunft: 'datei' }).gruppe).toBe('Weitere');
+    expect(['Weitere', 'Arzneimittellehre', 'CE 05'].sort((a, b) => gruppenRang(a).localeCompare(gruppenRang(b)))).toEqual(['CE 05', 'Arzneimittellehre', 'Weitere']);
+  });
+
+  it('löst Bildpfade gegen skripte/ auf und lässt Netz- und SVG-Bilder weg', () => {
+    expect(repoPfad('bilder/aml/abb-15-01.jpg')).toBe('skripte/bilder/aml/abb-15-01.jpg');
+    expect(repoPfad('./bilder/../bilder/a.png')).toBe('skripte/bilder/a.png');
+    expect(repoPfad('../dateien/x.webp')).toBe('dateien/x.webp');
+    expect(repoPfad('../../x.png')).toBeUndefined();
+    expect(repoPfad('https://x.de/a.png')).toBeUndefined();
+    expect(repoPfad('bild.svg')).toBeUndefined();
+    expect(bildVerweise('- Abbildung [AML, S. 3] ![Abb. 1](bilder/a.png "Abb. 1 [AML, S. 3]")\n![b](bilder/a.png) ![c](https://x.de/c.png)')).toEqual(['skripte/bilder/a.png']);
+    expect(klartext('Text ![Abb. 2 Herz](bilder/b.png) Ende')).toBe('Text Abb. 2 Herz Ende');
+    expect(punkte('- Abb. 2 zeigt das Herz [B, S. 1] ![Abb. 2](bilder/b.png)')[0]!.text).toBe('Abb. 2 zeigt das Herz');
+  });
+
+  it('holt nur neue oder geänderte Bilder, meldet fehlende und räumt verwaiste auf', async () => {
+    const db = new LernstoffDB(`skript-bild-${Math.random()}`);
+    await uebernehmeDateien([{ name: 'a.md', text: `${BEISPIEL}\n- Bild [D, S. 1] ![Abb](bilder/a.png)\n- ![Fehlt](bilder/fehlt.jpg)` }], 'repo', db);
+    const speicher = speicherImArbeitsspeicher();
+    await speicher.lege('skripte/bilder/alt.png', new Blob(['x']));
+    let sha = 's1';
+    const aufrufe: string[] = [];
+    const f = (async (url: string) => {
+      aufrufe.push(url);
+      if (url.endsWith('/skripte/bilder/a.png')) return new Response(JSON.stringify({ type: 'file', sha, encoding: 'base64', content: btoa('PNGDATA') }));
+      return new Response('{}', { status: 404 });
+    }) as typeof fetch;
+    const z = { owner: 'o', repo: 'r', token: 't' };
+    let e = await ladeSkriptBilder(z, speicher, db, f);
+    expect(e).toMatchObject({ neu: 1, aktualisiert: 0, fehlend: ['skripte/bilder/fehlt.jpg'], entfernt: 1 });
+    const b = await speicher.hole('skripte/bilder/a.png');
+    expect(b!.blob.type).toBe('image/png');
+    expect(await b!.blob.text()).toBe('PNGDATA');
+    e = await ladeSkriptBilder(z, speicher, db, f);
+    expect(e).toMatchObject({ neu: 0, unveraendert: 1 });
+    sha = 's2';
+    e = await ladeSkriptBilder(z, speicher, db, f);
+    expect(e.aktualisiert).toBe(1);
+    expect(await speicher.pfade()).toEqual(['skripte/bilder/a.png']);
+  });
+
+  it('bricht bei ungültigem Token ab', async () => {
+    const f = (async () => new Response('', { status: 401 })) as unknown as typeof fetch;
+    await expect(holeBilder(['skripte/a.png'], { owner: 'o', repo: 'r', token: 't' }, speicherImArbeitsspeicher(), f)).rejects.toThrow(/Token/);
   });
 });
