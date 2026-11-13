@@ -57,6 +57,7 @@ const UebenSeite = lazy(() => import('./features/ueben/UebenSeite'));
 const PasstDazu = lazy(() => import('./features/ueben/PasstDazuLeiste'));
 const Testphase = lazy(() => import('./features/testphase/TestphaseSeite'));
 const ThemaSeite = lazy(() => import('./features/thema/ThemaSeite'));
+const ThemenSeite = lazy(() => import('./features/thema/ThemenSeite'));
 const Wegweiser = lazy(() => import('./features/wegweiser/WegweiserSeite'));
 // Kurzhilfe für die beiden Seiten, die hier direkt gebaut werden: eigener kleiner Chunk, das Startpaket bleibt gleich.
 const SeitenHilfe = lazy(() => import('./features/wegweiser/SeitenHilfe'));
@@ -79,7 +80,7 @@ function View() {
   switch (path) {
     case '/': return <Dashboard />;
     case '/lernen/plan': return <Lernplan />;
-    case '/lernen/themen': return <Page title="Themen" hilfe="/lernen/themen" intro="Alle Themen des Fachmoduls. Arbeitsstand direkt in der Tabelle ändern oder mehrere auswählen."><WidgetGrid widgets={[WIDGETS.themen]} allowHide={false} /></Page>;
+    case '/lernen/themen': return <ThemenSeite />;
     case '/lernen/ce': return <CeSeite />;
     case '/lernen/wegweiser': return <Wegweiser />;
     case '/lernen/thema': return <ThemaSeite />;

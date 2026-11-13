@@ -30,7 +30,7 @@ try {
     assert.equal(await page.locator('select[name=length]').inputValue(), 'kurz');
     await go('/lernen/themen');
     await page.getByPlaceholder('Themen durchsuchen').fill('Mobilitaet im Alltag');
-    await page.getByText('Mobilitaet im Alltag', { exact: true }).waitFor();
+    await page.getByRole('link', { name: 'Mobilitaet im Alltag', exact: true }).first().waitFor();
     await go('/lernen/board');
     const pool = page.locator('[data-col=pool] [data-scroll-root]');
     for (let i = 0; i < 40 && !await page.getByText('Mobilitaet im Alltag', { exact: true }).isVisible(); i++) { await pool.evaluate((e) => { e.scrollTop = e.scrollHeight; }); await page.waitForTimeout(100); }

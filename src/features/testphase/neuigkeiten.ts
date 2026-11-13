@@ -5,6 +5,9 @@
 export interface Neuigkeit { datum: string; titel: string; text: string; pfad: string }
 
 export const NEUIGKEITEN: Neuigkeit[] = [
+  { datum: '2026-11-13', titel: 'Themenbaum mit Fortschritt je Bereich', text: 'Fach, Bereich und Thema aufklappbar, je Ebene ein Balken (sicher, unsicher, bearbeitet, offen), Filter „Fällig“ und „Eingeplant“, Vorschlag „Als Nächstes“. Eigene Themen anlegen und umhängen.', pfad: '/lernen/themen' },
+  { datum: '2026-11-13', titel: 'Fokus-Modus', text: 'Taste F oder Profilmenü: Menüs verschwinden, dazu ein Lernzeit-Timer (15, 25 oder 45 Minuten) und ein Knopf für Hell/Dunkel. Esc beendet.', pfad: '/lernen/karten' },
+  { datum: '2026-11-13', titel: 'Einfügen statt abtippen', text: 'Text aus Webseite, Word oder PDF direkt als Dokument übernehmen (Überschriften bleiben Kapitel), Dateien aufs Upload-Feld ziehen und unter Karteikarten → Eigene Karten viele Karten auf einmal einfügen.', pfad: '/material/dokumente' },
   { datum: '2026-11-13', titel: 'Üben mit Wiederholungsplan', text: 'Fehler kommen in wachsenden Abständen wieder (morgen, 3, 7, 14 Tage …), nach jeder Antwort zeigt die App die passende Stelle im Skript. Neu: „Wie sicher?“ vor dem Prüfen, falsche Aufgaben gleich noch einmal, begonnene Runden fortsetzen, Nachprüfung schwacher Themen.', pfad: '/lernen/fehler' },
   { datum: '2026-11-13', titel: 'Wege zwischen den Seiten', text: '„Passt dazu“ jetzt auch unter Karteikarten, Skript, Expertenstandards, CE, Fortschritt und Dokumenten. Aus einer Übung führt ein Knopf zurück zum Thema, von dem du kamst.', pfad: '/lernen/karten' },
   { datum: '2026-11-13', titel: 'Krankheitsbilder: sechs neue Steckbriefe', text: 'Mit Fallaufgaben zum direkten Anwenden.', pfad: '/lernen/krankheitsbilder' },

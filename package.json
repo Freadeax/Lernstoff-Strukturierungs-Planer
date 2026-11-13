@@ -21,6 +21,7 @@
     "test:praxis": "node scripts/check-praxis.mjs",
     "test:geraete": "node scripts/check-geraete.mjs",
     "test:lernalltag": "node scripts/check-lernalltag.mjs",
+    "test:struktur": "node scripts/check-struktur.mjs",
     "test:barrierefreiheit": "node scripts/check-barrierefreiheit.mjs",
     "check": "node scripts/check-alle.mjs",
     "check:schnell": "node scripts/check-alle.mjs --schnell",

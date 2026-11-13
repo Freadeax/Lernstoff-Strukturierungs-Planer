@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from 'react';
 import { UmzugsHinweis } from '../../features/sicherung/UmzugsHinweis';
 import { Icon } from '../icons';
 import { Menu } from '../Menu';
@@ -17,6 +17,10 @@ import { BEREICH_NAME, bereichVon, seitenName } from './nav';
 import { besucht, merkliste, toggleFavorit } from './merkliste';
 import { aktualisierung, beobachteAktualisierung, neuLadenBeimWechsel } from './aktualisierung';
 import { beobachteSpeicher, speicher } from './speicherwaechter';
+import { fokus, schalteFokus } from './fokus';
+
+// Leiste des Fokus-Modus erst laden, wenn er gebraucht wird (Startpaket bleibt klein).
+const FokusLeiste = lazy(() => import('./FokusLeiste'));
 
 function WorkspaceSwitcher() {
   const moduleId = useStore(session, (s) => s.moduleId);
@@ -41,6 +45,7 @@ function ProfileMenu() {
     <Menu label="Profil und Darstellung" trigger={<Icon name="user" />} className="icon ghost"
       items={[
         { id: 'settings', label: 'Einstellungen', onSelect: () => navigate('/einstellungen') },
+        { id: 'fokus', label: 'Fokus-Modus (F)', onSelect: schalteFokus },
         ...themes.map(([t, l]) => ({ id: `theme-${t}`, label: `${t === theme ? '✓ ' : ''}Darstellung ${l}`, onSelect: () => setWorkspace({ theme: t }) })),
         ...SCHRIFTEN.map(([g, l]) => ({ id: `schrift-${g}`, label: `${g === schrift ? '✓ ' : ''}Schrift ${l}`, onSelect: () => setWorkspace({ schrift: g }) })),
         ...BEWEGUNGEN.map(([b, l]) => ({ id: `bewegung-${b}`, label: `${b === bewegung ? '✓ ' : ''}Bewegung ${l}`, onSelect: () => setWorkspace({ bewegung: b }) })),
@@ -97,6 +102,9 @@ function Header() {
       )}
       <OnlineStatus />
       <div className="shell__search"><Omnibar /></div>
+      <button type="button" className="icon ghost shell__fokus" onClick={schalteFokus} aria-label="Fokus-Modus: Menüs ausblenden" title="Fokus-Modus (F)">
+        <Icon name="maximize" size={20} />
+      </button>
       <div className="shell__actions">
         <WorkspaceSwitcher />
         <NotificationCenter />
@@ -165,6 +173,7 @@ export function Shell({ children }: { children: ReactNode }) {
   const main = useRef<HTMLElement>(null);
   useMenueGesten();
   const tippen = useTippModus(main);
+  const imFokus = useStore(fokus, (f) => f.an);
   useEffect(() => beobachteAktualisierung(), []);
   // Steht eine neue Version an, beim Seitenwechsel neu laden: die alte Seite wird ohnehin verlassen.
   const vorher = useRef(path);
@@ -188,7 +197,7 @@ export function Shell({ children }: { children: ReactNode }) {
     <div className="shell" data-sidebar={collapsed ? 'collapsed' : 'expanded'} data-bereich={bereichVon(path)} data-tippen={tippen || undefined}>
       <a className="skip-link" href="#main" onClick={(e) => { e.preventDefault(); main.current?.focus(); }}>Zum Inhalt springen</a>
       <Sidebar />
-      <Header />
+      {imFokus ? <Suspense fallback={null}><FokusLeiste /></Suspense> : <Header />}
       <main id="main" ref={main} className="shell__main" tabIndex={-1} inert={drawer}>
         <div className="content"><OhneSpeicherHinweis /><AktualisierungsHinweis /><UmzugsHinweis />{children}</div>
       </main>

@@ -318,7 +318,16 @@ Regeln für Fingerbedienung stehen gesammelt am Ende von `src/styles.css` (`@med
 - Hover-Effekte stehen in `@media (hover: hover)`, damit nach dem Antippen nichts „hängen“ bleibt. Neue `:hover`-Regeln genauso einpacken.
 - Wischgesten (`src/ui/shell/gesten.ts`): in der installierten App vom linken Rand das Menü aufziehen, bei offenem Menü nach links wegwischen.
 - Tastenkürzel (`Tastenkuerzel.tsx`, iPad mit Tastatur): `⌘K` oder `/` Suche, `⌥1`–`⌥5` Hauptseiten, `?` Übersicht (auch im Profilmenü).
+- Tippflächen: Links und Textknöpfe außerhalb von Fließtext (Kurzhilfe, `button.link`, Begriffe im Quiz) bekommen am Touchscreen ca. 44 px Höhe über Innenabstand plus gleich großen negativen Außenabstand (`farbfelder.css`, Block „Tippflächen“), das Layout verschiebt sich dabei nicht.
 - `npm run test:geraete` (Teil von `npm run check`) lädt jede Menüseite auf iPhone, iPad hoch und quer und prüft Überlauf, Laufzeitfehler, Feldschrift und die untere Leiste. Neue Seiten mit `path` in `nav.ts` sind automatisch dabei.
+
+## Struktur für großen Lernstoff (13. November 2026)
+
+- **Baum** (`src/ui/baum/Baum.tsx`, Logik `baum.ts`): aufklappbare Liste Fach › Bereich › Thema. Blätter tragen Segmente (`BaumSegment`, Töne `offen | arbeit | unsicher | sicher | luecke | neutral`), Eltern summieren sie (`summiere`), je Zeile ein Balken (`Balken`). Verschachtelte Liste mit Aufklapp-Knöpfen statt `role="tree"`, weil Zeilen Links und Knöpfe enthalten; ↑/↓ springen zwischen Zeilen, →/← klappen auf und zu. Umhängen per Ziehgriff (nur Maus/Stift, `pointer: fine`), Alternative über ein Menü. Am Handy zeigen Blätter einen Farbpunkt statt Balken. Vorbilder: Stapelliste in Anki (Summen der Unterstapel), Balken je Stapel in Brainscape.
+- **Themen** (`#/lernen/themen`): Ansicht Baum (Standard) oder Tabelle, Wahl in `lernstoff.themen.ansicht`, aufgeklappte Zweige in `lernstoff.themenbaum.offen`. „Als Nächstes“ (`naechstesThema` in `src/features/thema/themenbaum.ts`): in Arbeit > fällig > diese Woche > unsicher > bearbeitet > offen. Eigene Themen anlegen (`legeThemaAn`) und umhängen (`verschiebeThema`, Regeln in `umhaengenVerboten`) in `src/features/thema/pflege.ts`; Katalogthemen bleiben fest.
+- **Fokus-Modus** (`src/ui/shell/fokus.ts`, Leiste `FokusLeiste.tsx` lazy): Taste F, Suche „Fokus“, Profilmenü oder Knopf in der Kopfleiste (ab 600 px). `data-fokus` am `html` blendet Menü, Kopf- und Handy-Leiste, Titelbilder und Kurzhilfen aus. Lernzeit-Timer 15/25/45 Minuten mit 5 Minuten Pause, Hell/Dunkel-Knopf, Esc beendet. Module können ihn mit `setzeFokus(true)` anbieten (z. B. beim Prüfungsstart).
+- **Einfügen statt abtippen**: Dokumente → „Text einfügen statt Datei“ (`src/features/dokumente/TextEinfuegen.tsx`) macht aus HTML in der Zwischenablage Markdown (`htmlZuMarkdown`: Überschriften, Listen, Tabellen als Tabulator-Zeilen) und importiert es als `.md`. Dateien lassen sich auf das Upload-Feld ziehen. Karteikarten → Eigene Karten → „Viele Karten auf einmal einfügen“ (`src/features/karteikarten/einfuegen.ts`): eine Karte je Zeile, Trenner Tabulator, `::`, Semikolon, Pfeil, Gedankenstrich oder Doppelpunkt (automatisch erkannt), Folgezeilen ergänzen die Antwort, `[[Lücken]]` werden Lückentexte, vorhandene Vorderseiten werden übersprungen.
+- Browser-Prüfung: `npm run test:struktur` (Teil von `npm run check`).
 
 ## Leistung
 

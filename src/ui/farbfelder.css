@@ -267,3 +267,19 @@ dialog { border: 2px solid var(--color-outline); }
   /* Die Einstiege unter den Text statt in eine schmale Spalte daneben. */
   .today-focus, .today-focus--start { grid-template-columns: minmax(0, 1fr); gap: 28px; }
 }
+/* Fokus-Modus-Knopf: am Handy im Profilmenü (Platz in der Kopfleiste), ab Tablet direkt sichtbar. */
+.shell__fokus { flex-shrink: 0; color: var(--color-text-muted); }
+@media (max-width: 599px) { .shell__fokus { display: none; } }
+.upload.is-ziehen { border-style: solid; border-color: var(--color-primary); background: var(--color-primary-soft); }
+.text-einfuegen { margin-top: var(--space-2); border: 1px solid var(--color-border); border-radius: var(--radius-md, 12px); padding: 0 var(--space-3); }
+.text-einfuegen > summary { cursor: pointer; min-height: var(--control-h); display: flex; flex-wrap: wrap; gap: 0 var(--space-2); align-items: center; }
+.text-einfuegen[open] { padding-bottom: var(--space-3); }
+/* Tippflächen am Touchscreen: Links und Textknöpfe außerhalb von Fließtext bekommen ca. 44 px Höhe,
+   ohne das Layout zu verschieben (Innenabstand + gleich großer negativer Außenabstand). */
+@media (pointer: coarse) {
+  :root :is(.seitenhilfe__links a, .wegweiser a, button.link, .qz-begriff, .bildpruefung__karte a, .karte__hinweis a, .ki-hinweis a) { padding-block: 11px; margin-block: -11px; }
+  button.link { display: inline-block; }
+  button.link.block { margin-block: calc(var(--space-2) - 11px); }
+  button.kcard__wissen { min-height: 36px; }
+  :root main summary { padding-block: 7px; }
+}

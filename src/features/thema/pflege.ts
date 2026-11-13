@@ -123,6 +123,55 @@ export async function benenneThemaUm(topicId: ID, name: string): Promise<{ duble
   return {};
 }
 
+/**
+ * Eigenes Thema direkt anlegen (ohne Dokument), z. B. beim Gliedern im Themenbaum.
+ * Ohne Oberthema entsteht ein neuer Bereich im Fach. Gleichnamige Geschwister werden nicht doppelt angelegt.
+ */
+export async function legeThemaAn(eingabe: { name: string; subjectId: ID; parentId?: ID }): Promise<{ id: ID; vorhanden: boolean }> {
+  const name = pruefeName(eingabe.name);
+  const alle = await alleThemen();
+  if (!modules.some((m) => m.subjects.some((s) => s.id === eingabe.subjectId))) throw new Error('Unbekanntes Fach.');
+  if (eingabe.parentId && !alle.some((t) => t.id === eingabe.parentId && t.subjectId === eingabe.subjectId)) throw new Error('Das Oberthema gehört nicht zum gewählten Fach.');
+  const vorhanden = alle.find((t) => t.subjectId === eingabe.subjectId && t.parentId === eingabe.parentId && normalisiereThema(t.name) === normalisiereThema(name));
+  if (vorhanden) return { id: vorhanden.id, vorhanden: true };
+  const id = `thema.eigen.${crypto.randomUUID()}`;
+  await db.topics.add({ id, name, subjectId: eingabe.subjectId, ...(eingabe.parentId ? { parentId: eingabe.parentId } : {}), prerequisites: [] });
+  await logActivity({ kind: 'lernstand', severity: 'info', ref: id, title: 'Eigenes Thema angelegt', detail: name });
+  return { id, vorhanden: false };
+}
+
+/** Darf `topicId` unter `parentId` (undefined = oberste Ebene des Fachs) hängen? Gibt den Grund zurück, wenn nicht. */
+export function umhaengenVerboten(topic: Topic | undefined, parentId: ID | undefined, alle: Topic[]): string | undefined {
+  if (!topic) return 'Thema nicht gefunden.';
+  if (!istEigenesThema(topic.id)) return 'Katalogthemen bleiben an ihrem Platz.';
+  if (topic.parentId === parentId) return 'Das Thema hängt schon dort.';
+  if (!parentId) return undefined;
+  const ziel = alle.find((t) => t.id === parentId);
+  if (!ziel) return 'Oberthema nicht gefunden.';
+  if (ziel.subjectId !== topic.subjectId) return 'Nur innerhalb desselben Fachs.';
+  // Kein Kreis: das Ziel darf nicht unter dem Thema liegen.
+  for (let p: Topic | undefined = ziel; p; p = p.parentId ? alle.find((t) => t.id === p!.parentId) : undefined) {
+    if (p.id === topic.id) return 'Ein Thema kann nicht unter sich selbst hängen.';
+  }
+  // Blätter tragen den Lernverlauf. Ein Thema mit eigenem Verlauf soll nicht still zum Oberthema werden.
+  if (!alle.some((t) => t.parentId === parentId) && !istEigenesThema(parentId)) return 'Unter ein einzelnes Katalogthema lässt sich nichts hängen.';
+  return undefined;
+}
+
+/** Eigenes Thema unter ein anderes Oberthema hängen (ID bleibt, alle Verweise bleiben gültig). */
+export async function verschiebeThema(topicId: ID, parentId: ID | undefined): Promise<void> {
+  const alle = await alleThemen();
+  const topic = alle.find((t) => t.id === topicId);
+  const grund = umhaengenVerboten(topic, parentId, alle);
+  if (grund) throw new Error(grund);
+  const t = await db.topics.get(topicId);
+  if (!t) throw new Error('Thema nicht gefunden.');
+  const { parentId: _alt, ...rest } = t;
+  await db.topics.put(parentId ? { ...rest, parentId } : rest);
+  const name = (id?: ID) => (id ? alle.find((x) => x.id === id)?.name ?? id : 'oberste Ebene');
+  await logActivity({ kind: 'lernstand', severity: 'info', ref: topicId, title: 'Thema umgehängt', detail: `${t.name}: ${name(t.parentId)} → ${name(parentId)}` });
+}
+
 /** Mögliche Dubletten: gleiches Fach und gleicher (normalisierter) Name, unabhängig vom Oberthema. */
 export function findeDubletten(topic: Topic, alle: Topic[]): Topic[] {
   const n = normalisiereThema(topic.name);

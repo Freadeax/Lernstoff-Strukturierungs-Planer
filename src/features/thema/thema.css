@@ -18,3 +18,20 @@
 .thema__verwalten p { margin: 0; }
 .thema__zeile { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-2); }
 .thema__zeile .field { flex: 1 1 240px; min-width: 0; }
+
+/* Themen: Ansichtswahl und Themenbaum */
+.themen__ansicht { margin-bottom: var(--space-3); }
+.themen__ansicht a.pill { text-decoration: none; display: inline-flex; align-items: center; }
+.themenbaum__kopf { display: grid; gap: var(--space-3); grid-template-columns: minmax(0, 1fr); }
+@container content (min-width: 720px) { .themenbaum__kopf { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); align-items: center; } }
+.themenbaum__gesamt { display: flex; flex-direction: column; gap: var(--space-2); }
+.themenbaum__gesamt .baum-balken { flex: none; height: 14px; }
+.themenbaum__weiter { display: flex; flex-direction: column; gap: var(--space-1); align-items: flex-start; }
+.themenbaum__weiter .button-link { display: inline-flex; align-items: center; gap: var(--space-1); }
+.themenbaum__werkzeug { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; }
+.themenbaum__werkzeug .themen__search { flex: 1 1 14rem; }
+.themenbaum__knoepfe { display: flex; gap: var(--space-1); flex-wrap: wrap; }
+.themenbaum__anlegen { display: grid; gap: var(--space-2); grid-template-columns: minmax(0, 1fr); align-items: end; }
+@container content (min-width: 720px) { .themenbaum__anlegen { grid-template-columns: repeat(3, minmax(0, 1fr)) auto; } }
+.themenbaum__eigen summary { cursor: pointer; min-height: var(--control-h); display: flex; align-items: center; }
+.themenbaum__werkzeug .themen__search input[type='search'] { border: 0; box-shadow: none; }
