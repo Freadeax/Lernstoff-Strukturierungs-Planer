@@ -19,7 +19,15 @@
   Cross-Origin-Opener-Policy: same-origin
   Strict-Transport-Security: max-age=31536000
 
-# Service Worker und Manifest immer frisch holen, damit Updates ankommen
+# Service Worker, Manifest, Startseite und Versionsdatei immer frisch holen, damit Updates ankommen
+# (src/ui/shell/aktualisierung.ts fragt version.json ab; GitHub Pages ignoriert diese Datei, dort hilft
+# der Anfrageparameter und cache: 'no-store' in der App).
+/
+  Cache-Control: no-cache
+/index.html
+  Cache-Control: no-cache
+/version.json
+  Cache-Control: no-cache
 /sw.js
   Cache-Control: no-cache
 /registerSW.js
