@@ -252,3 +252,14 @@ dialog { border: 2px solid var(--color-outline); }
 .schnellweg--leise { min-height: 36px; border-width: 1.5px; box-shadow: none; font-weight: 500; font-size: 0.8125rem; }
 .omnibar__gruppe { margin: 0; padding: 10px 12px 2px; font-size: 0.6875rem; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--color-text-muted); }
 .omnibar__type--aktion { color: var(--color-text); font-weight: 700; }
+
+/* ---------- iPad hoch (Seitenleiste sichtbar, wenig Breite) ---------- */
+@media (min-width: 768px) and (max-width: 1100px) {
+  /* Suche als Symbol: sonst überlappen Suchfeld, Fachmodul und Seitenname. */
+  .omnibar__placeholder, .omnibar__kbd { display: none; }
+  .shell__search { flex: 0 0 auto; margin-left: auto; }
+  .shell__search .omnibar__trigger { width: var(--control-h); min-height: var(--control-h); padding: 0; justify-content: center; }
+  .workspace__name { display: none; }
+  /* Die Einstiege unter den Text statt in eine schmale Spalte daneben. */
+  .today-focus, .today-focus--start { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+}
