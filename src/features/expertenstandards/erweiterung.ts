@@ -24,7 +24,7 @@ export const ERWEITERUNG: Partial<Record<'aufbau' | 'prophylaxe' | 'versorgung',
       id: 'zu.standards', art: 'zuordnen', topicIds: T, titel: 'Welcher Standard passt?', stufe: 2,
       frage: 'Ordne jedem Instrument oder Begriff den Expertenstandard zu, in dem er eine Rolle spielt.',
       paare: [
-        { links: 'Kontinenzprofile', rechts: 'Förderung der Harnkontinenz' },
+        { links: 'Kontinenzprofile', rechts: 'Kontinenzförderung' },
         { links: 'Fingertest bei Rötung', rechts: 'Dekubitusprophylaxe' },
         { links: 'Initiales Assessment kurz nach Aufnahme', rechts: 'Entlassungsmanagement' },
         { links: 'Person-zentrierte Haltung nach Kitwood', rechts: 'Beziehungsgestaltung bei Demenz' },
@@ -79,7 +79,7 @@ export const ERWEITERUNG: Partial<Record<'aufbau' | 'prophylaxe' | 'versorgung',
         { links: 'Verliert Urin, Pflege wechselt das Inkontinenzmaterial', rechts: 'Abhängig kompensierte Inkontinenz' },
         { links: 'Verliert Urin, kein Hilfsmittel, Kleidung oft nass', rechts: 'Nicht kompensierte Inkontinenz' },
       ],
-      erklaerung: ['Erreicht = trocken mit Maßnahmen. Kompensiert = Urinverlust wird aufgefangen. Unabhängig oder abhängig = mit oder ohne Hilfe anderer.'],
+      erklaerung: ['Erreicht = kontinent mit Maßnahmen. Kompensiert = Harn- oder Stuhlverlust wird aufgefangen. Unabhängig oder abhängig = mit oder ohne Hilfe anderer.', 'Seit der Aktualisierung 2024 gelten die Profile für Harn- und Stuhlkontinenz (Expertenstandard Kontinenzförderung, Präambel).'],
     },
   ],
 };
@@ -91,7 +91,7 @@ export const ERWEITERUNG_VERTIEFUNG: Record<string, string[]> = {
   ],
   'zu.standards': [
     'Alle Standards haben einen ähnlichen Aufbau: Präambel, Standardaussage, Begründung und die Kriterien in S, P und E. Dazu kommen Kommentare und eine Literaturstudie.',
-    'Neuere Standards wie zur Mundgesundheit oder zur Mobilität ergänzen die Reihe. Ihre Instrumente sollte man kennen, wenn sie im eigenen Arbeitsbereich eingeführt sind.',
+    'Neuere Standards sind Mundgesundheit (2023) und Hautintegrität (2024). Der Standard zur Mobilität wurde für den früheren § 113a SGB XI entwickelt, aber nie in Kraft gesetzt und steht nicht in der DNQP-Übersicht. § 113a wurde zum 1. Juli 2023 aufgehoben.',
   ],
   'fall.dekubitus': [
     'Gefährdet sind vor allem Menschen mit eingeschränkter Mobilität, schlechter Durchblutung, Feuchtigkeit der Haut und Mangelernährung. Nach Operationen kommen Schmerzen und Narkosefolgen dazu.',

@@ -26,8 +26,8 @@ references:
   - { id: norm.heimrecht, kind: norm, name: "Heimrecht der Länder und Wohn- und Betreuungsvertragsgesetz (WBVG)", pruefstatus: ungeprueft }
   - { id: norm.btmg,    kind: norm, name: "Betäubungsmittelgesetz (BtMG) und BtMVV", pruefstatus: ungeprueft }
 
-  # ---------- Expertenstandards (DNQP, § 113a SGB XI) ----------
-  # Titel und aktuelle Fassung geprüft am 2026-10-25 gegen die DNQP-Übersicht
+  # ---------- Expertenstandards (DNQP) ----------
+  # Titel und aktuelle Fassung geprüft am 2026-11-12 gegen die DNQP-Übersicht
   # (url am Eintrag). Lehrbücher zitieren oft ältere Fassungen.
   # Jeder Standard folgt demselben Aufbau: Standardaussage, Begründung,
   # Struktur-, Prozess- und Ergebniskriterien (S/P/E) auf 5-6 Ebenen.
@@ -40,7 +40,7 @@ references:
   - { id: es.wunden,        kind: standard, name: "Expertenstandard Pflege von Menschen mit chronischen Wunden", pruefstatus: geprueft, url: "https://www.dnqp.de/fileadmin/HSOS/Homepages/DNQP/Dateien/Weitere/Uebersicht_Expertenstandards.pdf", details: "2. Aktualisierung 2025." }
   - { id: es.ernaehrung,    kind: standard, name: "Expertenstandard Ernährungsmanagement zur Sicherung und Förderung der oralen Ernährung in der Pflege", pruefstatus: geprueft, url: "https://www.dnqp.de/fileadmin/HSOS/Homepages/DNQP/Dateien/Weitere/Uebersicht_Expertenstandards.pdf", details: "1. Aktualisierung 2017." }
   - { id: es.demenz,        kind: standard, name: "Expertenstandard Beziehungsgestaltung in der Pflege von Menschen mit Demenz", pruefstatus: geprueft, url: "https://www.dnqp.de/fileadmin/HSOS/Homepages/DNQP/Dateien/Weitere/Uebersicht_Expertenstandards.pdf", details: "1. Aktualisierung 2026." }
-  - { id: es.mobilitaet,    kind: standard, name: "Expertenstandard Erhaltung und Förderung der Mobilität in der Pflege", pruefstatus: ungeprueft, details: "Nach § 113a SGB XI entwickelt, aber nicht in der aktuellen DNQP-Übersicht geführt. Fassung und Herausgeber im Lehrbuch prüfen." }
+  - { id: es.mobilitaet,    kind: standard, name: "Expertenstandard Erhaltung und Förderung der Mobilität in der Pflege", pruefstatus: geprueft, url: "https://www.dnqp.de/fileadmin/HSOS/Homepages/DNQP/Dateien/Pressemitteilungen/PM_DNQP20.07.13.pdf", details: "Für den früheren § 113a SGB XI entwickelt (2014, aktualisiert 2020), nie in Kraft gesetzt und nicht in der DNQP-Übersicht geführt. § 113a SGB XI ist seit 1. Juli 2023 aufgehoben (PUEG)." }
   - { id: es.hautintegritaet, kind: standard, name: "Expertenstandard Erhaltung und Förderung der Hautintegrität in der Pflege", pruefstatus: geprueft, url: "https://www.dnqp.de/fileadmin/HSOS/Homepages/DNQP/Dateien/Weitere/Uebersicht_Expertenstandards.pdf", details: "Erstfassung 2024." }
   - { id: es.mundgesundheit, kind: standard, name: "Expertenstandard Förderung der Mundgesundheit in der Pflege", pruefstatus: geprueft, url: "https://www.dnqp.de/fileadmin/HSOS/Homepages/DNQP/Dateien/Weitere/Uebersicht_Expertenstandards.pdf", details: "Erstfassung 2023." }
 

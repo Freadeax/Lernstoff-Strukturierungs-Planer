@@ -68,7 +68,7 @@ export const QUELLENART_TEXT: Record<QuellenArt, string> = {
 
 /** Kurzer Hinweis, wie verbindlich die Quellenart ist. */
 export const QUELLENART_GELTUNG: Record<QuellenArt, string> = {
-  expertenstandard: 'bundesweiter Fachstandard, nach SGB XI für Pflegeeinrichtungen verbindlich',
+  expertenstandard: 'bundesweiter Fachstandard, gibt den allgemein anerkannten Stand des Wissens wieder (§ 11 SGB XI)',
   gesetz: 'rechtlich verbindlich im genannten Geltungsbereich',
   leitlinie: 'Empfehlung der Fachgesellschaften',
   fachinformation: 'Herstellerangaben zum Arzneimittel, maßgeblich ist die aktuelle Fassung',

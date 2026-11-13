@@ -57,7 +57,7 @@ export const GRUNDLAGEN: GrundlagenAbschnitt[] = [
       'Die Empfehlungen haben laut DNQP den höchstmöglichen Empfehlungscharakter; ein Gesetz sind sie nicht.',
       'Sie gelten als Ausdruck des allgemein anerkannten Stands pflegerischen Wissens. Abweichungen sind im Einzelfall möglich, müssen aber fachlich begründet und dokumentiert werden.',
       'Für Pflegeeinrichtungen nach SGB XI verlangt § 11 Abs. 1 SGB XI Pflege nach dem allgemein anerkannten Stand medizinisch-pflegerischer Erkenntnisse. Diesen Stand geben die Expertenstandards wieder.',
-      'Über § 113a SGB XI können Standards für Pflegeeinrichtungen verbindlich eingeführt werden. Bisher ist das für keinen Standard geschehen (der Mobilitätsstandard wurde dafür entwickelt, aber nicht in Kraft gesetzt).',
+      'Früher konnten Standards über § 113a SGB XI für Pflegeeinrichtungen verbindlich eingeführt werden. Das geschah nie (der Mobilitätsstandard wurde dafür entwickelt, aber nicht in Kraft gesetzt). Der Paragraf wurde mit dem Pflegeunterstützungs- und -entlastungsgesetz (PUEG) zum 1. Juli 2023 aufgehoben.',
       'Verantwortung auf drei Ebenen: Pflegefachkraft (Wissen, Umsetzung), Einrichtung (Verfahrensregeln, Ressourcen), Gesellschaft (Rahmenbedingungen). Missbrauch, z. B. als Argument gegen angemessene Vergütung, lehnt der Lenkungsausschuss ab.',
     ],
   },

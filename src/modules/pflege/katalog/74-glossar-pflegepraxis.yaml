@@ -93,7 +93,7 @@ glossary:
   - { id: gl.belastungsinkontinenz, term: "Belastungsinkontinenz", topicIds: [thema.ph.ausscheidung], definition: "Unwillkürlicher Harnverlust bei Druckerhöhung im Bauchraum, z. B. beim Husten, Niesen oder Heben." }
   - { id: gl.dranginkontinenz, term: "Dranginkontinenz", topicIds: [thema.ph.ausscheidung], definition: "Unwillkürlicher Harnverlust mit plötzlichem, starkem Harndrang.", synonyms: [Urge-Inkontinenz] }
   - { id: gl.toilettentraining, term: "Toilettentraining", topicIds: [thema.ph.ausscheidung], definition: "Kontinenzförderung durch festgelegte oder an das individuelle Ausscheidungsmuster angepasste Toilettenzeiten." }
-  - { id: gl.kontinenzprofil, term: "Kontinenzprofil", topicIds: [thema.ph.ausscheidung, thema.qw.expertenstandards], definition: "Einteilung im Expertenstandard Kontinenzförderung von Kontinenz bis nicht kompensierter Inkontinenz, abhängig von Hilfsmitteln und personeller Unterstützung." }
+  - { id: gl.kontinenzprofil, term: "Kontinenzprofil", topicIds: [thema.ph.ausscheidung, thema.qw.expertenstandards], definition: "Einteilung im Expertenstandard Kontinenzförderung von Kontinenz bis nicht kompensierter Inkontinenz, abhängig von Hilfsmitteln und personeller Unterstützung; seit der Aktualisierung 2024 für Harn- und Stuhlkontinenz." }
   - { id: gl.spk, term: "Suprapubischer Katheter", abbreviation: "SPK", topicIds: [thema.ph.ausscheidung], definition: "Durch die Bauchdecke oberhalb des Schambeins in die Blase gelegter Katheter zur Harnableitung." }
   - { id: gl.einmalkatheterismus, term: "Intermittierender Katheterismus", topicIds: [thema.ph.ausscheidung], definition: "Regelmäßige Blasenentleerung mit einem Einmalkatheter, auch als Selbstkatheterismus; geringeres Infektionsrisiko als ein Dauerkatheter." }
   - { id: gl.geschlossenes-system, term: "Geschlossenes Ableitungssystem", topicIds: [thema.ph.ausscheidung, thema.pro.zystitis], definition: "Urinableitung mit fest verbundenem Beutel, Rückflussventil und Ablass, die nicht diskonnektiert wird; Beutel stets unter Blasenniveau." }
@@ -147,7 +147,7 @@ glossary:
 
   # --- Wunden ---
   - { id: gl.wunde, term: "Wunde", topicIds: [thema.ph.wunde], definition: "Unterbrechung des Zusammenhangs von Körpergewebe mit oder ohne Substanzverlust." }
-  - { id: gl.chronische-wunde, term: "Chronische Wunde", topicIds: [thema.ph.wunde, thema.qw.expertenstandards], definition: "Wunde, die nach etwa vier bis zwölf Wochen trotz Behandlung nicht abgeheilt ist, z. B. Ulcus cruris, Dekubitus oder diabetisches Fußulkus." }
+  - { id: gl.chronische-wunde, term: "Chronische Wunde", topicIds: [thema.ph.wunde, thema.qw.expertenstandards], definition: "Wunde, die nach acht Wochen trotz fachgerechter Behandlung nicht abgeheilt ist (Expertenstandard, 2. Aktualisierung 2025; ältere Lehrbücher nennen vier bis zwölf Wochen), z. B. Ulcus cruris, Dekubitus oder diabetisches Fußulkus." }
   - { id: gl.ulcus-cruris, term: "Ulcus cruris", topicIds: [thema.ph.wunde, thema.kl.herz], definition: "Unterschenkelgeschwür, meist venös bedingt (Ulcus cruris venosum), seltener arteriell oder gemischt.", synonyms: [offenes Bein] }
   - { id: gl.wundheilungsphasen, term: "Wundheilungsphasen", topicIds: [thema.ph.wunde], definition: "Exsudationsphase (Reinigung), Granulationsphase (Gewebeaufbau) und Epithelisierungsphase (Verschluss)." }
   - { id: gl.primaere-wundheilung, term: "Primäre Wundheilung", topicIds: [thema.ph.wunde], definition: "Schnelle Heilung glatter, eng aneinanderliegender Wundränder mit schmaler Narbe, z. B. bei OP-Wunden." }

@@ -62,7 +62,7 @@ const aufbau: Aufgabe[] = [
       'Sie ersetzen die ärztliche Anordnung.',
     ],
     richtig: [0], mehrfach: false,
-    erklaerung: ['Expertenstandards gelten in allen Versorgungsbereichen. Bei Haftungsfragen wird geprüft, ob nach dem Stand des Wissens gepflegt wurde.', 'Sie lassen Raum für den Einzelfall: Abweichungen sind möglich, wenn sie begründet und dokumentiert sind.'],
+    erklaerung: ['Jeder Standard legt seinen Geltungsbereich in der Präambel fest: die meisten gelten in allen Versorgungsbereichen, das Entlassungsmanagement z. B. für Krankenhäuser und Reha-Kliniken. Bei Haftungsfragen wird geprüft, ob nach dem Stand des Wissens gepflegt wurde.', 'Sie lassen Raum für den Einzelfall: Abweichungen sind möglich, wenn sie begründet und dokumentiert sind.'],
   },
 ];
 
@@ -112,7 +112,7 @@ function profil(id: string, fall: string, richtig: number): AuswahlAufgabe {
     optionen: KONTINENZ, richtig: [richtig], mehrfach: false,
     erklaerung: [
       `${KONTINENZ[richtig]}.`,
-      'Erreicht = kein unwillkürlicher Harnverlust, aber mit Maßnahmen. Kompensiert = Harnverlust kommt vor, wird aber mit Hilfsmitteln aufgefangen. Unabhängig = die Person macht es selbst, abhängig = sie braucht dafür Hilfe.',
+      'Erreicht = kein unwillkürlicher Harn- oder Stuhlverlust, aber nur mit Maßnahmen. Kompensiert = Verlust kommt vor, wird aber mit Hilfsmitteln aufgefangen. Unabhängig = die Person macht es selbst, abhängig = sie braucht dafür Hilfe. Seit 2024 gelten die Profile auch für die Stuhlkontinenz.',
     ],
   };
 }
@@ -133,8 +133,8 @@ const versorgung: Aufgabe[] = [
     ['Zum Schmerzmanagement gehört die Verlaufskontrolle. Häufige Nebenwirkungen von Opioiden sind Übelkeit, Verstopfung und Müdigkeit.']),
   frage('versorgung', 'wunde-chronisch', 'thema.ph.wunde', 'Chronische Wunden',
     'Wann gilt eine Wunde nach dem Expertenstandard als chronisch?',
-    ['Wenn sie nach 4 bis 12 Wochen trotz fachgerechter Behandlung nicht abgeheilt ist', 'Wenn sie größer als 2 cm ist', 'Sobald sie infiziert ist', 'Immer bei Menschen über 65 Jahren'],
-    ['Typische chronische Wunden sind Dekubitus, Ulcus cruris und das diabetische Fußulkus. Der Standard stellt die Lebensqualität und das Selbstmanagement der Betroffenen in den Mittelpunkt.']),
+    ['Wenn sie innerhalb von acht Wochen nicht abgeheilt ist', 'Wenn sie größer als 2 cm ist', 'Sobald sie infiziert ist', 'Immer bei Menschen über 65 Jahren'],
+    ['Die 2. Aktualisierung 2025 nennt acht Wochen ohne Abheilung. Ältere Lehrbücher nennen oft „4 bis 12 Wochen“; das ist nicht mehr die Definition des Standards.', 'Typische chronische Wunden sind Dekubitus, Ulcus cruris und das diabetische Fußulkus. Der Standard stellt die Lebensqualität und das Selbstmanagement der Betroffenen in den Mittelpunkt.']),
   frage('versorgung', 'wunde-lebensqualitaet', 'thema.ph.wunde', 'Chronische Wunden',
     'Was erfasst du bei einem Menschen mit chronischer Wunde neben der Wunde selbst? Wähle alle zutreffenden.',
     ['Wundbedingte Einschränkungen im Alltag, z. B. Schmerzen, Geruch, Mobilität', 'Wissen und Fähigkeiten zum Umgang mit der Wunde (Selbstmanagement)', 'Die Ursache der Wunde und ihre Behandlung', 'Die Lieblingsfarbe des Verbandes'],
@@ -142,7 +142,7 @@ const versorgung: Aufgabe[] = [
     [0, 1, 2], true),
   frage('versorgung', 'entlassung', ES_THEMA, 'Entlassungsmanagement',
     'Wann beginnt nach dem Expertenstandard das Entlassungsmanagement?',
-    ['Mit einer ersten Einschätzung des Unterstützungsbedarfs kurz nach der Aufnahme', 'Am Tag der Entlassung', 'Erst wenn der Sozialdienst sich meldet', 'Nach der Entlassung durch den Hausarzt'],
+    ['Mit einer ersten Einschätzung des Unterstützungsbedarfs innerhalb von 24 Stunden nach der Aufnahme', 'Am Tag der Entlassung', 'Erst wenn der Sozialdienst sich meldet', 'Nach der Entlassung durch den Hausarzt'],
     ['Ein frühes initiales Assessment zeigt, wer nach der Entlassung Unterstützung braucht. So bleibt Zeit, Hilfsmittel, Pflege und Angehörige rechtzeitig einzubinden.']),
   frage('versorgung', 'demenz', 'thema.kl.demenz', 'Beziehungsgestaltung bei Demenz',
     'Welche Haltung steht im Expertenstandard Beziehungsgestaltung in der Pflege von Menschen mit Demenz im Mittelpunkt?',
@@ -170,9 +170,9 @@ export const BEREICHE: Bereich[] = [
   {
     id: 'versorgung', label: 'Kontinenz, Schmerz, Wunden, Entlassung', kurz: 'Kontinenzprofile, Einschätzung, Lebensqualität',
     wissen: [
-      'Kontinenzprofile: Kontinenz, unabhängig/abhängig erreichte Kontinenz, unabhängig/abhängig kompensierte Inkontinenz, nicht kompensierte Inkontinenz.',
+      'Kontinenzförderung (seit 2024 Harn und Stuhl). Profile: Kontinenz, unabhängig/abhängig erreichte Kontinenz, unabhängig/abhängig kompensierte Inkontinenz, nicht kompensierte Inkontinenz.',
       'Schmerz: Selbstauskunft vor Fremdeinschätzung, Wirkung kontrollieren.',
-      'Chronische Wunde: nach 4 bis 12 Wochen nicht abgeheilt. Lebensqualität und Selbstmanagement einschätzen.',
+      'Chronische Wunde: innerhalb von acht Wochen nicht abgeheilt. Lebensqualität und Selbstmanagement einschätzen, Wirksamkeit spätestens nach vier Wochen prüfen.',
     ],
   },
 ];

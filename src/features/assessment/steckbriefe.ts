@@ -43,7 +43,7 @@ export const STECKBRIEFE: Record<InstrumentId, Steckbrief> = {
     grenzen: 'Der Index misst, was die Person tatsächlich tut, nicht was sie könnte. Ressourcen, Wünsche und Ziele gehören in die pflegerische Beurteilung.',
   },
   nrs: {
-    fassung: 'Numerische Rating-Skala 0 bis 10', original: { titel: 'DNQP: Expertenstandard Schmerzmanagement in der Pflege', stand: '2020' },
+    fassung: 'Numerische Rating-Skala 0 bis 10', original: { titel: 'Gebräuchliche Selbsteinschätzungsskala, u. a. Downie et al.: Studies with pain rating scales', stand: '1978' },
     zielgruppe: 'Menschen, die Schmerzen selbst einschätzen und mitteilen können', nichtFuer: 'Menschen ohne verlässliche Selbstauskunft, z. B. bei fortgeschrittener Demenz (dafür BESD)',
     rechte: 'Allgemein verbreitete Skala, kein Rechteinhaber bekannt', rechteStatus: 'nicht-geprueft',
     grenzen: 'Die Zahl ist die Selbstauskunft. Was sie für die Person bedeutet (Schlaf, Bewegung, Ziel), klärt erst das Gespräch und die pflegerische Beurteilung.',

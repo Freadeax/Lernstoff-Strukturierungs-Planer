@@ -6870,7 +6870,7 @@
         "thema.ph.ausscheidung",
         "thema.qw.expertenstandards"
       ],
-      "definition": "Einteilung im Expertenstandard Kontinenzförderung von Kontinenz bis nicht kompensierter Inkontinenz, abhängig von Hilfsmitteln und personeller Unterstützung.",
+      "definition": "Einteilung im Expertenstandard Kontinenzförderung von Kontinenz bis nicht kompensierter Inkontinenz, abhängig von Hilfsmitteln und personeller Unterstützung; seit der Aktualisierung 2024 für Harn- und Stuhlkontinenz.",
       "origin": "katalog"
     },
     {
@@ -7361,7 +7361,7 @@
         "thema.ph.wunde",
         "thema.qw.expertenstandards"
       ],
-      "definition": "Wunde, die nach etwa vier bis zwölf Wochen trotz Behandlung nicht abgeheilt ist, z. B. Ulcus cruris, Dekubitus oder diabetisches Fußulkus.",
+      "definition": "Wunde, die nach acht Wochen trotz fachgerechter Behandlung nicht abgeheilt ist (Expertenstandard, 2. Aktualisierung 2025; ältere Lehrbücher nennen vier bis zwölf Wochen), z. B. Ulcus cruris, Dekubitus oder diabetisches Fußulkus.",
       "origin": "katalog"
     },
     {
@@ -12943,8 +12943,9 @@
       "id": "es.mobilitaet",
       "kind": "standard",
       "name": "Expertenstandard Erhaltung und Förderung der Mobilität in der Pflege",
-      "pruefstatus": "ungeprueft",
-      "details": "Nach § 113a SGB XI entwickelt, aber nicht in der aktuellen DNQP-Übersicht geführt. Fassung und Herausgeber im Lehrbuch prüfen."
+      "pruefstatus": "geprueft",
+      "url": "https://www.dnqp.de/fileadmin/HSOS/Homepages/DNQP/Dateien/Pressemitteilungen/PM_DNQP20.07.13.pdf",
+      "details": "Für den früheren § 113a SGB XI entwickelt (2014, aktualisiert 2020), nie in Kraft gesetzt und nicht in der DNQP-Übersicht geführt. § 113a SGB XI ist seit 1. Juli 2023 aufgehoben (PUEG)."
     },
     {
       "id": "es.hautintegritaet",
