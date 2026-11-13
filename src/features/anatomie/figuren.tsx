@@ -253,4 +253,36 @@ const hormone: Figur = {
   ),
 };
 
-export const FIGUREN: Record<string, Figur> = { herz, atmung, niere, skelett, gehirn, auge, haut, hormone };
+const zelle: Figur = {
+  viewBox: '0 0 300 220',
+  beschreibung: 'Schema einer menschlichen Zelle mit Zellmembran, Zellkern, Kernkörperchen, Mitochondrien, endoplasmatischem Retikulum, Golgi-Apparat und Lysosom, ohne Beschriftung',
+  zeichnung: (
+    <g>
+      {/* Zellmembran und Zytoplasma */}
+      <ellipse className="fig-gewebe" cx="150" cy="110" rx="140" ry="100" style={{ strokeWidth: 3 }} />
+      {/* Zellkern mit Kernhülle und Kernkörperchen */}
+      <circle className="fig-gewebe-2" cx="150" cy="110" r="38" />
+      <circle className="fig-knochen" cx="160" cy="104" r="9" />
+      {/* Mitochondrien mit gefalteter Innenmembran */}
+      <g transform="rotate(-20 70 70)">
+        <ellipse className="fig-sauerstoffreich" cx="70" cy="70" rx="22" ry="11" />
+        <path className="fig-fein" d="M52 70 L57 63 L62 77 L67 63 L72 77 L77 63 L82 77 L87 70" />
+      </g>
+      <g transform="rotate(15 236 152)">
+        <ellipse className="fig-sauerstoffreich" cx="236" cy="152" rx="20" ry="10" />
+        <path className="fig-fein" d="M220 152 L225 146 L230 158 L235 146 L240 158 L245 146 L250 152" />
+      </g>
+      {/* Raues endoplasmatisches Retikulum mit Ribosomen */}
+      <path className="fig-fein" d="M196 78 Q206 72 216 78 T236 78 M198 92 Q208 86 218 92 T238 92 M200 106 Q210 100 220 106 T240 106" style={{ strokeWidth: 2 }} />
+      <g className="fig-linie" style={{ strokeWidth: 4 }}>
+        {[[202, 74], [214, 81], [226, 74], [204, 88], [216, 95], [228, 88], [206, 102], [218, 109], [230, 102]].map(([x, y]) => <path key={`${x}-${y}`} d={`M${x} ${y} h0.1`} />)}
+      </g>
+      {/* Golgi-Apparat: gestapelte Bögen */}
+      <path className="fig-fein" d="M76 150 Q96 140 116 150 M74 160 Q96 150 118 160 M76 170 Q96 160 116 170" style={{ strokeWidth: 3 }} />
+      {/* Lysosom */}
+      <circle className="fig-gewebe-2" cx="236" cy="52" r="8" />
+    </g>
+  ),
+};
+
+export const FIGUREN: Record<string, Figur> = { herz, atmung, niere, skelett, gehirn, auge, haut, hormone, zelle };
