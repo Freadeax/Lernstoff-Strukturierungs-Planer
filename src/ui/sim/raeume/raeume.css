@@ -70,3 +70,6 @@
 @media (max-width: 480px) {
   .raum-hotspot > span { min-width: 24px; height: 24px; font-size: 0.78rem; }
 }
+
+/* Bekannter Bildmangel aus der Bildprüfung (src/ui/sim/bildfreigaben.ts) */
+.raum-buehne__mangel { margin: var(--space-1) 0 0; padding: var(--space-1) var(--space-2); border-left: 3px solid var(--color-warning); font-size: 0.875rem; background: var(--color-surface-sunken); }

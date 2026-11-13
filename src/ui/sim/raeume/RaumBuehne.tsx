@@ -8,6 +8,7 @@ import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 
 import { PatientenMonitor } from '../PatientenMonitor';
 import type { MonitorGruppe, MonitorWerte } from '../monitor';
 import { wenigBewegung } from '../../shell/session';
+import { bildMangel } from '../bildfreigaben';
 import { RAEUME, raumFuerZustand, raumUrl, type MonitorZustand, type RaumId, type Rechteck } from './katalog';
 import './raeume.css';
 
@@ -116,6 +117,7 @@ export function RaumBuehne({ raum, hotspots = [], monitor, monitorInhalt, fokus,
     '--raum-zoom': zoom?.zoom ?? 1,
   } as CSSProperties;
 
+  const mangel = bildMangel(r.datei);
   return (
     <figure className={`raum-buehne ${ruhig ? 'is-ruhig' : ''} ${className}`.trim()}>
       <div className="raum-buehne__rahmen">
@@ -145,6 +147,7 @@ export function RaumBuehne({ raum, hotspots = [], monitor, monitorInhalt, fokus,
           ))}
         </div>
       </div>
+      {mangel && <p className="raum-buehne__mangel" role="note"><span aria-hidden="true">⚠ </span>Bekannter Bildmangel, Ersatz ist bestellt: {mangel.hinweis}</p>}
       <figcaption className="visually-hidden">{ort ?? r.titel}</figcaption>
     </figure>
   );

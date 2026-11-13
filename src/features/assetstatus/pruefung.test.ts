@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { erstelleExport, leseExport, pruefeEintraege } from './pruefung';
+import { erstelleExport, leseExport, pruefeEintraege, verwendungZiel } from './pruefung';
 
 describe('Bildprüfung: Export und Eingabeprüfung', () => {
   it('Rundlauf über die Exportdatei', () => {
@@ -19,5 +19,11 @@ describe('Bildprüfung: Export und Eingabeprüfung', () => {
   });
   it('lehnt fremde Formate ab', () => {
     expect(() => leseExport('{"format":"lernstoff-ablage/1"}')).toThrow(/Format/);
+  });
+  it('springt in den Fall', () => {
+    expect(verwendungZiel('praxis:asthma (Maßnahme orders)')).toBe('#/lernen/praxis?fall=asthma');
+    expect(verwendungZiel('diagnostik:asthma-kind')).toBe('#/lernen/diagnostik?fall=asthma-kind');
+    expect(verwendungZiel('hygiene:isolierung')).toBe('#/lernen/hygiene');
+    expect(verwendungZiel('bereich:heute')).toBeUndefined();
   });
 });

@@ -1,6 +1,6 @@
 // Bildprüfung auf dem Gerät: Prüfergebnisse liegen bis zum Export im Browser (localStorage) und
 // werden als Datei an Claude gegeben, der sie mit `npm run assets:freigaben -- <datei>` in
-// freigaben.ts übernimmt. Erst dort gelten sie für alle Geräte und den Asset-Bericht.
+// src/ui/sim/bildfreigaben.ts übernimmt. Erst dort gelten sie für alle Geräte und den Asset-Bericht.
 
 import type { BildFreigabe } from './freigaben';
 
@@ -57,3 +57,17 @@ export function leseExport(text: string): Record<string, BildFreigabe> {
 }
 
 export const heute = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+/** Sprungziel in die App, in der das Bild erscheint (Fall direkt, wo der Simulator das kann). */
+export function verwendungZiel(w: string): string | undefined {
+  const m = /^([a-z]+):([a-z0-9-]+)/.exec(w);
+  if (!m) return undefined;
+  const [, sim, id] = m;
+  if (sim === 'praxis' && id !== 'lernclips') return `#/lernen/praxis?fall=${id}`;
+  if (sim === 'praxis') return '#/lernen/praxis';
+  if (sim === 'diagnostik') return `#/lernen/diagnostik?fall=${id}`;
+  if (sim === 'fall') return '#/lernen/fall';
+  if (sim === 'hygiene') return '#/lernen/hygiene';
+  if (sim === 'notfall') return '#/lernen/notfall';
+  return undefined;
+}
