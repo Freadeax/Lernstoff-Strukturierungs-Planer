@@ -48,7 +48,7 @@ export const NAV: NavItem[] = [
           { id: 'hygiene', label: 'Hygiene-Trainer', path: '/lernen/hygiene', icon: 'shield' },
           { id: 'expertenstandards', label: 'Expertenstandards', path: '/lernen/expertenstandards', icon: 'star' },
           { id: 'recht', label: 'Recht-Trainer', path: '/lernen/recht', icon: 'scale' },
-          { id: 'rechnen', label: 'Rechentrainer', path: '/lernen/rechnen', icon: 'calc' },
+          { id: 'grundlagen', label: 'Grundlagen-Trainer', path: '/lernen/grundlagen', icon: 'book' },
           { id: 'duell', label: 'Fachbegriff-Duell', path: '/lernen/duell', icon: 'duell' },
           { id: 'mindmap', label: 'Mindmaps', path: '/lernen/mindmap', icon: 'mindmap' },
         ],
@@ -74,6 +74,8 @@ export const NAV: NavItem[] = [
           { id: 'fallakte', label: 'Fallakte', path: '/lernen/fallakte', icon: 'folder' },
           { id: 'examen', label: 'Examen', path: '/lernen/examen', icon: 'examen' },
           { id: 'fehler', label: 'Fehlerheft', path: '/lernen/fehler', icon: 'alert' },
+          // Rechentrainer hier: Pflegerechnen ist klassischer Prüfungsstoff und hat einen eigenen Prüfungsmodus (Platz in Fachwissen für den Grundlagen-Trainer).
+          { id: 'rechnen', label: 'Rechentrainer', path: '/lernen/rechnen', icon: 'calc' },
           // Praxis und Fachwissen sind mit je zehn Einträgen voll; Blutdruck nach Gehör ist auch Prüfungsstoff (praktische Prüfung).
           { id: 'hoeren', label: 'Hör-Trainer', path: '/lernen/hoeren', icon: 'stetho' },
           { id: 'klasse', label: 'Klassenmodus', path: '/lernen/klasse', icon: 'klasse' },

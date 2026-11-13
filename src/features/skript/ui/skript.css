@@ -75,6 +75,10 @@
 .sk-quellen { margin: var(--space-2) 0; }
 .sk-quellen summary { cursor: pointer; font-weight: var(--weight-medium); }
 .sk-quellen dl { margin: var(--space-2) 0; display: flex; flex-direction: column; gap: var(--space-1); font-size: var(--text-sm); }
+.sk-weitergabe { margin: var(--space-2) 0; }
+.sk-weitergabe summary { cursor: pointer; font-weight: var(--weight-medium); }
+.sk-weitergabe__ok { display: block; margin: var(--space-2) 0; }
+.sk-weitergabe button { margin-bottom: var(--space-2); }
 .sk-quellen dl div { display: grid; grid-template-columns: 4.5rem minmax(0, 1fr); gap: var(--space-2); }
 .sk-quellen dt { font-weight: var(--weight-bold); }
 .sk-quellen dd { margin: 0; }

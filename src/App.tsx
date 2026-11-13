@@ -51,6 +51,7 @@ const NotfallTrainer = lazy(() => import('./features/notfall/NotfallTrainer'));
 const HoerTrainer = lazy(() => import('./features/hoeren/HoerTrainer'));
 const ArzneimittelTrainer = lazy(() => import('./features/arzneimittel/ArzneimittelTrainer'));
 const RechtTrainer = lazy(() => import('./features/recht/RechtTrainer'));
+const GrundlagenTrainer = lazy(() => import('./features/grundlagen/GrundlagenTrainer'));
 const Schnellsuche = lazy(() => import('./features/schnellsuche/Schnellsuche'));
 const UebenSeite = lazy(() => import('./features/ueben/UebenSeite'));
 const PasstDazu = lazy(() => import('./features/ueben/PasstDazuLeiste'));
@@ -115,6 +116,7 @@ function View() {
     case '/lernen/hoeren': return <HoerTrainer />;
     case '/lernen/arzneimittel': return <ArzneimittelTrainer />;
     case '/lernen/recht': return <RechtTrainer />;
+    case '/lernen/grundlagen': return <GrundlagenTrainer />;
     case '/lernen/faecher': return <Faecher />;
     case '/material/dokumente': return <Dokumente />;
     case '/material/import': return <Page title="Dein Material. Bereit zum Lernen." intro="In vier Schritten von der Datei zur nachvollziehbaren Lernquelle."><WidgetGrid widgets={[WIDGETS.wizard]} allowHide={false} /></Page>;

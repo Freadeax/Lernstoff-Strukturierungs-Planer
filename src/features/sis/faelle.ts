@@ -213,7 +213,7 @@ export const SIS_FAELLE: SisFall[] = [
     kernpunkte: [
       { id: 'b-wohnung', feld: 'B', pflicht: true, text: 'Möchte in der eigenen Wohnung bleiben, nicht ins Heim', muster: ['wohnung', 'heim', 'zu hause', 'zuhause'] },
       { id: 'b-kochen', feld: 'B', pflicht: false, text: 'Kocht seit dem Tod seiner Frau nicht mehr richtig', muster: ['koche', 'gerda'] },
-      { id: 'b-last', feld: 'B', pflicht: false, text: 'Will niemandem zur Last fallen', muster: ['last'] },
+      { id: 'b-last', feld: 'B', pflicht: false, text: 'Will niemandem zur Last fallen', muster: [' last'] },
       { id: 'tf1-orientiert', feld: 'TF1', pflicht: true, text: 'Orientiert, liest mit Lesebrille, hört gut', muster: ['orientiert', 'klar', 'lesebrille'] },
       { id: 'tf1-vergessen', feld: 'TF1', pflicht: true, text: 'Vergisst manchmal die Mittagstabletten', muster: ['vergisst', 'vergessen', 'vergesse', 'erinner'], auchIn: ['TF3'], begruendung: 'Vergessen ist eine kognitive Fähigkeit (TF1). Weil es um die Medikamente geht, ist auch TF3 (Umgang mit der Erkrankung) vertretbar.' },
       { id: 'tf2-treppe', feld: 'TF2', pflicht: true, text: 'Treppe (2. OG ohne Aufzug) kaum noch zu schaffen', muster: ['treppe', 'stockwerk', 'obergeschoss', 'aufzug'] },

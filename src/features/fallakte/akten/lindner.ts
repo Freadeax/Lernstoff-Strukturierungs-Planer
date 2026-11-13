@@ -210,21 +210,30 @@ S: angezeigt durch Atemnot nach 30 m (AF 24/min), schläft nur mit erhöhtem Obe
 R: orientiert, sagt selbst, wann sie Pause braucht, geht mit Rollator
 
 Ziel: Frau Lindner erreicht mit einer Pause den Speisesaal und gibt dabei keine Angst an. Überprüfung: täglich, Ziel in 7 Tagen.
-Maßnahme: Stuhl für Pausen im Flur, Wege mit ihr vorher absprechen (Pflegefachperson, bei jedem Gang); Oberkörper im Bett erhöht; Atemfrequenz und SpO₂ einmal täglich und bei Atemnot.
+Maßnahme: Stuhl für Pausen im Flur, Wege mit ihr vorher absprechen; Oberkörper im Bett erhöht; Atemfrequenz und SpO₂ messen.
+Wann: bei jedem Gang; Messung einmal täglich und bei Atemnot
+Wer: Pflegefachperson
+Begründung: Geplante Pausen verhindern Überlastung und nehmen die Angst. Die Werte zeigen eine Verschlechterung früh.
 
 P: Gefahr einer erneuten Verschlechterung der Herzinsuffizienz
 E: beeinflusst durch Wassereinlagerung (Ödeme), Kaffee als Gewohnheit bei Trinkmengengrenze
 R: einverstanden mit täglichem Wiegen, kennt ihre Tabletten
 
-Ziel: Gewichtszunahme über den Meldegrenzen wird am selben Morgen erkannt und gemeldet.
-Maßnahme: Täglich um 7 Uhr vor dem Frühstück wiegen und dokumentieren, Trinkmenge erfassen (höchstens 1,5 l, Kaffee eingerechnet), Unterschenkel ansehen; mehr als 1 kg an einem Tag oder 2 kg in drei Tagen sofort der Hausärztin melden.
+Ziel: Frau Lindner nennt ihre Meldegrenzen (1 kg an einem Tag, 2 kg in drei Tagen) und lässt sich jeden Morgen wiegen. Überprüfung: täglich, Auswertung in 7 Tagen.
+Maßnahme: Vor dem Frühstück wiegen und dokumentieren, Trinkmenge erfassen (höchstens 1,5 l, Kaffee eingerechnet), Unterschenkel ansehen; mehr als 1 kg an einem Tag oder 2 kg in drei Tagen sofort der Hausärztin melden.
+Wann: täglich um 7 Uhr
+Wer: Pflegefachperson
+Begründung: Eine Gewichtszunahme ist das früheste Zeichen für Wassereinlagerung. Die Meldegrenzen stammen aus der ärztlichen Vorgabe.
 
 P: Sturzgefahr
 E: beeinflusst durch Atemnot, Knieschmerzen beim Aufstehen, Harndrang durch Torasemid, zwei Stürze zu Hause
 R: klingelt zuverlässig, nutzt den Rollator
 
-Ziel: Frau Lindner stürzt nicht und klingelt nachts vor dem Aufstehen.
-Maßnahme: Klingel und Rollator in Reichweite, Nachtlicht, festes Schuhwerk; beim Aufstehen aus dem Sessel bleibt jemand dabei.`,
+Ziel: Frau Lindner stürzt nicht und klingelt nachts vor dem Aufstehen. Überprüfung: täglich im Nachtbericht.
+Maßnahme: Klingel und Rollator in Reichweite, Nachtlicht, festes Schuhwerk; beim Aufstehen aus dem Sessel bleibt jemand dabei.
+Wann: bei jeder Versorgung und bei jedem Aufstehen
+Wer: Pflegefachperson, Pflegehilfskraft nach Absprache
+Begründung: Expertenstandard Sturzprophylaxe: Umgebung anpassen und bei bekannten Risiken (Atemnot, nächtlicher Harndrang) begleiten.`,
 };
 
 export const LINDNER_BERICHT: BerichtFall = {

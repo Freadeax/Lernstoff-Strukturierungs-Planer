@@ -40,6 +40,10 @@ const FAELLE: Record<string, Eintrag> = {
     lernziele: ['Anaphylaxie bei Infusion erkennen', 'Auslöser stoppen, Zugang belassen, Hilfe holen', 'Adrenalin i.m. vorbereiten und Allergie dokumentieren'] },
   'demo-fieberkrampf': { geltung: 'Kinder (2 Jahre), Kinderstation, ab 2. Ausbildungsjahr', risiken: ['kinder', 'notfall'], pruefpunkte: ['Kinder-Normwerte und Alarmgrenzen statt Erwachsenen-NEWS2', 'Krampfdauer, Seitenlage, Notfallmedikation nur nach Standard'],
     lernziele: ['Fieberkrampf erkennen, Dauer messen und vor Verletzung schützen', 'Nach dem Krampf Atemwege frei halten', 'Eltern anleiten und Diagnosefragen an die Ärztin geben'] },
+  'demo-bronchiolitis': { geltung: 'Säugling (4 Monate), Kinderstation, ab 2. Ausbildungsjahr', risiken: ['kinder', 'notfall'], pruefpunkte: ['Säuglings-Normwerte und Alarmgrenzen statt Erwachsenen-NEWS2', 'Ziel-Sättigung, Magensonde und Infusion nach Hausstandard', 'Kontaktisolierung bei RSV'],
+    lernziele: ['Atemarbeit, Atempausen und Trinkmenge beim Säugling einschätzen', 'Nase freimachen, sicher lagern und früh ärztlich informieren', 'RSV-Kontaktisolierung einhalten und Alarme hörbar lassen'] },
+  'demo-herzschwaeche': { geltung: 'Erwachsene, Ambulante Pflege, ab 2. Ausbildungsjahr', risiken: ['medikament', 'notfall'], pruefpunkte: ['Gewichtsgrenze 2 kg in 3 Tagen, Trinkmengenvorgabe', 'Kontraindikation Kompression bei dekompensierter Herzinsuffizienz', 'Telefonische Anordnung im ambulanten Dienst'],
+    lernziele: ['Dekompensation an Gewicht, Ödemen und Atemnot im Liegen erkennen', 'Medikamenteneinnahme prüfen und die Hausärztin mit Werten informieren', 'Selbstbestimmung respektieren und einen Notfallplan vereinbaren'] },
   // KI-Fälle aus faelle.ts
   herzinsuffizienz: { geltung: 'Erwachsene, internistische Station, ab 2. Ausbildungsjahr', risiken: ['medikament'], pruefpunkte: ['Flüssigkeitsbilanz, Diuretikum nur nach Anordnung'],
     lernziele: ['Kardiale Dekompensation an Gewicht, Ödemen und Orthopnoe erkennen', 'Oberkörper hoch lagern und Ärztin informieren', 'Bilanz und Gewicht als Verlaufskontrolle nutzen'] },
@@ -80,7 +84,12 @@ const FAELLE: Record<string, Eintrag> = {
 /** Alter in Jahren aus der Kurzbeschreibung („Ben, 7 Jahre, …“), sonst null. */
 export function alterAus(kurz: string): number | null {
   const m = /(\d{1,3})\s*Jahre/.exec(kurz);
-  return m ? Number(m[1]) : null;
+  if (m) return Number(m[1]);
+  // Säuglinge: „4 Monate“ oder „3 Wochen“ als Bruchteil eines Jahres
+  const monate = /(\d{1,2})\s*Monate?\b/.exec(kurz);
+  if (monate) return Number(monate[1]) / 12;
+  const wochen = /(\d{1,2})\s*Wochen?\b/.exec(kurz);
+  return wochen ? Number(wochen[1]) / 52 : null;
 }
 
 export function zielgruppeVon(s: Pick<Szenario, 'setting' | 'kurz'>): Zielgruppe {
