@@ -1,4 +1,10 @@
 import { useSyncExternalStore } from 'react';
+import { flushSync } from 'react-dom';
+
+/** System oder App verlangen wenig Bewegung. Hier eigenständig, damit der Router nicht vom Sitzungsspeicher abhängt. */
+function wenigBewegung(): boolean {
+  return document.documentElement.dataset.motion === 'reduce' || (typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches);
+}
 
 // Hash-Routing (#/lernen/themen?q=…): funktioniert auf GitHub Pages ohne Server-Regeln
 // und als installierte PWA. Bis zu drei Pfadebenen, Abfrageparameter für Filter.
@@ -31,8 +37,23 @@ const listeners = new Set<() => void>();
 if (typeof window !== 'undefined') {
   window.addEventListener('hashchange', () => {
     // Zurück/Vor: Eintrag kennt seine Tiefe. Neuer Eintrag (Link, navigate): eine Ebene tiefer.
+    const vorher = current.path;
     current = parse(stateDepth() ?? stamp(current.depth + 1));
-    listeners.forEach((l) => l());
+    const melden = () => listeners.forEach((l) => l());
+    // Seitenwechsel als weicher Übergang (alte Seite blendet aus, neue ein), wo der Browser das kann.
+    // Nicht bei gleicher Seite (nur Filter in der Adresse) und nicht bei „wenig Bewegung“.
+    type Uebergang = { ready?: Promise<unknown>; finished?: Promise<unknown>; updateCallbackDone?: Promise<unknown> };
+    const doc = document as Document & { startViewTransition?: (cb: () => void) => Uebergang };
+    if (current.path !== vorher && doc.startViewTransition && !wenigBewegung()) {
+      try {
+        const u = doc.startViewTransition(() => flushSync(melden));
+        // Ein übersprungener oder abgebrochener Übergang (schneller Folgeklick, Drehen des Geräts) ist kein Fehler:
+        // die neue Seite steht dann sofort da.
+        for (const p of [u?.ready, u?.finished, u?.updateCallbackDone]) p?.catch(() => undefined);
+        return;
+      } catch { /* dann ohne Übergang */ }
+    }
+    melden();
   });
 }
 

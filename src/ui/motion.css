@@ -135,3 +135,14 @@ select, input, textarea { transition: border-color var(--dur-fast), box-shadow v
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
 :root[data-motion='reduce'] *, :root[data-motion='reduce'] *::before, :root[data-motion='reduce'] *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+
+/* ---------- Seitenübergang (View Transitions, ausgelöst in router.ts) ---------- */
+/* Nur der Inhalt wechselt weich, Seitenleiste und Kopf bleiben stehen. Der Übergang liegt über der Seite,
+   fängt aber keine Tipps ab und ist so kurz, dass er die Einblendung der neuen Seite nur einleitet. */
+:root { view-transition-name: none; }
+.shell__main > .content { view-transition-name: seite; }
+::view-transition { pointer-events: none; }
+::view-transition-group(seite) { animation-duration: var(--dur-normal); }
+::view-transition-old(seite) { animation: m-seite-raus var(--dur-normal) var(--ease-out) both; }
+::view-transition-new(seite) { animation: m-fade var(--dur-normal) var(--ease-out) both; }
+@keyframes m-seite-raus { to { opacity: 0; transform: translateY(-10px) scale(0.99); } }

@@ -68,6 +68,10 @@ Jede Seite hat denselben Kopf: Marke, großer Titel, Einleitung. Seiten mit `Pag
 
 `#/system/design` zeigt neben den sechs Modulzuständen fünf Systemzustände (`src/features/designsystem/SystemLabor.tsx`): Speicher voll, Offline-Medium (drei Stufen aus `ui/sim/offline`), langsames Gerät, fachlicher Prüfstand (`FreigabeHinweis`) und wenig Bewegung. Jede Ansicht nennt die Regel für neue Module.
 
+### Seitenübergang
+
+Beim Wechsel der Seite blendet der Inhalt weich über (View Transitions): `router.ts` startet den Übergang, `motion.css` gestaltet ihn (`view-transition-name: seite` am Inhalt, Seitenleiste und Kopf bleiben stehen). Kein Übergang bei gleicher Seite (nur Filter in der Adresse), bei „wenig Bewegung“ und in Browsern ohne die Funktion. Folge für Prüfskripte: die neue Seite steht einen Bildaufbau nach dem Adresswechsel, also auf Elemente warten statt sofort zählen.
+
 ### Titelbilder
 
 Sechs Bereichsfotos liegen unter `public/titelbilder/` (1200 × 675, WebP, je 50 bis 100 KB) und werden für Offline vorab geladen (`titelbilder/*.webp` in `vite.config.ts`; andere WebP-Ordner bleiben beim Laufzeit-Cache). Baustein: `<Titelbild motiv="heute|lernen|material|ueben|simulation|system" />` aus `src/ui/Titelbild.tsx`, standardmäßig dekorativ (leerer Alternativtext), mit `beschreiben` kommt der Text aus dem Katalog. `PageHeading` nimmt `bild="…"` für die Einstiegsseiten der Bereiche. Neue Fotos zuerst auf diese Größe verkleinern.
