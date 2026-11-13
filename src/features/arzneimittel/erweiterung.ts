@@ -34,6 +34,30 @@ export const ERWEITERUNG: Partial<Record<'sicherheit' | 'applikation' | 'gruppen
       ],
       erklaerung: ['Wer die typische Nebenwirkung kennt, weiß, was vor und nach der Gabe beobachtet wird.'],
     },
+    {
+      id: 'fall.herzinfarkt', art: 'fall', topicIds: T, titel: 'Fall: Neuer Medikamentenplan nach Herzinfarkt', stufe: 3,
+      frage: 'Beobachtest du gezielt nach der Wirkstoffgruppe?',
+      einstieg: 'Herr P., 64 Jahre, hatte vor einer Woche einen Herzinfarkt und einen Stent bekommen. Neu angesetzt: ASS und Clopidogrel, Bisoprolol, Ramipril und Atorvastatin.',
+      schritte: [
+        {
+          lage: 'Vor der Gabe von Bisoprolol misst du einen Puls von 48/min. Er fühlt sich schwindelig.',
+          frage: 'Was tust du?', optionen: ['Nicht geben, ärztlich melden, Blutdruck messen', 'Wie angeordnet geben, der Puls ist bei Betablockern immer langsam', 'Die doppelte Dosis geben, damit das Herz geschont wird'], richtig: [0], mehrfach: false,
+          warum: 'Betablocker senken die Herzfrequenz. Ein Puls unter 50/min mit Schwindel ist ein Grund, die Gabe zu besprechen.',
+        },
+        {
+          lage: 'Am dritten Tag bemerkst du Zahnfleischbluten und mehrere blaue Flecken an den Armen.',
+          frage: 'Zu welchen Arzneimitteln passt das?', optionen: ['ASS und Clopidogrel: Sie hemmen die Blutplättchen', 'Atorvastatin: Es senkt das Cholesterin', 'Ramipril: Es senkt den Blutdruck'], richtig: [0], mehrfach: false,
+          warum: 'Die doppelte Plättchenhemmung schützt den Stent vor einem Verschluss, erhöht aber das Blutungsrisiko. Leichte Zeichen werden gemeldet, nicht eigenmächtig abgesetzt.',
+        },
+        {
+          lage: 'Eine Woche später klagt er über trockenen Reizhusten und Muskelschmerzen in den Oberschenkeln.',
+          frage: 'Welche Zuordnung ist richtig? Wähle alle zutreffenden.', optionen: ['Reizhusten: typische Nebenwirkung von ACE-Hemmern wie Ramipril', 'Muskelschmerzen: mögliche Nebenwirkung von Statinen wie Atorvastatin', 'Beides ärztlich melden', 'Beides ist harmlos und muss nicht dokumentiert werden'],
+          richtig: [0, 1, 2], mehrfach: true,
+          warum: 'Der Husten entsteht durch einen gebremsten Abbau von Bradykinin. Muskelschmerzen unter Statinen werden ärztlich abgeklärt, weil selten ein Muskelzerfall dahinterstecken kann.',
+        },
+      ],
+      erklaerung: ['Wer die Gruppe kennt, weiß, was zu beobachten ist: Puls bei Betablockern, Blutungen bei Plättchenhemmern, Husten bei ACE-Hemmern, Muskeln bei Statinen.'],
+    },
   ],
   sicherheit: [
     {
@@ -61,6 +85,31 @@ export const ERWEITERUNG: Partial<Record<'sicherheit' | 'applikation' | 'gruppen
         { links: 'TTS', rechts: 'Über die Haut als Pflaster' },
       ],
       erklaerung: ['Die Applikationsart gehört zur 6-R-Regel. Eine Verwechslung kann gefährlich sein, etwa wenn ein i. m.-Präparat i. v. gegeben wird.'],
+    },
+    {
+      id: 'fall.sonde', art: 'fall', topicIds: T, titel: 'Fall: Medikamente über die PEG-Sonde', stufe: 3,
+      frage: 'Gibst du Arzneimittel über die Sonde sicher?',
+      einstieg: 'Frau K., 83 Jahre, wird nach einem Schlaganfall über eine PEG-Sonde ernährt. Morgens sind angeordnet: ein Retard-Opioid, ein Protonenpumpenhemmer als magensaftresistente Kapsel und eine Schilddrüsentablette.',
+      schritte: [
+        {
+          lage: 'Eine Kollegin schlägt vor, alle Tabletten zusammen zu mörsern und in einer Spritze zu geben.',
+          frage: 'Was ist richtig? Wähle alle zutreffenden.', optionen: ['Retardtabletten nicht mörsern: Der Wirkstoff würde auf einmal freigesetzt', 'Jedes Arzneimittel einzeln vorbereiten und einzeln geben', 'Bei Unsicherheit Apotheke oder Fachinformation fragen, ob es eine flüssige oder teilbare Alternative gibt', 'Alles zusammen mörsern spart Zeit und ist üblich'],
+          richtig: [0, 1, 2], mehrfach: true,
+          warum: 'Gemörserte Retardformen können zu einer Überdosis führen. Gemischte Arzneimittel können sich gegenseitig verändern und verstopfen die Sonde.',
+        },
+        {
+          lage: 'Die Ärztin stellt das Opioid auf eine geeignete Form um. Du bereitest die Gabe vor.',
+          frage: 'Wie gehst du an der Sonde vor?', optionen: ['Sondennahrung pausieren, mit Wasser spülen, Arzneimittel einzeln geben, zwischen den Gaben und am Ende spülen', 'Arzneimittel direkt in den Beutel mit Sondennahrung geben', 'Ohne Spülen nacheinander alle Spritzen geben', 'Die Sonde vorher abklemmen und nicht spülen, um Flüssigkeit zu sparen'],
+          richtig: [0], mehrfach: false,
+          warum: 'Spülen verhindert Verstopfung und Wechselwirkungen in der Sonde. In die Nahrung gemischt ist die Dosis unklar und Ausflockungen sind möglich.',
+        },
+        {
+          lage: 'Die Schilddrüsentablette soll nüchtern gegeben werden.',
+          frage: 'Was bedeutet das an der Sonde?', optionen: ['Mit Abstand zur Sondennahrung geben, oft etwa 30 Minuten vorher, nach Anordnung', 'Nüchtern ist bei Sondenernährung egal', 'Gleichzeitig mit der Sondennahrung, damit nichts vergessen wird'], richtig: [0], mehrfach: false,
+          warum: 'Nahrung kann die Aufnahme mancher Wirkstoffe stark senken. Die Abstände stehen in der Fachinformation und werden mit Ärztin oder Apotheke festgelegt.',
+        },
+      ],
+      erklaerung: ['Nicht jede Form darf zerkleinert werden: Retard, magensaftresistent und manche Kapseln brauchen eine Alternative.', 'Einzeln geben, dazwischen spülen, Abstand zur Nahrung beachten.'],
     },
   ],
   beobachtung: [
@@ -112,5 +161,13 @@ export const ERWEITERUNG_VERTIEFUNG: Record<string, string[]> = {
   'fall.antikoag': [
     'Direkte orale Antikoagulanzien wie Apixaban wirken schnell und lassen sich nicht über den INR-Wert steuern. Für einige gibt es spezielle Gegenmittel, die ärztlich gegeben werden.',
     'Viele Einrichtungen haben einen Standard nach Sturz mit Kopfanprall unter Antikoagulation, etwa mit stündlicher Kontrolle von Bewusstsein und Pupillen in den ersten Stunden.',
+  ],
+  'fall.sonde': [
+    'Die Endung „retard“, „ret.“, „CR“, „XR“ oder „SR“ weist auf eine verzögerte Freisetzung hin. Magensaftresistente Formen schützen den Wirkstoff vor der Magensäure oder den Magen vor dem Wirkstoff.',
+    'Viele Apotheken haben Listen, welche Arzneimittel geteilt, gemörsert oder als Suspension gegeben werden dürfen. Ein Zerkleinern außerhalb der Zulassung ist ein sogenannter Off-Label-Gebrauch und braucht eine ärztliche Entscheidung.',
+  ],
+  'fall.herzinfarkt': [
+    'Nach einem Stent wird die doppelte Plättchenhemmung meist für mehrere Monate gegeben. Ein eigenmächtiges Absetzen kann zu einem Stentverschluss und erneutem Infarkt führen.',
+    'Die Kombination aus Betablocker, ACE-Hemmer, Statin und Plättchenhemmern ist nach Herzinfarkt üblich, weil jede Gruppe auf andere Weise das Risiko eines neuen Ereignisses senkt.',
   ],
 };
