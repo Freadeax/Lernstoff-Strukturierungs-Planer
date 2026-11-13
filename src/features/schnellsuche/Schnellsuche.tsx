@@ -148,6 +148,20 @@ export default function Schnellsuche() {
   const tipps = useMemo(() => (letztes.length >= 2 ? vorschlaege(index, letztes, 5) : []), [index, letztes]);
 
   useEffect(() => { schreibeAdresse(ansicht, frage, stdWahl, ebene, art); }, [ansicht, frage, stdWahl, ebene, art]);
+  // Neue Adresse von außen (globale Suche, Link, Zurück), während die Seite offen ist: Zustand übernehmen.
+  // Eigene Änderungen schreibt schreibeAdresse per replaceState, die lösen hier nichts aus.
+  const adresse = params.toString();
+  const ersteAdresse = useRef(adresse);
+  useEffect(() => {
+    if (adresse === ersteAdresse.current) return;
+    ersteAdresse.current = adresse;
+    const a = params.get('ansicht'), e = params.get('e'), ar = params.get('a');
+    setAnsicht(istAnsicht(a) ? a : 'suchen');
+    setQ(params.get('q') ?? '');
+    setStdWahl((params.get('s') ?? '').split(',').filter((x) => standards.some((st) => st.id === x)));
+    setEbene(istEbene(e) ? e : undefined);
+    setArt(istArt(ar) ? ar : undefined);
+  }, [adresse, params, standards]);
   useEffect(() => {
     // Auf Geräten mit Maus sofort tippen können; auf dem Handy nicht ungefragt die Tastatur öffnen.
     if (typeof matchMedia !== 'undefined' && matchMedia('(hover: hover) and (pointer: fine)').matches) eingabe.current?.focus();
