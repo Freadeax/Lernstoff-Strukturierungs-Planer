@@ -38,6 +38,18 @@ export function verdecke(text: string, s: Expertenstandard): string {
 const themen = (s: Expertenstandard) => [ES_THEMA, ...s.themaIds];
 const fundstelle = (x: Stelle) => `${x.s.kurztitel}, ${x.teil.id} (${EBENE_LABEL[x.art]}, Ebene ${x.ebene}: ${x.thema}).`;
 
+const gleich = (t: string) => t.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+
+/** Text → Standards, in denen er wörtlich gleich vorkommt (z. B. allgemeine Evaluationskriterien). */
+function textStandards(alle: Expertenstandard[]): Map<string, Set<string>> {
+  const out = new Map<string, Set<string>>();
+  for (const x of stellen(alle)) {
+    const k = gleich(x.teil.text);
+    out.set(k, (out.get(k) ?? new Set()).add(x.s.id));
+  }
+  return out;
+}
+
 function zuordnen(x: Stelle, alle: Expertenstandard[], zufall: () => number): AuswahlAufgabe {
   const andere = mische(alle.filter((s) => s.id !== x.s.id && s.kriterien.length), zufall).slice(0, 3);
   return {
@@ -65,9 +77,10 @@ function irrtum(s: Expertenstandard, f: Expertenstandard['fehlvorstellungen'][nu
   const fremd = mische(alle.filter((x) => x.id !== s.id).flatMap((x) => x.fehlvorstellungen.map((y) => y.falsch)), zufall).slice(0, 1);
   return {
     id: `sus.irrtum.${s.id}.${f.id}`, art: 'auswahl', topicIds: themen(s), titel: 'Richtig oder Irrtum?',
-    frage: `Welche Aussage stimmt nach der aktuellen Fassung (${s.fassungen[s.fassungen.length - 1]?.jahr ?? ''}) des Expertenstandards ${s.kurztitel}?`,
+    // Keine Fassung im Fragetext: Der Beleg kann sich auf eine ältere Fassung beziehen (er steht in der Begründung).
+    frage: `Welche Aussage stimmt laut Expertenstandard ${s.kurztitel}?`,
     optionen: [f.richtig, f.falsch, ...fremd], richtig: [0], mehrfach: false,
-    erklaerung: [`Verbreiteter Irrtum: „${f.falsch}“`, `Beleg im Standard: ${f.beleg}.`],
+    erklaerung: [`Verbreiteter Irrtum: „${f.falsch}“`, `Beleg im Standard: ${f.beleg}.`, `Gelesen in: ${s.quelle.titel} (geprüft ${s.quelle.geprueftAm}).`],
   };
 }
 
@@ -76,7 +89,11 @@ export function trainingsAufgaben(alle: Expertenstandard[], wahl: { standardId?:
   const ziel = wahl.standardId ? alle.filter((s) => s.id === wahl.standardId) : alle;
   const st = stellen(ziel);
   return [
-    ...(wahl.typen.includes('zuordnen') ? st.map((x) => zuordnen(x, alle, zufall)) : []),
+    // Nur Kriterien, die genau einem Standard gehören: gleichlautende Kriterien hätten mehrere richtige Antworten
+    ...(wahl.typen.includes('zuordnen') ? (() => {
+      const mehrfach = textStandards(alle);
+      return st.filter((x) => mehrfach.get(gleich(x.teil.text))!.size === 1).map((x) => zuordnen(x, alle, zufall));
+    })() : []),
     ...(wahl.typen.includes('ebene') ? st.map(ebene) : []),
     ...(wahl.typen.includes('irrtum') ? ziel.flatMap((s) => s.fehlvorstellungen.map((f) => irrtum(s, f, alle, zufall))) : []),
   ];

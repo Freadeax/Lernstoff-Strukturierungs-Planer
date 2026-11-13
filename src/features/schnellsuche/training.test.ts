@@ -22,6 +22,26 @@ describe('Kriterien-Training', () => {
     expect(verdecke('Das Sturzrisiko wird eingeschätzt.', sturz)).toBe('Das … wird eingeschätzt.');
     for (const a of alle.filter((x) => x.id.startsWith('sus.zuordnen.es.sturz'))) expect(a.frage).not.toMatch(/sturz/i);
   });
+  it('fragt nicht nach Kriterien, die gleichlautend in mehreren Standards stehen', () => {
+    const texte = new Map<string, Set<string>>();
+    for (const s of STANDARDS) for (const k of s.kriterien) for (const t of [...k.struktur, ...k.prozess, ...k.ergebnis]) {
+      const n = t.text.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+      texte.set(n, (texte.get(n) ?? new Set()).add(s.id));
+    }
+    const mehrdeutig = [...texte].filter(([, ids]) => ids.size > 1).map(([t]) => t);
+    expect(mehrdeutig.length).toBeGreaterThan(0);
+    const zuordnung = alle.filter((a) => a.id.startsWith('sus.zuordnen.'));
+    for (const a of zuordnung) {
+      const roh = (a.erklaerung[1] ?? '').replace(/^Vollständig: „|“$/g, '').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+      expect(mehrdeutig, a.id).not.toContain(roh);
+    }
+  });
+  it('nennt in Irrtum-Fragen keine Fassung, der Beleg steht in der Begründung', () => {
+    for (const a of alle.filter((x) => x.id.startsWith('sus.irrtum.'))) {
+      expect(a.frage).not.toMatch(/\d{4}/);
+      expect(a.erklaerung.join(' ')).toMatch(/Beleg im Standard/);
+    }
+  });
   it('filtert nach Standard und Typ', () => {
     const nur = trainingsAufgaben(STANDARDS, { standardId: 'es.schmerz', typen: ['irrtum'] });
     expect(nur.length).toBe(STANDARDS.find((s) => s.id === 'es.schmerz')!.fehlvorstellungen.length);
