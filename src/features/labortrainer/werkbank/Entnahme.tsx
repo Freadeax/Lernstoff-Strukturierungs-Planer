@@ -7,9 +7,11 @@ import { formatWert, FLAG_TEXT, parameter, type Material } from '../../../ui/sim
 import { ROEHRCHEN, type Farbsystem } from '../../../ui/sim/labor/praeanalytik';
 import { wenigBewegung } from '../../../ui/shell/session';
 import { bucheWerkbank, neueLaufId } from './lernplan';
+import { ZustandsTafel } from '../../../ui/sim/ZustandsTafel';
+import { entnahmeZustand, type EntnahmeSchritt } from './zustand';
 import { bewerteEntnahme, debrief, ENTNAHME_KRITERIEN, roehrchenFuer, staender, SZENARIEN, VERWURF, zielFuellung, type EntnahmeEingabe, type EntnahmeErgebnis, type EntnahmeSzenario, type Platz } from './entnahme';
 
-type Schritt = 'identitaet' | 'arm' | 'stau' | 'roehrchen' | 'abschluss' | 'ergebnis';
+type Schritt = EntnahmeSchritt;
 
 const name = (p: Platz) => (p === VERWURF ? 'Verwurfröhrchen (leer)' : ROEHRCHEN[p].name);
 
@@ -113,6 +115,8 @@ function EntnahmeLauf({ sz, laufId, farbsystem, setFarbsystem, wechseln }: { sz:
           <li key={s} className={s === schritt ? 'is-jetzt' : ''} aria-current={s === schritt ? 'step' : undefined}>{['Identität', 'Arm', 'Stauen', 'Röhrchen', 'Abschluss', 'Befund'][i]}</li>
         ))}
       </ol>
+
+      <ZustandsTafel z={entnahmeZustand({ sz, schritt, identitaet, arm, stauSek, stauAngelegt: stauStart !== undefined, stauGeloest: stauEnde !== undefined, regal, folge, aktiv, mischen, transport })} titel="Am Bett" />
 
       {schritt === 'identitaet' && <FarbsystemKarte sz={sz} farbsystem={farbsystem} setFarbsystem={setFarbsystem} />}
       {schritt === 'identitaet' && (

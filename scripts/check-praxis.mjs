@@ -148,6 +148,20 @@ try {
     await page.getByRole('button', { name: 'Verlauf exportieren', exact: true }).click();
     const downloaded = await downloadPromise; const file = path.join(output, `verlauf-${width}.json`); await downloaded.saveAs(file);
     assert.equal(JSON.parse(fs.readFileSync(file, 'utf8')).phase, 'finished');
+    // Gespielten Fall dokumentieren: Übergabe, Bericht und Pflegeplanung übernehmen den Verlauf
+    assert(await page.getByRole('heading', { name: 'Diesen Fall dokumentieren' }).isVisible());
+    for (const [name, pruefe] of [
+      ['Übergabe an den Folgedienst', async (d) => assert.match(await d.locator('.sbar__auswahl select option:checked').textContent(), /Aus deinem Praxisfall/)],
+      ['Pflegebericht schreiben', async (d) => assert.match(await d.locator('.bericht__auswahl select option:checked').textContent(), /Aus deinem Praxisfall/)],
+      ['Pflegeplanung zu diesem Fall', async (d) => assert.match(await d.getByLabel('Fallbeschreibung').inputValue(), /Praxissimulator/)],
+    ]) {
+      const href = await page.getByRole('link', { name, exact: true }).getAttribute('href');
+      const d = await page.context().newPage();
+      await d.goto(base + href, { waitUntil: 'networkidle' });
+      await d.getByText(/(stammt|stammen) aus deinem/).first().waitFor({ timeout: 5000 }).catch(async () => { console.log(href, (await d.locator('main').innerText()).slice(0, 600)); throw new Error('Praxisfall nicht übernommen: ' + name); });
+      await pruefe(d);
+      await d.close();
+    }
     await page.getByRole('button', { name: 'Zur Fallauswahl', exact: true }).click();
     // Schichtmodus: zwei Kinder, eine Uhr.
     await page.locator('.praxis-schichtwahl__eintrag', { hasText: 'Kinderstation' }).getByRole('button', { name: 'Schicht beginnen', exact: true }).click();
@@ -360,6 +374,8 @@ try {
       const ctx = await browser.newContext({ viewport: { width, height: 1050 }, locale: 'de-DE', colorScheme: 'light' });
       const ue = await ctx.newPage(); ue.on('pageerror', e => errors.push(e.message));
       await ue.goto(base + '#/lernen/uebergabe', { waitUntil: 'networkidle' });
+      assert(await ue.locator('.sbar__raum img').isVisible(), 'Raumfoto zur Übergabe');
+      assert(await ue.getByRole('button', { name: 'Lage vorlesen' }).count() <= 1);
       const felder = ue.locator('.sbar__feld textarea');
       const texte = ['Hier ist Mara, Station 4B, Herr Berger ist neu verwirrt und hat Fieber.', 'Hemikolektomie vor 2 Tagen, Penicillin-Allergie.', 'Temperatur 38,9, Puls 118, RR 92/55. Ich vermute eine Sepsis.', 'Bitte kommen Sie sofort. Soll ich Blutkulturen vorbereiten?'];
       for (let i = 0; i < 4; i++) await felder.nth(i).fill(texte[i]);
