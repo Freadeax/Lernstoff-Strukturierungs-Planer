@@ -207,21 +207,21 @@ Wichtig: **exakt gleicher Bildausschnitt** wie das Grundbild (am besten mit dems
 
 Vor neuen Räumen bitte die Bilder liefern, mit denen schon laufende Fälle ihren Zustand sichtbar wechseln. Die App
 wählt die Variante selbst aus Zustandsregeln (Gerät aus/an, Sensor angelegt/abgefallen, Tag/Nacht, Maßnahme). Fehlt
-das Bild, fällt sie auf ein Ersatzbild zurück. Die vollständige, automatisch erzeugte Lückenliste steht in
-[`docs/ASSET-STATUS.md`](ASSET-STATUS.md); die wichtigsten:
+das Bild, fällt sie auf ein Ersatzbild zurück.
+
+**Die Bestellliste dafür steht automatisch erzeugt in [`docs/BESTELLUNG.md`](BESTELLUNG.md):** jede Position mit fester
+ID (`<grundbild>_ohne_monitor`, `_sensor_an`, `_sensor_ab`, `_nacht`, `_fall_<fall-id>` für ein passendes Foto, Porträts
+`<datei>_<zustand>`), Priorität, Fällen und einem fertigen Bild-Prompt mit Referenzbild. Sie berücksichtigt Mängel aus
+der Bildprüfung, Beispielfotos mit falscher Person und nur die Zustände, die ein Simulator wirklich anfragt. Geliefertes
+verschwindet nach dem Einbau von selbst aus der Liste.
+
+Von Hand geplant (Bilder nach einer pflegerischen Maßnahme, noch ohne Zustandsregel):
 
 | ID | Grundbild | Änderung | Zustandsregel | Fälle |
 | --- | --- | --- | --- | --- |
-| `21s_paediatrie_schulkind_sensor_ab` | 21 | Fingersensor liegt neben der Hand, Kabel hängt lose | `sensorAb` (Signalausfall) | Diagnostik `asthma-kind`, Praxis `asthma` |
-| `20s_paediatrie_kleinkind_sensor_ab` | 20 | Sensor am Fuß gelöst | `sensorAb` | Praxis `kind` |
-| `30s_station_zimmer_frau_sensor_ab` | 30 | Fingerclip abgefallen | `sensorAb` | Praxis/Fall `anaphylaxie` |
-| `12m_station_kardiologie_verbunden` + `12s` | 12 | Elektroden und Fingerclip sichtbar angelegt / Clip abgefallen | `verbunden` / `sensorAb` | Praxis `nachtwache`, `lungenembolie`; Diagnostik (2 Fälle) |
-| `21n_paediatrie_schulkind_nacht` | 21 | Nachtlicht, Kind schläft halb sitzend | `nacht` | Praxis `asthma` im Nachtdienst |
-| `12n`, `13n` | 12, 13 | Nachtvariante | `nacht` | Praxis `nachtwache` (2 Uhr), Diagnostik postoperativ |
 | `21c_paediatrie_schulkind_nach_inhalation` | 21 | Kind sitzt entspannter, Spacer weggelegt | Maßnahme `orders` beendet | Praxis `asthma`: sichtbare Besserung nach der Inhalation |
 | `30c_station_zimmer_frau_nach_adrenalin` | 30 | Beine hochgelagert, Infusion läuft, Gesicht weniger gerötet | Maßnahme | Praxis/Fall `anaphylaxie` |
 | `20g_paediatrie_kleinkind_fieberkrampf_seitenlage` | 20f | Kind in stabiler Seitenlage nach dem Krampf | Maßnahme | Fall `fieberkrampf` |
-| Porträts `angestrengt`, `kritisch` | Mila, Ben | gleiche Person, gleicher Ausschnitt | Patientenzustand | Fall `asthma-kind`, Praxis `kind`/`asthma` |
 
 Die Inhalation mit Spacer (`21b`) ist schon im passenden Fall eingebunden (Praxis `asthma`). Seit 13.11. ist jedes
 gelieferte Bild erreichbar: `14_station_isolation` und `19_krankenhaus_materialraum` als Suchbilder im Hygiene-Trainer,
@@ -419,7 +419,7 @@ Nicht nötig (macht die App besser selbst): Monitorpiep, Alarmmelodien, Telefon,
 5. ~~`26_pflegeheim_zimmer_tag` + `26a`~~ geliefert 11.11. (5 Heimfälle ohne passendes Zimmer)
 6. ~~`30_station_zimmer_frau` + `30b`~~ geliefert 11.11. (Anaphylaxie, Sepsis)
 7. ~~`27_station_zweibett_nacht`~~ geliefert 11.11. (Delir)
-8. **Zustandslücken aus Abschnitt 3.0** (Sensor ab, Nacht, Bilder nach der Maßnahme, Porträtzustände)
+8. **P1 aus `docs/BESTELLUNG.md`** (Zustandsbilder, passende Fotos für Fälle mit Beispielfoto), dann Abschnitt 3.0
 8a. `22_psychiatrie_aufenthaltsraum` + `23_psychiatrie_rueckzugsraum`
 9. `24_reha_zimmer`
 10. `25_hospiz_zimmer`

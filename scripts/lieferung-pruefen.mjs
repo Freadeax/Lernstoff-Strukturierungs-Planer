@@ -2,7 +2,7 @@
 // Prüft eine entpackte Materiallieferung, bevor sie verteilt wird:
 //   npm run material:pruefen -- <ordner> [--bericht bericht.md]
 // Regeln: docs/MATERIAL-BEDARF.md Abschnitt 0 (Namen, 16:9 ab 1280 px, Porträts quadratisch ab 512 px,
-// Video mit vier Phasenbildern, ASSET_KATALOG.json mit Lizenz, Urheber und Fall-IDs).
+// Video mit vier Phasenbildern, ASSET_KATALOG.json mit Lizenz, Urheber und Fall-IDs, ID in MATERIAL-BEDARF.md oder BESTELLUNG.md).
 // Liest die Dateien nur, ändert nichts. Exit-Code 1 bei Fehlern.
 import { readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
@@ -28,7 +28,7 @@ let katalog;
 
 const katalogTs = readFileSync('src/ui/sim/raeume/katalog.ts', 'utf8');
 const vorhandeneIds = [...katalogTs.matchAll(/'(\d{2}[a-z]?_[a-z0-9_]+)'/g)].map((m) => m[1]);
-const bedarf = readFileSync('docs/MATERIAL-BEDARF.md', 'utf8');
+const bedarf = readFileSync('docs/MATERIAL-BEDARF.md', 'utf8') + readFileSync('docs/BESTELLUNG.md', 'utf8');
 const ergebnis = pruefeLieferung(dateien, { katalog, vorhandeneIds, bestellteIds: bestellteIds(bedarf) });
 const bericht = berichtMarkdown(ergebnis, ordner.split('/').filter(Boolean).pop());
 if (bi >= 0 && args[bi + 1]) writeFileSync(args[bi + 1], bericht);
