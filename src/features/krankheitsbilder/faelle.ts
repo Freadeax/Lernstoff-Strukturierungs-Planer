@@ -1482,4 +1482,250 @@ export const FAELLE: Fallaufgabe[] = [
       },
     ],
   },
+  // ---------------------------------------------------------------- Diabetes Typ 1
+  {
+    id: 'dm1-mila', krankheitId: 'kh.diabetes-typ1', titel: 'Mila, 9 Jahre', setting: 'Kinderklinik',
+    text: [
+      'Mila wird von ihren Eltern gebracht. Seit drei Wochen trinkt sie auffällig viel, nachts nässt sie wieder ein. Sie hat drei Kilo abgenommen, obwohl sie viel isst.',
+      'Heute hat sie zweimal erbrochen und klagt über Bauchschmerzen. Sie atmet tief, ihr Atem riecht obstartig. Der Blutzucker liegt bei 480 mg/dl, im Urin sind Ketone.',
+    ],
+    aufgaben: [
+      {
+        id: 'zeichen', art: 'mehrfach', abschnitt: 'symptome',
+        frage: 'Welche Beobachtungen passen zu einem neu aufgetretenen Typ-1-Diabetes?',
+        optionen: [r('Viel Durst und erneutes Einnässen'), r('Gewichtsabnahme trotz Hunger'), r('Tiefe Atmung und obstartiger Atemgeruch'), f('Gewichtszunahme und Heißhunger auf Salziges')],
+        erklaerung: 'Ohne Insulin geht Zucker mit viel Wasser über den Urin verloren. Der Körper baut Fett ab, es entstehen Ketone, die der Körper abatmet.',
+      },
+      {
+        id: 'notfall', art: 'einfach', abschnitt: 'komplikationen',
+        frage: 'Was ist bei Mila die größte Gefahr?',
+        optionen: [r('Eine diabetische Ketoazidose, die intensiv überwacht und behandelt werden muss'), f('Eine Unterzuckerung'), f('Ein harmloser Magen-Darm-Infekt')],
+        erklaerung: 'Hoher Blutzucker, Ketone, Erbrechen, Bauchschmerzen und tiefe Atmung zeigen eine Ketoazidose, oft die Erstmanifestation.',
+      },
+      {
+        id: 'therapie', art: 'einfach', abschnitt: 'therapie',
+        frage: 'Die Mutter fragt, ob Tabletten und eine Diät reichen. Was stimmt?',
+        optionen: [r('Nein, bei Typ 1 fehlt das Insulin vollständig; es muss lebenslang ersetzt werden'), f('Ja, mit Metformin und wenig Zucker ist das gut behandelbar'), f('Nur bis zur Pubertät, dann bildet der Körper wieder Insulin')],
+        erklaerung: 'Die Betazellen sind zerstört. Behandelt wird mit Basal- und Bolusinsulin oder Pumpe, dazu Schulung.',
+      },
+      {
+        id: 'erbrechen', art: 'einfach', abschnitt: 'pflege',
+        frage: 'Später zu Hause erbricht Mila bei einem Infekt und isst nichts. Was ist richtig?',
+        optionen: [r('Insulin nicht einfach weglassen, häufiger messen, Ketone prüfen und früh ärztliche Hilfe holen'), f('Alles Insulin weglassen, weil sie nichts isst'), f('Abwarten bis zum nächsten Tag')],
+        erklaerung: 'Auch ohne Essen braucht der Körper Basalinsulin; Infekte erhöhen oft den Bedarf und das Ketoazidose-Risiko.',
+      },
+      {
+        id: 'schule', art: 'mehrfach', abschnitt: 'beratung',
+        frage: 'Was gehört zur Beratung für Schule und Sport?',
+        optionen: [r('Traubenzucker und Notfallausweis immer dabeihaben'), r('Vor Sport Blutzucker messen und anpassen'), r('Lehrkräfte über Unterzuckerung und Notfallplan informieren'), f('Sport ist bei Diabetes verboten')],
+        erklaerung: 'Bewegung senkt den Blutzucker. Das Umfeld muss eine Hypoglykämie erkennen und reagieren können.',
+      },
+    ],
+  },
+  // ---------------------------------------------------------------- Appendizitis
+  {
+    id: 'app-jonas', krankheitId: 'kh.appendizitis', titel: 'Jonas, 16 Jahre', setting: 'Notaufnahme und Chirurgie',
+    text: [
+      'Jonas hat seit gestern Abend Bauchschmerzen, zuerst um den Nabel, inzwischen rechts unten. Ihm ist übel, er hat einmal erbrochen und mag nichts essen. Die Temperatur liegt bei 38,3 °C.',
+      'Er liegt mit angezogenem rechten Bein. Beim Husten verstärkt sich der Schmerz (NRS 6). Die Ärztin vermutet eine Blinddarmentzündung und plant eine laparoskopische OP am Nachmittag. Jonas fragt nach einer Wärmflasche.',
+    ],
+    aufgaben: [
+      {
+        id: 'zeichen', art: 'mehrfach', abschnitt: 'symptome',
+        frage: 'Welche Beobachtungen sind typisch?',
+        optionen: [r('Schmerz wandert vom Nabel nach rechts unten'), r('Übelkeit und Appetitlosigkeit'), r('Schonhaltung mit angezogenem Bein'), f('Schmerz bessert sich deutlich beim Husten')],
+        erklaerung: 'Die Schmerzwanderung, Übelkeit, Fieber und Schonhaltung sprechen für eine Appendizitis.',
+      },
+      {
+        id: 'waerme', art: 'einfach', abschnitt: 'pflege',
+        frage: 'Was antwortest du auf die Frage nach der Wärmflasche?',
+        optionen: [r('Keine Wärme, weil sie die Entzündung fördern und ein Durchbrechen begünstigen kann'), f('Ja, Wärme entspannt und ist bei Bauchschmerzen immer gut'), f('Ja, aber nur zusammen mit einem Abführmittel')],
+        erklaerung: 'Vor der OP keine Wärmeanwendung und keine Abführmittel. Schmerzmittel nach ärztlicher Anordnung.',
+      },
+      {
+        id: 'vorbereitung', art: 'mehrfach', abschnitt: 'pflege',
+        frage: 'Was gehört zur Betreuung bis zur OP?',
+        optionen: [r('Nüchtern lassen'), r('Vitalzeichen und Schmerzverlauf beobachten und dokumentieren'), r('Schmerzmittel nach ärztlicher Anordnung geben'), f('Ein großes Frühstück anbieten, damit er Kraft hat')],
+        erklaerung: 'Für die Narkose muss Jonas nüchtern sein; der Verlauf zeigt, ob sich der Zustand verschlechtert.',
+        extraTopicIds: ['thema.ph.periop'],
+      },
+      {
+        id: 'perforation', art: 'einfach', abschnitt: 'komplikationen',
+        frage: 'Jonas sagt plötzlich, die Schmerzen seien fast weg. Eine Stunde später ist der Bauch hart und das Fieber steigt. Woran denkst du?',
+        optionen: [r('An einen Durchbruch mit Bauchfellentzündung: sofort ärztlich melden'), f('An eine Besserung, die OP kann ausfallen'), f('An eine normale Reaktion auf das Fasten')],
+        erklaerung: 'Ein kurzes Nachlassen des Schmerzes kann eine Perforation anzeigen; danach folgt oft eine Peritonitis.',
+      },
+      {
+        id: 'nach-op', art: 'mehrfach', abschnitt: 'pflege',
+        frage: 'Was ist nach der OP wichtig?',
+        optionen: [r('Frühmobilisation'), r('Wunde, Schmerz und Darmtätigkeit beobachten'), r('Kostaufbau nach Anordnung'), f('Mehrere Tage strenge Bettruhe')],
+        erklaerung: 'Frühe Bewegung beugt Thrombose und Pneumonie vor und fördert die Darmtätigkeit.',
+        extraTopicIds: ['thema.pro.thrombose'],
+      },
+    ],
+  },
+  // ---------------------------------------------------------------- Mammakarzinom
+  {
+    id: 'mamma-kaya', krankheitId: 'kh.mammakarzinom', titel: 'Frau Kaya, 54 Jahre', setting: 'Krankenhaus, Gynäkologie',
+    text: [
+      'Frau Kaya hat beim Duschen einen schmerzlosen Knoten in der linken Brust getastet. Die Haut darüber ist leicht eingezogen. Nach Mammografie und Stanzbiopsie steht die Diagnose fest.',
+      'Heute wurde sie brusterhaltend operiert, dabei wurden Lymphknoten aus der linken Achsel entfernt. Sie hat eine Drainage. Am Abend sagt sie leise: „Ich weiß nicht, ob ich mich noch im Spiegel ansehen kann.“',
+    ],
+    aufgaben: [
+      {
+        id: 'warnzeichen', art: 'mehrfach', abschnitt: 'symptome',
+        frage: 'Welche Veränderungen an der Brust sollten ärztlich abgeklärt werden?',
+        optionen: [r('Tastbarer, schmerzloser Knoten'), r('Einziehung von Haut oder Brustwarze'), r('Orangenhaut'), f('Leichte Spannung vor der Regelblutung, die danach verschwindet')],
+        erklaerung: 'Knoten, Einziehungen, Orangenhaut, Absonderung aus der Brustwarze und Lymphknoten in der Achsel sind Warnzeichen.',
+      },
+      {
+        id: 'arm', art: 'einfach', abschnitt: 'pflege',
+        frage: 'Am linken Arm soll Blut abgenommen werden. Was tust du?',
+        optionen: [r('Nach Hausstandard den rechten Arm nutzen, weil links Lymphknoten entfernt wurden'), f('Links abnehmen, weil die Venen dort besser sind'), f('Blutdruck links messen und dabei gleich Blut abnehmen')],
+        erklaerung: 'Nach Entfernung von Lymphknoten ist der Lymphabfluss gestört. Stauung und Verletzung können ein Lymphödem fördern.',
+      },
+      {
+        id: 'gespraech', art: 'einfach', abschnitt: 'pflege',
+        frage: 'Wie reagierst du auf ihre Sorge zum Spiegel?',
+        optionen: [r('Die Sorge aufgreifen, Zeit für ein Gespräch anbieten und Psychoonkologie oder Breast Care Nurse vorschlagen'), f('„Das wird schon, Sie sind ja geheilt.“'), f('Das Thema wechseln, um sie nicht zu belasten')],
+        erklaerung: 'Ein verändertes Körperbild ist eine häufige Belastung. Zuhören und Fachangebote helfen mehr als Beschwichtigen.',
+      },
+      {
+        id: 'lymphoedem', art: 'mehrfach', abschnitt: 'beratung',
+        frage: 'Was gehört zur Beratung vor der Entlassung?',
+        optionen: [r('Armübungen nach Anleitung'), r('Schwellung oder Spannungsgefühl im Arm früh melden'), r('Verletzungen am betroffenen Arm vermeiden'), f('Den Arm möglichst gar nicht bewegen')],
+        erklaerung: 'Bewegung fördert den Lymphabfluss; Schwellung ist ein frühes Zeichen eines Lymphödems.',
+      },
+      {
+        id: 'chemo', art: 'einfach', abschnitt: 'prophylaxen',
+        frage: 'Sie bekommt später eine Chemotherapie. Welche Prophylaxe wird dabei besonders wichtig?',
+        optionen: [r('Soor- und Parotitisprophylaxe, weil die Mundschleimhaut geschädigt und die Abwehr geschwächt wird'), f('Kontrakturenprophylaxe der Finger'), f('Keine, weil Chemotherapie nur den Tumor trifft')],
+        erklaerung: 'Chemotherapie trifft auch schnell wachsende gesunde Zellen wie die Mundschleimhaut.',
+        extraTopicIds: ['thema.pro.soor'],
+      },
+    ],
+  },
+  // ---------------------------------------------------------------- Rheumatoide Arthritis
+  {
+    id: 'ra-pohl', krankheitId: 'kh.rheumatoide-arthritis', titel: 'Frau Pohl, 61 Jahre', setting: 'Ambulanter Pflegedienst',
+    text: [
+      'Frau Pohl hat seit zwölf Jahren eine rheumatoide Arthritis. Morgens sind ihre Finger etwa eine Stunde lang steif, die Grundgelenke beider Hände sind geschwollen und warm. Sie nimmt eine Basistherapie und im Moment wegen eines Schubs zusätzlich Prednisolon.',
+      'Der Pflegedienst kommt um 7 Uhr zum Waschen. Frau Pohl sagt, sie schaffe dann kaum etwas selbst. Knöpfe und Flaschen bekommt sie nur schwer auf. Seit gestern hat sie Halsschmerzen und fühlt sich fiebrig.',
+    ],
+    aufgaben: [
+      {
+        id: 'typisch', art: 'mehrfach', abschnitt: 'symptome',
+        frage: 'Was ist typisch für die rheumatoide Arthritis?',
+        optionen: [r('Morgensteifigkeit länger als 30 Minuten'), r('Beidseits geschwollene Fingergrundgelenke'), r('Müdigkeit und Abgeschlagenheit'), f('Schmerz nur in einem Kniegelenk nach Belastung')],
+        erklaerung: 'Die RA befällt typisch kleine Gelenke symmetrisch. Belastungsschmerz eines großen Gelenks passt eher zur Arthrose.',
+      },
+      {
+        id: 'zeitpunkt', art: 'einfach', abschnitt: 'pflege',
+        frage: 'Wie planst du den Einsatz sinnvoll um?',
+        optionen: [r('Den Besuch nach Absprache später legen, wenn die Morgensteifigkeit nachlässt'), f('Noch früher kommen, damit sie länger Zeit hat'), f('Alles übernehmen, damit es schneller geht')],
+        erklaerung: 'Nach der Morgensteifigkeit kann Frau Pohl mehr selbst tun. Das erhält ihre Selbstständigkeit.',
+      },
+      {
+        id: 'hilfsmittel', art: 'mehrfach', abschnitt: 'pflege',
+        frage: 'Welche Hilfen fördern ihre Selbstständigkeit?',
+        optionen: [r('Griffverdickungen'), r('Knopfhilfe'), r('Öffnungshilfe für Flaschen'), f('Fingergelenke im Schub möglichst kräftig massieren')],
+        erklaerung: 'Hilfsmittel und Gelenkschutz entlasten die kleinen Gelenke. Entzündete Gelenke werden geschont, aber bewegt.',
+      },
+      {
+        id: 'infekt', art: 'einfach', abschnitt: 'komplikationen',
+        frage: 'Wie bewertest du Halsschmerzen und Fiebergefühl?',
+        optionen: [r('Ernst nehmen: unter immunsuppressiver Therapie ist sie infektanfällig; Temperatur messen und ärztlich abklären lassen'), f('Harmlos, das gehört zum Rheumaschub'), f('Die Medikamente sofort selbst absetzen lassen')],
+        erklaerung: 'Basistherapie und Kortison schwächen die Abwehr. Medikamente werden nur ärztlich angepasst.',
+      },
+      {
+        id: 'gelenkschutz', art: 'einfach', abschnitt: 'beratung',
+        frage: 'Was ist ein Grundsatz des Gelenkschutzes?',
+        optionen: [r('Große Gelenke statt der Finger belasten, z. B. Tasche über dem Unterarm tragen'), f('Die Finger durch kräftiges Zusammendrücken trainieren'), f('Jede Bewegung vermeiden')],
+        erklaerung: 'Gelenkschutz verteilt Lasten auf große Gelenke und vermeidet Fehlbelastung der Fingergelenke.',
+        extraTopicIds: ['thema.pro.kontraktur'],
+      },
+    ],
+  },
+  // ---------------------------------------------------------------- Ulcus cruris venosum
+  {
+    id: 'ulcus-berger', krankheitId: 'kh.ulcus-cruris', titel: 'Herr Berger, 76 Jahre', setting: 'Pflegeheim',
+    text: [
+      'Herr Berger hatte vor zehn Jahren eine Beinvenenthrombose. Seit vier Monaten hat er eine nässende Wunde über dem rechten Innenknöchel, 3 × 2 cm. Die Haut am Unterschenkel ist braun verfärbt und verhärtet, abends sind die Beine geschwollen.',
+      'Er sitzt den ganzen Tag im Sessel vor dem Fernseher. Die Kompressionsbinde hat er gestern abgewickelt, „weil sie drückt“. Der Hausarzt hat eine Durchblutungsstörung der Arterien ausgeschlossen.',
+    ],
+    aufgaben: [
+      {
+        id: 'ursache', art: 'einfach', abschnitt: 'ursachen',
+        frage: 'Wie entsteht diese Wunde am ehesten?',
+        optionen: [r('Durch gestörten venösen Rückfluss nach der Thrombose, das Gewebe wird schlecht versorgt'), f('Durch Druck von außen wie beim Dekubitus'), f('Durch eine arterielle Verschlusskrankheit')],
+        erklaerung: 'Ein postthrombotisches Syndrom schädigt die Venenklappen. Der Venendruck steigt, Haut und Gewebe leiden.',
+      },
+      {
+        id: 'kompression', art: 'einfach', abschnitt: 'therapie',
+        frage: 'Warum ist der Ausschluss der arteriellen Durchblutungsstörung wichtig?',
+        optionen: [r('Weil Kompression bei relevanter pAVK die Durchblutung weiter verschlechtern kann'), f('Weil dann keine Wundauflage nötig ist'), f('Das ist nicht wichtig, Kompression passt immer')],
+        erklaerung: 'Kompression ist die wichtigste Therapie beim venösen Ulkus, setzt aber eine ausreichende arterielle Durchblutung voraus.',
+      },
+      {
+        id: 'drueckt', art: 'mehrfach', abschnitt: 'pflege',
+        frage: 'Er sagt, die Binde drückt. Was tust du?',
+        optionen: [r('Bein und Haut auf Druckstellen und Durchblutung prüfen'), r('Kompression fachgerecht von den Zehen bis unter das Knie neu anlegen'), r('Ihm erklären, warum die Kompression für die Heilung wichtig ist'), f('Die Kompression dauerhaft weglassen')],
+        erklaerung: 'Schlecht sitzende Kompression drückt. Richtig angelegt und erklärt wird sie besser akzeptiert.',
+      },
+      {
+        id: 'bewegung', art: 'mehrfach', abschnitt: 'pflege',
+        frage: 'Was förderst du im Alltag?',
+        optionen: [r('Regelmäßiges Gehen'), r('Fußgymnastik, Sprunggelenk bewegen'), r('Beine im Liegen hochlagern'), f('Füße im heißen Fußbad wärmen')],
+        erklaerung: 'Die Muskelpumpe fördert den venösen Rückfluss. Wärme weitet die Venen und verstärkt die Stauung.',
+        extraTopicIds: ['thema.pro.thrombose'],
+      },
+      {
+        id: 'doku', art: 'einfach', abschnitt: 'pflege',
+        frage: 'Was gehört zur Wunddokumentation?',
+        optionen: [r('Größe, Wundgrund, Exsudat, Wundrand und Umgebung, ggf. Foto nach Hausstandard'), f('Nur ob die Wunde riecht'), f('Nur das Datum des Verbandwechsels')],
+        erklaerung: 'Eine genaue Einschätzung zeigt, ob die Wunde heilt, und ist Teil des Expertenstandards Pflege von Menschen mit chronischen Wunden.',
+      },
+    ],
+  },
+  // ---------------------------------------------------------------- Hyperthyreose
+  {
+    id: 'hyper-neumann', krankheitId: 'kh.hyperthyreose', titel: 'Frau Neumann, 38 Jahre', setting: 'Krankenhaus, Innere Medizin',
+    text: [
+      'Frau Neumann hat in zwei Monaten sechs Kilo abgenommen, obwohl sie viel isst. Sie schwitzt schnell, schläft schlecht und ist gereizt. Ihre Hände zittern leicht, ihre Augen wirken hervorgetreten.',
+      'Der Puls liegt bei 118/min, die Haut ist warm und feucht. Die Laborwerte zeigen ein sehr niedriges TSH und erhöhte Schilddrüsenhormone. Für morgen ist ein CT mit Kontrastmittel geplant.',
+    ],
+    aufgaben: [
+      {
+        id: 'zeichen', art: 'mehrfach', abschnitt: 'symptome',
+        frage: 'Welche Zeichen passen zur Schilddrüsenüberfunktion?',
+        optionen: [r('Gewichtsverlust trotz Appetit'), r('Herzrasen'), r('Schwitzen und warme Haut'), r('Nervosität und Zittern'), f('Kälteempfindlichkeit und Verstopfung')],
+        erklaerung: 'Bei der Überfunktion läuft der Stoffwechsel zu schnell. Kälteempfindlichkeit und Verstopfung passen zur Unterfunktion.',
+      },
+      {
+        id: 'kontrastmittel', art: 'einfach', abschnitt: 'pflege',
+        frage: 'Was ist vor dem CT mit Kontrastmittel wichtig?',
+        optionen: [r('Ärztlich auf die Schilddrüsenüberfunktion hinweisen, weil jodhaltiges Kontrastmittel sie verschlimmern kann'), f('Nichts, Kontrastmittel ist für die Schilddrüse egal'), f('Vorher zusätzlich Jodtabletten geben')],
+        erklaerung: 'Jod kann eine Überfunktion verstärken. Die Ärztin entscheidet über Vorbereitung oder andere Untersuchungen.',
+      },
+      {
+        id: 'umgebung', art: 'mehrfach', abschnitt: 'pflege',
+        frage: 'Was hilft Frau Neumann auf Station?',
+        optionen: [r('Kühles, ruhiges Zimmer und leichte Bettwäsche'), r('Ausreichend Kalorien und Getränke anbieten'), r('Puls, Temperatur und Gewicht regelmäßig kontrollieren'), f('Ihre Gereiztheit als Unhöflichkeit dokumentieren')],
+        erklaerung: 'Der erhöhte Grundumsatz braucht Energie und Flüssigkeit. Gereiztheit ist ein Krankheitszeichen.',
+        extraTopicIds: ['thema.pro.dehydratation'],
+      },
+      {
+        id: 'krise', art: 'einfach', abschnitt: 'komplikationen',
+        frage: 'Nachts hat sie 39,8 °C, Puls 160/min und ist sehr unruhig. Woran denkst du?',
+        optionen: [r('An eine thyreotoxische Krise: sofort ärztlich melden, Notfall'), f('An eine normale Nachtunruhe'), f('An eine Unterzuckerung, die mit Saft behoben ist')],
+        erklaerung: 'Fieber, Herzrasen und Unruhe bis zur Verwirrtheit sind Zeichen der lebensbedrohlichen Krise.',
+      },
+      {
+        id: 'beratung', art: 'einfach', abschnitt: 'beratung',
+        frage: 'Sie bekommt ein Thyreostatikum. Was soll sie sofort melden?',
+        optionen: [r('Fieber und Halsschmerzen, weil sich das Blutbild verändern kann'), f('Leichte Müdigkeit am Abend'), f('Dass ihr Gewicht wieder etwas steigt')],
+        erklaerung: 'Thyreostatika können selten die weißen Blutkörperchen stark senken. Fieber und Halsschmerzen sind dann Warnzeichen.',
+      },
+    ],
+  },
 ];
