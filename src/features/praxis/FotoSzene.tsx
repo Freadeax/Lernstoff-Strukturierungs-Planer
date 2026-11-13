@@ -76,6 +76,7 @@ export function FotoSzene({ s, raum, fokus, onFokus, zeitraffer, onZeichnung }: 
         <span className="foto__alarm" aria-hidden="true" />
       </RaumBuehne>
     </div>
+    {raum.beispiel && <p className="foto__beispiel">{raum.beispiel}</p>}
     <OrteLeiste s={s} fokus={fokus} onFokus={onFokus} nummern />
     <StatusChips z={z} zeitraffer={zeitraffer} />
     {video && <HandlungsVideo id={video} onClose={() => setVideo(null)} />}

@@ -51,6 +51,14 @@ const FAELLE: Record<string, Eintrag> = {
     lernziele: ['Schweren Asthmaanfall beim Kind erkennen (Sprechdyspnoe, Einziehungen)', 'Atemerleichternd lagern und Notfallplan klären', 'Eltern einbeziehen und Schweigepflicht beachten'] },
   demenz: { geltung: 'Erwachsene, Langzeitpflege, ab 2. Ausbildungsjahr', risiken: [], pruefpunkte: ['Patientenverfügung, Pneumoniezeichen'],
     lernziele: ['Pneumoniezeichen bei Demenz trotz untypischer Symptome erkennen', 'Patientenverfügung und mutmaßlichen Willen beachten', 'Angehörige und Hausarzt einbeziehen'] },
+  bronchiolitis: { geltung: 'Säugling (4 Monate), Pädiatrie, ab 2. Ausbildungsjahr', risiken: ['kinder', 'notfall'], pruefpunkte: ['Säuglings-Normwerte und -Alarmgrenzen statt Erwachsenen-NEWS2', 'Ziel-SpO₂ und Indikation Magensonde/Infusion nach Hausstandard', 'Kontaktisolierung bei RSV'],
+    quellen: [{ titel: 'NICE NG9: Bronchiolitis in children', stand: '2021' }],
+    lernziele: ['Erschöpfungszeichen und Atempausen beim Säugling erkennen und sofort eskalieren', 'Trinkmenge und Ausscheidung als Warnzeichen einordnen', 'Nase freimachen, sicher lagern und RSV-Kontaktisolierung einhalten'] },
+  herzschwaeche: { geltung: 'Erwachsene, Ambulante Pflege, ab 2. Ausbildungsjahr', risiken: ['medikament', 'notfall'], pruefpunkte: ['Gewichtsgrenze 2 kg in 3 Tagen, Trinkmengenvorgabe', 'Kontraindikation Kompression bei dekompensierter Herzinsuffizienz', 'Telefonische Anordnung im ambulanten Dienst'],
+    quellen: [{ titel: 'ESC Guidelines for heart failure', stand: '2021' }],
+    lernziele: ['Dekompensation an Gewicht, Ödemen und Orthopnoe erkennen', 'Medikamenteneinnahme prüfen und Hausärztin einbinden', 'Selbstbestimmung respektieren und einen Notfallplan vereinbaren'] },
+  rausch: { geltung: 'Jugendliche (15 Jahre), Kinder- und Jugendstation, ab 2. Ausbildungsjahr', risiken: ['kinder', 'notfall'], pruefpunkte: ['Überwachungsintervalle bei Alkoholintoxikation', 'Glukosegabe nur nach Anordnung, nichts oral bei Bewusstseinstrübung', 'Information der Sorgeberechtigten'],
+    lernziele: ['Atemweg bei Bewusstseinstrübung sichern (Seitenlage, Absaugbereitschaft)', 'Unterzucker, Unterkühlung und Kopfverletzung als Gefahren erkennen', 'Jugendliche und Eltern ohne Beschämung begleiten'] },
 };
 
 export function freigabeFuer(s: Pick<Scenario, 'id' | 'age'>): Freigabe | undefined {

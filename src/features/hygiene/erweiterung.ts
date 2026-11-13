@@ -73,6 +73,38 @@ export const ERWEITERUNG: Partial<Record<'momente' | 'psa' | 'erreger' | 'basis'
       ],
       erklaerung: ['Tröpfchen fängt ein Mund-Nasen-Schutz ab, aerogen übertragene Erreger nur eine dicht sitzende FFP2-Maske. Der Hygieneplan kann strengere Regeln vorsehen.'],
     },
+    {
+      id: 'fall.mrsa', art: 'fall', topicIds: T, titel: 'Fall: Zimmer mit MRSA', stufe: 3,
+      frage: 'Schützt du dich und andere bei der Versorgung richtig?',
+      einstieg: 'Herr F., 77 Jahre, liegt im Einzelzimmer. Im Nasenabstrich wurde MRSA gefunden. Er hat eine Wunde am Unterschenkel, die du heute verbinden sollst. Am Zimmer hängt ein Hinweisschild zur Kontaktisolierung.',
+      schritte: [
+        {
+          lage: 'Vor der Tür steht der Wagen mit Schutzausrüstung.',
+          frage: 'Was legst du vor dem Verbandwechsel an? Wähle alle zutreffenden.', optionen: ['Schutzkittel mit langen Ärmeln', 'Einmalhandschuhe', 'Mund-Nasen-Schutz, weil du nah an Nase und Wunde arbeitest', 'Zwei Paar Handschuhe übereinander, damit du sie nicht wechseln musst'],
+          richtig: [0, 1, 2], mehrfach: true,
+          warum: 'MRSA wird vor allem über Hände und Kontakt übertragen. Kittel und Handschuhe schützen Kleidung und Hände, der Mund-Nasen-Schutz verhindert, dass du dir den Erreger in die eigene Nase bringst. Doppelte Handschuhe ersetzen keinen Handschuhwechsel.',
+        },
+        {
+          lage: 'Du hast den alten Verband abgenommen und willst die Wunde reinigen.',
+          frage: 'Was tust du zwischen diesen beiden Schritten?', optionen: ['Handschuhe ausziehen, Hände desinfizieren, frische Handschuhe anziehen', 'Mit denselben Handschuhen weiterarbeiten, du bist ja noch beim selben Patienten', 'Die Handschuhe mit Händedesinfektionsmittel abreiben', 'Nichts, Handschuhe wechselt man erst am Ende'],
+          richtig: [0], mehrfach: false,
+          warum: 'Vom unreinen zum reinen Arbeitsschritt wird gewechselt, auch beim selben Menschen. Handschuhe desinfiziert man nur in Ausnahmefällen nach Hygieneplan.',
+        },
+        {
+          lage: 'Der Verband ist fertig. Du willst das Zimmer verlassen.',
+          frage: 'In welcher Reihenfolge legst du die Schutzausrüstung üblicherweise ab?', optionen: ['Handschuhe aus, Hände desinfizieren, Kittel aus, Mund-Nasen-Schutz ab, Hände desinfizieren', 'Kittel aus, Mund-Nasen-Schutz ab, zuletzt Handschuhe', 'Alles auf dem Flur ablegen', 'Mund-Nasen-Schutz zuerst, damit du besser Luft bekommst'],
+          richtig: [0], mehrfach: false,
+          warum: 'Am stärksten verschmutzt sind die Handschuhe, sie kommen zuerst weg. Kittel und Maske werden ohne Berührung der Außenseite abgelegt, im Zimmer beziehungsweise in der Schleuse. Danach die Hände desinfizieren.',
+        },
+        {
+          lage: 'Herr F. möchte nachmittags in die Cafeteria.',
+          frage: 'Was ist richtig?', optionen: ['Nach Hygieneplan klären; oft ist es möglich mit frischer Kleidung, desinfizierten Händen und abgedeckter Wunde', 'Er darf das Zimmer bis zur Entlassung grundsätzlich nie verlassen', 'Das geht nur mit FFP3-Maske', 'Er muss niemandem Bescheid sagen'],
+          richtig: [0], mehrfach: false,
+          warum: 'Isolierung soll Übertragung verhindern, nicht Menschen einsperren. Wie streng sie ist, legen Hygieneplan und Hygienefachpersonal fest, abhängig von Erreger, Besiedlungsort und Einrichtung.',
+        },
+      ],
+      erklaerung: ['Kontaktisolierung: Basishygiene plus Kittel und Handschuhe, je nach Tätigkeit Mund-Nasen-Schutz.', 'Vom unreinen zum reinen Schritt Handschuhe wechseln. Ablegen: Handschuhe zuerst, Hände desinfizieren, zuletzt wieder Hände desinfizieren.'],
+    },
   ],
   basis: [
     {
@@ -113,5 +145,9 @@ export const ERWEITERUNG_VERTIEFUNG: Record<string, string[]> = {
   'fall.stich': [
     'Das Übertragungsrisiko nach einer Stichverletzung ist für Hepatitis B am höchsten (bei fehlender Impfung), deutlich niedriger für Hepatitis C und am niedrigsten für HIV. Tiefe Stiche mit Hohlnadeln und sichtbarem Blut erhöhen das Risiko.',
     'Gegen Hepatitis C gibt es keine Impfung und keine Postexpositionsprophylaxe, aber gut wirksame Behandlungen. Deshalb folgen Kontrolluntersuchungen über mehrere Monate.',
+  ],
+  'fall.mrsa': [
+    'MRSA steht für Methicillin-resistenten Staphylococcus aureus. Viele Menschen tragen ihn unbemerkt in der Nase (Besiedlung). Gefährlich wird er, wenn er in Wunden, Blut oder Lunge gelangt, weil viele Antibiotika nicht mehr wirken.',
+    'Im Krankenhaus gilt meist eine strengere Isolierung als im Pflegeheim, weil dort mehr Menschen mit Wunden, Kathetern und geschwächter Abwehr liegen. Eine Sanierung mit Nasensalbe und antiseptischen Waschungen kann die Besiedlung beseitigen.',
   ],
 };

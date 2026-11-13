@@ -1,5 +1,8 @@
 import { SeitenHilfe } from '../wegweiser/SeitenHilfe';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { db } from '../../core/db';
+import { ceListe, ceThemen } from '../ce/modell';
+import { baueFahrplan, PHASE_TEXT, type CeZeile } from './fahrplan';
 import '../faecher.css';
 import './examen.css';
 import type { MasteryStatus } from '../../core/types';
@@ -24,6 +27,7 @@ const REIHE: MasteryStatus[] = ['sicher', 'unsicher', 'bearbeitet', 'offen'];
 
 const ANSICHTEN = [
   { id: 'ueberblick', label: 'Überblick' },
+  { id: 'fahrplan', label: 'Fahrplan alle CE' },
   { id: 'muendlich', label: 'Mündlich üben' },
   { id: 'praktisch', label: 'Praktisch planen' },
 ] as const;
@@ -58,6 +62,7 @@ export default function ExamenSeite() {
       </div>
       <div id="examen-panel" role="tabpanel" aria-labelledby={`examen-tab-${ansicht}`} tabIndex={0} className="examen__panel">
         {ansicht === 'ueberblick' && <Ueberblick termine={termine} aendere={aendere} />}
+        {ansicht === 'fahrplan' && <FahrplanAnsicht termine={termine} aendere={aendere} />}
         {ansicht === 'muendlich' && <Muendlich termine={termine} aendere={aendere} />}
         {ansicht === 'praktisch' && <Praktisch termine={termine} aendere={aendere} />}
       </div>
@@ -262,6 +267,94 @@ function Ueberblick({ termine, aendere }: { termine: Termine; aendere: (p: Parti
           <p>„Als Nächstes“ zählt offene Fehler aus dem Fehlerheft, schwache Themen der Prüfungssimulationen der letzten 60 Tage, unsichere und fällige Themen. Selbsteinschätzungen und gelesene Skripte heben die Stärke nicht.</p>
           <p>Die Zuordnung der Themen zu Kompetenzbereichen ist eine fachliche Einschätzung des Katalogs. Die Prüfungsteile stammen aus der PflAPrV (§§ 14–16), wie im Katalog hinterlegt.</p>
         </details>
+      </>)}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------- Fahrplan über alle CE
+
+const SCHRITT_ZIEL: Record<CeZeile['schritt']['art'], (ceId: string) => { path: string; label: string }> = {
+  erarbeiten: (id) => ({ path: `/lernen/ce?ce=${encodeURIComponent(id)}`, label: 'Lernpfad öffnen' }),
+  abfragen: (id) => ({ path: `/lernen/ce?ce=${encodeURIComponent(id)}&ansicht=test`, label: 'Selbsttest starten' }),
+  wiederholen: (id) => ({ path: `/lernen/ce?ce=${encodeURIComponent(id)}&ansicht=test`, label: 'Selbsttest starten' }),
+  fehler: () => ({ path: '/lernen/fehler', label: 'Fehlerheft' }),
+  halten: () => ({ path: '/lernen/plan', label: 'Lernplan' }),
+};
+
+function FahrplanAnsicht({ termine, aendere }: { termine: Termine; aendere: (p: Partial<Termine>) => void }) {
+  const { ctx, error, retry } = usePlan();
+  const { modul } = useExamensModul();
+  const fakten = useFakten(ctx);
+  const [skripte, setSkripte] = useState<Array<{ id: string; gruppe: string; titel: string; topicIds: string[] }>>([]);
+  useEffect(() => {
+    let aktiv = true;
+    db.skripte.toArray().then((l) => { if (aktiv) setSkripte(l.map(({ id, gruppe, titel, topicIds }) => ({ id, gruppe, titel, topicIds }))); }).catch(() => {});
+    return () => { aktiv = false; };
+  }, []);
+  const heute = ctx?.data.today ?? new Date().toISOString().slice(0, 10);
+  const tage = tageBis(termine.schriftlich, heute);
+  const plan = useMemo(() => {
+    if (!fakten) return undefined;
+    const liste = ceListe(modul);
+    const ces = liste.map((c) => ({ id: c.id, code: c.code, name: c.name, topicIds: ceThemen(modul, c, skripte, liste).map((t) => t.topic.id) }));
+    return baueFahrplan(ces, fakten, tage);
+  }, [fakten, modul, skripte, tage]);
+  const phase = plan && PHASE_TEXT[plan.phase];
+
+  return (
+    <div className="stack-3">
+      <TerminKarte termine={termine} aendere={aendere} heute={heute} />
+      {error && <p className="note warn">Lernstand konnte nicht geladen werden: {error.message} <button type="button" className="small" onClick={retry}>Erneut versuchen</button></p>}
+      {!plan && !error && <p className="muted" role="status">Lernstand wird geladen …</p>}
+      {plan && phase && (<>
+        <div className="card examen__fahrplan-phase">
+          <p className="eyebrow">{plan.tage !== null && plan.tage >= 0 ? `Noch ${plan.tage} Tage bis zur schriftlichen Prüfung` : 'Deine Phase'}</p>
+          <h2>{phase.titel}</h2>
+          <p>{phase.text}</p>
+          <p className="muted">
+            {plan.themenGesamt - plan.offenGesamt} von {plan.themenGesamt} Themen aus allen CE sind sicher.
+            {plan.proWoche !== null && plan.proWoche > 0 && <> Damit bis zur letzten Woche jedes Thema mindestens einmal abgefragt ist, bring etwa <strong>{plan.proWoche} {plan.proWoche === 1 ? 'Thema' : 'Themen'} pro Woche</strong> zur ersten Abfrage ({plan.wochenBisFestigen} {plan.wochenBisFestigen === 1 ? 'Woche' : 'Wochen'} Zeit).</>}
+            {plan.proWoche === 0 && <> Jedes Thema ist schon mindestens einmal abgefragt.</>}
+          </p>
+          <p className="examen__fahrplan-links">
+            <a href="#/lernen/plan?ansicht=pruefungen&neu=1">Examen als Prüfung im Lernplan anlegen</a>
+            <a href="#/lernen/simulation">Prüfungssimulation</a>
+            <a href="#/lernen/wegweiser">Wie funktioniert das?</a>
+          </p>
+        </div>
+
+        {plan.fokus.length > 0 && (
+          <section aria-labelledby="fahrplan-fokus">
+            <h2 id="fahrplan-fokus">Diese Woche zuerst</h2>
+            <ol className="examen__fahrplan-fokus">
+              {plan.fokus.map((z) => { const ziel = SCHRITT_ZIEL[z.schritt.art](z.id); return (
+                <li key={z.id} className="card">
+                  <strong>{z.code} {z.name}</strong>
+                  <span>{z.schritt.text}</span>
+                  <a className="button-link small" href={`#${ziel.path}`}>{ziel.label}</a>
+                </li>
+              ); })}
+            </ol>
+          </section>
+        )}
+
+        <section aria-labelledby="fahrplan-alle">
+          <h2 id="fahrplan-alle">Alle CE, schwächste zuerst</h2>
+          <p className="muted">Stärke wie im Schwächen-Radar: sicher zählt voll, unsicher halb, nur erarbeitet wenig. Zuordnung der Themen wie auf der CE-Seite.</p>
+          <ul className="examen__fahrplan-liste">
+            {plan.zeilen.map((z) => { const ziel = SCHRITT_ZIEL[z.schritt.art](z.id); return (
+              <li key={z.id} className="examen__fahrplan-zeile">
+                <div className="examen__fahrplan-kopf">
+                  <a href={`#/lernen/ce?ce=${encodeURIComponent(z.id)}`}><strong>{z.code}</strong> {z.name}</a>
+                  <span className="muted">{z.staerke} % · {z.themen} {z.themen === 1 ? 'Thema' : 'Themen'}</span>
+                </div>
+                <Balken zahl={z.zahl} />
+                <p className="examen__fahrplan-schritt">{z.schritt.text}. <a href={`#${ziel.path}`}>{ziel.label}</a></p>
+              </li>
+            ); })}
+          </ul>
+        </section>
       </>)}
     </div>
   );
