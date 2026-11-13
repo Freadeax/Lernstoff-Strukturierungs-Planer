@@ -101,7 +101,7 @@ hochladen. Mängel stehen danach in `docs/ASSET-STATUS.md` und werden Positionen
   `signalausfall`), `nacht`, `massnahme` (z. B. `orders`, `niedrigbett`). Regeln: `docs/RAEUME.md`.
 - **Lizenz und Freigabe pro Datei:** `lizenz`/`urheber` sind Pflicht. `freigabe` bleibt `null`, bis jemand das Motiv
   fachlich geprüft hat; dann `{ "am": "JJJJ-MM-TT", "von": "Rolle" }`. Die App trägt sie in
-  `src/features/assetstatus/freigaben.ts` ein.
+  `src/ui/sim/bildfreigaben.ts` ein.
 
 Hotspots und Monitorfläche sind optional; Claude misst sie sonst selbst nach.
 

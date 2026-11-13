@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Übernimmt einen Export aus System → Bildprüfung in src/features/assetstatus/freigaben.ts
+// Übernimmt einen Export aus System → Bildprüfung in src/ui/sim/bildfreigaben.ts
 // und erzeugt docs/ASSET-STATUS.md neu. Aufruf: npm run assets:freigaben -- <bildpruefung-….json>
 // Neuere Einträge ersetzen ältere desselben Schlüssels; die Prüfung der Felder macht der Vitest-Lauf.
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -11,7 +11,7 @@ const exp = JSON.parse(readFileSync(datei, 'utf8'));
 if (exp.format !== 'lernstoff-bildpruefung/1' || !exp.eintraege || typeof exp.eintraege !== 'object') {
   console.error('Keine Exportdatei der Bildprüfung (format lernstoff-bildpruefung/1).'); process.exit(1);
 }
-const ziel = 'src/features/assetstatus/freigaben.ts';
+const ziel = 'src/ui/sim/bildfreigaben.ts';
 const ts = readFileSync(ziel, 'utf8');
 const muster = /export const FREIGABEN: Record<string, BildFreigabe> = \{[\s\S]*?\n?\};\n/;
 if (!muster.test(ts)) { console.error(`${ziel}: FREIGABEN-Block nicht gefunden`); process.exit(1); }

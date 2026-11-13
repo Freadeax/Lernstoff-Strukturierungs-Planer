@@ -4,7 +4,7 @@ Automatisch erzeugt aus `src/features/assetstatus/inventar.ts`. Neu erzeugen mit
 der normale Testlauf schlägt fehl, wenn diese Datei nicht mehr zum Code passt.
 
 Spalten: **zugeordnet** = steht im Katalog, **erreichbar** = ein Fall oder eine Seite zeigt die Datei
-(über Zuordnung und Zustandsregeln), **geprüft** = fachliche BildFreigabe in `src/features/assetstatus/freigaben.ts`,
+(über Zuordnung und Zustandsregeln), **geprüft** = fachliche BildFreigabe in `src/ui/sim/bildfreigaben.ts`,
 **offline** = vorab im Service Worker oder nach dem ersten Ansehen im Laufzeit-Cache. „Vorhanden“ prüft der Test:
 jede Datei unter `public/{raeume,personen,sim-videos,bildgebung,titelbilder}` steht hier und umgekehrt.
 

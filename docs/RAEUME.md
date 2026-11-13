@@ -21,6 +21,8 @@ Gemeinsamer Baustein für Praxis-, Fall- und Diagnostik-Simulator: `src/ui/sim/r
   fachlich geprüft (`freigaben.ts`), offline. Bericht und Lückenliste: [`ASSET-STATUS.md`](ASSET-STATUS.md),
   neu erzeugen mit `npm run assets:status`. Fachliche Bildprüfung in der App: System → Bildprüfung (`#/system/bilder`),
   Export übernehmen mit `npm run assets:freigaben -- <datei>`. Neue Lieferungen vorher mit `npm run material:pruefen -- <ordner>`.
+- **Bildmängel:** Steht eine Datei in `src/ui/sim/bildfreigaben.ts` mit Status „mangel“, zeigt die Raumbühne unter dem Bild
+  „Bekannter Bildmangel, Ersatz ist bestellt“. Die Bestellliste dazu: [`BESTELLUNG.md`](BESTELLUNG.md).
 - **Weitere Nutzer:** Hygiene-Trainer (Suchbilder 14 und 19, `src/features/hygiene/suchbilder.ts`).
 - **Bühne** (`RaumBuehne.tsx`):
   - `raum`, `hotspots` (`{id, label, kurz?, x, y, gedrueckt?, aktiv?, onClick}`, echte Buttons mit aria-label, mind. 44 px)
