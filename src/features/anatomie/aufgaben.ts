@@ -5,15 +5,17 @@ import { ergaenze, mitVertiefung, type Aufgabe, type AuswahlAufgabe } from '../q
 import { VERTIEFUNG } from './vertiefung';
 import { ERWEITERUNG } from './erweiterung';
 
-export type BereichId = 'herz' | 'atmung' | 'niere' | 'verdauung' | 'bewegung' | 'nerven' | 'sinne' | 'haut' | 'hormone';
+export type BereichId = 'zelle' | 'herz' | 'atmung' | 'niere' | 'verdauung' | 'bewegung' | 'nerven' | 'sinne' | 'haut' | 'hormone' | 'fortpflanzung';
 export interface Bereich { id: BereichId; label: string; kurz: string; wissen: string[] }
 
 export const THEMA: Record<BereichId, string> = {
+  zelle: 'thema.ap.zelle', fortpflanzung: 'thema.ap.fortpflanzung',
   herz: 'thema.ap.herz', atmung: 'thema.ap.atmung', niere: 'thema.ap.niere', verdauung: 'thema.ap.verdauung',
   bewegung: 'thema.ap.bewegung', nerven: 'thema.ap.nerven', sinne: 'thema.ap.nerven', haut: 'thema.ap.haut', hormone: 'thema.ap.hormone',
 };
 
 const TITEL: Record<BereichId, string> = {
+  zelle: 'Zelle und Gewebe', fortpflanzung: 'Fortpflanzung und Entwicklung',
   herz: 'Herz und Kreislauf', atmung: 'Atmung', niere: 'Niere und Harnwege', verdauung: 'Verdauung',
   bewegung: 'Bewegungsapparat', nerven: 'Nervensystem', sinne: 'Auge und Ohr', haut: 'Haut', hormone: 'Hormonsystem',
 };
@@ -21,6 +23,151 @@ const TITEL: Record<BereichId, string> = {
 function frage(bereich: BereichId, id: string, f: string, optionen: string[], erklaerung: string[], richtig = [0], mehrfach = false): AuswahlAufgabe {
   return { id: `${bereich}.${id}`, art: 'auswahl', topicIds: [THEMA[bereich]], titel: TITEL[bereich], frage: f, optionen, richtig, mehrfach, erklaerung };
 }
+
+// ---------------------------------------------------------------- Zelle und Gewebe
+
+const zelle: Aufgabe[] = [
+  {
+    id: 'zelle.beschriften', art: 'beschriften', figur: 'zelle', topicIds: [THEMA.zelle], titel: 'Zelle beschriften',
+    frage: 'Beschrifte die Bestandteile der Zelle.',
+    marken: [
+      { nr: 1, x: 150, y: 13, label: 'Zellmembran', hinweis: 'Hülle aus einer Doppelschicht von Fetten, lässt Stoffe nur gezielt hinein und hinaus.' },
+      { nr: 2, x: 132, y: 124, label: 'Zellkern', hinweis: 'Größtes Organell, enthält die Erbinformation (DNA) und steuert die Zelle.' },
+      { nr: 3, x: 160, y: 104, label: 'Kernkörperchen (Nukleolus)', hinweis: 'Dunkler Bereich im Inneren des Kerns, hier entstehen Bausteine der Ribosomen.' },
+      { nr: 4, x: 70, y: 70, label: 'Mitochondrium', hinweis: 'Kraftwerk der Zelle mit gefalteter Innenmembran, gewinnt Energie (ATP) mit Sauerstoff.' },
+      { nr: 5, x: 218, y: 92, label: 'Raues endoplasmatisches Retikulum', hinweis: 'Membransystem mit aufgelagerten Ribosomen, an dem Eiweiße gebildet werden.' },
+      { nr: 6, x: 96, y: 160, label: 'Golgi-Apparat', hinweis: 'Gestapelte Membransäckchen, die Eiweiße verpacken und versenden.' },
+      { nr: 7, x: 236, y: 52, label: 'Lysosom', hinweis: 'Bläschen mit Verdauungsenzymen, baut verbrauchte Bestandteile und Fremdstoffe ab.' },
+      { nr: 8, x: 180, y: 178, label: 'Zytoplasma', hinweis: 'Zellflüssigkeit, in der alle Organellen schwimmen.' },
+    ],
+    erklaerung: ['Die Zelle ist die kleinste lebensfähige Einheit. Jedes Organell hat eine Aufgabe, ähnlich wie Organe im Körper.', 'Rote Blutkörperchen haben als Ausnahme keinen Zellkern und keine Mitochondrien.'],
+  },
+  {
+    id: 'zelle.ebenen', art: 'reihenfolge', topicIds: [THEMA.zelle], titel: 'Vom Kleinen zum Großen',
+    frage: 'Ordne die Ebenen des Körpers vom Kleinsten zum Größten.',
+    schritte: ['Organell', 'Zelle', 'Gewebe', 'Organ', 'Organsystem', 'Organismus'],
+    erklaerung: ['Gleichartige Zellen bilden ein Gewebe, verschiedene Gewebe ein Organ, zusammenarbeitende Organe ein Organsystem, alle Systeme den Organismus.'],
+  },
+  {
+    id: 'zelle.zu.gewebe', art: 'zuordnen', topicIds: [THEMA.zelle], titel: 'Vier Grundgewebe',
+    frage: 'Ordne jedem Beispiel das Grundgewebe zu.',
+    paare: [
+      { links: 'Oberhaut und Schleimhaut des Darms', rechts: 'Epithelgewebe' },
+      { links: 'Knochen, Knorpel, Sehnen, Fettgewebe', rechts: 'Binde- und Stützgewebe' },
+      { links: 'Herzwand, Oberschenkel, Wand des Magens', rechts: 'Muskelgewebe' },
+      { links: 'Gehirn, Rückenmark, Nerven', rechts: 'Nervengewebe' },
+      { links: 'Drüsen wie die Schweißdrüse', rechts: 'Epithelgewebe' },
+    ],
+    erklaerung: ['Epithel bedeckt und kleidet aus, Bindegewebe verbindet und stützt, Muskelgewebe bewegt, Nervengewebe leitet Signale. Auch Blut zählt zum Binde- und Stützgewebe.'],
+  },
+  frage('zelle', 'osmose', 'Wasser strömt durch eine Membran zur Seite mit mehr gelösten Teilchen. Wie heißt dieser Vorgang?',
+    ['Osmose', 'Diffusion von Gasen', 'Phagozytose', 'Mitose'],
+    ['Bei der Osmose wandert Wasser dorthin, wo mehr Teilchen gelöst sind. Deshalb werden Infusionen meist isoton gegeben: Zu salzarme Lösungen lassen Zellen anschwellen, zu salzreiche schrumpfen.']),
+  frage('zelle', 'mitose', 'Was ist das Ergebnis einer Mitose (Zellteilung von Körperzellen)?',
+    ['Zwei gleiche Tochterzellen mit vollständigem Chromosomensatz', 'Vier Keimzellen mit halbem Chromosomensatz', 'Eine größere Zelle mit doppeltem Kern', 'Eine Zelle ohne Zellkern'],
+    ['Die Mitose dient Wachstum und Erneuerung. Keimzellen (Ei- und Samenzellen) entstehen durch die Meiose mit halbem Chromosomensatz (23 statt 46).']),
+  frage('zelle', 'regeneration', 'Welche Gewebe erneuern sich beim Erwachsenen gut? Wähle alle zutreffenden.',
+    ['Oberhaut', 'Darmschleimhaut', 'Blutzellen im Knochenmark', 'Herzmuskelzellen', 'Nervenzellen im Gehirn'],
+    ['Haut, Schleimhäute und Blutzellen teilen sich ständig. Herzmuskel- und Nervenzellen teilen sich kaum noch: Zerstörtes Gewebe wird durch Narbe ersetzt.'],
+    [0, 1, 2], true),
+  {
+    id: 'zelle.fall.heilung', art: 'fall', topicIds: [THEMA.zelle], titel: 'Fall: Was heilt, was vernarbt?', stufe: 3,
+    frage: 'Kannst du aus dem Gewebe ableiten, wie eine Verletzung heilt?',
+    einstieg: 'Auf deiner Station liegen drei Menschen: Frau C. mit einer Schürfwunde am Knie, Herr I. nach einem Herzinfarkt und Herr T. nach einem Schlaganfall.',
+    schritte: [
+      {
+        lage: 'Frau C. fragt, ob ihre Schürfwunde eine Narbe hinterlässt. Nur die oberste Hautschicht ist abgeschürft.',
+        frage: 'Was antwortest du?', optionen: ['Wahrscheinlich nicht: Die Oberhaut erneuert sich aus den tieferen Zellen vollständig', 'Ja, jede Wunde hinterlässt eine Narbe', 'Das hängt nur von der Salbe ab', 'Die Haut wächst gar nicht nach'],
+        richtig: [0], mehrfach: false,
+        warum: 'Epithel regeneriert sich gut. Narben entstehen, wenn die Lederhaut tief verletzt ist und Bindegewebe die Lücke füllt.',
+      },
+      {
+        lage: 'Herr I. fragt, ob sich sein Herzmuskel wieder erholt.',
+        frage: 'Was trifft zu?', optionen: ['Abgestorbener Herzmuskel wird durch eine Bindegewebsnarbe ersetzt, die nicht mitpumpt', 'Der Herzmuskel wächst innerhalb weniger Wochen vollständig nach', 'Herzmuskel ist Epithel und erneuert sich ständig', 'Das Herz hat keine Muskelzellen'],
+        richtig: [0], mehrfach: false,
+        warum: 'Herzmuskelzellen teilen sich kaum. Die Narbe ist fest, aber nicht kontraktil. Deshalb kann nach einem großen Infarkt eine Herzschwäche entstehen.',
+      },
+      {
+        lage: 'Herr T. hat eine Lähmung des rechten Arms. Nach Wochen Therapie kann er die Hand wieder öffnen.',
+        frage: 'Wie ist das möglich, obwohl Nervenzellen sich kaum teilen?', optionen: ['Andere Hirnbereiche übernehmen durch Übung neue Aufgaben (Plastizität)', 'Die zerstörten Nervenzellen sind nachgewachsen', 'Die Lähmung war nur eingebildet', 'Muskelzellen haben die Steuerung übernommen'],
+        richtig: [0], mehrfach: false,
+        warum: 'Das Gehirn kann Verbindungen neu knüpfen. Aktivierende Pflege und Therapie nutzen diese Plastizität, deshalb lohnt sich tägliches Üben.',
+      },
+    ],
+    erklaerung: ['Wie gut Gewebe heilt, hängt von der Teilungsfähigkeit seiner Zellen ab: Epithel gut, Herzmuskel und Nervenzellen kaum.', 'Wo Zellen nicht nachwachsen, entsteht eine Narbe oder andere Bereiche übernehmen Funktionen.'],
+  },
+];
+
+// ---------------------------------------------------------------- Fortpflanzung und Entwicklung
+
+const fortpflanzung: Aufgabe[] = [
+  {
+    id: 'fortpflanzung.zu.organe', art: 'zuordnen', topicIds: [THEMA.fortpflanzung], titel: 'Organe und Aufgaben',
+    frage: 'Ordne jedem Organ seine Hauptaufgabe zu.',
+    paare: [
+      { links: 'Eierstock', rechts: 'Reift Eizellen heran und bildet Östrogen und Progesteron' },
+      { links: 'Eileiter', rechts: 'Ort der Befruchtung und Weg zur Gebärmutter' },
+      { links: 'Gebärmutter', rechts: 'Nimmt die befruchtete Eizelle auf, hier wächst das Kind' },
+      { links: 'Hoden', rechts: 'Bildet Samenzellen und Testosteron' },
+      { links: 'Prostata', rechts: 'Bildet einen Teil der Samenflüssigkeit und umgibt die Harnröhre' },
+    ],
+    erklaerung: ['Eierstöcke und Hoden sind die Keimdrüsen: Sie bilden Keimzellen und Geschlechtshormone. Die übrigen Organe leiten, ernähren oder schützen.'],
+  },
+  {
+    id: 'fortpflanzung.zyklus', art: 'reihenfolge', topicIds: [THEMA.fortpflanzung], titel: 'Weiblicher Zyklus',
+    frage: 'Bringe die Abschnitte des weiblichen Zyklus in die richtige Reihenfolge, beginnend mit dem ersten Tag der Blutung.',
+    schritte: ['Menstruation: Abstoßen der Gebärmutterschleimhaut', 'Aufbauphase: Schleimhaut wächst unter Östrogen', 'Eisprung etwa in der Zyklusmitte', 'Gelbkörperphase: Progesteron bereitet die Schleimhaut auf die Einnistung vor'],
+    erklaerung: ['Ein Zyklus dauert meist etwa 28 Tage, schwankt aber. Ohne Befruchtung bildet sich der Gelbkörper zurück, das Progesteron fällt und die Blutung beginnt.'],
+  },
+  {
+    id: 'fortpflanzung.zu.hormone', art: 'zuordnen', topicIds: [THEMA.fortpflanzung, THEMA.hormone], titel: 'Geschlechtshormone',
+    frage: 'Ordne jedem Hormon zu, wo es vor allem gebildet wird.',
+    paare: [
+      { links: 'FSH und LH', rechts: 'Hirnanhangsdrüse (Hypophyse)' },
+      { links: 'Östrogen', rechts: 'Eierstock' },
+      { links: 'Progesteron', rechts: 'Gelbkörper im Eierstock' },
+      { links: 'Testosteron', rechts: 'Hoden' },
+      { links: 'hCG (Schwangerschaftshormon)', rechts: 'Plazenta beziehungsweise Keimling' },
+    ],
+    erklaerung: ['Die Hypophyse steuert die Keimdrüsen über FSH und LH. Schwangerschaftstests weisen hCG im Urin nach.'],
+  },
+  frage('fortpflanzung', 'befruchtung', 'Wo findet die Befruchtung der Eizelle normalerweise statt?',
+    ['Im Eileiter', 'In der Gebärmutter', 'Im Eierstock', 'In der Scheide'],
+    ['Die befruchtete Eizelle wandert in einigen Tagen zur Gebärmutter und nistet sich dort ein. Nistet sie sich im Eileiter ein, entsteht eine Eileiterschwangerschaft, ein Notfall.']),
+  frage('fortpflanzung', 'dauer', 'Wie lange dauert eine Schwangerschaft, gerechnet ab dem ersten Tag der letzten Regelblutung?',
+    ['Etwa 40 Wochen', 'Etwa 30 Wochen', 'Genau 9 Kalendermonate ab der Befruchtung', 'Etwa 52 Wochen'],
+    ['Gerechnet wird ab der letzten Regel (post menstruationem), etwa 280 Tage. Ab der 37. vollendeten Woche gilt ein Kind als reif geboren.']),
+  frage('fortpflanzung', 'wechseljahre', 'Was verändert sich in den Wechseljahren der Frau? Wähle alle zutreffenden.',
+    ['Die Eierstöcke bilden weniger Östrogen', 'Das Osteoporose-Risiko steigt', 'Schleimhäute von Scheide und Harnwegen werden dünner', 'Die Zahl der Eizellen nimmt wieder zu'],
+    ['Östrogen schützt Knochen und Schleimhäute. Mit dem Abfall steigen Osteoporose, Harnwegsinfekte und Trockenheit der Scheide.'],
+    [0, 1, 2], true),
+  {
+    id: 'fortpflanzung.fall.prostata', art: 'fall', topicIds: [THEMA.fortpflanzung, THEMA.niere], titel: 'Fall: Die Prostata und das Wasserlassen', stufe: 3,
+    frage: 'Verstehst du die Beschwerden aus der Anatomie heraus?',
+    einstieg: 'Herr E., 76 Jahre, steht nachts drei- bis viermal zum Wasserlassen auf. Der Harnstrahl ist schwach, er muss pressen und hat danach das Gefühl, die Blase sei nicht leer.',
+    schritte: [
+      {
+        lage: 'Bekannt ist eine gutartige Vergrößerung der Prostata.',
+        frage: 'Warum führt das zu diesen Beschwerden?', optionen: ['Die Prostata umschließt die Harnröhre direkt unter der Blase und engt sie ein, wenn sie wächst', 'Die Prostata bildet zu viel Urin', 'Die Prostata drückt auf die Nieren', 'Die Prostata liegt im Hoden und hat mit dem Wasserlassen nichts zu tun'],
+        richtig: [0], mehrfach: false,
+        warum: 'Weil die Harnröhre mitten durch die Prostata läuft, behindert schon eine mäßige Vergrößerung den Abfluss. Restharn bleibt zurück.',
+      },
+      {
+        lage: 'Die Ärztin vermutet viel Restharn.',
+        frage: 'Welche Folgen hat Restharn? Wähle alle zutreffenden.', optionen: ['Höheres Risiko für Harnwegsinfekte', 'Bei vollständigem Verschluss akuter Harnverhalt', 'Rückstau bis zur Niere möglich', 'Bessere Nierenfunktion'],
+        richtig: [0, 1, 2], mehrfach: true,
+        warum: 'Stehender Urin ist ein Nährboden für Keime. Staut sich der Urin dauerhaft zurück, kann die Niere Schaden nehmen.',
+      },
+      {
+        lage: 'Er soll einen Blasenkatheter bekommen. Die Kollegin hat beim Einführen einen Widerstand gespürt.',
+        frage: 'Was ist richtig?', optionen: ['Nicht mit Kraft weiterschieben, ärztlich melden; bei Prostatavergrößerung kann ein anderer Katheter nötig sein', 'Fester drücken, bis der Widerstand nachgibt', 'Mehr Gleitmittel und ruckartig weiterschieben', 'Den Katheter kürzen'],
+        richtig: [0], mehrfach: false,
+        warum: 'Gewalt kann die Harnröhre verletzen und einen falschen Weg schaffen. Oft legt dann die Urologie einen speziellen Katheter oder einen suprapubischen Katheter.',
+      },
+    ],
+    erklaerung: ['Die Prostata liegt unter der Blase und umschließt die Harnröhre. Ihre Vergrößerung erklärt schwachen Strahl, Restharn, Nykturie und Schwierigkeiten beim Katheterisieren.'],
+  },
+];
 
 // ---------------------------------------------------------------- Herz
 
@@ -383,6 +530,14 @@ const hormone: Aufgabe[] = [
 
 export const BEREICHE: Bereich[] = [
   {
+    id: 'zelle', label: 'Zelle und Gewebe', kurz: 'Zelle beschriften, Grundgewebe, Osmose, Zellteilung',
+    wissen: [
+      'Zellmembran, Zellkern, Mitochondrien (Energie), raues ER (Eiweiße), Golgi-Apparat (Verpacken), Lysosomen (Abbau).',
+      'Vier Grundgewebe: Epithel-, Binde- und Stütz-, Muskel-, Nervengewebe.',
+      'Mitose: zwei gleiche Körperzellen. Meiose: Keimzellen mit halbem Chromosomensatz.',
+    ],
+  },
+  {
     id: 'herz', label: 'Herz und Kreislauf', kurz: 'Herz beschriften, Weg des Blutes, Erregungsleitung',
     wissen: [
       'Rechtes Herz: sauerstoffarm zur Lunge. Linkes Herz: sauerstoffreich in den Körper.',
@@ -454,7 +609,15 @@ export const BEREICHE: Bereich[] = [
       'Nebenniere: Cortisol, Aldosteron (Rinde), Adrenalin (Mark).',
     ],
   },
+  {
+    id: 'fortpflanzung', label: 'Fortpflanzung und Entwicklung', kurz: 'Geschlechtsorgane, Zyklus, Hormone, Schwangerschaft',
+    wissen: [
+      'Keimdrüsen: Eierstöcke und Hoden bilden Keimzellen und Hormone.',
+      'Befruchtung im Eileiter, Einnistung in der Gebärmutter, Schwangerschaft etwa 40 Wochen ab letzter Regel.',
+      'Die Prostata umschließt die Harnröhre unter der Blase.',
+    ],
+  },
 ];
 
-export const AUFGABEN: Record<BereichId, Aufgabe[]> = mitVertiefung(ergaenze({ herz, atmung, niere, verdauung, bewegung, nerven, sinne, haut: hautAufgaben, hormone }, ERWEITERUNG), VERTIEFUNG);
+export const AUFGABEN: Record<BereichId, Aufgabe[]> = mitVertiefung(ergaenze<BereichId>({ zelle, herz, atmung, niere, verdauung, bewegung, nerven, sinne, haut: hautAufgaben, hormone, fortpflanzung }, ERWEITERUNG), VERTIEFUNG);
 export const ALLE_AUFGABEN: Aufgabe[] = Object.values(AUFGABEN).flat();
