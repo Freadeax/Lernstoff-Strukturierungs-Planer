@@ -218,7 +218,7 @@ export const LEITLINIEN: QuellenEintrag[] = [
   },
   {
     id: 'krinko', titel: 'KRINKO-Empfehlungen (RKI), u. a. Händehygiene', herausgeber: 'Kommission für Krankenhaushygiene und Infektionsprävention am RKI', art: 'empfehlung', muster: /^KRINKO/,
-    aktuell: { stand: '2016, geändert 2026', erschienen: '2026-08-06', fundstelle: 'https://www.ptaheute.de/aktuelles/2026/09/09/medizinisches-haendewaschen-kaltes-wasser-genuegt' },
+    aktuell: { stand: '2026 (Änderung der Fassung 2016)', erschienen: '2026-08-06', fundstelle: 'https://www.ptaheute.de/aktuelles/2026/09/09/medizinisches-haendewaschen-kaltes-wasser-genuegt' },
     geprueftAm: HEUTE_GEPRUEFT, beobachten: 'https://www.rki.de/', intervallMonate: 6,
     kern: 'Aktualisierung der Händehygiene-Empfehlung (Epidemiologisches Bulletin 32/2026): Warmwasser an medizinischen Handwaschplätzen ist nicht mehr verpflichtend. Händedesinfektion bleibt unverändert die wichtigste Maßnahme.',
     offen: 'Hygiene-Trainer auf Aussagen zu Handwaschplätzen und Wassertemperatur durchsehen; danach Stand der Quellenangabe auf 2026 setzen.',

@@ -44,7 +44,8 @@ describe('Inhaltsregister und Quellen', () => {
   it('erkennt Quellen mit neuerer Leitlinienfassung (ERC 2021 → 2025)', () => {
     expect(veralteteQuellen([{ titel: 'ERC Guidelines: Basic Life Support', stand: '2021' }])).toHaveLength(1);
     expect(veralteteQuellen([{ titel: 'ERC Guidelines: Basic Life Support', stand: '2025' }])).toHaveLength(0);
-    expect(veralteteQuellen([{ titel: 'KRINKO', stand: '2016' }])).toHaveLength(0);
+    expect(veralteteQuellen([{ titel: 'KRINKO-Empfehlungen (RKI), u. a. Händehygiene', stand: '2016' }])).toHaveLength(1);
+    expect(veralteteQuellen([{ titel: 'NEWS2 (Royal College of Physicians)', stand: '2017' }])).toHaveLength(0);
   });
 });
 

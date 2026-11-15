@@ -33,6 +33,9 @@ describe('Quellenregister', () => {
     expect(neuereFassungFuer({ titel: 'ERC Guidelines: Paediatric Life Support', stand: '2021' })?.id).toBe('erc');
     expect(neuereFassungFuer({ titel: 'ERC Guidelines: Basic Life Support', stand: '2025' })).toBeUndefined();
     expect(neuereFassungFuer({ titel: 'Surviving Sepsis Campaign Guidelines', stand: '2026' })).toBeUndefined();
+    // Änderung einer älteren Fassung zählt mit ihrem Jahr (KRINKO Händehygiene 2016, geändert 2026)
+    expect(neuereFassungFuer({ titel: 'KRINKO-Empfehlungen (RKI), u. a. Händehygiene', stand: '2016' })?.id).toBe('krinko');
+    expect(jahr(QUELLEN.find((q) => q.id === 'krinko')!.aktuell.stand)).toBe(2026);
   });
 
   it('Sepsis-Inhalte stehen auf der Surviving Sepsis Campaign 2026', () => {
