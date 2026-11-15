@@ -10,7 +10,9 @@ import type { FehlerQuelle } from '../fehlerheft/fehlerheft';
 import type { TrainerId } from '../lernplan/trainer';
 import { FachListe } from './FachText';
 import { ladeZwischenstand, speichereZwischenstand, type Zwischenstand } from './zwischenstand';
-import type { Grundlage } from './grundlage';
+import { INHALTSSTAND, type Grundlage } from './grundlage';
+import { TRAINER_REGISTER } from '../qm/register';
+import { StandZeile } from '../quellen/StandZeile';
 
 export interface TrainerBereich { id: string; label: string; kurz: string; wissen: string[] }
 
@@ -171,6 +173,7 @@ export function TrainerSeite({ titel, intro, hinweis, pfad, quelle, bereiche, au
             </div>
           </div>
           {hinweis && <p className="muted">{hinweis}</p>}
+          <StandZeile quellen={TRAINER_REGISTER.find((r) => r.quelle === quelle)?.freigabe.quellen ?? []} inhaltsstand={INHALTSSTAND} />
         </>
       )}
     </section>

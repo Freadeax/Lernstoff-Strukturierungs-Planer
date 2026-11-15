@@ -603,7 +603,7 @@ export const FAELLE: Fallaufgabe[] = [
         id: 'qsofa', art: 'mehrfach', abschnitt: 'diagnostik',
         frage: 'Welche qSOFA-Kriterien erfüllt Herr Wolf?',
         optionen: [r('Atemfrequenz ab 22/min'), r('Systolischer Blutdruck bis 100 mmHg'), r('Veränderter Bewusstseinszustand'), f('Temperatur über 38 °C'), f('Puls über 100/min')],
-        erklaerung: 'qSOFA prüft Atemfrequenz ab 22/min, systolischen Blutdruck bis 100 mmHg und veränderten Bewusstseinszustand. Alle drei sind erfüllt, ab 2 besteht Sepsisverdacht. Fieber und Puls gehören nicht zu qSOFA, fließen aber in den NEWS2 ein.',
+        erklaerung: 'qSOFA prüft Atemfrequenz ab 22/min, systolischen Blutdruck bis 100 mmHg und veränderten Bewusstseinszustand. Alle drei sind erfüllt: ein Warnzeichen für einen schweren Verlauf. Als alleiniger Suchtest auf Sepsis taugt qSOFA aber nicht; die Surviving Sepsis Campaign 2026 empfiehlt dafür Frühwarnscores wie den NEWS2. Fieber und Puls gehören nicht zu qSOFA, fließen aber in den NEWS2 ein.',
       },
       {
         id: 'handeln', art: 'einfach', abschnitt: 'pflege',

@@ -13,7 +13,7 @@ references:
   - { id: norm.sgb5,    kind: norm, name: SGB V – Gesetzliche Krankenversicherung, pruefstatus: ungeprueft,
       details: "Leistungen der GKV, u. a. Krankenhausbehandlung, häusliche Krankenpflege (§ 37), Hilfsmittel, Entlassmanagement (§ 39 Abs. 1a)." }
   - { id: norm.sgb11,   kind: norm, name: SGB XI – Soziale Pflegeversicherung, pruefstatus: ungeprueft, url: "https://www.gesetze-im-internet.de/sgb_11/",
-      details: "Pflegebedürftigkeit (§ 14: auf Dauer, voraussichtlich mindestens sechs Monate; geprüft), Pflegegrade und Begutachtungsinstrument (§ 15), Pflegesachleistung (§ 36), Pflegegeld (§ 37), Beratungsbesuch (§ 37 Abs. 3), Kombinationsleistung (§ 38), Verhinderungspflege (§ 39), Tages-/Nachtpflege (§ 41), Kurzzeitpflege (§ 42), vollstationäre Pflege (§ 43), Entlastungsbetrag (§ 45b), Expertenstandards (§ 113a), Qualitätsprüfungen (§ 114 ff.)." }
+      details: "Pflegebedürftigkeit (§ 14: auf Dauer, voraussichtlich mindestens sechs Monate; geprüft), Pflegegrade und Begutachtungsinstrument (§ 15), Pflegesachleistung (§ 36), Pflegegeld (§ 37), Beratungsbesuch (§ 37 Abs. 3), Kombinationsleistung (§ 38), Verhinderungspflege (§ 39), Tages-/Nachtpflege (§ 41), Kurzzeitpflege (§ 42), vollstationäre Pflege (§ 43), Entlastungsbetrag (§ 45b), Qualitätsprüfungen (§ 114 ff.)." }
   - { id: norm.stgb203, kind: norm, name: "§ 203 StGB – Verletzung von Privatgeheimnissen (Schweigepflicht)", pruefstatus: ungeprueft }
   - { id: norm.dsgvo,   kind: norm, name: Datenschutz-Grundverordnung (DSGVO) und BDSG, pruefstatus: ungeprueft,
       details: "Gesundheitsdaten sind besondere Kategorien personenbezogener Daten (Art. 9 DSGVO)." }

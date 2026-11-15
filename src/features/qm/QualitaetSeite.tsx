@@ -345,9 +345,10 @@ function Regeln() {
         </ul>
       </section>
       <section className="card">
-        <h2>Beobachtete Leitlinien</h2>
+        <h2>Neue Fassungen von Quellen</h2>
+        <p className="muted">Alle Quellen mit Stand, letzter Prüfung und Erinnerung stehen unter <a href="#/system/quellen">Quellen und Aktualität</a>.</p>
         <ul className="qm-liste qm-liste--klein">
-          {NEUERE_FASSUNGEN.map((n) => <li key={n.fundstelle}><strong>{n.muster.source.replace(/[\^\\/i]/g, '')} {n.stand}</strong>, erschienen {datum(n.erschienen)}: {n.kern} <a href={n.fundstelle} target="_blank" rel="noreferrer">Fundstelle</a></li>)}
+          {NEUERE_FASSUNGEN.map((n) => <li key={n.titel}><strong>{n.titel} {n.stand}</strong>, erschienen {datum(n.erschienen)}: {n.kern} <a href={n.fundstelle} target="_blank" rel="noreferrer">Fundstelle</a></li>)}
         </ul>
       </section>
     </div>

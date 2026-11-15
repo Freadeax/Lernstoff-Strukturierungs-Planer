@@ -57,6 +57,7 @@ const UebenSeite = lazy(() => import('./features/ueben/UebenSeite'));
 const PasstDazu = lazy(() => import('./features/ueben/PasstDazuLeiste'));
 const Testphase = lazy(() => import('./features/testphase/TestphaseSeite'));
 const Qualitaet = lazy(() => import('./features/qm/QualitaetSeite'));
+const Quellen = lazy(() => import('./features/quellen/QuellenSeite'));
 const ThemaSeite = lazy(() => import('./features/thema/ThemaSeite'));
 const ThemenSeite = lazy(() => import('./features/thema/ThemenSeite'));
 const Wegweiser = lazy(() => import('./features/wegweiser/WegweiserSeite'));
@@ -130,6 +131,7 @@ function View() {
     case '/system/bilder': return <Bildpruefung />;
     case '/system/test': return <Testphase />;
     case '/system/qualitaet': return <Qualitaet />;
+    case '/system/quellen': return <Quellen />;
     default:
       return (
         <Page title="Seite nicht gefunden">
