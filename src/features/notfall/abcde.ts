@@ -97,7 +97,7 @@ export const NOTFAELLE: Notfall[] = [
       { buchstabe: 'E', label: 'Exposition: Temperatur, Haut, Flanken, Urin', sek: 40, problem: true, text: w => `Temperatur ${w.temp.toLocaleString('de-DE', { maximumFractionDigits: 1 })} °C, Schüttelfrost. Klopfschmerz über der rechten Flanke. Die Urinprobe ist trüb und riecht übel. Keine Hautdefekte.` },
     ],
     massnahmen: [
-      { id: 'hilfe', buchstabe: 'Team', label: 'Ärztin sofort holen: Verdacht auf Sepsis (qSOFA 3)', sek: 15, schluessel: true, text: 'Die Ärztin kommt sofort. Das Sepsis-Bündel wird gestartet, Anordnungen liegen vor.' },
+      { id: 'hilfe', buchstabe: 'Team', label: 'Ärztin sofort holen: Verdacht auf Sepsis (NEWS2 7 oder mehr)', sek: 15, schluessel: true, text: 'Die Ärztin kommt sofort. Das Sepsis-Bündel wird gestartet, Anordnungen liegen vor.' },
       { id: 'o2', buchstabe: 'B', label: 'Sauerstoff, Ziel SpO₂ 94–98 %', sek: 20, effekt: { spo2: 3 }, text: 'Sauerstoff 2–4 l/min über Nasenbrille, SpO₂ steigt.' },
       { id: 'kulturen', buchstabe: 'E', label: 'Blutkulturen abnehmen (vor der Antibiose, nach Anordnung)', sek: 60, braucht: 'hilfe', schluessel: true, text: 'Zwei Paar Blutkulturen abgenommen und beschriftet, Urinprobe ins Labor.' },
       { id: 'volumen', buchstabe: 'C', label: 'Vollelektrolytlösung 500 ml schnell (nach Anordnung)', sek: 30, braucht: 'hilfe', schluessel: true, stoppt: 0.6, effekt: { sys: 12, dia: 6, puls: -8 }, text: 'Bolus läuft. Der Blutdruck steigt, Wirkung nach jedem Bolus neu beurteilen.' },

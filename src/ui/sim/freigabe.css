@@ -13,3 +13,6 @@
 .freigabe-start dl { display: grid; gap: var(--space-1); margin: var(--space-2) 0 0; font-size: var(--text-sm); }
 .freigabe-start dt { font-weight: 600; }
 .freigabe-start dd { margin: 0; color: var(--color-text-muted); }
+.freigabe-neu { display: flex; gap: var(--space-2); align-items: flex-start; margin: var(--space-2) 0; padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm, 6px); font-size: var(--text-sm); background: #fdecea; color: #5c1a14; border: 1px solid #e3a59c; overflow-wrap: anywhere; }
+.freigabe-neu .freigabe-ort__marke { background: #b42318; }
+.freigabe-neu a { color: inherit; font-weight: 600; }

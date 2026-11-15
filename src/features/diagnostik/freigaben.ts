@@ -14,8 +14,8 @@ const VERLAUF = [{ datum: '2026-11-10', text: 'Fall angelegt' }, { datum: '2026-
 type Eintrag = { lernziele: string[]; geltung: string; risiken: Risiko[]; pruefpunkte?: string[]; quellen?: Quelle[] };
 
 const FAELLE: Record<string, Eintrag> = {
-  'sepsis-pneumonie': { geltung: 'Erwachsene, Innere Station, ab 2. Ausbildungsjahr', risiken: ['notfall'], pruefpunkte: ['Blutkulturen vor Antibiotikum, Laktat-Grenzen'],
-    quellen: [{ titel: 'Surviving Sepsis Campaign Guidelines', stand: '2021' }],
+  'sepsis-pneumonie': { geltung: 'Erwachsene, Innere Station, ab 2. Ausbildungsjahr', risiken: ['notfall'], pruefpunkte: ['Blutkulturen vor Antibiotikum, Laktat-Grenzen', 'Abgleich mit SSC 2026: Antibiotikum möglichst innerhalb 1 Stunde, Erkennen mit Frühwarnscore statt qSOFA allein'],
+    quellen: [{ titel: 'Surviving Sepsis Campaign Guidelines', stand: '2026' }],
     lernziele: ['Sepsiszeichen erkennen und Laktat, Blutkulturen und Entzündungswerte sinnvoll anfordern', 'Blutkulturen korrekt und vor dem Antibiotikum abnehmen', 'Kritischen Laborwert quittieren und nach SBAR weitergeben'] },
   lungenembolie: { geltung: 'Erwachsene, Unfallchirurgie, ab 2. Ausbildungsjahr', risiken: ['notfall', 'geraet'], pruefpunkte: ['Kontrastmittel-Vorbereitung, Nierenwerte, D-Dimer-Einordnung'],
     quellen: [{ titel: 'ESC Guidelines on acute pulmonary embolism', stand: '2019' }],

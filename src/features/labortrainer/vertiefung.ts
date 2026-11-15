@@ -103,7 +103,7 @@ export const VERTIEFUNG: Record<string, string[]> = {
     'Für die Pflege zählen in den ersten Stunden die Vitalzeichen und der klinische Eindruck: Fieberverlauf, Atemfrequenz, Bewusstsein, Blutdruck.',
   ],
   'bf.laktat': [
-    'Sepsis ist eine lebensbedrohliche Organfunktionsstörung durch eine fehlgesteuerte Reaktion auf eine Infektion. Als schnelles Warnzeichen dient z. B. der qSOFA: Atemfrequenz ab 22, systolischer Blutdruck bis 100 mmHg, veränderter Bewusstseinszustand.',
+    'Sepsis ist eine lebensbedrohliche Organfunktionsstörung durch eine fehlgesteuerte Reaktion auf eine Infektion. Auf Station hilft ein Frühwarnscore wie der NEWS2 beim Erkennen; die Surviving Sepsis Campaign 2026 rät davon ab, sich dafür allein auf den qSOFA (Atemfrequenz ab 22, systolischer Blutdruck bis 100 mmHg, veränderter Bewusstseinszustand) zu verlassen.',
     'Jede Stunde Verzögerung bis zur Antibiotikagabe verschlechtert die Überlebenschancen. Blutkulturen werden möglichst vorher abgenommen, aber die Therapie wird deshalb nicht lange verschoben.',
   ],
   'bf.kalium-insulin': [

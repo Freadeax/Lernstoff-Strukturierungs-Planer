@@ -55,5 +55,5 @@ export const NOTFALL_FREIGABE: Record<string, Freigabe> = {
     [{ titel: 'JBDS: The hospital management of hypoglycaemia in adults with diabetes', stand: '2023' }], ['Glukagon-Dosis und Applikationsweg nach Präparat', 'BZ-Grenzen der Bewusstseinsstufen (Modell)']),
   sepsis: abcde('Erwachsene, Notaufnahme, ab 2. Ausbildungsjahr',
     ['Sepsis an Fieber, Atemfrequenz, Blutdruck und neuer Verwirrtheit erkennen', 'Sofort eskalieren, Blutkulturen vor Antibiose', 'Volumen und Antibiose in der ersten Stunde'],
-    [{ titel: 'Surviving Sepsis Campaign: International Guidelines', stand: '2021' }], ['qSOFA nur als Warnzeichen, nicht als Diagnose', 'Volumenmenge nach Anordnung']),
+    [{ titel: 'Surviving Sepsis Campaign: International Guidelines', stand: '2026' }], ['Erkennen mit Frühwarnscore (NEWS2), qSOFA nicht als alleiniger Suchtest (SSC 2026)', 'Volumenmenge nach Anordnung (SSC 2026: bei Minderdurchblutung mindestens 30 ml/kg Vollelektrolytlösung in den ersten 3 Stunden)', 'Antibiotikum sofort, möglichst innerhalb 1 Stunde, Blutkulturen möglichst vorher']),
 };
