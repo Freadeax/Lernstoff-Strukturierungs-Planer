@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { PARAMETER_NACH_ID } from '../../../ui/sim/labor/parameter';
 import { ROEHRCHEN } from '../../../ui/sim/labor/praeanalytik';
+import { entnahmeAuswertung } from './auswertung';
+import { formFehler } from '../../../ui/sim/auswertung';
 import { bewerteEntnahme, debrief, ENTNAHME_KRITERIEN, FOLGEHANDLUNG, roehrchenFuer, staender, SZENARIEN, VERWURF, zielFuellung, type EntnahmeEingabe, type EntnahmeSzenario, type Platz } from './entnahme';
 import { VERLAEUFE } from './verlauf';
 import { werkbankErgebnis, werkbankThema } from './lernplan';
@@ -144,5 +146,19 @@ describe('Werkbank: Nachbesprechung und Lernplan (Audit Abschnitt 5)', () => {
     expect(pruefeErgebnis(e)).toBeUndefined();
     expect(e.versuchId).toBe('werkbank:entnahme:aufnahme:x1');
     expect(e.ergebnisse[0]!.scorePercent).toBe(75);
+  });
+});
+
+describe('Entnahme-Auswertung (gemeinsame Form)', () => {
+  it('Musterlösung ist stabil, geschlossene Identitätsfrage ist kritisch mit Folgehandlung', () => {
+    for (const s of SZENARIEN) {
+      const gut = entnahmeAuswertung(bewerteEntnahme(s, richtig(s)));
+      expect(formFehler(gut), s.id).toEqual([]);
+      expect(gut.ergebnis.stufe, s.id).toBe('stabil');
+      const schlecht = entnahmeAuswertung(bewerteEntnahme(s, { ...richtig(s), identitaet: 'geschlossen', mischen: 'schuetteln' }));
+      expect(schlecht.ergebnis.stufe, s.id).toBe('kritisch');
+      expect(schlecht.punkte[0]!.besser).toBe(FOLGEHANDLUNG.identitaet);
+      expect(schlecht.punkte.filter((p) => p.urteil === 'fehler').length).toBeGreaterThanOrEqual(2);
+    }
   });
 });

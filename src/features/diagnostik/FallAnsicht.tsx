@@ -20,7 +20,9 @@ import { VerlaufKurve } from '../../ui/sim/labor/VerlaufKurve';
 import type { Farbsystem } from '../../ui/sim/labor/praeanalytik';
 import { LaborBereich } from './LaborBereich';
 import { FrageKarte, Rueckmeldung } from './FrageKarte';
-import { auswertung, fuehreAus, vitalReihe, zeitleiste, type ZeitArt, monitorZustand, naechsterBefund, offeneAnrufe, offeneMeldungen, vitalwerte, type Befehl, type Lauf, type MonitorStatus } from './lauf';
+import { AuswertungsKarte } from '../../ui/sim/AuswertungsKarte';
+import { diagnostikAuswertung } from './auswertung';
+import { fuehreAus, vitalReihe, zeitleiste, type ZeitArt, monitorZustand, naechsterBefund, offeneAnrufe, offeneMeldungen, vitalwerte, type Befehl, type Lauf, type MonitorStatus } from './lauf';
 import { DiagnostikSzene } from './DiagnostikSzene';
 import type { DiagnostikFall, Untersuchung } from './typen';
 import { FreigabeHinweis } from '../../ui/sim/FreigabeHinweis';
@@ -326,7 +328,6 @@ function LernplanKarte({ fall, lauf }: { fall: DiagnostikFall; lauf: Lauf }) {
 }
 
 function Auswertung({ fall, lauf, senden }: { fall: DiagnostikFall; lauf: Lauf; senden: (b: Befehl) => void }) {
-  const punkte = auswertung(lauf, fall);
   return (
     <div className="dx-auswertung">
       <section className="card dx-karte">
@@ -342,10 +343,7 @@ function Auswertung({ fall, lauf, senden }: { fall: DiagnostikFall; lauf: Lauf; 
       ) : (
         <>
           <LernplanKarte fall={fall} lauf={lauf} />
-          <section className="card dx-karte">
-            <h3>Rückmeldung</h3>
-            <ul className="dx-punkte">{punkte.map((p, i) => <li key={i}><Rueckmeldung richtig={p.ok} text={`${p.titel}: ${p.text}`} /></li>)}</ul>
-          </section>
+          <AuswertungsKarte a={diagnostikAuswertung(lauf, fall)} titel="Rückmeldung mit Begründung" />
           <section className="card dx-karte">
             <h3>SBAR-Gespräch</h3>
             {(() => { const g = diagnostikSbar(lauf, fall); return <SbarGrundkriterien anlass={g.anlass} {...(g.ergebnis ? { ergebnis: g.ergebnis } : {})} titel={g.ergebnis ? 'Gemeinsame SBAR-Grundkriterien' : 'Kein Anruf: erwarteter Anlass'} />; })()}

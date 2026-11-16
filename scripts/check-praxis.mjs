@@ -255,6 +255,22 @@ try {
       await p2.locator('.sim-monitor__profil', { hasText: 'Kind 6–13' }).first().waitFor();
       await ctx.close();
     }
+    // Diagnostik-Fall: gemeinsame Auswertung mit Begründung nach sofortigem Abschluss (ohne Meldung = kritisch).
+    {
+      const ctx = await browser.newContext({ viewport: { width, height: 1050 }, locale: 'de-DE', colorScheme: 'light' });
+      const dx = await ctx.newPage(); dx.on('pageerror', e => errors.push(e.message));
+      await dx.goto(base + '#/lernen/diagnostik?fall=sepsis-pneumonie', { waitUntil: 'networkidle' });
+      await dx.getByRole('button', { name: 'Fall starten', exact: true }).click();
+      await dx.getByRole('tab', { name: 'Auswertung' }).click();
+      await dx.getByRole('button', { name: 'Fall beenden und auswerten' }).click();
+      await dx.locator('.sim-auswertung.is-kritisch').waitFor();
+      assert(await dx.locator('.sim-auswertung li.is-fehler', { hasText: 'SBAR-Übergabe' }).isVisible(), 'fehlende Meldung als Fehler');
+      assert.match(await dx.locator('.sim-auswertung').textContent(), /Warum:/);
+      await dx.waitForTimeout(350);
+      const axe = await new AxeBuilder({ page: dx }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+      audits.push({ width, name: 'Auswertung Diagnostik', violations: axe.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => ({ html: n.html, summary: n.failureSummary })) })) });
+      await ctx.close();
+    }
     // Notfall-Trainer: Reanimationsübung mit künstlicher Uhr (Zyklus 30 s ohne Warten).
     {
       const ctx = await browser.newContext({ viewport: { width, height: 1050 }, locale: 'de-DE', colorScheme: 'light' });
