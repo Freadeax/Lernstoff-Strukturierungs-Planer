@@ -28,7 +28,7 @@ describe('Suchbestand', () => {
   it('verweist nur auf bekannte Standards und Seiten', () => {
     const bekannt = new Set(standards.map((s) => s.id));
     for (const d of index.doks) for (const s of d.standardIds) expect(bekannt.has(s), `${d.id} → ${s}`).toBe(true);
-    for (const d of index.doks) if (d.link) expect(d.link).toMatch(/^\/lernen\/(thema|expertenstandards|assessment|dnqp|hygiene|notfall|arzneimittel|recht|grundlagen)(\?|$)/);
+    for (const d of index.doks) if (d.link) expect(d.link).toMatch(/^\/lernen\/(thema|expertenstandards|assessment|dnqp|hygiene|notfall|arzneimittel|recht|grundlagen|ablauf)(\?|$)|^\/system\/quellen\?quelle=/);
   });
   it('findet typische Suchen der Ausbildung', () => {
     const erst = (q: string) => suche(index, q).treffer[0]?.dok;
@@ -45,6 +45,29 @@ describe('Suchbestand', () => {
     expect(std('6-R-Regel')).toContain('rw.arzneimittel');
     expect(std('Schweigepflicht')).toContain('rw.recht');
     expect(std('PDCA')).toContain('rw.qualitaet');
+  });
+
+  it('findet Handlungsabläufe und ihre typischen Fallen', () => {
+    const e = suche(index, 'Verbandwechsel', { art: 'ablauf' });
+    expect(e.treffer[0]?.dok).toMatchObject({ id: 'ablauf:verbandwechsel', link: '/lernen/ablauf?ablauf=verbandwechsel' });
+    expect(e.treffer[0]?.dok.standardIds).toContain('rw.hygiene');
+    const falle = suche(index, 'Recapping').treffer.find((t) => t.dok.id.startsWith('ablauf:sc-injektion:'));
+    expect(falle?.dok.art).toBe('irrtum');
+    expect(falle?.dok.link).toBe('/lernen/ablauf?ablauf=sc-injektion&modus=fehler');
+  });
+  it('zeigt Quellen mit Fassung und offenen Abgleichen aus dem Quellenregister', () => {
+    const q = suche(index, 'Surviving Sepsis', { art: 'quelle' }).treffer[0]?.dok;
+    expect(q?.link).toBe('/system/quellen?quelle=ssc');
+    expect(q?.details?.some((d) => d.label === 'Neueste Fassung')).toBe(true);
+    const pflbg = index.doks.find((d) => d.id === 'quelle:gesetz.pflbg');
+    expect(pflbg?.standardIds).toEqual(['rw.recht']);
+    expect(pflbg?.hinweis).toBe('Abgleich offen');
+    expect(index.doks.find((d) => d.id === 'quelle:krinko')?.standardIds).toEqual(['rw.hygiene']);
+    // DNQP-Standards stehen nicht doppelt als Quelle im Index, bekommen aber den Stand aus dem Register
+    expect(index.doks.some((d) => d.id.startsWith('quelle:es.'))).toBe(false);
+    const echt = baueBestand(MODUL);
+    const mitStand = echt.index.doks.filter((d) => d.id.startsWith('dnqp:') && d.details?.some((x) => x.label === 'Zuletzt nachgesehen'));
+    expect(mitStand.length).toBeGreaterThan(5);
   });
 
   it('baut den Index schnell genug für jede Eingabe', () => {

@@ -9,7 +9,7 @@ export interface Regelwerk extends StandardInfo { pfad: string }
 
 export const REGELWERKE: Regelwerk[] = [
   { id: 'rw.hygiene', kurz: 'Hygiene (KRINKO)', name: 'Hygiene und Infektionsprävention', details: 'KRINKO-Empfehlungen, 5 Indikationen der Händehygiene, TRBA 250', pfad: '/lernen/hygiene', ungeprueft: false, gruppe: 'regelwerk' },
-  { id: 'rw.notfall', kurz: 'Notfall und Reanimation (ERC)', name: 'Notfall, Reanimation und ABCDE', details: 'Leitlinien des European Resuscitation Council 2021', pfad: '/lernen/notfall', ungeprueft: false, gruppe: 'regelwerk' },
+  { id: 'rw.notfall', kurz: 'Notfall und Reanimation (ERC)', name: 'Notfall, Reanimation und ABCDE', details: 'Leitlinien des European Resuscitation Council (Inhalte ERC 2021, Basismaßnahmen nach ERC 2025)', pfad: '/lernen/notfall', ungeprueft: false, gruppe: 'regelwerk' },
   { id: 'rw.arzneimittel', kurz: 'Arzneimittelsicherheit', name: 'Sicherer Umgang mit Arzneimitteln', details: '6-R-Regel, Applikation, Betäubungsmittel', pfad: '/lernen/arzneimittel', ungeprueft: false, gruppe: 'regelwerk' },
   { id: 'rw.qualitaet', kurz: 'Qualität und EBN', name: 'Qualitätsmanagement und evidenzbasierte Pflege', details: 'Struktur, Prozess, Ergebnis nach Donabedian, PDCA, EBN', pfad: '/lernen/grundlagen', ungeprueft: false, gruppe: 'regelwerk' },
   { id: 'rw.recht', kurz: 'Recht in der Pflege', name: 'Gesetze und Normen für die Pflege', details: 'StGB, BGB, PflBG, SGB V und XI, IfSG, Arbeitsschutz', pfad: '/lernen/recht', ungeprueft: false, gruppe: 'regelwerk' },

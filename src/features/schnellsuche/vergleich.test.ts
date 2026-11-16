@@ -26,7 +26,7 @@ describe('Häufige Irrtümer und Aussagen prüfen', () => {
   const { index } = baueBestand(modules[0] as CatalogModule);
   it('macht jede Fehlvorstellung als eigenen Eintrag suchbar', () => {
     const anzahl = DNQP_STANDARDS.reduce((n, s) => n + (s.fehlvorstellungen?.length ?? 0), 0);
-    expect(index.doks.filter((d) => d.art === 'irrtum')).toHaveLength(anzahl);
+    expect(index.doks.filter((d) => d.art === 'irrtum' && !d.id.startsWith('ablauf:'))).toHaveLength(anzahl);
     expect(suche(index, 'Bettgitter').treffer.some((t) => t.dok.art === 'irrtum' && t.dok.standardIds.includes('es.sturz'))).toBe(true);
   });
   it('hat ein Beispiel mit zwei erkannten Irrtümern und einem richtigen Satz', () => {

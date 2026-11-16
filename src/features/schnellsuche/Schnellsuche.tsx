@@ -90,6 +90,7 @@ function TrefferKarte({ t, nr, offen, umschalten, standardName, listId, gemerkt,
         <span className={`tag sus__art sus__art--${d.art}`}>{ART_NAME[d.art]}</span>
         <EbenenMarke t={t} />
         {d.pfad && <span className="muted sus__pfad">{d.pfad}</span>}
+        {d.hinweis && <span className="tag tag--warning" title="Laut Quellenregister: neuere Fassung oder offener Abgleich">{d.hinweis}</span>}
         {t.guete === 'unscharf' && <span className="tag tag--warning sus__guete" title="Gefunden trotz Tippfehler">ähnlich</span>}
         {t.guete === 'synonym' && <span className="tag tag--info sus__guete" title="Über ein Synonym oder eine Abkürzung gefunden">Synonym</span>}
       </div>
