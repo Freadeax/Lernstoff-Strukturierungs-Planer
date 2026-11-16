@@ -114,3 +114,5 @@
 .examen__fahrplan-kopf { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-1) var(--space-3); }
 .examen__fahrplan-schritt { margin: 0; }
 .examen__panel section[aria-labelledby^="fahrplan-"] > h2 { margin: var(--space-3) 0 var(--space-1); }
+.examen__fahrplan-examen { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-top: var(--space-2); }
+.examen__fahrplan-examen p { flex: 1 1 16rem; margin: 0; }

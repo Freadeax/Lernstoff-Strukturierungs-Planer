@@ -128,10 +128,38 @@ export const SEITEN: SeitenInfo[] = [
     wann: 'Im letzten Ausbildungsjahr, spätestens wenn die Prüfungstermine feststehen.',
     soGehts: [
       '„Überblick“: Schwächen-Radar je Kompetenzbereich und Prüfungsteil, mit Link zu den schwächsten Themen.',
-      '„Fahrplan alle CE“: deine Phase bis zum Examen, ein Wochenpensum und je CE der nächste Schritt.',
+      '„Fahrplan alle CE“: deine Phase bis zum Examen, ein Wochenpensum und je CE der nächste Schritt. Dort legst du das Examen mit einem Tipp als Prüfung mit allen Themen im Lernplan an.',
       '„Mündlich üben“: Fälle laut beantworten. „Praktisch planen“: Etappen rückwärts vom Termin.',
     ],
     weiter: { label: 'Prüfungssimulation starten', path: '/lernen/simulation' },
+  },
+  {
+    path: '/lernen/skript', name: 'Skript',
+    wozu: 'Belegte Lernzusammenfassungen nach CE geordnet: Jede Aussage nennt ihre Stelle im Material.',
+    wann: 'Zum Erarbeiten eines Themas, bevor du dich abfragst.',
+    soGehts: ['CE und Abschnitt wählen und lesen. Gelesene Abschnitte merkt sich die App für den Lernpfad.', 'Danach Lernzeit im Lernplan erfassen und das Thema mit Karteikarten abfragen.'],
+    weiter: { label: 'Karteikarten', path: '/lernen/karten' },
+  },
+  {
+    path: '/lernen/dnqp', name: 'Expertenstandards (DNQP)',
+    wozu: 'Alle nationalen Expertenstandards der Pflege mit Zielsetzung und Kriterien nach Struktur, Prozess und Ergebnis.',
+    wann: 'Wenn ein Standard im Unterricht, in der Praxis oder in einer Prüfungsfrage vorkommt.',
+    soGehts: ['Standard wählen und Ebene für Ebene lesen.', 'Zum schnellen Nachschlagen eines Kriteriums ist der Standard-Schnellsucher kürzer.'],
+    weiter: { label: 'Expertenstandards üben', path: '/lernen/expertenstandards' },
+  },
+  {
+    path: '/lernen/schnellsuche', name: 'Standard-Schnellsucher',
+    wozu: 'Ein Suchfeld für Expertenstandards und weitere Standards: Kriterien, häufige Irrtümer, Kernaussagen.',
+    wann: 'Wenn du schnell nachsehen willst, was ein Standard zu einer Frage sagt.',
+    soGehts: ['Begriff eingeben, zum Beispiel „Sturz“ oder „Schmerz“.', 'Eigene Aussagen kannst du gegen den Standard prüfen lassen.'],
+    weiter: { label: 'Alle Expertenstandards', path: '/lernen/dnqp' },
+  },
+  {
+    path: '/lernen/physiologie', name: 'Physiologie-Modelle',
+    wozu: 'An Reglern drehen und die Folge sehen: Herz und Kreislauf, Haut, Lunge, Blutzucker. Vereinfachte Lernmodelle.',
+    wann: 'Wenn du einen Zusammenhang verstehen willst, statt ihn auswendig zu lernen.',
+    soGehts: ['Modell wählen, einen Wert verändern und beobachten, was sich mitbewegt.'],
+    weiter: { label: 'Krankheitsbilder üben', path: '/lernen/krankheitsbilder' },
   },
 ];
 
@@ -168,6 +196,7 @@ export const BUENDEL: Array<{ titel: string; text: string; pfade: string[] }> = 
   { titel: 'Jeden Tag', text: 'Mehr brauchst du im Alltag nicht.', pfade: ['/', '/lernen/plan', '/lernen/karten', '/lernen/fehler'] },
   { titel: 'Im Praxiseinsatz', text: 'Vor und während eines Einsatzes auf Station.', pfade: ['/lernen/einsatz'] },
   { titel: 'Stoff überblicken und auswählen', text: 'Derselbe Stoff, unterschiedlich sortiert. Nimm die Sicht, die dir gerade hilft.', pfade: ['/lernen/ce', '/lernen/board', '/lernen/landkarte', '/lernen/themen'] },
+  { titel: 'Nachschlagen und verstehen', text: 'Wenn du etwas lesen, nachsehen oder ausprobieren willst.', pfade: ['/lernen/skript', '/lernen/dnqp', '/lernen/schnellsuche', '/lernen/physiologie'] },
   { titel: 'Stand ansehen', text: 'Für den Rückblick, nicht für jeden Tag.', pfade: ['/lernen/fortschritt', '/lernen/faecher'] },
   { titel: 'Auf Prüfungen vorbereiten', text: 'Für Klausuren und das Examen.', pfade: ['/lernen/simulation', '/lernen/examen'] },
 ];
@@ -217,7 +246,7 @@ export const PRUEFUNGSPHASEN: Array<{ wann: string; titel: string; schritte: Arr
     wann: 'Etwa 6 Monate vor dem Examen', titel: 'Überblick über alle CE',
     schritte: [
       { text: 'Die drei Examenstermine (schriftlich, praktisch, mündlich) eintragen.', link: { label: 'Examen', path: '/lernen/examen' } },
-      { text: 'Eine Prüfung mit allen Themen anlegen, damit der Lernplan bis zum Examen über alle CE plant.', link: { label: 'Prüfung anlegen', path: '/lernen/plan?ansicht=pruefungen&neu=1' } },
+      { text: 'Im Fahrplan das Examen mit einem Tipp als Prüfung mit allen Themen anlegen, damit der Lernplan bis zum Examen über alle CE plant.', link: { label: 'Fahrplan alle CE', path: '/lernen/examen?ansicht=fahrplan' } },
       { text: 'Der Fahrplan zeigt je CE, was noch offen ist, und wie viele Themen du pro Woche schaffen solltest.', link: { label: 'Fahrplan alle CE', path: '/lernen/examen?ansicht=fahrplan' } },
     ],
   },

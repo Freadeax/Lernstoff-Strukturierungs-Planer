@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { MasteryStatus } from '../../core/types';
-import { baueFahrplan, naechsterSchritt, phaseFuer, PHASE_AB } from './fahrplan';
+import { baueExamenPruefung, baueFahrplan, EXAMEN_PRUEFUNG_ID, examenAbgleich, naechsterSchritt, phaseFuer, PHASE_AB } from './fahrplan';
 
 const fakten = (s: Record<string, MasteryStatus>, faellig: string[] = [], fehler: Record<string, number> = {}) => ({
   status: new Map(Object.entries(s)), faellig: new Set(faellig), fehler: new Map(Object.entries(fehler)),
@@ -52,5 +52,23 @@ describe('Prüfungsfahrplan', () => {
     expect(p.zeilen.every((z) => z.schritt.art === 'halten')).toBe(true);
     expect(p.fokus).toEqual([]);
     expect(p.proWoche).toBe(0);
+  });
+});
+
+describe('Examen als Prüfung im Lernplan', () => {
+  const fach = new Map([['a', 'f1'], ['b', 'f1'], ['c', 'f2'], ['d', 'f2']]);
+  it('nimmt alle bekannten Themen aller CE ohne Doppelte, behält den Namen', () => {
+    const p = baueExamenPruefung('2027-04-20', CES, fach, { name: 'Mein Examen' });
+    expect(p.id).toBe(EXAMEN_PRUEFUNG_ID);
+    expect(p.name).toBe('Mein Examen');
+    expect(p.topicIds).toEqual(['a', 'b', 'c', 'd']);
+    expect(p.subjectIds).toEqual(['f1', 'f2']);
+  });
+  it('erkennt anlegen, aktualisieren und aktuell', () => {
+    const p = baueExamenPruefung('2027-04-20', CES, fach);
+    expect(examenAbgleich(p)).toBe('anlegen');
+    expect(examenAbgleich(p, { date: '2027-04-20', topicIds: ['d', 'c', 'b', 'a'] })).toBe('aktuell');
+    expect(examenAbgleich(p, { date: '2027-04-21', topicIds: p.topicIds })).toBe('aktualisieren');
+    expect(examenAbgleich(p, { date: '2027-04-20', topicIds: ['a'] })).toBe('aktualisieren');
   });
 });

@@ -1,3 +1,4 @@
+import { SeitenHilfe } from '../wegweiser/SeitenHilfe';
 import { Fragment, useDeferredValue, useEffect, useId, useMemo, useRef, useState } from 'react';
 import './schnellsuche.css';
 import { getModule, modules } from '../../modules/registry';
@@ -236,6 +237,7 @@ export default function Schnellsuche() {
     <section className="page sus">
       <PageHeading eyebrow="Standards" title="Schnellsucher"
         description="Ein Suchfeld für alle Expertenstandards und weitere Standards der Pflege (Hygiene, Notfall, Arzneimittel, Recht): Kriterien nach Struktur, Prozess und Ergebnis, häufige Irrtümer, Kernaussagen, Instrumente, Fachbegriffe und passende Übungen. Versteht Tippfehler, Synonyme und Abkürzungen. Funktioniert offline." />
+        <SeitenHilfe path="/lernen/schnellsuche" />
 
       <div className="pills sus__ansichten" role="tablist" aria-label="Ansicht">
         {ANSICHTEN.map((a) => (

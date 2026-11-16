@@ -1,3 +1,4 @@
+import { SeitenHilfe } from '../wegweiser/SeitenHilfe';
 import './physiologie.css';
 import { useState, type ReactNode } from 'react';
 import { PageHeading } from '../../ui/PageHeading';
@@ -274,6 +275,7 @@ export default function PhysiologieSeite() {
     <section className="page phy">
       <PageHeading eyebrow="Lernen" title="Physiologie-Modelle"
         description="An Reglern drehen und die Folge sehen: Herz und Kreislauf, Haut und Dekubitus, Lunge und Lagerung, Blutzucker. Vereinfachte Lernmodelle, keine Messwerte eines Menschen." />
+        <SeitenHilfe path="/lernen/physiologie" />
       <div className="pills" role="tablist" aria-label="Modell">
         {MODELLE.map((m, index) => (
           <button key={m.id} id={`phy-tab-${m.id}`} type="button" role="tab" className="pill" aria-selected={modell === m.id} aria-controls="phy-panel" tabIndex={modell === m.id ? 0 : -1}

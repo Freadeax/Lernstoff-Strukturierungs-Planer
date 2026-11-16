@@ -29,6 +29,15 @@ describe('Wegweiser', () => {
     for (const s of SEITEN) expect(pfade, s.path).toContain(s.path);
   });
 
+  it('erklärt jede Seite unter „Lernen“ und die Prüfungsseiten (neue Seiten brauchen einen Eintrag)', () => {
+    const lernen = flatNav(NAV.find((g) => g.id === 'lernen')?.children ?? []).map((i) => i.path!).filter((p) => p !== WEGWEISER_PFAD);
+    const pfade = new Set(BUENDEL.flatMap((b) => b.pfade));
+    for (const p of [...lernen, '/lernen/simulation', '/lernen/examen', '/lernen/fehler']) {
+      expect(seitenInfo(p), `SEITEN fehlt: ${p}`).toBeDefined();
+      expect(pfade.has(p), `BUENDEL fehlt: ${p}`).toBe(true);
+    }
+  });
+
   it('nennt die echten Schwellen für „sicher“', () => {
     const sicher = WISSENSSTUFEN.find((s) => s.name === 'Sicher')!.text;
     expect(sicher).toContain(`${MASTERY_RULES.minSuccessfulDays} gute Abfragen`);
