@@ -44,7 +44,7 @@ export function ausAblaeufen(ablaeufe: readonly Ablauf[]): SuchDok[] {
     const fallen: SuchDok[] = a.fallen.map((f) => ({
       id: `ablauf:${a.id}:${f.id}`, art: 'irrtum', titel: f.fehler, standardIds,
       pfad: `${a.titel} · typische Falle${f.kritisch ? ' (kritisch)' : ''}`,
-      text: `${f.fehler} ${f.folge}`,
+      text: `${f.text}. ${f.fehler} ${f.folge}`,
       link: ablaufLink(a.id, 'fehler'),
       details: [
         { label: 'So nicht', text: f.text },

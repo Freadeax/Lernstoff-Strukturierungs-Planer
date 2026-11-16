@@ -12,6 +12,7 @@ import { INSTRUMENTE } from '../assessment/instrumente';
 import { STECKBRIEFE } from '../assessment/steckbriefe';
 import { GRUPPEN } from '../assessment/vignetten';
 import { ABLAEUFE } from '../ablauf/inhalt';
+import { alleNutzungen } from '../quellen/nutzung';
 import { QUELLEN } from '../quellen/register';
 import { ausAblaeufen } from './ablaeufe';
 import { ausRegister, mitStand } from './aktualitaet';
@@ -42,8 +43,10 @@ export function baueBestand(modul: CatalogModule, dnqp: DnqpStandard[] = DNQP_ST
   const standards = [...standardsAus(modul, dnqp), ...REGELWERKE];
   const themen = themaZuStandards(modul);
   const mitDnqp = new Set(dnqp.map((s) => s.id));
+  const nutzungen = alleNutzungen();
+  const heute = new Date().toISOString().slice(0, 10);
   const doks: SuchDok[] = [
-    ...mitStand(ausDnqp(dnqp), QUELLEN),
+    ...mitStand(ausDnqp(dnqp), QUELLEN, nutzungen, heute),
     ...ausKatalogStandards(modul, mitDnqp),
     ...ausKurzwissen(BEREICHE, standards),
     ...ausInstrumenten(Object.values(INSTRUMENTE), themen,
@@ -60,7 +63,7 @@ export function baueBestand(modul: CatalogModule, dnqp: DnqpStandard[] = DNQP_ST
       ];
     }),
     ...ausAblaeufen(ABLAEUFE),
-    ...ausRegister(QUELLEN, new Set(standards.map((s) => s.id))),
+    ...ausRegister(QUELLEN, new Set(standards.map((s) => s.id)), nutzungen, heute),
   ];
   // Standardnamen und DNQP-Synonyme sind selbst Synonymgruppen: „Dekubitusprophylaxe“ ↔ eigene Alias-Namen
   const ausStandards = dnqp.filter((s) => s.synonyme?.length).map((s) => [s.kurztitel, ...s.synonyme!]);

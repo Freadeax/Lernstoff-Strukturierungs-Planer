@@ -54,6 +54,8 @@ describe('Suchbestand', () => {
     const falle = suche(index, 'Recapping').treffer.find((t) => t.dok.id.startsWith('ablauf:sc-injektion:'));
     expect(falle?.dok.art).toBe('irrtum');
     expect(falle?.dok.link).toBe('/lernen/ablauf?ablauf=sc-injektion&modus=fehler');
+    // auch über die falsche Handlung selbst auffindbar
+    expect(suche(index, 'Nachttisch', { art: 'irrtum' }).treffer.some((t) => t.dok.id.startsWith('ablauf:verbandwechsel:'))).toBe(true);
   });
   it('zeigt Quellen mit Fassung und offenen Abgleichen aus dem Quellenregister', () => {
     const q = suche(index, 'Surviving Sepsis', { art: 'quelle' }).treffer[0]?.dok;
@@ -63,6 +65,10 @@ describe('Suchbestand', () => {
     expect(pflbg?.standardIds).toEqual(['rw.recht']);
     expect(pflbg?.hinweis).toBe('Abgleich offen');
     expect(index.doks.find((d) => d.id === 'quelle:krinko')?.standardIds).toEqual(['rw.hygiene']);
+    // Stand aus den Quellenangaben der Inhalte, wie auf der Seite „Quellen und Aktualität“
+    const erc = index.doks.find((d) => d.id === 'quelle:erc');
+    expect(erc?.hinweis).toBe('neue Fassung 2025');
+    expect(erc?.details?.find((d) => d.label === 'Stand der App-Inhalte')?.text).toMatch(/2021/);
     // DNQP-Standards stehen nicht doppelt als Quelle im Index, bekommen aber den Stand aus dem Register
     expect(index.doks.some((d) => d.id.startsWith('quelle:es.'))).toBe(false);
     const echt = baueBestand(MODUL);
