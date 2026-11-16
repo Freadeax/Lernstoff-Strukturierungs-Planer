@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useAutoFokus } from '../../../ui/shell/fokus';
 import type { ID, Topic } from '../../../core/types';
 import { notify } from '../../../ui/shell/notifications';
 import { navigate } from '../../../ui/shell/router';
@@ -78,6 +79,8 @@ export function Sitzung({ karten, staende: start, retention, heute, topics, titl
   const [antworten, setAntworten] = useState<Antwort[]>([]);
   const [ergebnis, setErgebnis] = useState<ThemenErgebnis[] | null>(null);
   const [busy, setBusy] = useState(false);
+  // Während der Sitzung Menüs ausblenden (abschaltbar in den Einstellungen).
+  useAutoFokus(!ergebnis);
   const inputRef = useRef<HTMLInputElement>(null);
   const aufdeckenRef = useRef<HTMLButtonElement>(null);
   const abgeschlossen = useRef(false);

@@ -331,12 +331,25 @@ export default function Landkarte() {
   // Auf schmalen Flächen deckt das Detailblatt die untere Hälfte ab: gewähltes Thema dann oben zeigen
   const anchor = () => ((viewport.current?.clientWidth ?? 1000) < 700 ? { x: 0.5, y: 0.22 } : { x: 0.5, y: 0.5 });
 
+  // Handy: Die ganze Karte wäre so klein, dass sich kein Thema antippen lässt. Darum mit lesbarer Größe
+  // beim ersten Thema beginnen; „Ganze Karte zeigen“ und Zwei-Finger-Zoom bleiben für den Überblick.
+  const startansicht = (animate: boolean, m = map) => {
+    const erstes = m?.nodes.reduce<typeof m.nodes[number] | undefined>((a, n) => (!a || n.y < a.y || (n.y === a.y && n.x < a.x) ? n : a), undefined);
+    const vw = viewport.current?.clientWidth ?? 1000;
+    if (erstes && vw < 700) {
+      const k = 0.55;
+      pz.fit(false); // setzt den Ausgangszoom unter k, centerOn zoomt dann genau auf k
+      pz.centerOn({ x: erstes.x + (vw / 2 - 16) / k, y: erstes.y, w: 0, h: erstes.h }, k, { x: 0.5, y: 0.3 });
+    }
+    else pz.fit(animate);
+  };
+
   // Beim ersten Anzeigen und nach Fachwechsel einpassen; ein vorgewähltes Thema in die Mitte holen
   const initial = useRef(true);
   useLayoutEffect(() => {
     if (!map) return;
     const sel = initial.current && selected ? map.nodes.find((n) => n.id === selected) : undefined;
-    if (sel) pz.centerOn(sel, 0.9, anchor()); else pz.fit(!initial.current);
+    if (sel) pz.centerOn(sel, 0.9, anchor()); else startansicht(!initial.current);
     initial.current = false;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map]);
@@ -348,7 +361,7 @@ export default function Landkarte() {
     let last = 0;
     const ro = new ResizeObserver(([e]) => {
       const w = Math.round(e!.contentRect.width);
-      if (last === 0 && w > 0 && !selected) pz.fit(false);
+      if (last === 0 && w > 0 && !selected) startansicht(false, latest.current.map);
       last = w;
     });
     ro.observe(el);

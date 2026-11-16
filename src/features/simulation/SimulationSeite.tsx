@@ -1,4 +1,5 @@
 import { FrageMelden } from '../qm/FrageMelden';
+import { useAutoFokus } from '../../ui/shell/fokus';
 import { meldeZiel } from '../qm/meldungen';
 import { SeitenHilfe } from '../wegweiser/SeitenHilfe';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -257,6 +258,8 @@ function Pruefung({ lauf, setLauf, onAbgabe }: { lauf: Lauf; setLauf: (l: Lauf) 
   const [uebersicht, setUebersicht] = useState(false);
   useEffect(() => { const t = setInterval(() => setJetzt(Date.now()), 1000); return () => clearInterval(t); }, []);
   const lernen = lauf.modus === 'lernen';
+  // Prüfungsmodus: Menüs ausblenden wie in einer echten Prüfung (abschaltbar in den Einstellungen, Esc beendet).
+  useAutoFokus(!lernen);
   // Lernmodus: beim Verlassen der App (App-Wechsel, Sperre, Neuladen) von selbst pausieren.
   const aktuell = useRef(lauf);
   aktuell.current = lauf;
