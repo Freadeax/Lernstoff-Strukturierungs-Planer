@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { PRUEFPUNKTE, assetBericht, assetInventar, pruefEinheit, pruefEinheiten, raumVerwendungen, zustandsLuecken } from './inventar';
 import { RAEUME, raumFuerZustand, raumVarianten } from '../../ui/sim/raeume/katalog';
 import { FREIGABEN } from './freigaben';
-import { bestellBericht, bestellung } from './bestellung';
+import { bestellBericht, bestellung, katalogVorlage, zielDatei } from './bestellung';
 
 const ORDNER = ['raeume', 'personen', 'sim-videos', 'bildgebung', 'titelbilder'];
 function dateienUnter(dir: string): string[] {
@@ -70,6 +70,13 @@ describe('Asset-Status (SIM-06)', () => {
       if (p.referenz) expect(existsSync(join('public', p.referenz)), p.referenz).toBe(true);
     }
     expect(liste.some((p) => p.id === '21_paediatrie_schulkind_sensor_ab' && p.prioritaet === 'P1')).toBe(true);
+    const sensor = liste.find((p) => p.id === '21_paediatrie_schulkind_sensor_ab')!;
+    expect(zielDatei(sensor)).toBe('raeume/21_paediatrie_schulkind_sensor_ab.webp');
+    const [k] = katalogVorlage([sensor]);
+    expect(k).toMatchObject({ id: sensor.id, variante_von: '21_paediatrie_schulkind', lizenz: 'eigene KI-Erzeugung' });
+    for (const f of k!.faelle as string[]) expect(f).toMatch(/^(praxis|fall|diagnostik|notfall):[a-z0-9-]+$/);
+    const portraet = liste.find((p) => p.art === 'portraet');
+    if (portraet) expect(zielDatei(portraet)).toMatch(/^personen\/.+_(angestrengt|kritisch)\.webp$/);
   });
 
   it('docs/BESTELLUNG.md ist aktuell', () => {
