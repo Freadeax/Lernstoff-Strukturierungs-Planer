@@ -100,3 +100,23 @@
 .fs-leer { font-weight: normal; font-size: var(--text-sm, .875rem); color: var(--color-text-muted); font-style: italic; }
 .fs-zeitraum { text-transform: none; letter-spacing: normal; font-weight: normal; }
 .fs-vorlaeufig { font-size: var(--text-sm, .875rem); }
+
+/* Kompetenz-Radar (Fortschritt und Heute) */
+.fs-radar-karte { grid-column: 1 / -1; }
+.fs-radar-inhalt { display: grid; gap: var(--space-3); grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); align-items: center; }
+.fs-radar { width: 100%; max-width: 280px; height: auto; justify-self: center; overflow: visible; }
+.fs-radar--klein { max-width: 150px; flex: none; }
+.fs-radar__ring { fill: none; stroke: var(--color-border); stroke-width: 1; }
+.fs-radar__achse { stroke: var(--color-border); stroke-width: 1; }
+.fs-radar__flaeche { fill: var(--color-primary-soft); stroke: var(--color-primary); stroke-width: 2; fill-opacity: 0.8; }
+.fs-radar__vorher { fill: none; stroke: var(--color-text-muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
+.fs-radar__punkt { fill: var(--color-primary); }
+.fs-radar__text { fill: var(--color-text); font-size: 0.8125rem; font-weight: var(--weight-bold, 700); }
+.fs-radar--klein .fs-radar__text { font-size: 0.6875rem; }
+.fs-radar-tabelle { width: 100%; border-collapse: collapse; font-size: var(--text-sm, .875rem); }
+.fs-radar-tabelle th, .fs-radar-tabelle td { text-align: left; padding: 6px 4px; border-bottom: 1px solid var(--color-border); vertical-align: top; }
+.fs-radar-tabelle td { white-space: nowrap; }
+.fs-radar-legende { display: flex; flex-wrap: wrap; gap: var(--space-3); font-size: var(--text-sm, .875rem); color: var(--color-text-muted); }
+.fs-radar-legende span::before { content: ''; display: inline-block; width: 18px; height: 0; vertical-align: middle; margin-right: 6px; border-top: 3px solid var(--color-primary); }
+.fs-radar-legende span.fs-radar-legende__vorher::before { border-top: 2px dashed var(--color-text-muted); }
+.fs-karte__radar { display: flex; gap: var(--space-3); align-items: center; flex-wrap: wrap; }

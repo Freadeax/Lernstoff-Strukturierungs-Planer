@@ -41,6 +41,7 @@ const Karteikarten = lazy(() => import('./features/karteikarten/ui/Karteikarten'
 const Skript = lazy(() => import('./features/skript/ui/Skript'));
 const CeSeite = lazy(() => import('./features/ce/CeSeite'));
 const Fortschritt = lazy(() => import('./features/fortschritt/FortschrittSeite'));
+const EinsatzSeite = lazy(() => import('./features/einsatz/EinsatzSeite'));
 const Examen = lazy(() => import('./features/examen/ExamenSeite'));
 const HygieneTrainer = lazy(() => import('./features/hygiene/HygieneTrainer'));
 const AnatomieTrainer = lazy(() => import('./features/anatomie/AnatomieTrainer'));
@@ -88,6 +89,7 @@ function View() {
     case '/lernen/thema': return <ThemaSeite />;
     case '/lernen/ueben': return <UebenSeite />;
     case '/lernen/fortschritt': return <Fortschritt />;
+    case '/lernen/einsatz': return <EinsatzSeite />;
     case '/lernen/landkarte': return <Landkarte />;
     case '/lernen/board': return <Page title="Mein Themenboard" hilfe="/lernen/board" intro="Dein Arbeitsstand je Thema: Themenpool, diese Woche, in Arbeit, erarbeitet. Ob du ein Thema sicher kannst, zeigt der Wissensstand aus Abfragen im Lernplan."><WidgetGrid widgets={[WIDGETS.board]} allowHide={false} /></Page>;
     case '/lernen/skript': return <Skript />;

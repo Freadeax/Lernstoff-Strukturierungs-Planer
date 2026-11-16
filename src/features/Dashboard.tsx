@@ -11,6 +11,7 @@ import { SicherungsHinweis } from './sicherung/SicherungsHinweis';
 import { FehlerheftHinweis } from './fehlerheft/FehlerheftHinweis';
 import { ExamenHinweis } from './examen/ExamenHinweis';
 import { FortschrittKarte } from './fortschritt/FortschrittKarte';
+import { EinsatzHinweis } from './einsatz/EinsatzHinweis';
 
 /** Die drei Bündel unter „Üben“ als Einstieg; die vollständige Liste steht auf der Übungsseite. */
 const UEBEN: Array<{ title: string; text: string; icon: IconName; tag: string; gruppe: string }> = [
@@ -60,6 +61,7 @@ export function Dashboard() {
       <HeuteKarte />
       <Schnellwege />
       <ExamenHinweis />
+      <EinsatzHinweis />
       <FortschrittKarte />
       <FehlerheftHinweis />
       <section aria-labelledby="tools-title" className="tools-section">

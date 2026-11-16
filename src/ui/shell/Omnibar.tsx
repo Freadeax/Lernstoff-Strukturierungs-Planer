@@ -29,6 +29,8 @@ function aktionen(): Hit[] {
     { id: 'aktion:bewegung-aus', type: 'Aktion', label: 'Bewegung reduzieren', keywords: ['Animation', 'ruhig'], hint: 'Sofort umschalten', run: () => setWorkspace({ bewegung: 'reduziert' }) },
     { id: 'aktion:bewegung-an', type: 'Aktion', label: 'Bewegung einschalten', keywords: ['Animation'], hint: 'Sofort umschalten', run: () => setWorkspace({ bewegung: 'system' }) },
     { id: 'aktion:pruefung', type: 'Aktion', label: 'Prüfung anlegen', keywords: ['Klausur', 'Termin', 'Examen planen'], hint: 'Lernplan', to: '/lernen/plan?ansicht=pruefungen&neu=1' },
+    { id: 'aktion:notiz', type: 'Aktion', label: 'Notiz aufnehmen', keywords: ['Schnellnotiz', 'Pocket', 'Praxistagebuch', 'Station', 'Einsatz', 'notieren'], hint: 'Praxiseinsatz', to: '/lernen/einsatz?ansicht=notiz' },
+    { id: 'aktion:einsatz', type: 'Aktion', label: 'Einsatz eintragen', keywords: ['Praxiseinsatz', 'Praxis', 'Station', 'Pädiatrie', 'Psychiatrie', 'ambulant', 'Pflegeheim'], hint: 'Praxiseinsatz', to: '/lernen/einsatz?neu=1' },
     { id: 'aktion:import', type: 'Aktion', label: 'Material importieren', keywords: ['hochladen', 'PDF', 'Skript hinzufügen'], hint: 'Import-Assistent', to: '/material/import' },
     { id: 'aktion:sicherung', type: 'Aktion', label: 'Sicherung erstellen', keywords: ['Backup', 'übertragen', 'exportieren'], hint: 'Datensicherung', to: '/system/sicherung' },
     { id: 'aktion:rueckmeldung', type: 'Aktion', label: 'Rückmeldung geben', keywords: ['Feedback', 'Fehler melden', 'Testphase', 'Problem'], hint: 'Testphase', to: '/system/test?ansicht=rueckmeldung' },
