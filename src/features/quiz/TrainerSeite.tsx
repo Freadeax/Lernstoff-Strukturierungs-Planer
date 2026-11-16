@@ -19,6 +19,8 @@ export interface TrainerBereich { id: string; label: string; kurz: string; wisse
 interface Props {
   titel: string;
   intro: string;
+  /** Erscheint direkt unter dem Seitenkopf, zum Beispiel eine Auswahl der Übungsart. */
+  unterKopf?: import('react').ReactNode;
   hinweis?: string;
   pfad: string;
   quelle: FehlerQuelle & TrainerId;
@@ -38,7 +40,7 @@ type Stand = Record<string, { datum: string; prozent: number }>;
 const MIX = 'mix';
 const SCHWACH = 'schwach';
 
-export function TrainerSeite({ titel, intro, hinweis, pfad, quelle, bereiche, aufgaben, figuren, proRunde = 8, minProThema = 3, grundlage, weiter }: Props) {
+export function TrainerSeite({ titel, intro, hinweis, pfad, quelle, bereiche, aufgaben, figuren, proRunde = 8, minProThema = 3, grundlage, weiter, unterKopf }: Props) {
   const { params } = useRoute();
   const key = `lernstoff.${quelle}.stand`;
   const [stand, setStand] = useState<Stand>(() => storage.read<Stand>(key, {}));
@@ -102,6 +104,7 @@ export function TrainerSeite({ titel, intro, hinweis, pfad, quelle, bereiche, au
         <h2>{titel}</h2>
         <p className="muted">{intro}</p>
       </div>
+      {unterKopf}
 
       {laeuft && (liste.length || fortsetzen || nachuebung) ? (
         <Runde
