@@ -131,6 +131,15 @@ try {
     await zeile.getByText('Falsch zugeordnet?').click();
     await zeile.getByRole('button', { name: 'Nicht zu diesem Thema' }).click();
     await page.locator('.thema__liste li', { hasText: 'Testdokument Pflege' }).waitFor({ state: 'detached' });
+    // Physiologie-Modelle: jedes Modell einmal, ein Auftrag über die Regler
+    for (const m of ['herz', 'haut', 'lunge', 'zucker']) {
+      await page.goto(base + `#/lernen/physiologie?modell=${m}`, { waitUntil: 'networkidle' });
+      await page.getByRole('heading', { name: 'Ausprobieren' }).waitFor();
+      await axe(page, `Physiologie ${m}`);
+    }
+    await page.getByLabel('Diabetes Typ 1 (kein eigenes Insulin)').check();
+    await page.getByRole('slider', { name: /Normalinsulin/ }).fill('6');
+    await page.locator('.phy__auftrag--ok').first().waitFor();
     // 5-Minuten-Einheit und Themen-Netz
     await page.goto(base + '#/lernen/thema?id=thema.ph.hygiene', { waitUntil: 'networkidle' });
     await page.getByRole('button', { name: '5-Minuten-Einheit' }).click();
