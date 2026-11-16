@@ -13,13 +13,13 @@
 // keine Datenbanktabelle, keine DB-Version.
 
 export type Ebene = 'S' | 'P' | 'E';
-export type Art = 'standard' | 'kriterium' | 'kernaussage' | 'irrtum' | 'instrument' | 'begriff' | 'uebung';
+export type Art = 'standard' | 'kriterium' | 'kernaussage' | 'irrtum' | 'ablauf' | 'instrument' | 'begriff' | 'quelle' | 'uebung';
 
 export const EBENE_NAME: Record<Ebene, string> = { S: 'Struktur', P: 'Prozess', E: 'Ergebnis' };
 export const ART_NAME: Record<Art, string> = {
-  standard: 'Standard', kriterium: 'Kriterium', kernaussage: 'Kernaussage', irrtum: 'Häufiger Irrtum', instrument: 'Instrument', begriff: 'Fachbegriff', uebung: 'Übung',
+  standard: 'Standard', kriterium: 'Kriterium', kernaussage: 'Kernaussage', irrtum: 'Häufiger Irrtum', ablauf: 'Handlungsablauf', instrument: 'Instrument', begriff: 'Fachbegriff', quelle: 'Quelle und Fassung', uebung: 'Übung',
 };
-export const ARTEN: Art[] = ['standard', 'kriterium', 'kernaussage', 'irrtum', 'instrument', 'begriff', 'uebung'];
+export const ARTEN: Art[] = ['standard', 'kriterium', 'kernaussage', 'irrtum', 'ablauf', 'instrument', 'begriff', 'quelle', 'uebung'];
 
 /** Ein durchsuchbarer Eintrag. Quellen (DNQP-Daten, Trainer, Glossar, Instrumente) werden darauf abgebildet. */
 export interface SuchDok {
@@ -38,6 +38,8 @@ export interface SuchDok {
   link?: string;
   /** Zusätzliche Zeilen für die Detailansicht (z. B. richtige Antwort, Begründung). */
   details?: Array<{ label: string; text: string }>;
+  /** Kurzer sichtbarer Hinweis auf der Karte, z. B. „neue Fassung 2025“ (Quellenregister). */
+  hinweis?: string;
 }
 
 // ---------------------------------------------------------------- Normalisieren
@@ -119,7 +121,7 @@ export function toleranz(laenge: number): number {
 
 type Feld = 'titel' | 'stichwort' | 'pfad' | 'text';
 const GEWICHT: Record<Feld, number> = { titel: 4, stichwort: 3, pfad: 1.5, text: 1 };
-const ART_GEWICHT: Record<Art, number> = { standard: 1.4, kriterium: 1.3, kernaussage: 1.15, irrtum: 1.2, instrument: 1.1, begriff: 1, uebung: 0.85 };
+const ART_GEWICHT: Record<Art, number> = { standard: 1.4, kriterium: 1.3, kernaussage: 1.15, irrtum: 1.2, ablauf: 1.15, instrument: 1.1, begriff: 1, quelle: 0.95, uebung: 0.85 };
 
 export interface Index {
   doks: SuchDok[];
@@ -204,6 +206,8 @@ const ART_ALIAS: Record<string, Art> = {
   irrtum: 'irrtum', irrtuemer: 'irrtum', irrtumer: 'irrtum', fehlvorstellung: 'irrtum', veraltet: 'irrtum',
   instrument: 'instrument', instrumente: 'instrument', skala: 'instrument', assessment: 'instrument', begriff: 'begriff', glossar: 'begriff', fachbegriff: 'begriff',
   uebung: 'uebung', ubung: 'uebung', übung: 'uebung', aufgabe: 'uebung', aufgaben: 'uebung', quiz: 'uebung',
+  ablauf: 'ablauf', ablaufe: 'ablauf', ablaeufe: 'ablauf', handlung: 'ablauf', handlungsablauf: 'ablauf',
+  quelle: 'quelle', quellen: 'quelle', fassung: 'quelle', leitlinie: 'quelle', leitlinien: 'quelle', gesetz: 'quelle', gesetze: 'quelle',
 };
 const EBENE_ALIAS: Record<string, Ebene> = { s: 'S', struktur: 'S', p: 'P', prozess: 'P', e: 'E', ergebnis: 'E' };
 

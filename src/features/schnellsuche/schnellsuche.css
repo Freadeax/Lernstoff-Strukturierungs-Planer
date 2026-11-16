@@ -43,6 +43,8 @@
 .sus__treffer--instrument { border-left-color: var(--color-lilac); }
 .sus__treffer--begriff { border-left-color: var(--color-sky); }
 .sus__treffer--uebung { border-left-color: var(--color-mint); }
+.sus__treffer--ablauf { border-left-color: var(--color-primary); border-left-style: double; }
+.sus__treffer--quelle { border-left-color: var(--color-outline); }
 .sus__zeile { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-2); font-size: var(--text-xs); }
 .sus__pfad { overflow-wrap: anywhere; }
 .sus__ebene { display: inline-flex; align-items: center; justify-content: center; min-width: 2.2em; padding: 0 var(--space-1); border-radius: var(--radius-sm); font-weight: var(--weight-bold); font-family: var(--font-mono); border: 2px solid var(--color-outline); }
