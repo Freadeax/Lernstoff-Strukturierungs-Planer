@@ -100,7 +100,10 @@ export function fragen(markdown: string, bekannte?: Set<string>): SkriptFrage[] 
 }
 
 /** „Quellen“, „Literatur“, „Ergänzende Fachquellen“: Verzeichnisse, aus denen keine Karten entstehen. */
-export const istQuellenAbschnitt = (a: Pick<Abschnitt, 'titel'>) => /^(ergänzende\s+|weitere\s+)?(fach)?(quellen|literatur)(verzeichnis|angaben)?\b/i.test(a.titel.trim());
+export const istQuellenAbschnitt = (a: Pick<Abschnitt, 'titel'>) => /^(ergänzende\s+|weitere\s+)?(fach)?(quellen|literatur)(verzeichnis|angaben)?\b/i.test(a.titel.trim()) || istRegisterAbschnitt(a);
+
+/** „Register A“, „Sachverzeichnis“, „Stichwortverzeichnis“: Nachschlagelisten, keine Karteikarten. */
+export const istRegisterAbschnitt = (a: Pick<Abschnitt, 'titel'>) => /^(register|sachverzeichnis|stichwortverzeichnis|index)\b/i.test(a.titel.trim());
 
 /** Kartenvorschläge zu einem Abschnitt: Kernaussagen in Gruppen und Definitionskarten. */
 export function kartenAusAbschnitt(skript: Skript, abschnitt: Abschnitt, subjectIds: ID[] = []): Karte[] {

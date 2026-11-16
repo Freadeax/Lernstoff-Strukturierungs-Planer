@@ -214,6 +214,8 @@ ID (`<grundbild>_ohne_monitor`, `_sensor_an`, `_sensor_ab`, `_nacht`, `_fall_<fa
 `<datei>_<zustand>`), Priorität, Fällen und einem fertigen Bild-Prompt mit Referenzbild. Sie berücksichtigt Mängel aus
 der Bildprüfung, Beispielfotos mit falscher Person und nur die Zustände, die ein Simulator wirklich anfragt. Geliefertes
 verschwindet nach dem Einbau von selbst aus der Liste.
+Auf dem Handy: **System → Bildprüfung → Bestellliste** (`#/system/bilder?ansicht=bestellung`) mit Knöpfen „Prompt kopieren“,
+„Dateiname kopieren“, „Referenzbild laden“ und einer fertigen `ASSET_KATALOG.json`-Vorlage für die gewählten Positionen.
 
 Von Hand geplant (Bilder nach einer pflegerischen Maßnahme, noch ohne Zustandsregel):
 

@@ -5,7 +5,7 @@ Neu erzeugen mit `npm run assets:status`. Lieferregeln, Dateinamen und `ASSET_KA
 Dateiname = Positions-ID (`<id>.webp` bzw. `.png`), Fälle in `faelle` wie angegeben. Nach dem Einbau wird die Position
 automatisch aus dieser Liste verschwinden.
 
-**39 Positionen:** 22 × P1 (heute sichtbar falsch oder Ersatzbild), 13 × P2, 4 × P3 (Vorrat).
+**35 Positionen:** 18 × P1 (heute sichtbar falsch oder Ersatzbild), 13 × P2, 4 × P3 (Vorrat).
 
 | Prio | ID | Was | Fälle |
 | --- | --- | --- | --- |
@@ -15,10 +15,6 @@ automatisch aus dieser Liste verschwinden.
 | P1 | `12_station_kardiologie_monitoring_sensor_ab` | Kardiologie · Monitoring am Bett: Sensor abgefallen | diagnostik:sepsis-pneumonie, diagnostik:hyperkaliaemie |
 | P1 | `16_notaufnahme_triage_ohne_monitor` | Triage · Ersteinschätzung: Gerät aus: ohne Monitor | praxis:zna, diagnostik:ketoazidose |
 | P1 | `16_notaufnahme_triage_sensor_an` | Triage · Ersteinschätzung: Sensor angelegt | praxis:zna, diagnostik:ketoazidose |
-| P1 | `10_pflegeheim_nacht_fall_palliativ` | Passendes Foto für Fall palliativ | fall:palliativ |
-| P1 | `10_pflegeheim_nacht_fall_sturz-nacht` | Passendes Foto für Fall sturz-nacht | fall:sturz-nacht |
-| P1 | `13_station_postop_fall_hueft-tep` | Passendes Foto für Fall hueft-tep | fall:hueft-tep |
-| P1 | `13_station_postop_fall_schlaganfall` | Passendes Foto für Fall schlaganfall | fall:schlaganfall |
 | P1 | `16_notaufnahme_triage_sensor_ab` | Triage · Ersteinschätzung: Sensor abgefallen | diagnostik:ketoazidose |
 | P1 | `17_notaufnahme_untersuchung_ohne_monitor` | Behandlungsplatz · Untersuchung: Gerät aus: ohne Monitor | diagnostik:pneumothorax |
 | P1 | `17_notaufnahme_untersuchung_sensor_ab` | Behandlungsplatz · Untersuchung: Sensor abgefallen | diagnostik:pneumothorax |
@@ -97,38 +93,6 @@ Zustandsregel „Sensor angelegt“ fällt heute auf ein Ersatzbild zurück.
 
 ```text
 Referenzbild public/raeume/16_notaufnahme_triage.webp anhängen. Exakt derselbe Bildausschnitt, dieselbe Kameraposition, dieselben Personen, Möbel und Geräte. Einzige Änderung: Die Überwachung ist angelegt: Pulsoxymeter-Clip am Zeigefinger (beim Kleinkind Sensor am Fuß), Blutdruckmanschette am Oberarm, EKG-Kabel unter der Kleidung zum Brustkorb. Alle Kabel laufen ordentlich zum Monitor. Fotorealistisch, 16:9, mindestens 1280 × 720 px. Keine lesbare Schrift, keine Logos, keine Menüs, keine realen Personen. Fachlich korrekt: Hygiene, Gerätedetails, Hände und Anatomie.
-```
-
-### P1 · `10_pflegeheim_nacht_fall_palliativ`
-
-Das Foto zeigt eine andere Person als im Fall (Frau H., 92 Jahre).
-
-```text
-Referenzbild public/raeume/10_pflegeheim_nacht.webp anhängen. Exakt derselbe Bildausschnitt, dieselbe Kameraposition, Möbel und Geräte. Die Hauptperson ersetzen durch: Frau H., 92 Jahre. Situation: Frau H., 92 Jahre, Pflegeheim, fortgeschrittene Herzinsuffizienz, Patientenverfügung liegt vor. Die Tochter ist aufgelöst. Fotorealistisch, 16:9, mindestens 1280 × 720 px. Keine lesbare Schrift, keine Logos, keine Menüs, keine realen Personen. Fachlich korrekt: Hygiene, Gerätedetails, Hände und Anatomie.
-```
-
-### P1 · `10_pflegeheim_nacht_fall_sturz-nacht`
-
-Das Foto zeigt eine andere Person als im Fall (Frau D., 86 Jahre).
-
-```text
-Referenzbild public/raeume/10_pflegeheim_nacht.webp anhängen. Exakt derselbe Bildausschnitt, dieselbe Kameraposition, Möbel und Geräte. Die Hauptperson ersetzen durch: Frau D., 86 Jahre. Situation: Frau D., 86 Jahre, Pflegeheim, Vorhofflimmern mit Blutverdünner. Bei der Nachtrunde um 3 Uhr liegt sie neben ihrem Bett. Fotorealistisch, 16:9, mindestens 1280 × 720 px. Keine lesbare Schrift, keine Logos, keine Menüs, keine realen Personen. Fachlich korrekt: Hygiene, Gerätedetails, Hände und Anatomie.
-```
-
-### P1 · `13_station_postop_fall_hueft-tep`
-
-Das Foto zeigt eine andere Person als im Fall (Frau M., 84 Jahre).
-
-```text
-Referenzbild public/raeume/13_station_postop.webp anhängen. Exakt derselbe Bildausschnitt, dieselbe Kameraposition, Möbel und Geräte. Die Hauptperson ersetzen durch: Frau M., 84 Jahre. Situation: Frau M., 84 Jahre, Unfallchirurgie, gestern Hüft-TEP rechts nach Sturz. Sie wirkt heute Morgen anders als gestern. Fotorealistisch, 16:9, mindestens 1280 × 720 px. Keine lesbare Schrift, keine Logos, keine Menüs, keine realen Personen. Fachlich korrekt: Hygiene, Gerätedetails, Hände und Anatomie.
-```
-
-### P1 · `13_station_postop_fall_schlaganfall`
-
-Das Foto zeigt eine andere Person als im Fall (Frau R., 67 Jahre).
-
-```text
-Referenzbild public/raeume/13_station_postop.webp anhängen. Exakt derselbe Bildausschnitt, dieselbe Kameraposition, Möbel und Geräte. Die Hauptperson ersetzen durch: Frau R., 67 Jahre. Situation: Frau R., 67 Jahre, orthopädische Station, Knie-OP vor 2 Tagen. Beim Frühstück fällt dir ihre verwaschene Sprache auf. Fotorealistisch, 16:9, mindestens 1280 × 720 px. Keine lesbare Schrift, keine Logos, keine Menüs, keine realen Personen. Fachlich korrekt: Hygiene, Gerätedetails, Hände und Anatomie.
 ```
 
 ### P1 · `16_notaufnahme_triage_sensor_ab`

@@ -24,3 +24,5 @@
 @container content (max-width: 680px) {
   .bildpruefung__karte { grid-template-columns: minmax(0, 1fr); }
 }
+.bildpruefung__prompt summary { cursor: pointer; font-weight: 600; }
+.bildpruefung__prompt p { margin-top: var(--space-1); white-space: pre-wrap; }

@@ -29,6 +29,17 @@ const BEFUND: Record<string, AbhoerBefund> = {
   'demo-copd': { lunge: 'atem-giemen', herz: 'herz-tachy', text: 'Giemen und Brummen, die Ausatmung ist deutlich verlängert, insgesamt leises Atemgeräusch. Das Herz schlägt schnell: passend zur COPD-Verschlechterung mit Infekt.' },
   'demo-sturz': { lunge: 'atem-vesikulaer', herz: 'herz-arrhythmie', text: 'Normales Atemgeräusch. Die Herztöne sind völlig unregelmäßig: passend zum bekannten Vorhofflimmern, für das er den Blutverdünner nimmt.' },
   'demo-herzschwaeche': { lunge: 'atem-rg', herz: 'herz-arrhythmie', text: 'Feuchte Rasselgeräusche über beiden Lungenunterfeldern, die Herztöne sind völlig unregelmäßig: Lungenstauung bei Herzinsuffizienz und bekanntes Vorhofflimmern.' },
+  // KI-Fälle: Befund passend zum verborgenen Verlauf in faelle.ts; der Systemprompt bekommt ihn mit.
+  'hueft-tep': { ...NORMAL_SCHNELL, text: 'Atemgeräusch beidseits unauffällig, die Herztöne sind regelmäßig und etwas schnell. Der Befund erklärt die Veränderung nicht: Trinkmenge, Schmerz und Verwirrtheit beobachten.' },
+  hypoglykaemie: { ...NORMAL_SCHNELL, text: 'Atemgeräusch unauffällig, die Herztöne sind regelmäßig und etwas schnell. Das Abhören erklärt das Schwitzen nicht, der Blutzucker schon.' },
+  schlaganfall: { lunge: 'atem-vesikulaer', herz: 'herz-normal', text: 'Atemgeräusch und Herztöne unauffällig. Beim Schlaganfall entscheiden BE-FAST und der Zeitpunkt, nicht das Stethoskop.' },
+  dekubitus: { lunge: 'atem-vesikulaer', herz: 'herz-normal', text: 'Atemgeräusch und Herztöne unauffällig. Das Problem liegt an der Haut: Fingertest an der geröteten Stelle.' },
+  fieberkrampf: { lunge: 'atem-vesikulaer', herz: 'herz-tachy', text: 'Normales, schnelles Atemgeräusch beidseits, das Herz schlägt schnell, passend zum Fieber. Nach dem Krampf auf Schnarchen und Röcheln achten.' },
+  palliativ: { lunge: 'atem-rg', herz: 'herz-normal', text: 'Grobes Rasseln beim Atmen, auch ohne Stethoskop hörbar: typische Rasselatmung in der Sterbephase durch Sekret im Rachen.' },
+  sepsis: { ...NORMAL_SCHNELL, text: 'Atemgeräusch beidseits unauffällig, die Herztöne sind regelmäßig und schnell. Die Ursache liegt nicht in der Lunge, sondern im Harnwegsinfekt.' },
+  anaphylaxie: { lunge: 'atem-giemen', herz: 'herz-tachy', text: 'Leises Giemen über beiden Lungen, das Herz schlägt schnell: Die Atemwege verengen sich bei der allergischen Reaktion.' },
+  'delir-nacht': { lunge: 'atem-vesikulaer', herz: 'herz-normal', text: 'Atemgeräusch und Herztöne unauffällig. Die Ursache der Unruhe liegt woanders: Blase tasten, Schmerz und Brille/Hörgerät prüfen.' },
+  'demenz-verfuegung': { lunge: 'atem-rg', herz: 'herz-tachy', text: 'Feinblasige Rasselgeräusche rechts unten, das Herz schlägt schnell: passend zu einer Lungenentzündung nach Verschlucken.' },
   'sturz-nacht': { lunge: 'atem-vesikulaer', herz: 'herz-arrhythmie', text: 'Normales Atemgeräusch. Die Herztöne sind völlig unregelmäßig: passend zum bekannten Vorhofflimmern.' },
 };
 

@@ -39,7 +39,7 @@ function Willkommen() {
         <h2>Schön, dass du testest</h2>
         <p>Der Lernstoff-Planer hilft dir in der generalistischen Pflegeausbildung beim Lernen: Lernplan, Karteikarten, Trainer, Fall- und Praxissimulationen und Prüfungsvorbereitung an einem Ort. Er ist noch in Entwicklung, deshalb ist deine Rückmeldung wichtig.</p>
         <ol className="testphase__schritte">
-          <li><strong>Ausprobieren.</strong> Die <a href="#/system/test?ansicht=auftraege">Testaufträge</a> führen dich in etwa einer Stunde durch alles Wichtige. Du kannst sie auch auf mehrere Tage verteilen.</li>
+          <li><strong>Ausprobieren.</strong> Die <a href="#/system/test?ansicht=auftraege">Testaufträge</a> führen dich in etwa anderthalb Stunden durch alles Wichtige. Du kannst sie auch auf mehrere Tage verteilen.</li>
           <li><strong>Rückmelden.</strong> Was hakt, unklar ist oder gefällt, schickst du über <a href="#/system/test?ansicht=rueckmeldung">Rückmeldung</a>. Am schnellsten geht es direkt nach dem Ausprobieren.</li>
           <li><strong>Weiterlernen.</strong> Alles, was du anlegst, bleibt erhalten, auch nach dem Test.</li>
         </ol>
@@ -310,6 +310,7 @@ function Auswerten() {
               <div><dt>Gesamt</dt><dd>{ue.gesamt}</dd></div>
               {(Object.keys(ART_LABEL) as Art[]).map((a) => <div key={a}><dt>{ART_LABEL[a]}</dt><dd>{ue.jeArt[a]}</dd></div>)}
               {ue.sterneSchnitt !== undefined && <div><dt>Sterne im Schnitt</dt><dd>{ue.sterneSchnitt.toLocaleString('de-DE')}</dd></div>}
+              <div><dt>Noch offen</dt><dd>{anzahlOffen}</dd></div>
             </dl>
             <h3>Nach Seite</h3>
             <ul className="testphase__liste">

@@ -16,7 +16,7 @@ export interface PasstDazu { verwandt: Ziel[]; themen: Array<{ id: string; name:
 /** Übungen, die zu jedem Thema passen; als „verwandt“ zu allgemein. */
 const UEBERALL = new Set<TrainerId>(['mindmap']);
 
-const SCHRITT: Record<string, Ziel> = {
+export const SCHRITT: Record<string, Ziel> = {
   fehler: { label: 'Fehlerheft', path: '/lernen/fehler', grund: 'Falsch Gelöstes gezielt wiederholen.' },
   karten: { label: 'Karteikarten', path: '/lernen/karten', grund: 'Täglich kurz wiederholen, damit es bleibt.' },
   simulation: { label: 'Prüfungssimulation', path: '/lernen/simulation', grund: 'Unter Prüfungsbedingungen testen.' },
@@ -35,6 +35,12 @@ const SCHRITT: Record<string, Ziel> = {
   hoeren: { label: 'Hör-Trainer', path: '/lernen/hoeren', grund: 'Alarme, Herz und Lunge nach Gehör erkennen.' },
   gespraech: { label: 'Gesprächssimulator', path: '/lernen/gespraech', grund: 'Schwierige Gespräche üben, mit Rückmeldung zu jeder Antwort.' },
   ablauf: { label: 'Ablauf-Werkbank', path: '/lernen/ablauf', grund: 'Handgriffe in der richtigen Reihenfolge, mit typischen Fehlern.' },
+  hygiene: { label: 'Hygiene-Trainer', path: '/lernen/hygiene', grund: 'Händehygiene, Schutzausrüstung und Asepsis sicher können.' },
+  anatomie: { label: 'Anatomie-Trainer', path: '/lernen/anatomie', grund: 'Organe, Lage und Funktion abfragen.' },
+  normwerte: { label: 'Normwerte-Trainer', path: '/lernen/normwerte', grund: 'Vitalwerte und Labor sicher einordnen.' },
+  physiologie: { label: 'Physiologie-Modelle', path: '/lernen/physiologie', grund: 'An Reglern drehen und sehen, was im Körper passiert.' },
+  einsatz: { label: 'Praxiseinsatz', path: '/lernen/einsatz', grund: 'Den nächsten Einsatz vorbereiten und im Praxistagebuch festhalten.' },
+  expertenstandards: { label: 'Expertenstandards-Trainer', path: '/lernen/expertenstandards', grund: 'Die Kernaussagen der Standards abfragen.' },
   diagnostik: { label: 'Labor und Bildgebung', path: '/lernen/diagnostik', grund: 'Befunde an Fällen lesen.' },
   fallakte: { label: 'Fallakte', path: '/lernen/fallakte', grund: 'Einen Fall von der SIS bis zur Übergabe durcharbeiten.' },
   recht: { label: 'Recht-Trainer', path: '/lernen/recht', grund: 'Haftung, Schweigepflicht und Betreuung anwenden.' },
@@ -52,7 +58,7 @@ const SCHRITT: Record<string, Ziel> = {
 };
 
 /** Feste nächste Schritte je Seite (zusätzlich zu den abgeleiteten). */
-const WEITER: Record<string, string[]> = {
+export const WEITER: Record<string, string[]> = {
   fehler: ['karten', 'simulation'],
   simulation: ['fehler', 'examen'],
   examen: ['simulation', 'ce'],
@@ -85,6 +91,8 @@ const WEITER: Record<string, string[]> = {
   board: ['plan', 'ueben', 'fortschritt'],
   fortschritt: ['fehler', 'plan', 'examen'],
   dokumente: ['zusammenfassen', 'skript', 'karten'],
+  physiologie: ['anatomie', 'normwerte', 'krankheitsbilder'],
+  einsatz: ['plan', 'ablauf', 'karten'],
   zusammenfassen: ['karten', 'skript', 'dokumente'],
 };
 

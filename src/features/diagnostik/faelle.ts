@@ -258,7 +258,7 @@ export const FAELLE: DiagnostikFall[] = [
       ] },
       { id: 'hi-f3', art: 'befund', frage: 'Tippe auf das vergrößerte Herz.', serie: 'hi-rx', befund: 'herz', erklaerung: 'Der Herzschatten ist breiter als die Hälfte des Thorax (Herz-Thorax-Quotient über 0,5). Im Liegen wirkt das Herz zusätzlich größer.' },
     ],
-    aufloesung: { diagnose: 'Akut dekompensierte Herzinsuffizienz mit Lungenstauung', kernaussage: 'Gewicht ist der beste Frühwarnwert. NT-proBNP und Röntgen bestätigen die Stauung; Kalium unter ACE-Hemmer, Spironolacton und Diuretikum regelmäßig kontrollieren.', pflege: ['Herzbettlage, Sauerstoff nach Anordnung', 'Tägliches Gewicht (gleiche Waage, morgens), Bilanz, Trinkmenge nach Anordnung', 'Kalium und Natrium im Blick, Präanalytik sauber (kurz stauen)', 'Hautpflege bei Ödemen, Dekubitusprophylaxe', 'Schulung: Gewichtstagebuch, Warnzeichen'] },
+    aufloesung: { diagnose: 'Dekompensierte Herzinsuffizienz mit Lungenstauung', kernaussage: 'Gewicht ist der beste Frühwarnwert. NT-proBNP und Röntgen bestätigen die Stauung; Kalium unter ACE-Hemmer, Spironolacton und Diuretikum regelmäßig kontrollieren.', pflege: ['Herzbettlage, Sauerstoff nach Anordnung', 'Tägliches Gewicht (gleiche Waage, morgens), Bilanz, Trinkmenge nach Anordnung', 'Kalium und Natrium im Blick, Präanalytik sauber (kurz stauen)', 'Hautpflege bei Ödemen, Dekubitusprophylaxe', 'Schulung: Gewichtstagebuch, Warnzeichen'] },
     bezug: ['herzinsuffizienz'],
   },
   {
@@ -619,7 +619,7 @@ export const FAELLE: DiagnostikFall[] = [
     anordnungen: [
       { id: 'stopp', label: 'Kaliumbrause, Spironolacton und Ramipril pausieren', text: 'Fiktiv: alle kaliumerhöhenden Medikamente bis auf Weiteres pausieren.', flag: 'stopp', dauer: 3 },
       { id: 'calcium', label: 'Calciumglukonat i.v. vorbereiten (ärztlich gegeben)', text: 'Fiktiv: Calciumglukonat 10 % langsam i.v. unter Monitor, stabilisiert die Herzmembran.', flag: 'calcium', dauer: 10 },
-      { id: 'insulin', label: 'Glukose-Insulin-Infusion nach Anordnung', text: 'Fiktiv: Glukose mit Normalinsulin über 30 min, BZ nach 30 und 60 min, Kalium nach 1 h.', flag: 'insulin', dauer: 10 },
+      { id: 'insulin', label: 'Glukose-Insulin-Infusion nach Anordnung', text: 'Fiktiv: 10 IE Normalinsulin in 25 g Glukose über 15 min. Blutzucker vorher und danach engmaschig bis 6 Stunden (nach 30, 60, 90, 120 min, dann stündlich), Kalium nach 1, 2, 4, 6 und 24 Stunden.', flag: 'insulin', dauer: 10 },
     ],
     reihenfolge: [['calcium', 'insulin', 'Bei EKG-Veränderungen schützt Calcium zuerst das Herz; Insulin und Glukose verschieben danach das Kalium in die Zellen.']],
     fragen: [
@@ -629,7 +629,7 @@ export const FAELLE: DiagnostikFall[] = [
         { text: 'Bananen streichen und morgen weitersehen', richtig: false, warum: 'Das hilft langfristig, nicht in der akuten Lage.' },
       ] },
       { id: 'hk-f2', art: 'wahl', frage: 'Nach Glukose-Insulin sinkt das Kalium. Worauf musst du jetzt besonders achten?', optionen: [
-        { text: 'Unterzuckerung: BZ nach 30 und 60 Minuten und später erneut messen', richtig: true, warum: 'Insulin wirkt länger als die Glukose. Besonders bei Niereninsuffizienz drohen späte Hypoglykämien.' },
+        { text: 'Unterzuckerung: Blutzucker engmaschig bis 6 Stunden nach der Gabe messen', richtig: true, warum: 'Insulin wirkt länger als die Glukose. Besonders bei Niereninsuffizienz drohen späte Hypoglykämien; die UK Kidney Association (2026) sieht Messungen nach 30, 60, 90 und 120 Minuten und danach stündlich bis 6 Stunden vor.' },
         { text: 'Fieber', richtig: false, warum: 'Hier nicht das Hauptrisiko.' },
         { text: 'Darauf, dass das Kalium nie wieder steigt', richtig: false, warum: 'Insulin verschiebt Kalium nur vorübergehend in die Zellen; ohne Ursachenbehandlung steigt es wieder.' },
       ] },
