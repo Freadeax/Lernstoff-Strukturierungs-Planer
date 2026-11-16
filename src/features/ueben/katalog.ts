@@ -48,6 +48,7 @@ export const UEBUNG_INFO: Record<string, UebungsInfo> = {
   examen: { minuten: 5, offline: 'ja', stufe: 'beide' },
   fehler: { minuten: 5, offline: 'ja', stufe: 'beide', fehlerheft: 'Neuer Versuch: richtig gilt als wiederholt, falsch bleibt offen.' },
   hoeren: { minuten: 5, offline: 'ja', stufe: 'einstieg' },
+  ablauf: { minuten: 5, offline: 'ja', stufe: 'beide', lernstand: 'Ergebnis je Ablauf und Thema, der erste Versuch des Tages zählt.' },
   klasse: { minuten: 20, offline: 'teils', stufe: 'beide' },
 };
 
