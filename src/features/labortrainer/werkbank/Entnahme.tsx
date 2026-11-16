@@ -9,6 +9,8 @@ import { wenigBewegung } from '../../../ui/shell/session';
 import { bucheWerkbank, neueLaufId } from './lernplan';
 import { ZustandsTafel } from '../../../ui/sim/ZustandsTafel';
 import { entnahmeZustand, type EntnahmeSchritt } from './zustand';
+import { AuswertungsKarte } from '../../../ui/sim/AuswertungsKarte';
+import { entnahmeAuswertung } from './auswertung';
 import { bewerteEntnahme, debrief, ENTNAHME_KRITERIEN, roehrchenFuer, staender, SZENARIEN, VERWURF, zielFuellung, type EntnahmeEingabe, type EntnahmeErgebnis, type EntnahmeSzenario, type Platz } from './entnahme';
 
 type Schritt = EntnahmeSchritt;
@@ -214,9 +216,10 @@ function EntnahmeBefund({ e, buchung }: { e: EntnahmeErgebnis; buchung?: string 
   return (
     <div className="wb-feld">
       <p className="wb-punkte"><strong>{e.punkte} von {e.max}</strong> Punkten bei der Entnahme.</p>
+      <AuswertungsKarte a={entnahmeAuswertung(e)} />
       {buchung && <p className="muted wb-klein">Lernplan (Injektionen, Infusionen und Blutentnahme): {buchung}</p>}
       {zeilen.length ? (
-        <ol className="wb-debrief" aria-label="Nachbesprechung">
+        <ol className="wb-debrief" aria-label="Nachbesprechung je Fehler">
           {zeilen.map((z) => (
             <li key={z.art}>
               <dl>
