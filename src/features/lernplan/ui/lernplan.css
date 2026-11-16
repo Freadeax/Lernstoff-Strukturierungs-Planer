@@ -192,3 +192,12 @@
 .kalender-export__zeiten { flex-basis: 100%; display: grid; gap: var(--space-2); grid-template-columns: repeat(auto-fill, minmax(min(100%, 12rem), 1fr)); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: var(--space-2) var(--space-3); }
 .kalender-export__zeiten > p, .kalender-export__zeiten > legend { grid-column: 1 / -1; margin: 0; }
 .kalender-export__zeile { display: flex; flex-direction: column; gap: var(--space-1); }
+.dienstplan__grund { grid-column: 1 / -1; font-size: var(--text-sm); color: var(--color-text-muted); text-align: left !important; }
+.dienstplan__schonen { display: flex; gap: var(--space-2); align-items: flex-start; min-height: 44px; }
+.dienstplan__schonen input { margin-top: 3px; width: 1.1rem; height: 1.1rem; flex: none; }
+.dienstplan__import summary { cursor: pointer; font-weight: var(--weight-medium); min-height: 44px; display: flex; align-items: center; }
+.dienstplan__import { display: flex; flex-direction: column; gap: var(--space-2); }
+.dienstplan__import[open] { gap: var(--space-2); }
+.dienstplan__import .field { display: flex; flex-direction: column; gap: var(--space-1); }
+.dienstplan__kuerzel { display: grid; gap: var(--space-2); grid-template-columns: minmax(0, 1fr) 10rem auto; align-items: end; }
+@media (max-width: 560px) { .dienstplan__kuerzel { grid-template-columns: 1fr; } }
