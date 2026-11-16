@@ -24,6 +24,7 @@ import {
 } from './modell';
 import { findeCePruefung } from './pruefung';
 import { Selbsttest } from './Selbsttest';
+import { lehrplanStunden, LehrplanAbschnitt } from './Lehrplan';
 import { testbareThemen } from './selbsttest';
 
 const modul = pflegeModule;
@@ -103,6 +104,7 @@ function Uebersicht({ daten, ctx, status, minuten }: { daten: GeraeteDaten; ctx?
             <p className="muted">
               {anzahl(themen.length, 'Thema', 'Themen')} · etwa {Math.max(1, Math.round(themen.reduce((m, t) => m + minuten(t), 0) / 60))} Std. Erarbeitung
             </p>
+            {lehrplanStunden(ce.id) && <p className="muted ce__lehrplan-zeile">Unterricht laut Lehrplan: {lehrplanStunden(ce.id)}</p>}
             {themen.length > 0 && <Balken zahl={zaehle(themen, status)} />}
             {pfad.gesamt > 0 && (
               <p className="muted ce__pfadstand">
@@ -192,6 +194,7 @@ function Detail({ ce, daten, ctx, status, minuten, setHaken }: {
           onTest={() => navigate(`/lernen/ce?ce=${encodeURIComponent(ce.id)}&ansicht=test`)} />
       )}
       {ctx && <CePruefung ce={ce} themen={themen.map((t) => t.topic)} ctx={ctx} />}
+      <LehrplanAbschnitt ceId={ce.id} />
 
       <section className="ce__abschnitt">
         <h2>Deine Skripte</h2>

@@ -5,6 +5,7 @@
 export interface Neuigkeit { datum: string; titel: string; text: string; pfad: string }
 
 export const NEUIGKEITEN: Neuigkeit[] = [
+  { datum: '2026-11-16', titel: 'CE mit Lehrplan-Stunden und Kompetenzen', text: 'Jede curriculare Einheit zeigt jetzt die Unterrichtsstunden je Ausbildungsdrittel und die Kompetenzen aus Anlage 1 und 2 PflAPrV, die der Landeslehrplan Baden-Württemberg ihr zuordnet.', pfad: '/lernen/ce' },
   { datum: '2026-11-16', titel: 'Ablauf-Werkbank', text: 's.c.-Injektion, Medikamente richten, aseptischer Verbandwechsel und Blasenkatheter bei der Frau Schritt für Schritt: selbst durchführen, jeder Fehlgriff zeigt sofort Fehler und Folge. Oder im vorgeführten Ablauf die Fehler finden. Offline, zählt im Lernplan.', pfad: '/lernen/ablauf' },
   { datum: '2026-11-16', titel: 'Dienstplan einlesen und Schonregeln', text: 'Im Lernplan unter Lernzeit: Dienstplan für 2, 4 oder 6 Wochen, als Kalenderdatei (.ics) aus der Dienstplan-App oder als Kürzel („F F S S N N X X“) einlesen. Nach Nachtdiensten, bei Spät auf Früh und ab dem 6. Arbeitstag in Folge plant die App nur kurze Blöcke.', pfad: '/lernen/plan' },
   { datum: '2026-11-16', titel: 'Ausbildungsnachweis vorbereiten', text: 'Im Praxiseinsatz unter „Nachweis“: Tätigkeiten mit gesehen, unter Anleitung oder selbstständig abhaken, Erst-, Zwischen- und Abschlussgespräch aus Lernzielen und offenen Fragen vorbereiten, von der Praxisanleitung auf dem Gerät abzeichnen lassen und als PDF drucken. Ersetzt nicht den offiziellen Nachweis der Schule.', pfad: '/lernen/einsatz' },
