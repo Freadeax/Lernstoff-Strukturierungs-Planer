@@ -103,3 +103,20 @@ describe('Lernpfad-Fakten: Praxisfälle', async () => {
     expect(f!.faelle.geuebt).toBe(true);
   });
 });
+
+describe('Lehrplan (Landeslehrplan BW)', () => {
+  it('Stunden ergeben 1.260 und 640, jede CE hat Kompetenzen', async () => {
+    const { GESAMT, LEHRPLAN, schwerpunkte } = await import('./lehrplan');
+    const { ceListe } = await import('./modell');
+    const { pflegeModule } = await import('../../modules/pflege');
+    expect(GESAMT).toEqual({ ad12: 1260, ad3: 640 });
+    const ids = ceListe(pflegeModule).map((c) => c.id);
+    expect(Object.keys(LEHRPLAN).sort()).toEqual([...ids].sort());
+    for (const [id, l] of Object.entries(LEHRPLAN)) {
+      expect(l.kompetenzen.ad12.length, id).toBeGreaterThan(5);
+      if (l.stunden.ad3) expect(l.kompetenzen.ad3.length, id).toBeGreaterThan(5);
+      for (const c of [...l.kompetenzen.ad12, ...l.kompetenzen.ad3]) expect(c).toMatch(/^(I|II|III|IV|V)\.[1-6]\.[a-h]$/);
+    }
+    expect(schwerpunkte(['II.1.d', 'I.6.a', 'I.1.b', 'I.1.a'])).toEqual([{ code: 'I.1', buchstaben: ['a', 'b'] }, { code: 'I.6', buchstaben: ['a'] }, { code: 'II.1', buchstaben: ['d'] }]);
+  });
+});

@@ -30,6 +30,7 @@ const TEXT: Record<string, string> = {
   diagnostik: 'Blutentnahme, Befunde, Röntgen und CT lesen.',
   labor: 'Laborwerte, Präanalytik und Blutgas einordnen.',
   hoeren: 'Herz, Lunge, Darm, Alarme und Blutdruck nach Gehör.',
+  gespraech: 'Angehörige, Ablehnung, Demenz, Angst: Gesprächsführung offline oder frei mit KI.',
   ablauf: 's.c.-Injektion, Medikamente, Verbandwechsel, Katheter: Schritt für Schritt, mit Fehlermodus.',
   assessment: 'Braden, Barthel, Schmerzskalen an Fällen.',
   fallakte: 'Eine Person von der SIS bis zur Übergabe.',
