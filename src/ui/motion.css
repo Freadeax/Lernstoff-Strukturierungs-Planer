@@ -107,7 +107,8 @@ button.primary, .button-link, .tool-link, .ueben__link, .today-start a, .omnibar
   .tool-link:hover .tool-link__icon, .ueben__link:hover .ueben__icon, .today-start a:hover .today-start__icon { transform: rotate(-8deg) scale(1.1); }
   .tool-link:hover > svg, .ueben__link:hover > svg:last-child, .today-start a:hover > svg:last-child, .text-link:hover > svg, .focus-action:hover > svg { transform: translateX(5px); }
 }
-.pill { transition: transform var(--dur-normal) var(--ease-spring), background var(--dur-fast), color var(--dur-fast), border-color var(--dur-fast); }
+/* Farbe und Fläche wechseln sofort: ein Überblenden hätte kurz zu wenig Kontrast (Textregel oben). */
+.pill { transition: transform var(--dur-normal) var(--ease-spring), border-color var(--dur-fast); }
 .pill[aria-pressed='true'], .pill[role='tab'][aria-selected='true'] { animation: m-pulse var(--dur-normal) var(--ease-standard); }
 input[type='checkbox']:checked, input[type='radio']:checked { animation: m-pop var(--dur-normal) var(--ease-spring); }
 select, input, textarea { transition: border-color var(--dur-fast), box-shadow var(--dur-fast) var(--ease-out); }
