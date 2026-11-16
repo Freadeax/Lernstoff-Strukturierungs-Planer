@@ -21,11 +21,13 @@ import { synchronisiere } from './lernplan';
 import { ladeEinsaetze, ladeTagebuch, speichereEinsaetze, speichereTagebuch } from './speicher';
 import type { Tagebuch } from './tagebuch';
 import { NotizAnsicht, TagebuchAnsicht } from './TagebuchTeile';
+import { NachweisAnsicht } from './NachweisTeile';
 
 const ANSICHTEN = [
   { id: 'einsaetze', label: 'Einsätze' },
   { id: 'notiz', label: 'Schnellnotiz' },
   { id: 'tagebuch', label: 'Praxistagebuch' },
+  { id: 'nachweis', label: 'Nachweis' },
 ] as const;
 type Ansicht = (typeof ANSICHTEN)[number]['id'];
 const pfad = (a: Ansicht) => (a === 'einsaetze' ? '/lernen/einsatz' : `/lernen/einsatz?ansicht=${a}`);
@@ -91,6 +93,7 @@ export default function EinsatzSeite() {
         {ansicht === 'einsaetze' && <Einsaetze ctx={ctx} aendere={aendere} bearbeiten={params.get('id')} neu={params.get('neu') === '1'} />}
         {ansicht === 'notiz' && <NotizAnsicht ctx={ctx} />}
         {ansicht === 'tagebuch' && <TagebuchAnsicht ctx={ctx} />}
+        {ansicht === 'nachweis' && <NachweisAnsicht ctx={ctx} />}
       </div>
     </section>
   );

@@ -91,7 +91,7 @@ export const SEITEN: SeitenInfo[] = [
     path: '/lernen/einsatz', name: 'Praxiseinsatz',
     wozu: 'Verbindet Schule und Station: Einsätze eintragen, vorher gezielt üben, auf Station schnell notieren und zu Hause ausarbeiten.',
     wann: 'Drei Wochen vor einem neuen Einsatz und während des Einsatzes nach jedem Dienst ein paar Minuten.',
-    soGehts: ['Einsatz mit Zeitraum eintragen: Der Lernplan zieht die passenden Themen vor, der Bereit-Check zeigt, was schon sitzt.', '„Schnellnotiz“ auf Station, ohne Namen von Patientinnen oder Patienten.', '„Praxistagebuch“: Notizen Themen zuordnen, als Karteikarte übernehmen, Situationen nach Gibbs reflektieren.'],
+    soGehts: ['Einsatz mit Zeitraum eintragen: Der Lernplan zieht die passenden Themen vor, der Bereit-Check zeigt, was schon sitzt.', '„Schnellnotiz“ auf Station, ohne Namen von Patientinnen oder Patienten.', '„Praxistagebuch“: Notizen Themen zuordnen, als Karteikarte übernehmen, Situationen nach Gibbs reflektieren.', '„Nachweis“: Tätigkeiten mit Stufe abhaken, Anleitungsgespräche vorbereiten, von der Praxisanleitung abzeichnen lassen und ausdrucken.'],
     weiter: { label: 'Lernplan öffnen', path: '/lernen/plan' },
   },
   {

@@ -52,3 +52,32 @@
 
 /* Hinweis auf Heute */
 .einsatz-hinweis { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; }
+
+/* Ausbildungsnachweis */
+.nachweis__taetigkeiten { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--space-2); }
+.nachweis__zeile { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-1) var(--space-2); align-items: center; border-bottom: 1px solid var(--color-border); padding-bottom: var(--space-2); }
+.nachweis__zeile:last-child { border-bottom: 0; padding-bottom: 0; }
+.nachweis__label { overflow-wrap: anywhere; }
+.nachweis__stufen { display: flex; flex-wrap: wrap; gap: 4px; }
+.nachweis__stufe { min-height: 36px; }
+.nachweis__stufe.is-aktiv { background: var(--color-primary); color: var(--color-on-primary); border-color: var(--color-primary); }
+.nachweis__datum { grid-column: 1 / -1; }
+@media (max-width: 560px) { .nachweis__zeile { grid-template-columns: 1fr; } }
+.nachweis__gespraeche { display: grid; gap: var(--space-3); grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); }
+.nachweis__felder { margin: 0; display: flex; flex-direction: column; gap: var(--space-1); }
+.nachweis__felder dt { font-weight: var(--weight-bold, 700); font-size: var(--text-sm, .875rem); }
+.nachweis__felder dd { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.nachweis__unterschrift { display: flex; flex-direction: column; gap: var(--space-1); }
+.nachweis__canvas { width: 100%; max-width: 480px; aspect-ratio: 480 / 150; border: 1px solid var(--color-border-strong); border-radius: var(--radius-md); background: #fff; touch-action: none; cursor: crosshair; }
+.nachweis__bild { max-width: 240px; height: auto; background: #fff; border-radius: var(--radius-sm, 4px); }
+.nachweis__linie { display: none; }
+
+@media print {
+  .shell__header, .shell__sidebar, .shell__tabbar, .skip-link, .shell__aktualisierung { display: none !important; }
+  .shell:has(.nachweis) { display: block !important; }
+  .shell:has(.nachweis) .shell__main, .shell:has(.nachweis) .content { margin: 0 !important; padding: 0 !important; max-width: none !important; }
+  .einsatz:has(.nachweis) > .page-heading, .einsatz:has(.nachweis) > .pills, .einsatz:has(.nachweis) .seitenhilfe, .nachweis__nicht-drucken { display: none !important; }
+  .nachweis .card, .nachweis .einsatz__themen { break-inside: avoid; box-shadow: none; }
+  .nachweis__stufe:not(.is-aktiv) { display: none; }
+  .nachweis__linie { display: block; border-bottom: 1px solid #000; width: 60%; height: 2.5rem; }
+}
