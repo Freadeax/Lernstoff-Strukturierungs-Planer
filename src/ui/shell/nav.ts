@@ -79,6 +79,8 @@ export const NAV: NavItem[] = [
           { id: 'rechnen', label: 'Rechentrainer', path: '/lernen/rechnen', icon: 'calc' },
           // Praxis und Fachwissen sind mit je zehn Einträgen voll; Blutdruck nach Gehör ist auch Prüfungsstoff (praktische Prüfung).
           { id: 'hoeren', label: 'Hör-Trainer', path: '/lernen/hoeren', icon: 'stetho' },
+          // Ablauf-Werkbank: Handgriffe für die praktische Prüfung (Praxis-Gruppe ist voll).
+          { id: 'ablauf', label: 'Ablauf-Werkbank', path: '/lernen/ablauf', icon: 'clipboard' },
           { id: 'klasse', label: 'Klassenmodus', path: '/lernen/klasse', icon: 'klasse' },
         ],
       },

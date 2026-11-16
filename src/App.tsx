@@ -50,6 +50,7 @@ const DnqpSeite = lazy(() => import('./features/dnqp/DnqpSeite'));
 const NormwerteTrainer = lazy(() => import('./features/normwerte/NormwerteTrainer'));
 const NotfallTrainer = lazy(() => import('./features/notfall/NotfallTrainer'));
 const HoerTrainer = lazy(() => import('./features/hoeren/HoerTrainer'));
+const AblaufSeite = lazy(() => import('./features/ablauf/AblaufSeite'));
 const ArzneimittelTrainer = lazy(() => import('./features/arzneimittel/ArzneimittelTrainer'));
 const RechtTrainer = lazy(() => import('./features/recht/RechtTrainer'));
 const GrundlagenTrainer = lazy(() => import('./features/grundlagen/GrundlagenTrainer'));
@@ -119,6 +120,7 @@ function View() {
     case '/lernen/labor': return <LaborTrainer />;
     case '/lernen/notfall': return <NotfallTrainer />;
     case '/lernen/hoeren': return <HoerTrainer />;
+    case '/lernen/ablauf': return <AblaufSeite />;
     case '/lernen/arzneimittel': return <ArzneimittelTrainer />;
     case '/lernen/recht': return <RechtTrainer />;
     case '/lernen/grundlagen': return <GrundlagenTrainer />;

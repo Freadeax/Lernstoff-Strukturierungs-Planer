@@ -29,9 +29,10 @@ import { PRAXIS_THEMEN } from '../praxis/themen';
 import { BEREICH_ZU_THEMA as RECHT_BEREICH } from '../recht/aufgaben';
 import { BEREICH_ZU_THEMA as GRUNDLAGEN_BEREICH } from '../grundlagen/aufgaben';
 import { diagnostikFaelleZuThema } from '../diagnostik/themen';
+import { ABLAEUFE } from '../ablauf/inhalt';
 import { heute, leafTopics, logReview, TRAINER_NAME } from './store';
 
-export type TrainerId = 'diagnostik' | 'rechnen' | 'duell' | 'fall' | 'uebergabe' | 'pflegeplanung' | 'sis' | 'mindmap' | 'bericht' | 'assessment' | 'krankheitsbilder' | 'selbsttest' | 'hygiene' | 'anatomie' | 'expertenstandards' | 'normwerte' | 'notfall' | 'arzneimittel' | 'praxis' | 'recht' | 'labor' | 'grundlagen';
+export type TrainerId = 'diagnostik' | 'rechnen' | 'duell' | 'fall' | 'uebergabe' | 'pflegeplanung' | 'sis' | 'mindmap' | 'bericht' | 'assessment' | 'krankheitsbilder' | 'selbsttest' | 'hygiene' | 'anatomie' | 'expertenstandards' | 'normwerte' | 'notfall' | 'arzneimittel' | 'praxis' | 'recht' | 'labor' | 'grundlagen' | 'ablauf';
 
 export const TRAINER_LABEL = TRAINER_NAME as Record<TrainerId, string>;
 
@@ -132,6 +133,7 @@ export function uebungenFuer(topicId: string, modul: CatalogModule = pflegeModul
   const laborBereich: Record<string, string> = { [LABOR_THEMEN.entnahme]: 'praeanalytik', [LABOR_THEMEN.atmung]: 'bga', [LABOR_THEMEN.blut]: 'befund', [LABOR_THEMEN.niere]: 'befund', [LABOR_THEMEN.diabetes]: 'befund', [LABOR_THEMEN.herz]: 'befund', [LABOR_THEMEN.kinder]: 'kinder' };
   if (topicId === LABOR_THEMEN.entnahme) out.push({ trainer: 'labor', label: 'Labor-Werkbank: Blutentnahme', path: '/lernen/labor?modus=werkbank&station=entnahme' });
   if (topicId === UEBERGABE_THEMA) out.push({ trainer: 'labor', label: 'Labor-Werkbank: kritischen Wert melden', path: '/lernen/labor?modus=werkbank&station=meldung' });
+  for (const a of ABLAEUFE.filter((x) => x.topicIds.includes(topicId))) out.push({ trainer: 'ablauf', label: `Ablauf-Werkbank: ${a.titel}`, path: `/lernen/ablauf?ablauf=${a.id}&modus=durchfuehren` });
   if (laborBereich[topicId]) out.push({ trainer: 'labor', label: 'Labor-Trainer', path: `/lernen/labor?bereich=${laborBereich[topicId]}` });
   const dx = diagnostikFaelleZuThema(topicId);
   if (dx.length) out.push({ trainer: 'diagnostik', label: dx.length > 1 ? `Diagnostik-Fälle (${dx.length})` : 'Diagnostik-Fall (Labor und Bildgebung)', path: dx.length > 1 ? '/lernen/diagnostik' : `/lernen/diagnostik?fall=${dx[0]}` });

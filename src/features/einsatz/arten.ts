@@ -45,7 +45,7 @@ export const EINSATZ_ARTEN: EinsatzArtInfo[] = [
     themen: ['thema.beo.vitalzeichen', 'thema.beo.notfall', 'thema.ph.hygiene', 'thema.ph.medikamente', 'thema.ph.injektion', 'thema.ph.wunde', 'thema.ph.periop', 'thema.pro.thrombose', 'thema.pro.pneumonie', 'thema.kl.herz.insuffizienz', 'thema.kl.atmung', 'thema.kl.diabetes', 'thema.kl.infektion', 'thema.pp.uebergabe', 'thema.fa.akut'],
     praxisSettings: ['station', 'zna', 'its'],
     notfall: [{ ...NOTFALL, label: 'Notfall-Trainer: ABCDE', path: '/lernen/notfall?modus=abcde' }],
-    handgriffe: [{ trainer: 'arzneimittel', label: 'Arzneimittel-Trainer', path: '/lernen/arzneimittel' }, { trainer: 'rechnen', label: 'Rechentrainer', path: '/lernen/rechnen' }, HYGIENE],
+    handgriffe: [{ trainer: 'ablauf', label: 'Ablauf-Werkbank: Verbandwechsel', path: '/lernen/ablauf?ablauf=verbandwechsel&modus=durchfuehren' }, { trainer: 'arzneimittel', label: 'Arzneimittel-Trainer', path: '/lernen/arzneimittel' }, { trainer: 'rechnen', label: 'Rechentrainer', path: '/lernen/rechnen' }, HYGIENE],
     alltag: [
       'Frühdienst beginnt mit der Übergabe, dann Vitalzeichen, Körperpflege, Medikamente und Visite. Aufnahmen, Entlassungen und OP-Vorbereitungen kommen dazwischen.',
       'Neu sind oft Infusionen, Wunden nach OP, Drainagen und die Überwachung nach dem Eingriff.',
@@ -56,7 +56,7 @@ export const EINSATZ_ARTEN: EinsatzArtInfo[] = [
     themen: ['thema.kl.demenz', 'thema.kl.geriatrie', 'thema.pro.dekubitus', 'thema.pro.sturz', 'thema.pro.dehydratation', 'thema.pro.kontraktur', 'thema.pro.deprivation', 'thema.ph.koerperpflege', 'thema.ph.ernaehrung', 'thema.ph.ausscheidung', 'thema.pp.sis', 'thema.re.fem', 'thema.re.pflegegrade', 'thema.kom.kultur', 'thema.fa.langzeit'],
     praxisSettings: ['heim'],
     notfall: [{ ...NOTFALL, path: '/lernen/notfall?modus=rea' }],
-    handgriffe: [{ trainer: 'assessment', label: 'Assessments', path: '/lernen/assessment' }, { trainer: 'expertenstandards', label: 'Expertenstandards-Trainer', path: '/lernen/expertenstandards' }, { trainer: 'sis', label: 'SIS-Trainer', path: '/lernen/sis' }],
+    handgriffe: [{ trainer: 'ablauf', label: 'Ablauf-Werkbank: Medikamente richten', path: '/lernen/ablauf?ablauf=medikamente&modus=durchfuehren' }, { trainer: 'assessment', label: 'Assessments', path: '/lernen/assessment' }, { trainer: 'expertenstandards', label: 'Expertenstandards-Trainer', path: '/lernen/expertenstandards' }, { trainer: 'sis', label: 'SIS-Trainer', path: '/lernen/sis' }],
     alltag: [
       'Der Tag folgt dem Rhythmus der Bewohnerinnen und Bewohner: Grundpflege, Mahlzeiten, Beschäftigung, Ruhezeiten. Du lernst Menschen über Wochen kennen.',
       'Wichtig sind Biografie, Demenz, Sturz- und Dekubitusrisiko, Trinkmengen und die Dokumentation nach SIS.',
@@ -67,7 +67,7 @@ export const EINSATZ_ARTEN: EinsatzArtInfo[] = [
     themen: ['thema.re.sgb5', 'thema.re.sgb11', 'thema.re.pflegegrade', 'thema.re.versorgung', 'thema.pp.sis', 'thema.kom.beratung', 'thema.kl.diabetes', 'thema.kl.herz.insuffizienz', 'thema.ph.medikamente', 'thema.ph.wunde', 'thema.pro.sturz', 'thema.fa.ambulant'],
     praxisSettings: ['ambulant'],
     notfall: [{ ...NOTFALL, path: '/lernen/notfall?modus=rea' }],
-    handgriffe: [{ trainer: 'sis', label: 'SIS-Trainer', path: '/lernen/sis' }, { trainer: 'arzneimittel', label: 'Arzneimittel-Trainer', path: '/lernen/arzneimittel' }, HYGIENE],
+    handgriffe: [{ trainer: 'ablauf', label: 'Ablauf-Werkbank: s.c.-Injektion', path: '/lernen/ablauf?ablauf=sc-injektion&modus=durchfuehren' }, { trainer: 'sis', label: 'SIS-Trainer', path: '/lernen/sis' }, { trainer: 'arzneimittel', label: 'Arzneimittel-Trainer', path: '/lernen/arzneimittel' }, HYGIENE],
     alltag: [
       'Du fährst eine Tour mit festen Einsätzen: Medikamente, Insulin, Kompressionsstrümpfe, Wundversorgung, Körperpflege. Zeit je Besuch ist knapp geplant.',
       'Du bist Gast in der Wohnung. Angehörige, Hausärztin und Leistungen nach SGB V und XI spielen ständig mit.',
