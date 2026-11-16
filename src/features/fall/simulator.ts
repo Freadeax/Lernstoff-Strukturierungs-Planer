@@ -4,6 +4,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import type { CatalogModule } from '../../modules/catalog-types';
 import { SETTING_LABEL, type Stufe, type Szenario } from './faelle';
+import { abhoerBefund } from './abhoeren';
 import type { Treffer } from '../lernplan/trainer';
 import { istObjekt, storage } from '../../ui/lib/store';
 import { news2Punkte, type Avpu, type News2Risiko } from '../praxis/news2';
@@ -152,7 +153,7 @@ Titel: ${szenario.titel}
 Setting: ${SETTING_LABEL[szenario.setting]}
 Ausgangslage (kennt die lernende Person): ${szenario.kurz}
 Verborgener Verlauf (NIE direkt verraten, nur über beobachtbare Zeichen zeigen): ${szenario.verborgen}
-Bezug zum Lernkatalog: ${themen || '–'}
+${abhoerBefund(szenario.id) ? `Abhörbefund (steht fest, die App spielt ihn als Klang ab; beschreibe beim Abhören genau diesen): ${abhoerBefund(szenario.id)!.text}\n` : ''}Bezug zum Lernkatalog: ${themen || '–'}
 Schwierigkeit: ${STUFE_ANWEISUNG[stufe]}
 
 REGELN FÜR JEDEN ZUG
