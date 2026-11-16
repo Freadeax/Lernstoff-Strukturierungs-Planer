@@ -10,10 +10,12 @@ import { SOURCE_LABEL, TRAINER_NAME } from '../lernplan/store';
 import { dauer, kurzDatum, STATUS_LABEL } from '../lernplan/ui/format';
 import type { EvidenceSource } from '../lernplan/types';
 import { alleMeilensteine, naechsteSchritte, werteAus, type Auswertung } from './auswertung';
+import { KompetenzRadar, RadarTabelle } from './KompetenzRadar';
+import { radarAchsen, schwaechsteAchse, VERGLEICH_TAGE } from './radar';
 import { speichereZiel, useFortschritt, type FortschrittDaten } from './daten';
 import { datenbasis, KENNZAHLEN, kleineBasis, wochenOhneDaten, zeitraumText, type Belastbarkeit, type Datenbasis, type KennzahlId } from './kennzahlen';
 import {
-  gesamtWerte, kalenderWochen, lernstufen, LERNSTUFEN, rueckblickText, serie, stufe, STATUS_REIHE, wissensVerlauf,
+  gesamtWerte, kalenderWochen, statusAm, lernstufen, LERNSTUFEN, rueckblickText, serie, stufe, STATUS_REIHE, wissensVerlauf,
   wochenrueckblick, wochenStart, wochenZiele, woche, ZIEL_GRENZEN,
   type Bereich, type BereichStand, type Ziele, type ZielStand,
 } from './statistik';
@@ -279,6 +281,7 @@ function Ueberblick({ ctx, onZiele }: { ctx: Ctx; onZiele: () => void }) {
   return (
     <div className="fs-raster">
       <NaechsterSchritt ctx={ctx} />
+      <RadarKarte ctx={ctx} />
       <article className="card fs-serie">
         <p className="eyebrow">Lernserie</p>
         {ctx.basis.tage ? <p className="fs-zahl"><strong>{s.aktuell}</strong> {s.aktuell === 1 ? 'Lerntag' : 'Lerntage'} in Folge</p>
@@ -326,6 +329,34 @@ function Ueberblick({ ctx, onZiele }: { ctx: Ctx; onZiele: () => void }) {
         <Kalender ctx={ctx} />
       </article>
     </div>
+  );
+}
+
+/** Kompetenz-Radar I bis V: heute als Fläche, vor vier Wochen gestrichelt, Zahlen in der Tabelle daneben. */
+function RadarKarte({ ctx }: { ctx: Ctx }) {
+  const achsen = useMemo(() => {
+    const vorher = statusAm(ctx.d.lernstand, addDays(ctx.d.today, -VERGLEICH_TAGE));
+    return radarAchsen(ctx.kb, (id) => ctx.status.get(id)?.status ?? 'offen', (id) => vorher.get(id)?.status ?? 'offen');
+  }, [ctx]);
+  const schwach = schwaechsteAchse(achsen);
+  return (
+    <article className="card fs-radar-karte" id="radar">
+      <div className="fs-kopf">
+        <div><p className="eyebrow">Kompetenz-Radar</p><h2>Wo du je Kompetenzbereich stehst</h2></div>
+        <a className="text-link" href="#/lernen/examen">Examen-Radar</a>
+      </div>
+      <div className="fs-radar-inhalt">
+        <KompetenzRadar achsen={achsen} />
+        <div className="stack-2">
+          <RadarTabelle achsen={achsen} />
+          <p className="fs-radar-legende"><span>heute</span><span className="fs-radar-legende__vorher">vor {VERGLEICH_TAGE} Tagen</span></p>
+        </div>
+      </div>
+      {schwach
+        ? <p className="note">Größte Lücke: <strong>Bereich {schwach.code}</strong> ({schwach.jetzt} %). <a href={`#/lernen/simulation?kb=${encodeURIComponent(schwach.id)}`}>Gezielt abfragen</a></p>
+        : <p className="muted">Noch keine Abfragen: Das Radar startet bei null und füllt sich mit Karteikarten, Trainern und Fällen.</p>}
+      <p className="muted">Stärke = Mittel über alle Themen des Bereichs: sicher zählt voll, unsicher halb, nur bearbeitet wenig, offen gar nicht. Selbsteinschätzung zählt nie.</p>
+    </article>
   );
 }
 

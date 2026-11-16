@@ -88,6 +88,13 @@ export const SEITEN: SeitenInfo[] = [
     weiter: { label: 'Fehlerheft öffnen', path: '/lernen/fehler' },
   },
   {
+    path: '/lernen/einsatz', name: 'Praxiseinsatz',
+    wozu: 'Verbindet Schule und Station: Einsätze eintragen, vorher gezielt üben, auf Station schnell notieren und zu Hause ausarbeiten.',
+    wann: 'Drei Wochen vor einem neuen Einsatz und während des Einsatzes nach jedem Dienst ein paar Minuten.',
+    soGehts: ['Einsatz mit Zeitraum eintragen: Der Lernplan zieht die passenden Themen vor, der Bereit-Check zeigt, was schon sitzt.', '„Schnellnotiz“ auf Station, ohne Namen von Patientinnen oder Patienten.', '„Praxistagebuch“: Notizen Themen zuordnen, als Karteikarte übernehmen, Situationen nach Gibbs reflektieren.'],
+    weiter: { label: 'Lernplan öffnen', path: '/lernen/plan' },
+  },
+  {
     path: '/lernen/fortschritt', name: 'Fortschritt',
     wozu: 'Zeigt Lerntage, Wochenziele und deinen Wissensstand über alle Module, ehrlich gezählt.',
     wann: 'Am Wochenende für den Rückblick oder wenn du sehen willst, wo du je CE stehst.',
@@ -159,6 +166,7 @@ export const KREISLAUF: Array<{ titel: string; text: string; links: Link[] }> = 
 /** Seiten nach Zweck gebündelt, damit Neue nicht elf Menüpunkte auf einmal lesen müssen. */
 export const BUENDEL: Array<{ titel: string; text: string; pfade: string[] }> = [
   { titel: 'Jeden Tag', text: 'Mehr brauchst du im Alltag nicht.', pfade: ['/', '/lernen/plan', '/lernen/karten', '/lernen/fehler'] },
+  { titel: 'Im Praxiseinsatz', text: 'Vor und während eines Einsatzes auf Station.', pfade: ['/lernen/einsatz'] },
   { titel: 'Stoff überblicken und auswählen', text: 'Derselbe Stoff, unterschiedlich sortiert. Nimm die Sicht, die dir gerade hilft.', pfade: ['/lernen/ce', '/lernen/board', '/lernen/landkarte', '/lernen/themen'] },
   { titel: 'Stand ansehen', text: 'Für den Rückblick, nicht für jeden Tag.', pfade: ['/lernen/fortschritt', '/lernen/faecher'] },
   { titel: 'Auf Prüfungen vorbereiten', text: 'Für Klausuren und das Examen.', pfade: ['/lernen/simulation', '/lernen/examen'] },

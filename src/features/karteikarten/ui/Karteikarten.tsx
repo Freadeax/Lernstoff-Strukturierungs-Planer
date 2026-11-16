@@ -8,6 +8,8 @@ import type { ID } from '../../../core/types';
 import { navigate, useRoute } from '../../../ui/shell/router';
 import { istProblem, problemSitzung, stelleSitzungZusammen, type Sitzung as SitzungsPlan } from '../planung';
 import { notify } from '../../../ui/shell/notifications';
+import { aktuellerEinsatz, einsatzName, phase } from '../../einsatz/einsatz';
+import { ladeEinsaetze } from '../../einsatz/speicher';
 import { heute as heuteTag, ladeKartenDaten, neueHeute, schliesseOffeneSitzungAb } from '../store';
 import { QUELLE_LABEL, type Karte, type KartenQuelle } from '../typen';
 import { Sitzung } from './Sitzung';
@@ -28,9 +30,12 @@ function oberthema(id: ID): ID {
   return t?.id ?? id;
 }
 
-function Start({ ctx, thema, krankheit, onStart }: { ctx: KartenCtx; thema?: ID; krankheit?: ID; onStart: (s: SitzungsPlan, titel?: string) => void }) {
+function Start({ ctx, thema, titel, krankheit, onStart }: { ctx: KartenCtx; thema?: ID; titel?: string; krankheit?: ID; onStart: (s: SitzungsPlan, titel?: string) => void }) {
   const { daten, heute } = ctx;
-  const themen = thema ? [thema, ...modul.topics.filter((t) => t.parentId === thema).map((t) => t.id)] : undefined;
+  // ?thema= kann mehrere Themen tragen (Komma), z. B. alle Themen eines Praxiseinsatzes.
+  const themaIds = thema ? thema.split(',').filter((id) => alleThemen.has(id)).slice(0, 60) : [];
+  const themen = themaIds.length ? [...new Set(themaIds.flatMap((id) => [id, ...modul.topics.filter((t) => t.parentId === id).map((t) => t.id)]))] : thema ? [thema] : undefined;
+  const einsatz = useMemo(() => (thema || krankheit ? undefined : aktuellerEinsatz(ladeEinsaetze(), heute)), [thema, krankheit, heute]);
   const profil = krankheit ? modul.diseaseProfiles?.find((p) => p.id === krankheit) : undefined;
   const [quellen, setQuellen] = useState<KartenQuelle[]>([]);
   const vorhanden = useMemo(() => (Object.keys(QUELLE_LABEL) as KartenQuelle[]).filter((q) => daten.alle.some((k) => k.quelle === q)), [daten]);
@@ -54,12 +59,17 @@ function Start({ ctx, thema, krankheit, onStart }: { ctx: KartenCtx; thema?: ID;
     return [...zahl].filter(([id]) => alleThemen.has(id)).sort((a, b) => b[1] - a[1]);
   }, [daten]);
   const vorziehen = useMemo(() => (plan.karten.length ? null : stelleSitzungZusammen(daten.alle, daten.staende, { ...opts, vorziehen: true })), [plan]);
-  const themaName = profil?.name ?? (thema ? alleThemen.get(thema)?.name : undefined);
+  const themaName = profil?.name ?? (titel?.slice(0, 80) || (themaIds.length === 1 ? alleThemen.get(themaIds[0]!)?.name : themaIds.length > 1 ? `${themaIds.length} Themen` : thema));
   const gezielt = !!thema || !!profil;
   const gelernt = [...daten.staende.values()].filter((s) => s.reps > 0).length;
 
   return (
     <div className="stack-2">
+      {einsatz && einsatz.themen.length > 0 && (
+        <p className="note">Einsatz <strong>{einsatzName(einsatz)}</strong> {phase(einsatz, heute) === 'laeuft' ? 'läuft' : 'steht bevor'}.{' '}
+          <button type="button" className="link" onClick={() => navigate(`/lernen/karten?thema=${encodeURIComponent(einsatz.themen.join(','))}&titel=${encodeURIComponent(`Einsatz ${einsatzName(einsatz)}`)}`)}>Karten zu den {einsatz.themen.length} Einsatzthemen</button>
+        </p>
+      )}
       {gezielt && (
         <div className="note">
           Nur Karten zu <strong>{themaName ?? thema}</strong>. <button type="button" className="link" onClick={() => navigate('/lernen/karten')}>Alle Themen</button>
@@ -144,6 +154,7 @@ export default function Karteikarten() {
   const { params } = useRoute();
   const ansicht = (ANSICHTEN.find((a) => a.id === params.get('ansicht'))?.id ?? 'lernen') as Ansicht;
   const thema = params.get('thema') ?? undefined;
+  const titel = params.get('titel') ?? undefined;
   const krankheit = params.get('krankheit') ?? undefined;
   const [ctx, setCtx] = useState<KartenCtx | null>(null);
   const [fehler, setFehler] = useState<string | null>(null);
@@ -167,7 +178,7 @@ export default function Karteikarten() {
   }, [neuLaden]);
   // Menü oder Zurück-Taste während einer Sitzung: Sitzung verlassen. Antworten sind schon gespeichert,
   // das Ergebnis meldet die Sitzung beim Verlassen selbst an den Lernplan.
-  useEffect(() => { setSitzung(null); void neuLaden(); }, [ansicht, thema, krankheit]);
+  useEffect(() => { setSitzung(null); void neuLaden(); }, [ansicht, thema, titel, krankheit]);
 
   const wechsel = (a: Ansicht) => navigate(`/lernen/karten${a === 'lernen' ? (thema ? `?thema=${encodeURIComponent(thema)}` : '') : `?ansicht=${a}`}`);
 
@@ -190,7 +201,7 @@ export default function Karteikarten() {
           topics={blaetter} titles={ctx.titles} onEnde={() => { setSitzung(null); void neuLaden(); }}
           onNochmal={(k) => { void neuLaden().then(() => starte(k, 'Noch einmal')); }} />
       )}
-      {ctx && !sitzung && ansicht === 'lernen' && <Start ctx={ctx} thema={thema} krankheit={krankheit} onStart={(s, titel) => starte(s.karten, titel)} />}
+      {ctx && !sitzung && ansicht === 'lernen' && <Start ctx={ctx} thema={thema} titel={titel} krankheit={krankheit} onStart={(s, titel) => starte(s.karten, titel)} />}
       {ctx && !sitzung && ansicht === 'steckbriefe' && <Steckbriefe ctx={ctx} />}
       {ctx && !sitzung && ansicht === 'stapel' && <Stapel ctx={ctx} />}
       {ctx && !sitzung && ansicht === 'eigene' && <Eigene ctx={ctx} />}

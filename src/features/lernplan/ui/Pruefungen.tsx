@@ -16,6 +16,9 @@ import { kompetenzBereiche } from '../../fortschritt/statistik';
 import { kompetenzUebersicht } from '../alltag';
 import { KalenderExport } from './KalenderExport';
 
+/** Termine aus dem Praxiseinsatz (einsatz:<id>) werden dort gepflegt und hier nur angezeigt. */
+const istEinsatz = (id: string) => id.startsWith('einsatz:');
+
 const GEWICHTE = [
   { w: 1, label: 'Klausur oder Test' },
   { w: 2, label: 'Wichtige Prüfung' },
@@ -204,12 +207,16 @@ function Karte({ e, ctx, f, bearbeiten, onEdit, onDone, onDelete }: {
       <div className="pruefung__kopf">
         <div>
           <h3>{e.name}</h3>
-          <p className="muted">{langDatum(e.date)} · {inTagen(daysBetween(today, e.date))} · {e.topicIds.length} Themen · {GEWICHTE.find((g) => g.w === w)?.label}</p>
+          <p className="muted">{langDatum(e.date)} · {inTagen(daysBetween(today, e.date))} · {e.topicIds.length} Themen · {istEinsatz(e.id) ? 'Praxiseinsatz, zählt weniger als eine Klausur' : GEWICHTE.find((g) => g.w === w)?.label}</p>
         </div>
         <div className="pruefung__aktionen">
           {e.date > today && <button type="button" className="small" onClick={() => navigate(`/lernen/simulation?pruefung=${e.id}`)}>Simulieren</button>}
-          <button type="button" className="small" onClick={onEdit}>Bearbeiten</button>
-          <button type="button" className="small danger" onClick={onDelete}>Löschen</button>
+          {istEinsatz(e.id)
+            ? <button type="button" className="small" onClick={() => navigate(`/lernen/einsatz?id=${encodeURIComponent(e.id.slice('einsatz:'.length))}`)}>Im Praxiseinsatz ändern</button>
+            : <>
+                <button type="button" className="small" onClick={onEdit}>Bearbeiten</button>
+                <button type="button" className="small danger" onClick={onDelete}>Löschen</button>
+              </>}
         </div>
       </div>
       {f && e.date > today && <Prognose f={f} ctx={ctx} />}

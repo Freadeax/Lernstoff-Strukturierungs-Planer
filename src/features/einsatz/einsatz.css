@@ -1,0 +1,54 @@
+/* Praxiseinsatz: Einsätze, Bereit-Check, Schnellnotiz, Praxistagebuch */
+.einsatz__panel { margin-top: var(--space-3); }
+.einsatz h2, .einsatz h3, .einsatz h4 { margin: 0; }
+.einsatz p { margin: 0; }
+.einsatz__klein { font-size: var(--text-sm, .875rem); }
+.einsatz__neu { align-self: flex-start; }
+.einsatz__kopf { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-2); flex-wrap: wrap; }
+.einsatz__liste, .einsatz__notizen, .einsatz__stationen, .einsatz__links, .einsatz__kurzliste, .einsatz__ziele { margin: 0; padding: 0; list-style: none; }
+.einsatz__liste, .einsatz__notizen { display: grid; gap: var(--space-3); grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); margin-top: var(--space-2); }
+.einsatz__eintrag, .einsatz__notiz, .einsatz__tag, .einsatz__aktuell { margin: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.einsatz__eintrag--vorbei { opacity: 1; background: var(--color-surface-sunken); }
+.einsatz__ziele { list-style: disc; padding-left: 1.25rem; }
+
+.einsatz__stationen { display: grid; gap: var(--space-2); grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); }
+.einsatz__station { border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-2) var(--space-3); display: flex; flex-direction: column; gap: var(--space-1); background: var(--color-surface); }
+.einsatz__station h3 { font-size: var(--text-md, 1rem); display: flex; align-items: center; gap: var(--space-2); }
+.einsatz__nr { display: inline-grid; place-items: center; width: 1.6rem; height: 1.6rem; border-radius: 50%; background: var(--color-primary-soft); color: var(--color-text); font-size: var(--text-sm, .875rem); flex: none; }
+.einsatz__links { display: flex; flex-direction: column; gap: 2px; font-size: var(--text-sm, .875rem); }
+.einsatz__haken { color: var(--color-text-muted); }
+.einsatz__alltag summary { cursor: pointer; font-weight: var(--weight-bold, 700); }
+.einsatz__alltag p { margin-top: var(--space-1); }
+
+.einsatz__datum { display: grid; gap: var(--space-2); grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr)); }
+.einsatz__themen { border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-2) var(--space-3); margin: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.einsatz__themen legend { font-weight: var(--weight-bold, 700); padding: 0 var(--space-1); }
+.einsatz__haekchen { display: grid; gap: var(--space-1); grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); }
+.einsatz__haekchen-zeile { display: flex; gap: var(--space-2); align-items: flex-start; min-height: 44px; padding-block: 6px; }
+.einsatz__haekchen-zeile input { margin-top: 3px; width: 1.1rem; height: 1.1rem; flex: none; }
+
+.einsatz__arten { display: flex; flex-wrap: wrap; gap: var(--space-1); }
+.einsatz__art { cursor: pointer; }
+.einsatz__art.is-aktiv { background: var(--color-primary); color: var(--color-on-primary); border-color: var(--color-primary); }
+.einsatz__art:focus-within { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+
+.einsatz__werkzeug { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: flex-end; }
+.einsatz__filter { margin: 0; min-width: min(100%, 240px); }
+.einsatz__text { white-space: pre-wrap; overflow-wrap: anywhere; }
+.einsatz__notiz.is-erledigt { background: var(--color-surface-sunken); }
+.einsatz__chips { display: flex; flex-wrap: wrap; gap: var(--space-1); align-items: center; }
+.einsatz__chips .chip { border: 1px solid var(--color-border-strong); border-radius: var(--radius-pill, 999px); background: var(--color-surface); color: var(--color-text); padding: 6px 12px; min-height: 36px; font-size: var(--text-sm, .875rem); }
+.einsatz__chip-wahl { min-height: 36px; max-width: 100%; }
+.einsatz__bruecke { background: var(--color-surface-sunken); border-radius: var(--radius-md); padding: var(--space-2) var(--space-3); }
+.einsatz__bruecke h4 { font-size: var(--text-sm, .875rem); margin-bottom: var(--space-1); }
+.einsatz__bruecke ul { margin: 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: var(--space-1); font-size: var(--text-sm, .875rem); }
+.einsatz__karte { border-top: 1px solid var(--color-border); padding-top: var(--space-2); }
+.einsatz__kurzliste { display: flex; flex-direction: column; gap: var(--space-1); }
+.einsatz__kurzliste li { overflow-wrap: anywhere; }
+.einsatz__refl-anzeige summary { cursor: pointer; }
+.einsatz__refl-anzeige dl { margin: var(--space-2) 0; display: flex; flex-direction: column; gap: var(--space-1); }
+.einsatz__refl-anzeige dt { font-weight: var(--weight-bold, 700); font-size: var(--text-sm, .875rem); }
+.einsatz__refl-anzeige dd { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+/* Hinweis auf Heute */
+.einsatz-hinweis { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; }
