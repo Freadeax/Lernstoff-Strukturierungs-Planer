@@ -13,6 +13,16 @@ describe('Abhören', () => {
     }
   });
   it('ohne festen Befund kein Abhörknopf', () => {
-    expect(abhoerBefund('palliativ')).toBeNull();
+    expect(abhoerBefund('thema:thema.kl.atmung')).toBeNull();
+  });
+});
+
+describe('Abhörbefund im KI-Systemprompt', () => {
+  it('gibt den festen Befund an Claude weiter, damit Text und Klang zusammenpassen', async () => {
+    const { systemPrompt } = await import('./simulator');
+    const { SZENARIEN } = await import('./faelle');
+    const { pflegeModule } = await import('../../modules/pflege');
+    const s = SZENARIEN.find((x) => x.id === 'palliativ')!;
+    expect(systemPrompt(s, 1, pflegeModule)).toContain(abhoerBefund('palliativ')!.text);
   });
 });
