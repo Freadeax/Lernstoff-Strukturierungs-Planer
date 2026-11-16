@@ -147,7 +147,7 @@ export function uebungsId(path: string): string | undefined {
 }
 
 /** Lern- und Materialseiten außerhalb von „Üben“, die „Passt dazu“ ebenfalls bekommen (feste Ziele). */
-export const LERNSEITEN = new Set(['karten', 'skript', 'dnqp', 'schnellsuche', 'ce', 'themen', 'landkarte', 'board', 'fortschritt', 'dokumente', 'zusammenfassen']);
+export const LERNSEITEN = new Set(['karten', 'skript', 'dnqp', 'schnellsuche', 'ce', 'themen', 'landkarte', 'board', 'fortschritt', 'dokumente', 'zusammenfassen', 'physiologie', 'einsatz']);
 
 /** Menü-ID, für die „Passt dazu“ erscheint: jede Übung und die Lern- und Materialseiten aus LERNSEITEN. */
 export function passtDazuId(path: string): string | undefined {

@@ -54,3 +54,14 @@ describe('Zurück zum Thema', () => {
     vi.unstubAllGlobals();
   });
 });
+
+import { SCHRITT, WEITER } from './passtDazu';
+import { flatNav as alleSeiten, NAV as MENUE } from '../../ui/shell/nav';
+
+describe('Feste Ziele bleiben gültig', () => {
+  it('jeder nächste Schritt ist definiert und führt auf eine bestehende Seite', () => {
+    const pfade = new Set(alleSeiten(MENUE).map((n) => n.path));
+    for (const [seite, ziele] of Object.entries(WEITER)) for (const z of ziele) expect(SCHRITT[z], `${seite} → ${z}`).toBeDefined();
+    for (const [k, z] of Object.entries(SCHRITT)) expect(pfade.has(z.path), k).toBe(true);
+  });
+});
