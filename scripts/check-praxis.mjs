@@ -166,6 +166,7 @@ try {
     // Schichtmodus: zwei Kinder, eine Uhr.
     await page.locator('.praxis-schichtwahl__eintrag', { hasText: 'Kinderstation' }).getByRole('button', { name: 'Schicht beginnen', exact: true }).click();
     await page.getByRole('heading', { name: 'Kinderstation am Nachmittag', exact: true }).waitFor();
+    assert(await page.locator('.praxis-patient .portraet').count() >= 1, 'Porträts in der Schicht');
     await page.getByRole('button', { name: /^Monitor und Messgeräte/ }).click();
     await page.getByRole('button', { name: /Vitalparameter einschließlich BZ messen/ }).click();
     await page.locator('.praxis-patient').nth(1).click();
