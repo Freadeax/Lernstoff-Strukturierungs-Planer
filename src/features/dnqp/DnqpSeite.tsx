@@ -1,3 +1,4 @@
+import { SeitenHilfe } from '../wegweiser/SeitenHilfe';
 import { useEffect, useMemo, useState } from 'react';
 import './dnqp.css';
 import { getModule, modules } from '../../modules/registry';
@@ -314,6 +315,7 @@ export default function DnqpSeite() {
         <h2>DNQP-Expertenstandards</h2>
         <p className="muted">Alle nationalen Expertenstandards in der Pflege: Aufbau, aktuelle Fassungen, Zielsetzung und jede Ebene mit Struktur-, Prozess- und Ergebniskriterien, dazu häufige Fehler und ein Prüfwerkzeug für eigene Texte. Funktioniert offline.</p>
       </div>
+      <SeitenHilfe path="/lernen/dnqp" />
       <div className="pills" role="tablist" aria-label="Ansicht">
         <button type="button" role="tab" className="pill" aria-selected={!standard && ansicht === 'uebersicht'} onClick={() => gehe()}>Übersicht <span className="pill__count">{STANDARDS.length}</span></button>
         <button type="button" role="tab" className="pill" aria-selected={!standard && ansicht === 'vergleich'} onClick={() => gehe({ ansicht: 'vergleich' })}>Ebenen im Vergleich</button>

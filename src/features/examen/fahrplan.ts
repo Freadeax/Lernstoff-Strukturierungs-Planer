@@ -114,3 +114,27 @@ export function baueFahrplan(ces: CeEingabe[], f: FahrplanFakten, tage: number |
 
   return { phase, tage, zeilen: sortiert, fokus, offenGesamt, themenGesamt: alle.size, wochenBisFestigen, proWoche };
 }
+
+/** Feste ID der Examensprüfung im Lernplan, damit der Fahrplan sie wiederfindet und aktualisiert statt doppelt anlegt. */
+export const EXAMEN_PRUEFUNG_ID = 'examen:schriftlich';
+/** Gewicht im Lernplan: Abschlussprüfung. */
+export const EXAMEN_GEWICHT = 3;
+
+export interface ExamenPruefung { id: string; name: string; date: string; topicIds: ID[]; subjectIds: ID[] }
+
+/**
+ * Prüfung „Examen schriftlich“ mit allen Themen aller CE. Eine vorhandene Prüfung behält ihren Namen;
+ * Datum und Themen kommen immer aus Termin und CE-Zuordnung, damit neue Skripte und Themen mitwandern.
+ */
+export function baueExamenPruefung(datum: string, ces: CeEingabe[], fach: Map<ID, ID>, alt?: { name: string }): ExamenPruefung {
+  const topicIds = [...new Set(ces.flatMap((c) => c.topicIds))].filter((id) => fach.has(id));
+  const subjectIds = [...new Set(topicIds.map((id) => fach.get(id)!))];
+  return { id: EXAMEN_PRUEFUNG_ID, name: alt?.name ?? 'Examen schriftlich', date: datum, topicIds, subjectIds };
+}
+
+/** Was der Knopf tun würde: anlegen, aktualisieren (Datum oder Themen weichen ab) oder nichts. */
+export function examenAbgleich(soll: ExamenPruefung, ist?: { date: string; topicIds: ID[] }): 'anlegen' | 'aktualisieren' | 'aktuell' {
+  if (!ist) return 'anlegen';
+  const gleich = ist.date === soll.date && ist.topicIds.length === soll.topicIds.length && soll.topicIds.every((id) => ist.topicIds.includes(id));
+  return gleich ? 'aktuell' : 'aktualisieren';
+}

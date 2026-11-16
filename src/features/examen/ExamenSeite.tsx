@@ -2,7 +2,9 @@ import { SeitenHilfe } from '../wegweiser/SeitenHilfe';
 import { useEffect, useMemo, useState } from 'react';
 import { db } from '../../core/db';
 import { ceListe, ceThemen } from '../ce/modell';
-import { baueFahrplan, PHASE_TEXT, type CeZeile } from './fahrplan';
+import { baueExamenPruefung, baueFahrplan, EXAMEN_GEWICHT, EXAMEN_PRUEFUNG_ID, examenAbgleich, PHASE_TEXT, type CeZeile } from './fahrplan';
+import { saveExam } from '../lernplan/store';
+import { notify } from '../../ui/shell/notifications';
 import '../faecher.css';
 import './examen.css';
 import type { MasteryStatus } from '../../core/types';
@@ -294,12 +296,29 @@ function FahrplanAnsicht({ termine, aendere }: { termine: Termine; aendere: (p: 
   }, []);
   const heute = ctx?.data.today ?? new Date().toISOString().slice(0, 10);
   const tage = tageBis(termine.schriftlich, heute);
-  const plan = useMemo(() => {
-    if (!fakten) return undefined;
+  const ces = useMemo(() => {
     const liste = ceListe(modul);
-    const ces = liste.map((c) => ({ id: c.id, code: c.code, name: c.name, topicIds: ceThemen(modul, c, skripte, liste).map((t) => t.topic.id) }));
-    return baueFahrplan(ces, fakten, tage);
-  }, [fakten, modul, skripte, tage]);
+    return liste.map((c) => ({ id: c.id, code: c.code, name: c.name, topicIds: ceThemen(modul, c, skripte, liste).map((t) => t.topic.id) }));
+  }, [modul, skripte]);
+  const plan = useMemo(() => (fakten ? baueFahrplan(ces, fakten, tage) : undefined), [fakten, ces, tage]);
+  // Examen als Prüfung im Lernplan: mit allen Themen aller CE, damit der Plan bis zum Termin über alles plant.
+  const alt = ctx?.exams.get(EXAMEN_PRUEFUNG_ID);
+  const soll = useMemo(() => (ctx && termine.schriftlich
+    ? baueExamenPruefung(termine.schriftlich, ces, new Map(ctx.leaves.map((t) => [t.id, t.subjectId])), alt)
+    : undefined), [ctx, termine.schriftlich, ces, alt]);
+  const abgleich = soll ? examenAbgleich(soll, alt) : undefined;
+  const [speichert, setSpeichert] = useState(false);
+  const examenSpeichern = async () => {
+    if (!soll) return;
+    setSpeichert(true);
+    try {
+      await saveExam(soll, EXAMEN_GEWICHT);
+      notify('info', abgleich === 'anlegen' ? 'Examen im Lernplan angelegt' : 'Examen im Lernplan aktualisiert', `${soll.topicIds.length} Themen bis ${soll.date.split('-').reverse().join('.')}`);
+      retry();
+    } catch (e) {
+      notify('critical', 'Examen nicht gespeichert', e instanceof Error ? e.message : String(e));
+    } finally { setSpeichert(false); }
+  };
   const phase = plan && PHASE_TEXT[plan.phase];
 
   return (
@@ -318,10 +337,20 @@ function FahrplanAnsicht({ termine, aendere }: { termine: Termine; aendere: (p: 
             {plan.proWoche === 0 && <> Jedes Thema ist schon mindestens einmal abgefragt.</>}
           </p>
           <p className="examen__fahrplan-links">
-            <a href="#/lernen/plan?ansicht=pruefungen&neu=1">Examen als Prüfung im Lernplan anlegen</a>
             <a href="#/lernen/simulation">Prüfungssimulation</a>
             <a href="#/lernen/wegweiser">Wie funktioniert das?</a>
           </p>
+          {soll && abgleich !== 'aktuell' && (
+            <div className="examen__fahrplan-examen">
+              <p>{abgleich === 'anlegen'
+                ? <>Damit der Lernplan bis zum Examen über alle CE plant, leg das Examen als Prüfung mit allen {soll.topicIds.length} Themen an.</>
+                : <>Die Examensprüfung im Lernplan weicht ab (Datum oder Themen, zum Beispiel nach neuen Skripten).</>}</p>
+              <button type="button" className="primary small" disabled={speichert} onClick={() => void examenSpeichern()}>
+                {abgleich === 'anlegen' ? 'Examen im Lernplan anlegen' : 'Examen im Lernplan aktualisieren'}
+              </button>
+            </div>
+          )}
+          {abgleich === 'aktuell' && <p className="muted">Das Examen steht mit allen {soll!.topicIds.length} Themen im <a href="#/lernen/plan?ansicht=pruefungen">Lernplan</a>.</p>}
         </div>
 
         {plan.fokus.length > 0 && (

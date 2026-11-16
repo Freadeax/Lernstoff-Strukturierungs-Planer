@@ -1,3 +1,4 @@
+import { SeitenHilfe } from '../../wegweiser/SeitenHilfe';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Document, ID, SourceChunk, Topic } from '../../../core/types';
 import { pflegeModule } from '../../../modules/pflege';
@@ -606,7 +607,8 @@ export default function Skript() {
   return (
     <section className="page skript">
       {!skript && (
-        <PageHeading eyebrow="Lernen" title="Skript" description="Deine belegten Lernzusammenfassungen, nach Curricularen Einheiten geordnet. Jede Aussage nennt ihre Seite im Material, ⚠ markiert, was dort nicht steht. Funktioniert offline." />
+        <><PageHeading eyebrow="Lernen" title="Skript" description="Deine belegten Lernzusammenfassungen, nach Curricularen Einheiten geordnet. Jede Aussage nennt ihre Seite im Material, ⚠ markiert, was dort nicht steht. Funktioniert offline." />
+        <SeitenHilfe path="/lernen/skript" /></>
       )}
       {fehler && <p className="note warn">Skripte konnten nicht geladen werden: {fehler}</p>}
       {!skripte && !fehler && <p className="muted">Lädt …</p>}
