@@ -8,6 +8,8 @@ import { TITELBILDER } from '../../ui/Titelbild';
 import type { BildFreigabe } from './freigaben';
 import { PRUEFPUNKTE, pruefEinheiten, type AssetArt, type PruefEinheit } from './inventar';
 import { erstelleExport, heute, verwendungZiel, leseLokal, leseVon, speichereLokal, speichereVon } from './pruefung';
+import { navigate, useRoute } from '../../ui/shell/router';
+import { Bestellliste } from './Bestellliste';
 import './bildpruefung.css';
 
 const ART_LABEL: Record<AssetArt, string> = { raum: 'Räume', portraet: 'Porträts', handlungsvideo: 'Videos', bildgebung: 'Bildgebung', titelbild: 'Titelbilder' };
@@ -99,7 +101,7 @@ function Karte({ e, lokal, von, setzen }: { e: PruefEinheit; lokal?: BildFreigab
   );
 }
 
-export default function Bildpruefung() {
+function Pruefen() {
   const einheiten = useMemo(() => pruefEinheiten(), []);
   const [lokal, setLokal] = useState(leseLokal);
   const [von, setVon] = useState(leseVon);
@@ -124,11 +126,7 @@ export default function Bildpruefung() {
   }
 
   return (
-    <section className="page bildpruefung">
-      <div className="page__head">
-        <h2>Bildprüfung</h2>
-        <p className="muted">Jedes Bild, Video und jede Bildserie der Simulatoren fachlich prüfen, bevor es im Unterricht genutzt wird. Ergebnisse bleiben auf diesem Gerät, bis du sie exportierst.</p>
-      </div>
+    <>
       <div className="card bildpruefung__kopf">
         <p className="bildpruefung__zahlen" aria-live="polite">
           <strong>{zaehler.freigegeben}</strong> freigegeben · <strong>{zaehler.mangel}</strong> mit Mangel · <strong>{zaehler.offen}</strong> offen, von {einheiten.length} Prüfeinheiten
@@ -155,6 +153,24 @@ export default function Bildpruefung() {
       {sichtbar.length
         ? <ul className="bildpruefung__liste">{sichtbar.map((e) => <Karte key={e.schluessel} e={e} lokal={lokal[e.schluessel]} von={von} setzen={(f) => setzen(e.schluessel, f)} />)}</ul>
         : <p className="muted">Keine Einträge für diesen Filter.</p>}
+    </>
+  );
+}
+
+export default function Bildpruefung() {
+  const { params } = useRoute();
+  const ansicht = params.get('ansicht') === 'bestellung' ? 'bestellung' : 'pruefen';
+  return (
+    <section className="page bildpruefung">
+      <div className="page__head">
+        <h2>Bildprüfung</h2>
+        <p className="muted">Bilder, Videos und Bildserien der Simulatoren fachlich prüfen und die nächste Lieferung bestellen. Prüfergebnisse bleiben auf diesem Gerät, bis du sie exportierst.</p>
+      </div>
+      <div className="pills" role="radiogroup" aria-label="Ansicht">
+        <button type="button" className="pill" role="radio" aria-checked={ansicht === 'pruefen'} onClick={() => navigate('/system/bilder')}>Prüfen</button>
+        <button type="button" className="pill" role="radio" aria-checked={ansicht === 'bestellung'} onClick={() => navigate('/system/bilder?ansicht=bestellung')}>Bestellliste</button>
+      </div>
+      {ansicht === 'bestellung' ? <Bestellliste /> : <Pruefen />}
     </section>
   );
 }

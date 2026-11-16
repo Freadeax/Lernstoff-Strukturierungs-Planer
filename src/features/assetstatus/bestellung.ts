@@ -176,3 +176,19 @@ export function bestellBericht(liste: Position[] = bestellung()): string {
   zeilen.push('Prompts für P3-Positionen folgen demselben Muster (Referenzbild plus eine Änderung).');
   return zeilen.join('\n') + '\n';
 }
+
+/** Dateipfad unter public/, unter dem die Position geliefert und eingebaut wird. */
+export function zielDatei(p: Position): string {
+  if (p.art === 'ersatz' && p.referenz) return p.referenz;
+  if (p.art === 'portraet') return `personen/${p.id}.webp`;
+  return `raeume/${p.id}.webp`;
+}
+
+/** Vorlage für ASSET_KATALOG.json (docs/MATERIAL-BEDARF.md 0.4) zu den gewählten Positionen. */
+export function katalogVorlage(liste: Position[]): Record<string, unknown>[] {
+  return liste.map((p) => ({
+    id: p.id, datei: zielDatei(p), titel: p.titel, beschreibung: '', faelle: p.faelle.map((f) => f.replace(/ \(.*\)$/, '')),
+    variante_von: p.referenz ? p.referenz.split('/').pop()!.replace(/\.[^.]+$/, '') : null,
+    ki_generiert: true, lizenz: 'eigene KI-Erzeugung', urheber: '', quelle: null, freigabe: null,
+  }));
+}
