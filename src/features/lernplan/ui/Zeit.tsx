@@ -8,6 +8,9 @@ import { erklaereAenderung, naechsteTage, SCHICHT_VORLAGEN, schichtAusNotiz, sch
 import { dauer, kurzDatum } from './format';
 import type { PlanCtx } from './Lernplan';
 import { Field, useFormFeedback } from '../../../ui/form/Field';
+import { DatenHinweis } from '../../../ui/DatenHinweis';
+import { storage } from '../../../ui/lib/store';
+import { kuerzelFolge, leseIcs, schonregeln } from '../dienstplan';
 
 // Montag zuerst, wie im deutschen Kalender
 const REIHENFOLGE = [1, 2, 3, 4, 5, 6, 0];
@@ -52,49 +55,118 @@ export function AenderungsVorschau({ ctx, availability }: { ctx: PlanCtx; availa
   );
 }
 
-const TAGE = 14;
+const ZEITRAUM = [14, 28, 42] as const;
+const SCHONEN_KEY = 'lernstoff.dienstplan.schonen';
 
-/** Dienstplan für die nächsten zwei Wochen: je Tag Frühdienst, Spätdienst, Nachtdienst, Schultag oder frei. */
+/** Dienstplan einlesen: Kalenderdatei aus der Dienstplan-App oder Kürzelfolge. Füllt nur die Auswahl, gespeichert wird unten. */
+function DienstplanImport({ today, onTage }: { today: ISODate; onTage: (tage: Record<ISODate, SchichtId>, text: string) => void }) {
+  const [kuerzel, setKuerzel] = useState('');
+  const [ab, setAb] = useState(today);
+  const [meldung, setMeldung] = useState('');
+  const datei = async (f: File | undefined) => {
+    if (!f) return;
+    if (f.size > 2_000_000) { setMeldung('Die Datei ist zu groß für einen Dienstplan.'); return; }
+    const r = leseIcs(await f.text(), today);
+    const n = Object.keys(r.tage).length;
+    if (!r.termine) { setMeldung('Das ist keine Kalenderdatei (.ics) oder sie enthält keine Termine.'); return; }
+    setMeldung(`${r.termine} Termine gelesen, ${n} ${n === 1 ? 'Tag' : 'Tage'} ab heute erkannt.${r.unbekannt.length ? ` Nicht zugeordnet: ${r.unbekannt.join(', ')}.` : ''}`);
+    if (n) onTage(r.tage, 'aus der Kalenderdatei');
+  };
+  const folge = () => {
+    const r = kuerzelFolge(kuerzel, ab);
+    const n = Object.keys(r.tage).length;
+    setMeldung(`${n} ${n === 1 ? 'Tag' : 'Tage'} übernommen.${r.unbekannt.length ? ` Unbekannt: ${r.unbekannt.join(', ')} (Tag bleibt wie er ist).` : ''}`);
+    if (n) onTage(r.tage, 'aus den Kürzeln');
+  };
+  return (
+    <details className="dienstplan__import">
+      <summary>Dienstplan einlesen</summary>
+      <DatenHinweis art="import" kompakt detail="Die Datei wird nur in diesem Browser gelesen, nichts wird hochgeladen." />
+      <label className="field">Kalenderdatei (.ics) aus deiner Dienstplan-App oder deinem Kalender
+        <input type="file" accept=".ics,text/calendar" onChange={(e) => { void datei(e.target.files?.[0]); e.target.value = ''; }} />
+      </label>
+      <div className="dienstplan__kuerzel">
+        <label className="field">Oder Kürzel abtippen, ein Kürzel je Tag
+          <input value={kuerzel} onChange={(e) => setKuerzel(e.target.value)} placeholder="F F S S N N X X" autoComplete="off" />
+        </label>
+        <label className="field">ab
+          <input type="date" value={ab} min={today} onChange={(e) => setAb(e.target.value || today)} />
+        </label>
+        <button type="button" disabled={!kuerzel.trim()} onClick={folge}>Übernehmen</button>
+      </div>
+      <p className="muted">F = Früh, S = Spät, N = Nacht, Sch = Schule, X, U oder - = frei.</p>
+      {meldung && <p role="status">{meldung}</p>}
+    </details>
+  );
+}
+
+/** Dienstplan für die nächsten Wochen: je Tag Frühdienst, Spätdienst, Nachtdienst, Schultag oder frei. */
 function Dienstplan({ ctx }: { ctx: PlanCtx }) {
   const cfg = ctx.data.config;
   const today = ctx.data.today;
-  const tage = naechsteTage(today, TAGE);
+  const [anzahl, setAnzahl] = useState<number>(14);
+  const tage = naechsteTage(today, anzahl);
   const notes = cfg.exceptionNotes ?? {};
+  const ex = cfg.availability.exceptions ?? {};
   const eigene = cfg.shiftMinutes;
-  const start = () => Object.fromEntries(tage.map((d) => [d, schichtAusNotiz(notes[d]) ?? ''])) as Record<ISODate, SchichtId | ''>;
+  const start = () => Object.fromEntries(eachDay(today, addDays(today, ZEITRAUM[ZEITRAUM.length - 1]!)).map((d) => [d, schichtAusNotiz(notes[d]) ?? ''])) as Record<ISODate, SchichtId | ''>;
   const [wahl, setWahl] = useState<Record<ISODate, SchichtId | ''>>(start);
+  const [schonen, setSchonen] = useState(() => storage.read<boolean>(SCHONEN_KEY, true) !== false);
   const [minuten, setMinuten] = useState(() => Object.fromEntries(SCHICHT_VORLAGEN.map((v) => [v.id, String(schichtMinuten(v.id, eigene))])) as Record<SchichtId, string>);
   const eigeneNeu = Object.fromEntries(SCHICHT_VORLAGEN.map((v) => [v.id, Math.max(0, Math.min(1440, Math.round(Number(minuten[v.id]) || 0)))])) as Record<SchichtId, number>;
   const anfang = start();
-  const geaendert = tage.filter((d) => wahl[d] !== anfang[d]);
+  const schon = schonen ? schonregeln(tage, (d) => (d in wahl ? wahl[d] || undefined : schichtAusNotiz(notes[d]))) : {};
+  const ziel = (d: ISODate) => { const id = wahl[d]; return id ? Math.min(eigeneNeu[id], schon[d]?.max ?? Infinity) : undefined; };
   const minutenGeaendert = SCHICHT_VORLAGEN.some((v) => eigeneNeu[v.id] !== schichtMinuten(v.id, eigene));
   const plan = Object.fromEntries(tage
-    .filter((d) => wahl[d] !== anfang[d] || (minutenGeaendert && wahl[d]))
+    .filter((d) => wahl[d] !== anfang[d] || (wahl[d] && ziel(d) !== ex[d]))
     .map((d) => [d, wahl[d] || null])) as Record<ISODate, SchichtId | null>;
-  const ergebnis = Object.keys(plan).length ? wendeDienstplanAn(cfg.availability, notes, plan, eigeneNeu) : undefined;
+  const ergebnis = (() => {
+    if (!Object.keys(plan).length) return undefined;
+    const r = wendeDienstplanAn(cfg.availability, notes, plan, eigeneNeu);
+    const exceptions = { ...r.availability.exceptions };
+    for (const d of Object.keys(plan)) { const z = ziel(d); if (z !== undefined) exceptions[d] = z; }
+    return { ...r, availability: { ...r.availability, exceptions } };
+  })();
+  const geaenderteTage = Object.keys(plan).length;
 
   const speichern = () => {
     if (!ergebnis && !minutenGeaendert) return;
     speichere(() => saveConfig({ ...(ergebnis ? { availability: ergebnis.availability, exceptionNotes: ergebnis.notes } : {}), shiftMinutes: eigeneNeu }),
-      `Dienstplan gespeichert${geaendert.length ? `, ${geaendert.length === 1 ? '1 Tag' : `${geaendert.length} Tage`} geändert` : ''}, Plan neu berechnet`);
+      `Dienstplan gespeichert${geaenderteTage ? `, ${geaenderteTage === 1 ? '1 Tag' : `${geaenderteTage} Tage`} geändert` : ''}, Plan neu berechnet`);
+  };
+  const uebernehmen = (neu: Record<ISODate, SchichtId>) => {
+    setWahl((w) => ({ ...w, ...neu }));
+    const letzter = Object.keys(neu).sort().pop();
+    if (letzter) { const noetig = ZEITRAUM.find((z) => addDays(today, z - 1) >= letzter) ?? ZEITRAUM[ZEITRAUM.length - 1]!; if (noetig > anzahl) setAnzahl(noetig); }
   };
 
   return (
     <div className="card dienstplan">
-      <h3>Dienstplan der nächsten zwei Wochen</h3>
-      <p className="muted">Wähle für jeden Tag die Schicht. Die Lernzeit kommt aus der Vorlage, „Normal“ nimmt die Wochenzeit. Vor dem Speichern siehst du, was sich verschiebt.</p>
+      <h3>Dienstplan</h3>
+      <p className="muted">Wähle für jeden Tag die Schicht oder lies deinen Dienstplan ein. Die Lernzeit kommt aus der Vorlage, „Normal“ nimmt die Wochenzeit. Vor dem Speichern siehst du, was sich verschiebt.</p>
+      <div className="pills" role="group" aria-label="Zeitraum">
+        {ZEITRAUM.map((z) => <button key={z} type="button" className="pill" aria-pressed={anzahl === z} onClick={() => setAnzahl(z)}>{z / 7} Wochen</button>)}
+      </div>
+      <DienstplanImport today={today} onTage={uebernehmen} />
+      <label className="dienstplan__schonen">
+        <input type="checkbox" checked={schonen} onChange={(e) => { setSchonen(e.target.checked); storage.write(SCHONEN_KEY, e.target.checked ? null : false); }} />
+        <span>Schonregeln: nach Nachtdiensten ausschlafen, bei Spät auf Früh und ab dem 6. Arbeitstag in Folge nur kurz lernen</span>
+      </label>
       <ol className="dienstplan__tage">
         {tage.map((d) => {
           const id = wahl[d];
-          const m = id ? eigeneNeu[id] : availableMinutes({ ...cfg.availability, exceptions: Object.fromEntries(Object.entries(cfg.availability.exceptions ?? {}).filter(([k]) => schichtAusNotiz(notes[k]) === undefined)) }, d);
+          const m = id ? ziel(d)! : availableMinutes({ ...cfg.availability, exceptions: Object.fromEntries(Object.entries(ex).filter(([k]) => schichtAusNotiz(notes[k]) === undefined)) }, d);
+          const grund = schon[d]?.grund;
           return (
             <li key={d} className={id !== anfang[d] ? 'dienstplan__tag dienstplan__tag--neu' : 'dienstplan__tag'}>
               <label htmlFor={`schicht-${d}`}>{d === today ? 'Heute' : kurzDatum(d)}</label>
-              <select id={`schicht-${d}`} value={id} onChange={(e) => setWahl((w) => ({ ...w, [d]: e.target.value as SchichtId | '' }))}>
+              <select id={`schicht-${d}`} value={id} aria-describedby={grund ? `schon-${d}` : undefined} onChange={(e) => setWahl((w) => ({ ...w, [d]: e.target.value as SchichtId | '' }))}>
                 <option value="">Normal</option>
                 {SCHICHT_VORLAGEN.map((v) => <option key={v.id} value={v.id}>{v.label}</option>)}
               </select>
               <span className="muted">{m ? dauer(m) : 'keine Lernzeit'}</span>
+              {grund && <span id={`schon-${d}`} className="dienstplan__grund">{id ? grund : `${grund} Wähl eine Schicht oder „Freier Tag“, damit es greift.`}</span>}
             </li>
           );
         })}
@@ -112,9 +184,9 @@ function Dienstplan({ ctx }: { ctx: PlanCtx }) {
       </details>
       <AenderungsVorschau ctx={ctx} availability={ergebnis?.availability} />
       <div className="row">
-        <span className="muted">{geaendert.length ? `${geaendert.length === 1 ? '1 Tag' : `${geaendert.length} Tage`} geändert` : 'Keine Änderung'}</span>
+        <span className="muted">{geaenderteTage ? `${geaenderteTage === 1 ? '1 Tag' : `${geaenderteTage} Tage`} geändert` : 'Keine Änderung'}</span>
         <span>
-          {(geaendert.length > 0 || minutenGeaendert) && <button type="button" className="ghost" onClick={() => { setWahl(start()); setMinuten(Object.fromEntries(SCHICHT_VORLAGEN.map((v) => [v.id, String(schichtMinuten(v.id, eigene))])) as Record<SchichtId, string>); }}>Zurücksetzen</button>}
+          {(geaenderteTage > 0 || minutenGeaendert) && <button type="button" className="ghost" onClick={() => { setWahl(start()); setMinuten(Object.fromEntries(SCHICHT_VORLAGEN.map((v) => [v.id, String(schichtMinuten(v.id, eigene))])) as Record<SchichtId, string>); }}>Zurücksetzen</button>}
           {' '}<button type="button" className="primary" disabled={!ergebnis && !minutenGeaendert} onClick={speichern}>Dienstplan speichern</button>
         </span>
       </div>

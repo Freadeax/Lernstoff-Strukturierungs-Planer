@@ -64,6 +64,16 @@ try {
     await page.reload({ waitUntil: 'networkidle' });
     assert.equal(await page.locator('.dienstplan select').first().inputValue(), 'nacht');
     assert.match(await page.locator('.ausnahme-form').innerText(), /Frühdienst/);
+    // Dienstplan einlesen (Kürzel) und Schonregeln
+    const dienst2 = page.locator('.dienstplan');
+    assert.match(await dienst2.innerText(), /Erster Tag nach dem Nachtdienst/);
+    await dienst2.getByText('Dienstplan einlesen', { exact: true }).click();
+    await dienst2.getByLabel('Oder Kürzel abtippen', { exact: false }).fill('S F X');
+    await dienst2.getByLabel('ab', { exact: true }).fill(tag(7));
+    await dienst2.getByRole('button', { name: 'Übernehmen', exact: true }).click();
+    await dienst2.getByText('3 Tage übernommen', { exact: false }).waitFor();
+    assert.match(await dienst2.innerText(), /weniger als 11 Stunden Ruhe/);
+    await axe(page, 'Dienstplan einlesen');
 
     // Prüfungen: Kompetenzbereiche und Kalenderexport
     await page.goto(base + '#/lernen/plan?ansicht=pruefungen', { waitUntil: 'networkidle' });
