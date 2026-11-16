@@ -1,0 +1,23 @@
+.mikro__schritte { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.mikro__schritt { padding: 6px 12px; border-radius: 999px; border: 1px solid var(--color-border); font-size: 0.8125rem; color: var(--color-text-muted); }
+.mikro__schritt--jetzt { border-color: var(--color-primary); color: var(--color-text); font-weight: 600; }
+.mikro__schritt--fertig { background: var(--color-primary-soft); }
+.mikro__karte { display: flex; flex-direction: column; gap: var(--space-3); }
+.mikro__karte h2 { font-size: 1.0625rem; margin: 0; }
+.mikro__begriffe { margin: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.mikro__begriffe dt { font-weight: 600; }
+.mikro__begriffe dd { margin: 2px 0 0; }
+.mikro__kb { border-left: 3px solid var(--color-primary); padding-left: var(--space-3); display: flex; flex-direction: column; gap: 4px; }
+.mikro__kb p { margin: 0; }
+.mikro__merksatz { font-style: italic; }
+.mikro__hinweis { font-size: 0.75rem; margin: 0; }
+.mikro__flip { display: flex; flex-direction: column; gap: var(--space-2); align-items: flex-start; text-align: left; padding: var(--space-4); min-height: 120px; border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-surface); color: var(--color-text); cursor: pointer; width: 100%; }
+.mikro__vorne { font-size: 1.125rem; font-weight: 600; }
+.mikro__hinten { line-height: 1.5; }
+.mikro__weiter { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+
+/* Themen-Netz auf der Themenseite */
+.netz__liste { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.netz__knoten { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 8px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); color: var(--color-text); text-align: left; cursor: pointer; max-width: 100%; }
+.netz__knoten strong { font-size: 0.875rem; }
+.netz__knoten span { font-size: 0.75rem; color: var(--color-text-muted); }

@@ -25,6 +25,8 @@ import { kartenLage, naechsterBlock } from './thema';
 import { merkeThema } from './letztesThema';
 import { istEigenesThema } from './pflege';
 import { ThemaVerwalten, ZuordnungKorrigieren } from './ThemaPflege';
+import { grundText, themenNetz } from '../mikro/mikro';
+import '../mikro/mikro.css';
 
 const zaehl = (n: number, eins: string, viele: string) => `${n} ${n === 1 ? eins : viele}`;
 const enc = encodeURIComponent;
@@ -125,6 +127,7 @@ export default function ThemaSeite() {
   const heuteFehler = faellig(fehler).length;
   const fach = modul.subjects.find((s) => s.id === topic.subjectId);
   const uebungen = uebungenFuer(id, modul).filter((u) => u.trainer !== 'fall' && u.trainer !== 'krankheitsbilder' && u.trainer !== 'praxis');
+  const netz = themenNetz(modul, id).slice(0, 12);
   const tage = (d: string) => (today ? inTagen(daysBetween(today, d)) : kurzDatum(d));
 
   return (
@@ -156,7 +159,10 @@ export default function ThemaSeite() {
         </div>
       </div>
 
-      <Abschnitt titel="Lernpfad" aktion={pfad.naechster?.ziel && <button type="button" className="primary small" onClick={() => navigate(pfad.naechster!.ziel!)}>Weiterlernen</button>}>
+      <Abschnitt titel="Lernpfad" aktion={<div className="row">
+        <button type="button" className="small" onClick={() => navigate(`/lernen/mikro?id=${enc(id)}`)}>5-Minuten-Einheit</button>
+        {pfad.naechster?.ziel && <button type="button" className="primary small" onClick={() => navigate(pfad.naechster!.ziel!)}>Weiterlernen</button>}
+      </div>}>
         <p className="muted">{pfad.gesamt ? `${pfad.erledigt} von ${zaehl(pfad.gesamt, 'Schritt', 'Schritten')} erledigt.` : ''} Lesen, Karten, Steckbrief, Fall, Selbsttest. Erledigt ist nur, was eine Spur hinterlassen hat.</p>
         <SchrittListe pfad={pfad} fakten={fakten} haken={daten.haken} onHaken={setHaken} />
       </Abschnitt>
@@ -186,6 +192,21 @@ export default function ThemaSeite() {
             {fehler.length > 5 && <li className="muted">und {fehler.length - 5} weitere</li>}</ul>
           : <p className="muted">Keine offenen Fehler zu diesem Thema.</p>}
       </Abschnitt>
+
+      {netz.length > 0 && (
+        <Abschnitt titel="Themen-Netz">
+          <p className="muted">Was mit diesem Thema zusammenhängt: über ein gemeinsames Krankheitsbild oder als Voraussetzung.</p>
+          <ul className="netz__liste">
+            {netz.map((k) => (
+              <li key={k.topic.id}>
+                <button type="button" className="netz__knoten" onClick={() => navigate(`/lernen/thema?id=${enc(k.topic.id)}`)}>
+                  <strong>{k.topic.name}</strong><span>{k.gruende.map(grundText).join(' · ')}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </Abschnitt>
+      )}
 
       <ThemaVerwalten topic={topic} onGeaendert={retry} />
 

@@ -62,6 +62,7 @@ const Testphase = lazy(() => import('./features/testphase/TestphaseSeite'));
 const Qualitaet = lazy(() => import('./features/qm/QualitaetSeite'));
 const Quellen = lazy(() => import('./features/quellen/QuellenSeite'));
 const ThemaSeite = lazy(() => import('./features/thema/ThemaSeite'));
+const MikroSeite = lazy(() => import('./features/mikro/MikroSeite'));
 const ThemenSeite = lazy(() => import('./features/thema/ThemenSeite'));
 const Wegweiser = lazy(() => import('./features/wegweiser/WegweiserSeite'));
 // Kurzhilfe für die beiden Seiten, die hier direkt gebaut werden: eigener kleiner Chunk, das Startpaket bleibt gleich.
@@ -89,6 +90,7 @@ function View() {
     case '/lernen/ce': return <CeSeite />;
     case '/lernen/wegweiser': return <Wegweiser />;
     case '/lernen/thema': return <ThemaSeite />;
+    case '/lernen/mikro': return <MikroSeite />;
     case '/lernen/ueben': return <UebenSeite />;
     case '/lernen/fortschritt': return <Fortschritt />;
     case '/lernen/einsatz': return <EinsatzSeite />;
