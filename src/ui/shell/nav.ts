@@ -81,6 +81,8 @@ export const NAV: NavItem[] = [
           { id: 'hoeren', label: 'Hör-Trainer', path: '/lernen/hoeren', icon: 'stetho' },
           // Ablauf-Werkbank: Handgriffe für die praktische Prüfung (Praxis-Gruppe ist voll).
           { id: 'ablauf', label: 'Ablauf-Werkbank', path: '/lernen/ablauf', icon: 'clipboard' },
+          // Gesprächssimulator: Gesprächsführung ist Teil der praktischen und mündlichen Prüfung.
+          { id: 'gespraech', label: 'Gesprächssimulator', path: '/lernen/gespraech', icon: 'chat' },
           { id: 'klasse', label: 'Klassenmodus', path: '/lernen/klasse', icon: 'klasse' },
         ],
       },

@@ -1,0 +1,22 @@
+/* Gesprächssimulator */
+.gespraech h2 { margin: 0; }
+.gespraech p { margin: 0; }
+.gespraech__liste { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); }
+.gespraech__liste > li { margin: 0; }
+.gespraech__anzeige { display: flex; gap: var(--space-2); align-items: center; flex-wrap: wrap; }
+.gespraech__anzeige meter { flex: 1 1 140px; height: 12px; }
+.gespraech__verlauf { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.gespraech__blase { max-width: 85%; padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); white-space: pre-wrap; overflow-wrap: anywhere; display: flex; flex-direction: column; gap: 2px; }
+.gespraech__blase--sie { background: var(--color-surface-sunken); align-self: flex-start; border-top-left-radius: 4px; }
+.gespraech__blase--ich { background: var(--color-primary-soft); margin-left: auto; border-top-right-radius: 4px; }
+.gespraech__verlauf li { display: flex; flex-direction: column; }
+.gespraech__wer { font-size: var(--text-sm, .875rem); font-weight: var(--weight-bold, 700); }
+.gespraech__frage { font-size: var(--text-md, 1rem); }
+.gespraech__optionen { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.gespraech__option { width: 100%; text-align: left; justify-content: flex-start; white-space: normal; min-height: 48px; padding: var(--space-2) var(--space-3); line-height: 1.35; }
+.gespraech__rueck { display: flex; flex-direction: column; gap: var(--space-2); align-items: flex-start; }
+.gespraech__start { align-self: flex-start; }
+.gespraech__techniken summary, .gespraech__quellen summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; }
+.gespraech__techniken dl { margin: var(--space-2) 0 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.gespraech__techniken dt { font-weight: var(--weight-bold, 700); }
+.gespraech__techniken dd { margin: 0; }

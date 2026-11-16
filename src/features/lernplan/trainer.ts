@@ -30,9 +30,10 @@ import { BEREICH_ZU_THEMA as RECHT_BEREICH } from '../recht/aufgaben';
 import { BEREICH_ZU_THEMA as GRUNDLAGEN_BEREICH } from '../grundlagen/aufgaben';
 import { diagnostikFaelleZuThema } from '../diagnostik/themen';
 import { ABLAEUFE } from '../ablauf/inhalt';
+import { DIALOGE } from '../gespraech/dialoge';
 import { heute, leafTopics, logReview, TRAINER_NAME } from './store';
 
-export type TrainerId = 'diagnostik' | 'rechnen' | 'duell' | 'fall' | 'uebergabe' | 'pflegeplanung' | 'sis' | 'mindmap' | 'bericht' | 'assessment' | 'krankheitsbilder' | 'selbsttest' | 'hygiene' | 'anatomie' | 'expertenstandards' | 'normwerte' | 'notfall' | 'arzneimittel' | 'praxis' | 'recht' | 'labor' | 'grundlagen' | 'ablauf';
+export type TrainerId = 'diagnostik' | 'rechnen' | 'duell' | 'fall' | 'uebergabe' | 'pflegeplanung' | 'sis' | 'mindmap' | 'bericht' | 'assessment' | 'krankheitsbilder' | 'selbsttest' | 'hygiene' | 'anatomie' | 'expertenstandards' | 'normwerte' | 'notfall' | 'arzneimittel' | 'praxis' | 'recht' | 'labor' | 'grundlagen' | 'ablauf' | 'gespraech';
 
 export const TRAINER_LABEL = TRAINER_NAME as Record<TrainerId, string>;
 
@@ -134,6 +135,8 @@ export function uebungenFuer(topicId: string, modul: CatalogModule = pflegeModul
   if (topicId === LABOR_THEMEN.entnahme) out.push({ trainer: 'labor', label: 'Labor-Werkbank: Blutentnahme', path: '/lernen/labor?modus=werkbank&station=entnahme' });
   if (topicId === UEBERGABE_THEMA) out.push({ trainer: 'labor', label: 'Labor-Werkbank: kritischen Wert melden', path: '/lernen/labor?modus=werkbank&station=meldung' });
   for (const a of ABLAEUFE.filter((x) => x.topicIds.includes(topicId))) out.push({ trainer: 'ablauf', label: `Ablauf-Werkbank: ${a.titel}`, path: `/lernen/ablauf?ablauf=${a.id}&modus=durchfuehren` });
+  const dialoge = DIALOGE.filter((x) => x.topicIds.includes(topicId));
+  if (dialoge.length) out.push({ trainer: 'gespraech', label: dialoge.length > 1 ? `Gesprächssimulator (${dialoge.length} Gespräche)` : `Gesprächssimulator: ${dialoge[0]!.titel}`, path: dialoge.length > 1 ? '/lernen/gespraech' : `/lernen/gespraech?dialog=${dialoge[0]!.id}&modus=fest` });
   if (laborBereich[topicId]) out.push({ trainer: 'labor', label: 'Labor-Trainer', path: `/lernen/labor?bereich=${laborBereich[topicId]}` });
   const dx = diagnostikFaelleZuThema(topicId);
   if (dx.length) out.push({ trainer: 'diagnostik', label: dx.length > 1 ? `Diagnostik-Fälle (${dx.length})` : 'Diagnostik-Fall (Labor und Bildgebung)', path: dx.length > 1 ? '/lernen/diagnostik' : `/lernen/diagnostik?fall=${dx[0]}` });
