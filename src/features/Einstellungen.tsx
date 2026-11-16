@@ -14,9 +14,25 @@ import { Icon } from '../ui/icons';
 import { useStore } from '../ui/lib/store';
 import { timeZones } from '../ui/lib/time';
 import { filterStore, setzeZeitzone } from '../widgets/filter/filterStore';
+import { fokusAutomatisch, setzeFokusAutomatisch } from '../ui/shell/fokus';
 
 // Töne und Vorlesen: eigener Baustein, erst beim Öffnen der Einstellungen geladen (Startgröße).
 const Klangeinstellungen = lazy(() => import('../ui/audio/Klangeinstellungen'));
+
+/** Fokus-Modus: automatisch bei Prüfungen und Kartensitzungen. */
+function FokusEinstellung() {
+  const [auto, setAuto] = useState(fokusAutomatisch);
+  return (
+    <section className="card form-card" aria-labelledby="fokus-title">
+      <h2 id="fokus-title">Fokus-Modus</h2>
+      <p className="form-section__description">Blendet Menü, Kopf- und Handy-Leiste aus und bietet einen Lernzeit-Timer. Jederzeit mit Taste F oder im Profilmenü, Esc beendet ihn.</p>
+      <label className="check">
+        <input type="checkbox" checked={auto} onChange={(e) => { setAuto(e.target.checked); setzeFokusAutomatisch(e.target.checked); }} />
+        <span><strong>Bei Prüfungssimulation und Karteikarten automatisch</strong><br />Startet mit der Prüfung bzw. Sitzung und endet mit ihr.</span>
+      </label>
+    </section>
+  );
+}
 
 /** Zeitzone für Kalendertage (Lernserie, Verlauf, Kennzahlen). Selten nötig, daher hier statt in der Filterleiste. */
 function Zeitzone() {
@@ -147,6 +163,7 @@ export function Einstellungen() {
     </form>
     <Zugaenge onVergessen={() => { setKey(''); setMerken(false); setSaved(false); }} />
     <Suspense fallback={null}><Klangeinstellungen /></Suspense>
+    <FokusEinstellung />
     <Zeitzone />
     <section className="card form-card" aria-labelledby="my-data-title">
       <h2 id="my-data-title">Deine Daten. In deiner Hand.</h2>

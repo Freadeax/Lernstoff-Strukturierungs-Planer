@@ -1,4 +1,5 @@
-import { createStore } from '../lib/store';
+import { useEffect } from 'react';
+import { createStore, storage } from '../lib/store';
 
 // Fokus-Modus: blendet Menü, Kopf- und Handy-Leiste aus, damit nur der Lernblock oder Test bleibt.
 // Vorbilder: Lesemodus in Notion/iA Writer (nur Text), Lernzeit-Timer wie bei Pomodoro-Apps (25 + 5 Minuten).
@@ -60,4 +61,28 @@ export const stoppeTimer = () => fokus.set({ ende: undefined, rest: undefined, p
 export function uhr(ms: number): string {
   const s = Math.ceil(ms / 1000);
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+}
+
+// ---------------------------------------------------------------- Automatisch bei Prüfungen und Kartensitzungen
+
+const AUTO_KEY = 'lernstoff.fokus.auto';
+
+/** Fokus-Modus beim Start einer Prüfung oder Kartensitzung von selbst einschalten? (Standard: ja) */
+export function fokusAutomatisch(): boolean {
+  return storage.read<boolean>(AUTO_KEY, true) !== false;
+}
+export function setzeFokusAutomatisch(an: boolean) {
+  storage.write(AUTO_KEY, an ? null : false);
+}
+
+/**
+ * Schaltet den Fokus-Modus ein, solange `aktiv` gilt (z. B. während einer laufenden Prüfung),
+ * und beim Verlassen wieder aus, aber nur wenn er ihn selbst eingeschaltet hat.
+ */
+export function useAutoFokus(aktiv: boolean) {
+  useEffect(() => {
+    if (!aktiv || !fokusAutomatisch() || fokus.get().an) return;
+    setzeFokus(true);
+    return () => { if (fokus.get().an) setzeFokus(false); };
+  }, [aktiv]);
 }

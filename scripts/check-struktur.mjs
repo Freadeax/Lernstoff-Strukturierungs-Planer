@@ -89,6 +89,24 @@ try {
     await page.locator('.shell__header').waitFor();
     assert.equal(await page.evaluate(() => document.documentElement.hasAttribute('data-fokus')), false);
 
+    // --- Automatischer Fokus beim Start einer Kartensitzung, endet mit der Sitzung
+    await page.getByRole('button', { name: /neue lernen$/ }).first().click();
+    await page.locator('.fokusleiste').waitFor();
+    assert(!(await page.locator('.shell__header').isVisible()), 'Kartensitzung startet im Fokus-Modus');
+    await page.locator('main').getByRole('button', { name: 'Beenden', exact: true }).click();
+    await page.locator('.shell__header').waitFor();
+    assert.equal(await page.locator('.fokusleiste').count(), 0, 'Fokus endet mit der Sitzung');
+
+    // --- Landkarte am Handy: Themen in antippbarer Größe
+    if (handy) {
+      await page.goto(base + '#/lernen/landkarte', { waitUntil: 'networkidle' });
+      await page.waitForTimeout(800);
+      const sichtbar = await page.locator('button.karte__node').evaluateAll((els) => els.map((e) => e.getBoundingClientRect()).filter((r) => r.right > 0 && r.left < innerWidth && r.bottom > 0 && r.top < innerHeight));
+      assert(sichtbar.length > 0 && sichtbar.every((r) => r.height >= 36), `Landkarte: Themen zu klein (${sichtbar.map((r) => Math.round(r.height)).join(',')})`);
+      await page.goto(base + '#/lernen/karten', { waitUntil: 'networkidle' });
+      await page.getByRole('tab', { name: 'Eigene Karten' }).waitFor();
+    }
+
     // --- Viele Karteikarten einfügen
     await page.getByRole('tab', { name: 'Eigene Karten' }).click();
     await page.getByText('Viele Karten auf einmal einfügen').click();
