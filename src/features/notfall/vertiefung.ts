@@ -1,5 +1,5 @@
 // „Mehr verstehen“ im Notfall-Trainer.
-// Grundlage wie aufgaben.ts: ERC-Leitlinien 2021 (Basic Life Support), ABCDE-Schema. Ohne Beleg aus eigenem Material;
+// Grundlage wie aufgaben.ts: ERC-Leitlinien 2025 (Basic Life Support), ABCDE-Schema. Ohne Beleg aus eigenem Material;
 // es gilt der Notfallstandard der Einrichtung.
 
 import { ERWEITERUNG_VERTIEFUNG } from './erweiterung';

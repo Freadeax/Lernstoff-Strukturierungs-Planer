@@ -17,7 +17,7 @@ const FAELLE: Record<string, Eintrag> = {
   hausbesuch: { geltung: 'Ambulante Pflege, Hausbesuch, ab 1. Ausbildungsjahr', risiken: ['medikament'], pruefpunkte: ['Exsikkose-Zeichen und Diuretikum'],
     lernziele: ['Neue Verwirrtheit als möglichen Flüssigkeitsmangel erkennen', 'Sturzrisiko aus Schwindel, Diuretikum und Trinkmenge ableiten', 'Angehörige konkret einbinden und mit der Person gemeinsam entscheiden'] },
   pflegeheim: { geltung: 'Stationäre Langzeitpflege, ab 1. Ausbildungsjahr', risiken: ['medikament', 'notfall'], pruefpunkte: ['Hypoglykämie-SOP, Glukosegabe nur bei sicherem Schlucken'],
-    quellen: [{ titel: 'JBDS: Hospital management of hypoglycaemia', stand: '2023' }],
+    quellen: [{ titel: 'JBDS: Hospital management of hypoglycaemia', stand: '2022' }],
     lernziele: ['Unruhe vor dem Essen als möglichen Unterzucker erkennen und BZ messen', 'Orale Glukose nur bei Wachheit und sicherem Schlucken geben', 'Insulinplan und Essprotokoll prüfen, bevor Insulin gegeben wird'] },
   nachtwache: { geltung: 'Erwachsene, Normalstation, Nachtdienst, ab 2. Ausbildungsjahr', risiken: ['medikament', 'geraet'], pruefpunkte: ['Furosemid-Dosis, Applikationsdauer, Monitoringgrenzen'],
     quellen: [{ titel: 'Furosemid Fachinformation (emc)', stand: '2024' }],
