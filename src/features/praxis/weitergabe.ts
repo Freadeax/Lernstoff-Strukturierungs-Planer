@@ -220,3 +220,29 @@ export function berichtFall(s: Session): BerichtFall {
     muster,
   };
 }
+
+// ---------- Passende Assessments ----------
+
+type AssessmentGruppe = 'braden' | 'norton' | 'barthel' | 'schmerz' | 'mna' | 'gcs' | 'sturz';
+export const ASSESSMENT_LABEL: Record<AssessmentGruppe, string> = {
+  braden: 'Braden-Skala', norton: 'Norton-Skala', barthel: 'Barthel-Index', schmerz: 'Schmerz (NRS oder BESD)',
+  mna: 'Ernährung (MNA-SF)', gcs: 'Glasgow Coma Scale', sturz: 'Sturzrisiko (Tinetti, TUG)',
+};
+
+/** Welche Einschätzungsinstrumente nach dem Fall sinnvoll sind, mit Begründung. Fälle ohne Eintrag: keins. */
+export const PRAXIS_ASSESSMENT: Record<string, { gruppe: AssessmentGruppe; warum: string }[]> = {
+  hausbesuch: [{ gruppe: 'barthel', warum: 'Wie selbstständig ist sie zu Hause noch?' }, { gruppe: 'sturz', warum: 'Allein lebend, Sturzrisiko einschätzen.' }],
+  pflegeheim: [{ gruppe: 'sturz', warum: 'Unruhe und Unterzucker erhöhen das Sturzrisiko.' }],
+  reha: [{ gruppe: 'sturz', warum: 'Vor dem nächsten Weg zum Bad: Gang und Gleichgewicht.' }, { gruppe: 'barthel', warum: 'Fortschritt in der Selbstversorgung messen.' }],
+  palliativ: [{ gruppe: 'schmerz', warum: 'Symptomplan: Schmerz regelmäßig erfassen, bei Bedarf fremdeingeschätzt.' }, { gruppe: 'braden', warum: 'Erschöpft, wenig Bewegung am Lebensende: Hautschutz planen.' }],
+  nachblutung: [{ gruppe: 'schmerz', warum: 'Der Schmerz ist „anders als vorhin“: Verlauf mit NRS festhalten.' }],
+  lungenembolie: [{ gruppe: 'schmerz', warum: 'Atemabhängiger Schmerz gehört in die Verlaufskontrolle.' }],
+  schlaganfall: [{ gruppe: 'gcs', warum: 'Bewusstseinslage im Verlauf beurteilen.' }],
+  sepsis: [{ gruppe: 'gcs', warum: 'Neue Verwirrtheit: Bewusstsein nachvollziehbar dokumentieren.' }],
+  rausch: [{ gruppe: 'gcs', warum: 'Nicht richtig wach: Bewusstsein engmaschig einschätzen.' }],
+  delir: [{ gruppe: 'schmerz', warum: 'Unerkannter Schmerz ist ein häufiger Delir-Auslöser (BESD bei kognitiver Einschränkung).' }],
+  demenz: [{ gruppe: 'mna', warum: 'Isst seit gestern nichts: Ernährungsrisiko einschätzen.' }, { gruppe: 'schmerz', warum: 'Schmerz bei Demenz mit BESD fremdeinschätzen.' }],
+  herzschwaeche: [{ gruppe: 'barthel', warum: 'Lebt allein im zweiten Stock: Schafft er den Alltag noch?' }],
+};
+
+export const assessmentLink = (gruppe: AssessmentGruppe) => `#/lernen/assessment?gruppe=${gruppe}&modus=rechner`;

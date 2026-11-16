@@ -59,3 +59,14 @@ describe('Praxisfall weiterbearbeiten', () => {
     expect(v.verlauf.split('\n').length).toBeGreaterThan(3);
   });
 });
+
+describe('Passende Assessments', () => {
+  it('nur bekannte Fälle und Gruppen, mit Begründung', async () => {
+    const { GRUPPEN } = await import('../assessment/vignetten');
+    const { PRAXIS_ASSESSMENT } = await import('./weitergabe');
+    for (const [id, liste] of Object.entries(PRAXIS_ASSESSMENT)) {
+      expect(SCENARIOS.some((s) => s.id === id), id).toBe(true);
+      for (const a of liste) { expect(GRUPPEN.some((g) => g.id === a.gruppe)).toBe(true); expect(a.warum.length).toBeGreaterThan(10); }
+    }
+  });
+});
