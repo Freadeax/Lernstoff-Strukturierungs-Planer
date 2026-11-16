@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { Arbeitsplatz, Klinik, type Panel } from './Praxissimulator';
+import { Arbeitsplatz, Klinik, portraetZustand, type Panel } from './Praxissimulator';
+import { Portraet } from '../../ui/sim/Portraet';
+import { personFuer } from '../../ui/sim/personen';
 import { clock } from './engine';
 import { beendeSchicht, handle, neuBei, schichtAuswertung, warte, wechsle, WEGEZEIT, type Schicht } from './schicht';
 import { archive } from './storage';
@@ -42,6 +44,7 @@ export function SchichtAnsicht({ schicht, setSchicht, onClose }: { schicht: Schi
       <div className="praxis-patienten" role="group" aria-label="Patienten in deiner Schicht">{schicht.sessions.map((p, i) => {
         const neu = neuBei(schicht, i); const punkt = p.chart?.at(-1);
         return <button key={p.id} className="praxis-patient" aria-pressed={i === schicht.active} onClick={() => geheZu(i)}>
+          {(() => { const person = personFuer('praxis', p.scenario.id); return person && <span aria-hidden="true" className="praxis-patient__bild"><Portraet person={person} zustand={i === schicht.active ? portraetZustand(p) : 'stabil'} groesse={40} /></span>; })()}
           <span className="praxis-patient__name">{p.scenario.patient}, {alterText(p.scenario.age)}</span>
           <small>{p.scenario.title}</small>
           <small>{punkt ? `zuletzt gemessen ${clock(punkt.at)}` : 'noch nicht gemessen'}{schicht.first[i] === null ? ' · noch nicht gesehen' : ''}</small>

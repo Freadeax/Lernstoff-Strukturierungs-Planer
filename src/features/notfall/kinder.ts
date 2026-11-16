@@ -1,5 +1,5 @@
 // Notfall-Trainer, Bereich „Kinder und Säuglinge“ (Ausbau 2026-11-13, passend zu den Kinderfällen in
-// Praxis- und Fallsimulator). Grundlage: ERC-Leitlinien 2021 (Paediatric Life Support, Fremdkörperaspiration),
+// Praxis- und Fallsimulator). Grundlage: ERC-Leitlinien 2025 (Paediatric Life Support; Fremdkörperaspiration noch nach ERC 2021, Abgleich offen),
 // gängige Lehrbuchinhalte der Kinderkrankenpflege, Normwertbereiche nach APLS. Fachlich ungeprüft;
 // der Notfallstandard der Einrichtung geht vor. Themen als Text (kein Importzyklus mit aufgaben.ts).
 

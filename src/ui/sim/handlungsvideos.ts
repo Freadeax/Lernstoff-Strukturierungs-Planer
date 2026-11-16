@@ -44,8 +44,9 @@ export const HANDLUNGSVIDEOS: Record<HandlungsVideoId, HandlungsVideoInfo> = {
     freigabe: {
       status: 'ungeprueft', zielgruppe: 'erwachsene', geltung: 'Erwachsene, ambulante Pflege, mit Anziehhilfe', prueferrolle: ROLLE,
       lernziele: ['Anziehen eines Kompressionsstrumpfs mit Anziehhilfe in vier Phasen benennen', 'Sitzkontrolle und Hautbeobachtung als Abschluss kennen'],
-      quellen: [{ titel: 'AWMF S2k-Leitlinie Medizinische Kompressionstherapie der Extremitäten (037-005)', stand: '2018' }, { titel: 'Herstellerangaben der Anziehhilfe', stand: 'je Produkt' }],
-      aenderungen: VERLAUF, risiken: ['geraet'], pruefpunkte: ['Kontraindikationen (z. B. pAVK) im Fall berücksichtigt', 'Schrittfolge gegen Herstellerangaben'],
+      quellen: [{ titel: 'AWMF S2k-Leitlinie Kompressionstherapie der Extremitäten (037-005), Version 5.0', stand: '2026' }, { titel: 'Herstellerangaben der Anziehhilfe', stand: 'je Produkt' }],
+      aenderungen: [...VERLAUF, { datum: '2026-11-16', text: 'Quelle auf AWMF-Leitlinie Version 5.0 (Stand 28.05.2026) gehoben; Ablauf unverändert' }], risiken: ['geraet'],
+      pruefpunkte: ['Kontraindikationen im Fall berücksichtigt (AWMF 2026: u. a. fortgeschrittene pAVK, z. B. Knöchel-Arm-Index unter 0,5 oder Knöcheldruck unter 60 mmHg; dekompensierte Herzinsuffizienz NYHA III/IV; septische Phlebitis; Phlegmasia coerulea dolens)', 'Schrittfolge gegen Herstellerangaben'],
     },
   },
 };

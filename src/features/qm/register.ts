@@ -34,7 +34,8 @@ export const TRAINER_REGISTER: TrainerEintrag[] = [
   eintrag('hygiene', 'Hygiene', '/lernen/hygiene', hygieneGrundlage, {
     geltung: 'Krankenhaus und stationäre Langzeitpflege, ab 1. Ausbildungsjahr', prueferrolle: `${PA} und Hygienefachkraft`,
     lernziele: ['Indikationen der Händedesinfektion sicher anwenden', 'PSA nach Übertragungsweg wählen'],
-    quellen: [q('KRINKO-Empfehlungen (RKI), u. a. Händehygiene', '2016'), q('Infektionsschutzgesetz (IfSG)', '2026'), q('WHO: 5 Moments for Hand Hygiene', '2009')],
+    quellen: [q('KRINKO-Empfehlungen (RKI), u. a. Händehygiene', '2026'), q('Infektionsschutzgesetz (IfSG)', '2026'), q('WHO: 5 Moments for Hand Hygiene', '2009')],
+    aenderungen: [...ANGELEGT('Ins Inhaltsregister aufgenommen, fachliche Prüfung ausstehend'), { datum: '2026-11-16', text: 'Gegen die KRINKO-Änderung 2026 (Warmwasser an Handwaschplätzen nicht mehr Pflicht) durchgesehen: keine Aussage betroffen' }],
     risiken: [], pruefpunkte: ['Abgleich mit dem Hygieneplan der Schule', 'Erregerspezifische Maßnahmen (MRSA, MRGN, Noro, C. diff.)'],
   }),
   eintrag('anatomie', 'Anatomie', '/lernen/anatomie', anatomieGrundlage, {
@@ -58,11 +59,12 @@ export const TRAINER_REGISTER: TrainerEintrag[] = [
   eintrag('notfall', 'Notfall', '/lernen/notfall', notfallGrundlage, {
     geltung: 'Erwachsene, innerklinisch und Langzeitpflege; Kinderfragen getrennt markiert', prueferrolle: 'Reanimationstrainer:in (z. B. ERC-Instruktor:in) und Pflegefachperson mit Praxisanleitung',
     lernziele: ['Kreislaufstillstand erkennen und Basismaßnahmen in richtiger Reihenfolge', 'Akute Notfälle nach ABCDE einschätzen und melden'],
-    quellen: [q('ERC Guidelines: Basic Life Support', '2021'), q('ERC Guidelines: Paediatric Life Support', '2021'), q('Resuscitation Council UK: The ABCDE approach', '2021')],
-    risiken: ['notfall', 'kinder', 'medikament'], pruefpunkte: ['Vollständiger Abgleich mit den ERC-Leitlinien 2025 (BLS-Ablauf schon angepasst)', 'Notfallablauf der Schule und der Einsatzorte'],
+    quellen: [q('ERC Guidelines: Basic Life Support', '2025'), q('ERC Guidelines: Paediatric Life Support', '2025'), q('Resuscitation Council UK: The ABCDE approach', '2021')],
+    risiken: ['notfall', 'kinder', 'medikament'], pruefpunkte: ['Kernangaben (Ablauf, Frequenz, Tiefe, 30:2, 15:2, 5 Beatmungen beim Kind) am 16.11.2026 gegen ERC 2025 abgeglichen', 'Fremdkörperaspiration bei Kindern gegen ERC 2025 lesen', 'Notfallablauf der Schule und der Einsatzorte'],
     aenderungen: [
       { datum: '2026-11-13', text: 'Ins Inhaltsregister aufgenommen, fachliche Prüfung ausstehend' },
       { datum: '2026-11-13', text: 'BLS-Ablauf nach ERC 2025: erst Hilfe rufen, dann Atmung prüfen' },
+      { datum: '2026-11-16', text: 'Quellenstand auf ERC 2025 gehoben; Kernangaben abgeglichen, keine inhaltliche Änderung nötig' },
     ],
   }),
   eintrag('arzneimittel', 'Arzneimittel', '/lernen/arzneimittel', arzneimittelGrundlage, {

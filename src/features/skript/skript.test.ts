@@ -2,7 +2,7 @@ import 'fake-indexeddb/auto';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { LernstoffDB } from '../../core/db';
 import { pflegeModule } from '../../modules/pflege';
-import { definitionen, fragen, istFragenAbschnitt, kartenAusAbschnitt, punkte } from './karten';
+import { definitionen, fragen, istFragenAbschnitt, istQuellenAbschnitt, istRegisterAbschnitt, kartenAusAbschnitt, punkte } from './karten';
 import { findeBelege, gruppenRang, leseBelegKlammer, parseSkript, skriptId, teileTitel } from './parser';
 import { begriffe, klartext, markiere, suche } from './suche';
 import { schlageThemenVor } from './themen';
@@ -282,5 +282,16 @@ describe('Lernfragen', () => {
     const k2 = kartenAusAbschnitt(s, s.abschnitte[2]!);
     expect(k2[0]).toMatchObject({ hinten: 'Nitrate und Betablocker', liste: ['dazu ASS'] });
     expect((k2[0]!.belege ?? []).map((b) => b.printedPage)).toEqual(['AML, S. 213', 'AML, S. 217']);
+  });
+});
+
+describe('Register', () => {
+  it('macht aus Registerabschnitten keine Karteikarten und zählt sie nicht als Lernstoff', () => {
+    const s = parseSkript('AML-00-Register.md', '---\ngruppe: Arzneimittellehre\n---\n# Arzneimittellehre · Kap. 00 Register\n\n**Quellen**\n- **[AML]** Buch\n\n## 1 · Register A\n- **Abacavir:** [Kap. 29, HIV](#/lernen/skript?id=aml-29-infektionen&nr=16) [AML, S. 612]\n', { herkunft: 'repo' });
+    expect(istRegisterAbschnitt(s.abschnitte[0]!)).toBe(true);
+    expect(istQuellenAbschnitt(s.abschnitte[0]!)).toBe(true);
+    expect(kartenAusAbschnitt(s, s.abschnitte[0]!)).toEqual([]);
+    expect(findeBelege(s.abschnitte[0]!.markdown)).toEqual([{ kuerzel: 'AML', stelle: 'S. 612' }]);
+    expect(istRegisterAbschnitt({ titel: 'Registrierung' })).toBe(false);
   });
 });

@@ -115,8 +115,8 @@ export const SZENARIEN: Szenario[] = [
     id: 'sturz-nacht',
     titel: 'Gefunden neben dem Bett',
     setting: 'langzeit',
-    kurz: 'Frau D., 86 Jahre, Pflegeheim, Vorhofflimmern mit Blutverdünner. Bei der Nachtrunde um 3 Uhr liegt sie neben ihrem Bett.',
-    verborgen: 'Sturz mit kleiner Platzwunde an der Stirn, zunächst wach und orientiert, will sofort wieder ins Bett. Wegen des Blutverdünners droht eine Hirnblutung: Wird die Bewusstseinslage nicht in festen Abständen kontrolliert, wird sie nach etwa 3 bis 5 Zügen zunehmend schläfrig, die Pupillen werden ungleich, sie erbricht. Gute Lösung: nicht hochziehen, Verletzungen prüfen, Vitalzeichen und Bewusstsein, Arzt bzw. Notruf wegen Blutverdünner, engmaschige neurologische Kontrolle, Sturzprotokoll, Ursachen (Toilettengang, Licht, Schuhe) klären, Angehörige am Morgen informieren.',
+    kurz: 'Herr D., 86 Jahre, Pflegeheim, Vorhofflimmern mit Blutverdünner. Bei der Nachtrunde um 3 Uhr liegt er neben seinem Bett.',
+    verborgen: 'Sturz mit kleiner Platzwunde an der Stirn, zunächst wach und orientiert, will sofort wieder ins Bett. Wegen des Blutverdünners droht eine Hirnblutung: Wird die Bewusstseinslage nicht in festen Abständen kontrolliert, wird er nach etwa 3 bis 5 Zügen zunehmend schläfrig, die Pupillen werden ungleich, er erbricht. Gute Lösung: nicht hochziehen, Verletzungen prüfen, Vitalzeichen und Bewusstsein, Arzt bzw. Notruf wegen Blutverdünner, engmaschige neurologische Kontrolle, Sturzprotokoll, Ursachen (Toilettengang, Licht, Schuhe) klären, Angehörige am Morgen informieren.',
     topicIds: ['thema.pro.sturz', 'thema.kl.geriatrie', 'thema.beo.bewusstsein', 'thema.fa.langzeit'],
   },
   {

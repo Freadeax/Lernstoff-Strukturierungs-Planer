@@ -272,11 +272,16 @@ function Entscheidung({ s, send }: { s: Session; send: (c: Command) => void }) {
 }
 
 /** „Dein Auftrag“ (Gestaltungsvorlage): Simulationszeit, vier Arbeitsschritte mit Stand, Weg zum Debriefing. */
+/** Porträt passend zum sichtbaren Zustand im Zimmer (nur dort, wo du gerade bist). */
+export function portraetZustand(s: Session): 'stabil' | 'angestrengt' | 'kritisch' {
+  const z = szenenZustand(s);
+  return z.komplikation || z.atemnot >= 2 || z.alarm === 'rot' ? 'kritisch' : z.atemnot >= 1 || z.schmerz >= 2 ? 'angestrengt' : 'stabil';
+}
+
 function Auftrag({ s, uhrLaeuft, onAbschluss }: { s: Session; uhrLaeuft: boolean; onAbschluss: () => void }) {
   const schritte = auftragsSchritte(s);
   const person = personFuer('praxis', s.scenario.id);
-  const z = szenenZustand(s);
-  const zustand = z.komplikation || z.atemnot >= 2 || z.alarm === 'rot' ? 'kritisch' : z.atemnot >= 1 || z.schmerz >= 2 ? 'angestrengt' : 'stabil';
+  const zustand = portraetZustand(s);
   const aktuell = schritte.findIndex(x => !x.erledigt);
   return <aside className="praxis-auftrag" aria-labelledby="praxis-auftrag-titel">
     <h3 id="praxis-auftrag-titel">Dein Auftrag</h3>

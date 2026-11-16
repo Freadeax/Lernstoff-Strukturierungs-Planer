@@ -18,7 +18,7 @@ const KI_PUNKT = 'Verborgener Verlauf und Bewertung der KI: realistisch und ohne
 
 type Eintrag = { lernziele: string[]; geltung: string; risiken: Risiko[]; pruefpunkte?: string[]; quellen?: Freigabe['quellen'] };
 
-const HYPO_Q = { titel: 'JBDS: Hospital management of hypoglycaemia', stand: '2023' };
+const HYPO_Q = { titel: 'JBDS: Hospital management of hypoglycaemia', stand: '2022' };
 const ANAPH_Q = { titel: 'Resuscitation Council UK: Emergency treatment of anaphylaxis', stand: '2021' };
 const ASTHMA_Q = { titel: 'Nationale VersorgungsLeitlinie Asthma', stand: '2024' };
 

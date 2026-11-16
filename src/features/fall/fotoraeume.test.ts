@@ -50,8 +50,9 @@ describe('Fotoräume', () => {
     const r = fotoRaumFuer(herz.id, herz.setting, herz.kurz)!;
     expect(r.marker[0]!.name).toBe('Herr K.');
     expect(r.personPasst).toBe(true);
-    const hueft = SZENARIEN.find((s) => s.id === 'hueft-tep')!;
-    expect(fotoRaumFuer(hueft.id, hueft.setting, hueft.kurz)!.personPasst).toBe(false);
+    // Alle festen KI-Fälle haben ein Foto mit passender Person; sonst erscheint „Beispielfoto“
+    for (const s of SZENARIEN) expect(fotoRaumFuer(s.id, s.setting, s.kurz)!.personPasst, s.id).toBe(true);
+    expect(fotoRaumFuer(herz.id, herz.setting, 'Frau X., 70 Jahre')!.personPasst).toBe(false);
   });
 });
 

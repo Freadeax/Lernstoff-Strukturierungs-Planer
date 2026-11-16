@@ -53,7 +53,9 @@ export function inline(text: string, k: MdKontext, key = 'i'): ReactNode[] {
     else if (t.startsWith('[') && t.endsWith(')')) {
       const lm = t.match(/^\[([^\]]+)\]\(([^)]+)\)$/)!;
       const url = lm[2]!;
-      out.push(/^https?:\/\//.test(url) ? <a key={kk} href={url} target="_blank" rel="noopener noreferrer">{lm[1]}</a> : <Fragment key={kk}>{lm[1]}</Fragment>);
+      // Links in der App (#/lernen/skript?id=…&nr=…) bleiben im selben Fenster, Web-Links öffnen neu
+      if (/^#\/[\w/?=&.%-]*$/.test(url)) out.push(<a key={kk} href={url}>{inline(lm[1]!, k, kk)}</a>);
+      else out.push(/^https?:\/\//.test(url) ? <a key={kk} href={url} target="_blank" rel="noopener noreferrer">{lm[1]}</a> : <Fragment key={kk}>{lm[1]}</Fragment>);
     } else {
       const belege = leseBelegKlammer(t.slice(1, -1), k.bekannte);
       if (belege) {

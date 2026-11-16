@@ -11,7 +11,7 @@ const SBAR: Quelle = { titel: 'AHRQ TeamSTEPPS (SBAR)', stand: '2023' };
 const NEWS2: Quelle = { titel: 'Royal College of Physicians: NEWS2', stand: '2017' };
 const VERLAUF = [{ datum: '2026-11-10', text: 'Fall angelegt' }, { datum: '2026-11-11', text: 'Freigabefelder ergänzt, Prüfung ausstehend' }];
 
-type Eintrag = { lernziele: string[]; geltung: string; risiken: Risiko[]; pruefpunkte?: string[]; quellen?: Quelle[] };
+type Eintrag = { lernziele: string[]; geltung: string; risiken: Risiko[]; pruefpunkte?: string[]; quellen?: Quelle[]; aenderungen?: Freigabe['aenderungen'] };
 
 const FAELLE: Record<string, Eintrag> = {
   'sepsis-pneumonie': { geltung: 'Erwachsene, Innere Station, ab 2. Ausbildungsjahr', risiken: ['notfall'], pruefpunkte: ['Blutkulturen vor Antibiotikum, Laktat-Grenzen', 'Abgleich mit SSC 2026: Antibiotikum möglichst innerhalb 1 Stunde, Erkennen mit Frühwarnscore statt qSOFA allein'],
@@ -38,8 +38,9 @@ const FAELLE: Record<string, Eintrag> = {
   'gi-blutung': { geltung: 'Erwachsene, Unfallchirurgie, ab 2. Ausbildungsjahr', risiken: ['notfall'], pruefpunkte: ['Hb-Verlauf und Schockzeichen, Kreuzblut'],
     quellen: [{ titel: 'ESGE Guideline: Endoscopic diagnosis and management of nonvariceal upper GI hemorrhage', stand: '2021' }],
     lernziele: ['Gastrointestinale Blutung an Klinik und Hb-Verlauf erkennen', 'Kreuzblut und Gerinnung rechtzeitig anfordern', 'Verlauf von Puls und Blutdruck als Schockzeichen deuten'] },
-  hyperkaliaemie: { geltung: 'Erwachsene, Kardiologie, ab 2. Ausbildungsjahr', risiken: ['medikament', 'geraet'], pruefpunkte: ['Hämolyse als Störfaktor, EKG-Überwachung'],
-    quellen: [{ titel: 'UK Kidney Association: Treatment of acute hyperkalaemia in adults', stand: '2020' }],
+  hyperkaliaemie: { geltung: 'Erwachsene, Kardiologie, ab 2. Ausbildungsjahr', risiken: ['medikament', 'geraet'], pruefpunkte: ['Hämolyse als Störfaktor, EKG-Überwachung (12-Kanal-EKG ab Kalium 6,0, Monitor ab 6,5 mmol/l)', 'Blutzucker- und Kaliumkontrollen nach Insulin-Glukose laut UKKA 2026'],
+    quellen: [{ titel: 'UK Kidney Association: Management of hyperkalaemia in adults', stand: '2026' }],
+    aenderungen: [{ datum: '2026-11-16', text: 'An UKKA-Leitlinie 07/2026 angepasst: Insulin-Glukose-Dosis, Blutzucker bis 6 Stunden, Kaliumkontrollen' }],
     lernziele: ['Kritisches Kalium von einer hämolytischen Probe unterscheiden', 'Monitor anschließen und Rhythmus beobachten', 'Kritischen Wert sofort ärztlich melden'] },
   'akutes-nierenversagen': { geltung: 'Erwachsene, Innere Station, ab 2. Ausbildungsjahr', risiken: ['medikament'], pruefpunkte: ['Oligurie-Grenzen, Kreatinin-Verlauf'],
     quellen: [{ titel: 'KDIGO Clinical Practice Guideline for Acute Kidney Injury', stand: '2012' }],
@@ -54,7 +55,7 @@ export function freigabeFuer(fall: Pick<DiagnostikFall, 'id' | 'patient'>): Frei
   return {
     status: 'ungeprueft', lernziele: e.lernziele, geltung: e.geltung, zielgruppe,
     quellen: [PRAEANALYTIK, SBAR, ...(zielgruppe === 'erwachsene' ? [NEWS2] : []), ...(e.quellen ?? [])],
-    prueferrolle: ROLLE, aenderungen: VERLAUF, risiken: e.risiken, pruefpunkte: e.pruefpunkte ?? [],
+    prueferrolle: ROLLE, aenderungen: [...VERLAUF, ...(e.aenderungen ?? [])], risiken: e.risiken, pruefpunkte: e.pruefpunkte ?? [],
   };
 }
 
