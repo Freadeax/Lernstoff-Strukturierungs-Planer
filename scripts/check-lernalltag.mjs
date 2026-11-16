@@ -131,6 +131,14 @@ try {
     await zeile.getByText('Falsch zugeordnet?').click();
     await zeile.getByRole('button', { name: 'Nicht zu diesem Thema' }).click();
     await page.locator('.thema__liste li', { hasText: 'Testdokument Pflege' }).waitFor({ state: 'detached' });
+    // 5-Minuten-Einheit und Themen-Netz
+    await page.goto(base + '#/lernen/thema?id=thema.ph.hygiene', { waitUntil: 'networkidle' });
+    await page.getByRole('button', { name: '5-Minuten-Einheit' }).click();
+    await page.getByRole('heading', { name: 'Kurz erklärt' }).waitFor();
+    await axe(page, '5-Minuten-Einheit: Kurz erklärt');
+    await page.getByRole('button', { name: 'Weiter zu den Fragen' }).click();
+    await page.getByRole('button', { name: 'Prüfen', exact: true }).waitFor();
+    await axe(page, '5-Minuten-Einheit: Fragen');
     await page.goto(base + '#/lernen/thema?id=thema.eigen.test-a', { waitUntil: 'networkidle' });
     await page.getByRole('heading', { name: 'Eigenes Thema verwalten' }).waitFor();
     // Erst wenn Verknüpfungen und Themenauswahl geladen sind, rendert die Seite nicht mehr nach.
