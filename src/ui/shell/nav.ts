@@ -30,6 +30,7 @@ export const NAV: NavItem[] = [
       { id: 'karten', label: 'Karteikarten', path: '/lernen/karten', icon: 'cards' },
       { id: 'schnellsuche', label: 'Standard-Schnellsucher', path: '/lernen/schnellsuche', icon: 'search' },
       { id: 'landkarte', label: 'Themen-Landkarte', path: '/lernen/landkarte', icon: 'map' },
+      { id: 'physiologie', label: 'Physiologie-Modelle', path: '/lernen/physiologie', icon: 'pulse' },
       { id: 'board', label: 'Mein Themenboard', path: '/lernen/board', icon: 'board' },
       { id: 'einsatz', label: 'Praxiseinsatz', path: '/lernen/einsatz', icon: 'user' },
       { id: 'fortschritt', label: 'Fortschritt', path: '/lernen/fortschritt', icon: 'gauge' },

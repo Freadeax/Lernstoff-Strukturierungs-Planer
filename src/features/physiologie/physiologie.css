@@ -1,0 +1,48 @@
+.phy__panel { display: flex; flex-direction: column; gap: var(--space-3); }
+.phy__rahmen { display: grid; gap: var(--space-3); grid-template-columns: minmax(0, 1fr); }
+@container content (min-width: 760px) { .phy__rahmen { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); } }
+.phy__regler-spalte, .phy__bild-spalte { display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; }
+.phy__regler input[type='range'] { width: 100%; min-height: 32px; }
+.phy__regler-kopf { display: flex; justify-content: space-between; gap: var(--space-2); }
+.phy__hilfe { font-size: 0.75rem; }
+.phy__gruppe { border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-2) var(--space-3); margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.phy__gruppe legend { font-weight: 600; font-size: 0.8125rem; padding: 0 4px; }
+.phy__schalter { display: flex; align-items: center; gap: var(--space-2); min-height: 32px; font-size: 0.875rem; }
+.phy__svg { width: 100%; height: auto; max-height: 320px; }
+.phy__werte { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: var(--space-2); }
+.phy__wert { display: flex; flex-direction: column; gap: 2px; padding: var(--space-2); border-radius: var(--radius-sm); background: var(--color-surface-sunken); }
+.phy__wert .muted { font-size: 0.75rem; }
+.phy__wert--warn { background: var(--color-warning-soft); }
+.phy__hinweise { margin: 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 6px; font-size: 0.875rem; }
+.phy__tabelle { width: 100%; font-size: 0.8125rem; border-collapse: collapse; }
+.phy__tabelle th, .phy__tabelle td { text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--color-border); }
+.phy__auftraege { display: flex; flex-direction: column; gap: var(--space-2); }
+.phy__auftraege h2 { font-size: 1.0625rem; margin: 0; }
+.phy__auftraege ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.phy__auftrag { display: flex; gap: var(--space-2); font-size: 0.875rem; }
+.phy__auftrag p { margin: 4px 0 0; font-size: 0.8125rem; }
+.phy__auftrag--ok > span:first-child { color: var(--color-success); font-weight: 700; }
+.phy__modellhinweis { font-size: 0.75rem; margin: 0; }
+
+/* Zeichnungen: Farben aus den Tokens, damit Hell und Dunkel stimmen */
+.phy__beschriftung { font-size: 9px; fill: var(--color-text); }
+.phy__beschriftung--hell { fill: var(--color-on-accent); font-weight: 700; }
+.phy__muskel { fill: var(--color-coral); opacity: 0.55; }
+.phy__blut { fill: var(--color-danger); }
+.phy__gefaess { fill: none; stroke: var(--color-danger); stroke-width: 3; }
+.phy__fluss { stroke: var(--color-danger); stroke-linecap: round; opacity: 0.7; }
+.phy__last { fill: var(--color-text-muted); opacity: 0.6; }
+.phy__schicht--0 { fill: var(--color-sun); opacity: 0.35; }
+.phy__schicht--1 { fill: var(--color-coral); opacity: 0.3; }
+.phy__schicht--2 { fill: var(--color-warning-soft); }
+.phy__schicht--3 { fill: var(--color-danger-soft); }
+.phy__knochen { fill: var(--color-surface-sunken); stroke: var(--color-border-strong); }
+.phy__schaden { fill: var(--color-ink); }
+.phy__region { fill: var(--color-surface-sunken); stroke: var(--color-border-strong); }
+.phy__region--unten { fill: var(--color-info-soft); }
+.phy__luft { fill: var(--color-primary); }
+.phy__blutbalken { fill: var(--color-danger); }
+.phy__zielbereich { fill: var(--color-success-soft); }
+.phy__grenze { stroke: var(--color-warning); stroke-dasharray: 4 3; }
+.phy__bewegung { fill: var(--color-info-soft); opacity: 0.6; }
+.phy__kurve { fill: none; stroke: var(--color-primary); stroke-width: 2.5; stroke-linejoin: round; }

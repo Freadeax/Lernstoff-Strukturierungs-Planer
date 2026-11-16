@@ -5,6 +5,7 @@
 export interface Neuigkeit { datum: string; titel: string; text: string; pfad: string }
 
 export const NEUIGKEITEN: Neuigkeit[] = [
+  { datum: '2026-11-16', titel: 'Physiologie-Modelle', text: 'An Reglern drehen und die Folge sehen: Herz und Kreislauf mit Betablocker, ACE-Hemmer und Diuretikum, Haut und Dekubitus (Druck mal Zeit), Lunge und Lagerung, Blutzucker mit Mahlzeit, Insulin und Bewegung. Mit kleinen Aufträgen zum Ausprobieren.', pfad: '/lernen/physiologie' },
   { datum: '2026-11-16', titel: '5-Minuten-Einheit und Themen-Netz', text: 'Auf jeder Themenseite: „5-Minuten-Einheit“ mit kurz erklärten Fachbegriffen, drei Fragen aus dem passenden Trainer und einer Karte zum Mitnehmen. Darunter das Themen-Netz: Welche Themen über ein Krankheitsbild oder als Voraussetzung zusammenhängen.', pfad: '/lernen/themen' },
   { datum: '2026-11-16', titel: 'Gesprächssimulator', text: 'Aufgebrachte Angehörige, abgelehntes Medikament, Demenz am Abend, Angst vor der OP: mit festen Antworten offline und Rückmeldung zu jeder Antwort (Technik, Wirkung, Begründung) oder frei mit Claude in der Rolle des Gegenübers, auch per Sprache.', pfad: '/lernen/gespraech' },
   { datum: '2026-11-16', titel: 'CE mit Lehrplan-Stunden und Kompetenzen', text: 'Jede curriculare Einheit zeigt jetzt die Unterrichtsstunden je Ausbildungsdrittel und die Kompetenzen aus Anlage 1 und 2 PflAPrV, die der Landeslehrplan Baden-Württemberg ihr zuordnet.', pfad: '/lernen/ce' },
