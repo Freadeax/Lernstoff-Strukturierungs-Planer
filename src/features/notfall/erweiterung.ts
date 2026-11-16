@@ -1,5 +1,5 @@
 // Notfall-Trainer, Ausbau: Anwenden (Zuordnen, Ordnen) und Transfer (Fälle in mehreren Schritten).
-// Grundlage wie aufgaben.ts: ERC-Leitlinien 2021 (BLS Erwachsene), ABCDE-Schema, gängige Lehrbuchinhalte.
+// Grundlage wie aufgaben.ts: ERC-Leitlinien 2025 (BLS Erwachsene), ABCDE-Schema, gängige Lehrbuchinhalte.
 // Der Notfallstandard der Einrichtung geht vor. Themen als Text (kein Importzyklus mit aufgaben.ts).
 
 import type { Aufgabe } from '../quiz/quiz';

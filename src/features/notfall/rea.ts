@@ -1,4 +1,4 @@
-// Reanimationsübung (angelehnt an ERC 2021): Ablauf, Profile, Szenarien und Auswertung. Rein und ohne
+// Reanimationsübung (angelehnt an ERC 2025, abgeglichen am 16.11.2026 über die gleichlautenden Leitlinien des Resuscitation Council UK): Ablauf, Profile, Szenarien und Auswertung. Rein und ohne
 // DOM, damit Taktmessung und Auswertung testbar sind.
 // Audit (Notfall-Trainer): Erwachsene, Kinder und Neugeborene sind getrennte Profile mit eigenem Ablauf,
 // eigenem Verhältnis, eigener Freigabe und eigenem Leitlinienstand (siehe freigaben.ts).
@@ -47,7 +47,7 @@ export const SZENARIEN: ReaSzenario[] = [
 
 /** Erste Schritte, bis die erste Kompression erfolgt. Reihenfolge ist Teil der Übung. */
 export interface ErkennenSchritt { id: string; label: string; folge: string }
-/** Erwachsene (ERC 2021 BLS/ALS im Krankenhaus). Der letzte Schritt beginnt die Kompressionen. */
+/** Erwachsene (ERC 2025 BLS/ALS im Krankenhaus). Der letzte Schritt beginnt die Kompressionen. */
 export const ERKENNEN: ErkennenSchritt[] = [
   { id: 'ansprechen', label: 'Laut ansprechen und an den Schultern rütteln', folge: 'Keine Reaktion.' },
   { id: 'hilfe', label: 'Laut um Hilfe rufen', folge: 'Eine Kollegin kommt dazu.' },
@@ -65,7 +65,7 @@ export const ABLENKER: ErkennenSchritt[] = [
 
 export const ZIEL = { min: 100, max: 120 } as const;
 
-/** Kinder (ERC 2021 Paediatric Life Support): erst 5 Beatmungen, dann 15:2. */
+/** Kinder (ERC 2025 Paediatric Life Support): erst 5 Beatmungen, dann 15:2. */
 const ERKENNEN_KIND: ErkennenSchritt[] = [
   { id: 'ansprechen', label: 'Laut ansprechen und vorsichtig an den Schultern berühren', folge: 'Keine Reaktion.' },
   { id: 'hilfe', label: 'Laut um Hilfe rufen, zweite Person alarmiert sofort das Kinderreanimationsteam', folge: 'Eine Kollegin löst den Notfallalarm aus und holt den Defibrillator.' },
@@ -80,7 +80,7 @@ const ABLENKER_KIND: ErkennenSchritt[] = [
   { id: 'eltern', label: 'Zuerst die Eltern verständigen', folge: 'Kostet jetzt Zeit. Eine Person aus dem Team kümmert sich um die Eltern, sobald genug Hilfe da ist.' },
 ];
 
-/** Neugeborene (ERC 2021 Newborn Life Support): Wärme, Atemweg, Blähen, Beatmen, erst dann 3:1. */
+/** Neugeborene (ERC 2025 Newborn Life Support: 5 Blähbeatmungen je 2–3 s, Kompressionen erst bei Herzfrequenz unter 60/min nach mindestens 30 s wirksamer Beatmung): Wärme, Atemweg, Blähen, Beatmen, erst dann 3:1. */
 const ERKENNEN_NEU: ErkennenSchritt[] = [
   { id: 'waerme', label: 'Abtrocknen, in warme Tücher wickeln, Uhr starten', folge: 'Das Kind liegt warm unter der Wärmelampe. Es bleibt schlaff und atmet nicht.' },
   { id: 'beurteilen', label: 'Muskeltonus, Atmung und Herzfrequenz beurteilen, Hilfe rufen', folge: 'Herzfrequenz mit dem Stethoskop etwa 40/min. Das Neonatologieteam ist alarmiert.' },
@@ -224,7 +224,7 @@ export function hinweise(a: Auswertung, profil: ReaProfil = PROFILE.erwachsene):
 
 const zahl = (x: number) => x.toLocaleString('de-DE', { maximumFractionDigits: 2 });
 
-/** Medikamentenhinweis nach ERC 2021 (Gabe nur auf ärztliche Anordnung bzw. durch das Reanimationsteam). */
+/** Medikamentenhinweis nach ERC 2025 (Gabe nur auf ärztliche Anordnung bzw. durch das Reanimationsteam). */
 export function medikamentHinweis(rhythmen: Analyse[], schocks: number, profil: ProfilId = 'erwachsene', gewichtKg?: number): string | null {
   if (profil === 'neugeborene') {
     // Zweite Kontrolle unter 60/min trotz Kompressionen und Beatmung
@@ -237,11 +237,12 @@ export function medikamentHinweis(rhythmen: Analyse[], schocks: number, profil: 
   const amiodaron = kind ? `Amiodaron 5 mg/kg (bei ${zahl(gewichtKg)} kg ${zahl(gewichtKg * 5)} mg)` : 'Amiodaron 300 mg i.v.';
   if (rhythmen[0] === 'asystolie' || rhythmen[0] === 'pea') return rhythmen.length === 1 ? `Nicht schockbar: ${adrenalin} so früh wie möglich, danach alle 3–5 Minuten (Team vorbereiten lassen).` : null;
   if (schocks === 3) return `Nach dem 3. Schock: ${adrenalin} und ${amiodaron} (Team vorbereiten lassen).`;
+  if (schocks === 5 && !kind) return 'Nach dem 5. Schock: Amiodaron 150 mg i.v.; Adrenalin weiter alle 3–5 Minuten (Team vorbereiten lassen).';
   return null;
 }
 
-/** Schockenergie: Kinder 4 J/kg (ERC 2021 PLS), Erwachsene nach Gerät. */
+/** Schockenergie: Kinder 4 J/kg, höchstens 120–200 J je nach Gerät (ERC 2025 PLS), Erwachsene nach Gerät. */
 export function schockEnergie(profil: ProfilId, gewichtKg?: number): string {
-  if (profil === 'kinder' && gewichtKg) return `4 J/kg, bei ${zahl(gewichtKg)} kg ${Math.min(gewichtKg * 4, 360)} J`;
+  if (profil === 'kinder' && gewichtKg) return `4 J/kg, bei ${zahl(gewichtKg)} kg ${Math.min(gewichtKg * 4, 200)} J${gewichtKg * 4 > 120 ? ' (Obergrenze 120–200 J je nach Gerät)' : ''}`;
   return 'Energie nach Gerät und Standard (biphasisch)';
 }

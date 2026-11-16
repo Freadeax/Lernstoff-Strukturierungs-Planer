@@ -75,7 +75,7 @@ export const GESETZE: QuellenEintrag[] = [
     aktuell: { stand: 'geändert 2026', erschienen: '2026-01-01', fundstelle: 'https://www.bundesgesundheitsministerium.de/service/gesetze-und-verordnungen/detail/gesetz-befugniserweiterung-entbuerokratisierung-pflege.html' },
     geprueftAm: HEUTE_GEPRUEFT, beobachten: GII('pflbg'), intervallMonate: 6,
     kern: 'Gesetz zur Befugniserweiterung und Entbürokratisierung in der Pflege vom 29.12.2025 (BGBl. 2025 I Nr. 371), in Kraft seit 1.1.2026: Pflegefachpersonen erhalten erweiterte, eigenständige Befugnisse.',
-    offen: 'Recht-Trainer (Bereich Delegation, Vorbehaltsaufgaben § 4 PflBG) und Glossar gegen den geänderten Gesetzestext abgleichen; die Inhalte wurden vor der Änderung geschrieben.',
+    offen: 'Die Vertiefung zur Substitution nennt seit 16.11.2026 den neuen § 4a PflBG (eigenständige Ausübung von Heilkunde). Den genauen Gesetzeswortlaut von § 4a und § 14a noch lesen und den Bereich Delegation im Recht-Trainer sowie das Glossar dagegen prüfen.',
   },
   {
     id: 'gesetz.pflfassg', titel: 'Pflegefachassistenzgesetz', herausgeber: 'Bundesgesetzgeber', art: 'gesetz', muster: /Pflegefachassistenz/,
@@ -150,6 +150,7 @@ export const LEITLINIEN: QuellenEintrag[] = [
     aktuell: { stand: '2026', erschienen: '2026-08-29', fundstelle: 'https://www.acc.org/Latest-in-Cardiology/Articles/2026/08/29/08/48/mon-guidelines-esc-2026' },
     geprueftAm: HEUTE_GEPRUEFT, beobachten: 'https://www.escardio.org/Guidelines', intervallMonate: 12,
     kern: 'Neue Fassung 2026: Stadien von der Vorbeugung bis zur fortgeschrittenen Erkrankung, vereinfachte Einteilung nach Auswurfleistung, „dekompensierte“ statt „akute“ Herzinsuffizienz.',
+    hinweis: 'Begriff „dekompensierte Herzinsuffizienz“ im Diagnostik-Fall seit 16.11.2026 übernommen. Die Fälle bleiben auf Stand 2021, bis NT-proBNP-Grenzen und die Selbstpflege-Regeln (Gewicht 2 kg in 3 Tagen, Trinkmenge) im Volltext 2026 nachgelesen sind.',
   },
   {
     id: 'esc.le', titel: 'ESC-Leitlinie akute Lungenembolie', herausgeber: 'European Society of Cardiology', art: 'leitlinie', muster: /ESC Guidelines on acute pulmonary embolism/,
@@ -186,6 +187,7 @@ export const LEITLINIEN: QuellenEintrag[] = [
     aktuell: { stand: '2026', fundstelle: 'https://ginasthma.org/2026-gina-strategy-report/' },
     geprueftAm: HEUTE_GEPRUEFT, beobachten: 'https://ginasthma.org/reports/', intervallMonate: 12,
     kern: 'Jährliche Neufassung. Bericht 2026 mit überarbeiteten Kapiteln zum akuten Asthma bei Erwachsenen und Kindern.',
+    hinweis: 'Der Kinder-Asthma-Fall steht auf GINA 2024. Der Bericht 2026 war am 16.11.2026 nicht frei lesbar; Abgleich bleibt offen, bis die Kapitel zum akuten Asthma beim Kind vorliegen.',
   },
   {
     id: 'nice.ng9', titel: 'NICE NG9: Bronchiolitis in children', herausgeber: 'NICE', art: 'leitlinie', muster: /^NICE NG9/,
@@ -200,7 +202,7 @@ export const LEITLINIEN: QuellenEintrag[] = [
     id: 'jbds.hypo', titel: 'JBDS: Hospital management of hypoglycaemia in adults with diabetes', herausgeber: 'Joint British Diabetes Societies', art: 'leitlinie', muster: /^JBDS(: (The )?[Hh]ospital management of hypoglycaemia)/,
     aktuell: { stand: '2022', erschienen: '2022-03-23', fundstelle: 'https://diabetestimes.co.uk/updated-jbds-hypoglycaemia-management-guideline-published/' },
     geprueftAm: HEUTE_GEPRUEFT, beobachten: 'https://abcd.care/', intervallMonate: 12,
-    hinweis: 'Die Inhalte nennen den Stand 2023; die zuletzt veröffentlichte Fassung ist vom März 2022. Jahreszahl in den Quellenangaben prüfen.',
+    hinweis: 'Fassung März 2022 (JBDS-01). Die Inhalte nannten zuvor irrtümlich 2023; seit 16.11.2026 korrigiert.',
   },
   {
     id: 'jbds.dka', titel: 'JBDS-IP: Management of diabetic ketoacidosis in adults', herausgeber: 'Joint British Diabetes Societies', art: 'leitlinie', muster: /^JBDS-IP: Management of diabetic ketoacidosis/,
@@ -221,7 +223,7 @@ export const LEITLINIEN: QuellenEintrag[] = [
     aktuell: { stand: '2026 (Änderung der Fassung 2016)', erschienen: '2026-08-06', fundstelle: 'https://www.ptaheute.de/aktuelles/2026/09/09/medizinisches-haendewaschen-kaltes-wasser-genuegt' },
     geprueftAm: HEUTE_GEPRUEFT, beobachten: 'https://www.rki.de/', intervallMonate: 6,
     kern: 'Aktualisierung der Händehygiene-Empfehlung (Epidemiologisches Bulletin 32/2026): Warmwasser an medizinischen Handwaschplätzen ist nicht mehr verpflichtend. Händedesinfektion bleibt unverändert die wichtigste Maßnahme.',
-    offen: 'Hygiene-Trainer auf Aussagen zu Handwaschplätzen und Wassertemperatur durchsehen; danach Stand der Quellenangabe auf 2026 setzen.',
+    hinweis: 'Die Änderung betrifft laut Fachpresse nur die Ausstattung medizinischer Handwaschplätze. Der Hygiene-Trainer enthält dazu keine Aussage (am 16.11.2026 durchgesehen). Den Originaltext beim RKI bei der nächsten Prüfung lesen.',
   },
   {
     id: 'who.haendehygiene', titel: 'WHO: 5 Moments for Hand Hygiene', herausgeber: 'WHO', art: 'empfehlung', muster: /^WHO: 5 Moments/,

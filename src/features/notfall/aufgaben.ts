@@ -1,5 +1,5 @@
 // Notfall-Trainer: Basismaßnahmen der Reanimation, ABCDE-Einschätzung und typische Notfälle auf Station.
-// Grundlage: Leitlinien des European Resuscitation Council (ERC 2021, Basic Life Support Erwachsene;
+// Grundlage: Leitlinien des European Resuscitation Council (ERC 2025, Basic Life Support Erwachsene, seit 16.11.2026 abgeglichen;
 // Ablauf „erst Hilfe rufen, dann Atmung prüfen“ seit 13.11.2026 nach ERC 2025, fachliche Freigabe offen)
 // und gängige Lehrbuchinhalte. Interne Notfallabläufe der Einrichtung gehen vor.
 

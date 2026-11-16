@@ -180,7 +180,8 @@ describe('KI-Fragensätze und Überarbeitungsliste', () => {
 
   it('sortiert Meldungen „falsch“ und veraltete Notfall-Leitlinie nach oben', () => {
     const m = melde({ quelle: 'notfall', aufgabeId: 'bls.frequenz', fp: '', titel: 'T', frage: 'F', grund: 'falsch' });
-    const liste = ueberarbeitungsliste({ pools: POOLS, register: TRAINER_REGISTER, meldungen: [m], statistik: {}, heute: '2026-11-13' });
+    const alt = { ...TRAINER_REGISTER.find((r) => r.quelle === 'notfall')!.freigabe, quellen: [{ titel: 'ERC Guidelines: Basic Life Support', stand: '2021' }] };
+    const liste = ueberarbeitungsliste({ pools: POOLS, register: TRAINER_REGISTER, meldungen: [m], statistik: {}, heute: '2026-11-13', weitereFreigaben: [{ name: 'Alter Notfallfall', pfad: '/lernen/notfall', freigabe: alt }] });
     expect(liste[0]?.art).toBe('meldung');
     expect(liste.filter((e) => e.prio === 1).map((e) => e.art)).toContain('quelle');
     expect(liste.some((e) => e.art === 'geaendert')).toBe(false);   // ohne Prüfvermerk gibt es nichts „seit Prüfung“

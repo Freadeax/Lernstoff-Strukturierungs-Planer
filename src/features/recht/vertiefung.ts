@@ -103,7 +103,7 @@ export const VERTIEFUNG: Record<string, string[]> = {
     'Dazu passt die Pflegeplanung: Pflegehilfskräfte können Maßnahmen durchführen, aber den Pflegeprozess steuern und evaluieren müssen Pflegefachpersonen.',
   ],
   'de.substitution': [
-    'Bei Substitution trägt die Pflegefachperson die volle Verantwortung für Diagnose, Entscheidung und Durchführung in dem übertragenen Bereich. Bisher gibt es sie vor allem in Modellvorhaben nach SGB V.',
+    'Bei Substitution trägt die Pflegefachperson die volle Verantwortung für Diagnose, Entscheidung und Durchführung in dem übertragenen Bereich. Bis 2025 gab es sie vor allem in Modellvorhaben nach SGB V. Seit 1. Januar 2026 regelt § 4a PflBG die eigenverantwortliche Heilkundeausübung durch Pflegefachpersonen (Gesetz zur Befugniserweiterung und Entbürokratisierung in der Pflege); welche Aufgaben dazugehören, beschreiben standardisierte Kompetenzbeschreibungen nach § 14a PflBG.',
     'Typische Bereiche in der Diskussion sind Wundversorgung, Diabetes und Demenz. Die Rechtslage entwickelt sich weiter, deshalb immer die aktuelle Fassung prüfen.',
   ],
   'de.ausbildung': [
