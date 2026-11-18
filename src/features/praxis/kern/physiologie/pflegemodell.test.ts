@@ -88,6 +88,7 @@ describe('Pflege-Physiologiemodell: Treiber fachlich plausibel', () => {
       expect(r.a.temp).toBeGreaterThanOrEqual(38.5);
       expect(r.a.hf).toBeGreaterThan(110);
       expect(r.a.rrSys).toBeLessThan(100);
+      expect(r.a.rrSys - r.a.rrDia!).toBeGreaterThanOrEqual(40);  // Vasodilatation: Diastole fällt stärker
       expect(fruehwarnung(r.a, 'erwachsen', false, false).punkte!).toBeGreaterThanOrEqual(5);
       const alt = lauf('hochbetagt', 180, [{ art: 'sepsis_verlauf', tempo: 1 }]);
       expect(alt.a.temp).toBeLessThan(r.a.temp);                  // Hochbetagte fiebern weniger
@@ -146,6 +147,9 @@ describe('Pflege-Physiologiemodell: Treiber fachlich plausibel', () => {
       expect(r.g.angst).toBeGreaterThan(0.5);
       expect(r.a.af).toBeGreaterThan(20);
       expect(atmung(r.g, r.k).paCO2).toBeLessThan(35);     // Hyperventilation
+      const voll = lauf('erwachsen', 60, [{ art: 'panik_eskaliert', tempo: 2 }]);
+      expect(voll.a.hf).toBeGreaterThanOrEqual(110);          // Panikattacke: deutliche Tachykardie
+      expect(voll.a.af).toBeGreaterThanOrEqual(26);
     },
     fieberkrampf_kind: () => {
       const tr: Treiber[] = [{ art: 'fieberkrampf_kind', temperaturSchwelle: 39.5 }];
@@ -154,6 +158,8 @@ describe('Pflege-Physiologiemodell: Treiber fachlich plausibel', () => {
       const anfall = verlauf.findIndex((r) => r.g.krampf > 0);
       expect(anfall).toBeGreaterThan(0);
       expect(verlauf[anfall].a.avpu).not.toBe('A');
+      expect(verlauf[anfall].a.spo2).toBeLessThanOrEqual(90);  // Hypoventilation im Anfall
+      expect(PFLEGE_MODELL.anzeige({ ...verlauf[anfall].g, sauerstoff: 4 }, verlauf[anfall].k).spo2).toBeGreaterThanOrEqual(94);
       expect(verlauf[4].g.krampf).toBeLessThan(0);            // nur ein Anfall, danach postiktal
       expect(verlauf[4].a.avpu).toBe('A');
     },

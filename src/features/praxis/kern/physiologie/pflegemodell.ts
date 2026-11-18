@@ -87,6 +87,9 @@ const staerke = (treiber: readonly Treiber[], art: 'bronchospasmus' | 'pneumonie
   treiber.reduce((s, t) => (t.art === art ? Math.max(s, t.staerke) : s), 0);
 const sepsisTempo = (treiber: readonly Treiber[]) => treiber.reduce((s, t) => (t.art === 'sepsis_verlauf' ? Math.max(s, t.tempo) : s), 0);
 
+/** Panik: Angst oberhalb 0,6 wirkt überproportional (Hyperventilation, Tachykardie) 0..1 */
+const panik = (g: Grundgroessen) => klemme((g.angst - 0.6) / 0.4, 0, 1);
+
 const basisVon = (k: ModellKontext) => k.basis ?? NORMAL;
 const off = (k: ModellKontext, g: keyof Grundgroessen) => k.wirkung?.[g] ?? 0;
 const gewicht = (k: ModellKontext, p: Altersprofil) => k.gewichtKg ?? p.gewichtKg;
@@ -120,9 +123,12 @@ export function atmung(g: Grundgroessen, k: ModellKontext): AtmungDetail {
   const erschoepfung = g.atemarbeit <= 2 ? 1 : klemme(1 - 0.35 * (g.atemarbeit - 2), 0.3, 1);
   const fieber = Math.max(0, g.temperatur - 37);
   const wach = klemme(g.vigilanz * 1.2, 0, 1);
+  const pan = panik(g);
   const va = beatmung
     ? klemme((beatmung.af * beatmung.vt) / (14 * 500), 0.1, 3)
-    : klemme(g.atemantrieb * (1 + 0.3 * g.angst * wach + 0.06 * fieber + 0.2 * Math.max(0, 1 - g.gasaustausch)) * erschoepfung, 0.15, 3);
+    : klemme(g.atemantrieb * (1 + 0.3 * g.angst * wach + 0.4 * pan * wach + 0.06 * fieber + 0.2 * Math.max(0, 1 - g.gasaustausch)) * erschoepfung
+      // Krampfanfall: Atempausen und unkoordinierte Atmung → Hypoventilation, SpO₂ fällt ohne O₂
+      * (g.krampf > 0 ? 0.45 : 1), 0.15, 3);
   const paCO2 = klemme(40 / va, 18, 130);
   const pAO2 = Math.max(0, fio2 * 713 - paCO2 / 0.8);
   const verlust = Math.max(0, 1 - g.gasaustausch);
@@ -139,7 +145,7 @@ export function atmung(g: Grundgroessen, k: ModellKontext): AtmungDetail {
   const kr0 = kreislaufRoh(g, k);
   const schock = Math.max(0, 1 - perf) + kr0.defizit;
   let af = p.ruheAF * g.atemantrieb ** 1.4 * (1 + 0.45 * (g.atemarbeit - 1)) * (1 + 4 * hypox * Math.min(1, g.atemantrieb) ** 2)
-    + p.ruheAF * (0.5 * g.angst * wach + 0.1 * fieber + 0.8 * schock);
+    + p.ruheAF * (0.5 * g.angst * wach + 0.9 * pan * wach + 0.1 * fieber + 0.8 * schock);
   if (g.krampf > 0) af *= 0.5;
   if (beatmung) af = beatmung.af;
   const dyspnoe = klemme(0.5 * (g.atemarbeit - 1) + 3 * hypox + 0.3 * schock, 0, 1);
@@ -189,8 +195,8 @@ function kreislaufRoh(g: Grundgroessen, k: ModellKontext, saO2 = 0.97): Kreislau
   const defizit = Math.max(0, (REF.map - m0) / REF.map);
   const fieber = Math.max(0, g.temperatur - 37);
   const opioid = hill(1 - g.atemantrieb, 0.5); // gedämpfter Antrieb ≈ Sedierung
-  const stress = 0.12 * fieber + 0.25 * g.angst * klemme(g.vigilanz * 1.2, 0, 1) + 0.015 * g.schmerz + 0.1 * g.unruhe
-    + 2.5 * Math.max(0, 0.92 - saO2) + (g.blutzucker < 60 ? 0.2 : 0) + (g.krampf > 0 ? 0.4 : 0);
+  const stress = 0.12 * fieber + (0.25 * g.angst + 0.45 * panik(g)) * klemme(g.vigilanz * 1.2, 0, 1) + 0.015 * g.schmerz + 0.1 * g.unruhe
+    + 2.5 * Math.max(0, 0.92 - saO2) + (g.blutzucker < 60 ? 0.2 : 0) + (g.krampf > 0 ? 0.15 : 0);
   const daempfung = 0.15 * opioid + (g.temperatur < 35 ? (35 - g.temperatur) * 0.08 : 0);
   let rel = 1 + p.baroGain * (2.6 * defizit + 6 * defizit * defizit) + stress + 0.35 * dyspnoeKreislauf(g) - daempfung;
   // Schwere Hypoxie: präfinale Bradykardie (besonders bei Kindern)
@@ -206,7 +212,9 @@ function kreislaufRoh(g: Grundgroessen, k: ModellKontext, saO2 = 0.97): Kreislau
   const stillstand = g.pumpleistung < 0.1 || h.map < 20;
   const perfusion = stillstand ? 0 : h.hzv / REF.hzv;
   const sys = stillstand ? 0 : (h.sys * druckFaktor * p.rrSys) / REF.sys;
-  const dia = stillstand ? 0 : (h.dia * druckFaktor * p.rrDia) / REF.dia;
+  // Weitgestellte Gefäße (Sepsis, Vasodilatation): Diastole fällt stärker als die Systole (große Druckamplitude)
+  const diaFaktor = 1 - 0.5 * (1 - klemme(g.gefaesstonus, 0.2, 1));
+  const dia = stillstand ? 0 : (h.dia * druckFaktor * diaFaktor * p.rrDia) / REF.dia;
   // Zentralisation: Der Barorezeptor-Reflex verengt die Hautgefäße, die Rekapillarisierung wird lang, bevor der Druck fällt
   const rekap = stillstand ? 8 : klemme(2 / Math.max(0.2, perfusion) ** 0.8 + 12 * defizit + 3 * Math.max(0, 0.9 - g.hydratation) + (g.temperatur < 35.5 ? 1 : 0), 1, 8);
   return {
