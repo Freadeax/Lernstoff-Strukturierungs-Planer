@@ -58,6 +58,9 @@ export interface Grundgroessen {
   schmerz: number;               // NRS 0..10
   angst: number;                 // 0..1
   uebelkeit: number;             // 0..1
+  // Zusätze Paket P1 (Physiologie)
+  sauerstoff: number;            // O₂-Zufuhr in l/min (0 = Raumluft); Maßnahme O₂-Gabe als Wirkkurve delta
+  krampf: number;                // 0 = kein Anfall, > 0 = Krampfaktivität, < 0 = nach dem Anfall (postiktal, kehrt zu 0 zurück)
 }
 
 /** Vom Kern abgeleitet, Ziele für den Monitor (Logik-Takt 5 s, Render interpoliert). */
@@ -67,6 +70,10 @@ export interface Anzeige {
   rhythmus: Rhythmus;
   avpu: 'A' | 'V' | 'P' | 'U';
   gcs?: number;
+  /** Mitteldruck mmHg (P1) */
+  map?: number;
+  /** Rekapillarisierungszeit in Sekunden (P1) */
+  rekapSek?: number;
 }
 export type Rhythmus = 'sinus' | 'sinustachykardie' | 'sinusbradykardie' | 'vorhofflimmern' | 'vt' | 'kammerflimmern' | 'asystolie' | 'pea';
 
@@ -81,7 +88,19 @@ export type Treiber =
   | { art: 'delir_trigger'; ausloeser: Array<'schmerz' | 'umgebung' | 'harnverhalt' | 'exsikkose' | 'infekt' | 'medikamente'> }
   | { art: 'panik_eskaliert'; tempo: number }
   | { art: 'fieberkrampf_kind'; temperaturSchwelle: number }
-  | { art: 'pneumonie'; staerke: number };
+  | { art: 'pneumonie'; staerke: number }
+  // Zusätze Paket P1
+  /** Normalinsulin s. c. (Gipfel nach etwa 2 h) */
+  | { art: 'insulin'; ie: number; gipfelMin?: number }
+  /** Kohlenhydrate; schnell = Traubenzucker/Saft (Gipfel 15 min), sonst Mahlzeit (Gipfel 40 min) */
+  | { art: 'kohlenhydrate'; gramm: number; schnell?: boolean }
+  /** Opioid-Antagonist: wirkt kürzer als viele Opioide (Renarkotisierung) */
+  | { art: 'naloxon'; halbwertMin: number }
+  /** volle Blase / Harnverhalt: Schmerz, Unruhe, Delir-Auslöser; endet über MassnahmeDefinition.beendet */
+  | { art: 'harnverhalt' };
+
+/** Treiber im Zustand: seit = Spielzeit, zu der er hinzukam (vom Kern gestempelt, nur aus z.t). */
+export type AktiverTreiber = Treiber & { seit?: Sek };
 
 /** Spur-B-Modellmodule, im Fall zugeschaltet. */
 export interface ModellModule {
@@ -143,6 +162,10 @@ export interface MassnahmeDefinition {
   /** Braucht unabhängig von der Rolle eine ärztliche Anordnung (Medikamente, O₂ über Standard, Infusion). */
   anordnungspflichtig?: boolean;
   wirkung?: Wirkkurve[];
+  /** Startet Treiber (P1), z. B. Morphin als opioid_ueberhang mit Halbwertszeit, Insulin, Traubenzucker. */
+  treiber?: Treiber[];
+  /** Beendet alle laufenden Treiber dieser Arten (P1), z. B. Blasenkatheter → 'harnverhalt'. */
+  beendet?: Array<Treiber['art']>;
   /** Setzt Flags (z. B. 'trinkt', 'sturzmatte') */
   setzt?: string[];
   /** Nur sichtbar/ausführbar, wenn erfüllt (z. B. Pulsoxy erst aus der Pflegetasche holen). */

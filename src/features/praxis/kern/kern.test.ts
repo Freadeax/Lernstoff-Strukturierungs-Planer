@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { FAELLE_V2 } from './faelle';
 import { PILOT_AMBULANT as FALL } from './faelle/amb-sturz-exsikkose';
-import { anteil, freigabe, gilt, massnahme, replay, sende, start, vorspulen, type SimZustand } from './kern';
+import { aktuellesModell, anteil, anzeige, freigabe, gilt, massnahme, replay, sende, start, vorspulen, type SimZustand } from './kern';
+import { PFLEGE_MODELL } from './physiologie/pflegemodell';
 import type { FallV2, Rolle, SimEventEingabe, Stufe } from './typen';
 
 const ROLLEN: Rolle[] = [1, 2, 3, 'pflegefachperson'];
@@ -180,5 +181,46 @@ describe('Kern: Zeit', () => {
     const vorher = JSON.stringify({ ...a, fall: undefined });
     sende(a, { art: 'massnahme', id: 'ansprechen-orientierung' });
     expect(JSON.stringify({ ...a, fall: undefined })).toBe(vorher);
+  });
+});
+
+describe('Kern mit Physiologiemodell (P1): Treiber aus Maßnahmen, Zeitstempel, Alarme', () => {
+  const MIT_TREIBER: FallV2 = {
+    ...FALL,
+    id: 'test-treiber',
+    massnahmen: [...FALL.massnahmen, 't-morphin', 't-katheter'],
+    massnahmenZusatz: [
+      { ...massnahme(FALL, 'puls-zaehlen')!, id: 't-morphin', name: 'Morphin (Test)', treiber: [{ art: 'opioid_ueberhang', spiegel: 1, halbwertMin: 180 }] },
+      { ...massnahme(FALL, 'puls-zaehlen')!, id: 't-katheter', name: 'Katheter (Test)', beendet: ['harnverhalt'] },
+    ],
+    start: { ...FALL.start, treiber: [...FALL.start.treiber, { art: 'harnverhalt' }] },
+  };
+
+  it('Standardmodell ist das Pflege-Physiologiemodell', () => {
+    expect(aktuellesModell()).toBe(PFLEGE_MODELL);
+  });
+  it('Maßnahme startet Treiber mit Zeitstempel aus der Spielzeit; Replay identisch', () => {
+    let z = sende(start(MIT_TREIBER, 2, 2), { art: 'warten', sek: 120 });
+    z = sende(z, { art: 'massnahme', id: 't-morphin' });
+    const op = z.treiber.find((t) => t.art === 'opioid_ueberhang')!;
+    expect(op.seit).toBe(120);
+    z = sende(z, { art: 'warten', sek: 900 });
+    expect(anzeige(z).af).toBeLessThan(anzeige(start(MIT_TREIBER, 2, 2)).af);
+    const b = replay(MIT_TREIBER, 2, 2, 1, z.eingaben);
+    expect(JSON.stringify({ ...b, fall: undefined })).toBe(JSON.stringify({ ...z, fall: undefined }));
+  });
+  it('beendet entfernt alle Treiber dieser Art', () => {
+    const z = sende(start(MIT_TREIBER, 2, 2), { art: 'massnahme', id: 't-katheter' });
+    expect(z.treiber.some((t) => t.art === 'harnverhalt')).toBe(false);
+    expect(z.treiber.some((t) => t.art === 'exsikkose_progressiv')).toBe(true);
+  });
+  it('rote Alarme nur für sichtbare Werte: ambulant ohne Messung stoppt Vorspulen nicht', () => {
+    const blutend: FallV2 = { ...FALL, ereignisse: [], start: { ...FALL.start, treiber: [{ art: 'blutung', mlProMin: 150 }] } };
+    const ohne = vorspulen(start(blutend, 2, 2), 1200);
+    expect(ohne.t).toBe(1200);
+    expect(ohne.log.some((e) => e.art === 'alarm')).toBe(false);
+    const mit = vorspulen(start({ ...blutend, start: { ...blutend.start, sichtbar: ['hf', 'rrSys'] } }, 2, 2), 1200);
+    expect(mit.t).toBeLessThan(1200);
+    expect(mit.log.some((e) => e.art === 'alarm' && e.stufe === 'rot')).toBe(true);
   });
 });
