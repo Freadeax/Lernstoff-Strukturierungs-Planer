@@ -7,23 +7,20 @@ import { notify } from '../../ui/shell/notifications';
 import { entpacke } from '../klasse/kodierung';
 import { KompetenzRadar } from '../fortschritt/KompetenzRadar';
 import { codesImText, fuegeEin, klassenRadar, pruefeRadarStand, standSchluessel, type RadarStand } from '../fortschritt/radarcode';
+import { radarStaende, RADAR_OHNE_NAMEN as OHNE_NAMEN, speichereRadar } from './speicher';
 import '../fortschritt/fortschritt.css';
 import { Seite } from './teile';
 
-const KEY = 'lernstoff.lehrer.radar';
-const OHNE_NAMEN = 'lernstoff.lehrer.radar.ohneNamen';
-
-const laden = (): RadarStand[] => storage.read<unknown[]>(KEY, []).flatMap((x) => pruefeRadarStand(x) ?? []);
 const datum = (iso: string) => (iso ? new Date(`${iso}T12:00:00`).toLocaleDateString('de-DE', { day: 'numeric', month: 'short' }) : 'ohne Datum');
 
 export default function KlassenRadar() {
-  const [staende, setStaende] = useState<RadarStand[]>(laden);
+  const [staende, setStaende] = useState<RadarStand[]>(radarStaende);
   const [eingabe, setEingabe] = useState('');
   const [ohneNamen, setOhneNamen] = useState(() => storage.read<boolean>(OHNE_NAMEN, false));
   const [arbeitet, setArbeitet] = useState(false);
   const klasse = useMemo(() => klassenRadar(staende), [staende]);
 
-  const speichere = (liste: RadarStand[]) => { setStaende(liste); storage.write(KEY, liste); };
+  const speichere = (liste: RadarStand[]) => { setStaende(liste); speichereRadar(liste); };
 
   async function einlesen() {
     const codes = codesImText(eingabe);

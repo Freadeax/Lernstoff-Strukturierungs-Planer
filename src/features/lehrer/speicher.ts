@@ -1,6 +1,7 @@
 import { istObjekt, storage } from '../../ui/lib/store';
 import { alleAbgaben, benenneAbgabeUm, eigeneFaelle, entferneAbgabe, loescheAbgaben, loescheEigenen } from '../klasse/speicher';
 import { neueId } from '../klasse/typen';
+import { fuegeEin, pruefeRadarStand, type RadarStand } from '../fortschritt/radarcode';
 import { ordneSchluessel, STANDARD_SCHLUESSEL } from './noten';
 import { nameSchluessel, type Bewertung, type Klasse, type Notenstufe } from './typen';
 
@@ -9,6 +10,8 @@ const KLASSEN = 'lernstoff.lehrer.klassen';
 const BEWERTUNGEN = 'lernstoff.lehrer.bewertungen';   // fallId → nameSchluessel → Bewertung
 const SCHLUESSEL = 'lernstoff.lehrer.schluessel';
 const BAUSTEINE = 'lernstoff.lehrer.bausteine';
+const RADAR = 'lernstoff.lehrer.radar';             // eingelesene Radar-Stände (Klassen-Radar)
+export const RADAR_OHNE_NAMEN = 'lernstoff.lehrer.radar.ohneNamen';
 
 const istKlasse = (v: unknown) => istObjekt(v) && typeof v.id === 'string' && typeof v.name === 'string' && Array.isArray(v.lernende) && Array.isArray(v.faelle);
 const istBewertung = (v: unknown) => istObjekt(v) && typeof v.fallId === 'string' && typeof v.name === 'string' && istObjekt(v.punkte) && istObjekt(v.kommentare);
@@ -127,20 +130,33 @@ export function ordneAbgabeZu(fallId: string, alt: string, neu: string): boolean
   return true;
 }
 
+// ---------- Klassen-Radar ----------
+
+/** Eingelesene Radar-Stände. Doppelte derselben Person (z. B. nach dem Zusammenführen einer Sicherung)
+ *  fallen beim Laden weg; es bleibt der neueste Stand. */
+export function radarStaende(): RadarStand[] {
+  const roh = storage.read<unknown[]>(RADAR, []);
+  const gueltig = (Array.isArray(roh) ? roh : []).flatMap((x) => pruefeRadarStand(x) ?? []);
+  return fuegeEin([], gueltig).liste;
+}
+export const speichereRadar = (l: RadarStand[]) => storage.write(RADAR, l.length ? l : null);
+
 /** Was an personenbezogenen Daten auf diesem Gerät liegt (Hinweis im Datenschutz-Bereich). */
 export function datenbestand() {
   const abgaben = Object.values(alleAbgaben()).reduce((s, l) => s + l.length, 0);
   const bewertungen = Object.values(leseBewertungen()).reduce((s, je) => s + Object.keys(je).length, 0);
   const lernende = klassen().reduce((s, k) => s + k.lernende.length, 0);
-  return { faelle: eigeneFaelle().length, klassen: klassen().length, lernende, abgaben, bewertungen };
+  return { faelle: eigeneFaelle().length, klassen: klassen().length, lernende, abgaben, bewertungen, radar: radarStaende().length };
 }
 
-/** Alles aus dem Lehrermodus löschen: Klassen, Bewertungen, verteilte Fälle mit Abgaben. */
+/** Alles aus dem Lehrermodus löschen: Klassen, Bewertungen, verteilte Fälle mit Abgaben, Radar-Stände. */
 export function loescheAllesLehrer() {
   for (const f of eigeneFaelle()) loescheEigenen(f.id);
   for (const id of Object.keys(alleAbgaben())) loescheAbgaben(id);
   storage.write(KLASSEN, null);
   storage.write(BEWERTUNGEN, null);
+  storage.write(RADAR, null);
+  storage.write(RADAR_OHNE_NAMEN, null);
 }
 
 // ---------- Einstellungen ----------
