@@ -62,3 +62,8 @@ Regeln
 - Befundtexte können `{map}`, `{laktat}`, `{ph}` … aus der Anzeige enthalten (`fuelle`).
 - Anordnung `auchFuer` deckt mehrere Maßnahmen; `fehlerhaft.ersatz` = korrigierte Anordnung nach Remonstration.
 - Erster Fall: `faelle/sr-septischer-schock.ts` (Rolle 3. Drittel oder Pflegefachperson, ungeprüft, Prüfpunkte im Fall).
+
+Oberfläche (Paket P2): `../arbeitsplatz/` – Route `#/lernen/praxis?neu=<fall>`. `ansicht.ts` stellt rein zusammen, was der
+Bildschirm zeigt (Reiter, Befugnis-Abzeichen, Werteleiste mit Momentaufnahme vs. live, Pflegetasche, SBAR, Anordnungen,
+Team, Übersicht) und ruft nur den Kern. Laufender Fall in `lernstoff.praxis.arbeitsplatz` (nur Eingaben, Replay).
+Browserprüfung: `npm run test:arbeitsplatz` (390/820/1180 px, axe).
