@@ -96,6 +96,12 @@ const LISTE: MassnahmeDefinition[] = [
   m('suizidalitaet-ansprechen', 'Suizidgedanken offen und direkt ansprechen', 'gespraech', 120, ['I', 'II'], nw(['suizid12', 'krise3'], {
     anmerkung: 'Handlungsanlass Suizidversuch schon 1./2. Drittel, Krisenhilfe ausdrücklich im 3. Drittel. Im 1./2. Drittel gemeinsam mit der PA.',
   }), { spur: 'A', befugnis: befugnis(A, A, S) }),
+  m('atemanleitung-ruhig', 'Gemeinsam ruhig atmen (langsam ausatmen, mitzählen) bei Panik', 'gespraech', 120, ['I', 'II'], nw(['psychErsteHilfe12', 'atem12'], {
+    anmerkung: 'Emotionale Stabilisierung (CE 06) und Atmung fördern (CE 05). Keine Tütenatmung: sie kann bei körperlicher Ursache gefährlich sein.',
+  }), {
+    spur: 'A', beendet: ['panik_eskaliert'],
+    wirkung: [{ groesse: 'angst', delta: -0.25, beginnSek: 30, spitzeSek: 240, dauerSek: 'dauerhaft' }],
+  }),
   m('kommunikationshilfe', 'Kommunikationshilfe einsetzen (Hörgerät, Brille, einfache Sprache, Dolmetscher)', 'gespraech', 60, ['II'], nw(['barrieren1', 'hilfsmittel1'])),
   m('trinken-beraten', 'Zum Trinken beraten und Trinkplan vereinbaren', 'gespraech', 90, ['II', 'V'], nw(['selbstpflege1', 'ernaehrung1']), { spur: 'A', quellen: [Q.ernaehrung] }),
   m('eltern-einbeziehen', 'Eltern/Bezugsperson beruhigen und einbeziehen', 'gespraech', 90, ['II'], nw(['psychErsteHilfe12', 'bezugspersonen3']), { spur: 'A' }),
@@ -194,6 +200,9 @@ const LISTE: MassnahmeDefinition[] = [
   m('aed-anlegen', 'AED holen, anlegen und Anweisungen folgen', 'akut', 60, ['I'], nw(['rea12', 'sofort12']), { setzt: ['aed'], quellen: [Q.erc], klinisch: ['geraete', 'zeit'] }),
   m('sturzprophylaxe-bett', 'Bett tief stellen, Sturzmatte, Klingel in Reichweite', 'akut', 60, ['I', 'V'], nw(['umgebung1', 'standards1']), { spur: 'A', setzt: ['sturzmatte'], quellen: [Q.sturz] }),
   m('sitzwache', 'Sitzwache/Begleitung organisieren', 'akut', 60, ['I', 'III'], nw(['validation12', 'abgrenzen1']), { spur: 'A', setzt: ['begleitet'] }),
+  m('gefaehrliche-gegenstaende-sichern', 'Gefährliche Gegenstände und gesammelte Tabletten gemeinsam sichern', 'akut', 120, ['I', 'IV'], nw(['suizid12', 'krise3'], {
+    anmerkung: 'Selbstgefährdung als Handlungsanlass ab 1./2. Drittel, Krisenhilfe im 3. Drittel. Offen und mit Einverständnis, im 1./2. Drittel gemeinsam mit der PA.',
+  }), { spur: 'A', befugnis: befugnis(A, A, S), setzt: ['gegenstaende-gesichert'] }),
   m('fem-anlegen', 'Freiheitsentziehende Maßnahme anwenden (Bettgitter, Gurt)', 'akut', 120, ['IV'], nw(['fem3'], {
     anmerkung: 'Der Lehrplan sieht im 3. Drittel nur Beobachten und Reflektieren vor. Anwendung nur mit Einwilligung bzw. richterlicher Genehmigung und Anordnung.',
   }), {
