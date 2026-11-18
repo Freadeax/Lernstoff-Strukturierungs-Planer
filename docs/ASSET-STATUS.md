@@ -12,8 +12,8 @@ jede Datei unter `public/{raeume,personen,sim-videos,bildgebung,titelbilder}` st
 
 | Art | Dateien | erreichbar | geprüft |
 |---|---|---|---|
-| raum | 34 | 34 | 0 |
-| portraet | 2 | 2 | 0 |
+| raum | 65 | 61 | 0 |
+| portraet | 6 | 6 | 0 |
 | handlungsvideo | 10 | 10 | 0 |
 | bildgebung | 35 | 35 | 0 |
 | titelbild | 6 | 6 | 0 |
@@ -24,7 +24,10 @@ Keine gemeldet. Prüfen in der App unter System → Bildprüfung (`#/system/bild
 
 ## Nicht erreichbar
 
-Keine.
+- `raeume/20f_paediatrie_kleinkind_fieberkrampf_sensor_ab.webp`
+- `raeume/20n_paediatrie_kleinkind_nacht_sensor_ab.webp`
+- `raeume/30_station_zimmer_frau_sensor_ab.webp`
+- `raeume/30b_station_zimmer_frau_sepsis_sensor_ab.webp`
 
 ## Zustandslücken der genutzten Räume
 
@@ -36,28 +39,21 @@ Sensor abgefallen: Bild mit Sensor, der Monitor zeigt den Ausfall). Reihenfolge 
 |---|---|
 | `07_ambulant_wohnzimmer_kompression` | Nacht |
 | `08_ambulant_pflegebad` | Nacht |
-| `09_ambulant_kueche_diabetes` | Nacht |
 | `11_pflegeheim_speiseraum` | Nacht |
-| `12_station_kardiologie_monitoring` | Sensor angelegt, Sensor abgefallen, Nacht |
 | `13_station_postop` | Nacht |
 | `15_intensiv_beatmung` | Nacht |
-| `16_notaufnahme_triage` | Gerät aus (ohne Monitor), Sensor angelegt, Sensor abgefallen, Nacht |
-| `17_notaufnahme_untersuchung` | Gerät aus (ohne Monitor), Sensor angelegt, Sensor abgefallen, Nacht |
-| `18_notaufnahme_schockraum_nacht` | Gerät aus (ohne Monitor), Sensor angelegt, Sensor abgefallen |
-| `20_paediatrie_kleinkind` | Sensor abgefallen |
-| `20f_paediatrie_kleinkind_fieberkrampf` | Gerät aus (ohne Monitor), Sensor angelegt, Sensor abgefallen, Nacht |
-| `20n_paediatrie_kleinkind_nacht` | Gerät aus (ohne Monitor), Sensor angelegt, Sensor abgefallen |
-| `21_paediatrie_schulkind` | Sensor abgefallen, Nacht |
+| `16_notaufnahme_triage` | Nacht |
+| `17_notaufnahme_untersuchung` | Nacht |
+| `20f_paediatrie_kleinkind_fieberkrampf` | Nacht |
+| `20n_paediatrie_kleinkind_nacht_fall_bronchiolitis` | Gerät aus (ohne Monitor), Sensor angelegt, Sensor abgefallen |
+| `21_paediatrie_schulkind_fall_rausch` | Gerät aus (ohne Monitor), Sensor angelegt, Sensor abgefallen, Nacht |
 | `26_pflegeheim_zimmer_tag` | Nacht |
 | `26a_pflegeheim_zimmer_schlaganfall` | Nacht |
 | `26b_pflegeheim_zimmer_fruehstueck_unberuehrt` | Nacht |
 | `26h_pflegeheim_zimmer_hypoglykaemie` | Nacht |
 | `26p_pflegeheim_zimmer_pneumonie` | Nacht |
-| `27_station_zweibett_nacht` | Gerät aus (ohne Monitor), Sensor angelegt, Sensor abgefallen |
-| `30_station_zimmer_frau` | Sensor abgefallen, Nacht |
-| `30b_station_zimmer_frau_sepsis` | Gerät aus (ohne Monitor), Sensor angelegt, Sensor abgefallen, Nacht |
-
-**Porträts:** mila ohne angestrengt und kritisch; ben ohne angestrengt und kritisch (Fallsimulator zeigt dann „stabil“).
+| `30_station_zimmer_frau` | Nacht |
+| `30b_station_zimmer_frau_sepsis` | Nacht |
 
 ## Alle Dateien
 
@@ -82,12 +78,12 @@ Sensor abgefallen: Bild mit Sensor, der Monitor zeigt den Ausfall). Reihenfolge 
 | `raeume/20_paediatrie_kleinkind.webp` | 20_paediatrie_kleinkind | ja | praxis:kind, diagnostik:gastroenteritis-kind | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
 | `raeume/20a_paediatrie_kleinkind_ohne_monitor.webp` | 20a_paediatrie_kleinkind_ohne_monitor | ja | praxis:kind (Variante), diagnostik:gastroenteritis-kind (Variante) | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
 | `raeume/20m_paediatrie_kleinkind_monitor_verbunden.webp` | 20m_paediatrie_kleinkind_monitor_verbunden | ja | praxis:kind (Variante), diagnostik:gastroenteritis-kind (Variante) | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
-| `raeume/20n_paediatrie_kleinkind_nacht.webp` | 20n_paediatrie_kleinkind_nacht | ja | praxis:kind (Variante), praxis:bronchiolitis, fall:demo-bronchiolitis | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `raeume/20n_paediatrie_kleinkind_nacht.webp` | 20n_paediatrie_kleinkind_nacht | ja | praxis:kind (Variante), fall:demo-bronchiolitis | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
 | `raeume/20f_paediatrie_kleinkind_fieberkrampf.webp` | 20f_paediatrie_kleinkind_fieberkrampf | ja | fall:demo-fieberkrampf, fall:fieberkrampf | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
-| `raeume/21_paediatrie_schulkind.webp` | 21_paediatrie_schulkind | ja | praxis:asthma, praxis:rausch, fall:demo-asthma, fall:asthma-kind, fall:paediatrie (Thema), diagnostik:asthma-kind | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
-| `raeume/21a_paediatrie_schulkind_ohne_monitor.webp` | 21a_paediatrie_schulkind_ohne_monitor | ja | praxis:asthma (Variante), praxis:asthma (Maßnahme orders) (Variante), praxis:rausch (Variante), fall:demo-asthma (Variante), fall:asthma-kind (Variante), fall:paediatrie (Thema) (Variante), diagnostik:asthma-kind (Variante) | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `raeume/21_paediatrie_schulkind.webp` | 21_paediatrie_schulkind | ja | praxis:asthma, fall:demo-asthma, fall:asthma-kind, fall:paediatrie (Thema), diagnostik:asthma-kind | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `raeume/21a_paediatrie_schulkind_ohne_monitor.webp` | 21a_paediatrie_schulkind_ohne_monitor | ja | praxis:asthma (Variante), praxis:asthma (Maßnahme orders) (Variante), fall:demo-asthma (Variante), fall:asthma-kind (Variante), fall:paediatrie (Thema) (Variante), diagnostik:asthma-kind (Variante) | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
 | `raeume/21b_paediatrie_schulkind_spacer.webp` | 21b_paediatrie_schulkind_spacer | ja | praxis:asthma (Maßnahme orders) | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
-| `raeume/21m_paediatrie_schulkind_monitor_verbunden.webp` | 21m_paediatrie_schulkind_monitor_verbunden | ja | praxis:asthma (Variante), praxis:rausch (Variante), fall:demo-asthma (Variante), fall:asthma-kind (Variante), fall:paediatrie (Thema) (Variante), diagnostik:asthma-kind (Variante) | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `raeume/21m_paediatrie_schulkind_monitor_verbunden.webp` | 21m_paediatrie_schulkind_monitor_verbunden | ja | praxis:asthma (Variante), fall:demo-asthma (Variante), fall:asthma-kind (Variante), fall:paediatrie (Thema) (Variante), diagnostik:asthma-kind (Variante) | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
 | `raeume/26_pflegeheim_zimmer_tag.webp` | 26_pflegeheim_zimmer_tag | ja | fall:palliativ, fall:langzeit (Thema) | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
 | `raeume/26a_pflegeheim_zimmer_schlaganfall.webp` | 26a_pflegeheim_zimmer_schlaganfall | ja | praxis:schlaganfall | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
 | `raeume/26b_pflegeheim_zimmer_fruehstueck_unberuehrt.webp` | 26b_pflegeheim_zimmer_fruehstueck_unberuehrt | ja | praxis:demenz, fall:demenz-verfuegung | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
@@ -99,13 +95,48 @@ Sensor abgefallen: Bild mit Sensor, der Monitor zeigt den Ausfall). Reihenfolge 
 | `raeume/30a_station_zimmer_frau_ohne_monitor.webp` | 30a_station_zimmer_frau_ohne_monitor | ja | praxis:anaphylaxie (Variante), fall:demo-anaphylaxie (Variante), fall:anaphylaxie (Variante), fall:hueft-tep (Variante), fall:schlaganfall (Variante) | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
 | `raeume/30m_station_zimmer_frau_monitor_verbunden.webp` | 30m_station_zimmer_frau_monitor_verbunden | ja | praxis:anaphylaxie (Variante), fall:demo-anaphylaxie (Variante), fall:anaphylaxie (Variante), fall:hueft-tep (Variante), fall:schlaganfall (Variante) | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
 | `raeume/30b_station_zimmer_frau_sepsis.webp` | 30b_station_zimmer_frau_sepsis | ja | praxis:sepsis, fall:demo-sepsis, fall:sepsis | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `raeume/09_ambulant_kueche_diabetes_nacht.webp` | 09_ambulant_kueche_diabetes_nacht | ja | praxis:herzschwaeche (Variante) | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `raeume/12_station_kardiologie_monitoring_nacht.webp` | 12_station_kardiologie_monitoring_nacht | ja | praxis:nachtwache (Variante), praxis:lungenembolie (Variante) | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `raeume/12_station_kardiologie_monitoring_sensor_an.webp` | 12_station_kardiologie_monitoring_sensor_an | ja | praxis:nachtwache (Variante), praxis:lungenembolie (Variante), fall:demo-atemnot (Variante), fall:herzinsuffizienz (Variante), fall:lungenembolie (Variante), diagnostik:sepsis-pneumonie (Variante), diagnostik:hyperkaliaemie (Variante) | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `raeume/12_station_kardiologie_monitoring_sensor_ab.webp` | 12_station_kardiologie_monitoring_sensor_ab | ja | diagnostik:sepsis-pneumonie (Variante), diagnostik:hyperkaliaemie (Variante) | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `raeume/16_notaufnahme_triage_ohne_monitor.webp` | 16_notaufnahme_triage_ohne_monitor | ja | praxis:zna (Variante), diagnostik:ketoazidose (Variante) | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `raeume/16_notaufnahme_triage_sensor_an.webp` | 16_notaufnahme_triage_sensor_an | ja | praxis:zna (Variante), diagnostik:ketoazidose (Variante) | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `raeume/16_notaufnahme_triage_sensor_ab.webp` | 16_notaufnahme_triage_sensor_ab | ja | diagnostik:ketoazidose (Variante) | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `raeume/17_notaufnahme_untersuchung_ohne_monitor.webp` | 17_notaufnahme_untersuchung_ohne_monitor | ja | diagnostik:pneumothorax (Variante) | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `raeume/17_notaufnahme_untersuchung_sensor_an.webp` | 17_notaufnahme_untersuchung_sensor_an | ja | diagnostik:pneumothorax (Variante) | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `raeume/17_notaufnahme_untersuchung_sensor_ab.webp` | 17_notaufnahme_untersuchung_sensor_ab | ja | diagnostik:pneumothorax (Variante) | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `raeume/18_notaufnahme_schockraum_nacht_ohne_monitor.webp` | 18_notaufnahme_schockraum_nacht_ohne_monitor | ja | diagnostik:herzinsuffizienz (Variante) | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `raeume/18_notaufnahme_schockraum_nacht_sensor_an.webp` | 18_notaufnahme_schockraum_nacht_sensor_an | ja | diagnostik:herzinsuffizienz (Variante) | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `raeume/18_notaufnahme_schockraum_nacht_sensor_ab.webp` | 18_notaufnahme_schockraum_nacht_sensor_ab | ja | diagnostik:herzinsuffizienz (Variante) | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `raeume/20_paediatrie_kleinkind_sensor_ab.webp` | 20_paediatrie_kleinkind_sensor_ab | ja | diagnostik:gastroenteritis-kind (Variante) | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `raeume/20f_paediatrie_kleinkind_fieberkrampf_ohne_monitor.webp` | 20f_paediatrie_kleinkind_fieberkrampf_ohne_monitor | ja | fall:demo-fieberkrampf (Variante), fall:fieberkrampf (Variante) | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `raeume/20f_paediatrie_kleinkind_fieberkrampf_sensor_an.webp` | 20f_paediatrie_kleinkind_fieberkrampf_sensor_an | ja | fall:demo-fieberkrampf (Variante), fall:fieberkrampf (Variante) | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `raeume/20f_paediatrie_kleinkind_fieberkrampf_sensor_ab.webp` | 20f_paediatrie_kleinkind_fieberkrampf_sensor_ab | ja | **nein** | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `raeume/20n_paediatrie_kleinkind_nacht_ohne_monitor.webp` | 20n_paediatrie_kleinkind_nacht_ohne_monitor | ja | praxis:kind (Variante), fall:demo-bronchiolitis (Variante) | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `raeume/20n_paediatrie_kleinkind_nacht_sensor_an.webp` | 20n_paediatrie_kleinkind_nacht_sensor_an | ja | praxis:kind (Variante), fall:demo-bronchiolitis (Variante) | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `raeume/20n_paediatrie_kleinkind_nacht_sensor_ab.webp` | 20n_paediatrie_kleinkind_nacht_sensor_ab | ja | **nein** | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `raeume/21_paediatrie_schulkind_nacht.webp` | 21_paediatrie_schulkind_nacht | ja | praxis:asthma (Variante) | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `raeume/21_paediatrie_schulkind_sensor_ab.webp` | 21_paediatrie_schulkind_sensor_ab | ja | diagnostik:asthma-kind (Variante) | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `raeume/27_station_zweibett_nacht_ohne_monitor.webp` | 27_station_zweibett_nacht_ohne_monitor | ja | praxis:delir (Variante), fall:delir-nacht (Variante), diagnostik:akutes-nierenversagen (Variante) | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `raeume/27_station_zweibett_nacht_sensor_an.webp` | 27_station_zweibett_nacht_sensor_an | ja | praxis:delir (Variante), fall:delir-nacht (Variante), diagnostik:akutes-nierenversagen (Variante) | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `raeume/27_station_zweibett_nacht_sensor_ab.webp` | 27_station_zweibett_nacht_sensor_ab | ja | diagnostik:akutes-nierenversagen (Variante) | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `raeume/30_station_zimmer_frau_sensor_ab.webp` | 30_station_zimmer_frau_sensor_ab | ja | **nein** | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `raeume/30b_station_zimmer_frau_sepsis_ohne_monitor.webp` | 30b_station_zimmer_frau_sepsis_ohne_monitor | ja | praxis:sepsis (Variante), fall:demo-sepsis (Variante), fall:sepsis (Variante) | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `raeume/30b_station_zimmer_frau_sepsis_sensor_an.webp` | 30b_station_zimmer_frau_sepsis_sensor_an | ja | praxis:sepsis (Variante), fall:demo-sepsis (Variante), fall:sepsis (Variante) | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `raeume/30b_station_zimmer_frau_sepsis_sensor_ab.webp` | 30b_station_zimmer_frau_sepsis_sensor_ab | ja | **nein** | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `raeume/20n_paediatrie_kleinkind_nacht_fall_bronchiolitis.webp` | 20n_paediatrie_kleinkind_nacht_fall_bronchiolitis | ja | praxis:bronchiolitis | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `raeume/21_paediatrie_schulkind_fall_rausch.webp` | 21_paediatrie_schulkind_fall_rausch | ja | praxis:rausch | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
 
 ### portraet
 
 | Datei | Asset | zugeordnet | erreichbar über | geprüft | offline | Lizenz |
 |---|---|---|---|---|---|---|
 | `personen/praxis-kind_stabil.webp` | mila:stabil | ja | praxis:kind | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `personen/praxis-kind_angestrengt.webp` | mila:angestrengt | ja | praxis:kind | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `personen/praxis-kind_kritisch.webp` | mila:kritisch | ja | praxis:kind | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
 | `personen/praxis-asthma_stabil.webp` | ben:stabil | ja | praxis:asthma, fall:asthma-kind, fall:demo-asthma | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `personen/praxis-asthma_angestrengt.webp` | ben:angestrengt | ja | praxis:asthma, fall:asthma-kind, fall:demo-asthma | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
+| `personen/praxis-asthma_kritisch.webp` | ben:kritisch | ja | praxis:asthma, fall:asthma-kind, fall:demo-asthma | offen | nach erstem Ansehen | KI-generiert aus Philipps Materialpaket, Nutzung in der App |
 
 ### handlungsvideo
 

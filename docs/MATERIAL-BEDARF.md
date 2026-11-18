@@ -152,6 +152,19 @@ Originale der Lieferungen: Projektordner `material-lieferungen/2026-11-11_P1_Pae
 
 ---
 
+### 1.3 Lieferung 3 vom 18.11.2026 (ChatGPT-Bilderpaket, 35 Positionen)
+
+| Gruppe | Geliefert | Stand |
+| --- | --- | --- |
+| Nachtbilder | `09_…_nacht`, `12_…_nacht` | erscheinen automatisch, wenn der Fall nachts spielt |
+| Ohne Monitor / Sensor an / Sensor ab | Räume 12, 16, 17, 18 Nacht, 20 (Sensor ab), 20f, 20n, 21 (Sensor ab), 27 Nacht, 30 (Sensor ab), 30b | Zustandsregel `raumFuerZustand`: Gerät weg → ohne Monitor, Gerät läuft → Sensor an, Signalausfall → Sensor ab |
+| Fallbilder | `20n_…_fall_bronchiolitis` (Säugling), `21_…_fall_rausch` (Jugendliche) | Praxis `bronchiolitis` und `rausch` zeigen jetzt das passende Alter, der Hinweis „Beispielfoto“ entfällt |
+| Porträts | `praxis-kind_{angestrengt,kritisch}`, `praxis-asthma_{angestrengt,kritisch}` | Mila und Ben wechseln das Gesicht mit dem Zustand |
+
+Kein Aufwachraum-Foto in dieser Lieferung. Originale: Projektordner `material-lieferungen/2026-11-18_Bilderpaket/`.
+
+Für die Bildprüfung: Säugling auf `20n_…_fall_bronchiolitis` lächelt (passt nicht zu Atemnot), auf `27_…_sensor_an` liegt das Kabel über dem Boden, auf `18_…_nacht_sensor_an/ab` ist der Kopf der Patientin sichtbar, `12/21_…_nacht` zeigen gezeichnete Kurven unter unserer Monitorfläche.
+
 ## 2. Neue Raumfotos (Simulatoren)
 
 Heute haben **Praxissimulator (17 Fälle)**, **Fallsimulator (17 Fälle)** und **Diagnostik (5 Fälle)** zusammen
