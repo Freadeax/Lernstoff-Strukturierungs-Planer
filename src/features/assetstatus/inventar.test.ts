@@ -69,12 +69,12 @@ describe('Asset-Status (SIM-06)', () => {
       expect(p.prompt.length, p.id).toBeGreaterThan(80);
       if (p.referenz) expect(existsSync(join('public', p.referenz)), p.referenz).toBe(true);
     }
-    // Lieferung 3 (18.11.2026) ist eingebaut: der Sensor-ab-Raum steht nicht mehr auf der Liste.
-    expect(liste.some((p) => p.id === '21_paediatrie_schulkind_sensor_ab')).toBe(false);
-    const sensor = liste.find((p) => p.id === '21_paediatrie_schulkind_fall_rausch_sensor_an')!;
-    expect(zielDatei(sensor)).toBe('raeume/21_paediatrie_schulkind_fall_rausch_sensor_an.webp');
-    const [k] = katalogVorlage([sensor]);
-    expect(k).toMatchObject({ id: sensor.id, variante_von: '21_paediatrie_schulkind_fall_rausch', lizenz: 'eigene KI-Erzeugung' });
+    // Lieferungen vom 18.11.2026 sind eingebaut: die gelieferten Varianten stehen nicht mehr auf der Liste.
+    for (const id of ['21_paediatrie_schulkind_sensor_ab', '21_paediatrie_schulkind_fall_rausch_sensor_an']) expect(liste.some((p) => p.id === id)).toBe(false);
+    const muster = { id: '99_test_sensor_ab', prioritaet: 'P2' as const, art: 'variante' as const, titel: 'Test', referenz: 'raeume/99_test.webp', grund: '', faelle: ['praxis:test (Probe)'], prompt: '' };
+    expect(zielDatei(muster)).toBe('raeume/99_test_sensor_ab.webp');
+    const [k] = katalogVorlage([muster]);
+    expect(k).toMatchObject({ id: muster.id, variante_von: '99_test', faelle: ['praxis:test'], lizenz: 'eigene KI-Erzeugung' });
     for (const f of k!.faelle as string[]) expect(f).toMatch(/^(praxis|fall|diagnostik|notfall):[a-z0-9-]+$/);
     const portraet = liste.find((p) => p.art === 'portraet');
     if (portraet) expect(zielDatei(portraet)).toMatch(/^personen\/.+_(angestrengt|kritisch)\.webp$/);

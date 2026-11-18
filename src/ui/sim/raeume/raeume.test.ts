@@ -7,7 +7,7 @@ const imBild = (n: number) => n >= 0 && n <= 1;
 
 describe('Raumkatalog', () => {
   it('jedes Bild existiert, hat Beschreibung und gültige Koordinaten', () => {
-    expect(RAUM_IDS.length).toBe(65);
+    expect(RAUM_IDS.length).toBe(72);
     for (const id of RAUM_IDS) {
       const r = RAEUME[id];
       expect(existsSync(`public/${r.datei}`), r.datei).toBe(true);
