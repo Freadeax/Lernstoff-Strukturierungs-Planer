@@ -73,7 +73,10 @@ export type RaumId =
   | '30b_station_zimmer_frau_sepsis_sensor_an'
   | '30b_station_zimmer_frau_sepsis_sensor_ab'
   | '20n_paediatrie_kleinkind_nacht_fall_bronchiolitis'
-  | '21_paediatrie_schulkind_fall_rausch';
+  | '21_paediatrie_schulkind_fall_rausch'
+  | '20n_paediatrie_kleinkind_nacht_fall_bronchiolitis_ohne_monitor' | '20n_paediatrie_kleinkind_nacht_fall_bronchiolitis_sensor_an'
+  | '20n_paediatrie_kleinkind_nacht_fall_bronchiolitis_sensor_ab' | '21_paediatrie_schulkind_fall_rausch_nacht'
+  | '21_paediatrie_schulkind_fall_rausch_ohne_monitor' | '21_paediatrie_schulkind_fall_rausch_sensor_an' | '21_paediatrie_schulkind_fall_rausch_sensor_ab';
 
 export type RaumBereich = 'Ambulante Pflege' | 'Pflegeheim' | 'Station' | 'Intensivstation' | 'Notaufnahme' | 'Krankenhaus' | 'Pädiatrie';
 
@@ -438,6 +441,7 @@ const liste: Raum[] = [
 
 // Lieferung 18.11.2026 (ChatGPT-Bearbeitungen der Grundbilder, Bestellliste docs/BESTELLUNG.md): Varianten
 // mit gleichem Ausschnitt. Monitorfläche und Hotspots kommen vom Grundbild; die Zustandsregeln verknüpfen sie.
+const basisVon = (id: RaumId) => liste.find((r) => r.id === id)!;
 type Achse = 'ohne_monitor' | 'sensor_an' | 'sensor_ab' | 'nacht';
 const ACHSE: Record<Achse, { titel: string; text: string }> = {
   ohne_monitor: { titel: 'ohne Monitor', text: 'Derselbe Raum ohne Monitorwagen und ohne angeschlossene Sensoren.' },
@@ -445,6 +449,19 @@ const ACHSE: Record<Achse, { titel: string; text: string }> = {
   sensor_ab: { titel: 'Sensor abgefallen', text: 'Derselbe Raum, der Pulsoxymetrie-Sensor hat sich gelöst und liegt neben der Person, das Kabel hängt lose.' },
   nacht: { titel: 'Nacht', text: 'Derselbe Raum bei Nacht mit gedämpftem Licht, die Person ruht.' },
 };
+// Passende Person für einen bestimmten Fall (statt Beispielfoto), sonst wie das Grundbild.
+liste.push(raum({
+  ...basisVon('20n_paediatrie_kleinkind_nacht'), id: '20n_paediatrie_kleinkind_nacht_fall_bronchiolitis', titel: 'Kinderstation · Nacht · Säugling',
+  beschreibung: 'Dasselbe Kinderzimmer bei Nachtlicht: ein Säugling von etwa vier Monaten liegt im Gitterbett, die Mutter sitzt daneben, rechts der Monitorwagen.',
+  ohneMonitor: undefined, verbunden: undefined, sensorAb: undefined, mitMonitor: undefined, nacht: undefined,
+  hotspots: basisVon('20n_paediatrie_kleinkind_nacht').hotspots.map((h) => (h.id === 'kind' ? { ...h, label: 'Säugling' } : h)),
+}));
+liste.push(raum({
+  ...basisVon('21_paediatrie_schulkind'), id: '21_paediatrie_schulkind_fall_rausch', titel: 'Kinderstation · Jugendliche',
+  beschreibung: 'Dasselbe Kinderzimmer: eine Jugendliche von etwa 15 Jahren liegt müde im Bett, vorn der Tisch, rechts der Monitorwagen.',
+  ohneMonitor: undefined, verbunden: undefined, sensorAb: undefined, mitMonitor: undefined, nacht: undefined,
+  hotspots: basisVon('21_paediatrie_schulkind').hotspots.filter((h) => h.id !== 'mutter').map((h) => (h.id === 'kind' ? { ...h, label: 'Jugendliche' } : h)),
+}));
 const VARIANTEN: [RaumId, Achse][] = [
   ['09_ambulant_kueche_diabetes', 'nacht'],
   ['12_station_kardiologie_monitoring', 'nacht'],
@@ -475,8 +492,14 @@ const VARIANTEN: [RaumId, Achse][] = [
   ['30b_station_zimmer_frau_sepsis', 'ohne_monitor'],
   ['30b_station_zimmer_frau_sepsis', 'sensor_an'],
   ['30b_station_zimmer_frau_sepsis', 'sensor_ab'],
+  ['20n_paediatrie_kleinkind_nacht_fall_bronchiolitis', 'ohne_monitor'],
+  ['20n_paediatrie_kleinkind_nacht_fall_bronchiolitis', 'sensor_an'],
+  ['20n_paediatrie_kleinkind_nacht_fall_bronchiolitis', 'sensor_ab'],
+  ['21_paediatrie_schulkind_fall_rausch', 'nacht'],
+  ['21_paediatrie_schulkind_fall_rausch', 'ohne_monitor'],
+  ['21_paediatrie_schulkind_fall_rausch', 'sensor_an'],
+  ['21_paediatrie_schulkind_fall_rausch', 'sensor_ab'],
 ];
-const basisVon = (id: RaumId) => liste.find((r) => r.id === id)!;
 for (const [b, a] of VARIANTEN) {
   const basis = basisVon(b);
   const id = `${b}_${a}` as RaumId;
@@ -497,20 +520,6 @@ for (const [b, a] of VARIANTEN) {
   const basis = basisVon(b);
   if (a !== 'ohne_monitor') { v.mitMonitor = b; v.ohneMonitor = basis.ohneMonitor; } else v.mitMonitor = b;
 }
-// Passende Person für einen bestimmten Fall (statt Beispielfoto), sonst wie das Grundbild.
-liste.push(raum({
-  ...basisVon('20n_paediatrie_kleinkind_nacht'), id: '20n_paediatrie_kleinkind_nacht_fall_bronchiolitis', titel: 'Kinderstation · Nacht · Säugling',
-  beschreibung: 'Dasselbe Kinderzimmer bei Nachtlicht: ein Säugling von etwa vier Monaten liegt im Gitterbett, die Mutter sitzt daneben, rechts der Monitorwagen.',
-  ohneMonitor: undefined, verbunden: undefined, sensorAb: undefined, mitMonitor: undefined, nacht: undefined,
-  hotspots: basisVon('20n_paediatrie_kleinkind_nacht').hotspots.map((h) => (h.id === 'kind' ? { ...h, label: 'Säugling' } : h)),
-}));
-liste.push(raum({
-  ...basisVon('21_paediatrie_schulkind'), id: '21_paediatrie_schulkind_fall_rausch', titel: 'Kinderstation · Jugendliche',
-  beschreibung: 'Dasselbe Kinderzimmer: eine Jugendliche von etwa 15 Jahren liegt müde im Bett, vorn der Tisch, rechts der Monitorwagen.',
-  ohneMonitor: undefined, verbunden: undefined, sensorAb: undefined, mitMonitor: undefined, nacht: undefined,
-  hotspots: basisVon('21_paediatrie_schulkind').hotspots.filter((h) => h.id !== 'mutter').map((h) => (h.id === 'kind' ? { ...h, label: 'Jugendliche' } : h)),
-}));
-
 export const RAEUME: Record<RaumId, Raum> = Object.fromEntries(liste.map((r) => [r.id, r])) as Record<RaumId, Raum>;
 export const RAUM_IDS = liste.map((r) => r.id);
 

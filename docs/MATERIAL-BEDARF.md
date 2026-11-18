@@ -163,6 +163,8 @@ Originale der Lieferungen: Projektordner `material-lieferungen/2026-11-11_P1_Pae
 
 Kein Aufwachraum-Foto in dieser Lieferung. Originale: Projektordner `material-lieferungen/2026-11-18_Bilderpaket/`.
 
+Nachlieferung am selben Abend (7 Bilder, Originale in `material-lieferungen/2026-11-18_Nachlieferung/`): `20n_…_fall_bronchiolitis_{ohne_monitor,sensor_an,sensor_ab}` und `21_…_fall_rausch_{nacht,ohne_monitor,sensor_an,sensor_ab}`. Damit ist die automatische Bestellliste leer.
+
 Für die Bildprüfung: Säugling auf `20n_…_fall_bronchiolitis` lächelt (passt nicht zu Atemnot), auf `27_…_sensor_an` liegt das Kabel über dem Boden, auf `18_…_nacht_sensor_an/ab` ist der Kopf der Patientin sichtbar, `12/21_…_nacht` zeigen gezeichnete Kurven unter unserer Monitorfläche.
 
 ## 2. Neue Raumfotos (Simulatoren)
