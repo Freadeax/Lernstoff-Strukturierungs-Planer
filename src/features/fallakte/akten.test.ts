@@ -13,6 +13,7 @@ import { pruefeBericht } from '../bericht/pruefung';
 import { pruefe as pruefeUebergabe } from '../uebergabe/pruefung';
 import { vereinfache } from '../uebergabe/pruefung';
 import { NAV } from '../../ui/shell/nav';
+import { pruefeEvaluation } from './evaluation';
 
 /** Text eines Teilfalls, in dem der Name der Person vorkommen muss. */
 function fallText(art: SchrittArt, id: string): string | undefined {
@@ -22,12 +23,14 @@ function fallText(art: SchrittArt, id: string): string | undefined {
     case 'pflegeplanung': return PLAENE.find((x) => x.id === id)?.person;
     case 'bericht': return BERICHT_FAELLE.find((x) => x.id === id)?.person;
     case 'uebergabe': { const f = UEBERGABEN.find((x) => x.id === id); return f && `${f.daten.map((d) => d.wert).join(' ')} ${f.muster}`; }
+    case 'evaluation': { const a = AKTEN.find((x) => x.evaluation.id === id); return a && `${a.person} ${a.evaluation.verlauf.join(' ')}`; }
   }
 }
 
 describe('Fallakten', () => {
   it('haben eindeutige IDs, Schritte und Rückblickfragen', () => {
     expect(new Set(AKTEN.map((a) => a.id)).size).toBe(AKTEN.length);
+    expect(new Set(AKTEN.map((a) => a.evaluation.id)).size).toBe(AKTEN.length);
     for (const a of AKTEN) {
       expect(a.schritte.length, a.id).toBeGreaterThanOrEqual(4);
       expect(new Set(a.schritte.map((s) => s.id)).size, a.id).toBe(a.schritte.length);
@@ -57,6 +60,22 @@ describe('Fallakten', () => {
           expect(EREIGNISSE[f.id]?.length, 'Ereignisse für die SBAR-Grundkriterien').toBeGreaterThan(0);
         }
       }
+    });
+
+    it(`${a.id}: Evaluation ist der letzte Schritt und eindeutig lösbar`, () => {
+      const letzter = a.schritte[a.schritte.length - 1]!;
+      expect(letzter.art).toBe('evaluation');
+      expect(letzter.fallId).toBe(a.evaluation.id);
+      expect(a.evaluation.ziele.length).toBeGreaterThanOrEqual(3);
+      // Alle drei Einschätzungen kommen vor, damit „alles erreicht“ nie zufällig passt
+      expect(new Set(a.evaluation.ziele.map((z) => z.erwartet))).toEqual(new Set(['ja', 'teilweise', 'nein']));
+      for (const z of a.evaluation.ziele) {
+        expect(z.anpassungen.length, z.id).toBe(3);
+        expect(z.anpassungen.filter((o) => o.richtig).length, z.id).toBe(1);
+        expect(z.anpassungen.every((o) => o.warum.length > 20), z.id).toBe(true);
+      }
+      const muster = Object.fromEntries(a.evaluation.ziele.map((z) => [z.id, { stand: z.erwartet, anpassung: z.anpassungen.findIndex((o) => o.richtig) }]));
+      expect(pruefeEvaluation(a.evaluation, muster).prozent).toBe(100);
     });
 
     it(`${a.id}: Adressen führen in den Trainer und zurück zur Akte`, () => {
@@ -153,5 +172,26 @@ describe('Einbindung', () => {
   it('Fallakte steht im Menü', () => {
     const praxis = JSON.stringify(NAV);
     expect(praxis).toContain('/lernen/fallakte');
+  });
+});
+
+describe('Evaluation prüfen', () => {
+  const ev = AKTEN[0]!.evaluation;
+  it('leer: 0 %, nicht vollständig', () => {
+    const e = pruefeEvaluation(ev, {});
+    expect(e.prozent).toBe(0);
+    expect(e.vollstaendig).toBe(false);
+  });
+  it('richtige Einschätzung, falsche Anpassung: halbe Punkte je Ziel', () => {
+    const a = Object.fromEntries(ev.ziele.map((z) => [z.id, { stand: z.erwartet, anpassung: z.anpassungen.findIndex((o) => !o.richtig) }]));
+    const e = pruefeEvaluation(ev, a);
+    expect(e.vollstaendig).toBe(true);
+    expect(e.prozent).toBe(50);
+    expect(e.ziele.every((z) => z.standOk && !z.anpassungOk)).toBe(true);
+  });
+  it('Bestwert landet im Stand der Akte', () => {
+    const a = AKTEN[0]!;
+    const s = a.schritte.find((x) => x.art === 'evaluation')!;
+    expect(schrittProzent(s, (key) => (key === BESTE_KEYS.evaluation ? { [s.fallId]: 83 } : {}))).toBe(83);
   });
 });

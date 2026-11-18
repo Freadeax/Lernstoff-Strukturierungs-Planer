@@ -4,6 +4,7 @@ import { PageHeading } from '../../ui/PageHeading';
 import { navigate, useRoute } from '../../ui/shell/router';
 import { AKTEN } from './akten';
 import { aktenStand, GUT_AB } from './stand';
+import { EvaluationSchritt } from './EvaluationSchritt';
 import { ART_LABEL, schrittPfad, type Fallakte } from './typen';
 import './fallakte.css';
 
@@ -13,7 +14,7 @@ const STUFE_TEXT = { offen: 'Noch offen', gut: 'Gut gelöst', teil: 'Bearbeitet'
 function Uebersicht() {
   return (
     <section className="page fallakte">
-      <PageHeading title="Fallakte" description="Eine Person, eine Woche, alle Dokumente: Du führst das Erstgespräch, schätzt Risiken ein, planst, dokumentierst und übergibst. Jeder Schritt wird offline geprüft und hat eine Musterlösung." />
+      <PageHeading title="Fallakte" description="Eine Person, mehrere Wochen, alle Dokumente: Du führst das Erstgespräch, schätzt Risiken ein, planst, dokumentierst, übergibst und prüfst am Ende, ob die Ziele erreicht sind. Jeder Schritt wird offline geprüft und hat eine Musterlösung." />
       <div className="fallakte__liste">
         {AKTEN.map((a) => {
           const st = aktenStand(a);
@@ -96,7 +97,10 @@ function Akte({ akte }: { akte: Fallakte }) {
 }
 
 export default function FallaktePage() {
-  const id = useRoute().params.get('akte');
-  const akte = AKTEN.find((a) => a.id === id);
+  const params = useRoute().params;
+  const akte = AKTEN.find((a) => a.id === params.get('akte'));
+  // Der Schlussschritt Evaluation läuft in der Akte selbst, Adresse wie bei den Trainern: ?fall=…&akte=…
+  const evalSchritt = akte?.schritte.find((s) => s.art === 'evaluation' && s.fallId === params.get('fall'));
+  if (akte && evalSchritt) return <EvaluationSchritt key={evalSchritt.fallId} akte={akte} schritt={evalSchritt} />;
   return akte ? <Akte akte={akte} /> : <Uebersicht />;
 }
