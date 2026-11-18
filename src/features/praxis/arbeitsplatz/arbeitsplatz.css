@@ -157,10 +157,16 @@
   .ap-verlauf { order: 0; }
 }
 
-/* ── iPhone: Reiter unten über der App-Leiste (Variante A) ── */
+/* „Passt dazu“ gehört nicht zum Fall (allgemeine Themen des alten Simulators): im neuen Arbeitsplatz ausblenden. */
+.route:has(.praxis--arbeitsplatz) > .passt-dazu { display: none; }
+
+/* ── iPhone: Reiter unten (Variante A). Im laufenden Fall weicht die App-Leiste, damit im Daumenbereich nur eine
+   Leiste liegt; zurück geht es über „‹“ im Fallkopf oder das Menü oben. ── */
 @media (max-width: 767px) {
-  .ap { padding-bottom: 76px; }
-  .ap-reiter { position: fixed; top: auto; left: 0; right: 0; bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom)); border-radius: 0; border-width: 1px 0; padding: 4px 6px; box-shadow: 0 -4px 12px rgb(0 0 0 / 0.1); }
+  .shell:has(.ap) .shell__tabbar { display: none; }
+  .shell:has(.ap) .content { padding-bottom: calc(env(safe-area-inset-bottom) + var(--space-4)); }
+  .ap { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
+  .ap-reiter { position: fixed; top: auto; left: 0; right: 0; bottom: 0; border-radius: 0; border-width: 2px 0 0; padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); box-shadow: 0 -4px 12px rgb(0 0 0 / 0.1); }
   .ap-wert dd { font-size: clamp(1rem, 5vw, 1.5rem); }
   .ap-uhr { gap: 4px; padding: 6px 8px; flex-wrap: nowrap; }
   .ap-uhr__zeit { font-size: var(--text-lg); }

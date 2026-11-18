@@ -34,6 +34,8 @@ try {
     await p.getByRole('button', { name: 'Pause' }).click();
     assert.equal(await p.getByRole('tab').count(), 6, 'sechs Reiter');
     assert.match(await p.locator('.ap-wert').first().innerText(), /—/, 'ambulant: zu Beginn nichts gemessen');
+    assert.equal(await p.locator('.passt-dazu').isVisible(), false, '„Passt dazu“ im laufenden Fall ausgeblendet');
+    if (w < 768) assert.equal(await p.locator('.shell__tabbar').isVisible(), false, 'iPhone: nur die Reiterleiste unten');
     await axe('start');
 
     await tu('Nach Sturz auf Verletzungen');
