@@ -5,10 +5,12 @@
 
 import { pruefe, type BedingungsKontext } from './bedingung';
 import { KATALOG } from './katalog';
-import { NORMAL, PLATZHALTER_MODELL, type ModellKontext, type PhysiologieModell } from './modell';
-import { spurB, wendeModulAn } from './spur-b/modul';
+import { NORMAL, type ModellKontext, type PhysiologieModell } from './modell';
+import { alarmFuer } from './physiologie/altersprofile';
+import { wendeModulAn } from './spur-b/modul';
+import { SPUR_B_MODELL } from './spur-b/standard';
 import type {
-  Anzeige, Bedingung, Bildzustand, FallV2, Freigabe, Grundgroessen, MassnahmeDefinition, ModellModule, ModulEingriff, Rolle,
+  AktiverTreiber, Anzeige, Bedingung, Bildzustand, FallV2, Freigabe, Grundgroessen, MassnahmeDefinition, ModellModule, ModulEingriff, Rolle,
   SimEvent, SimEventEingabe, Stufe, Treiber, Wirkkurve,
 } from './typen';
 
@@ -32,7 +34,8 @@ export interface SimZustand {
   seed: number;
   t: number;
   grund: Grundgroessen;
-  treiber: Treiber[];
+  /** laufende Treiber, mit Zeitstempel `seit` (nur aus z.t, damit Replay identisch bleibt) */
+  treiber: AktiverTreiber[];
   wirkungen: AktiveWirkung[];
   flags: string[];
   /** Maßnahme-/Frage-ID → Zeitpunkte */
@@ -62,12 +65,33 @@ export interface SimZustand {
   meldungen: Meldung[];
 }
 
-/** Standard: Spur-B-Hülle um das Basismodell; ohne Module liefert sie exakt das Basismodell. */
-let modell: PhysiologieModell = spurB(PLATZHALTER_MODELL);
-/** Paket P1 setzt hier das echte Modell. */
+/** Standard: Spur-B-Hülle (P1b) um das Pflege-Physiologiemodell (P1); ohne Module liefert sie exakt PFLEGE_MODELL. */
+let modell: PhysiologieModell = SPUR_B_MODELL;
 export function setzeModell(m: PhysiologieModell) { modell = m; }
+export const aktuellesModell = (): PhysiologieModell => modell;
 
-const kontextModell = (z: SimZustand): ModellKontext => ({ altersgruppe: z.fall.altersgruppe, module: z.module, gewichtKg: z.fall.person.gewichtKg });
+/** Ausgangslage des Falls: Basis für abgeleitete Größen im Modell */
+export const basisGrund = (fall: FallV2): Grundgroessen => ({ ...NORMAL, ...fall.start.grund });
+
+/** Summe der gerade laufenden Wirkkurven je Grundgröße (Kontext für die Homöostase im Modell) */
+export function laufendeWirkung(z: SimZustand): Partial<Record<keyof Grundgroessen, number>> {
+  const summe: Partial<Record<keyof Grundgroessen, number>> = {};
+  for (const w of z.wirkungen) {
+    const a = anteil(w.kurve, z.t - w.t0);
+    if (a !== 0) summe[w.kurve.groesse] = (summe[w.kurve.groesse] ?? 0) + w.delta * a;
+  }
+  return summe;
+}
+
+export const kontextModell = (z: SimZustand): ModellKontext => ({
+  altersgruppe: z.fall.altersgruppe, module: z.module, t: z.t, basis: basisGrund(z.fall),
+  wirkung: laufendeWirkung(z), gewichtKg: z.fall.person.gewichtKg,
+});
+
+/** Treiber mit Zeitstempel hinzufügen */
+function neueTreiber(z: SimZustand, liste: readonly Treiber[] | undefined) {
+  for (const tr of liste ?? []) z.treiber.push({ ...tr, seit: z.t });
+}
 
 function modulEingriff(z: SimZustand, e: ModulEingriff | undefined) {
   if (e) z.module = wendeModulAn(z.module, e);
@@ -126,8 +150,8 @@ export function start(fall: FallV2, rolle: Rolle, stufe: Stufe, seed = 1): SimZu
   for (const id of fall.start.anordnungen ?? []) anordnungen[id] = { rueckgelesen: true, t: 0 };
   return {
     fall, rolle, stufe, seed, t: 0,
-    grund: { ...NORMAL, ...fall.start.grund },
-    treiber: [...fall.start.treiber],
+    grund: basisGrund(fall),
+    treiber: fall.start.treiber.map((tr) => ({ ...tr, seit: 0 })),
     wirkungen: [], flags: [...(fall.start.flags ?? [])], getan: {}, geraete: [],
     sichtbar: [...(fall.start.sichtbar ?? [])], anordnungen, angeboten: [], zurueckgezogen: [],
     letzterAnruf: [], anleitung: [], paZaehler: {}, ereignisseAus: [], fehlerAus: [], alarme: {},
@@ -159,18 +183,20 @@ function aktiviere(z: SimZustand, kurven: Wirkkurve[] | undefined) {
   }
 }
 
-const ALARM: Partial<Record<keyof Anzeige, (w: number) => 'gelb' | 'rot' | undefined>> = {
-  spo2: (w) => (w < 88 ? 'rot' : w < 92 ? 'gelb' : undefined),
-  hf: (w) => (w > 130 || w < 40 ? 'rot' : w > 110 || w < 50 ? 'gelb' : undefined),
-  rrSys: (w) => (w < 90 ? 'rot' : w < 100 ? 'gelb' : undefined),
-  af: (w) => (w > 30 || w < 8 ? 'rot' : w > 24 || w < 10 ? 'gelb' : undefined),
-};
+/** Alarmfarbe wie am Monitor: Erwachsene NEWS2-Bänder (3 Punkte = rot), Kinder Altersprofil, Säuglinge keine. */
+const ALARM_GROESSEN = new Set<keyof Anzeige>(['spo2', 'hf', 'rrSys', 'af', 'temp']);
+function alarmVon(z: SimZustand, key: keyof Anzeige, wert: number): 'gelb' | 'rot' | undefined {
+  if (!ALARM_GROESSEN.has(key)) return undefined;
+  const a = alarmFuer(key, wert, z.fall.altersgruppe);
+  return a === 'ok' ? undefined : a;
+}
 
 type Stopp = 'zeit' | 'ereignis' | 'alarm' | 'ende';
 
 function schritt(z: SimZustand, dt: number): Stopp | undefined {
   const t0 = z.t;
   z.grund = modell.naechster(z.grund, z.treiber, dt, kontextModell(z));
+  // Hinweis: Wirkkurven-Zuwachs nach dem Modellschritt; das Modell kennt die bis t0 laufende Summe (kontext.wirkung).
   for (const w of z.wirkungen) {
     const d = w.delta * (anteil(w.kurve, t0 + dt - w.t0) - anteil(w.kurve, t0 - w.t0));
     if (d !== 0) z.grund[w.kurve.groesse] = (z.grund[w.kurve.groesse] ?? 0) + d;
@@ -181,8 +207,7 @@ function schritt(z: SimZustand, dt: number): Stopp | undefined {
   // Alarme nur für sichtbare Werte
   const a = anzeige(z);
   for (const key of z.sichtbar) {
-    const f = ALARM[key];
-    const stufe = f?.(a[key] as number);
+    const stufe = alarmVon(z, key, a[key] as number);
     if (stufe !== z.alarme[key]) {
       if (stufe) { z.log.push({ t: z.t, art: 'alarm', groesse: key, stufe }); if (stufe === 'rot') stopp ??= 'alarm'; }
       if (stufe) z.alarme[key] = stufe; else delete z.alarme[key];
@@ -216,7 +241,7 @@ function pruefeEreignisse(z: SimZustand): boolean {
     z.ereignisseAus.push(e.id);
     z.log.push({ t: z.t, art: 'ereignis', id: e.id });
     z.meldungen.push({ t: z.t, art: 'ereignis', text: e.text, quelle: e.id });
-    if (e.treiber) z.treiber.push(...e.treiber);
+    neueTreiber(z, e.treiber);
     if (e.bild) z.bild = { ...z.bild, ...e.bild };
     modulEingriff(z, e.modul);
     if (e.entscheidung?.length) z.offeneEntscheidung = e.id;
@@ -232,7 +257,7 @@ function pruefeFehler(z: SimZustand) {
     z.log.push({ t: z.t, art: 'fehler', id: f.id });
     if (f.folge) {
       z.meldungen.push({ t: z.t, art: 'fehler', text: f.folge.text, quelle: f.id });
-      if (f.folge.treiber) z.treiber.push(...f.folge.treiber);
+      neueTreiber(z, f.folge.treiber);
       aktiviere(z, f.folge.wirkung);
     }
   }
@@ -296,6 +321,8 @@ function fuehreAus(z: SimZustand, m: MassnahmeDefinition, zusatzSek = 0) {
   markiere(z, m.id);
   for (const f of m.setzt ?? []) if (!z.flags.includes(f)) z.flags.push(f);
   aktiviere(z, m.wirkung);
+  if (m.beendet?.length) z.treiber = z.treiber.filter((tr) => !m.beendet!.includes(tr.art));
+  neueTreiber(z, m.treiber);
   modulEingriff(z, m.modul);
   befund(z, m.id);
   pruefeFehler(z);

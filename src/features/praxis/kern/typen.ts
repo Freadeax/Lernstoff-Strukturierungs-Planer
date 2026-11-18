@@ -58,8 +58,10 @@ export interface Grundgroessen {
   schmerz: number;               // NRS 0..10
   angst: number;                 // 0..1
   uebelkeit: number;             // 0..1
+  // Zusätze Paket P1 (Physiologie)
+  sauerstoff: number;            // O₂-Zufuhr in l/min (0 = Raumluft); Maßnahme O₂-Gabe als Wirkkurve delta
+  krampf: number;                // 0 = kein Anfall, > 0 = Krampfaktivität, < 0 = nach dem Anfall (postiktal, kehrt zu 0 zurück)
   // Spur B (optional, nur mit Modellmodulen; P1b)
-  sauerstoff?: number;           // O₂ l/min (P1 legt die Größe an; hier nur bis zum Zusammenführen)
   sedierung?: number;            // 0..1 Sedativa-Wirkung (Perfusor), → RASS, Vigilanz, Atemantrieb
   laktat?: number;               // mmol/l, Bestand (steigt bei Minderperfusion, sinkt langsam)
   kalium?: number;               // mmol/l
@@ -74,8 +76,10 @@ export interface Anzeige {
   rhythmus: Rhythmus;
   avpu: 'A' | 'V' | 'P' | 'U';
   gcs?: number;
-  /** Mitteldruck (P1 setzt ihn im Basismodell; Spur B aus der arteriellen Messung) */
+  /** Mitteldruck mmHg (P1) */
   map?: number;
+  /** Rekapillarisierungszeit in Sekunden (P1) */
+  rekapSek?: number;
   // Spur B (P1b): nur befüllt, wenn das passende Modul an ist
   artSys?: number; artDia?: number;
   /** Arterielle Kurve gedämpft (Luft, Gerinnsel, abgeknickt): Systole zu niedrig, Diastole zu hoch */
@@ -101,7 +105,19 @@ export type Treiber =
   | { art: 'delir_trigger'; ausloeser: Array<'schmerz' | 'umgebung' | 'harnverhalt' | 'exsikkose' | 'infekt' | 'medikamente'> }
   | { art: 'panik_eskaliert'; tempo: number }
   | { art: 'fieberkrampf_kind'; temperaturSchwelle: number }
-  | { art: 'pneumonie'; staerke: number };
+  | { art: 'pneumonie'; staerke: number }
+  // Zusätze Paket P1
+  /** Normalinsulin s. c. (Gipfel nach etwa 2 h) */
+  | { art: 'insulin'; ie: number; gipfelMin?: number }
+  /** Kohlenhydrate; schnell = Traubenzucker/Saft (Gipfel 15 min), sonst Mahlzeit (Gipfel 40 min) */
+  | { art: 'kohlenhydrate'; gramm: number; schnell?: boolean }
+  /** Opioid-Antagonist: wirkt kürzer als viele Opioide (Renarkotisierung) */
+  | { art: 'naloxon'; halbwertMin: number }
+  /** volle Blase / Harnverhalt: Schmerz, Unruhe, Delir-Auslöser; endet über MassnahmeDefinition.beendet */
+  | { art: 'harnverhalt' };
+
+/** Treiber im Zustand: seit = Spielzeit, zu der er hinzukam (vom Kern gestempelt, nur aus z.t). */
+export type AktiverTreiber = Treiber & { seit?: Sek };
 
 /** Gerätestörungen in Spur B (Alarme, Befunde) */
 export type GeraeteStoerung = 'diskonnektion' | 'tubus-verlegt' | 'sekret' | 'art-gedaempft' | 'art-nicht-genullt';
@@ -182,6 +198,10 @@ export interface MassnahmeDefinition {
   /** Braucht unabhängig von der Rolle eine ärztliche Anordnung (Medikamente, O₂ über Standard, Infusion). */
   anordnungspflichtig?: boolean;
   wirkung?: Wirkkurve[];
+  /** Startet Treiber (P1), z. B. Morphin als opioid_ueberhang mit Halbwertszeit, Insulin, Traubenzucker. */
+  treiber?: Treiber[];
+  /** Beendet alle laufenden Treiber dieser Arten (P1), z. B. Blasenkatheter → 'harnverhalt'. */
+  beendet?: Array<Treiber['art']>;
   /** Setzt Flags (z. B. 'trinkt', 'sturzmatte') */
   setzt?: string[];
   /** Nur sichtbar/ausführbar, wenn erfüllt (z. B. Pulsoxy erst aus der Pflegetasche holen). */
