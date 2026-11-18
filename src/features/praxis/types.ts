@@ -138,4 +138,6 @@ export type Command = { type: 'action'; id: string } | { type: 'advance'; second
   | { type: 'note'; text: string } | { type: 'sbar'; fields: string[] }
   | { type: 'medication'; id: string; dose: number; volume: number; route: string; duration: number; equipment: string; checks: boolean[] }
   | { type: 'choose'; event: string; choice: string }
+  /** Folge einer ungünstigen Wahl im geführten Modus: wird als Fehlhandlung festgehalten, kostet Zeit, kann den Zustand verschlechtern. */
+  | { type: 'folge'; id: string; label: string; text: string; effect?: Partial<Vitals>; seconds?: number }
   | { type: 'finish' };
