@@ -23,6 +23,8 @@ export interface Meldung {
   art: 'befund' | 'gespraech' | 'arzt' | 'pa' | 'ereignis' | 'hinweis' | 'fehler' | 'ende';
   text: string;
   quelle?: string;
+  /** Bei Befunden: welche Werte die Variante sichtbar macht (Texte mit Platzhaltern lassen sich nicht vergleichen). */
+  zeigt?: ReadonlyArray<keyof Anzeige>;
 }
 
 interface AktiveWirkung { kurve: Wirkkurve; t0: number; delta: number }
@@ -317,7 +319,7 @@ function befund(z: SimZustand, id: string) {
   const b = z.fall.befunde.find((x) => x.massnahme === id);
   const v = b?.varianten.find((x) => !x.wenn || gilt(z, x.wenn));
   if (v) {
-    z.meldungen.push({ t: z.t, art: 'befund', text: fuelle(v.text, z), quelle: id });
+    z.meldungen.push({ t: z.t, art: 'befund', text: fuelle(v.text, z), quelle: id, ...(v.zeigt?.length ? { zeigt: v.zeigt } : {}) });
     for (const k of v.zeigt ?? []) if (!z.sichtbar.includes(k)) z.sichtbar.push(k);
   }
 }

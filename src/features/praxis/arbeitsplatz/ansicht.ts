@@ -61,13 +61,11 @@ export function wende(stand: Arbeitsstand, e: SimEventEingabe): Arbeitsstand {
   const messungen = { ...stand.messungen };
   if (e.art === 'massnahme') {
     const neu = z.meldungen.slice(stand.z.meldungen.length).filter((m) => m.art === 'befund' && m.quelle === e.id);
-    const befund = z.fall.befunde.find((b) => b.massnahme === e.id);
     const def = angeboteneMassnahmen(z.fall).find((m) => m.id === e.id);
     const live = !!def?.geraet && LIVE_GERAETE.has(def.geraet);
     const a = anzeige(z);
     for (const meldung of neu) {
-      const variante = befund?.varianten.find((v) => v.text === meldung.text);
-      for (const k of variante?.zeigt ?? []) {
+      for (const k of meldung.zeigt ?? []) {
         const g = ZU_MESSGROESSE[k];
         if (g) messungen[g] = { ...wertAus(a, g), t: z.t, live: live || !!messungen[g]?.live };
       }
