@@ -37,7 +37,7 @@ const Q = {
   schmerz: { id: 'dnqp-schmerz', titel: 'DNQP Expertenstandard Schmerzmanagement in der Pflege' },
   mobilitaet: { id: 'dnqp-mobilitaet', titel: 'DNQP Expertenstandard Erhaltung und Förderung der Mobilität' },
   ernaehrung: { id: 'dnqp-ernaehrung', titel: 'DNQP Expertenstandard Ernährungsmanagement' },
-  kontinenz: { id: 'dnqp-kontinenz', titel: 'DNQP Expertenstandard Förderung der Harnkontinenz' },
+  kontinenz: { id: 'dnqp-kontinenz', titel: 'DNQP Expertenstandard Kontinenzförderung in der Pflege (2024)' },
   wunden: { id: 'dnqp-wunden', titel: 'DNQP Expertenstandard Pflege von Menschen mit chronischen Wunden' },
   demenz: { id: 'dnqp-demenz', titel: 'DNQP Expertenstandard Beziehungsgestaltung in der Pflege von Menschen mit Demenz' },
   erc: { id: 'erc-2025', titel: 'ERC Leitlinien Reanimation 2025' },
