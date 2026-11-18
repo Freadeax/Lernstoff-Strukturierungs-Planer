@@ -224,3 +224,13 @@ describe('Kern mit Physiologiemodell (P1): Treiber aus Maßnahmen, Zeitstempel, 
     expect(mit.log.some((e) => e.art === 'alarm' && e.stufe === 'rot')).toBe(true);
   });
 });
+
+describe('Pilotfall: Modell passt zu den Befundtexten', () => {
+  it('Start: RR 90–105 systolisch, Puls 98–112 (Exsikkose + Torasemid + Ramipril, Hochbetagte)', () => {
+    const a = anzeige(start(FALL, 2, 2));
+    expect(a.rrSys).toBeGreaterThanOrEqual(90);
+    expect(a.rrSys).toBeLessThanOrEqual(105);
+    expect(a.hf).toBeGreaterThanOrEqual(98);
+    expect(a.hf).toBeLessThanOrEqual(112);
+  });
+});

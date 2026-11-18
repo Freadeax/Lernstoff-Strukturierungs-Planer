@@ -220,6 +220,10 @@ describe('Pflege-Physiologiemodell: Kopplungen und Monotonie', () => {
     expect(s(0.15).hf).toBeLessThan(s(0.6).hf);
     expect(s(0.15).rhythmus).toBe('sinusbradykardie');
   });
+  it('Hochbetagte: Volumenmangel senkt den Blutdruck deutlicher (Vorlastabhängigkeit, schwacher Reflex)', () => {
+    const abfall = (ag: Altersgruppe) => ruheAnzeige(ag).rrSys - PFLEGE_MODELL.anzeige({ ...NORMAL, volumen: 0.8 }, { altersgruppe: ag }).rrSys;
+    expect(abfall('hochbetagt')).toBeGreaterThan(abfall('erwachsen') + 15);
+  });
   it('Hochbetagte: schwächerer Pulsanstieg bei gleichem Volumenverlust', () => {
     const anstieg = (ag: Altersgruppe) => PFLEGE_MODELL.anzeige({ ...NORMAL, volumen: 0.75 }, { altersgruppe: ag }).hf - ruheAnzeige(ag).hf;
     expect(anstieg('hochbetagt')).toBeLessThan(anstieg('erwachsen'));

@@ -59,7 +59,8 @@ export const PILOT_AMBULANT: FallV2 = {
   startUhrzeit: '08:10',
 
   start: {
-    grund: { volumen: 0.82, hydratation: 0.78, orientierung: 0.55, delir: 0.35, unruhe: 0.2, schmerz: 3, angst: 0.4, temperatur: 37.4, blutzucker: 128 },
+    // volumen 0.8 (Exsikkose, Torasemid), gefaesstonus 0.92 (Ramipril): Modell zeigt etwa RR 98/62, HF 109 wie in den Befundtexten
+    grund: { volumen: 0.8, gefaesstonus: 0.92, hydratation: 0.78, orientierung: 0.55, delir: 0.35, unruhe: 0.2, schmerz: 3, angst: 0.4, temperatur: 37.4, blutzucker: 128 },
     treiber: [
       { art: 'exsikkose_progressiv', verlustProStunde: 0.01 },
       { art: 'delir_trigger', ausloeser: ['exsikkose', 'schmerz'] },
