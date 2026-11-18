@@ -163,11 +163,13 @@ export function spurB(basis: PhysiologieModell, details?: DetailQuelle): Physiol
       const sedierung = naeher(sed0, ziel, ziel > sed0 ? 1 / 120 : 1 / 300, dt);
       const w = wirksam({ ...g, sedierung }, k);
       const r = basis.naechster(w.g, treiber, dt, w.k);
-      // Zuschläge wieder herausrechnen: Bestände ändern nur Treiber und Wirkkurven
+      // Bestände Gefäßtonus/Pumpe ohne Medikamentenzuschlag fortschreiben (sonst würde das Begrenzen
+      // des wirksamen Werts den Grundbestand dauerhaft absenken): Bestände ändern nur Treiber und Wirkkurven
+      const roh = basis.naechster({ ...g, sedierung }, treiber, dt, k);
       const neu: Grundgroessen = {
         ...r,
-        gefaesstonus: g.gefaesstonus + (r.gefaesstonus - w.g.gefaesstonus),
-        pumpleistung: g.pumpleistung + (r.pumpleistung - w.g.pumpleistung),
+        gefaesstonus: roh.gefaesstonus,
+        pumpleistung: roh.pumpleistung,
         schmerz: g.schmerz + (r.schmerz - w.g.schmerz),
         sedierung,
       };
@@ -220,6 +222,7 @@ export function spurB(basis: PhysiologieModell, details?: DetailQuelle): Physiol
         map += versatz;
       }
       a.map = map;
+      const mapPhysiologisch = map - (m.arteriell && hat(m, 'art-nicht-genullt') ? 18 : 0);
 
       // Kapnografie: etCO₂ etwas unter paCO₂; Gradient wächst bei niedrigem HZV (Totraum)
       const b = m.beatmung;
@@ -242,7 +245,8 @@ export function spurB(basis: PhysiologieModell, details?: DetailQuelle): Physiol
 
       // Bilanz
       if (m.bilanz) {
-        a.urinMlH = urinMlH(w.ohneAuswurf ? 0 : map, g.volumen, kg);
+        // Niere sieht den echten Druck, nicht den Messfehler des Druckaufnehmers
+        a.urinMlH = urinMlH(w.ohneAuswurf ? 0 : mapPhysiologisch, g.volumen, kg);
         a.bilanzMl = Math.round((g.einfuhrMl ?? 0) - (g.ausfuhrMl ?? 0));
       }
       return a;

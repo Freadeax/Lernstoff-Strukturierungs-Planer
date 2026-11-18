@@ -118,10 +118,11 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
     aus('iv-medikament-geben', { id: 'paracetamol-iv', name: 'Paracetamol 1 g i. v. als Kurzinfusion', wirkung: EINFUHR_100 }),
     aus('perfusor-vorbereiten', {
       name: 'Noradrenalin-Perfusor (5 mg/50 ml) vorbereiten und anschließen',
-      // Laufrate kommt aus der Entscheidung (rechnen); bis dahin 0 ml/h
+      // Laufrate kommt aus der Entscheidung (rechnen); bis dahin 0 ml/h. Nur einmal, sonst stünde die laufende Pumpe wieder auf 0.
+      voraussetzung: { nicht: { getan: 'perfusor-vorbereiten' } },
       modul: { perfusor: { id: 'na', wirkstoff: 'noradrenalin', konzentration: '5 mg/50 ml', mgProMl: 0.1, mlProH: 0 } },
     }),
-    aus('katecholamin-anpassen', { name: 'Noradrenalin um 1 ml/h steigern (nach Zielvorgabe)', modul: { perfusor: { id: 'na', mlProHDelta: 1 } } }),
+    aus('katecholamin-anpassen', { name: 'Noradrenalin um 1 ml/h steigern (nach Zielvorgabe)', modul: { perfusor: { id: 'na', mlProHDelta: 1 } }, wirkung: [] }),
     aus('verlegung-uebergabe', { name: 'Verlegung: strukturierte Übergabe an die Intensivstation', voraussetzung: { anordnung: 'an-intensiv' }, setzt: ['auf-intensiv'] }),
   ],
 
