@@ -2,10 +2,16 @@
 // Paket P1b. Rolle wählbar: Azubi 3. Drittel oder Pflegefachperson (E11). Ärztliche Handlungen bleiben ärztlich.
 // Inhalte fiktiv/didaktisch. Werte entstehen im Modell (Basis P1 + Spur-B-Hülle), nicht als feste Zahlen.
 
-import type { Bedingung, FallV2 } from '../typen';
+import { KATALOG } from '../katalog';
+import type { Bedingung, FallV2, MassnahmeDefinition } from '../typen';
 
-const VOLUMEN_GEGEBEN: Bedingung = { getan: 'ringer-1000-iv' };
-const PENICILLIN_GEGEBEN: Bedingung = { getan: 'piperacillin-tazobactam-iv' };
+const VOLUMEN_GEGEBEN: Bedingung = { getan: 'infusion-anhaengen' };
+const PENICILLIN_GEGEBEN: Bedingung = { eine: [{ getan: 'piptaz-iv' }, { getan: 'piptaz-richten' }] };
+const ANTIBIOTIKUM: Bedingung = { eine: [{ getan: 'meropenem-iv' }, { getan: 'meropenem-richten' }, PENICILLIN_GEGEBEN] };
+
+/** Fallspezifische Fassung einer Katalog-Maßnahme: Befugnis und Lehrplan-Beleg bleiben aus P3. */
+const aus = (id: string, mehr: Partial<MassnahmeDefinition>): MassnahmeDefinition => ({ ...KATALOG[id]!, ...mehr });
+const EINFUHR_100: MassnahmeDefinition['wirkung'] = [{ groesse: 'einfuhrMl', delta: 100, beginnSek: 0, spitzeSek: 900, dauerSek: 'dauerhaft' }];
 
 export const SR_SEPTISCHER_SCHOCK: FallV2 = {
   schema: 2,
@@ -56,67 +62,99 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
   },
   medien: {
     raum: '18_notaufnahme_schockraum_nacht',
-    raumVarianten: [{ wenn: { flag: 'monitor' }, raum: '18_notaufnahme_schockraum_nacht_sensor_an' }],
+    raumVarianten: [{ wenn: { getan: 'monitor-anlegen' }, raum: '18_notaufnahme_schockraum_nacht_sensor_an' }],
   },
   uebernahme: 'Rettungsdienst bringt Herrn Kranz, 81, aus dem Pflegeheim. Seit dem Mittag zunehmend verwirrt, Fieber, kaum getrunken. Dauerkatheter, Urin trüb. Im Wagen Blutdruck um 90 systolisch, ein Zugang links, 500 ml Vollelektrolyt sind gelaufen.',
   startUhrzeit: '23:40',
 
   start: {
     grund: {
-      volumen: 0.82, gefaesstonus: 0.62, temperatur: 39.2, vigilanz: 0.72, orientierung: 0.45, delir: 0.35, unruhe: 0.25,
+      volumen: 0.8, gefaesstonus: 0.5, temperatur: 39.2, vigilanz: 0.72, orientierung: 0.45, delir: 0.35, unruhe: 0.25,
       gasaustausch: 0.9, angst: 0.4, schmerz: 3, blutzucker: 168, hydratation: 0.85,
       laktat: 4.1, kalium: 4.6, einfuhrMl: 0, ausfuhrMl: 0, sedierung: 0,
     },
     treiber: [
-      { art: 'sepsis_verlauf', tempo: 0.6 },
+      // fulminanter Verlauf: im Fall auf Minuten verdichtet (tempo 2 = Gefäßtonus −0,5/h, Kapillarleck)
+      { art: 'sepsis_verlauf', tempo: 2 },
       { art: 'delir_trigger', ausloeser: ['infekt'] },
     ],
     module: { bilanz: true },
     bild: { haltung: 'liegt', haut: 'gerötet-heiss', mimik: 'verwirrt', geraete: ['venenzugang'] },
     sichtbar: [],
+    flags: ['zugang-liegt'],
+    anordnungen: ['an-o2-standard'],
   },
 
   massnahmen: [
     // Gespräch & Beobachten
-    'ansprechen-orientierung', 'ersteindruck-abcde', 'qsofa-erheben', 'rekap-haut-pruefen', 'gcs-erheben', 'schmerz-nrs',
+    'ansprechen-orientierung', 'beruhigen-zusprechen', 'ersteindruck-abcde', 'qsofa-erheben', 'rekap-pruefen', 'haut-beobachten',
+    'bewusstsein-avpu', 'schmerz-nrs', 'urin-beobachten',
     // Akut & Sicherheit
-    'monitor-anschliessen', 'o2-maske-reservoir', 'schocklage-beine-hoch', 'oberkoerper-90-grad',
+    'o2-geben', 'flachlagern-beine-hoch', 'oberkoerper-hoch',
     // Messen & Diagnostik
-    'temperatur-ohr', 'bz-messen', 'ekg-12-kanal', 'blutkulturen-abnehmen', 'bga-abnehmen',
-    'art-nullabgleich', 'art-system-pruefen', 'urin-stundenmenge',
+    'monitor-anlegen', 'temperatur-ohr', 'bz-messen', 'ekg-12-kanal', 'etco2-anschliessen', 'blutkulturen-abnehmen',
+    'bga-venoes-abnehmen', 'bga-abnehmen-arteriell', 'bga-messen-lesen', 'arterie-nullabgleich', 'art-system-pruefen', 'bilanz-fuehren',
     // Versorgen
-    'ringer-1000-iv', 'piperacillin-tazobactam-iv', 'meropenem-iv', 'paracetamol-iv',
-    'noradrenalin-perfusor-starten', 'noradrenalin-steigern', 'noradrenalin-schenkel-anspuelen', 'arterie-assistieren', 'dk-pflege-beutel',
+    'infusion-anhaengen', 'meropenem-richten', 'meropenem-iv', 'piptaz-richten', 'piptaz-iv', 'paracetamol-iv',
+    'perfusor-vorbereiten', 'katecholamin-anpassen', 'katecholamin-schenkel-spuelen', 'arterie-assistieren',
     // Melden
-    'uebergabe-rettungsdienst', 'uebergabe-intensiv',
+    'uebergabe-rd-annehmen', 'verlegung-uebergabe',
+  ],
+  // Fallspezifische Fassungen (Menge, Wirkstoff, Modul); Befugnisse bleiben die des Katalogs (P3)
+  massnahmenZusatz: [
+    aus('o2-geben', { name: 'O₂ über Maske mit Reservoir, 10 l/min (Notfallstandard)', wirkung: [{ groesse: 'sauerstoff', delta: 10, beginnSek: 0, spitzeSek: 30, dauerSek: 'dauerhaft' }] }),
+    aus('infusion-anhaengen', {
+      name: 'Infusion: 1000 ml balancierte Vollelektrolytlösung rasch', setzt: ['infusion-laeuft', 'volumen'],
+      wirkung: [
+        // Kristalloide verteilen sich, bei Kapillarleck bleibt nur ein Teil im Gefäß (etwa ein Drittel)
+        { groesse: 'volumen', delta: 0.07, beginnSek: 0, spitzeSek: 900, dauerSek: 'dauerhaft' },
+        { groesse: 'einfuhrMl', delta: 1000, beginnSek: 0, spitzeSek: 900, dauerSek: 'dauerhaft' },
+      ],
+    }),
+    aus('iv-medikament-vorbereiten', { id: 'meropenem-richten', name: 'Meropenem 1 g richten, mit der Praxisanleitung als Kurzinfusion anhängen', setzt: ['antibiotikum'], wirkung: EINFUHR_100 }),
+    aus('iv-medikament-geben', { id: 'meropenem-iv', name: 'Meropenem 1 g i. v. als Kurzinfusion geben', setzt: ['antibiotikum'], wirkung: EINFUHR_100 }),
+    aus('iv-medikament-vorbereiten', { id: 'piptaz-richten', name: 'Piperacillin/Tazobactam 4,5 g richten, mit der Praxisanleitung anhängen', setzt: ['antibiotikum'] }),
+    aus('iv-medikament-geben', { id: 'piptaz-iv', name: 'Piperacillin/Tazobactam 4,5 g i. v. geben', setzt: ['antibiotikum'] }),
+    aus('iv-medikament-geben', { id: 'paracetamol-iv', name: 'Paracetamol 1 g i. v. als Kurzinfusion', wirkung: EINFUHR_100 }),
+    aus('perfusor-vorbereiten', {
+      name: 'Noradrenalin-Perfusor (5 mg/50 ml) vorbereiten und anschließen',
+      // Laufrate kommt aus der Entscheidung (rechnen); bis dahin 0 ml/h
+      modul: { perfusor: { id: 'na', wirkstoff: 'noradrenalin', konzentration: '5 mg/50 ml', mgProMl: 0.1, mlProH: 0 } },
+    }),
+    aus('katecholamin-anpassen', { name: 'Noradrenalin um 1 ml/h steigern (nach Zielvorgabe)', modul: { perfusor: { id: 'na', mlProHDelta: 1 } } }),
+    aus('verlegung-uebergabe', { name: 'Verlegung: strukturierte Übergabe an die Intensivstation', voraussetzung: { anordnung: 'an-intensiv' }, setzt: ['auf-intensiv'] }),
   ],
 
   befunde: [
-    { massnahme: 'uebergabe-rettungsdienst', varianten: [{ text: 'Notfallsanitäter: „Herr Kranz, 81, Pflegeheim. Seit Mittag verwirrt, Fieber 39 im Heim, Dauerkatheter mit trübem Urin. RR im Wagen 92/50, Puls 118, AF 26. Zugang 18 G links, 500 ml Vollelektrolyt gelaufen. Allergie: Penicillin, steht im Notfallbogen. Medikamentenplan liegt bei.“' }] },
+    { massnahme: 'uebergabe-rd-annehmen', varianten: [{ text: 'Notfallsanitäter: „Herr Kranz, 81, Pflegeheim. Seit Mittag verwirrt, Fieber 39 im Heim, Dauerkatheter mit trübem Urin. RR im Wagen 92/50, Puls 118, AF 26. Zugang 18 G links, 500 ml Vollelektrolyt gelaufen. Allergie: Penicillin, steht im Notfallbogen. Medikamentenplan liegt bei.“' }] },
     { massnahme: 'ansprechen-orientierung', varianten: [{ text: '„Wo bin ich denn hier … in der Werkstatt?“ Er öffnet die Augen auf Ansprache, ist zeitlich und örtlich nicht orientiert. Der Sohn sagt am Telefon, gestern sei er noch klar gewesen.' }] },
     { massnahme: 'ersteindruck-abcde', varianten: [{ text: 'A frei, spricht. B: schnelle, flache Atmung. C: Haut an Armen und Beinen kühl, am Rumpf heiß, Puls schnell und schwach. D: schläfrig, verwirrt. E: 39 °C laut Heim, Dauerkatheter mit trübem, dunklem Urin, Steiß gerötet.' }] },
-    { massnahme: 'monitor-anschliessen', varianten: [{ text: 'Monitor läuft: HF {hf}/min, RR {rrSys}/{rrDia} mmHg (MAP {map}), AF {af}/min, SpO₂ {spo2} %.', zeigt: ['hf', 'rrSys', 'rrDia', 'map', 'af', 'spo2', 'rhythmus'] }] },
+    { massnahme: 'monitor-anlegen', varianten: [{ text: 'Monitor läuft: HF {hf}/min, RR {rrSys}/{rrDia} mmHg (MAP {map}), AF {af}/min, SpO₂ {spo2} %.', zeigt: ['hf', 'rrSys', 'rrDia', 'map', 'af', 'spo2', 'rhythmus'] }] },
     { massnahme: 'qsofa-erheben', varianten: [{ text: 'qSOFA: Atemfrequenz {af}/min (≥ 22), systolischer Blutdruck {rrSys} mmHg (≤ 100), Bewusstsein verändert. 3 von 3 Punkten → hohes Risiko, an Sepsis denken.' }] },
-    { massnahme: 'rekap-haut-pruefen', varianten: [
-      { wenn: { wert: 'map', vergleich: '>=', grenze: 65 }, text: 'Rekapillarisierung etwa 3 s, Knie nur noch leicht marmoriert.' },
-      { text: 'Rekapillarisierung über 4 s, Knie marmoriert, Finger kühl.' },
+    { massnahme: 'rekap-pruefen', varianten: [{ text: 'Rekapillarisierung {rekapSek} s.' }] },
+    { massnahme: 'haut-beobachten', varianten: [
+      { wenn: { wert: 'map', vergleich: '>=', grenze: 65 }, text: 'Rumpf warm, Knie nur noch leicht marmoriert.' },
+      { text: 'Rumpf heiß, Arme und Beine kühl, Knie marmoriert.' },
     ] },
-    { massnahme: 'gcs-erheben', varianten: [{ text: 'GCS 13 (Augen 3, verbal 4, motorisch 6).' }] },
+    { massnahme: 'bewusstsein-avpu', varianten: [{ text: 'AVPU {avpu}, GCS {gcs}. Zeitlich und örtlich nicht orientiert.', zeigt: ['avpu'] }] },
+    { massnahme: 'urin-beobachten', varianten: [{ text: 'Dauerkatheter: Urin trüb und flockig, riecht stark, Beutel fast leer. Katheter laut Heim seit 5 Wochen.' }] },
+    { massnahme: 'etco2-anschliessen', varianten: [{ text: 'Nasale Kapnografie: etCO₂ {etco2} mmHg.', zeigt: ['etco2'] }] },
     { massnahme: 'schmerz-nrs', varianten: [{ text: 'Er zeigt auf den Unterbauch: „Da brennt’s.“ Schätzt NRS 3–4.' }] },
     { massnahme: 'temperatur-ohr', varianten: [{ text: '{temp} °C.', zeigt: ['temp'] }] },
     { massnahme: 'bz-messen', varianten: [{ text: 'BZ {bz} mg/dl.', zeigt: ['bz'] }] },
     { massnahme: 'ekg-12-kanal', varianten: [
-      { wenn: { nichtGetan: 'ringer-1000-iv', bis: 600 }, text: 'Absolute Arrhythmie ohne P-Wellen, Frequenz um {hf}/min: neu aufgetretenes Vorhofflimmern. Ärztin informieren.', zeigt: ['rhythmus'] },
+      { wenn: { nichtGetan: 'infusion-anhaengen', bis: 600 }, text: 'Absolute Arrhythmie ohne P-Wellen, Frequenz um {hf}/min: neu aufgetretenes Vorhofflimmern. Ärztin informieren.', zeigt: ['rhythmus'] },
       { text: 'Sinustachykardie {hf}/min, keine Zeichen einer Ischämie (Befund durch die Ärztin).', zeigt: ['rhythmus'] },
     ] },
     { massnahme: 'blutkulturen-abnehmen', varianten: [{ text: 'Zwei Paare Blutkulturen aus zwei getrennten Punktionen abgenommen (aerob/anaerob), beschriftet, Uhrzeit notiert, ins Labor geschickt.' }] },
-    { massnahme: 'bga-abnehmen', varianten: [{ text: 'BGA: pH {ph}, pCO₂ {paco2} mmHg, HCO₃⁻ {hco3} mmol/l, BE {be}, Laktat {laktat} mmol/l, K⁺ {kalium} mmol/l. Werte an die Ärztin weitergeben.', zeigt: ['ph', 'paco2', 'pao2', 'hco3', 'be', 'laktat', 'kalium'] }] },
-    { massnahme: 'urin-stundenmenge', varianten: [{ text: 'Urin zuletzt {urinMlH} ml/h (Ziel mindestens 0,5 ml/kg/h = 38 ml/h). Bilanz seit Aufnahme {bilanzMl} ml.', zeigt: ['urinMlH', 'bilanzMl'] }] },
+    { massnahme: 'bga-venoes-abnehmen', varianten: [{ text: 'Venöse BGA mit Laktat luftfrei abgenommen.' }] },
+    { massnahme: 'bga-abnehmen-arteriell', varianten: [{ text: 'Arterielle BGA aus der Kanüle abgenommen, System wieder gespült.' }] },
+    { massnahme: 'bga-messen-lesen', varianten: [{ text: 'BGA: pH {ph}, pCO₂ {paco2} mmHg, HCO₃⁻ {hco3} mmol/l, BE {be}, Laktat {laktat} mmol/l, K⁺ {kalium} mmol/l. Werte an die Ärztin weitergeben.', zeigt: ['ph', 'paco2', 'pao2', 'hco3', 'be', 'laktat', 'kalium'] }] },
+    { massnahme: 'bilanz-fuehren', varianten: [{ text: 'Urin zuletzt {urinMlH} ml/h (Ziel mindestens 0,5 ml/kg/h = 38 ml/h). Bilanz seit Aufnahme {bilanzMl} ml.', zeigt: ['urinMlH', 'bilanzMl'] }] },
     { massnahme: 'arterie-assistieren', varianten: [{ text: 'Dr. Aydin legt die Kanüle in die A. radialis rechts. Druckaufnehmer gespült und angeschlossen, Kurve läuft. Angezeigt: {artSys}/{artDia} mmHg, MAP {map}. Noch nicht genullt.', zeigt: ['artSys', 'artDia', 'map'] }] },
-    { massnahme: 'art-nullabgleich', varianten: [{ text: 'Druckaufnehmer auf Herzhöhe (Phlebostatische Achse), zur Luft geöffnet, Null bestätigt. Jetzt {artSys}/{artDia} mmHg, MAP {map}.', zeigt: ['artSys', 'artDia', 'map'] }] },
+    { massnahme: 'arterie-nullabgleich', varianten: [{ text: 'Druckaufnehmer auf Herzhöhe (Phlebostatische Achse), zur Luft geöffnet, Null bestätigt. Jetzt {artSys}/{artDia} mmHg, MAP {map}.', zeigt: ['artSys', 'artDia', 'map'] }] },
     { massnahme: 'art-system-pruefen', varianten: [{ text: 'Kleine Luftblase am Dreiwegehahn entfernt, Spülbeutel auf 300 mmHg, Leitung nicht abgeknickt. Kurve wieder spitz mit Inzisur: {artSys}/{artDia} mmHg, MAP {map}.', zeigt: ['artSys', 'artDia', 'map'] }] },
-    { massnahme: 'dk-pflege-beutel', varianten: [{ text: 'Urinbeutel unter Blasenniveau, Urin trüb und flockig, riecht stark. Katheter laut Heim seit 5 Wochen liegend.' }] },
-    { massnahme: 'noradrenalin-schenkel-anspuelen', varianten: [{ text: 'Du spülst mit 10 ml NaCl über den Schenkel, an dem das Noradrenalin läuft.' }] },
+    { massnahme: 'katecholamin-schenkel-spuelen', varianten: [{ text: 'Du spülst mit 10 ml NaCl über den Schenkel, an dem das Noradrenalin läuft.' }] },
   ],
 
   gespraech: [
@@ -135,12 +173,12 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
     { id: 's-fieber', teil: 'S', text: 'Herr Kranz hat Fieber.', art: 'hilfreich' },
     { id: 'b-dk-harnweg', teil: 'B', text: 'Dauerkatheter seit 5 Wochen, Urin trüb, Diabetes, seit Mittag zunehmend verwirrt.', art: 'kern' },
     { id: 'b-penicillin-allergie', teil: 'B', text: 'Penicillinallergie mit Luftnot im Notfallbogen.', art: 'kern',
-      bekanntWenn: { eine: [{ getan: 'uebergabe-rettungsdienst' }, { getan: 'frage:g-allergie' }] } },
+      bekanntWenn: { eine: [{ getan: 'uebergabe-rd-annehmen' }, { getan: 'frage:g-allergie' }] } },
     { id: 'b-schreiner', teil: 'B', text: 'Er war früher Schreiner.', art: 'ablenker' },
-    { id: 'a-hypotonie', teil: 'A', text: 'RR um 90 systolisch, MAP unter 65, Puls um 120.', art: 'kern', bekanntWenn: { getan: 'monitor-anschliessen' } },
-    { id: 'a-tachypnoe', teil: 'A', text: 'Atemfrequenz über 22, SpO₂ knapp.', art: 'kern', bekanntWenn: { getan: 'monitor-anschliessen' } },
+    { id: 'a-hypotonie', teil: 'A', text: 'RR um 90 systolisch, MAP unter 65, Puls um 120.', art: 'kern', bekanntWenn: { getan: 'monitor-anlegen' } },
+    { id: 'a-tachypnoe', teil: 'A', text: 'Atemfrequenz über 22, SpO₂ knapp.', art: 'kern', bekanntWenn: { getan: 'monitor-anlegen' } },
     { id: 'a-verwirrt', teil: 'A', text: 'Akut verwirrt, GCS 13.', art: 'kern' },
-    { id: 'a-laktat-hoch', teil: 'A', text: 'Laktat in der BGA über 2 mmol/l.', art: 'kern', bekanntWenn: { getan: 'bga-abnehmen' } },
+    { id: 'a-laktat-hoch', teil: 'A', text: 'Laktat in der BGA über 2 mmol/l.', art: 'kern', bekanntWenn: { getan: 'bga-messen-lesen' } },
     { id: 'a-map-nach-volumen', teil: 'A', text: 'Nach 1000 ml Volumen MAP weiter unter 65 mmHg.', art: 'kern', bekanntWenn: VOLUMEN_GEGEBEN },
     { id: 'a-nur-unruhig', teil: 'A', text: 'Er ist etwas unruhig, sonst stabil.', art: 'falsch' },
     { id: 'r-sofort', teil: 'R', text: 'Bitte kommen Sie sofort in den Schockraum.', art: 'kern' },
@@ -149,21 +187,22 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
   ],
 
   anordnungen: [
+    { id: 'an-o2-standard', massnahme: 'o2-geben', text: 'Notfallstandard der Notaufnahme: O₂ bei SpO₂ unter 94 %, Ziel 94–98 %.' },
     { id: 'an-bk', massnahme: 'blutkulturen-abnehmen', text: 'Zwei Paare Blutkulturen, vor dem Antibiotikum.' },
-    { id: 'an-bga', massnahme: 'bga-abnehmen', text: 'Venöse BGA mit Laktat, jetzt.' },
-    { id: 'an-ringer', massnahme: 'ringer-1000-iv', text: '1000 ml balancierte Vollelektrolytlösung rasch i. v., danach neu beurteilen.' },
-    { id: 'an-piptaz', massnahme: 'piperacillin-tazobactam-iv', text: 'Piperacillin/Tazobactam 4,5 g i. v. sofort nach den Blutkulturen.',
+    { id: 'an-bga', massnahme: 'bga-venoes-abnehmen', auchFuer: ['bga-abnehmen-arteriell'], text: 'BGA mit Laktat, jetzt und nach einer Stunde.' },
+    { id: 'an-ringer', massnahme: 'infusion-anhaengen', text: '1000 ml balancierte Vollelektrolytlösung rasch i. v., danach neu beurteilen.' },
+    { id: 'an-piptaz', massnahme: 'piptaz-iv', auchFuer: ['piptaz-richten'], text: 'Piperacillin/Tazobactam 4,5 g i. v. sofort nach den Blutkulturen.',
       fehlerhaft: {
         warum: 'Piperacillin ist ein Penicillin. Herr Kranz hat eine dokumentierte Penicillinallergie mit Luftnot (Anaphylaxie-Verdacht).',
         korrektur: 'Dann Meropenem 1 g i. v. als Kurzinfusion. Bitte in der ersten halben Stunde auf eine allergische Reaktion achten.',
         ersatz: 'an-meropenem',
       } },
-    { id: 'an-meropenem', massnahme: 'meropenem-iv', text: 'Meropenem 1 g i. v. als Kurzinfusion nach den Blutkulturen, auf allergische Reaktion achten.' },
+    { id: 'an-meropenem', massnahme: 'meropenem-iv', auchFuer: ['meropenem-richten'], text: 'Meropenem 1 g i. v. als Kurzinfusion nach den Blutkulturen, auf allergische Reaktion achten.' },
     { id: 'an-paracetamol', massnahme: 'paracetamol-iv', text: 'Paracetamol 1 g i. v. als Kurzinfusion.' },
-    { id: 'an-noradrenalin', massnahme: 'noradrenalin-perfusor-starten', text: 'Noradrenalin-Perfusor 5 mg/50 ml (0,1 mg/ml), Start 0,1 µg/kg/min, Ziel MAP ≥ 65 mmHg.' },
-    { id: 'an-na-titrieren', massnahme: 'noradrenalin-steigern', text: 'Noradrenalin in 1-ml/h-Schritten alle 5 Minuten anpassen, Ziel MAP 65–75 mmHg.' },
+    { id: 'an-noradrenalin', massnahme: 'perfusor-vorbereiten', text: 'Noradrenalin-Perfusor 5 mg/50 ml (0,1 mg/ml), Start 0,1 µg/kg/min, Ziel MAP ≥ 65 mmHg.' },
+    { id: 'an-na-titrieren', massnahme: 'katecholamin-anpassen', text: 'Noradrenalin in 1-ml/h-Schritten alle 5 Minuten anpassen, Ziel MAP 65–75 mmHg.' },
     { id: 'an-arterie', massnahme: 'arterie-assistieren', text: 'Ich lege eine arterielle Kanüle, bitte vorbereiten.' },
-    { id: 'an-intensiv', massnahme: 'uebergabe-intensiv', text: 'Verlegung auf die Intensivstation, Bett ist angefragt.' },
+    { id: 'an-intensiv', massnahme: 'verlegung-uebergabe', text: 'Verlegung auf die Intensivstation, Bett ist angefragt.' },
   ],
 
   arzt: {
@@ -187,10 +226,10 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
   },
 
   ereignisse: [
-    { id: 'e-vhf', art: 'geraet', wann: { nichtGetan: 'ringer-1000-iv', bis: 600 },
+    { id: 'e-vhf', art: 'geraet', wann: { nichtGetan: 'infusion-anhaengen', bis: 600 },
       text: 'Der Monitor alarmiert: unregelmäßige Tachykardie um 150/min. Herr Kranz wird blasser.',
       modul: { rhythmus: 'vorhofflimmern' }, bild: { haut: 'blass-kaltschweissig' } },
-    { id: 'e-laufrate', art: 'team', wann: { getan: 'noradrenalin-perfusor-starten' },
+    { id: 'e-laufrate', art: 'team', wann: { getan: 'perfusor-vorbereiten' },
       text: 'Die Spritze ist aufgezogen: Noradrenalin 5 mg auf 50 ml (0,1 mg/ml). Angeordnet sind 0,1 µg/kg/min, Herr Kranz wiegt 75 kg. Welche Laufrate stellst du ein?',
       entscheidung: [
         { id: 'w-4-5', text: '4,5 ml/h', wertung: 'gut', setzt: ['laufrate-richtig'], modul: { perfusor: { id: 'na', mlProH: 4.5 } },
@@ -210,10 +249,10 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
   pa: {
     name: 'Praxisanleiterin Jana Roth (Fachpflege Notfall)',
     hilfen: [
-      { wenn: { nicht: { getan: 'monitor-anschliessen' } }, impuls: 'Was brauchst du, um seinen Zustand überhaupt beurteilen zu können?', tipp: 'Schließ zuerst den Monitor an und lass dir die Übergabe vom Rettungsdienst geben.' },
+      { wenn: { nicht: { getan: 'monitor-anlegen' } }, impuls: 'Was brauchst du, um seinen Zustand überhaupt beurteilen zu können?', tipp: 'Schließ zuerst den Monitor an und lass dir die Übergabe vom Rettungsdienst geben.' },
       { wenn: { nicht: { flag: 'sepsis-gemeldet' } }, impuls: 'Fieber, niedriger Blutdruck, schnelle Atmung, neu verwirrt: Woran denkst du?', tipp: 'Erhebe den qSOFA und melde der Ärztin mit SBAR den Verdacht auf Sepsis. Denk an die Allergie im Notfallbogen.' },
       { wenn: { alle: [{ flag: 'sepsis-gemeldet' }, { nicht: { getan: 'blutkulturen-abnehmen' } }] }, impuls: 'In welcher Reihenfolge laufen Blutkulturen und Antibiotikum?', tipp: 'Erst die Blutkulturen, dann sofort das Antibiotikum. Das Volumen kann parallel laufen.' },
-      { wenn: { alle: [{ flag: 'art-liegt' }, { nicht: { flag: 'art-genullt' } }] }, impuls: 'Kannst du dem arteriellen Wert schon trauen?', tipp: 'Ohne Nullabgleich auf Herzhöhe ist der Wert verschoben. Erst nullen, dann titrieren.' },
+      { wenn: { alle: [{ flag: 'arterie-liegt' }, { nicht: { flag: 'art-genullt' } }] }, impuls: 'Kannst du dem arteriellen Wert schon trauen?', tipp: 'Ohne Nullabgleich auf Herzhöhe ist der Wert verschoben. Erst nullen, dann titrieren.' },
       { impuls: 'Erreicht ihr das Ziel? Woran misst du das außer am Monitor?', tipp: 'MAP, Haut, Bewusstsein und die Urin-Stundenmenge zeigen dir, ob die Organe wieder durchblutet werden.' },
     ],
   },
@@ -221,7 +260,7 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
   bewertung: {
     pflicht: [
       { id: 'p-monitor', text: 'Monitor in den ersten 2 Minuten angeschlossen', gewicht: 2, kompetenzbereiche: ['I'], klinisch: ['abcde', 'zeit'],
-        erfuellt: { getan: 'monitor-anschliessen', bis: 120 }, warum: 'Im Schockraum braucht es sofort kontinuierliche Überwachung von Rhythmus, Blutdruck und Sauerstoffsättigung.' },
+        erfuellt: { getan: 'monitor-anlegen', bis: 120 }, warum: 'Im Schockraum braucht es sofort kontinuierliche Überwachung von Rhythmus, Blutdruck und Sauerstoffsättigung.' },
       { id: 'p-qsofa', text: 'Sepsis-Risiko mit qSOFA eingeschätzt', gewicht: 2, kompetenzbereiche: ['I', 'V'], klinisch: ['abcde'],
         erfuellt: { getan: 'qsofa-erheben' }, warum: 'qSOFA (AF ≥ 22, RR sys ≤ 100, verändertes Bewusstsein) ist ein schneller Hinweis außerhalb der Intensivstation.' },
       { id: 'p-sepsis-gemeldet', text: 'Verdacht auf Sepsis mit SBAR gemeldet', gewicht: 3, kompetenzbereiche: ['II', 'III'], klinisch: ['team'],
@@ -232,23 +271,23 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
       { id: 'p-blutkulturen', text: 'Blutkulturen vor dem Antibiotikum abgenommen', gewicht: 2, kompetenzbereiche: ['I', 'V'], klinisch: ['medikamente'],
         erfuellt: { getan: 'blutkulturen-abnehmen' }, warum: 'Blutkulturen vor der ersten Antibiotikagabe erhöhen die Chance, den Erreger zu finden.' },
       { id: 'p-antibiotikum', text: 'Antibiotikum innerhalb der ersten Stunde gegeben', gewicht: 3, kompetenzbereiche: ['I', 'III'], klinisch: ['medikamente', 'zeit'],
-        erfuellt: { getan: 'meropenem-iv', bis: 3600 }, warum: 'Bei septischem Schock soll das Antibiotikum möglichst innerhalb einer Stunde laufen (SSC 2021).' },
+        erfuellt: { eine: [{ getan: 'meropenem-iv', bis: 3600 }, { getan: 'meropenem-richten', bis: 3600 }] }, warum: 'Bei septischem Schock soll das Antibiotikum möglichst innerhalb einer Stunde laufen (SSC 2021).' },
       { id: 'p-volumen', text: 'Volumen nach Anordnung rasch gegeben', gewicht: 3, kompetenzbereiche: ['I', 'III'], klinisch: ['abcde'],
-        erfuellt: { getan: 'ringer-1000-iv', bis: 900 }, warum: 'Bei Sepsis mit Hypotonie oder Laktat ≥ 4 mmol/l ist rasche Volumengabe die erste Kreislaufmaßnahme.' },
+        erfuellt: { getan: 'infusion-anhaengen', bis: 900 }, warum: 'Bei Sepsis mit Hypotonie oder Laktat ≥ 4 mmol/l ist rasche Volumengabe die erste Kreislaufmaßnahme.' },
       { id: 'p-laktat', text: 'Laktat bestimmt und gemeldet', gewicht: 2, kompetenzbereiche: ['I', 'II'], klinisch: ['abcde'],
-        erfuellt: { getan: 'bga-abnehmen' }, warum: 'Laktat zeigt die Minderdurchblutung der Gewebe und hilft, den Verlauf zu beurteilen.' },
+        erfuellt: { getan: 'bga-messen-lesen' }, warum: 'Laktat zeigt die Minderdurchblutung der Gewebe und hilft, den Verlauf zu beurteilen.' },
       { id: 'p-laufrate', text: 'Laufrate des Noradrenalin-Perfusors richtig berechnet', gewicht: 3, kompetenzbereiche: ['I', 'V'], klinisch: ['medikamente'],
         erfuellt: { flag: 'laufrate-richtig' }, warum: 'Rechenfehler bei Katecholaminen sind gefährlich. Rechenweg: µg/kg/min → µg/h → mg/h → ml/h.' },
       { id: 'p-nullabgleich', text: 'Arterielle Messung vor dem Titrieren genullt', gewicht: 2, kompetenzbereiche: ['I', 'V'], klinisch: ['geraete'],
-        erfuellt: { getan: 'art-nullabgleich' }, warum: 'Ohne Nullabgleich ist der angezeigte Druck verschoben, das Titrieren richtet sich dann nach falschen Werten.' },
+        erfuellt: { getan: 'arterie-nullabgleich' }, warum: 'Ohne Nullabgleich ist der angezeigte Druck verschoben, das Titrieren richtet sich dann nach falschen Werten.' },
       { id: 'p-gedaempft', text: 'Gedämpfte arterielle Kurve erkannt und behoben', gewicht: 2, kompetenzbereiche: ['I'], klinisch: ['geraete'],
         erfuellt: { getan: 'art-system-pruefen' }, warum: 'Eine gedämpfte Kurve unterschätzt die Systole. Wer danach titriert, gibt zu viel Noradrenalin.' },
       { id: 'p-map-ziel', text: 'Ziel-MAP ≥ 65 mmHg bei Verlegung erreicht', gewicht: 2, kompetenzbereiche: ['I'], klinisch: ['abcde'],
         erfuellt: { wert: 'map', vergleich: '>=', grenze: 65 }, warum: 'MAP ≥ 65 mmHg ist das Startziel bei septischem Schock (SSC 2021).' },
       { id: 'p-urin', text: 'Urin-Stundenmenge gemessen und Bilanz geführt', gewicht: 1, kompetenzbereiche: ['I'], klinisch: ['abcde'],
-        erfuellt: { getan: 'urin-stundenmenge' }, warum: 'Die Urinmenge zeigt, ob die Nieren wieder durchblutet werden (Ziel ≥ 0,5 ml/kg/h).' },
+        erfuellt: { getan: 'bilanz-fuehren' }, warum: 'Die Urinmenge zeigt, ob die Nieren wieder durchblutet werden (Ziel ≥ 0,5 ml/kg/h).' },
       { id: 'p-uebergabe', text: 'Strukturierte Übergabe an die Intensivstation', gewicht: 2, kompetenzbereiche: ['II', 'III'], klinisch: ['team'],
-        erfuellt: { getan: 'uebergabe-intensiv' }, warum: 'Bei der Verlegung gehen sonst Laufraten, Allergie und Zeitpunkte verloren.' },
+        erfuellt: { getan: 'verlegung-uebergabe' }, warum: 'Bei der Verlegung gehen sonst Laufraten, Allergie und Zeitpunkte verloren.' },
     ],
     fehler: [
       { id: 'f-penicillin', text: 'Penicillin trotz dokumentierter Allergie gegeben', wenn: PENICILLIN_GEGEBEN, schwere: 'schwer', kompetenzbereiche: ['III', 'IV'],
@@ -256,19 +295,19 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
           treiber: [{ art: 'bronchospasmus', staerke: 0.6 }],
           wirkung: [{ groesse: 'gefaesstonus', delta: -0.2, beginnSek: 60, spitzeSek: 300, dauerSek: 'dauerhaft' }] },
         warum: 'Bei einer Anordnung trotz bekannter Allergie musst du remonstrieren. Blind ausführen ist ein schwerer Durchführungsfehler.' },
-      { id: 'f-ab-vor-bk', text: 'Antibiotikum vor den Blutkulturen gegeben', wenn: { alle: [{ eine: [{ getan: 'meropenem-iv' }, PENICILLIN_GEGEBEN] }, { nicht: { getan: 'blutkulturen-abnehmen' } }] },
+      { id: 'f-ab-vor-bk', text: 'Antibiotikum vor den Blutkulturen gegeben', wenn: { alle: [ANTIBIOTIKUM, { nicht: { getan: 'blutkulturen-abnehmen' } }] },
         schwere: 'mittel', kompetenzbereiche: ['I', 'V'], warum: 'Nach dem Antibiotikum wachsen Erreger in der Blutkultur oft nicht mehr an.' },
-      { id: 'f-volumen-spaet', text: 'Volumen nicht innerhalb von 10 Minuten begonnen', wenn: { nichtGetan: 'ringer-1000-iv', bis: 600 },
+      { id: 'f-volumen-spaet', text: 'Volumen nicht innerhalb von 10 Minuten begonnen', wenn: { nichtGetan: 'infusion-anhaengen', bis: 600 },
         schwere: 'mittel', kompetenzbereiche: ['I', 'III'], warum: 'Der Kreislauf bricht ohne Volumen weiter ein, es kommt zu Rhythmusstörungen.' },
       { id: 'f-laufrate-10fach', text: 'Noradrenalin zehnfach überdosiert (45 ml/h)', wenn: { getan: 'wahl:e-laufrate:w-45' }, schwere: 'schwer', kompetenzbereiche: ['I', 'V'],
         folge: { text: 'Der Blutdruck schießt hoch, Herr Kranz klagt über Kopfschmerzen, die Finger werden weiß. Jana stoppt die Pumpe.' }, warum: 'Kommafehler bei Katecholaminen sind lebensgefährlich. Immer zu zweit rechnen und kontrollieren.' },
       { id: 'f-laufrate-falsch', text: 'Noradrenalin-Laufrate falsch berechnet', wenn: { eine: [{ getan: 'wahl:e-laufrate:w-7-5' }, { getan: 'wahl:e-laufrate:w-0-45' }] }, schwere: 'mittel', kompetenzbereiche: ['I', 'V'],
         warum: 'Mit falscher Laufrate wird das Ziel verfehlt oder überschritten. Rechenweg: µg/kg/min → mg/h → ml/h.' },
-      { id: 'f-na-bolus', text: 'Über den Noradrenalin-Schenkel gespült (Bolus)', wenn: { getan: 'noradrenalin-schenkel-anspuelen' }, schwere: 'schwer', kompetenzbereiche: ['I', 'V'],
+      { id: 'f-na-bolus', text: 'Über den Noradrenalin-Schenkel gespült (Bolus)', wenn: { getan: 'katecholamin-schenkel-spuelen' }, schwere: 'schwer', kompetenzbereiche: ['I', 'V'],
         folge: { text: 'Der Blutdruck steigt für eine Minute steil an, der Monitor alarmiert, Herr Kranz wird unruhig.',
           wirkung: [{ groesse: 'gefaesstonus', delta: 0.7, beginnSek: 0, spitzeSek: 10, dauerSek: 60 }] },
         warum: 'Katecholamine laufen über einen eigenen Schenkel, der nie gespült wird. Sonst bekommt der Patient einen Bolus.' },
-      { id: 'f-oberkoerper-hoch', text: 'Oberkörper im Schock hoch aufgerichtet', wenn: { getan: 'oberkoerper-90-grad' }, schwere: 'leicht', kompetenzbereiche: ['I'],
+      { id: 'f-oberkoerper-hoch', text: 'Oberkörper im Schock hoch aufgerichtet', wenn: { getan: 'oberkoerper-hoch' }, schwere: 'leicht', kompetenzbereiche: ['I'],
         folge: { text: 'Herr Kranz wird schwindelig und blass.', wirkung: [{ groesse: 'volumen', delta: -0.04, beginnSek: 0, spitzeSek: 30, dauerSek: 300 }] },
         warum: 'Bei Hypotonie verstärkt das Aufrichten den Blutdruckabfall. Flach lagern, Beine hoch.' },
     ],
@@ -323,40 +362,40 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
   ],
 
   pruefwege: {
+    // Musterweg für das 3. Drittel (Stufe 2, Praxisanleitung kommt bei „mit Anleitung“ dazu)
     muster: [
-      { art: 'massnahme', id: 'uebergabe-rettungsdienst' },
-      { art: 'massnahme', id: 'monitor-anschliessen' },
+      { art: 'massnahme', id: 'uebergabe-rd-annehmen' },
+      { art: 'massnahme', id: 'monitor-anlegen' },
       { art: 'massnahme', id: 'ersteindruck-abcde' },
       { art: 'massnahme', id: 'qsofa-erheben' },
-      { art: 'massnahme', id: 'o2-maske-reservoir' },
-      { art: 'massnahme', id: 'schocklage-beine-hoch' },
+      { art: 'massnahme', id: 'o2-geben' },
+      { art: 'massnahme', id: 'flachlagern-beine-hoch' },
       { art: 'anruf', an: 'aerztin', sbar: ['s-sepsis-verdacht', 'b-dk-harnweg', 'b-penicillin-allergie', 'a-hypotonie', 'a-tachypnoe', 'a-verwirrt', 'r-sofort'] },
       { art: 'rueckmelden', anordnung: 'an-ringer', rueckgelesen: true },
       { art: 'rueckmelden', anordnung: 'an-bk', rueckgelesen: true },
       { art: 'rueckmelden', anordnung: 'an-bga', rueckgelesen: true },
       { art: 'rueckmelden', anordnung: 'an-meropenem', rueckgelesen: true },
-      { art: 'massnahme', id: 'ringer-1000-iv' },
+      { art: 'massnahme', id: 'infusion-anhaengen' },
       { art: 'massnahme', id: 'blutkulturen-abnehmen' },
-      { art: 'massnahme', id: 'bga-abnehmen' },
-      { art: 'massnahme', id: 'meropenem-iv' },
+      { art: 'massnahme', id: 'meropenem-richten' },
+      { art: 'massnahme', id: 'bga-venoes-abnehmen' },
+      { art: 'massnahme', id: 'bga-messen-lesen' },
       { art: 'massnahme', id: 'temperatur-ohr' },
-      { art: 'frage', id: 'g-beruhigen' },
-      { art: 'warten', sek: 300 },
-      { art: 'massnahme', id: 'urin-stundenmenge' },
+      { art: 'massnahme', id: 'beruhigen-zusprechen' },
+      { art: 'warten', sek: 120 },
+      { art: 'massnahme', id: 'bilanz-fuehren' },
       { art: 'anruf', an: 'aerztin', sbar: ['s-sepsis-verdacht', 'a-map-nach-volumen', 'a-laktat-hoch', 'r-noradrenalin'] },
       { art: 'rueckmelden', anordnung: 'an-noradrenalin', rueckgelesen: true },
       { art: 'rueckmelden', anordnung: 'an-na-titrieren', rueckgelesen: true },
       { art: 'rueckmelden', anordnung: 'an-arterie', rueckgelesen: true },
       { art: 'rueckmelden', anordnung: 'an-intensiv', rueckgelesen: true },
-      { art: 'massnahme', id: 'noradrenalin-perfusor-starten' },
+      { art: 'massnahme', id: 'perfusor-vorbereiten' },
       { art: 'massnahme', id: 'arterie-assistieren' },
-      { art: 'massnahme', id: 'art-nullabgleich' },
+      { art: 'massnahme', id: 'arterie-nullabgleich' },
       { art: 'warten', sek: 120 },
       { art: 'massnahme', id: 'art-system-pruefen' },
-      { art: 'massnahme', id: 'noradrenalin-steigern' },
-      { art: 'warten', sek: 300 },
-      { art: 'massnahme', id: 'urin-stundenmenge' },
-      { art: 'massnahme', id: 'uebergabe-intensiv' },
+      { art: 'massnahme', id: 'bilanz-fuehren' },
+      { art: 'massnahme', id: 'verlegung-uebergabe' },
       { art: 'abschluss', probleme: ['pb-kreislauf', 'pb-infekt', 'pb-allergie', 'pb-delir'], ziele: ['z-map', 'z-orientierung', 'z-keine-reaktion'],
         verdacht: 'v-septischer-schock', begruendung: ['bg-infekt', 'bg-map-trotz-volumen', 'bg-laktat'] },
     ],
@@ -365,16 +404,16 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
     grenze: {
       rolle: 3,
       events: [
-        { art: 'massnahme', id: 'monitor-anschliessen' },
+        { art: 'massnahme', id: 'monitor-anlegen' },
         { art: 'massnahme', id: 'qsofa-erheben' },
         { art: 'anruf', an: 'aerztin', sbar: ['s-sepsis-verdacht', 'b-penicillin-allergie', 'a-hypotonie'] },
         { art: 'rueckmelden', anordnung: 'an-ringer', rueckgelesen: true },
-        { art: 'anleitung-anfordern', massnahme: 'ringer-1000-iv' },
-        { art: 'massnahme', id: 'ringer-1000-iv' },
+        { art: 'anleitung-anfordern', massnahme: 'infusion-anhaengen' },
+        { art: 'massnahme', id: 'infusion-anhaengen' },
         { art: 'warten', sek: 300 },
         { art: 'anruf', an: 'aerztin', sbar: ['a-map-nach-volumen'] },
         { art: 'rueckmelden', anordnung: 'an-noradrenalin', rueckgelesen: true },
-        { art: 'massnahme', id: 'noradrenalin-perfusor-starten' },
+        { art: 'massnahme', id: 'perfusor-vorbereiten' },
       ],
       erwartet: 'pa-eingriff',
     },

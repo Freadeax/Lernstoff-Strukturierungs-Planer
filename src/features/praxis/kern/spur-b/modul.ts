@@ -137,9 +137,13 @@ export function urinMlH(map: number, volumen: number, kg: number): number {
   return Math.round(kg * druck * fuellung * 10) / 10;
 }
 
-/** Laktat-Ziel: Minderperfusion (MAP < 65, niedriges HZV) und Hypoxämie treiben es hoch. */
-export function laktatZiel(map: number, perfusion: number, spo2: number): number {
-  return 1 + 0.12 * Math.max(0, 65 - map) + 4 * Math.max(0, 0.85 - perfusion) + 0.15 * Math.max(0, 88 - spo2);
+/**
+ * Laktat-Ziel: Minderperfusion (MAP < 65, niedriges HZV) und Hypoxämie treiben es hoch.
+ * Bei Sepsis kommt eine gestörte Mikrozirkulation dazu, die mit steigendem Druck abnimmt.
+ */
+export function laktatZiel(map: number, perfusion: number, spo2: number, sepsis = 0): number {
+  const mikro = 1.2 * Math.min(1.5, sepsis) * begrenze((75 - map) / 15, 0, 1.5);
+  return 1 + 0.12 * Math.max(0, 65 - map) + 4 * Math.max(0, 0.85 - perfusion) + 0.15 * Math.max(0, 88 - spo2) + mikro;
 }
 
 /* ───────────────────────── Die Hülle ───────────────────────── */
@@ -171,7 +175,8 @@ export function spurB(basis: PhysiologieModell, details?: DetailQuelle): Physiol
       const d = detail(w.g, w.k, a);
       const map = w.ohneAuswurf ? 0 : d.map;
       const perfusion = w.ohneAuswurf ? 0 : d.perfusion;
-      const lz = laktatZiel(map, perfusion, w.ohneAuswurf ? 60 : a.spo2);
+      const sepsis = treiber.reduce((s, t) => (t.art === 'sepsis_verlauf' ? Math.max(s, t.tempo) : s), 0);
+      const lz = laktatZiel(map, perfusion, w.ohneAuswurf ? 60 : a.spo2, sepsis);
       const l0 = g.laktat ?? 1;
       // Anstieg in Minuten, Clearance langsamer (Halbwert grob 1 h)
       neu.laktat = Math.round(naeher(l0, lz, lz > l0 ? 1 / 900 : 1 / 3600, dt) * 1000) / 1000;

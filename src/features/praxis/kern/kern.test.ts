@@ -3,7 +3,8 @@ import { FAELLE_V2 } from './faelle';
 import { PILOT_AMBULANT as FALL } from './faelle/amb-sturz-exsikkose';
 import { aktuellesModell, anteil, anzeige, freigabe, gilt, massnahme, replay, sende, start, vorspulen, type SimZustand } from './kern';
 import { PFLEGE_MODELL } from './physiologie/pflegemodell';
-import type { FallV2, Rolle, SimEventEingabe, Stufe } from './typen';
+import { SPUR_B_MODELL } from './spur-b/standard';
+import type { FallV2, Grundgroessen, Rolle, SimEventEingabe, Stufe } from './typen';
 
 const ROLLEN: Rolle[] = [1, 2, 3, 'pflegefachperson'];
 
@@ -99,6 +100,23 @@ describe('Kern: Befugnis und Freigabe (KONZEPT 6.1)', () => {
     const z = start(FALL, 'pflegefachperson', 2);
     const zvk = { ...massnahme(FALL, 'puls-zaehlen')!, id: 'zvk', befugnis: { 1: 'nur-aerztlich', 2: 'nur-aerztlich', 3: 'nur-aerztlich', pflegefachperson: 'nur-aerztlich' } as const };
     expect(freigabe(z, zvk)).toBe('grenze');
+  });
+  it('gesperrt ergibt Grenze; Stufe 2: PA übernimmt als Pflegefachperson, nicht ausgeführt', () => {
+    const fall: FallV2 = { ...FALL, befugnisUeberschreibung: { 'puls-zaehlen': { 1: 'gesperrt' } } };
+    const z0 = start(fall, 1, 2);
+    expect(freigabe(z0, massnahme(fall, 'puls-zaehlen')!)).toBe('grenze');
+    const z = sende(z0, { art: 'massnahme', id: 'puls-zaehlen' });
+    expect(z.getan['puls-zaehlen']).toBeUndefined();
+    expect(z.log.some((e) => e.art === 'pa-eingriff' && e.typ === 'warnt')).toBe(true);
+    const satz = z.meldungen.filter((x) => x.art === 'pa').map((x) => x.text).join(' ');
+    expect(satz).toContain('Pflegefachperson');
+    expect(satz).toContain('1. Drittel');
+    expect(satz).not.toContain('ärztliche Aufgabe');
+  });
+  it('gesperrt in Stufe 3: Grenzüberschreitung mit befugnis gesperrt im Log', () => {
+    const fall: FallV2 = { ...FALL, befugnisUeberschreibung: { 'puls-zaehlen': { 1: 'gesperrt' } } };
+    const z = sende(start(fall, 1, 3), { art: 'massnahme', id: 'puls-zaehlen' });
+    expect(z.log.some((e) => e.art === 'grenzueberschreitung' && e.befugnis === 'gesperrt' && e.massnahmeId === 'puls-zaehlen')).toBe(true);
   });
   it('Stufe 2: PA warnt bei fehlender Anordnung und führt nicht aus', () => {
     const z = sende(start(FALL, 3, 2), { art: 'massnahme', id: 'lorazepam-geben' });
@@ -199,8 +217,13 @@ describe('Kern mit Physiologiemodell (P1): Treiber aus Maßnahmen, Zeitstempel, 
     start: { ...FALL.start, treiber: [...FALL.start.treiber, { art: 'harnverhalt' }] },
   };
 
-  it('Standardmodell ist das Pflege-Physiologiemodell', () => {
-    expect(aktuellesModell()).toBe(PFLEGE_MODELL);
+  it('Standardmodell ist die Spur-B-Hülle um das Pflege-Physiologiemodell', () => {
+    expect(aktuellesModell()).toBe(SPUR_B_MODELL);
+    // ohne Module reicht die Hülle exakt an PFLEGE_MODELL durch
+    const g = MIT_TREIBER.start.grund as Grundgroessen;
+    const kx = { altersgruppe: 'erwachsen', gewichtKg: 70 } as const;
+    expect(SPUR_B_MODELL.anzeige(g, kx)).toEqual(PFLEGE_MODELL.anzeige(g, kx));
+    expect(SPUR_B_MODELL.naechster(g, [], 5, kx)).toEqual(PFLEGE_MODELL.naechster(g, [], 5, kx));
   });
   it('Maßnahme startet Treiber mit Zeitstempel aus der Spielzeit; Replay identisch', () => {
     let z = sende(start(MIT_TREIBER, 2, 2), { art: 'warten', sek: 120 });

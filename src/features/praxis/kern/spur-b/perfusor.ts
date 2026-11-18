@@ -20,7 +20,7 @@ interface Wirkstoff {
 
 /** Wirkstoffe, die der Simulator kennt. Unbekannte Wirkstoffe laufen ohne Wirkung (nur Anzeige). */
 export const WIRKSTOFFE: Readonly<Record<string, Wirkstoff>> = {
-  noradrenalin: { name: 'Noradrenalin', einheit: 'µg/kg/min', spanne: [0.05, 0.5], tonus: [0.9, 0.3] },
+  noradrenalin: { name: 'Noradrenalin', einheit: 'µg/kg/min', spanne: [0.05, 0.5], tonus: [1.5, 0.3] },
   adrenalin: { name: 'Adrenalin', einheit: 'µg/kg/min', spanne: [0.05, 0.5], tonus: [0.6, 0.3], pumpe: [0.5, 0.2] },
   dobutamin: { name: 'Dobutamin', einheit: 'µg/kg/min', spanne: [2, 20], pumpe: [0.5, 5] },
   propofol: { name: 'Propofol', einheit: 'mg/kg/h', spanne: [1, 4], sedierung: [1, 1.5], tonus: [-0.15, 1.5] },

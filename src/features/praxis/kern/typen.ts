@@ -16,7 +16,8 @@ export type Ausbildungsdrittel = 1 | 2 | 3;
 /** 'pflegefachperson' nur in Spur B (E11). */
 export type Rolle = Ausbildungsdrittel | 'pflegefachperson';
 export type Stufe = 1 | 2 | 3;                         // geführt · frei mit PA · Prüfung
-export type BefugnisLevel = 'selbst' | 'mit-anleitung' | 'nach-anordnung' | 'nur-aerztlich';
+/** 'gesperrt' (P3): in diesem Drittel nicht einmal mit Anleitung, aber keine ärztliche Aufgabe (KONZEPT 6.1). */
+export type BefugnisLevel = 'selbst' | 'mit-anleitung' | 'nach-anordnung' | 'nur-aerztlich' | 'gesperrt';
 export type Reiter = 'gespraech' | 'beobachten' | 'akut' | 'messen' | 'versorgen' | 'melden';
 
 /** PflAPrV Anlage 2, Kompetenzbereiche I–V */
@@ -251,6 +252,8 @@ export interface SbarBaustein {
 export interface Anordnung {
   id: string;
   massnahme: string;              // Verweis auf MassnahmeDefinition
+  /** Weitere Maßnahmen, die dieselbe Anordnung freischaltet (z. B. Medikament richten oder geben) */
+  auchFuer?: string[];
   text: string;                   // „500 ml Ringer-Lösung s. c. über 4 h“
   /** Fehlerhafte Anordnung → Remonstration erwartet (6.4) */
   fehlerhaft?: { warum: string; korrektur: string; /** Anordnung-ID, die nach der Remonstration angeboten wird */ ersatz?: string };
