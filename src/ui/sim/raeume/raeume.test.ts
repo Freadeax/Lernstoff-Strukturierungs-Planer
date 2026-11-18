@@ -7,7 +7,7 @@ const imBild = (n: number) => n >= 0 && n <= 1;
 
 describe('Raumkatalog', () => {
   it('jedes Bild existiert, hat Beschreibung und gültige Koordinaten', () => {
-    expect(RAUM_IDS.length).toBe(34);
+    expect(RAUM_IDS.length).toBe(65);
     for (const id of RAUM_IDS) {
       const r = RAEUME[id];
       expect(existsSync(`public/${r.datei}`), r.datei).toBe(true);
@@ -24,8 +24,10 @@ describe('Raumkatalog', () => {
   it('Raum 12 hat die Monitorfläche aus dem Paket und die Variante ohne Monitor', () => {
     expect(RAEUME['12_station_kardiologie_monitoring'].monitor).toEqual({ x: 0.628, y: 0.0965, width: 0.201, height: 0.2 });
     expect(raumFuerZustand('12_station_kardiologie_monitoring', 'abwesend')).toBe('12a_station_kardiologie_ohne_monitor');
-    expect(raumFuerZustand('12a_station_kardiologie_ohne_monitor', 'laeuft')).toBe('12_station_kardiologie_monitoring');
-    expect(raumFuerZustand('17_notaufnahme_untersuchung', 'abwesend')).toBe('17_notaufnahme_untersuchung');
+    expect(raumFuerZustand('12a_station_kardiologie_ohne_monitor', 'laeuft')).toBe('12_station_kardiologie_monitoring_sensor_an');
+    expect(raumFuerZustand('12_station_kardiologie_monitoring', 'signalausfall')).toBe('12_station_kardiologie_monitoring_sensor_ab');
+    expect(raumFuerZustand('12_station_kardiologie_monitoring', { monitor: 'laeuft', nacht: true })).toBe('12_station_kardiologie_monitoring_nacht');
+    expect(raumFuerZustand('17_notaufnahme_untersuchung', 'abwesend')).toBe('17_notaufnahme_untersuchung_ohne_monitor');
   });
 
   it('Kinderzimmer: ohne Wagen, Wagen in Bereitschaft, Sensor am Kind', () => {
@@ -35,10 +37,11 @@ describe('Raumkatalog', () => {
     expect(raumFuerZustand('20a_paediatrie_kleinkind_ohne_monitor', 'laeuft')).toBe('20m_paediatrie_kleinkind_monitor_verbunden');
     expect(raumFuerZustand('21_paediatrie_schulkind', 'abwesend')).toBe('21a_paediatrie_schulkind_ohne_monitor');
     expect(raumFuerZustand('21_paediatrie_schulkind', 'laeuft')).toBe('21m_paediatrie_schulkind_monitor_verbunden');
-    expect(raumFuerZustand('20f_paediatrie_kleinkind_fieberkrampf', 'laeuft')).toBe('20f_paediatrie_kleinkind_fieberkrampf');
+    expect(raumFuerZustand('20f_paediatrie_kleinkind_fieberkrampf', 'laeuft')).toBe('20f_paediatrie_kleinkind_fieberkrampf_sensor_an');
     expect(raumFuerZustand('30_station_zimmer_frau', 'abwesend')).toBe('30a_station_zimmer_frau_ohne_monitor');
     expect(raumFuerZustand('30a_station_zimmer_frau_ohne_monitor', 'laeuft')).toBe('30m_station_zimmer_frau_monitor_verbunden');
-    expect(raumFuerZustand('30b_station_zimmer_frau_sepsis', 'abwesend')).toBe('30b_station_zimmer_frau_sepsis');
+    expect(raumFuerZustand('30b_station_zimmer_frau_sepsis', 'abwesend')).toBe('30b_station_zimmer_frau_sepsis_ohne_monitor');
+    expect(raumFuerZustand('30b_station_zimmer_frau_sepsis_ohne_monitor', 'laeuft')).toBe('30b_station_zimmer_frau_sepsis_sensor_an');
   });
 
   it('Varianten verweisen auf vorhandene Räume, Hotspots liegen nicht auf dem Bildschirm', () => {

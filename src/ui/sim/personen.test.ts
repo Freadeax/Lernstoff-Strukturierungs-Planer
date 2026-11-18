@@ -11,7 +11,7 @@ describe('Porträts', () => {
   it('findet die Person zum Fall und fällt auf stabil zurück', () => {
     const ben = personFuer('fall', 'asthma-kind')!;
     expect(ben.name).toBe('Ben');
-    expect(portraetUrl(ben, 'kritisch')).toMatch(/personen\/praxis-asthma_stabil\.webp$/);
+    expect(portraetUrl(ben, 'kritisch')).toMatch(/personen\/praxis-asthma_kritisch\.webp$/);
     expect(personFuer('fall', 'gibt-es-nicht')).toBeNull();
   });
 });

@@ -21,12 +21,12 @@ export interface Person {
 
 const liste: Person[] = [
   {
-    id: 'mila', name: 'Mila', alter: 2, datei: 'praxis-kind', zustaende: ['stabil'],
+    id: 'mila', name: 'Mila', alter: 2, datei: 'praxis-kind', zustaende: ['stabil', 'angestrengt', 'kritisch'],
     beschreibung: 'Mila, ein Kleinkind mit braunem Bob und türkisfarbenem Schlafoberteil.',
     faelle: ['praxis:kind'],
   },
   {
-    id: 'ben', name: 'Ben', alter: 7, datei: 'praxis-asthma', zustaende: ['stabil'],
+    id: 'ben', name: 'Ben', alter: 7, datei: 'praxis-asthma', zustaende: ['stabil', 'angestrengt', 'kritisch'],
     beschreibung: 'Ben, ein Schulkind mit dunkelbraunem, gewelltem Haar und hellblauem Oberteil.',
     faelle: ['praxis:asthma', 'fall:asthma-kind', 'fall:demo-asthma'],
   },

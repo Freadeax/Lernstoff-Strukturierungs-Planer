@@ -36,7 +36,7 @@ describe('Asset-Status (SIM-06)', () => {
     expect(raumFuerZustand('20_paediatrie_kleinkind', { monitor: 'abwesend' })).toBe('20a_paediatrie_kleinkind_ohne_monitor');
     expect(raumFuerZustand('20a_paediatrie_kleinkind_ohne_monitor', { monitor: 'laeuft' })).toBe('20m_paediatrie_kleinkind_monitor_verbunden');
     // Ohne gelieferte Sensor-ab-Variante bleibt das Bild mit Sensor (der Monitor zeigt den Ausfall)
-    expect(raumFuerZustand('21_paediatrie_schulkind', 'signalausfall')).toBe('21m_paediatrie_schulkind_monitor_verbunden');
+    expect(raumFuerZustand('21_paediatrie_schulkind', 'signalausfall')).toBe('21_paediatrie_schulkind_sensor_ab');
     expect(raumVarianten('12_station_kardiologie_monitoring')).toContain('12a_station_kardiologie_ohne_monitor');
     for (const r of Object.values(RAEUME)) if (r.sensorAb) expect(RAEUME[r.sensorAb]).toBeDefined();
   });
@@ -69,11 +69,12 @@ describe('Asset-Status (SIM-06)', () => {
       expect(p.prompt.length, p.id).toBeGreaterThan(80);
       if (p.referenz) expect(existsSync(join('public', p.referenz)), p.referenz).toBe(true);
     }
-    expect(liste.some((p) => p.id === '21_paediatrie_schulkind_sensor_ab' && p.prioritaet === 'P1')).toBe(true);
-    const sensor = liste.find((p) => p.id === '21_paediatrie_schulkind_sensor_ab')!;
-    expect(zielDatei(sensor)).toBe('raeume/21_paediatrie_schulkind_sensor_ab.webp');
+    // Lieferung 3 (18.11.2026) ist eingebaut: der Sensor-ab-Raum steht nicht mehr auf der Liste.
+    expect(liste.some((p) => p.id === '21_paediatrie_schulkind_sensor_ab')).toBe(false);
+    const sensor = liste.find((p) => p.id === '21_paediatrie_schulkind_fall_rausch_sensor_an')!;
+    expect(zielDatei(sensor)).toBe('raeume/21_paediatrie_schulkind_fall_rausch_sensor_an.webp');
     const [k] = katalogVorlage([sensor]);
-    expect(k).toMatchObject({ id: sensor.id, variante_von: '21_paediatrie_schulkind', lizenz: 'eigene KI-Erzeugung' });
+    expect(k).toMatchObject({ id: sensor.id, variante_von: '21_paediatrie_schulkind_fall_rausch', lizenz: 'eigene KI-Erzeugung' });
     for (const f of k!.faelle as string[]) expect(f).toMatch(/^(praxis|fall|diagnostik|notfall):[a-z0-9-]+$/);
     const portraet = liste.find((p) => p.art === 'portraet');
     if (portraet) expect(zielDatei(portraet)).toMatch(/^personen\/.+_(angestrengt|kritisch)\.webp$/);
