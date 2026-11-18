@@ -2,6 +2,7 @@
 // Paket P3 baut den Katalog aus und belegt jede Befugnis mit dem BW-Landeslehrplan 3BFP (E4).
 // Bis dahin gilt: befugnisBeleg fehlt = Grundwert aus dem Konzept (KONZEPT.md 6.1), noch nicht belegt.
 
+import { SPUR_B_LISTE } from './spur-b/katalog';
 import type { BefugnisLevel, KB, MassnahmeDefinition, Reiter, Rolle } from './typen';
 
 /** Befugnis kurz: 1., 2., 3. Drittel, Pflegefachperson */
@@ -69,4 +70,5 @@ const LISTE: MassnahmeDefinition[] = [
   m('pdl-informieren', 'Pflegedienstleitung informieren', 'melden', 60, ['III']),
 ];
 
-export const KATALOG: Readonly<Record<string, MassnahmeDefinition>> = Object.fromEntries(LISTE.map((x) => [x.id, x]));
+/** Spur-B-Handlungen (Akut/Intensiv) liegen in spur-b/katalog.ts (P1b). */
+export const KATALOG: Readonly<Record<string, MassnahmeDefinition>> = Object.fromEntries([...LISTE, ...SPUR_B_LISTE].map((x) => [x.id, x]));

@@ -8,6 +8,8 @@
   --sim-ekg: #4ade80;
   --sim-pleth: #38bdf8;
   --sim-atmung: #facc15;
+  --sim-art: #f87171;
+  --sim-co2: #e5e7eb;
   --sim-nibp: #f0f4f3;
   --sim-temp: #f9a8d4;
   --sim-gelb: #fbbf24;
@@ -48,6 +50,8 @@
 .sim-monitor__kurve.is-ekg { color: var(--sim-ekg); height: 56px; }
 .sim-monitor__kurve.is-pleth { color: var(--sim-pleth); }
 .sim-monitor__kurve.is-atmung { color: var(--sim-atmung); height: 38px; }
+.sim-monitor__kurve.is-art { color: var(--sim-art); }
+.sim-monitor__kurve.is-co2 { color: var(--sim-co2); height: 38px; }
 
 .sim-monitor__wert { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: 4px; align-items: baseline; line-height: 1.05; border-radius: 6px; padding: 2px 4px; }
 .sim-monitor__wert .sim-monitor__label { grid-column: 1 / -1; font-size: 11px; font-weight: 600; opacity: .85; }
@@ -57,6 +61,8 @@
 .sim-monitor__wert.is-ekg { color: var(--sim-ekg); }
 .sim-monitor__wert.is-pleth { color: var(--sim-pleth); }
 .sim-monitor__wert.is-atmung { color: var(--sim-atmung); }
+.sim-monitor__wert.is-art { color: var(--sim-art); }
+.sim-monitor__wert.is-co2 { color: var(--sim-co2); }
 .sim-monitor__wert.is-nibp, .sim-monitor__wert.is-avpu { color: var(--sim-nibp); }
 .sim-monitor__wert.is-temp { color: var(--sim-temp); }
 .sim-monitor__wert.is-gelb strong { color: var(--sim-gelb); }
@@ -77,7 +83,7 @@
 .sim-monitor.is-kompakt .sim-monitor__kopf { font-size: 10px; min-height: 0; }
 
 /* Aus / kein Signal */
-.sim-monitor.is-aus { --sim-ekg: #2c3a36; --sim-pleth: #2c3a36; --sim-atmung: #2c3a36; --sim-nibp: #3d4b47; --sim-temp: #3d4b47; }
+.sim-monitor.is-aus { --sim-ekg: #2c3a36; --sim-pleth: #2c3a36; --sim-atmung: #2c3a36; --sim-art: #2c3a36; --sim-co2: #2c3a36; --sim-nibp: #3d4b47; --sim-temp: #3d4b47; }
 
 .sim-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 

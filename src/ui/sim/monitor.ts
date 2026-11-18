@@ -14,7 +14,21 @@ export interface MonitorWerte {
   /** ACVPU-Buchstabe */
   avpu?: string | null;
   sauerstoff?: boolean | null;
+  // Spur B (Akut/Intensiv): nur anzeigen, wenn gemessen
+  /** Arterielle Druckmessung (invasiv) */
+  artSys?: number | null;
+  artDia?: number | null;
+  /** Mitteldruck (arteriell, sonst aus NIBP) */
+  map?: number | null;
+  /** Gedämpfte arterielle Kurve (Luft, Gerinnsel, Knick) */
+  artGedaempft?: boolean | null;
+  /** Kapnografie: endtidales CO₂ in mmHg */
+  etco2?: number | null;
+  /** EKG-Rhythmus; ohne Angabe Sinusrhythmus */
+  rhythmus?: MonitorRhythmus | null;
 }
+
+export type MonitorRhythmus = 'sinus' | 'sinustachykardie' | 'sinusbradykardie' | 'vorhofflimmern' | 'vt' | 'kammerflimmern' | 'asystolie' | 'pea';
 
 export type Alarm = 'ok' | 'gelb' | 'rot';
 export type MonitorParameter = 'puls' | 'af' | 'spo2' | 'sys' | 'temp';
@@ -90,6 +104,19 @@ export function alarmStufe(p: MonitorParameter, n: number | null | undefined, gr
   }
 }
 
+/** Alarmstufe für Spur-B-Werte (Erwachsene): MAP unter 65 mmHg, etCO₂ außerhalb 30–45 mmHg (0 = keine Ausatmung). */
+export function alarmZusatz(p: 'map' | 'etco2', n: number | null | undefined): Alarm {
+  if (!da(n)) return 'ok';
+  if (p === 'map') return n < 60 || n > 130 ? 'rot' : n < 65 || n > 110 ? 'gelb' : 'ok';
+  return n < 10 || n > 60 ? 'rot' : n < 30 || n > 45 ? 'gelb' : 'ok';
+}
+
+/** Lesbarer Name des Rhythmus (für Bildschirmleser und Kopfzeile). */
+export const RHYTHMUS_NAME: Record<MonitorRhythmus, string> = {
+  sinus: 'Sinusrhythmus', sinustachykardie: 'Sinustachykardie', sinusbradykardie: 'Sinusbradykardie', vorhofflimmern: 'Vorhofflimmern',
+  vt: 'Ventrikuläre Tachykardie', kammerflimmern: 'Kammerflimmern', asystolie: 'Asystolie', pea: 'Pulslose elektrische Aktivität',
+};
+
 /** Normalbereich je Wert und Altersgruppe aus dem gemeinsamen Vertrag (für Kurvenbänder); undefined ohne Profil. */
 export function normBand(p: MonitorParameter, gruppe: MonitorGruppe = 'erwachsen'): { min?: number; max?: number } | undefined {
   return vitalNormal(p, gruppe);
@@ -147,6 +174,55 @@ export function atmung(phase: number): number {
   const x = phase - Math.floor(phase);
   return x < 0.4 ? -Math.cos((x / 0.4) * Math.PI) : Math.cos(((x - 0.4) / 0.6) * Math.PI);
 }
+
+/** Arterielle Druckkurve: steiler Anstieg, Spitze, dikrote Inzisur. Gedämpft: flach und rund, ohne Inzisur. */
+export function arteriell(phase: number, gedaempft = false): number {
+  const x = phase - Math.floor(phase);
+  if (gedaempft) return 0.45 * glocke(x, 0.38, 0.2) - 0.2;
+  const anstieg = x < 0.12 ? 0 : x < 0.2 ? (x - 0.12) / 0.08 : Math.exp(-(x - 0.2) / 0.32);
+  return 1.5 * anstieg + 0.18 * glocke(x, 0.47, 0.035) - 0.15 * glocke(x, 0.43, 0.02) - 0.75;
+}
+
+/** Kapnografie je Atemzug: Einatmung Nulllinie, steiler Anstieg, Plateau, Abfall zu Beginn der nächsten Einatmung. */
+export function kapnografie(phase: number): number {
+  const x = phase - Math.floor(phase);
+  if (x < 0.38) return -0.85;
+  if (x < 0.46) return -0.85 + 1.55 * ((x - 0.38) / 0.08);
+  if (x < 0.95) return 0.7 + 0.12 * ((x - 0.46) / 0.49);
+  return 0.82 - 1.67 * ((x - 0.95) / 0.05);
+}
+
+/** Pseudozufall je Schlag (deterministisch), für unregelmäßige Rhythmen. */
+const streu = (n: number) => { const s = Math.sin(n * 12.9898 + 78.233) * 43758.5453; return s - Math.floor(s); };
+
+/** EKG-Form je Rhythmus. Bei Kammerflimmern und Asystolie ist die Phase die Zeit in Sekunden (Rate 1/s). */
+export function ekgRhythmus(rhythmus: MonitorRhythmus | null | undefined): (phase: number) => number {
+  switch (rhythmus) {
+    case 'vorhofflimmern':
+      return (phase) => {
+        const n = Math.floor(phase), x = phase - n;
+        const qrs = 0.15 + 0.45 * streu(n); // QRS wandert innerhalb des Schlags → unregelmäßige Abstände
+        const flimmern = 0.05 * Math.sin(phase * 2 * Math.PI * 5.3) + 0.04 * Math.sin(phase * 2 * Math.PI * 7.9 + 1);
+        return flimmern - 0.12 * glocke(x, qrs - 0.015, 0.008) + glocke(x, qrs, 0.012) - 0.25 * glocke(x, qrs + 0.02, 0.01) + 0.25 * glocke(x, qrs + 0.22, 0.06);
+      };
+    case 'vt':
+      return (phase) => { const x = phase - Math.floor(phase); return 0.85 * Math.sin(2 * Math.PI * x) * (x < 0.5 ? 1 : 0.7) + 0.15 * Math.sin(4 * Math.PI * x); };
+    case 'kammerflimmern':
+      return (t) => {
+        const huelle = 0.55 + 0.35 * Math.sin(t * 0.9) * Math.sin(t * 0.37 + 1);
+        return huelle * (0.6 * Math.sin(t * 2 * Math.PI * 4.6) + 0.3 * Math.sin(t * 2 * Math.PI * 6.3 + 1.3) + 0.25 * Math.sin(t * 2 * Math.PI * 3.1 + 0.4));
+      };
+    case 'asystolie':
+      return (t) => 0.025 * Math.sin(t * 7.3) + 0.015 * Math.sin(t * 23.1);
+    case 'pea':
+      return (phase) => { const x = phase - Math.floor(phase); return 0.1 * glocke(x, 0.12, 0.03) + 0.8 * glocke(x, 0.27, 0.03) - 0.2 * glocke(x, 0.32, 0.03) + 0.25 * glocke(x, 0.55, 0.08); };
+    default:
+      return ekg;
+  }
+}
+
+/** Rhythmus ohne messbaren Puls (Kurve läuft mit fester Zeitbasis). */
+export const ohnePuls = (r: MonitorRhythmus | null | undefined) => r === 'kammerflimmern' || r === 'asystolie';
 
 /** Frequenz pro Minute → Schläge pro Sekunde; begrenzt, damit Unsinnswerte die Anzeige nicht sprengen. */
 export const proSekunde = (n: number | null | undefined, min = 4, max = 220) => (da(n) && n > 0 ? Math.min(max, Math.max(min, n)) / 60 : 0);

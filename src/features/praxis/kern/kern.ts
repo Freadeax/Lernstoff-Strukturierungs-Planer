@@ -6,8 +6,9 @@
 import { pruefe, type BedingungsKontext } from './bedingung';
 import { KATALOG } from './katalog';
 import { NORMAL, PLATZHALTER_MODELL, type ModellKontext, type PhysiologieModell } from './modell';
+import { spurB, wendeModulAn } from './spur-b/modul';
 import type {
-  Anzeige, Bedingung, Bildzustand, FallV2, Freigabe, Grundgroessen, MassnahmeDefinition, Rolle,
+  Anzeige, Bedingung, Bildzustand, FallV2, Freigabe, Grundgroessen, MassnahmeDefinition, ModellModule, ModulEingriff, Rolle,
   SimEvent, SimEventEingabe, Stufe, Treiber, Wirkkurve,
 } from './typen';
 
@@ -51,6 +52,8 @@ export interface SimZustand {
   alarme: Partial<Record<keyof Anzeige, 'gelb' | 'rot'>>;
   offeneEntscheidung?: string;
   bild: Bildzustand;
+  /** Spur B: Laufzeitkopie der Modellmodule (Perfusoren, Beatmung, Störungen …), entsteht im Replay identisch */
+  module?: ModellModule;
   ende?: { text: string; ausgang: string; t: number };
   abschluss?: Extract<SimEventEingabe, { art: 'abschluss' }>;
   /** Eingaben in Reihenfolge: Grundlage für Replay */
@@ -59,11 +62,16 @@ export interface SimZustand {
   meldungen: Meldung[];
 }
 
-let modell: PhysiologieModell = PLATZHALTER_MODELL;
+/** Standard: Spur-B-Hülle um das Basismodell; ohne Module liefert sie exakt das Basismodell. */
+let modell: PhysiologieModell = spurB(PLATZHALTER_MODELL);
 /** Paket P1 setzt hier das echte Modell. */
 export function setzeModell(m: PhysiologieModell) { modell = m; }
 
-const kontextModell = (z: SimZustand): ModellKontext => ({ altersgruppe: z.fall.altersgruppe, module: z.fall.start.module });
+const kontextModell = (z: SimZustand): ModellKontext => ({ altersgruppe: z.fall.altersgruppe, module: z.module, gewichtKg: z.fall.person.gewichtKg });
+
+function modulEingriff(z: SimZustand, e: ModulEingriff | undefined) {
+  if (e) z.module = wendeModulAn(z.module, e);
+}
 
 export function anzeige(z: SimZustand): Anzeige {
   return modell.anzeige(z.grund, kontextModell(z));
@@ -124,6 +132,7 @@ export function start(fall: FallV2, rolle: Rolle, stufe: Stufe, seed = 1): SimZu
     sichtbar: [...(fall.start.sichtbar ?? [])], anordnungen, angeboten: [], zurueckgezogen: [],
     letzterAnruf: [], anleitung: [], paZaehler: {}, ereignisseAus: [], fehlerAus: [], alarme: {},
     bild: { ...fall.start.bild }, eingaben: [], log: [], meldungen: [],
+    ...(fall.start.module ? { module: structuredClone(fall.start.module) } : {}),
   };
 }
 
@@ -145,7 +154,7 @@ export function anteil(k: Wirkkurve, tRel: number): number {
 
 function aktiviere(z: SimZustand, kurven: Wirkkurve[] | undefined) {
   for (const k of kurven ?? []) {
-    const delta = k.delta ?? (k.faktor !== undefined ? z.grund[k.groesse] * (k.faktor - 1) : 0);
+    const delta = k.delta ?? (k.faktor !== undefined ? (z.grund[k.groesse] ?? 0) * (k.faktor - 1) : 0);
     z.wirkungen.push({ kurve: k, t0: z.t, delta });
   }
 }
@@ -164,7 +173,7 @@ function schritt(z: SimZustand, dt: number): Stopp | undefined {
   z.grund = modell.naechster(z.grund, z.treiber, dt, kontextModell(z));
   for (const w of z.wirkungen) {
     const d = w.delta * (anteil(w.kurve, t0 + dt - w.t0) - anteil(w.kurve, t0 - w.t0));
-    if (d !== 0) z.grund[w.kurve.groesse] += d;
+    if (d !== 0) z.grund[w.kurve.groesse] = (z.grund[w.kurve.groesse] ?? 0) + d;
   }
   z.t = t0 + dt;
   let stopp: Stopp | undefined;
@@ -209,6 +218,7 @@ function pruefeEreignisse(z: SimZustand): boolean {
     z.meldungen.push({ t: z.t, art: 'ereignis', text: e.text, quelle: e.id });
     if (e.treiber) z.treiber.push(...e.treiber);
     if (e.bild) z.bild = { ...z.bild, ...e.bild };
+    modulEingriff(z, e.modul);
     if (e.entscheidung?.length) z.offeneEntscheidung = e.id;
     neu = true;
   }
@@ -261,11 +271,23 @@ function markiere(z: SimZustand, id: string) {
   (z.getan[id] ??= []).push(z.t);
 }
 
+/** Platzhalter {laktat}, {map} … im Befundtext mit aktuellen Werten aus anzeige() füllen (deutsches Zahlformat). */
+function fuelle(text: string, z: SimZustand): string {
+  if (!text.includes('{')) return text;
+  const a = anzeige(z) as unknown as Record<string, unknown>;
+  return text.replace(/\{(\w+)\}/g, (alles, k: string) => {
+    const w = a[k];
+    if (typeof w !== 'number') return typeof w === 'string' ? w : alles;
+    const stellen = k === 'ph' ? 2 : k === 'laktat' || k === 'kalium' || k === 'temp' ? 1 : 0;
+    return w.toLocaleString('de-DE', { minimumFractionDigits: stellen, maximumFractionDigits: stellen });
+  });
+}
+
 function befund(z: SimZustand, id: string) {
   const b = z.fall.befunde.find((x) => x.massnahme === id);
   const v = b?.varianten.find((x) => !x.wenn || gilt(z, x.wenn));
   if (v) {
-    z.meldungen.push({ t: z.t, art: 'befund', text: v.text, quelle: id });
+    z.meldungen.push({ t: z.t, art: 'befund', text: fuelle(v.text, z), quelle: id });
     for (const k of v.zeigt ?? []) if (!z.sichtbar.includes(k)) z.sichtbar.push(k);
   }
 }
@@ -274,6 +296,7 @@ function fuehreAus(z: SimZustand, m: MassnahmeDefinition, zusatzSek = 0) {
   markiere(z, m.id);
   for (const f of m.setzt ?? []) if (!z.flags.includes(f)) z.flags.push(f);
   aktiviere(z, m.wirkung);
+  modulEingriff(z, m.modul);
   befund(z, m.id);
   pruefeFehler(z);
   lauf(z, m.zeitbedarfSekunden + zusatzSek);
@@ -381,6 +404,8 @@ export function sende(alt: SimZustand, e: SimEventEingabe): SimZustand {
         if (!z.zurueckgezogen.includes(a.id)) z.zurueckgezogen.push(a.id);
         z.flags.push(`remonstriert:${a.id}`);
         z.meldungen.push({ t: z.t, art: 'arzt', text: `${z.fall.arzt.name}: „Sie haben recht. ${a.fehlerhaft.korrektur}“`, quelle: a.id });
+        const ersatz = a.fehlerhaft.ersatz;
+        if (ersatz && !z.angeboten.includes(ersatz) && !z.anordnungen[ersatz]) z.angeboten.push(ersatz);
       } else {
         z.meldungen.push({ t: z.t, art: 'arzt', text: `${z.fall.arzt.name}: „Doch, das ist so richtig. Bitte umsetzen.“`, quelle: a.id });
       }
@@ -407,6 +432,7 @@ export function sende(alt: SimZustand, e: SimEventEingabe): SimZustand {
       if (!o) break;
       z.offeneEntscheidung = undefined;
       for (const f of o.setzt ?? []) if (!z.flags.includes(f)) z.flags.push(f);
+      modulEingriff(z, o.modul);
       markiere(z, `wahl:${e.ereignis}:${o.id}`);
       if (o.loestAnrufAus) { z.letzterAnruf = []; markiere(z, 'anruf-aerztin'); arztAntwort(z); }
       pruefeFehler(z);

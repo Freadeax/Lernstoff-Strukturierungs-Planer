@@ -8,6 +8,8 @@ import type { Altersgruppe, Anzeige, Grundgroessen, ModellModule, Rhythmus, Trei
 export interface ModellKontext {
   altersgruppe: Altersgruppe;
   module?: ModellModule;
+  /** Körpergewicht für Perfusor-Dosis und Urinmenge (Spur B) */
+  gewichtKg?: number;
 }
 
 export interface PhysiologieModell {

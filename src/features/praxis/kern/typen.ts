@@ -58,6 +58,13 @@ export interface Grundgroessen {
   schmerz: number;               // NRS 0..10
   angst: number;                 // 0..1
   uebelkeit: number;             // 0..1
+  // Spur B (optional, nur mit Modellmodulen; P1b)
+  sauerstoff?: number;           // O₂ l/min (P1 legt die Größe an; hier nur bis zum Zusammenführen)
+  sedierung?: number;            // 0..1 Sedativa-Wirkung (Perfusor), → RASS, Vigilanz, Atemantrieb
+  laktat?: number;               // mmol/l, Bestand (steigt bei Minderperfusion, sinkt langsam)
+  kalium?: number;               // mmol/l
+  einfuhrMl?: number;            // Bilanz: kumulierte Einfuhr seit Fallbeginn (Infusion = Wirkkurve)
+  ausfuhrMl?: number;            // Bilanz: kumulierte Urinmenge seit Fallbeginn
 }
 
 /** Vom Kern abgeleitet, Ziele für den Monitor (Logik-Takt 5 s, Render interpoliert). */
@@ -67,6 +74,19 @@ export interface Anzeige {
   rhythmus: Rhythmus;
   avpu: 'A' | 'V' | 'P' | 'U';
   gcs?: number;
+  /** Mitteldruck (P1 setzt ihn im Basismodell; Spur B aus der arteriellen Messung) */
+  map?: number;
+  // Spur B (P1b): nur befüllt, wenn das passende Modul an ist
+  artSys?: number; artDia?: number;
+  /** Arterielle Kurve gedämpft (Luft, Gerinnsel, abgeknickt): Systole zu niedrig, Diastole zu hoch */
+  artGedaempft?: boolean;
+  rass?: number;                 // −5 … +4
+  urinMlH?: number;
+  bilanzMl?: number;             // Einfuhr − Ausfuhr seit Fallbeginn
+  /** Beatmung: Spitzendruck in cmH₂O */
+  ppeak?: number;
+  // BGA (aus dem Modell; die Pflege liest und meldet, befundet nicht ärztlich)
+  ph?: number; paco2?: number; pao2?: number; hco3?: number; be?: number; laktat?: number; kalium?: number;
 }
 export type Rhythmus = 'sinus' | 'sinustachykardie' | 'sinusbradykardie' | 'vorhofflimmern' | 'vt' | 'kammerflimmern' | 'asystolie' | 'pea';
 
@@ -83,15 +103,34 @@ export type Treiber =
   | { art: 'fieberkrampf_kind'; temperaturSchwelle: number }
   | { art: 'pneumonie'; staerke: number };
 
-/** Spur-B-Modellmodule, im Fall zugeschaltet. */
+/** Gerätestörungen in Spur B (Alarme, Befunde) */
+export type GeraeteStoerung = 'diskonnektion' | 'tubus-verlegt' | 'sekret' | 'art-gedaempft' | 'art-nicht-genullt';
+
+/** Spur-B-Modellmodule, im Fall zugeschaltet. Der Kern führt eine Laufzeitkopie (SimZustand.module). */
 export interface ModellModule {
   beatmung?: { fio2: number; peep: number; af: number; vt: number };
-  perfusoren?: Array<{ id: string; wirkstoff: string; konzentration: string; mlProH: number }>;
+  /** mgProMl: Konzentration als Zahl für Laufrate ↔ Dosis (z. B. Noradrenalin 5 mg/50 ml = 0,1) */
+  perfusoren?: Array<{ id: string; wirkstoff: string; konzentration: string; mlProH: number; mgProMl?: number }>;
   arteriell?: boolean;
   bga?: boolean;
   rhythmus?: Rhythmus;
   sedierung?: { rassZiel: number };
   bilanz?: boolean;
+  stoerungen?: GeraeteStoerung[];
+}
+
+/** Änderung an den Modellmodulen durch Maßnahme, Ereignis oder Entscheidung (P1b). */
+export interface ModulEingriff {
+  /** Perfusor anlegen oder ändern (gleiche id). mlProHDelta = titrieren, stopp = beenden. */
+  perfusor?: { id: string; wirkstoff?: string; konzentration?: string; mgProMl?: number; mlProH?: number; mlProHDelta?: number; stopp?: boolean };
+  /** Beatmung setzen/ändern; null = keine Beatmung (Spontanatmung) */
+  beatmung?: Partial<NonNullable<ModellModule['beatmung']>> | null;
+  arteriell?: boolean;
+  /** null = Rhythmus wieder vom Modell bestimmen */
+  rhythmus?: Rhythmus | null;
+  sedierung?: { rassZiel: number };
+  stoerungAn?: GeraeteStoerung[];
+  stoerungAus?: GeraeteStoerung[];
 }
 
 /** Bildzustand: der Kern liefert ihn, die Darstellung wählt IDs aus katalog.ts / personen.ts. */
@@ -149,6 +188,8 @@ export interface MassnahmeDefinition {
   voraussetzung?: Bedingung;
   /** Benötigtes Messgerät. Im Heim und ambulant muss es erst aus der Pflegetasche geholt werden (E9). */
   geraet?: string;
+  /** Spur B: verändert Modellmodule (Perfusor, Beatmung, art. Druck, Störungen) */
+  modul?: ModulEingriff;
   kompetenzbereiche: KB[];
   klinisch?: KlinischerBereich[];
   quellen?: Quelle[];
@@ -192,7 +233,7 @@ export interface Anordnung {
   massnahme: string;              // Verweis auf MassnahmeDefinition
   text: string;                   // „500 ml Ringer-Lösung s. c. über 4 h“
   /** Fehlerhafte Anordnung → Remonstration erwartet (6.4) */
-  fehlerhaft?: { warum: string; korrektur: string };
+  fehlerhaft?: { warum: string; korrektur: string; /** Anordnung-ID, die nach der Remonstration angeboten wird */ ersatz?: string };
 }
 
 export interface ArztRegel {
@@ -210,8 +251,10 @@ export interface Ereignis {
   art: 'patient' | 'angehoerige' | 'team' | 'telefon' | 'klingel' | 'geraet' | 'komplikation' | 'visite';
   text: string;
   /** Hält die Uhr an und fragt (Entscheidungsmoment, wie bisher choices). */
-  entscheidung?: Array<{ id: string; text: string; wertung: 'gut' | 'vertretbar' | 'falsch' | 'gefaehrlich'; warum: string; setzt?: string[]; loestAnrufAus?: boolean }>;
+  entscheidung?: Array<{ id: string; text: string; wertung: 'gut' | 'vertretbar' | 'falsch' | 'gefaehrlich'; warum: string; setzt?: string[]; loestAnrufAus?: boolean; modul?: ModulEingriff }>;
   treiber?: Treiber[];            // neu hinzukommende Treiber (Komplikation)
+  /** Spur B: Gerätestörung, Rhythmuswechsel usw. */
+  modul?: ModulEingriff;
   bild?: Bildzustand;
   verhindertDurch?: Bedingung;
 }
