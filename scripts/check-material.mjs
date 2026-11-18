@@ -33,8 +33,8 @@ try {
     await page.getByRole('link', { name: 'Mobilitaet im Alltag', exact: true }).first().waitFor();
     await go('/lernen/board');
     const pool = page.locator('[data-col=pool] [data-scroll-root]');
-    for (let i = 0; i < 40 && !await page.getByText('Mobilitaet im Alltag', { exact: true }).isVisible(); i++) { await pool.evaluate((e) => { e.scrollTop = e.scrollHeight; }); await page.waitForTimeout(100); }
-    await page.getByText('Mobilitaet im Alltag', { exact: true }).waitFor();
+    for (let i = 0; i < 40 && !await page.locator('[data-col=pool] .kcard__title', { hasText: /^Mobilitaet im Alltag$/ }).isVisible(); i++) { await pool.evaluate((e) => { e.scrollTop = e.scrollHeight; }); await page.waitForTimeout(100); }
+    await page.locator('[data-col=pool] .kcard__title', { hasText: /^Mobilitaet im Alltag$/ }).waitFor();
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Board: Überlauf');
     // Privates Material-Repo simulieren; keine echten Tokens oder externen Schreibzugriffe.
     const payload = Buffer.from('Wichtiger Quelltext zur Mobilitaet. Eine sichere Umgebung erleichtert Bewegung im Alltag.');

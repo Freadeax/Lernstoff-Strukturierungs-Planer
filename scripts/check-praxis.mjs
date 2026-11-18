@@ -302,7 +302,7 @@ try {
       await rea.getByRole('button', { name: 'Anderes Szenario', exact: true }).click();
       await rea.getByRole('radio', { name: /^Neugeborene/ }).check();
       assert(await rea.getByRole('region', { name: 'Lernziele und fachlicher Prüfstand' }).isVisible(), 'Freigabe je Profil am Start');
-      assert.match(await rea.locator('.rea__leitlinie').textContent(), /Newborn.*2021/);
+      assert.match(await rea.locator('.rea__leitlinie').textContent(), /Newborn.*2025/);
       await rea.getByRole('button', { name: 'Übung starten', exact: true }).click();
       await rea.getByRole('button', { name: /^Sofort mit Kompressionen/ }).click();
       assert(await rea.locator('.rea__meldung.is-falsch').isVisible(), 'Neugeborenes: erst beatmen');
