@@ -179,14 +179,14 @@ const LISTE: MassnahmeDefinition[] = [
   }),
   m('o2-geben', 'Sauerstoff geben (nach Anordnung/Standard)', 'akut', 45, ['I', 'III'], nw(['atem12', 'mitwirken12', 'eigenstaendig3']), {
     anordnungspflichtig: true, befugnis: befugnis(A, S), risikoBeiUeberschreitung: 'warnung-pa', setzt: ['o2-laeuft'], klinisch: ['abcde', 'medikamente'],
-    wirkung: [{ groesse: 'gasaustausch', faktor: 1.12, beginnSek: 0, spitzeSek: 120, dauerSek: 'dauerhaft' }],
+    wirkung: [{ groesse: 'sauerstoff', delta: 2, beginnSek: 0, spitzeSek: 30, dauerSek: 'dauerhaft' }],   // 2 l/min; Fall kann Menge überschreiben
   }),
   m('blutung-stillen', 'Blutung stillen (Druck, Druckverband, hochlagern)', 'akut', 60, ['I'], nw(['ersteHilfe12', 'sofort12']), { setzt: ['blutung-gestillt'], klinisch: ['abcde'] }),
   m('krampf-schuetzen', 'Bei Krampfanfall schützen und Zeit messen', 'akut', 30, ['I'], nw(['ersteHilfe12', 'sofort12']), { setzt: ['krampf-geschuetzt'] }),
   m('glukose-oral', 'Bei Unterzucker schnell wirksame Kohlenhydrate geben (wach, kann schlucken)', 'akut', 60, ['I', 'V'], nw(['hypo3', 'ersteHilfe12'], {
     anmerkung: 'Hypoglykämie ausdrücklich erst im 3. Drittel (CE 10); Erste Hilfe ab 1./2. Drittel. Gilt als Sofortmaßnahme nach Standard ohne Einzelanordnung.',
   }), {
-    wirkung: [{ groesse: 'blutzucker', delta: 45, beginnSek: 300, spitzeSek: 900, dauerSek: 3600 }],
+    treiber: [{ art: 'kohlenhydrate', gramm: 20, schnell: true }],
   }),
   m('bls-herzdruckmassage', 'Herzdruckmassage beginnen (BLS)', 'akut', 120, ['I'], nw(['rea12', 'sofort12']), { setzt: ['bls-laeuft'], quellen: [Q.erc], klinisch: ['abcde', 'zeit'] }),
   m('beutel-maske-beatmen', 'Mit Beutel und Maske beatmen', 'akut', 60, ['I'], nw(['rea12', 'sofort12']), { befugnis: befugnis(A, S), quellen: [Q.erc], klinisch: ['abcde'] }),
@@ -318,7 +318,7 @@ const LISTE: MassnahmeDefinition[] = [
   }), { anordnungspflichtig: true, befugnis: befugnis(A, A, S), risikoBeiUeberschreitung: 'patientenschaden', klinisch: ['medikamente'] }),
   m('insulin-sc', 'Insulin s. c. nach Schema geben', 'versorgen', 120, ['I', 'III'], nw(['diabetes12', 'medi12', 'insulin3', 'eigenstaendig3']), {
     anordnungspflichtig: true, befugnis: befugnis(A, A, S), risikoBeiUeberschreitung: 'patientenschaden', klinisch: ['medikamente'],
-    wirkung: [{ groesse: 'blutzucker', delta: -60, beginnSek: 900, spitzeSek: 3600, dauerSek: 10800 }],
+    treiber: [{ art: 'insulin', ie: 4 }],   // Beispieldosis; der Fall setzt die angeordnete Dosis über massnahmenZusatz
   }),
   m('inhalation-geben', 'Inhalation/Dosieraerosol mit Spacer geben (nach Anordnung)', 'versorgen', 120, ['I', 'II'], nw(['medi12', 'atem12', 'inhalation3']), {
     anordnungspflichtig: true, befugnis: befugnis(A, A, S), risikoBeiUeberschreitung: 'warnung-pa', klinisch: ['medikamente'],
@@ -328,7 +328,7 @@ const LISTE: MassnahmeDefinition[] = [
   }),
   m('blasenkatheter-legen', 'Transurethralen Blasenkatheter legen', 'versorgen', 600, ['I', 'III'], nw(['assistenz12', 'eigenstaendig3'], {
     anmerkung: 'Nicht ausdrücklich genannt (nur Anlage 4, S. 75). Grundwert: ab 2. Drittel mit Anleitung.',
-  }), { anordnungspflichtig: true, befugnis: befugnis(G, A, A, S), risikoBeiUeberschreitung: 'warnung-pa', setzt: ['dk-liegt'], quellen: [Q.krinko] }),
+  }), { anordnungspflichtig: true, befugnis: befugnis(G, A, A, S), risikoBeiUeberschreitung: 'warnung-pa', setzt: ['dk-liegt'], beendet: ['harnverhalt'], quellen: [Q.krinko] }),
   m('infusion-ueberwachen', 'Laufende Infusion überwachen (Tropfrate, Einstichstelle)', 'versorgen', 45, ['I'], nw(['zuAbleitungen12', 'komplStabil12'], { anmerkung: B_ANLEITUNG_DANN_SELBST }), {
     befugnis: befugnis(A, S), voraussetzung: { flag: 'infusion-laeuft' },
   }),
