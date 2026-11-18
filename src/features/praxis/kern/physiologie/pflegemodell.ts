@@ -181,7 +181,8 @@ const dyspnoeKreislauf = (g: Grundgroessen) => klemme(0.5 * (g.atemarbeit - 1), 
 /** Kreislauf ohne Rückkopplung der Sättigung (für die Atmung) */
 function kreislaufRoh(g: Grundgroessen, k: ModellKontext, saO2 = 0.97): KreislaufDetail {
   const p = profil(k.altersgruppe);
-  const vorlast = 50 * Math.max(0.05, g.volumen);
+  // Hochbetagte sind stark vorlastabhängig (steifer Ventrikel): Volumenmangel senkt den Druck deutlicher
+  const vorlast = 50 * Math.max(0.05, g.volumen) ** p.vorlastExponent;
   const nachlast = 50 * Math.max(0.1, g.gefaesstonus);
   const kraft = 50 * Math.max(0.05, g.pumpleistung);
   const m0 = herz({ ...HERZ_START, hf: 70, vorlast, nachlast, kraft }).map;
@@ -198,7 +199,9 @@ function kreislaufRoh(g: Grundgroessen, k: ModellKontext, saO2 = 0.97): Kreislau
   const h = herz({ ...HERZ_START, hf: hfRef, vorlast, nachlast, kraft });
   // Der Reflex hebt den Druck höchstens bis zum Sollwert zurück; Stress (Fieber, Angst, Schmerz) darf ihn darüber heben.
   const nurStress = herz({ ...HERZ_START, hf: klemme(70 * (1 + stress - daempfung), 25, 200), vorlast, nachlast, kraft }).map;
-  const mapGrenze = defizit > 0 ? Math.max(nurStress, REF.map) : Infinity;
+  // Hochbetagte: Der Reflex gleicht nur einen Teil des Defizits aus (orthostatische Hypotonie, steife Gefäße).
+  const ausgleich = Math.min(1, p.baroGain);
+  const mapGrenze = defizit > 0 ? Math.max(nurStress, m0 + ausgleich * (REF.map - m0)) : Infinity;
   const druckFaktor = h.map > mapGrenze ? mapGrenze / h.map : 1;
   const stillstand = g.pumpleistung < 0.1 || h.map < 20;
   const perfusion = stillstand ? 0 : h.hzv / REF.hzv;
