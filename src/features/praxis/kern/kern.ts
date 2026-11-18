@@ -127,10 +127,15 @@ function hatAnordnung(z: SimZustand, massnahmeId: string): boolean {
   return z.fall.anordnungen.some((a) => a.massnahme === massnahmeId && !!z.anordnungen[a.id] && !z.zurueckgezogen.includes(a.id));
 }
 
+/** Befugnis dieser Rolle: Überschreibung im Fall (inkl. Einrichtungsprofil) vor Katalog-Grundwert. */
+export function befugnisLevel(z: SimZustand, m: MassnahmeDefinition, rolle: Rolle = z.rolle) {
+  return z.fall.befugnisUeberschreibung?.[m.id]?.[rolle] ?? m.befugnis[rolle];
+}
+
 /** Rein: Befugnis + Rolle + Anordnungen → Freigabe (KONZEPT 6.1) */
 export function freigabe(z: SimZustand, m: MassnahmeDefinition, rolle: Rolle = z.rolle): Freigabe {
-  const level = z.fall.befugnisUeberschreibung?.[m.id]?.[rolle] ?? m.befugnis[rolle];
-  if (level === 'nur-aerztlich') return 'grenze';
+  const level = befugnisLevel(z, m, rolle);
+  if (level === 'nur-aerztlich' || level === 'gesperrt') return 'grenze';
   if ((m.anordnungspflichtig || level === 'nach-anordnung') && !hatAnordnung(z, m.id)) return 'braucht-anordnung';
   if (level === 'mit-anleitung') return 'mit-pa';
   return 'frei';
@@ -330,7 +335,9 @@ function massnahmeEingabe(z: SimZustand, id: string) {
       t: z.t, art: 'pa', quelle: id,
       text: f === 'braucht-anordnung'
         ? `${pa}: „Stopp. Dafür brauchen wir eine ärztliche Anordnung. Wen rufst du an?“`
-        : `${pa}: „Das ist eine ärztliche Aufgabe. Du trägst die Durchführungsverantwortung und darfst das ablehnen. Ruf die Ärztin an.“`,
+        : befugnisLevel(z, m) === 'gesperrt'
+          ? `${pa}: „Das übernimmt in deinem ${typeof z.rolle === 'number' ? `${z.rolle}. Drittel` : 'Einsatz'} noch eine Pflegefachperson. Schau zu, ich zeige es dir.“`
+          : `${pa}: „Das ist eine ärztliche Aufgabe. Du trägst die Durchführungsverantwortung und darfst das ablehnen. Ruf die Ärztin an.“`,
     });
     return;
   }
@@ -338,7 +345,7 @@ function massnahmeEingabe(z: SimZustand, id: string) {
   // Stufe 3: Knopf bleibt klickbar, Grenzüberschreitung wird festgehalten (KONZEPT 6.2)
   if (f === 'frei') return fuehreAus(z, m);
   if (f === 'mit-pa' && z.anleitung.includes(id)) return fuehreAus(z, m, PA_ZUSATZ_SEK);
-  const level = z.fall.befugnisUeberschreibung?.[id]?.[z.rolle] ?? m.befugnis[z.rolle];
+  const level = befugnisLevel(z, m);
   z.log.push({ t: z.t, art: 'grenzueberschreitung', massnahmeId: id, rolle: z.rolle, befugnis: level });
   if (m.risikoBeiUeberschreitung === 'abbruch-durch-pa') {
     z.log.push({ t: z.t, art: 'pa-eingriff', massnahmeId: id, typ: 'bricht-ab' });
