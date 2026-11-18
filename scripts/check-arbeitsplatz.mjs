@@ -109,8 +109,18 @@ try {
       assert.ok(await p.locator('.ap-kritisch li').count() >= 3, 'verpasste kritische Pflichthandlungen deutlich');
       await axe('auswertung-b');
     }
+
+    // Pilotstaffel Spur A (P6): jeder Fall startet, Team-Leiste zeigt die Kollegin, Raumfoto da, axe ohne Befund
+    for (const [id, kollegin] of [['kh-pneumonie-sepsis', /Jonas/], ['lz-demenz-schmerz', /Sabine/], ['paed-fieberkrampf', /Tim/], ['psy-panik-suizidalitaet', /Deniz/]]) {
+      await p.goto(base + `#/lernen/praxis?neu=${id}`, { waitUntil: 'networkidle' });
+      await p.getByRole('button', { name: 'Fall beginnen' }).click();
+      await p.getByRole('button', { name: 'Pause' }).click();
+      assert.match(await p.locator('.ap-team').innerText(), kollegin, `${w} ${id}: Kollegin in der Team-Leiste`);
+      assert.equal(await p.getByRole('tab').count(), 6, `${w} ${id}: sechs Reiter`);
+      await axe(`start-${id}`);
+    }
     await ctx.close();
   }
 } finally { await browser.close(); }
 assert.deepEqual(fehler, [], 'Arbeitsplatz');
-console.log('Arbeitsplatz: Pilotfall bei 390, 820 und 1180 px durchgespielt, axe WCAG 2.2 AA ohne Befund (inkl. Abschluss, Auswertung, Spur B).');
+console.log('Arbeitsplatz: Pilotfall bei 390, 820 und 1180 px durchgespielt, Pilotstaffel Spur A gestartet, axe WCAG 2.2 AA ohne Befund (inkl. Abschluss, Auswertung, Spur B).');

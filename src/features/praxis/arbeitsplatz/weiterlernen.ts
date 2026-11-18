@@ -22,4 +22,21 @@ export const WEITERLERNEN_V2: Record<string, WeiterlernenEintrag> = {
     krankheiten: ['kh.sepsis', 'kh.hwi'],
     extra: [{ label: 'Rechentrainer: Perfusor und Laufrate', path: '/lernen/rechnen?typen=perfusor,laufrate', warum: 'Laufraten von Katecholaminen sicher berechnen.' }],
   },
+  'kh-pneumonie-sepsis': {
+    themen: ['thema.pro.pneumonie', 'thema.kl.infektion', 'thema.beo.vitalzeichen', 'thema.pro.delir'],
+    krankheiten: ['kh.pneumonie', 'kh.sepsis', 'kh.delir'],
+  },
+  'lz-demenz-schmerz': {
+    themen: ['thema.kl.demenz', 'thema.fa.langzeit', 'thema.pro.dekubitus', 'thema.pro.dehydratation'],
+    krankheiten: ['kh.demenz', 'kh.dekubitus', 'kh.exsikkose'],
+    extra: [{ label: 'Expertenstandards nachschlagen', path: '/lernen/schnellsuche', warum: 'Schmerzmanagement, Demenz, Dekubitus und Ernährung im Überblick.' }],
+  },
+  'paed-fieberkrampf': {
+    themen: ['thema.fa.paediatrie', 'thema.kl.paediatrie', 'thema.beo.notfall', 'thema.kom.beratung'],
+    krankheiten: ['kh.fieberkrampf'],
+  },
+  'psy-panik-suizidalitaet': {
+    themen: ['thema.fa.psychiatrie', 'thema.kl.psych', 'thema.kom.gespraech'],
+    krankheiten: ['kh.angststoerung', 'kh.depression'],
+  },
 };

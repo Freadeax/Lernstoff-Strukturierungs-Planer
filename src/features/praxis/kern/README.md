@@ -16,7 +16,7 @@ Noch nicht in der Oberfläche eingebunden; die alte Engine (`../engine.ts`) und 
 | `physiologie/organe.ts` | Herz, Lunge, Blutzucker: dieselben Modelle wie die Lernseite `#/lernen/physiologie` |
 | `physiologie/altersprofile.ts` | Ruhewerte Säugling bis Hochbetagte, Alarmfarben (monitor.ts), `fruehwarnung()` (NEWS2/Kinderprofil) |
 | `kern.ts` | `start`, `sende`, `vorspulen`, `replay`, `freigabe`, `verfuegbar`, `anzeige` |
-| `faelle/` | Fälle im Schema v2 (Pilotstaffel) |
+| `faelle/` | Fälle im Schema v2: Pilotstaffel Spur A (ambulant Sturz/Exsikkose, Krankenhaus Pneumonie/Sepsis, Langzeit Demenz/Schmerz/FEM, Pädiatrie Fieberkrampf, Psychiatrie Panik/Suizidalität) und Spur B (Schockraum Sepsis); `pilot-a.test.ts` kalibriert gegen das Modell |
 | `spur-b/` | Spur B (P1b): `modul.ts` Hülle `spurB(basis)` mit Beatmung, Perfusoren, arterieller Messung, Rhythmus, Sedierung (RASS), Laktat, Bilanz; `perfusor.ts` Laufrate ↔ Dosis; `bga.ts` BGA aus dem Modell; `standard.ts` `SPUR_B_MODELL` (Standard im Kern); `katalog.ts` fehlende Spur-B-Maßnahmen mit Beleg; `monitor.ts` Anzeige → `MonitorWerte` |
 
 Regeln
@@ -25,7 +25,8 @@ Regeln
 - Wartezeiten nie zusammenfassen (Takt-Grenzen ändern sonst das Ergebnis).
 - Freigabe: `nur-aerztlich` und `gesperrt` → Grenze (gesperrt = in diesem Drittel nicht, keine ärztliche Aufgabe); anordnungspflichtig ohne Anordnung → braucht Anordnung; `mit-anleitung` → mit PA.
   Stufe 2: PA unterstützt bzw. warnt und führt nicht aus. Stufe 3: Knopf bleibt klickbar, `grenzueberschreitung` im Log.
-- Neuer Fall: Datei in `faelle/`, in `faelle/index.ts` eintragen. `kern.test.ts` prüft Verweise, Musterweg (keine Fehler,
+- Neuer Fall: Datei in `faelle/`, in `faelle/index.ts` eintragen. Messwerte in Befunden nur als Platzhalter (`{rrSys}`, `{hf}` …), SBAR beschreibend ohne Zahlen.
+  Katalog-Maßnahme mit fallspezifischem Namen/Wirkung: `aus(id, { … })` (Befugnis und Nachweis bleiben). Optional `team.kollegin` (Team-Leiste) und `medien.raumVarianten` (Foto je Zustand). `kern.test.ts` prüft Verweise, Musterweg (keine Fehler,
   alle Pflichthandlungen), Unterlassungsweg, Grenzweg und Replay automatisch.
 - Konzept: Projektordner `praxissimulator-neu/KONZEPT.md`.
 - Neue Katalog-Maßnahme: in `katalog.ts` mit `nw([...Lehrplan-Stellen])` oder `NICHT_BELEGT('Grund')`; `katalog.test.ts` prüft
