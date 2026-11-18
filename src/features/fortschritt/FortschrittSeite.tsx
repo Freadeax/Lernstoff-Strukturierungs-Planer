@@ -11,6 +11,7 @@ import { dauer, kurzDatum, STATUS_LABEL } from '../lernplan/ui/format';
 import type { EvidenceSource } from '../lernplan/types';
 import { alleMeilensteine, naechsteSchritte, werteAus, type Auswertung } from './auswertung';
 import { KompetenzRadar, RadarTabelle } from './KompetenzRadar';
+import { RadarSenden } from './RadarSenden';
 import { radarAchsen, schwaechsteAchse, VERGLEICH_TAGE } from './radar';
 import { speichereZiel, useFortschritt, type FortschrittDaten } from './daten';
 import { datenbasis, KENNZAHLEN, kleineBasis, wochenOhneDaten, zeitraumText, type Belastbarkeit, type Datenbasis, type KennzahlId } from './kennzahlen';
@@ -339,6 +340,8 @@ function RadarKarte({ ctx }: { ctx: Ctx }) {
     return radarAchsen(ctx.kb, (id) => ctx.status.get(id)?.status ?? 'offen', (id) => vorher.get(id)?.status ?? 'offen');
   }, [ctx]);
   const schwach = schwaechsteAchse(achsen);
+  const unsicher = useMemo(() => [...ctx.status.entries()].filter(([, p]) => p.status === 'unsicher')
+    .map(([id]) => ({ id, name: ctx.name(id) })).sort((a, b) => a.name.localeCompare(b.name, 'de')), [ctx]);
   return (
     <article className="card fs-radar-karte" id="radar">
       <div className="fs-kopf">
@@ -356,6 +359,7 @@ function RadarKarte({ ctx }: { ctx: Ctx }) {
         ? <p className="note">Größte Lücke: <strong>Bereich {schwach.code}</strong> ({schwach.jetzt} %). <a href={`#/lernen/simulation?kb=${encodeURIComponent(schwach.id)}`}>Gezielt abfragen</a></p>
         : <p className="muted">Noch keine Abfragen: Das Radar startet bei null und füllt sich mit Karteikarten, Trainern und Fällen.</p>}
       <p className="muted">Stärke = Mittel über alle Themen des Bereichs: sicher zählt voll, unsicher halb, nur bearbeitet wenig, offen gar nicht. Selbsteinschätzung zählt nie.</p>
+      {schwach && <RadarSenden achsen={achsen} unsicher={unsicher} heute={ctx.d.today} />}
     </article>
   );
 }

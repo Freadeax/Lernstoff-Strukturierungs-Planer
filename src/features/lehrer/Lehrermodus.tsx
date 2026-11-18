@@ -14,9 +14,10 @@ import Aufgaben from './Aufgaben';
 import Bewerten from './Bewerten';
 import Einstellungen from './Einstellungen';
 import Klassen from './Klassen';
+import KlassenRadar from './KlassenRadar';
 
 // Routen: /lehren (Übersicht), /lehren/klassen, /lehren/aufgaben, /lehren/abgaben,
-// /lehren/bewerten?fall=…[&name=…], /lehren/einstellungen.
+// /lehren/bewerten?fall=…[&name=…], /lehren/einstellungen, /lehren/radar (Klassen-Radar).
 
 const SCHRITTE = [
   { nr: 1, titel: 'Klasse anlegen', text: 'Name und, wenn du willst, die Namensliste.', ziel: '/lehren/klassen' },
@@ -111,6 +112,11 @@ function Start() {
         </div>
 
         <div className="card">
+          <div className="klasse__kopf"><h2 className="lehrer__h">Klassen-Radar</h2><button type="button" className="small" onClick={() => navigate('/lehren/radar')}>Öffnen</button></div>
+          <p className="muted">Lernende schicken freiwillig ihren Stand je Kompetenzbereich als Code. Daraus zeigt das Klassen-Radar den Stand der Klasse und die häufigsten Lücken, auf Wunsch ohne Namen.</p>
+        </div>
+
+        <div className="card">
           <div className="klasse__kopf"><h2 className="lehrer__h">Fälle</h2><button type="button" className="small" onClick={() => navigate('/lehren/aufgaben')}>Alle</button></div>
           {!daten.faelle.length
             ? <p className="muted">Noch kein Fall verteilt. Vorlagen aus SIS, Pflegeplanung, Übergabe, Pflegebericht, Krankheitsbildern und Assessments bringen Lösung und Checkliste schon mit.</p>
@@ -147,6 +153,7 @@ export default function Lehrermodus() {
     case 'abgaben': return <Abgaben />;
     case 'bewerten': return <Bewerten />;
     case 'einstellungen': return <Einstellungen />;
+    case 'radar': return <KlassenRadar />;
     default: return <Start />;
   }
 }
