@@ -97,6 +97,23 @@ describe('Kern: Befugnis und Freigabe (KONZEPT 6.1)', () => {
     const zvk = { ...massnahme(FALL, 'puls-zaehlen')!, id: 'zvk', befugnis: { 1: 'nur-aerztlich', 2: 'nur-aerztlich', 3: 'nur-aerztlich', pflegefachperson: 'nur-aerztlich' } as const };
     expect(freigabe(z, zvk)).toBe('grenze');
   });
+  it('gesperrt ergibt Grenze; Stufe 2: PA übernimmt als Pflegefachperson, nicht ausgeführt', () => {
+    const fall: FallV2 = { ...FALL, befugnisUeberschreibung: { 'puls-zaehlen': { 1: 'gesperrt' } } };
+    const z0 = start(fall, 1, 2);
+    expect(freigabe(z0, massnahme(fall, 'puls-zaehlen')!)).toBe('grenze');
+    const z = sende(z0, { art: 'massnahme', id: 'puls-zaehlen' });
+    expect(z.getan['puls-zaehlen']).toBeUndefined();
+    expect(z.log.some((e) => e.art === 'pa-eingriff' && e.typ === 'warnt')).toBe(true);
+    const satz = z.meldungen.filter((x) => x.art === 'pa').map((x) => x.text).join(' ');
+    expect(satz).toContain('Pflegefachperson');
+    expect(satz).toContain('1. Drittel');
+    expect(satz).not.toContain('ärztliche Aufgabe');
+  });
+  it('gesperrt in Stufe 3: Grenzüberschreitung mit befugnis gesperrt im Log', () => {
+    const fall: FallV2 = { ...FALL, befugnisUeberschreibung: { 'puls-zaehlen': { 1: 'gesperrt' } } };
+    const z = sende(start(fall, 1, 3), { art: 'massnahme', id: 'puls-zaehlen' });
+    expect(z.log.some((e) => e.art === 'grenzueberschreitung' && e.befugnis === 'gesperrt' && e.massnahmeId === 'puls-zaehlen')).toBe(true);
+  });
   it('Stufe 2: PA warnt bei fehlender Anordnung und führt nicht aus', () => {
     const z = sende(start(FALL, 3, 2), { art: 'massnahme', id: 'lorazepam-geben' });
     expect(z.getan['lorazepam-geben']).toBeUndefined();
