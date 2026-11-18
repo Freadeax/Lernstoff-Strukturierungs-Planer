@@ -3,9 +3,13 @@ import { FAELLE_V2 } from './faelle';
 import { PILOT_AMBULANT as FALL } from './faelle/amb-sturz-exsikkose';
 import { aktuellesModell, anteil, anzeige, freigabe, gilt, massnahme, replay, sende, start, vorspulen, type SimZustand } from './kern';
 import { PFLEGE_MODELL } from './physiologie/pflegemodell';
-import type { FallV2, Rolle, SimEventEingabe, Stufe } from './typen';
+import { SPUR_B_MODELL } from './spur-b/standard';
+import type { FallV2, Grundgroessen, Rolle, SimEventEingabe, Stufe } from './typen';
 
 const ROLLEN: Rolle[] = [1, 2, 3, 'pflegefachperson'];
+
+/** Rolle für Muster- und Unterlassungsweg: 2. Drittel, sonst die erste geeignete Rolle des Falls (Spur B: 3. Drittel). */
+const rolleFuer = (fall: FallV2): Rolle => (fall.geeignet.rollen.includes(2) ? 2 : fall.geeignet.rollen[0]);
 
 /** Spielt Eingaben; offene Entscheidungen bekommen die erste „gut“-Option. */
 function spiele(fall: FallV2, rolle: Rolle, stufe: Stufe, eingaben: readonly SimEventEingabe[]): SimZustand {
@@ -55,7 +59,7 @@ describe('Fallschema v2: Datenprüfung aller Fälle', () => {
         }
       });
       it('Musterweg: ohne Fehler, ohne Grenzüberschreitung, alle Pflichthandlungen erfüllt', () => {
-        const z = spiele(fall, 2, 2, fall.pruefwege.muster);
+        const z = spiele(fall, rolleFuer(fall), 2, fall.pruefwege.muster);
         expect(z.fehlerAus).toEqual([]);
         expect(arten(z)).not.toContain('grenzueberschreitung');
         const offen = fall.bewertung.pflicht.filter((p) => !gilt(z, p.erfuellt)).map((p) => p.id);
@@ -63,7 +67,7 @@ describe('Fallschema v2: Datenprüfung aller Fälle', () => {
         expect(z.abschluss).toBeDefined();
       });
       it('Unterlassungsweg: Zustand verschlechtert sich', () => {
-        const z = warteBis(start(fall, 2, 2), fall.pruefwege.unterlassung.bisSek);
+        const z = warteBis(start(fall, rolleFuer(fall), 2), fall.pruefwege.unterlassung.bisSek);
         expect(gilt(z, fall.pruefwege.unterlassung.erwartet)).toBe(true);
       });
       it('Grenzweg: Stufe 2 greift die PA ein, Stufe 3 wird eine Grenzüberschreitung festgehalten', () => {
@@ -73,8 +77,8 @@ describe('Fallschema v2: Datenprüfung aller Fälle', () => {
         expect(arten(spiele(fall, g.rolle, 3, g.events))).toContain('grenzueberschreitung');
       });
       it('deterministisch: Replay der Eingaben ergibt denselben Zustand', () => {
-        const a = spiele(fall, 2, 2, fall.pruefwege.muster);
-        const b = replay(fall, 2, 2, 1, a.eingaben);
+        const a = spiele(fall, rolleFuer(fall), 2, fall.pruefwege.muster);
+        const b = replay(fall, rolleFuer(fall), 2, 1, a.eingaben);
         expect(JSON.stringify({ ...b, fall: undefined })).toBe(JSON.stringify({ ...a, fall: undefined }));
       });
     });
@@ -213,8 +217,13 @@ describe('Kern mit Physiologiemodell (P1): Treiber aus Maßnahmen, Zeitstempel, 
     start: { ...FALL.start, treiber: [...FALL.start.treiber, { art: 'harnverhalt' }] },
   };
 
-  it('Standardmodell ist das Pflege-Physiologiemodell', () => {
-    expect(aktuellesModell()).toBe(PFLEGE_MODELL);
+  it('Standardmodell ist die Spur-B-Hülle um das Pflege-Physiologiemodell', () => {
+    expect(aktuellesModell()).toBe(SPUR_B_MODELL);
+    // ohne Module reicht die Hülle exakt an PFLEGE_MODELL durch
+    const g = MIT_TREIBER.start.grund as Grundgroessen;
+    const kx = { altersgruppe: 'erwachsen', gewichtKg: 70 } as const;
+    expect(SPUR_B_MODELL.anzeige(g, kx)).toEqual(PFLEGE_MODELL.anzeige(g, kx));
+    expect(SPUR_B_MODELL.naechster(g, [], 5, kx)).toEqual(PFLEGE_MODELL.naechster(g, [], 5, kx));
   });
   it('Maßnahme startet Treiber mit Zeitstempel aus der Spielzeit; Replay identisch', () => {
     let z = sende(start(MIT_TREIBER, 2, 2), { art: 'warten', sek: 120 });

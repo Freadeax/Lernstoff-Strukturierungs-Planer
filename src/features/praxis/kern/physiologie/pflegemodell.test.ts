@@ -50,7 +50,7 @@ describe('Pflege-Physiologiemodell: Ruhewerte und Altersprofile', () => {
   it('ohne Treiber bleibt alles stabil (Gleichgewicht)', () => {
     for (const ag of GRUPPEN) {
       const { g } = lauf(ag, 120);
-      for (const k of Object.keys(NORMAL) as Array<keyof Grundgroessen>) expect(g[k], `${ag} ${k}`).toBeCloseTo(NORMAL[k], 3);
+      for (const k of Object.keys(NORMAL) as Array<keyof Grundgroessen>) expect(g[k], `${ag} ${k}`).toBeCloseTo(NORMAL[k] as number, 3);
     }
   });
 });

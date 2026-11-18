@@ -15,6 +15,7 @@
 // - Geräte mit `geraet` muss man im Heim und ambulant erst aus der Pflegetasche holen (E9), siehe PFLEGETASCHE.
 
 import { alsQuelle, nachweis as nw, NICHT_BELEGT, type Nachweis } from './lehrplan-belege';
+import { SPUR_B_LISTE, SPUR_B_NACHWEIS } from './spur-b/katalog';
 import type { BefugnisLevel, KB, MassnahmeDefinition, Quelle, Reiter, Rolle } from './typen';
 
 /** Befugnis kurz: 1., 2., 3. Drittel, Pflegefachperson */
@@ -254,6 +255,7 @@ const LISTE: MassnahmeDefinition[] = [
   }),
   m('arterie-nullabgleich', 'Arterielle Druckmessung nullen und Kurve prüfen', 'messen', 60, ['I'], nw(['instabil3', 'invasiv3']), {
     risikoBeiUeberschreitung: 'warnung-pa', spur: 'B', befugnis: befugnis(G, G, A, S), voraussetzung: { flag: 'arterie-liegt' }, klinisch: ['geraete'],
+    setzt: ['art-genullt'], modul: { stoerungAus: ['art-nicht-genullt'] },   // Spur-B-Modul (P1b): Messwert danach unverschoben
   }),
   m('bga-abnehmen-arteriell', 'BGA aus dem arteriellen Zugang abnehmen', 'messen', 120, ['I'], nw(['eigenstaendig3', 'invasiv3']), {
     risikoBeiUeberschreitung: 'patientenschaden', spur: 'B', anordnungspflichtig: true, befugnis: befugnis(G, G, A, S), voraussetzung: { flag: 'arterie-liegt' }, setzt: ['bga-abgenommen'], klinisch: ['geraete'],
@@ -367,6 +369,7 @@ const LISTE: MassnahmeDefinition[] = [
   m('geschlossen-absaugen', 'Endotracheal geschlossen absaugen', 'versorgen', 90, ['I'], nw(['atem3', 'invasiv3']), {
     risikoBeiUeberschreitung: 'patientenschaden', spur: 'B', befugnis: befugnis(G, G, A, S), voraussetzung: { flag: 'beatmet' }, klinisch: ['geraete', 'abcde'],
     wirkung: [{ groesse: 'gasaustausch', delta: 0.05, beginnSek: 0, spitzeSek: 60, dauerSek: 'dauerhaft' }],
+    modul: { stoerungAus: ['sekret'] },   // Spur-B-Modul (P1b): Sekretverlegung behoben
   }),
   m('mundpflege-beatmet', 'Mundpflege bei beatmeter Person (VAP-Prophylaxe)', 'versorgen', 300, ['I', 'V'], nw(['selbstversorgung1', 'atem3']), {
     klinisch: ['geraete'], spur: 'B', befugnis: befugnis(A, A, S), voraussetzung: { flag: 'beatmet' }, quellen: [Q.krinko],
@@ -403,5 +406,9 @@ const LISTE: MassnahmeDefinition[] = [
   }),
 ];
 
-export const KATALOG: Readonly<Record<string, MassnahmeDefinition>> = Object.fromEntries(LISTE.map((x) => [x.id, x]));
-export const KATALOG_LISTE: readonly MassnahmeDefinition[] = LISTE;
+// Spur-B-Ergänzungen (P1b): nur Maßnahmen, die oben fehlen, mit eigenem Nachweis
+Object.assign(NACHWEIS, SPUR_B_NACHWEIS);
+const ALLE = [...LISTE, ...SPUR_B_LISTE];
+
+export const KATALOG: Readonly<Record<string, MassnahmeDefinition>> = Object.fromEntries(ALLE.map((x) => [x.id, x]));
+export const KATALOG_LISTE: readonly MassnahmeDefinition[] = ALLE;

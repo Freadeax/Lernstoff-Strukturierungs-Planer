@@ -17,6 +17,7 @@ Noch nicht in der Oberfläche eingebunden; die alte Engine (`../engine.ts`) und 
 | `physiologie/altersprofile.ts` | Ruhewerte Säugling bis Hochbetagte, Alarmfarben (monitor.ts), `fruehwarnung()` (NEWS2/Kinderprofil) |
 | `kern.ts` | `start`, `sende`, `vorspulen`, `replay`, `freigabe`, `verfuegbar`, `anzeige` |
 | `faelle/` | Fälle im Schema v2 (Pilotstaffel) |
+| `spur-b/` | Spur B (P1b): `modul.ts` Hülle `spurB(basis)` mit Beatmung, Perfusoren, arterieller Messung, Rhythmus, Sedierung (RASS), Laktat, Bilanz; `perfusor.ts` Laufrate ↔ Dosis; `bga.ts` BGA aus dem Modell; `standard.ts` `SPUR_B_MODELL` (Standard im Kern); `katalog.ts` fehlende Spur-B-Maßnahmen mit Beleg; `monitor.ts` Anzeige → `MonitorWerte` |
 
 Regeln
 - Zustand = Fall + Eingaben. `sende()` gibt immer einen neuen Zustand zurück.
@@ -51,6 +52,16 @@ Regeln
   `gefaesstonus`/`pumpleistung`. Alarme im Kern nur für Werte in `z.sichtbar`, Farben wie am Monitor (`alarmFuer`).
 - Kalibrierung, Monotonie, Determinismus und je Treiber ein Plausibilitätstest: `physiologie/pflegemodell.test.ts`
   (eine neue Treiber-Art braucht dort einen Eintrag, sonst schlägt die Typprüfung fehl).
+
+## Spur B (P1b)
+- `SPUR_B_MODELL = spurB(PFLEGE_MODELL)`: ohne `kontext.module` exakt `PFLEGE_MODELL` (Test). Module stehen in `SimZustand.module`
+  (Start aus `fall.start.module`), geändert nur über `modul: ModulEingriff` an Maßnahme, Ereignis oder Entscheidungs-Option (Replay identisch).
+- Eine Quelle je Größe: Bilanz nur `einfuhrMl`/`ausfuhrMl` (Anzeige `bilanzMl` abgeleitet), Sedierung als Grundgröße → `rass`.
+- Katecholamine wirken nur während der Rechnung auf Gefäßtonus/Pumpe; die Bestände ändern weiter nur Treiber und Wirkkurven.
+- Gerätestörungen (`stoerungAn/Aus`): Diskonnektion, Tubus verlegt, Sekret, art. Kurve gedämpft, nicht genullt (+18 mmHg).
+- Befundtexte können `{map}`, `{laktat}`, `{ph}` … aus der Anzeige enthalten (`fuelle`).
+- Anordnung `auchFuer` deckt mehrere Maßnahmen; `fehlerhaft.ersatz` = korrigierte Anordnung nach Remonstration.
+- Erster Fall: `faelle/sr-septischer-schock.ts` (Rolle 3. Drittel oder Pflegefachperson, ungeprüft, Prüfpunkte im Fall).
 
 Oberfläche (Paket P2): `../arbeitsplatz/` – Route `#/lernen/praxis?neu=<fall>`. `ansicht.ts` stellt rein zusammen, was der
 Bildschirm zeigt (Reiter, Befugnis-Abzeichen, Werteleiste mit Momentaufnahme vs. live, Pflegetasche, SBAR, Anordnungen,

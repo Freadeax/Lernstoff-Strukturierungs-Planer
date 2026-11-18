@@ -6,7 +6,7 @@
 import { useEffect, useRef, useState } from 'react';
 import './sim.css';
 import { wenigBewegung } from '../shell/session';
-import { alarmProfil, alarmStufe, anzeige, atmung, ekg, gesamtAlarm, pleth, proSekunde, type Alarm, type MonitorGruppe, type MonitorWerte } from './monitor';
+import { alarmProfil, alarmStufe, alarmZusatz, anzeige, arteriell, atmung, ekgRhythmus, gesamtAlarm, kapnografie, ohnePuls, pleth, proSekunde, RHYTHMUS_NAME, type Alarm, type MonitorGruppe, type MonitorWerte } from './monitor';
 
 export type { MonitorWerte } from './monitor';
 
@@ -146,15 +146,24 @@ export function PatientenMonitor({ werte, kompakt = false, aktiv = true, titel, 
   const st = (p: Parameters<typeof alarmStufe>[0], n: number | null | undefined): Alarm => (aktiv ? alarmStufe(p, n, gruppe) : 'ok');
   const alarm = aktiv ? gesamtAlarm(w, gruppe) : 'ok';
   const spo2Amp = typeof w.spo2 === 'number' && w.spo2 < 90 ? 0.6 : 0.9;
-  const kanalEkg: Kanal = { fn: ekg, rate: () => proSekunde(w.puls, 20), amp: () => 0.9 };
-  const kanalPleth: Kanal = { fn: pleth, rate: () => (typeof w.spo2 === 'number' ? proSekunde(w.puls ?? 75, 20) : 0), amp: () => spo2Amp };
+  // Spur B: Rhythmus, arterielle Kurve, Kapnografie (nur wenn Werte da sind)
+  const keinPuls = ohnePuls(w.rhythmus) || w.rhythmus === 'pea';
+  const kanalEkg: Kanal = { fn: ekgRhythmus(w.rhythmus), rate: () => (ohnePuls(w.rhythmus) ? 1 : proSekunde(w.puls, 20)), amp: () => 0.9 };
+  const kanalPleth: Kanal = { fn: pleth, rate: () => (typeof w.spo2 === 'number' && !keinPuls ? proSekunde(w.puls ?? 75, 20) : 0), amp: () => spo2Amp };
   const kanalAtmung: Kanal = { fn: atmung, rate: () => proSekunde(w.af, 3, 60), amp: () => 0.7 };
+  const mitArt = typeof w.artSys === 'number' && !kompakt;
+  const mitCo2 = typeof w.etco2 === 'number' && !kompakt;
+  const kanalArt: Kanal = { fn: (p) => arteriell(p, !!w.artGedaempft), rate: () => (keinPuls ? 0 : proSekunde(w.puls ?? 75, 20)), amp: () => 0.85 };
+  const kanalCo2: Kanal = { fn: kapnografie, rate: () => (w.etco2 ? proSekunde(w.af, 3, 60) : 0), amp: () => Math.min(1, Math.max(0.15, (w.etco2 ?? 0) / 40)) };
   const bd = typeof w.sys === 'number' ? `${anzeige(w.sys)}/${anzeige(w.dia)}` : '--/--';
+  const art = typeof w.artSys === 'number' ? `${anzeige(w.artSys)}/${anzeige(w.artDia)}` : '--/--';
+  const rhythmusText = w.rhythmus && w.rhythmus !== 'sinus' ? RHYTHMUS_NAME[w.rhythmus] : '';
   const avpu = w.avpu?.trim().toUpperCase().charAt(0) || '';
 
   const zusammenfassung = [
     `Herzfrequenz ${anzeige(w.puls)}`, `SpO₂ ${anzeige(w.spo2)} %`, `Atemfrequenz ${anzeige(w.af)}`,
-    !kompakt && `Blutdruck ${bd}`, !kompakt && `Temperatur ${anzeige(w.temp, 1)} °C`,
+    !kompakt && `Blutdruck ${bd}`, mitArt && `Arteriell ${art}, Mitteldruck ${anzeige(w.map)}${w.artGedaempft ? ', Kurve gedämpft' : ''}`,
+    mitCo2 && `etCO₂ ${anzeige(w.etco2)} mmHg`, rhythmusText, !kompakt && `Temperatur ${anzeige(w.temp, 1)} °C`,
     alarm === 'rot' ? 'Alarm: kritischer Wert' : alarm === 'gelb' ? 'Hinweis: auffälliger Wert' : '',
     gruppe !== 'erwachsen' && profil.label,
   ].filter(Boolean).join(', ');
@@ -162,9 +171,9 @@ export function PatientenMonitor({ werte, kompakt = false, aktiv = true, titel, 
   return (
     <div className={`sim-monitor ${kompakt ? 'is-kompakt' : ''} ${aktiv ? '' : 'is-aus'} is-alarm-${alarm} ${className}`.trim()} role="group" aria-label="Patientenmonitor">
       <span className="sim-sr">{aktiv ? zusammenfassung : `Monitor: ${ausText}`}</span>
-      {(titel || alarm !== 'ok' || !aktiv || gruppe !== 'erwachsen') && (
+      {(titel || rhythmusText || alarm !== 'ok' || !aktiv || gruppe !== 'erwachsen') && (
         <div className="sim-monitor__kopf" aria-hidden="true">
-          <span>{titel}</span>
+          <span>{titel}{rhythmusText && aktiv ? `${titel ? ' · ' : ''}${rhythmusText}` : ''}</span>
           {gruppe !== 'erwachsen' && <span className={`sim-monitor__profil ${profil.bewertet ? '' : 'is-offen'}`} title={profil.quelle}>{profil.bewertet ? `${profil.label.replace('Alarmgrenzen ', '')} · ungeprüft` : 'kein Profil'}</span>}
           {!aktiv ? <span className="sim-monitor__status">{ausText}</span>
             : alarm === 'rot' ? <span className="sim-monitor__status is-rot">Alarm</span>
@@ -187,6 +196,18 @@ export function PatientenMonitor({ werte, kompakt = false, aktiv = true, titel, 
               <Kurve kanal={kanalPleth} aktiv={aktiv} klasse="is-pleth" />
               <Wert label="SpO₂" wert={aktiv ? w.spo2 : null} einheit="%" alarm={st('spo2', w.spo2)} klasse="is-pleth" klein={aktiv && w.sauerstoff ? 'mit O₂' : undefined} />
             </div>
+            {mitArt && (
+              <div className="sim-monitor__zeile">
+                <Kurve kanal={kanalArt} aktiv={aktiv} klasse="is-art" />
+                <Wert label="ART" wert={aktiv ? w.map : null} einheit="MAP" alarm={aktiv ? alarmZusatz('map', w.map) : 'ok'} klasse="is-art" klein={aktiv ? `${art}${w.artGedaempft ? ' · gedämpft' : ''}` : undefined} />
+              </div>
+            )}
+            {mitCo2 && (
+              <div className="sim-monitor__zeile">
+                <Kurve kanal={kanalCo2} aktiv={aktiv} klasse="is-co2" />
+                <Wert label="etCO₂" wert={aktiv ? w.etco2 : null} einheit="mmHg" alarm={aktiv ? alarmZusatz('etco2', w.etco2) : 'ok'} klasse="is-co2" />
+              </div>
+            )}
             <div className="sim-monitor__zeile">
               <Kurve kanal={kanalAtmung} aktiv={aktiv} klasse="is-atmung" />
               <Wert label="AF" wert={aktiv ? w.af : null} einheit="/min" alarm={st('af', w.af)} klasse="is-atmung" />
@@ -194,6 +215,7 @@ export function PatientenMonitor({ werte, kompakt = false, aktiv = true, titel, 
             <div className="sim-monitor__unten">
               <div className={`sim-monitor__wert is-nibp is-${st('sys', w.sys)}`}>
                 <span className="sim-monitor__label">NIBP</span><strong>{aktiv ? bd : '--/--'}</strong><small>mmHg</small>
+                {aktiv && !mitArt && typeof w.map === 'number' && <span className="sim-monitor__klein">MAP {anzeige(w.map)}</span>}
               </div>
               <Wert label="Temp." wert={aktiv ? w.temp : null} einheit="°C" nachkomma={1} alarm={st('temp', w.temp)} klasse="is-temp" />
               <div className={`sim-monitor__wert is-avpu is-${aktiv && avpu && avpu !== 'A' ? 'rot' : 'ok'}`}>
