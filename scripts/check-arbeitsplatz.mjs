@@ -1,7 +1,8 @@
 // Neuer Arbeitsplatz des Praxissimulators (Paket P2, #/lernen/praxis?neu=<fall>): Pilotfall einmal durchspielen
 // bei 390 (iPhone), 820 (iPad hoch, „Bewegung reduzieren“) und 1180 px (iPad quer), axe WCAG 2.2 AA je Zustand.
 // Prüft: Briefing mit Rolle, Pflegetasche (Gerät holen kostet Zeit, Werte erst nach dem Messen), Befugnis-Abzeichen,
-// SBAR → Anordnung → Rücklesen, Abschluss mit Pflegebedarf und Übersicht der Pflichthandlungen.
+// SBAR → Anordnung → Rücklesen, Abschluss (Pflegebedarf priorisieren, Übergabe) und Auswertung (P5) inkl. Weitergabe
+// in den Übergabetrainer; bei 1180 px zusätzlich Spur B (Verdacht, klinische Bereiche).
 import { chromium } from 'playwright';
 import AxeBuilder from '@axe-core/playwright';
 import assert from 'node:assert/strict';
@@ -21,7 +22,7 @@ try {
     const axe = async (name) => {
       const a = await new AxeBuilder({ page: p }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze();
       for (const v of a.violations) fehler.push(`${w} ${name}: ${v.id} (${v.nodes.length}×) ${v.nodes[0]?.html.slice(0, 120)}`);
-      await p.screenshot({ path: path.join(output, `${w}-${name}.png`) });
+      await p.screenshot({ path: path.join(output, `${w}-${name}.png`), fullPage: name.startsWith('auswertung') });
     };
     const suche = p.getByRole('searchbox', { name: 'Was willst du tun?' });
     const tu = async (name) => { await suche.fill(name); await p.getByRole('button', { name: new RegExp(name) }).first().click(); if (await suche.count()) await suche.fill(''); };
@@ -62,7 +63,7 @@ try {
     assert.doesNotMatch(await p.locator('.ap-wert').nth(2).innerText(), /—/, 'RR nach dem Messen sichtbar');
 
     await p.getByRole('tab', { name: /Melden/ }).click();
-    for (const t of [/am Boden sitzend/, /Herzinsuffizienz, nimmt/, /RR 98\/58/, /Zeitlich und örtlich/, /Bitte kommen Sie/]) await p.getByRole('checkbox', { name: t }).check();
+    for (const t of [/am Boden sitzend/, /Herzinsuffizienz, nimmt/, /RR deutlich unter/, /Zeitlich und örtlich/, /Bitte kommen Sie/]) await p.getByRole('checkbox', { name: t }).check();
     await p.getByRole('button', { name: /anrufen$/ }).click();
     await p.getByRole('button', { name: 'Rücklesen und bestätigen' }).first().waitFor();
     await axe('anordnung');
@@ -71,15 +72,45 @@ try {
     await tu('Trinken anbieten');
     await tu('Pflegebericht');
 
-    await p.getByRole('heading', { name: 'Pflegebedarf festhalten' }).waitFor();
+    await p.getByRole('heading', { name: 'Fall abschließen' }).waitFor();
+    for (const t of [/Erhöhtes Sturzrisiko/, /Flüssigkeitsdefizit/, /Akute Verwirrtheit/]) await p.getByRole('checkbox', { name: t }).check();
+    // Priorisieren: Sturzrisiko (Prio 2) steht oben und wird zweimal nach unten geschoben
+    await p.getByRole('button', { name: /Erhöhtes Sturzrisiko.* nach unten/ }).click();
+    await p.getByRole('button', { name: /Erhöhtes Sturzrisiko.* nach unten/ }).click();
+    assert.match(await p.locator('.ap-reihenfolge li').last().innerText(), /Sturzrisiko/, 'Reihenfolge änderbar');
+    for (const t of [/mindestens 1,5 l/, /Hausnotruf am Handgelenk/]) await p.getByRole('checkbox', { name: t }).check();
+    for (const t of [/am Boden sitzend/, /Herzinsuffizienz, nimmt/, /Zeitlich und örtlich/]) await p.locator('.ap-uebergabe').getByRole('checkbox', { name: t }).check();
     await axe('abschluss');
-    await p.getByRole('checkbox', { name: /Flüssigkeitsdefizit/ }).check();
-    await p.getByRole('button', { name: 'Abschließen' }).click();
-    await p.getByRole('heading', { name: 'Pflichthandlungen' }).waitFor();
-    assert.ok(await p.locator('.ap-ende__liste li.is-ok').count() >= 7, 'Musterweg erfüllt die meisten Pflichthandlungen');
-    await axe('ende');
+    await p.getByRole('button', { name: 'Abschließen und auswerten' }).click();
+    await p.getByRole('heading', { name: 'Kompetenzbereiche (PflAPrV)' }).waitFor();
+    assert.equal(await p.locator('.ap-bereiche li').count(), 5, 'fünf Kompetenzbereiche');
+    assert.match(await p.locator('.ap-gesamt__zahl').innerText(), /\d+ %/, 'Gesamtwert');
+    assert.ok(await p.locator('.sim-auswertung__punkte li').count() >= 8, 'AuswertungsKarte mit Punkten');
+    assert.ok(await p.locator('.ap-zl__reihe').count() >= 5, 'Zeitleiste mit Handlungen und Werten');
+    assert.equal(await p.locator('.ap-leitfaden details').count(), 5, 'Leitfaden (4 Abschnitte + Quellen)');
+    await axe('auswertung');
+    if (w === 1180) {
+      // Weitergabe: Übergabetrainer übernimmt den gespielten Fall
+      await p.getByRole('link', { name: 'Übergabe an den Folgedienst' }).click();
+      await p.locator('option[value="praxis-neu-amb-sturz-exsikkose"]').waitFor({ state: 'attached' });
+      assert.equal(await p.getByText('nicht mehr gespeichert').count(), 0, 'Fall für die Übergabe gefunden');
+      await p.goBack();
+      // Spur B: sofort abschließen, Verdacht wählen, klinische Bereiche und verpasste kritische Pflichthandlungen
+      await p.goto(base + '#/lernen/praxis?neu=sr-septischer-schock', { waitUntil: 'networkidle' });
+      await p.getByRole('button', { name: /Neu beginnen|Fall beginnen/ }).click();
+      await p.getByRole('button', { name: 'Pause' }).click();
+      await p.getByRole('tab', { name: /Melden/ }).click();
+      await p.getByRole('button', { name: /Fall abschließen/ }).click();
+      await p.getByRole('radio', { name: /Septischer Schock/ }).check();
+      await p.getByRole('checkbox', { name: /trüber Urin/ }).check();
+      await axe('abschluss-b');
+      await p.getByRole('button', { name: 'Abschließen und auswerten' }).click();
+      await p.getByRole('heading', { name: 'Klinische Bereiche (Spur B)' }).waitFor();
+      assert.ok(await p.locator('.ap-kritisch li').count() >= 3, 'verpasste kritische Pflichthandlungen deutlich');
+      await axe('auswertung-b');
+    }
     await ctx.close();
   }
 } finally { await browser.close(); }
 assert.deepEqual(fehler, [], 'Arbeitsplatz');
-console.log('Arbeitsplatz: Pilotfall bei 390, 820 und 1180 px durchgespielt, axe WCAG 2.2 AA in 7 Zuständen ohne Befund.');
+console.log('Arbeitsplatz: Pilotfall bei 390, 820 und 1180 px durchgespielt, axe WCAG 2.2 AA ohne Befund (inkl. Abschluss, Auswertung, Spur B).');

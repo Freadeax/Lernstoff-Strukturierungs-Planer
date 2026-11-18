@@ -398,7 +398,8 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
       { art: 'massnahme', id: 'bilanz-fuehren' },
       { art: 'massnahme', id: 'verlegung-uebergabe' },
       { art: 'abschluss', probleme: ['pb-kreislauf', 'pb-infekt', 'pb-allergie', 'pb-delir'], ziele: ['z-map', 'z-orientierung', 'z-keine-reaktion'],
-        verdacht: 'v-septischer-schock', begruendung: ['bg-infekt', 'bg-map-trotz-volumen', 'bg-laktat'] },
+        verdacht: 'v-septischer-schock', begruendung: ['bg-infekt', 'bg-map-trotz-volumen', 'bg-laktat'],
+        sbar: ['s-sepsis-verdacht', 'b-dk-harnweg', 'b-penicillin-allergie', 'a-hypotonie', 'a-tachypnoe', 'a-verwirrt', 'a-laktat-hoch', 'a-map-nach-volumen'] },
     ],
     unterlassung: { bisSek: 900, erwartet: { alle: [{ wert: 'map', vergleich: '<', grenze: 60 }, { wert: 'laktat', vergleich: '>', grenze: 4.1 }] } },
     // 3. Drittel startet den Perfusor ohne Anleitung (mit Anordnung): Stufe 2 PA unterstützt, Stufe 3 Grenzüberschreitung + Abbruch
