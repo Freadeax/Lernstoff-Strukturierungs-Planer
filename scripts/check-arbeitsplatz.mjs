@@ -62,7 +62,7 @@ try {
     assert.doesNotMatch(await p.locator('.ap-wert').nth(2).innerText(), /—/, 'RR nach dem Messen sichtbar');
 
     await p.getByRole('tab', { name: /Melden/ }).click();
-    for (const t of [/am Boden sitzend/, /Herzinsuffizienz, nimmt/, /RR 98\/58/, /Zeitlich und örtlich/, /Bitte kommen Sie/]) await p.getByRole('checkbox', { name: t }).check();
+    for (const t of [/am Boden sitzend/, /Herzinsuffizienz, nimmt/, /RR deutlich unter ihren/, /Zeitlich und örtlich/, /Bitte kommen Sie/]) await p.getByRole('checkbox', { name: t }).check();
     await p.getByRole('button', { name: /anrufen$/ }).click();
     await p.getByRole('button', { name: 'Rücklesen und bestätigen' }).first().waitFor();
     await axe('anordnung');
@@ -78,8 +78,18 @@ try {
     await p.getByRole('heading', { name: 'Pflichthandlungen' }).waitFor();
     assert.ok(await p.locator('.ap-ende__liste li.is-ok').count() >= 7, 'Musterweg erfüllt die meisten Pflichthandlungen');
     await axe('ende');
+
+    // Pilotstaffel Spur A (P6): jeder Fall startet, Team-Leiste zeigt die Kollegin, Raumfoto da, axe ohne Befund
+    for (const [id, kollegin] of [['kh-pneumonie-sepsis', /Jonas/], ['lz-demenz-schmerz', /Sabine/], ['paed-fieberkrampf', /Tim/], ['psy-panik-suizidalitaet', /Deniz/]]) {
+      await p.goto(base + `#/lernen/praxis?neu=${id}`, { waitUntil: 'networkidle' });
+      await p.getByRole('button', { name: 'Fall beginnen' }).click();
+      await p.getByRole('button', { name: 'Pause' }).click();
+      assert.match(await p.locator('.ap-team').innerText(), kollegin, `${w} ${id}: Kollegin in der Team-Leiste`);
+      assert.equal(await p.getByRole('tab').count(), 6, `${w} ${id}: sechs Reiter`);
+      await axe(`start-${id}`);
+    }
     await ctx.close();
   }
 } finally { await browser.close(); }
 assert.deepEqual(fehler, [], 'Arbeitsplatz');
-console.log('Arbeitsplatz: Pilotfall bei 390, 820 und 1180 px durchgespielt, axe WCAG 2.2 AA in 7 Zuständen ohne Befund.');
+console.log('Arbeitsplatz: Pilotfall bei 390, 820 und 1180 px durchgespielt, Pilotstaffel Spur A gestartet, axe WCAG 2.2 AA in 11 Zuständen ohne Befund.');

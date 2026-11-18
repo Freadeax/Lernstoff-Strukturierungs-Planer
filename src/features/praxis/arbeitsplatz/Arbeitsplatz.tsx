@@ -15,7 +15,7 @@ import { anzeige, type SimZustand } from '../kern/kern';
 import type { FallV2, Reiter, Rolle, SbarTeil, SimEventEingabe } from '../kern/typen';
 import {
   anordnungen, bettAnzeige, beginne, dauer, FREIGABE_TEXT, handlungen, hatPflegetasche, lageText, offeneEntscheidung,
-  pflegetasche, REITER, rekonstruiere, ROLLE_TEXT, sbarBausteine, SBAR_TEILE, spule, STUFE_TEXT, suche, team, uebersicht,
+  pflegetasche, raumJetzt, REITER, rekonstruiere, ROLLE_TEXT, sbarBausteine, SBAR_TEILE, spule, STUFE_TEXT, suche, team, uebersicht,
   uhrzeit, wende, werteleiste, type Arbeitsstand, type Handlung,
 } from './ansicht';
 import { lies, schreibe } from './speicher';
@@ -158,7 +158,8 @@ function Platz({ stand, setStand, onZurueck, onNeu }: {
   const liste = suchtext.trim() ? suche(alle, suchtext) : alle.filter((h) => h.reiter === reiter);
   const tasche = pflegetasche(z);
   const neu = z.meldungen.slice(seit);
-  const raum = istRaum(fall.medien.raum) ? fall.medien.raum : undefined;
+  const raumId = raumJetzt(z);
+  const raum = istRaum(raumId) ? raumId : istRaum(fall.medien.raum) ? fall.medien.raum : undefined;
 
   const hotspots: Hotspot[] = [];
   if (raum) {

@@ -258,8 +258,13 @@ export function team(z: SimZustand): TeamZeile[] {
   return [
     { wer: 'pa', name: z.fall.pa.name, kuerzel: 'PA', text: ohneName(pa?.text, z.fall.pa.name), t: pa?.t },
     { wer: 'aerztin', name: z.fall.arzt.name, kuerzel: 'Ä', text: ohneName(arzt?.text, z.fall.arzt.name), t: arzt?.t },
-    { wer: 'kollegin', name: 'Umfeld und Team', kuerzel: 'K', text: umfeld?.text, t: umfeld?.t },
+    { wer: 'kollegin', name: z.fall.team?.kollegin ?? 'Umfeld und Team', kuerzel: 'K', text: umfeld?.text, t: umfeld?.t },
   ];
+}
+
+/** Raumfoto jetzt: erste passende Variante aus medien.raumVarianten, sonst der Grundraum (ID wird in der Oberfläche geprüft). */
+export function raumJetzt(z: SimZustand): string {
+  return z.fall.medien.raumVarianten?.find((v) => gilt(z, v.wenn))?.raum ?? z.fall.medien.raum;
 }
 
 /* ─────────────────────────── Melden: SBAR + Anordnungen ─────────────────────────── */

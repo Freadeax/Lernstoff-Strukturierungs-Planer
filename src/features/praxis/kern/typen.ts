@@ -388,6 +388,8 @@ export interface FallV2 {
   arzt: { name: string; erreichbar: 'telefon' | 'vor-ort' | 'hausarzt-praxis' | 'bereitschaft'; regeln: ArztRegel[] };
   ereignisse: Ereignis[];
   pa: { name: string; hilfen: PaHilfe[] };
+  /** Team-Leiste (P6, optional): Name der Kollegin/des Kollegen im Dienst; sonst „Umfeld und Team“. */
+  team?: { kollegin?: string };
 
   bewertung: {
     pflicht: Pflichthandlung[];
