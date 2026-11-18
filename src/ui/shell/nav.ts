@@ -96,6 +96,7 @@ export const NAV: NavItem[] = [
       { id: 'lehrer-klassen', label: 'Klassen', path: '/lehren/klassen', icon: 'user' },
       { id: 'lehrer-aufgaben', label: 'Fälle und Aufgaben', path: '/lehren/aufgaben', icon: 'clipboard' },
       { id: 'lehrer-abgaben', label: 'Abgaben', path: '/lehren/abgaben', icon: 'upload' },
+      { id: 'lehrer-radar', label: 'Klassen-Radar', path: '/lehren/radar', icon: 'gauge' },
     ],
   },
   {

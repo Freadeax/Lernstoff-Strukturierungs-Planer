@@ -298,7 +298,53 @@ export const ALBERS: Fallakte = {
     { id: 'planung', art: 'pflegeplanung', fallId: 'albers-copd', wann: 'Tag 4', titel: 'Pflegeplanung', auftrag: 'Plane die Pflege zu Hause. Die Evaluation zeigt den Verlauf zwei Wochen später.' },
     { id: 'bericht', art: 'bericht', fallId: 'albers-hausbesuch', wann: 'Tag 9, Frühtour', titel: 'Pflegebericht neu schreiben', auftrag: 'Ein Kollege hat einen wertenden Eintrag geschrieben. Schreib ihn aus der beobachteten Situation sachlich neu.' },
     { id: 'uebergabe', art: 'uebergabe', fallId: 'albers-hausarzt', wann: 'Tag 9, 8:30 Uhr', titel: 'Anruf beim Hausarzt (SBAR)', auftrag: 'Fieber, gelbgrüner Auswurf und eine Sättigung von 86 %. Ruf den Hausarzt an und übergib nach SBAR.' },
+    { id: 'evaluation', art: 'evaluation', fallId: 'albers-eval', wann: 'Tag 30, Pflegevisite', titel: 'Evaluation nach vier Wochen', auftrag: 'Vier Wochen nach dem Erstbesuch prüfst du bei der Pflegevisite die Ziele und schreibst die Planung fort.' },
   ],
+  evaluation: {
+    id: 'albers-eval',
+    verlauf: [
+      'Tag 30, Pflegevisite in der Wohnung mit Herrn und Frau Albers. Die Exazerbation vom neunten Tag ist mit Antibiotikum und Kortison zu Hause ausgeheilt. Der Hausarzt hat zusätzlich ein Salbutamol-Dosieraerosol für die Atemnot im Alltag verordnet.',
+      'Beim Anziehen setzt Herr Albers die Lippenbremse inzwischen von selbst ein und braucht danach etwa zehn Minuten Pause. Mit dem mobilen Sauerstoffgerät war er zweimal im Garten: „Das hätte ich vor vier Wochen nicht gedacht.“',
+      'Den Respimat benutzt er richtig: ausatmen, Sprühstoß, Luft anhalten. Beim neuen Dosieraerosol schüttelt er nicht und atmet schnell und kurz ein, wie er es vom Respimat kennt.',
+      'Auf die Frage nach Warnzeichen nennt er „Fieber und gelber Schleim“, die stärkere Atemnot nennt er nicht. Am letzten Sonntag hatte er abends mehr Atemnot und erhöhte Temperatur (37,9 °C). Er wartete bis zum Besuch am Montag: „Am Wochenende wollte ich niemanden stören.“ Der Notfallplan hängt am Kühlschrank, eine Nummer für das Wochenende steht nicht darauf.',
+    ],
+    ziele: [
+      {
+        id: 'atmung', problem: 'Beeinträchtigte Atmung und verminderte Belastbarkeit',
+        ziel: 'Herr Albers wendet beim Anziehen die Lippenbremse an und braucht danach höchstens 15 Minuten Pause.',
+        erwartet: 'ja',
+        beleg: 'Er nutzt die Lippenbremse von selbst, die Pause beträgt etwa zehn Minuten statt vorher dreißig.',
+        anpassungen: [
+          { text: 'Mit ihm ein neues Ziel für draußen vereinbaren, z. B. mit dem mobilen Sauerstoffgerät zum Bäcker an der Ecke; Atemtechnik weiter bei jedem Besuch ansehen.', richtig: true, warum: 'Das Ziel ist erreicht und wird fortgeschrieben. Seine eigenen Wünsche (draußen sein, Garten, Bäcker) machen das nächste Ziel bedeutsam.' },
+          { text: 'Sauerstoff beim Anziehen weglassen, weil es jetzt gut klappt.', richtig: false, warum: 'Sauerstoff auch bei Belastung ist ärztlich verordnet. Die Besserung ist kein Grund, eine Verordnung eigenmächtig zu ändern.' },
+          { text: 'Ziel und Anleitung beenden, mehr ist bei COPD GOLD 3 nicht zu erwarten.', richtig: false, warum: 'Die Erkrankung bleibt, die Atemtechnik muss geübt bleiben. Und dass mehr möglich ist, zeigen die Gänge in den Garten.' },
+        ],
+      },
+      {
+        id: 'inhalation', problem: 'Unsichere Inhalationstechnik',
+        ziel: 'Herr Albers inhaliert ohne Fehler (vorher ausatmen, danach 5 bis 10 Sekunden Luft anhalten).',
+        erwartet: 'teilweise',
+        beleg: 'Am Respimat ist die Technik fehlerfrei. Beim neuen Dosieraerosol fehlen Schütteln und das langsame, tiefe Einatmen; jedes Inhalationsgerät verlangt eine eigene Technik.',
+        anpassungen: [
+          { text: 'Ziel als erreicht abhaken, der Respimat klappt ja.', richtig: false, warum: 'Das Ziel gilt für seine Inhalation insgesamt. Mit falscher Technik am Dosieraerosol wirkt gerade das Notfallspray schlecht.' },
+          { text: 'Die Ehefrau soll das Dosieraerosol künftig für ihn bedienen.', richtig: false, warum: 'Er kann es lernen und hat den Respimat schon gelernt. Die Ehefrau ist ohnehin belastet; Selbstständigkeit geht vor.' },
+          { text: 'Ziel auf das Dosieraerosol erweitern: Technik zeigen und vormachen lassen, beim Hausarzt eine Inhalierhilfe (Spacer) ansprechen, in 7 Tagen erneut prüfen.', richtig: true, warum: 'Teilweise erreicht heißt: Maßnahmen gezielt anpassen. Ein Spacer erleichtert die Abstimmung von Sprühstoß und Einatmen, verordnen muss ihn der Arzt.' },
+        ],
+      },
+      {
+        id: 'exazerbation', problem: 'Gefahr einer erneuten Exazerbation',
+        ziel: 'Herr Albers nennt drei Warnzeichen (mehr Atemnot, Fieber, verfärbter Auswurf) und ruft bei diesen Zeichen am selben Tag den Hausarzt an.',
+        erwartet: 'nein',
+        beleg: 'Er nennt nur zwei Warnzeichen, und am Sonntag hat er trotz Atemnot und Temperatur nicht angerufen. Beide Teile des Ziels sind verfehlt.',
+        anpassungen: [
+          { text: 'Ziel streichen: Der Pflegedienst erkennt die Zeichen beim nächsten Besuch.', richtig: false, warum: 'Geduscht wird zweimal pro Woche, dazwischen liegen Tage ohne Besuch. Eine Exazerbation wartet nicht bis zum Montag.' },
+          { text: 'Grund besprechen, den Notfallplan um die Nummer des ärztlichen Bereitschaftsdienstes 116 117 ergänzen, die Warnzeichen mit beiden üben und das Ziel in 14 Tagen erneut prüfen.', richtig: true, warum: 'Der Grund war Rücksicht, nicht Unwissen allein. Eine Nummer für das Wochenende und die Ehefrau als zweite Beobachterin setzen genau dort an.' },
+          { text: 'Ab jetzt täglich den Hausarzt anrufen lassen, damit nichts übersehen wird.', richtig: false, warum: 'Tägliche Anrufe ohne Anlass überfordern alle, und er lernt dabei nicht, Warnzeichen selbst einzuschätzen.' },
+        ],
+      },
+    ],
+    fazit: 'Vier Wochen zeigen mehr als die Zahl: Neue Geräte und Wochenenden ohne Besuch stellen eigene Anforderungen. Die Evaluation fragt deshalb immer auch, warum ein Ziel verfehlt wurde.',
+  },
   rueckblick: [
     { frage: 'In der SIS stand unter „Sonstiges“ die Gefahr einer Exazerbation. Woran hast du sie am neunten Tag erkannt?', antwort: 'Fieber 38,3 °C, gelbgrüner Auswurf und mehr Atemnot mit SpO₂ 86 % trotz Sauerstoff. Genau diese Zeichen nennt der Notfallplan des Hausarztes.' },
     { frage: 'Warum ist die falsche Inhalationstechnik ein eigenes Pflegeproblem und nicht nur ein Detail?', antwort: 'Ohne Ausatmen vorher und Luftanhalten danach kommt wenig Wirkstoff in die Lunge. Schlechte Technik ist ein häufiger Grund für Exazerbationen, und Anleitung ist eine pflegerische Aufgabe.' },

@@ -60,7 +60,7 @@ function Bausteine() {
 function Datenschutz() {
   const [d, setD] = useState(datenbestand);
   function allesLoeschen() {
-    if (!confirm(`Wirklich alles aus dem Lehrermodus löschen? ${d.klassen} Klassen, ${d.faelle} verteilte Fälle, ${d.abgaben} Abgaben und ${d.bewertungen} Bewertungen. Das lässt sich nicht rückgängig machen.`)) return;
+    if (!confirm(`Wirklich alles aus dem Lehrermodus löschen? ${d.klassen} Klassen, ${d.faelle} verteilte Fälle, ${d.abgaben} Abgaben, ${d.bewertungen} Bewertungen und ${d.radar} Radar-Stände. Das lässt sich nicht rückgängig machen.`)) return;
     loescheAllesLehrer();
     setD(datenbestand());
     notify('info', 'Lehrermodus geleert');
@@ -75,9 +75,10 @@ function Datenschutz() {
         <div><dt>Verteilte Fälle</dt><dd>{d.faelle}</dd></div>
         <div><dt>Abgaben</dt><dd>{d.abgaben}</dd></div>
         <div><dt>Bewertungen</dt><dd>{d.bewertungen}</dd></div>
+        <div><dt>Radar-Stände</dt><dd>{d.radar}</dd></div>
       </dl>
       <p className="muted">Zum Aufbewahren die Klassenübersicht oder die Abgaben als Tabelle (CSV) sichern, danach hier oder je Fall löschen. Auf ein anderes Gerät kommt alles über die <button type="button" className="link" onClick={() => navigate('/system/sicherung')}>Datensicherung</button>.</p>
-      <button type="button" className="danger small" disabled={!d.klassen && !d.faelle && !d.abgaben} onClick={allesLoeschen}>Alles aus dem Lehrermodus löschen</button>
+      <button type="button" className="danger small" disabled={!d.klassen && !d.faelle && !d.abgaben && !d.bewertungen && !d.radar} onClick={allesLoeschen}>Alles aus dem Lehrermodus löschen</button>
     </div>
   );
 }

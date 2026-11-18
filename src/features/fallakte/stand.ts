@@ -1,11 +1,13 @@
 // Stand einer Fallakte: liest die Bestwerte, die die Trainer ohnehin je Fall speichern.
 // Keine eigene Speicherung, damit Fallakte und Trainer nie auseinanderlaufen.
 import { storage } from '../../ui/lib/store';
+import { EVALUATION_KEY } from './evaluation';
 import type { AktenSchritt, Fallakte, SchrittArt } from './typen';
 
 /** Speicherorte der Trainer (siehe jeweilige *Trainer.tsx): Bestwert in Prozent je Fall-ID. */
 export const BESTE_KEYS: Record<Exclude<SchrittArt, 'assessment'>, string> = {
   sis: 'lernstoff.sis.beste',
+  evaluation: EVALUATION_KEY,
   pflegeplanung: 'lernstoff.pflegeplanung.beste',
   bericht: 'lernstoff.bericht.beste',
   uebergabe: 'lernstoff.uebergabe.beste',

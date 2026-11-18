@@ -15,8 +15,8 @@ function ordered() {
 const correct: Extract<Command, { type: 'medication' }> = { type: 'medication', id: 'furosemide', dose: 40, volume: 4, route: 'i.v.', duration: 10, equipment: 'Spritze und i.v.-Zugang', checks: CHECKS.map(() => true) };
 
 describe('Praxissimulator – autonome Engine', () => {
-  it('validiert alle neun datengetriebenen Szenarien', () => {
-    expect(new Set(SCENARIOS.map(s => s.setting)).size).toBe(9);
+  it('validiert alle zehn datengetriebenen Szenarien', () => {
+    expect(new Set(SCENARIOS.map(s => s.setting)).size).toBe(10);
     for (const s of SCENARIOS) expect(parseScenario(JSON.stringify(s))).toEqual(s);
   });
   it('enthüllt ohne Messung keine Vitalwerte', () => {

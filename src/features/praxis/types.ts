@@ -4,7 +4,7 @@ export type { Avpu };
 export const SETTINGS = {
   ambulant: 'Ambulante Pflege', heim: 'Stationäre Langzeitpflege', station: 'Krankenhaus · Normalstation',
   zna: 'Notaufnahme', its: 'Intensivstation', paediatrie: 'Pädiatrie', psychiatrie: 'Psychiatrie',
-  reha: 'Rehabilitation', palliativ: 'Palliativversorgung',
+  reha: 'Rehabilitation', palliativ: 'Palliativversorgung', aufwachraum: 'Krankenhaus · Aufwachraum',
 } as const;
 export type Setting = keyof typeof SETTINGS;
 /** Alter lesbar: Säuglinge (Alter unter 1, in Jahren als Bruch) in Monaten, sonst in Jahren. */

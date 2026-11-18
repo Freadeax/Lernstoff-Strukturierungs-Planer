@@ -326,10 +326,57 @@ export const LINDNER: Fallakte = {
     { id: 'planung', art: 'pflegeplanung', fallId: 'lindner-herz', wann: 'Tag 3', titel: 'Pflegeplanung', auftrag: 'Plane mit allem, was du bisher weißt: Probleme, Ziele, Maßnahmen. Die Evaluation zeigt den Verlauf eine Woche später.' },
     { id: 'bericht', art: 'bericht', fallId: 'lindner-nacht', wann: 'Tag 5, Nachtdienst', titel: 'Pflegebericht', auftrag: 'In der Nacht bekommt Frau Lindner im Liegen keine Luft. Schreib den Eintrag in den Pflegebericht.' },
     { id: 'uebergabe', art: 'uebergabe', fallId: 'lindner-hausaerztin', wann: 'Tag 6, Frühdienst', titel: 'Anruf bei der Hausärztin (SBAR)', auftrag: 'Am Morgen hat sie 2,1 kg zugenommen. Ruf die Hausärztin an und übergib nach SBAR.' },
-  ],  rueckblick: [
+    { id: 'evaluation', art: 'evaluation', fallId: 'lindner-eval', wann: 'Tag 24, Fallbesprechung', titel: 'Evaluation nach drei Wochen', auftrag: 'Drei Wochen nach dem Einzug prüfst du die Ziele aus der Planung und schreibst sie fort.' },
+  ],
+  evaluation: {
+    id: 'lindner-eval',
+    verlauf: [
+      'Tag 24, Fallbesprechung im Wohnbereich. Seit dem Anruf am sechsten Tag bekommt Frau Lindner 20 mg Torasemid. Ihr Gewicht liegt seit zwei Wochen zwischen 69,6 und 70,1 kg, die Unterschenkel sind kaum noch geschwollen.',
+      'Zum Speisesaal (etwa 50 m) geht sie dreimal täglich mit dem Rollator und macht einmal Pause auf dem Stuhl im Flur. Sie sagt: „Seit da der Stuhl steht, weiß ich, dass ich mich ausruhen kann. Angst habe ich nicht mehr.“ Zur Handarbeitsgruppe im Erdgeschoss fährt sie bisher nur im Rollstuhl mit.',
+      'Gewogen wird sie jeden Morgen, die Werte trägt die Pflege ein. Auf die Frage, wann die Ärztin angerufen wird, sagt sie: „Wenn ich zwei Kilo mehr habe, oder?“ Dass schon 1 kg an einem Tag reicht, weiß sie nicht. Am kommenden Wochenende will sie zum ersten Mal bei ihrem Sohn übernachten.',
+      'In der Nacht zu Tag 19 ist sie um 3 Uhr ohne zu klingeln aufgestanden, auf dem Weg zur Toilette weggerutscht und hat sich auf den Boden gesetzt. Verletzt hat sie sich nicht; wegen Apixaban wurde die Hausärztin informiert, Bewusstsein und Kopf wurden 24 Stunden beobachtet. Sie sagt: „Ich wollte niemanden wecken.“ Nachts muss sie zwei- bis dreimal zur Toilette, sie trug Hausschuhe ohne Fersenkappe.',
+    ],
+    ziele: [
+      {
+        id: 'atmung', problem: 'Beeinträchtigte Atmung und verminderte Belastbarkeit',
+        ziel: 'Frau Lindner erreicht mit einer Pause den Speisesaal und gibt dabei keine Angst an.',
+        erwartet: 'ja',
+        beleg: 'Sie geht dreimal täglich mit einer Pause zum Speisesaal und sagt selbst, sie habe keine Angst mehr. Beide Teile des Ziels sind messbar erfüllt.',
+        anpassungen: [
+          { text: 'Ziel ist erreicht: Stuhl im Flur abbauen und die Maßnahmen beenden.', richtig: false, warum: 'Erreicht ist das Ziel mit den Maßnahmen. Die Herzinsuffizienz bleibt; ohne Pausenplatz käme die Überlastung und mit ihr die Angst zurück.' },
+          { text: 'Maßnahmen beibehalten und mit ihr ein nächstes Ziel vereinbaren, z. B. mit Rollator und Aufzug selbst zur Handarbeitsgruppe zu gehen.', richtig: true, warum: 'Ein erreichtes Ziel wird fortgeschrieben, nicht einfach abgehakt. Das neue Ziel kommt von ihr selbst (Handarbeit) und stärkt ihre Teilhabe.' },
+          { text: 'Ziel auf 100 m ohne Pause erhöhen, damit sie mehr trainiert.', richtig: false, warum: 'Bei NYHA III ist Belastung ohne Pause ein Risiko, und das Ziel kommt nicht von ihr. Ziele werden mit der Person vereinbart und müssen erreichbar sein.' },
+        ],
+      },
+      {
+        id: 'dekompensation', problem: 'Gefahr einer erneuten Verschlechterung der Herzinsuffizienz',
+        ziel: 'Frau Lindner nennt ihre Meldegrenzen (1 kg an einem Tag, 2 kg in drei Tagen) und lässt sich jeden Morgen wiegen.',
+        erwartet: 'teilweise',
+        beleg: 'Gewogen wird täglich, das Gewicht ist stabil. Die Meldegrenzen kennt sie nur zur Hälfte: Die Grenze von 1 kg an einem Tag fehlt.',
+        anpassungen: [
+          { text: 'Wiegen auf einmal pro Woche verringern, weil das Gewicht seit zwei Wochen stabil ist.', richtig: false, warum: 'Tägliches Wiegen ist ärztlich angeordnet. Das Gewicht ist stabil, weil es täglich überwacht wird; eine Verringerung darf nur die Ärztin festlegen.' },
+          { text: 'Teilziel „nennt die Meldegrenzen“ streichen, die Pflege achtet ja auf das Gewicht.', richtig: false, warum: 'Am Wochenende beim Sohn wiegt sie niemand von uns. Selbstmanagement gehört zur Herzinsuffizienz-Versorgung und ist hier wichtiger als vorher.' },
+          { text: 'Ziel beibehalten, Grenzen beim täglichen Wiegen mit ihr besprechen, eine Karte mit beiden Werten mitgeben und vor dem Besuch Sohn und Waage einbeziehen.', richtig: true, warum: 'Teilweise erreichte Ziele bekommen angepasste Maßnahmen. Der Besuch beim Sohn ist der Anlass: Sie und er müssen wissen, wann sie anrufen.' },
+        ],
+      },
+      {
+        id: 'sturz', problem: 'Sturzgefahr',
+        ziel: 'Frau Lindner stürzt nicht und klingelt nachts vor dem Aufstehen.',
+        erwartet: 'nein',
+        beleg: 'Ein Sturz in der Nacht zu Tag 19, ohne vorher zu klingeln. Dass sie sich nicht verletzt hat, ändert an der Bewertung nichts.',
+        anpassungen: [
+          { text: 'Ursachen mit ihr besprechen und Maßnahmen ändern: Klingeln ausdrücklich erwünscht, feste Schuhe neben dem Bett, Nachtlicht, Toilettenstuhl nach ihrem Wunsch; Sturzereignis auswerten.', richtig: true, warum: 'Der Expertenstandard Sturzprophylaxe verlangt, jeden Sturz zu analysieren und die Maßnahmen anzupassen. Ihr Grund („niemanden wecken“) und die Hausschuhe zeigen, wo es ansetzt.' },
+          { text: 'Nachts das Bettgitter hochziehen, damit sie nicht allein aufsteht.', richtig: false, warum: 'Ein Bettgitter gegen ihren Willen ist eine freiheitsentziehende Maßnahme, die eine Einwilligung oder richterliche Genehmigung braucht. Es erhöht außerdem die Fallhöhe, wenn sie darüber steigt.' },
+          { text: 'Ziel unverändert lassen, es war nur ein einzelner Sturz ohne Verletzung.', richtig: false, warum: 'Ein nicht erreichtes Ziel zeigt, dass die Maßnahmen nicht reichen. Unter Apixaban kann schon der nächste Sturz eine Blutung bedeuten.' },
+        ],
+      },
+    ],
+    fazit: 'Evaluieren heißt nicht abhaken: Ein erreichtes Ziel wird fortgeschrieben, ein teilweise erreichtes bekommt angepasste Maßnahmen, und ein nicht erreichtes Ziel ist Anlass für eine Ursachensuche.',
+  },  rueckblick: [
     { frage: 'Die Braden-Skala ergab 17 Punkte, also nur geringes Risiko. Warum stand in der SIS trotzdem „Dekubitus: ja“?', antwort: 'Die Skala ergänzt den klinischen Blick, sie ersetzt ihn nicht. Rötung am Steiß, Ödeme, Feuchtigkeit und langes Sitzen sind eigene Warnzeichen. Deshalb bleibt die Haut täglich im Blick.' },
     { frage: 'Wo in deiner SIS stand schon, was am sechsten Tag den Anruf auslöste?', antwort: 'In Themenfeld 3 und unter „Sonstiges“ in der Matrix: tägliches Wiegen mit den Meldegrenzen der Hausärztin. Ohne diese Absprache wäre die Zunahme von 2,1 kg niemandem aufgefallen.' },
     { frage: 'Welche Maßnahme aus deiner Pflegeplanung hat in der Nacht geholfen?', antwort: 'Oberkörper hoch und Beine tief entlasten das Herz. Wer die Atemnot im Liegen schon in der Informationssammlung notiert hatte, konnte nachts gezielt handeln.' },
+    { frage: 'Der Sturz an Tag 19 hatte zwei Ursachen, die schon in der SIS standen. Welche?', antwort: 'Der Harndrang durch Torasemid (TF4, Matrix Inkontinenz) und ihr Wunsch, niemandem zur Last zu fallen. Aus der Dosiserhöhung nach dem Anruf folgte mehr nächtlicher Harndrang, also musste die Sturzprophylaxe nachziehen.' },
     { frage: 'Was braucht die Hausärztin von deinem Bericht in der Übergabe, und was nicht?', antwort: 'Werte mit Verlauf (Gewicht, SpO₂ nachts und jetzt), die Wirkung der Lagerung und deine Einschätzung. Nicht nötig sind Einzelheiten wie das geöffnete Fenster oder wer wen angerufen hat.' },
   ],
 };

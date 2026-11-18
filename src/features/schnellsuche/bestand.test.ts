@@ -67,8 +67,13 @@ describe('Suchbestand', () => {
     expect(index.doks.find((d) => d.id === 'quelle:krinko')?.standardIds).toEqual(['rw.hygiene']);
     // Stand aus den Quellenangaben der Inhalte, wie auf der Seite „Quellen und Aktualität“
     const erc = index.doks.find((d) => d.id === 'quelle:erc');
-    expect(erc?.hinweis).toBe('neue Fassung 2025');
-    expect(erc?.details?.find((d) => d.label === 'Stand der App-Inhalte')?.text).toMatch(/2021/);
+    // Seit dem Quellen-Abgleich (#216) stehen die Reanimationsinhalte auf ERC 2025: kein Hinweis auf eine neuere Fassung mehr
+    expect(erc).toBeDefined();
+    expect(erc?.hinweis ?? '').not.toMatch(/^neue Fassung/);
+    // Wo ein Hinweis auf eine neuere Fassung steht, zeigt der Eintrag auch den Stand der App-Inhalte
+    for (const d of index.doks.filter((x) => x.id.startsWith('quelle:') && /^neue Fassung/.test(x.hinweis ?? ''))) {
+      expect(d.details?.some((x) => x.label === 'Stand der App-Inhalte'), d.id).toBe(true);
+    }
     // DNQP-Standards stehen nicht doppelt als Quelle im Index, bekommen aber den Stand aus dem Register
     expect(index.doks.some((d) => d.id.startsWith('quelle:es.'))).toBe(false);
     const echt = baueBestand(MODUL);

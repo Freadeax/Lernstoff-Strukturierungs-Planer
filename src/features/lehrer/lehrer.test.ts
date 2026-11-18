@@ -8,7 +8,7 @@ import { ergebnis, leereBewertung, mitVorschlaegen, rueckmeldungAus, rueckmeldun
 import { noteFuer, ordneSchluessel, prozent, STANDARD_SCHLUESSEL } from './noten';
 import {
   bewertungVon, datenbestand, klassen, klassenVonFall, loescheAllesLehrer, loescheFallKomplett, neueKlasse, notenschluessel,
-  ordneAbgabeZu, ordneFallZu, speichereBewertung, speichereKlasse, speichereSchluessel,
+  ordneAbgabeZu, ordneFallZu, radarStaende, speichereBewertung, speichereKlasse, speichereSchluessel,
 } from './speicher';
 import { nameSchluessel, type Bewertung } from './typen';
 import { aufgabenStatistik, fristVorbei, klassenMatrix, matrixCsv, status } from './uebersicht';
@@ -217,6 +217,21 @@ describe('Klassen, Bewertungen, Übersicht', () => {
     loescheAllesLehrer();
     expect(Object.keys(alleAbgaben())).toEqual([]);
     expect(klassen()).toEqual([]);
+  });
+
+  it('Klassen-Radar: doppelte Stände nach Sicherung fallen weg, Löschen nimmt sie mit', () => {
+    const stand = (name: string, datum: string, wert: number) => ({ t: 'radar', v: 1, name, datum, achsen: [{ code: 'I', name: 'Pflegeprozess', wert }], luecken: [] });
+    // Wie nach dem Zusammenführen einer Sicherung: alter und neuer Stand derselben Person nebeneinander.
+    data.set('lernstoff.lehrer.radar', JSON.stringify([stand('Lena', '2026-11-18', 60), stand('lena', '2026-11-10', 20), stand('Tom', '2026-11-12', 40)]));
+    const l = radarStaende();
+    expect(l).toHaveLength(2);
+    expect(l.find((s) => s.name.toLowerCase() === 'lena')!.achsen[0]!.wert).toBe(60);
+    expect(datenbestand().radar).toBe(2);
+    data.set('lernstoff.lehrer.radar.ohneNamen', 'true');
+    loescheAllesLehrer();
+    expect(radarStaende()).toEqual([]);
+    expect(datenbestand().radar).toBe(0);
+    expect(data.has('lernstoff.lehrer.radar.ohneNamen')).toBe(false);
   });
 
   it('Klassenliste: doppelte Namen fallen weg, Notenschlüssel speichern', () => {

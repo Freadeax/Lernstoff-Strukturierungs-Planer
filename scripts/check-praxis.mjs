@@ -15,8 +15,8 @@ try {
     const page = await context.newPage(); page.on('pageerror', e => errors.push(e.message));
     await page.goto(base + '#/lernen/praxis', { waitUntil: 'networkidle' });
     await page.getByRole('heading', { name: 'Praxissimulator', exact: true }).waitFor();
-    assert.equal(await page.getByRole('button', { name: 'Schicht übernehmen', exact: true }).count(), 20);
-    assert.equal(await page.locator('.praxis-scenario__tiefe').count(), 20, 'Falltiefe vor dem Start auf jeder Karte');
+    assert.equal(await page.getByRole('button', { name: 'Schicht übernehmen', exact: true }).count(), 21);
+    assert.equal(await page.locator('.praxis-scenario__tiefe').count(), 21, 'Falltiefe vor dem Start auf jeder Karte');
     assert.match(await page.locator('.praxis-scenario', { hasText: 'Atemnot in der Nacht' }).locator('.praxis-scenario__tiefe').textContent(), /Bewertungskriteri/);
     const audit = async name => {
       await page.waitForTimeout(350); // Wait for the shared theme/button color transitions to settle.
@@ -302,7 +302,7 @@ try {
       await rea.getByRole('button', { name: 'Anderes Szenario', exact: true }).click();
       await rea.getByRole('radio', { name: /^Neugeborene/ }).check();
       assert(await rea.getByRole('region', { name: 'Lernziele und fachlicher Prüfstand' }).isVisible(), 'Freigabe je Profil am Start');
-      assert.match(await rea.locator('.rea__leitlinie').textContent(), /Newborn.*2021/);
+      assert.match(await rea.locator('.rea__leitlinie').textContent(), /Newborn.*2025/);
       await rea.getByRole('button', { name: 'Übung starten', exact: true }).click();
       await rea.getByRole('button', { name: /^Sofort mit Kompressionen/ }).click();
       assert(await rea.locator('.rea__meldung.is-falsch').isVisible(), 'Neugeborenes: erst beatmen');
