@@ -68,7 +68,7 @@ export const RAUMFOTOS: Record<string, RaumFoto> = {
 export const FALL_RAUM: Record<string, keyof typeof RAUMFOTOS> = {
   hausbesuch: 'wohnzimmer', pflegeheim: 'speiseraum', nachtwache: 'kardiologie', zna: 'triage', its: 'intensiv',
   kind: 'kleinkind', psychiatrie: 'speiseraum', reha: 'bad', palliativ: 'heimNacht', sepsis: 'innereSepsis',
-  nachblutung: 'postop', schlaganfall: 'heimSessel', anaphylaxie: 'innere', lungenembolie: 'kardiologie',
+  nachblutung: 'postop', aufwachraum: 'intensiv', schlaganfall: 'heimSessel', anaphylaxie: 'innere', lungenembolie: 'kardiologie',
   delir: 'zweibettNacht', asthma: 'schulkind', demenz: 'heimTag',
   bronchiolitis: 'kleinkindNacht', herzschwaeche: 'kuecheHerz', rausch: 'jugend',
 };

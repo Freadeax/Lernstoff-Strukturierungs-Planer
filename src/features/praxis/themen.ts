@@ -15,6 +15,7 @@ export const PRAXIS_THEMEN: Record<string, string[]> = {
   palliativ: ['thema.ph.palliativ', 'thema.kom.ethik', 'thema.kom.gespraech'],
   sepsis: ['thema.kl.infektion', 'thema.pro.zystitis', 'thema.beo.bewusstsein', 'thema.beo.vitalzeichen'],
   nachblutung: ['thema.ph.periop', 'thema.ph.wunde', 'thema.beo.vitalzeichen'],
+  aufwachraum: ['thema.ph.periop', 'thema.beo.bewusstsein', 'thema.beo.vitalzeichen', 'thema.ph.medikamente'],
   schlaganfall: ['thema.kl.neuro.schlaganfall', 'thema.beo.notfall', 'thema.pro.aspiration'],
   anaphylaxie: ['thema.beo.notfall', 'thema.ph.medikamente', 'thema.ph.injektion'],
   lungenembolie: ['thema.kl.herz.pavk', 'thema.pro.thrombose', 'thema.ph.periop'],

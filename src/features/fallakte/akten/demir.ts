@@ -145,7 +145,7 @@ export const DEMIR_PLAN: PlanFall = {
     { label: 'Sozial', wert: 'Ehefrau (61) arbeitet vormittags, Wohnung im zweiten Stock ohne Aufzug' },
   ],
   verlauf: 'Zwei Wochen später: Herr Demir steht mit Aufsicht allein auf und geht mit dem Vierpunktstock 30 m. Treppen schafft er mit der Physiotherapeutin ein halbes Stockwerk. Beim Transfer stützt das Team den Arm, der Schulterschmerz liegt bei NRS 2 bis 3. Seit der Teller gedreht wird und er links beginnt, isst er drei Viertel. Beim Trinken mit kleinen Schlucken hustet er kaum noch. Den Blutzucker misst er mit Hilfe selbst; an Tag 6 hatte er morgens eine Unterzuckerung, danach wurde das Insulin auf 16 IE gesenkt.',
-  topicIds: ['thema.kl.neuro', 'thema.pro.sturz', 'thema.kl.diabetes'],
+  topicIds: ['thema.kl.neuro.schlaganfall', 'thema.pro.sturz', 'thema.kl.diabetes'],
   info: [
     { id: 'laehmung', text: 'Hemiparese links, geht 10 m mit Stock und Hilfsperson', muster: ['hemiparese', 'laehmung', 'arm', '10 m', 'vierpunkt'], pflicht: true },
     { id: 'neglect', text: 'Neglect links, isst die linke Tellerhälfte nicht', muster: ['neglect', 'linke seite', 'tellerhaelfte', 'uebersieht'], pflicht: true },

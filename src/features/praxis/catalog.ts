@@ -24,6 +24,7 @@ export const RESOURCES: Record<Setting, { lab: boolean; poc: boolean; imaging: b
   psychiatrie: { lab: true, poc: false, imaging: false, monitor: false, devices: false, helpMinutes: 2, longVisits: false },
   reha: { lab: true, poc: false, imaging: false, monitor: false, devices: false, helpMinutes: 5, longVisits: false },
   palliativ: { lab: false, poc: false, imaging: false, monitor: false, devices: false, helpMinutes: 10, longVisits: true },
+  aufwachraum: { lab: true, poc: false, imaging: false, monitor: true, devices: false, helpMinutes: 1, longVisits: false },
 };
 export const CATEGORIES = { gespraech: 'Gespräch', untersuchung: 'Untersuchung', pflege: 'Pflege & Maßnahmen', diagnostik: 'Diagnostik', kommunikation: 'Team & Übergabe', geraete: 'Geräte' } as const;
 const criteria: Criterion[] = [

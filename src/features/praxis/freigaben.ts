@@ -38,6 +38,8 @@ const FAELLE: Record<string, Eintrag> = {
     lernziele: ['Sepsis an Atemfrequenz, Blutdruck, Bewusstsein und Fieber erkennen', 'Sofort eskalieren und Maßnahmen im Team vorbereiten', 'Verlauf engmaschig dokumentieren'] },
   nachblutung: { geltung: 'Erwachsene, Unfallchirurgie, ab 2. Ausbildungsjahr', risiken: ['notfall'], pruefpunkte: ['Schockzeichen, Lagerung, Kompression'],
     lernziele: ['Nachblutung und Schockzeichen nach OP erkennen', 'Sofortmaßnahmen und Eskalation einleiten', 'Blutverlust und Vitalzeichen dokumentieren'] },
+  aufwachraum: { geltung: 'Erwachsene, Aufwachraum, ab 2. Ausbildungsjahr, nur mit Fachperson', risiken: ['notfall', 'medikament'], pruefpunkte: ['Opioid-Atemdepression, Naloxon nur ärztlich, Verlegungskriterien (Aldrete)'],
+    lernziele: ['Atemdepression nach Opioiden an Atemfrequenz und Bewusstsein erkennen', 'Atemweg sichern und die Anästhesie sofort hinzuziehen', 'Nach festen Kriterien verlegen, nicht nach Bettenlage'] },
   schlaganfall: { geltung: 'Erwachsene, Langzeitpflege, ab 1. Ausbildungsjahr', risiken: ['notfall'], pruefpunkte: ['FAST/BE-FAST, Zeitfenster'],
     lernziele: ['Schlaganfallzeichen mit BE-FAST erkennen', 'Zeitpunkt des Symptombeginns sichern', 'Notruf ohne Verzögerung absetzen'] },
   anaphylaxie: { geltung: 'Erwachsene, Normalstation, ab 2. Ausbildungsjahr', risiken: ['notfall', 'medikament'], pruefpunkte: ['Adrenalin i.m. nach SOP, Lagerung'],
