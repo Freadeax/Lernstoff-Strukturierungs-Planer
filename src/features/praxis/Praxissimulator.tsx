@@ -44,6 +44,8 @@ import { alterText, BEWERTET, KETTEN, SETTINGS, STORY_KINDS, type Action, type C
 import './praxis.css';
 import { Gefuehrt } from './gefuehrt/Gefuehrt';
 import { leitfallFuer } from './gefuehrt/leitfaelle';
+import { Arbeitsplatz as NeuerArbeitsplatz } from './arbeitsplatz/Arbeitsplatz';
+import { FAELLE_V2 } from './kern/faelle';
 
 /** Fachmodul mit Katalog (Steckbriefe); die Registry liefert den allgemeinen Modultyp. */
 const katalog = (id: string) => (getModule(id) ?? modules[0]) as CatalogModule | undefined;
@@ -413,6 +415,11 @@ export default function Praxissimulator() {
   const themaName = thema ? (getModule(moduleId) ?? modules[0])?.topics.find((t) => t.id === thema)?.name ?? thema : '';
   const sichtbar = zumThema.length ? zumThema : SCENARIOS;
   const active = s?.phase === 'active';
+  // ?neu=<fall> öffnet den neuen Arbeitsplatz auf dem Kern (Paket P2, Vorschau). Der alte Simulator bleibt erreichbar.
+  const neuFall = FAELLE_V2.find((f) => f.id === params.get('neu'));
+  if (neuFall) return <section className="page praxis praxis--arbeitsplatz">
+    <NeuerArbeitsplatz key={neuFall.id} fall={neuFall} onZurueck={() => navigate('/lernen/praxis')} />
+  </section>;
   const gefuehrt = params.get('gefuehrt') ?? '';
   if (gefuehrt && leitfallFuer(gefuehrt)) return <section className="page praxis praxis--gefuehrt">
     <Gefuehrt key={gefuehrt} fall={gefuehrt} onZurueck={() => navigate('/lernen/praxis')}
@@ -434,6 +441,15 @@ export default function Praxissimulator() {
         <label>Einsatzort<select value={setting} onChange={e => setSetting(e.target.value)}><option value="alle">Alle Einsatzorte</option><option value="gefuehrt">Nur mit geführter Stufe</option>{Object.entries(SETTINGS).filter(([k]) => SCENARIOS.some(x => x.setting === k)).map(([k, v]) => <option value={k} key={k}>{v}</option>)}</select></label>
         <label>Tempo in Stufe 2<select value={level} onChange={e => setLevel(Number(e.target.value) as 1 | 2 | 3)}><option value="1">1. Jahr · langsamer Verlauf</option><option value="2">2. Jahr · regulärer Verlauf</option><option value="3">3. Jahr · schnellerer Verlauf</option></select></label>
       </div>
+      {!zumThema.length && setting === 'alle' && <section className="praxis-neu" aria-labelledby="praxis-neu">
+        <h2 id="praxis-neu">Neuer Arbeitsplatz (Vorschau)</h2>
+        <p className="muted">Ein Bildschirm mit Raumfoto, Werteleiste, Uhr, Team und sechs Pflege-Reitern. Was du darfst, hängt von deinem Ausbildungsdrittel ab. Fachlich noch ungeprüft.</p>
+        <ul className="praxis-fallliste">{FAELLE_V2.map((f) => <li className="praxis-fall" key={f.id}>
+          <span className="praxis-fall__ohnebild" aria-hidden="true" />
+          <div className="praxis-fall__text"><h3>{f.titel}</h3><p>{f.person.name}, {f.person.alter.jahre ?? `${f.person.alter.monate} Monate`} · {f.kurz}</p></div>
+          <div className="praxis-fall__knoepfe"><button className="primary" onClick={() => navigate(`/lernen/praxis?neu=${f.id}`)}>Neu üben</button></div>
+        </li>)}</ul>
+      </section>}
       <ul className="praxis-fallliste">{sichtbar.filter(x => setting === 'alle' || (setting === 'gefuehrt' ? !!leitfallFuer(x.id) : x.setting === setting)).sort((a, b) => Number(!!leitfallFuer(b.id)) - Number(!!leitfallFuer(a.id))).map(scenario => <li className="praxis-fall" key={scenario.id}>
         {personFuer('praxis', scenario.id) ? <Portraet person={personFuer('praxis', scenario.id)!} groesse={44} /> : <span className="praxis-fall__ohnebild" aria-hidden="true" />}
         <div className="praxis-fall__text"><h3>{scenario.title}</h3><p>{scenario.patient}, {alterText(scenario.age)} · {SETTINGS[scenario.setting]}</p></div>
