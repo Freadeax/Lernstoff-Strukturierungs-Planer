@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { deuteBga } from '../../../../ui/sim/labor/bga';
 import { SR_SEPTISCHER_SCHOCK as FALL } from '../faelle/sr-septischer-schock';
-import { anzeige, freigabe, massnahme, replay, sende, start, type SimZustand } from '../kern';
+import { anzeige, freigabe, massnahme, replay, sende, start, verfuegbar, type SimZustand } from '../kern';
 import { NORMAL, type ModellKontext } from '../modell';
 import { PFLEGE_MODELL } from '../physiologie/pflegemodell';
 import type { Grundgroessen, ModellModule, SimEventEingabe } from '../typen';
@@ -71,6 +71,18 @@ describe('Hülle um das Basismodell', () => {
   it('Bestände bleiben unberührt: Noradrenalin hebt den Druck, ändert aber nicht den Gefäßtonus selbst', () => {
     const g = MODELL.naechster(SEPSIS, [], 5, k(na(9)));
     expect(g.gefaesstonus).toBeCloseTo(BASIS.naechster(SEPSIS, [], 5, k()).gefaesstonus);
+  });
+  it('hohe Laufrate: Begrenzen des wirksamen Tonus senkt den Grundbestand nicht (Review #235)', () => {
+    const g = laufe({ ...NORMAL }, 60, k(na(45)));
+    expect(g.gefaesstonus).toBeCloseTo(NORMAL.gefaesstonus, 6);
+    expect(g.pumpleistung).toBeCloseTo(NORMAL.pumpleistung, 6);
+  });
+  it('Urinausscheidung folgt dem echten Druck, nicht dem ungenullten Messwert (Review #235)', () => {
+    const g = { ...SEPSIS, volumen: 0.8, gefaesstonus: 0.5 };
+    const richtig = MODELL.anzeige(g, k({ bilanz: true, arteriell: true }));
+    const ungenullt = MODELL.anzeige(g, k({ bilanz: true, arteriell: true, stoerungen: ['art-nicht-genullt'] }));
+    expect(ungenullt.map! - richtig.map!).toBe(18);
+    expect(ungenullt.urinMlH).toBe(richtig.urinMlH);
   });
   it('Noradrenalin: MAP steigt mit der Laufrate', () => {
     const map = (ml: number) => MODELL.anzeige(SEPSIS, k(na(ml))).map!;
@@ -203,6 +215,12 @@ describe('Fall: septischer Schock im Schockraum', () => {
     const falsch = nachStart('w-45');
     expect(falsch.fehlerAus).toContain('f-laufrate-10fach');
     expect(anzeige(falsch).map!).toBeGreaterThan(anzeige(gut).map! + 10);
+  });
+  it('Perfusor nur einmal vorbereiten: laufende Rate bleibt; Titrieren wirkt nur über die Dosis (Review #235)', () => {
+    const gut = spiele(start(FALL, 'pflegefachperson', 2), [...BIS_NA, { art: 'massnahme', id: 'perfusor-vorbereiten' }, { art: 'warten', sek: 5 }], { 'e-laufrate': 'w-4-5' });
+    expect(verfuegbar(gut, massnahme(FALL, 'perfusor-vorbereiten')!).ok).toBe(false);
+    expect(gut.module!.perfusoren![0].mlProH).toBe(4.5);
+    expect(massnahme(FALL, 'katecholamin-anpassen')!.wirkung ?? []).toEqual([]);
   });
   it('Musterweg mit Pflegefachperson (titriert zusätzlich): Module entstehen im Replay identisch', () => {
     const muster = FALL.pruefwege.muster.flatMap((e): SimEventEingabe[] =>
