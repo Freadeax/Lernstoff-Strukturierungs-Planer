@@ -49,6 +49,8 @@ Regeln
   O₂-Gabe = Wirkkurve `{ groesse: 'sauerstoff', delta: 2, … dauerhaft }`; Lagerung über `lagerungsWirkung(befund, lage)`.
 - **Anzeige**: Kreislauf über das Herzmodell (Frank-Starling) mit Barorezeptor-Reflex je Altersprofil (Hochbetagte: schwacher Reflex, gleicht nur teilweise aus, stark vorlastabhängig), `map`, `rekapSek`;
   Atmung über alveoläre Gasgleichung, Shunt, Bindungskurve (O₂ verdeckt Hypoventilation: SpO₂ gut, CO₂ hoch, Vigilanz sinkt).
+  Niedriger Gefäßtonus senkt die Diastole stärker (Sepsis: große Druckamplitude); Angst über 0,6 wirkt überproportional (Panik:
+  HF ≥ 110, AF ≥ 26, CO₂ sinkt); im Krampfanfall Hypoventilation (SpO₂ ≤ 90 ohne O₂).
 - **Spur B (P1b)**: Hülle um `PFLEGE_MODELL`; `atmung()` nimmt bei `module.beatmung` FiO₂, af·vt und PEEP; Katecholamine als
   `gefaesstonus`/`pumpleistung`. Alarme im Kern nur für Werte in `z.sichtbar`, Farben wie am Monitor (`alarmFuer`).
 - Kalibrierung, Monotonie, Determinismus und je Treiber ein Plausibilitätstest: `physiologie/pflegemodell.test.ts`
