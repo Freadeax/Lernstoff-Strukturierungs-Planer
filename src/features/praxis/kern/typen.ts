@@ -16,7 +16,8 @@ export type Ausbildungsdrittel = 1 | 2 | 3;
 /** 'pflegefachperson' nur in Spur B (E11). */
 export type Rolle = Ausbildungsdrittel | 'pflegefachperson';
 export type Stufe = 1 | 2 | 3;                         // geführt · frei mit PA · Prüfung
-export type BefugnisLevel = 'selbst' | 'mit-anleitung' | 'nach-anordnung' | 'nur-aerztlich';
+/** 'gesperrt' (P3): in diesem Drittel nicht einmal mit Anleitung, aber keine ärztliche Aufgabe (KONZEPT 6.1). */
+export type BefugnisLevel = 'selbst' | 'mit-anleitung' | 'nach-anordnung' | 'nur-aerztlich' | 'gesperrt';
 export type Reiter = 'gespraech' | 'beobachten' | 'akut' | 'messen' | 'versorgen' | 'melden';
 
 /** PflAPrV Anlage 2, Kompetenzbereiche I–V */
