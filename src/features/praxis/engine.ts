@@ -152,6 +152,13 @@ function execute(previous: Session, command: Command): Session {
     return s;
   }
   if (s.open.length) { add(s, 'warning', 'Entscheidung offen', 'Zuerst im Entscheidungsmoment eine Option wählen.'); return s; }
+  if (command.type === 'folge') {
+    advance(s, command.seconds ?? 30);
+    s.harms.push({ at: s.time, id: command.id, text: command.text }); mark(s, command.id);
+    add(s, 'warning', `Folge: ${command.label}`, command.text);
+    if (command.effect) s.vitals = effect(s, command.effect);
+    return s;
+  }
   if (command.type === 'note') {
     if (command.text.trim().length < 20) { add(s, 'warning', 'Dokumentation unvollständig', 'Mindestens 20 Zeichen: Beobachtung, Handlung und Wirkung festhalten.'); return s; }
     add(s, 'note', 'Pflegebericht', command.text.trim().slice(0, 4000)); s.flags.documented ??= s.time; advance(s, 60); return s;

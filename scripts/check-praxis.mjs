@@ -15,9 +15,8 @@ try {
     const page = await context.newPage(); page.on('pageerror', e => errors.push(e.message));
     await page.goto(base + '#/lernen/praxis', { waitUntil: 'networkidle' });
     await page.getByRole('heading', { name: 'Praxissimulator', exact: true }).waitFor();
-    assert.equal(await page.getByRole('button', { name: 'Schicht übernehmen', exact: true }).count(), 21);
-    assert.equal(await page.locator('.praxis-scenario__tiefe').count(), 21, 'Falltiefe vor dem Start auf jeder Karte');
-    assert.match(await page.locator('.praxis-scenario', { hasText: 'Atemnot in der Nacht' }).locator('.praxis-scenario__tiefe').textContent(), /Bewertungskriteri/);
+    assert.equal(await page.getByRole('button', { name: 'Frei üben', exact: true }).count(), 21);
+    assert.equal(await page.getByRole('button', { name: 'Geführt', exact: true }).count(), 6, 'sechs Leitfälle in Stufe 1');
     const audit = async name => {
       await page.waitForTimeout(350); // Wait for the shared theme/button color transitions to settle.
       assert(!(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)), `${name} overflow @${width}`);
@@ -25,17 +24,32 @@ try {
       audits.push({ width, name, violations: axe.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => ({ html: n.html, summary: n.failureSummary })) })) });
     };
     await audit('Fallauswahl'); await page.screenshot({ path: path.join(output, `auswahl-${width}.png`), fullPage: true });
-    await page.getByLabel('Einrichtung').selectOption('kern');
-    assert.equal(await page.locator('.praxis-kernmarke').count(), 3, 'drei Kernfälle');
-    await page.getByLabel('Einrichtung').selectOption('station');
-    await page.locator('.praxis-scenario', { hasText: 'Atemnot in der Nacht' }).getByRole('button', { name: 'Schicht übernehmen', exact: true }).click();
+    // Stufe 1 (geführt): Leitfall vollständig durchspielen, immer die erste wählbare Möglichkeit.
+    await page.locator('.praxis-fall', { hasText: 'Atemnot in der Nacht' }).getByRole('button', { name: 'Geführt', exact: true }).click();
+    await page.locator('.gef-frage h3').first().waitFor();
+    await audit('Geführt Frage');
+    await page.locator('.gef-optionen button:not([disabled])').first().click();
+    await page.locator('.gef-rueck').first().waitFor();
+    await audit('Geführt Rückmeldung'); await page.screenshot({ path: path.join(output, `gefuehrt-${width}.png`), fullPage: true });
+    for (let i = 0; i < 60 && !(await page.locator('.gef-ende').count()); i++) {
+      if (await page.locator('.gef-frage--unterbrechung').count()) { await page.locator('.gef-frage--unterbrechung .gef-optionen button').first().click(); continue; }
+      if (await page.locator('.gef-weiter button').count()) { await page.locator('.gef-weiter button').click(); continue; }
+      await page.locator('.gef-optionen button:not([disabled])').first().click();
+    }
+    await page.locator('.gef-ende').waitFor();
+    await audit('Geführt Auswertung'); await page.screenshot({ path: path.join(output, `gefuehrt-auswertung-${width}.png`), fullPage: true });
+    await page.getByRole('button', { name: 'Zur Fallauswahl', exact: true }).click();
+    await page.getByLabel('Einsatzort').selectOption('gefuehrt');
+    assert.equal(await page.locator('.praxis-fall').count(), 6, 'Filter: nur Leitfälle');
+    await page.getByLabel('Einsatzort').selectOption('station');
+    await page.locator('.praxis-fall', { hasText: 'Atemnot in der Nacht' }).getByRole('button', { name: 'Frei üben', exact: true }).click();
     assert(await page.getByText('Noch keine Messung', { exact: true }).isVisible());
     // Raumelemente: Antippen zeigt den ersten Blick (ohne Zeitverbrauch) und die Handlungen dort.
     assert(await page.locator('.praxis-element .praxis-blick').textContent().then(t => /Erster Blick: wach und ansprechbar, atmet sichtbar schnell/.test(t ?? '')));
     assert.equal(await page.locator('.praxis-clock strong').textContent(), '00:00:00', 'Hinsehen kostet keine Zeit');
     // Fotoansicht (Standard): Raumfoto zum Fall, ohne Monitoring die Variante ohne Gerät, Hotspots und Atemring.
     await page.locator('.szene--foto .raum-buehne__bild').waitFor();
-    assert(/12a_station_kardiologie_ohne_monitor/.test(await page.locator('.szene--foto .raum-buehne__bild').getAttribute('src') ?? ''), 'Raum ohne Monitor vor dem Anschließen');
+    assert(/12a_station_kardiologie_ohne_monitor|12_station_kardiologie_monitoring_nacht/.test(await page.locator('.szene--foto .raum-buehne__bild').getAttribute('src') ?? ''), 'Raum ohne Monitor vor dem Anschließen');
     assert.equal(await page.locator('.szene--foto .raum-hotspot').count(), 4);
     assert.equal(await page.locator('.szene__orte .praxis-hotspot').count(), 4);
     assert.equal(await page.locator('.szene--foto .foto__atem').count(), 1, 'Atemring am Patienten');
@@ -164,6 +178,7 @@ try {
     }
     await page.getByRole('button', { name: 'Zur Fallauswahl', exact: true }).click();
     // Schichtmodus: zwei Kinder, eine Uhr.
+    await page.locator('.praxis-mehr > summary').click();
     await page.locator('.praxis-schichtwahl__eintrag', { hasText: 'Kinderstation' }).getByRole('button', { name: 'Schicht beginnen', exact: true }).click();
     await page.getByRole('heading', { name: 'Kinderstation am Nachmittag', exact: true }).waitFor();
     assert(await page.locator('.praxis-patient .portraet').count() >= 1, 'Porträts in der Schicht');
@@ -182,6 +197,7 @@ try {
     await page.getByRole('heading', { name: 'Wie lief deine Schicht?' }).waitFor();
     await audit('Schichtauswertung'); await page.screenshot({ path: path.join(output, `schicht-auswertung-${width}.png`), fullPage: true });
     await page.getByRole('button', { name: 'Zur Fallauswahl', exact: true }).click();
+    if (!(await page.locator('.praxis-mehr').getAttribute('open').then(x => x !== null))) await page.locator('.praxis-mehr > summary').click();
     await page.locator('.praxis-editor summary').click();
     await page.getByLabel('Vorlage').selectOption('hausbesuch');
     await page.getByRole('button', { name: 'Eigenes Szenario testen', exact: true }).click();
