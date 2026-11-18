@@ -1,5 +1,6 @@
 import { storage } from '../../ui/lib/store';
 import { findeSitzung, uebergabeFall } from '../praxis/weitergabe';
+import { findeNeu, uebergabeFallNeu } from '../praxis/arbeitsplatz/weitergabe';
 import { RAEUME, raumUrl } from '../../ui/sim/raeume/katalog';
 import { Vorlesen } from '../../ui/audio/Vorlesen';
 import { raumFuer, vorlesetext } from './raum';
@@ -137,7 +138,7 @@ export default function Uebergabetrainer() {
   const wunsch = route.params.get('fall') ?? '';
   // Fall aus dem Praxissimulator (Link aus dem Debriefing): wird vorne in die Auswahl gestellt
   const praxisId = route.params.get('aus') === 'praxis' ? route.params.get('sitzung') : null;
-  const praxisFall = useMemo(() => { const s = findeSitzung(praxisId); return s ? uebergabeFall(s) : null; }, [praxisId]);
+  const praxisFall = useMemo(() => { const s = findeSitzung(praxisId); if (s) return uebergabeFall(s); const n = findeNeu(praxisId); return n ? uebergabeFallNeu(n) : null; }, [praxisId]);
   const LISTE = useMemo(() => (praxisFall ? [praxisFall, ...FAELLE] : FAELLE), [praxisFall]);
   const [fallId, setFallId] = useState(() => (praxisFall?.id ?? (LISTE.some((f) => f.id === wunsch) ? wunsch : LISTE[0]!.id)));
   const [modus, setModus] = useState<Modus>('gefuehrt');

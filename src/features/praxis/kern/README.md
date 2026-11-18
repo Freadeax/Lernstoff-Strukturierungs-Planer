@@ -70,3 +70,14 @@ Oberfläche (Paket P2): `../arbeitsplatz/` – Route `#/lernen/praxis?neu=<fall>
 Bildschirm zeigt (Reiter, Befugnis-Abzeichen, Werteleiste mit Momentaufnahme vs. live, Pflegetasche, SBAR, Anordnungen,
 Team, Übersicht) und ruft nur den Kern. Laufender Fall in `lernstoff.praxis.arbeitsplatz` (nur Eingaben, Replay).
 Browserprüfung: `npm run test:arbeitsplatz` (390/820/1180 px, axe).
+
+## Auswertung (Paket P5)
+- `auswertung.ts` (rein): `bewerte(z)` → Prozent je KB I–V, in Spur B zusätzlich `abcde/geraete/medikamente/team/zeit`.
+  Beiträge: Pflicht (Gewicht 1–3), Entscheidungen (gut voll, vertretbar halb, gefährlich mit Abzug), Fehler (Abzug 1/2/4),
+  Grenzüberschreitung (−3, Patientenschaden −4), PA warnt (−1), PA-Tipp (−0,5; Impulse frei), Rücklesen, Remonstration,
+  Abschluss (Pflegebedarf inkl. Reihenfolge, Verdacht, SBAR-Übergabe aus S/B/A-Bausteinen). Fehler bekommen klinische
+  Bereiche über die Maßnahmen in ihrer Bedingung. Verpasste Pflicht mit Gewicht 3 → `verpassteKritische` mit Frist.
+- Zeitleiste per Replay der Eingaben; Warten wird in 5-s-Stücke geteilt (`inTakten`, Test: gleicher Zustand).
+- Test je Fall: Musterweg ≥ 90 % in allen Bereichen, Unterlassung deutlich schlechter, Grenzweg KB III schlechter.
+  Ein neuer Fall braucht im Musterweg einen `abschluss` mit `sbar` und einen Eintrag in `../arbeitsplatz/weiterlernen.ts`.
+- Darstellung: `../arbeitsplatz/Auswertung.tsx` (Adapter `auswertung-karte.ts`, Weitergabe `weitergabe.ts` mit `sitzung=neu:<fall>`, KI-Tutor `tutor.ts`).

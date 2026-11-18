@@ -15,9 +15,10 @@ import { anzeige, type SimZustand } from '../kern/kern';
 import type { FallV2, Reiter, Rolle, SbarTeil, SimEventEingabe } from '../kern/typen';
 import {
   anordnungen, bettAnzeige, beginne, dauer, FREIGABE_TEXT, handlungen, hatPflegetasche, lageText, offeneEntscheidung,
-  pflegetasche, raumJetzt, REITER, rekonstruiere, ROLLE_TEXT, sbarBausteine, SBAR_TEILE, spule, STUFE_TEXT, suche, team, uebersicht,
+  pflegetasche, raumJetzt, REITER, rekonstruiere, ROLLE_TEXT, sbarBausteine, SBAR_TEILE, spule, STUFE_TEXT, suche, team,
   uhrzeit, wende, werteleiste, type Arbeitsstand, type Handlung,
 } from './ansicht';
+import { Abschluss, Auswertung } from './Auswertung';
 import { lies, schreibe } from './speicher';
 import { StreifenKurve } from './StreifenKurve';
 import './arbeitsplatz.css';
@@ -191,7 +192,7 @@ function Platz({ stand, setStand, onZurueck, onNeu }: {
 
   if (z.ende) {
     if (!z.abschluss) return <Abschluss z={z} onSenden={(e) => eingabe(e)} onZurueck={() => undefined} ende />;
-    return <Ende z={z} onZurueck={onZurueck} onNeu={onNeu} />;
+    return <Auswertung z={z} onZurueck={onZurueck} onNeu={onNeu} />;
   }
   if (abschluss) return <Abschluss z={z} onSenden={(e) => { eingabe(e); setAbschluss(false); }} onZurueck={() => setAbschluss(false)} />;
 
@@ -370,59 +371,6 @@ function Melden({ z, eingabe, onAbschluss }: { z: SimZustand; eingabe: (e: SimEv
           {!a.plan && a.stand !== 'zurueckgezogen' && <button type="button" className="small ghost" onClick={() => eingabe({ art: 'remonstrieren', anordnung: a.id })}>Hinterfragen</button>}</p>}
       </li>)}</ul>
     </section>}
-    <button type="button" className="ap-abschluss-knopf" onClick={onAbschluss}>Fall abschließen: Pflegebedarf festhalten</button>
+    <button type="button" className="ap-abschluss-knopf" onClick={onAbschluss}>Fall abschließen: Pflegebedarf und Übergabe</button>
   </div>;
-}
-
-function Abschluss({ z, onSenden, onZurueck, ende }: { z: SimZustand; onSenden: (e: SimEventEingabe) => void; onZurueck: () => void; ende?: boolean }) {
-  const [probleme, setProbleme] = useState<string[]>([]);
-  const [ziele, setZiele] = useState<string[]>([]);
-  const kopf = useRef<HTMLHeadingElement>(null);
-  useEffect(() => { kopf.current?.focus(); }, []);
-  const um = (l: string[], set: (x: string[]) => void, id: string) => set(l.includes(id) ? l.filter((x) => x !== id) : [...l, id]);
-  return <section className="ap-abschluss" aria-labelledby="ap-abschluss">
-    {z.ende && <p className="note">{z.ende.text}</p>}
-    <h2 id="ap-abschluss" ref={kopf} tabIndex={-1}>Pflegebedarf festhalten</h2>
-    <p className="muted">Pflegebedarf erheben ist eine vorbehaltene Aufgabe von Pflegefachpersonen (§ 4 PflBG). Als Auszubildende übst du sie unter Verantwortung deiner Praxisanleitung.</p>
-    <fieldset><legend>Welche Pflegeprobleme und Risiken siehst du?</legend>
-      {z.fall.pflegebedarf.probleme.map((p) => <label key={p.id}><input type="checkbox" checked={probleme.includes(p.id)} onChange={() => um(probleme, setProbleme, p.id)} /> {p.text}</label>)}
-    </fieldset>
-    <fieldset><legend>Welche Pflegeziele passen?</legend>
-      {z.fall.pflegebedarf.ziele.map((p) => <label key={p.id}><input type="checkbox" checked={ziele.includes(p.id)} onChange={() => um(ziele, setZiele, p.id)} /> {p.text}</label>)}
-    </fieldset>
-    <div className="ap-briefing__knoepfe">
-      <button type="button" className="primary" onClick={() => onSenden({ art: 'abschluss', probleme, ziele })}>Abschließen</button>
-      {!ende && <button type="button" onClick={onZurueck}>Zurück zum Fall</button>}
-    </div>
-  </section>;
-}
-
-function Ende({ z, onZurueck, onNeu }: { z: SimZustand; onZurueck: () => void; onNeu: () => void }) {
-  const u = uebersicht(z);
-  const kopf = useRef<HTMLHeadingElement>(null);
-  useEffect(() => { kopf.current?.focus(); }, []);
-  const pb = z.fall.pflegebedarf;
-  const gewaehlt = new Set(z.abschluss?.probleme ?? []);
-  return <section className="ap-ende" aria-labelledby="ap-ende">
-    <p className="eyebrow">Fall beendet · {uhrzeit(z.fall.startUhrzeit, z.t)}</p>
-    <h2 id="ap-ende" ref={kopf} tabIndex={-1}>{z.fall.titel}</h2>
-    {z.ende && z.ende.ausgang !== 'abgeschlossen' && <p className="note">{z.ende.text}</p>}
-    <p className="muted">Vorläufige Übersicht. Die ausführliche Auswertung nach Kompetenzbereichen folgt.</p>
-    <h3>Pflichthandlungen</h3>
-    <ul className="ap-ende__liste">{u.pflicht.map((p) => <li key={p.id} className={p.erfuellt ? 'is-ok' : 'is-fehlt'}>
-      <strong>{p.erfuellt ? '✓' : '✗'} {p.text}</strong>{p.gewicht === 3 && !p.erfuellt && <span className="ap-badge is-grenze">kritisch</span>}<p>{p.warum}</p>
-    </li>)}</ul>
-    {u.fehler.length > 0 && <><h3>Pflegefehler</h3><ul className="ap-ende__liste">{u.fehler.map((f) => <li key={f.id} className="is-fehlt"><strong>{f.text}</strong> <span className="muted">({f.schwere})</span><p>{f.warum}</p></li>)}</ul></>}
-    {u.grenzen.length > 0 && <><h3>Grenzüberschreitungen</h3><ul>{u.grenzen.map((g, i) => <li key={i}>{uhrzeit(z.fall.startUhrzeit, g.t)} {g.name}</li>)}</ul></>}
-    <h3>Pflegebedarf</h3>
-    <ul className="ap-ende__liste">{pb.probleme.map((p) => <li key={p.id} className={gewaehlt.has(p.id) === p.richtig ? 'is-ok' : 'is-fehlt'}>
-      <strong>{gewaehlt.has(p.id) ? 'Gewählt' : 'Nicht gewählt'}: {p.text}</strong><p>{p.richtig ? 'Trifft zu.' : 'Trifft nicht zu.'} {p.warum}</p>
-    </li>)}</ul>
-    <p className="muted">Hilfen der Praxisanleitung: {u.paHilfen}</p>
-    {z.fall.leitfaden.length > 0 && <details className="card"><summary>Leitfaden zum Fall</summary>{z.fall.leitfaden.map((l) => <section key={l.titel}><h4>{l.titel}</h4><p>{l.text}</p></section>)}</details>}
-    <div className="ap-briefing__knoepfe">
-      <button type="button" className="primary" onClick={onNeu}>Noch einmal</button>
-      <button type="button" onClick={onZurueck}>Zur Fallauswahl</button>
-    </div>
-  </section>;
 }

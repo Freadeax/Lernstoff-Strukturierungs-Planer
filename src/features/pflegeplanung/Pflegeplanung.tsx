@@ -8,6 +8,7 @@ import { pflegeModule } from '../../modules/pflege';
 import { navigate, useRoute } from '../../ui/shell/router';
 import { LernplanHinweis, useLernplanUebernahme } from '../lernplan/ui/LernplanHinweis';
 import { findeSitzung, planVorlage } from '../praxis/weitergabe';
+import { findeNeu, planVorlageNeu } from '../praxis/arbeitsplatz/weitergabe';
 import { eigenerFall, FAELLE, SETTING_LABEL, type PlanFall, type ProblemArt } from './faelle';
 import {
   ERREICHT_LABEL, hatInhalt, leererPlan, neueMassnahme, neuesProblem, neuesZiel, ohneProblem, ohneZiel, problemName,
@@ -437,8 +438,9 @@ export default function Pflegeplanung() {
   useEffect(() => {
     if (!praxisId) return;
     const s = findeSitzung(praxisId);
-    if (!s) { setPraxisStatus('fehlt'); return; }
-    const v = planVorlage(s);
+    const n = s ? null : findeNeu(praxisId);
+    if (!s && !n) { setPraxisStatus('fehlt'); return; }
+    const v = s ? planVorlage(s) : planVorlageNeu(n!);
     const e = ladeEntwurf(EIGEN);
     const gleich = e?.eigenText === v.text;
     setFallId(EIGEN);

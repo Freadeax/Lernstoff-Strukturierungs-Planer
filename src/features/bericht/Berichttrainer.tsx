@@ -1,5 +1,6 @@
 import { storage } from '../../ui/lib/store';
 import { findeSitzung, berichtFall } from '../praxis/weitergabe';
+import { findeNeu, berichtFallNeu } from '../praxis/arbeitsplatz/weitergabe';
 import { DatenHinweis } from '../../ui/DatenHinweis';
 import { PersonenWarnung, personenbezug } from '../../ui/PersonenWarnung';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -140,7 +141,7 @@ export default function Berichttrainer() {
   const wunsch = route.params.get('fall') ?? '';
   // Fall aus dem Praxissimulator (Link aus dem Debriefing): wird vorne in die Auswahl gestellt
   const praxisId = route.params.get('aus') === 'praxis' ? route.params.get('sitzung') : null;
-  const praxisFall = useMemo(() => { const s = findeSitzung(praxisId); return s ? berichtFall(s) : null; }, [praxisId]);
+  const praxisFall = useMemo(() => { const s = findeSitzung(praxisId); if (s) return berichtFall(s); const n = findeNeu(praxisId); return n ? berichtFallNeu(n) : null; }, [praxisId]);
   const LISTE = useMemo(() => (praxisFall ? [praxisFall, ...BERICHT_FAELLE] : BERICHT_FAELLE), [praxisFall]);
   const [fallId, setFallId] = useState(() => (praxisFall?.id ?? (LISTE.some((f) => f.id === wunsch) ? wunsch : LISTE[0]!.id)));
   const [text, setText] = useState(() => ladeEntwurf(fallId));
