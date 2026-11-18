@@ -29,6 +29,10 @@ try {
     await p.goto(base + '#/lernen/praxis', { waitUntil: 'networkidle' });
     await p.getByRole('button', { name: 'Neu üben' }).first().click();
     await p.getByRole('radio', { name: /2\. Drittel/ }).check();
+    for (const box of await p.locator('.ap-briefing__rolle label').all()) {
+      const [r, l] = [await box.locator('input').boundingBox(), await box.boundingBox()];
+      assert.ok(r && l && r.width <= 26 && r.x - l.x < 4, `${w}: Radio-Knopf steht links im Rahmen`);
+    }
     await axe('briefing');
     await p.getByRole('button', { name: 'Fall beginnen' }).click();
     await p.getByRole('button', { name: 'Pause' }).click();
