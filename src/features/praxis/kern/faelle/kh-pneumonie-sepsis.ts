@@ -35,7 +35,7 @@ export const KH_PNEUMONIE_SEPSIS: FallV2 = {
     'Anordnungen (O₂, Infusion) rücklesen und im Rahmen der eigenen Befugnis umsetzen.',
     'Grenzen kennen: i. v.-Antibiotikum vorziehen ist für Auszubildende gesperrt.',
   ],
-  lehrplan: { ce: ['ce.05'], abschnitt: ['ad12', 'ad3'], themen: ['thema.kl.atmung', 'thema.kl.infektion', 'thema.beo.vitalzeichen', 'thema.re.schweigepflicht', 'thema.pp.uebergabe'] },
+  lehrplan: { ce: ['ce.05'], abschnitt: ['ad12', 'ad3'], themen: ['thema.kl.atmung', 'thema.kl.infektion', 'thema.beo.vitalzeichen', 'thema.re.schweigepflicht', 'thema.pp.uebergabe'], kompetenzen: ['I.2.a', 'I.2.b', 'II.1.d', 'III.2.a', 'III.2.b'] },
   geeignet: { rollen: [1, 2, 3], stufen: [1, 2, 3] },
   dauerMin: [12, 18],
   freigabe: {
@@ -50,9 +50,9 @@ export const KH_PNEUMONIE_SEPSIS: FallV2 = {
   },
   quellen: [
     { id: 's3-cap', titel: 'S3-Leitlinie Behandlung von erwachsenen Patienten mit ambulant erworbener Pneumonie (AWMF 020-020), 2021' },
-    { id: 's3-sepsis', titel: 'S3-Leitlinie Sepsis – Prävention, Diagnose, Therapie und Nachsorge (AWMF 079-001), 2018', fundstelle: 'Aktualisierung in Arbeit, Fassung prüfen' },
-    { id: 'ssc-2021', titel: 'Surviving Sepsis Campaign: International Guidelines 2021', fundstelle: 'Evans L. et al., Crit Care Med 2021;49(11):e1063–e1143' },
-    { id: 'news2', titel: 'Royal College of Physicians: National Early Warning Score (NEWS) 2, 2017' },
+    { id: 's3-sepsis', titel: 'S3-Leitlinie Sepsis – Prävention, Diagnose, Therapie und Nachsorge (AWMF 079-001), Fassung 2018', fundstelle: 'Update 2025 erschienen (AWMF 07/2025); Abgleich offen, siehe Quellenregister' },
+    { id: 'ssc-2026', titel: 'Surviving Sepsis Campaign: International Guidelines for Management of Sepsis and Septic Shock 2026', fundstelle: 'SCCM/ESICM, veröffentlicht 23.03.2026' },
+    { id: 'news2', titel: 'Royal College of Physicians: National Early Warning Score (NEWS2), 2017' },
     { id: 's3-o2', titel: 'S3-Leitlinie Sauerstoff in der Akuttherapie beim Erwachsenen (AWMF 020-021), 2021' },
   ],
 

@@ -36,7 +36,7 @@ export const PAED_FIEBERKRAMPF: FallV2 = {
     'Eine Dosis für ein Kind nach Gewicht nachrechnen und eine falsche Anordnung hinterfragen.',
     'Eltern in der Krise beruhigen, einbeziehen und verständlich informieren.',
   ],
-  lehrplan: { ce: ['ce.10', 'ce.06'], abschnitt: ['ad12', 'ad3'], themen: ['thema.kl.neuro.epilepsie', 'thema.kl.paediatrie', 'thema.re.schweigepflicht'] },
+  lehrplan: { ce: ['ce.10', 'ce.06'], abschnitt: ['ad12', 'ad3'], themen: ['thema.kl.neuro.epilepsie', 'thema.kl.paediatrie', 'thema.re.schweigepflicht'], kompetenzen: ['I.1.e', 'II.1.a', 'II.2.a', 'III.2.a'] },
   geeignet: { rollen: [1, 2, 3], stufen: [1, 2, 3] },
   dauerMin: [12, 18],
   freigabe: {
@@ -55,8 +55,8 @@ export const PAED_FIEBERKRAMPF: FallV2 = {
   quellen: [
     { id: 'nice-fieber', titel: 'NICE NG143: Fever in under 5s – assessment and initial management (2019, aktualisiert 2021)' },
     { id: 'aap-fieberkrampf', titel: 'American Academy of Pediatrics: Febrile Seizures – Clinical Practice Guideline (2008) und Neurodiagnostic Evaluation (2011)' },
-    { id: 'erc-kinder', titel: 'ERC Leitlinien Reanimation 2025: Lebensrettende Maßnahmen bei Kindern (Paediatric Life Support)' },
-    { id: 'gnp-fieberkrampf', titel: 'Gesellschaft für Neuropädiatrie: Elterninformation Fieberkrampf', fundstelle: 'aktuelle Fassung prüfen' },
+    { id: 'erc-kinder', titel: 'ERC Guidelines 2025: Paediatric Life Support (lebensrettende Maßnahmen bei Kindern)' },
+    { id: 'gnp-fieberkrampf', titel: 'Gesellschaft für Neuropädiatrie: Elterninformation Fieberkrampf', fundstelle: 'ohne Jahresangabe, Abruf beim Herausgeber' },
     { id: 'fi-paracetamol', titel: 'Fachinformation Paracetamol-Zäpfchen für Kinder (Dosierung nach Körpergewicht)' },
   ],
 
