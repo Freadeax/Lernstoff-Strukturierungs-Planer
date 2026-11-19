@@ -322,6 +322,7 @@ const LISTE: MassnahmeDefinition[] = [
   }),
   m('torasemid-zurueckhalten', 'Torasemid heute zurückhalten', 'versorgen', 20, ['I', 'III'], nw(['medi12', 'eigenstaendig3']), { anordnungspflichtig: true }),
   m('lorazepam-geben', 'Lorazepam geben', 'versorgen', 60, ['I', 'III'], nw(['medi12', 'eigenstaendig3', 'medfehler3']), {
+    treiber: [{ art: 'wirkstoff', id: 'lorazepam', dosisMg: 1, weg: 'oral' }],   // G1: Wirkung aus dem Wirkstoffregister
     anordnungspflichtig: true, befugnis: befugnis(A, A, S), risikoBeiUeberschreitung: 'patientenschaden',
   }),
   m('sc-injektion', 'Subkutan spritzen (z. B. Heparin, nach Anordnung)', 'versorgen', 90, ['I', 'III'], nw(['medi12', 'mitwirken12', 'eigenstaendig3'], {
@@ -332,6 +333,7 @@ const LISTE: MassnahmeDefinition[] = [
     treiber: [{ art: 'insulin', ie: 4 }],   // Beispieldosis; der Fall setzt die angeordnete Dosis über massnahmenZusatz
   }),
   m('inhalation-geben', 'Inhalation/Dosieraerosol mit Spacer geben (nach Anordnung)', 'versorgen', 120, ['I', 'II'], nw(['medi12', 'atem12', 'inhalation3']), {
+    treiber: [{ art: 'wirkstoff', id: 'salbutamol', dosisMg: 0.2, weg: 'inhalativ' }],   // 2 Hübe; Fall kann Dosis überschreiben
     anordnungspflichtig: true, befugnis: befugnis(A, A, S), risikoBeiUeberschreitung: 'warnung-pa', klinisch: ['medikamente'],
   }),
   m('sondennahrung-geben', 'Sondennahrung über liegende PEG geben', 'versorgen', 300, ['I'], nw(['zuAbleitungen12', 'stabil12']), {

@@ -105,7 +105,7 @@ export const PSY_PANIK_SUIZIDALITAET: FallV2 = {
     aus('atemanleitung-ruhig', { id: 'tuete-atmen', name: 'In eine Papiertüte atmen lassen', beendet: [], wirkung: [] }),
     aus('bedarfsmedikation-oral', {
       id: 'lorazepam-bedarf', name: 'Lorazepam 1 mg als Schmelztablette geben (nach Anordnung)',
-      wirkung: [{ groesse: 'angst', delta: -0.3, beginnSek: 300, spitzeSek: 1200, dauerSek: 14400 }, { groesse: 'vigilanz', delta: -0.1, beginnSek: 600, spitzeSek: 1800, dauerSek: 14400 }],
+      treiber: [{ art: 'wirkstoff', id: 'lorazepam', dosisMg: 1, weg: 'sublingual' }],   // G1
     }),
     aus('sitzwache', { id: 'kontrolle-stuendlich', name: 'Stündliche Sichtkontrolle einplanen und sie allein lassen', setzt: ['nur-stuendlich'] }),
   ],

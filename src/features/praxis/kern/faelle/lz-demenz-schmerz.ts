@@ -119,7 +119,7 @@ export const LZ_DEMENZ_SCHMERZ: FallV2 = {
     }),
     aus('bedarfsmedikation-oral', {
       id: 'schmerzmittel-geben', name: 'Paracetamol 500 mg als Brausetablette in Saft geben (nach Anordnung)',
-      wirkung: [{ groesse: 'schmerz', delta: -2.5, beginnSek: 600, spitzeSek: 1800, dauerSek: 21600 }],
+      treiber: [{ art: 'wirkstoff', id: 'paracetamol', dosisMg: 500, weg: 'oral' }],   // G1
     }),
   ],
 

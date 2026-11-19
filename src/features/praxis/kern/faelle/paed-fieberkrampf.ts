@@ -117,7 +117,7 @@ export const PAED_FIEBERKRAMPF: FallV2 = {
     aus('o2-geben', { name: 'Sauerstoff über Kindermaske vorhalten (nach Anordnung)', wirkung: [{ groesse: 'sauerstoff', delta: 4, beginnSek: 0, spitzeSek: 30, dauerSek: 'dauerhaft' }] }),
     aus('bedarfsmedikation-oral', {
       id: 'paracetamol-supp', name: 'Paracetamol-Zäpfchen geben (nach Anordnung, Dosis nach Gewicht prüfen)',
-      wirkung: [{ groesse: 'temperatur', delta: -0.8, beginnSek: 1200, spitzeSek: 3000, dauerSek: 14400 }, { groesse: 'schmerz', delta: -2, beginnSek: 900, spitzeSek: 2400, dauerSek: 14400 }],
+      treiber: [{ art: 'wirkstoff', id: 'paracetamol', dosisMg: 125, weg: 'rektal' }],   // G1, 11 kg: angeordnete 125 mg
     }),
   ],
 

@@ -137,3 +137,18 @@ Code: `kommunikation.ts` (rein, vom Kern aufgerufen), Zustand in `SimZustand.kom
 - `paed-fieberkrampf` v0.2.0: Ärztin fragt ohne SpO₂/BZ zurück (`af-werte`), Rückauftrag „in 10 Min. Temperatur und Bewusstsein, per Messenger“ (`af-kontrolle`, Ende stabil erst danach), Großmutter ruft an (Auskunft nur mit Einverständnis der Mutter), Kollege Tim (Notfallmedikament bereitlegen), Akte, Doku-Pflicht `{ dokumentiert: 'a-krampf-dauer' }`.
 - `psy-panik-suizidalitaet` v0.2.0: Ärztin fragt ohne körperliche Einschätzung nach dem Puls (`af-puls`), Rückauftrag „Schwester einbeziehen?“ (`af-schwester`), Schwester ruft an (keine Schweigepflichtentbindung), Kollege Deniz plant die 1:1-Begleitung, Akte (Zopiclon abgesetzt), Doku-Pflicht `{ dokumentiert: 'a-plan' }`.
 - Gespräche mit Anrufenden hängen per `nurWenn` an derselben Bedingung wie das Anruf-Ereignis.
+
+## Grundsystem G1: Wirkstoffe (physiologie/wirkstoffe.ts)
+
+- Register `WIRKSTOFFE` (16 Wirkstoffe: Morphin, Piritramid, Lorazepam, Midazolam, Flumazenil, Naloxon, Haloperidol, Paracetamol,
+  Metamizol, Ibuprofen, Salbutamol, Prednisolon, Furosemid, Torasemid, Ondansetron, Metoclopramid) mit Quelle (Fachinformation,
+  Leitlinie), Wegen, Halbwertszeit und Beobachtungshinweisen. Lernmodell, ersetzt keine Fachinformation.
+- Treiber `{ art: 'wirkstoff', id, dosisMg, weg? }` (in Maßnahmen über `treiber`). Kinetik: Bateman-Kurve je Weg, Gipfel 1 bei
+  üblicher Erwachsenendosis; Dosis nach Gewicht (Kinder), Hochbetagte Halbwertszeit × 1,5 und zentrale Wirkung × 1,3.
+- Kanäle: Opioid, Sedierung (Opioid + Benzodiazepin überadditiv auf den Atemantrieb), Analgesie (NRS), Fiebersenkung, Anxiolyse,
+  Beruhigung, Antiemese, Bronchodilatation, Puls, Gefäßtonus, Diurese (Volumen, Hydratation, Kalium), Blutzucker, Krampfende,
+  Delirrisiko (Benzodiazepine bei Hochbetagten), Antagonisten (Naloxon, Flumazenil; kürzer wirksam → Renarkotisierung/Resedierung).
+- Bestände Schmerz, Angst, Gefäßtonus tragen den Arzneimittelanteil (`wirkSchmerz`, `wirkAngst`, `wirkTonus`), der beim Abfluten
+  zurückgegeben wird; `wirkHf` hebt den Puls. Ohne Wirkstoff-Treiber bleiben diese Felder leer (bisherige Kalibrierung unverändert).
+- Antipyretika verhindern einen Fieberkrampf nicht (Schwelle gilt für den Fieberverlauf ohne Senkung).
+- Doppelgabe, Abstand und Höchstmenge prüft weiter `akte.ts`; G1 liefert nur die Wirkung.

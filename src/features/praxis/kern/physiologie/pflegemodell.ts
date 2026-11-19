@@ -32,6 +32,7 @@ import type { Altersgruppe, Anzeige, AktiverTreiber, Grundgroessen, Rhythmus, Tr
 import { NORMAL, type ModellKontext, type PhysiologieModell } from '../modell';
 import { profil, type Altersprofil } from './altersprofile';
 import { herz, HERZ_START, klemme, lunge, wirkAnteil, ZUCKER_FAUSTWERTE, type Befund, type Lage } from './organe';
+import { pharmaEffekte, type PharmaEffekte } from './wirkstoffe';
 
 /* ───────────────────────── Hilfen ───────────────────────── */
 
@@ -73,13 +74,28 @@ function seitMin(tr: Treiber, k: ModellKontext): number {
 
 /** Wirksamer Opioidspiegel (nach Halbwertszeit und Naloxon) */
 export function opioidWirkung(treiber: readonly Treiber[], k: ModellKontext): number {
+  return pharma(treiber, k).opioid;
+}
+
+/** Arzneimittelwirkung gesamt: Treiber opioid_ueberhang/naloxon (P1) und Wirkstoff-Treiber (G1) gemeinsam verrechnet */
+export function pharma(treiber: readonly Treiber[], k: ModellKontext): PharmaEffekte {
   let spiegel = 0;
   let block = 0;
   for (const tr of treiber) {
     if (tr.art === 'opioid_ueberhang') spiegel += tr.spiegel * halb(seitMin(tr, k), tr.halbwertMin);
     if (tr.art === 'naloxon') block = Math.max(block, 0.95 * halb(seitMin(tr, k), tr.halbwertMin));
   }
-  return spiegel * (1 - block);
+  return pharmaEffekte(treiber, k, gewicht(k, profil(k.altersgruppe)), spiegel, block);
+}
+
+/**
+ * Angewandter Arzneimittelanteil auf einen Bestand: Der Bestand trägt den Anteil, solange der Wirkstoff wirkt, und
+ * bekommt ihn zurück, wenn er abflutet (Schmerz kehrt zurück). Rückgabe: [neuer Bestand, neuer Anteil].
+ */
+function anteilAnwenden(bestand: number, alterAnteil: number, neuerAnteil: number, min: number): [number, number] {
+  const ohne = bestand - alterAnteil;
+  const anteil = Math.max(neuerAnteil, min - ohne);   // nicht unter das Minimum drücken
+  return [ohne + anteil, anteil];
 }
 
 const hat = (treiber: readonly Treiber[], art: Treiber['art']) => treiber.some((t) => t.art === art);
@@ -197,7 +213,7 @@ function kreislaufRoh(g: Grundgroessen, k: ModellKontext, saO2 = 0.97): Kreislau
   const opioid = hill(1 - g.atemantrieb, 0.5); // gedämpfter Antrieb ≈ Sedierung
   const stress = 0.12 * fieber + (0.25 * g.angst + 0.45 * panik(g)) * klemme(g.vigilanz * 1.2, 0, 1) + 0.015 * g.schmerz + 0.1 * g.unruhe
     + 2.5 * Math.max(0, 0.92 - saO2) + (g.blutzucker < 60 ? 0.2 : 0) + (g.krampf > 0 ? 0.15 : 0);
-  const daempfung = 0.15 * opioid + (g.temperatur < 35 ? (35 - g.temperatur) * 0.08 : 0);
+  const daempfung = 0.15 * opioid - (g.wirkHf ?? 0) + (g.temperatur < 35 ? (35 - g.temperatur) * 0.08 : 0);
   let rel = 1 + p.baroGain * (2.6 * defizit + 6 * defizit * defizit) + stress + 0.35 * dyspnoeKreislauf(g) - daempfung;
   // Schwere Hypoxie: präfinale Bradykardie (besonders bei Kindern)
   if (saO2 < 0.6) rel *= klemme((saO2 - 0.35) / 0.25, 0.25, 1);
@@ -283,7 +299,8 @@ function naechster(alt: Grundgroessen, treiber: readonly Treiber[], dt: number, 
   const min = dt / 60;
   const a = atmung(alt, k);
   const kr = kreislauf(alt, k, a.saO2);
-  const opioid = opioidWirkung(treiber, k);
+  const pe = pharma(treiber, k);
+  const opioid = pe.opioid;
   const blutvolumenMl = gewicht(k, p) * p.blutvolumenMlKg;
   const kgFaktor = 75 / gewicht(k, p);
 
@@ -323,8 +340,25 @@ function naechster(alt: Grundgroessen, treiber: readonly Treiber[], dt: number, 
     }
   }
 
+  // ── G1 Wirkstoffe: Bestände mit angewandtem Anteil (kehrt beim Abfluten zurück), Raten
+  const mitPharma = Object.keys(pe.spiegel).length > 0;
+  if (mitPharma || alt.wirkSchmerz !== undefined) {
+    [g.schmerz, g.wirkSchmerz] = anteilAnwenden(g.schmerz, alt.wirkSchmerz ?? 0, -pe.analgesieNrs, 0);
+    [g.angst, g.wirkAngst] = anteilAnwenden(g.angst, alt.wirkAngst ?? 0, -pe.anxiolyse * Math.max(0, g.angst - (alt.wirkAngst ?? 0)), 0);
+    [g.gefaesstonus, g.wirkTonus] = anteilAnwenden(g.gefaesstonus, alt.wirkTonus ?? 0, pe.tonus, 0.3);
+    g.wirkHf = pe.hfRel;
+  }
+  if (pe.diureseMlH > 0) {
+    const ml = pe.diureseMlH * std;
+    g.volumen -= ml / (blutvolumenMl * 2.5);            // Diurese zieht aus dem ganzen Extrazellulärraum
+    g.hydratation -= ml / (gewicht(k, p) * 200);
+    g.kalium = (alt.kalium ?? 4.2) - (0.35 * ml) / 1000;  // Schleifendiuretika: Kaliumverlust
+  }
+  if (pe.bzProStunde) g.blutzucker += pe.bzProStunde * std;
+
   // Delir: steigt mit Auslösern (Altersprofil), klingt sonst langsam ab
-  const last = delirLast(alt, treiber, a, opioid);
+  // Benzodiazepine/anticholinerge Wirkstoffe lösen bei Hochbetagten auch ohne angelegten Auslöser ein Delir aus (S3-LL Delir)
+  const last = delirLast(alt, treiber, a, opioid) + pe.delirRisiko * (k.altersgruppe === 'hochbetagt' ? 0.8 : 0.2);
   g.delir += last > 0 ? 0.006 * last * p.delirAnfaellig * min : -0.003 * min;
 
   // Angst: Atemnot und starker Schmerz steigern, sonst langsames Abklingen
@@ -337,12 +371,14 @@ function naechster(alt: Grundgroessen, treiber: readonly Treiber[], dt: number, 
 
   // Fieberkrampf: ein Anfall je Fall (krampf 1 → 0 in 3 Min., dann postiktal −1 → nähert sich 0, erreicht es nie)
   const fk = treiber.find((t) => t.art === 'fieberkrampf_kind');
-  if (fk && fk.art === 'fieberkrampf_kind' && alt.krampf === 0 && alt.temperatur >= fk.temperaturSchwelle) g.krampf = 1;
+  // Antipyretika verhindern Fieberkrämpfe nicht (Cochrane-Review Offringa 2021): Die Schwelle gilt für den Fieberverlauf ohne Senkung.
+  if (fk && fk.art === 'fieberkrampf_kind' && alt.krampf === 0 && alt.temperatur + pe.fiebersenkung >= fk.temperaturSchwelle) g.krampf = 1;
   else if (alt.krampf > 0) g.krampf = alt.krampf - dt / 180 <= 0 ? -1 : alt.krampf - dt / 180;
   else if (alt.krampf < 0) g.krampf = Math.min(-0.001, hin(alt.krampf, 0, 600, dt));
+  if (alt.krampf > 0 && pe.krampfStopp) g.krampf = -1;   // z. B. Midazolam bukkal beendet den Anfall
 
   // ── Abgeleitete Größen: Ziel = Basis + Treiber-Effekt + Wirkkurven
-  const bs = staerke(treiber, 'bronchospasmus');
+  const bs = staerke(treiber, 'bronchospasmus') * (1 - pe.bronchodilatation);
   const pn = staerke(treiber, 'pneumonie');
   const sep = sepsisTempo(treiber);
   const atemarbeitZiel = b.atemarbeit + 2 * bs + 0.6 * pn + off(k, 'atemarbeit');
@@ -350,13 +386,13 @@ function naechster(alt: Grundgroessen, treiber: readonly Treiber[], dt: number, 
   g.atemarbeit = hin(alt.atemarbeit, atemarbeitZiel, bs > 0 ? 120 : 300, dt);
   g.gasaustausch = hin(alt.gasaustausch, gasZiel, pn > 0 && bs === 0 ? 900 : 180, dt);
 
-  const antriebZiel = b.atemantrieb * (1 - 0.75 * hill(opioid, 0.7)) + off(k, 'atemantrieb');
+  const antriebZiel = b.atemantrieb * (1 - 0.75 * hill(pe.atemdepression, 0.7)) + off(k, 'atemantrieb');
   g.atemantrieb = hin(alt.atemantrieb, antriebZiel, 60, dt);
 
-  const tempZiel = Math.max(b.temperatur, fieberZiel) + off(k, 'temperatur');
+  const tempZiel = Math.max(b.temperatur, fieberZiel - pe.fiebersenkung) + off(k, 'temperatur');
   g.temperatur = hin(alt.temperatur, tempZiel, 1800, dt);
 
-  const vf = vigilanzFaktor(alt, a, kr, opioid);
+  const vf = vigilanzFaktor(alt, a, kr, opioid + pe.sedativ);
   g.vigilanz = hin(alt.vigilanz, b.vigilanz * vf + off(k, 'vigilanz'), 60, dt);
 
   const orientZiel = b.orientierung - 0.9 * Math.max(0, g.delir - b.delir) - 0.8 * Math.max(0, b.vigilanz - g.vigilanz)
@@ -365,10 +401,10 @@ function naechster(alt: Grundgroessen, treiber: readonly Treiber[], dt: number, 
 
   const unruheZiel = (b.unruhe + 0.8 * Math.max(0, g.delir - b.delir) + 0.5 * Math.max(0, g.angst - b.angst)
     + 0.03 * Math.max(0, g.schmerz - b.schmerz) + (g.blutzucker < 60 ? 0.4 : 0) + (a.saO2 < 0.88 ? 0.4 : 0)
-    + (hat(treiber, 'harnverhalt') ? 0.3 : 0)) * klemme(g.vigilanz * 1.2, 0, 1) + off(k, 'unruhe');
+    + (hat(treiber, 'harnverhalt') ? 0.3 : 0)) * klemme(g.vigilanz * 1.2, 0, 1) * (1 - pe.unruheMinus) + off(k, 'unruhe');
   g.unruhe = hin(alt.unruhe, unruheZiel, 60, dt);
 
-  const uebelZiel = b.uebelkeit + 0.5 * hill(opioid, 0.5) + (g.blutzucker < 60 ? 0.3 : 0) + off(k, 'uebelkeit');
+  const uebelZiel = (b.uebelkeit + 0.5 * hill(opioid, 0.5) + (g.blutzucker < 60 ? 0.3 : 0)) * (1 - pe.antiemese) + off(k, 'uebelkeit');
   g.uebelkeit = hin(alt.uebelkeit, uebelZiel, 120, dt);
 
   return begrenzen(g);
