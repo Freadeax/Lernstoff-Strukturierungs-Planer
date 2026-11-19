@@ -58,6 +58,15 @@ export const LP = {
   abgrenzen1: s(13, '02', '1.', 'Kompetenz III.1.a', 'Verantwortungs- und Aufgabenbereiche im Team abgrenzen', 'kompetenz'),
   delegation3: s(58, '05', '3.', 'Kontextbedingungen', 'Delegation einschließlich Anordnungen, Aufklärung, Einwilligung'),
 
+  // CE 01 und CE 03 (1. Drittel): Ausbildungsstart, erste Pflegeerfahrungen (P17a, geprüft am 19.11.2026 am PDF)
+  schweigepflicht1: s(9, '01', '1.', 'Handlungsanlässe/Kontext', 'Datenschutz, Verschwiegenheit, Schweigepflicht (auch digital)'),
+  patsicher1: s(9, '01', '1.', 'Handlungsanlässe/Kontext', 'Patientensicherheit'),
+  teamkontakt1: s(9, '01', '1.', 'Handlungsmuster', 'Kontakt zum Team aufnehmen, Rollenerwartungen und Rollenkonflikte'),
+  selbstbestimmung1: s(7, '01', '1.', 'Kompetenz I.6.a', 'Selbstbestimmungsrecht wahren, auch bei eingeschränkter Selbstbestimmungsfähigkeit', 'kompetenz'),
+  reflexion1: s(24, '03', '1.', 'Handlungsmuster', 'erste Pflegeerfahrungen reflektieren (Ekel, Scham), kollegiale Beratung in Anspruch nehmen'),
+  aushandeln1: s(24, '03', '1.', 'Handlungsmuster', 'Aushandlungsprozesse zwischen Pflegeanforderungen und Bedürfnissen gestalten, verbal, nonverbal, taktil'),
+  intimsphaere1: s(24, '03', '1.', 'Erleben/Deuten', 'Eindringen in die Intimsphäre, Grenzüberschreitungen', 'kompetenz'),
+
   // CE 02 (1. Drittel): Grundpflege, Beobachtung, Dokumentation
   daten1: s(13, '02', '1.', 'Kompetenz I.2.a', 'pflegebezogene Daten erheben', 'kompetenz'),
   ziele1: s(13, '02', '1.', 'Kompetenz I.1.e', 'Pflegeziele vorschlagen, Wirksamkeit gemeinsam evaluieren', 'kompetenz'),
@@ -146,6 +155,15 @@ export const LP = {
   milieu12: s(192, '11', '1./2.', 'Handlungsmuster', 'Kommunikation bei psychischen und kognitiven Einschränkungen, Milieugestaltung'),
   risikoPsych12: s(192, '11', '1./2.', 'Handlungsmuster', 'begünstigende Faktoren ermitteln, Risikofaktoren und Ausmaß der Beeinträchtigung einschätzen'),
   sucht3: s(190, '11', '3.', 'Handlungsanlässe', 'Sucht und Verhaltensstörungen durch psychotrope Substanzen'),
+  // P18 (Fallwelle Lebenswelt/Lebensende CE08/CE09, geprüft am 19.11.2026 am hochgeladenen PDF)
+  palliativCare12: s(129, '08', '1./2.', 'Handlungsmuster', 'Palliative Care als Konzept, Interventionen zur Unterstützung medizinischer Therapien'),
+  palliativInterv3: s(130, '08', '3.', 'Handlungsmuster', 'Begleitung sterbender Menschen: Interventionen in der letzten Lebensphase, würdevolle Pflegeprozessgestaltung'),
+  palliativEntscheidung3: s(130, '08', '3.', 'Handlungsmuster', 'Entscheidungsfindung zu Medikamentengabe, Ernährung und Flüssigkeit in der letzten Lebensphase'),
+  sapv3: s(130, '08', '3.', 'Handlungsmuster', 'Kontinuität der palliativen Versorgung an Schnittstellen, SAPV'),
+  haeuslichkeit12: s(152, '09', '1./2.', 'Handlungsmuster', 'Orientierungsmuster und Bedürfnisse erfassen, auch in der eigenen Häuslichkeit'),
+  demenzInteraktion12: s(152, '09', '1./2.', 'Handlungsmuster', 'sprachlich-prozedurale und leiblich-affektive Interaktion mit dementiell veränderten Menschen'),
+  bezugspersonen09_3: s(152, '09', '3.', 'Handlungsmuster', 'Pflegebereitschaft und Ressourcen von Bezugspersonen einschätzen, über entlastende Dienste informieren'),
+  schnittstelle09_3: s(153, '09', '3.', 'Handlungsmuster', 'Beratung und Begleitung an Schnittstellen und beim Wechsel des Versorgungskontextes'),
 } as const satisfies Record<string, LehrplanStelle>;
 
 export type LpSchluessel = keyof typeof LP;

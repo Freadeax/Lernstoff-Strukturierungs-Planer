@@ -162,3 +162,39 @@ Code: `kommunikation.ts` (rein, vom Kern aufgerufen), Zustand in `SimZustand.kom
 - **Blase** (`Grundgroessen.blaseMl`, optional): nur wenn der Fall eine Füllung vorgibt oder ein Treiber `harnverhalt` läuft. Ohne Abflusshindernis Entleerung ab 350 ml (Restharn 30 ml), bei Harnverhalt füllt sie sich weiter; „blasenkatheter-legen“ beendet den Harnverhalt. `Anzeige.blaseMl` passt zu einem Blasenscan-Befund.
 - **Kalium**: Ausgangswert 4,2 mmol/l, Schleifendiuretika senken es; `Anzeige.kalium` erscheint in Spur A, sobald der Fall oder ein Wirkstoff es führt.
 - Befundtexte können `{urinMlH}`, `{urinFarbe}`, `{blaseMl}`, `{kalium}` als Platzhalter nutzen.
+
+## Grundsystem G3: Haut, Mobilität, Sturz
+
+`physiologie/haut-mobilitaet.ts` (Lernmodell). Das Druck-mal-Zeit-Modell `haut()` der Lernseite liegt jetzt in `physiologie/organe.ts` (Lernseite re-exportiert, gleiche Funktion).
+
+- **Treiber `immobil`** `{ druckMmHg, scherkraefte?, feucht? }`: Auflagedruck an der belasteten Stelle (Weichlagerung ≈ 30, Standardmatratze 60–80 mmHg).
+- **`Grundgroessen.druckLast`** (mmHg·h über Kapillardruck 32): steigt unter Druck; Scherkräfte ×1,5, Feuchte ×1,3, MAP < 65 bis ×1,6, Exsikkose ×1,2. Ohne Druck erholt sich das Gewebe (−40 je Stunde).
+- **`Grundgroessen.dekubitusKat`** / `Anzeige.dekubitusKat` 0–4: höchste erreichte Kategorie (gleiche Schwellen wie die Lernseite), geht im Fall nicht zurück.
+- **Entlastung**: Katalog „positionieren-druckentlastung“ und „mobilisieren-transfer“ tragen die Wirkkurve `druckLast` faktor 0 (neue Auflagestelle). Wirkkurven dürfen auf die optionalen Größen in `OPTIONALE_WIRKGROESSEN` (modell.ts) zeigen.
+- **Sturzrisiko** `sturzrisiko(g, eingabe)`: Gründe aus dem Zustand (Alter, Delir/Verwirrtheit, Unruhe, Bewusstsein, Kreislauf/Schwindel, Sedierung aus G1, Harndrang aus G2, Unterzucker, Schmerz, Fieber, Immobilität) und Stufe gering/erhöht/hoch; G4 stellt es als Einschätzung bereit.
+
+## Grundsystem G4: Einschätzungen aus dem Modell
+
+`physiologie/einschaetzungen.ts` (vereinfacht nachgebildet, Lernmodell). Der Kern ergänzt in `anzeige(z)` für Spur A und B:
+
+| Feld | Instrument | Bedeutung |
+|---|---|---|
+| `schockindex` | Puls / RR sys | > 1 Schockverdacht (Erwachsene) |
+| `qsofa` | qSOFA (Sepsis-3) | 0–3, ≥ 2 Sepsisverdacht |
+| `news2` | NEWS2 (nur Erwachsenenprofil, „C“ = neu verwirrt gegenüber Ausgangslage) | Punkte |
+| `pews` | PEWS vereinfacht nach Brighton (nur Kinder) | 0–9 |
+| `nuDesc` | Nu-DESC | 0–10, ≥ 2 Delir wahrscheinlich |
+| `besd` | BESD | 0–10, ≥ 2 Schmerz möglich |
+
+Alle Felder gehen als Platzhalter in Befundtexte (`{qsofa}`, `{schockindex}` mit einer Nachkommastelle …) und als `wert` in Bedingungen. `einschaetzungen(a, g, treiber, k)` liefert zusätzlich **Braden** (6–23, Ernährung aus der Hydratation geschätzt, Immobilität aus G3) und das **Sturzrisiko** aus G3 (Sedierung aus G1, Harndrang aus G2) für Auswertung, Übergabe oder KI-Tutor. Die Einschätzung am Menschen ersetzen sie nicht: Fälle sollen die Maßnahme (z. B. „schmerz-besd“) weiter verlangen, das Modell liefert nur den passenden Wert.
+
+## Grundsystem G5: Neurologie
+
+`physiologie/neuro.ts` (Lernmodell; SOP der Stroke Unit gehen vor).
+
+- **Treiber `schlaganfall`** `{ seite, schwere, blutung?, beginnVorMin? }`: `seite` = betroffene Körperseite (rechts → linke Hirnhälfte → Aphasie). Das Defizit (`Grundgroessen.neuroDefizit`) baut sich in Minuten auf und wächst unbehandelt langsam weiter. `beginnVorMin` = Symptombeginn vor Fallstart.
+- **Treiber `lyse`** (ärztliche Anordnung): Nutzen bis 60 % weniger Defizit, je früher desto mehr, nach 270 min (4,5 h) keiner; bei `blutung` steigt der Hirndruck viermal so schnell (Bildgebung vor Lyse).
+- **Treiber `hirndruck`** `{ tempo, seite? }` (Hirnhälfte): `Grundgroessen.hirndruck` 0..1 steigt um 0,5 × tempo je Stunde. Folgen: Vigilanz und GCS fallen, Erbrechen, gleichseitige Pupille weit/träge (ab 0,5), lichtstarr (ab 0,8), beidseits weit (ab 0,95); Cushing ab 0,65 (RR ↑, Puls ↓, Atmung flacher).
+- **Anzeige für alle**: `pupilleRechtsMm`/`pupilleLinksMm`, `pupilleRechtsLicht`/`pupilleLinksLicht` (Opioide eng, schwere Hypoxie/Stillstand weit und lichtstarr), `gcsAugen`/`gcsVerbal`/`gcsMotorik` (Summe = `gcs`; ohne Neuro unverändert, Aphasie senkt nur den verbalen Wert).
+- **Anzeige mit Schlaganfall**: `fast` (0–3), `nihss` (grob), `seitBeginnMin`, `lyseFensterMin` – für Befundtexte und Zeitdruck-Bedingungen.
+- Grundgrößen `neuroSeite`, `seitBeginnMin`, `wirkOpioid` schreibt das Modell; Fälle setzen sie nicht.
