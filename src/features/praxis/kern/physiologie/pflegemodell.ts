@@ -40,6 +40,7 @@ import { herz, HERZ_START, klemme, lunge, wirkAnteil, ZUCKER_FAUSTWERTE, type Be
 import { pharmaEffekte, type PharmaEffekte } from './wirkstoffe';
 import { hautSchritt } from './haut-mobilitaet';
 import { guss, schluckSchritt } from './schlucken';
+import { schlafDelirLast, schlafSchritt, schlafZustand, sundowning } from './schlaf';
 import { cushing, cushingDruck, gcsTeile, neuroNachlast, neuroSchritt, neuroVigilanz, pupillen, schlaganfallZeichen } from './neuro';
 import { blaseNaechste, kaliumNachDiurese, stundenurin, urinFarbe } from './niere';
 
@@ -415,7 +416,11 @@ function naechster(alt: Grundgroessen, treiber: readonly Treiber[], dt: number, 
 
   // Delir: steigt mit Auslösern (Altersprofil), klingt sonst langsam ab
   // Benzodiazepine/anticholinerge Wirkstoffe lösen bei Hochbetagten auch ohne angelegten Auslöser ein Delir aus (S3-LL Delir)
-  const last = delirLast(alt, treiber, a, opioid) + pe.delirRisiko * (k.altersgruppe === 'hochbetagt' ? 0.8 : 0.2);
+  // G7 Schlaf/Tageszeit
+  const sl = schlafSchritt(alt, treiber, dt, k);
+  if (sl) Object.assign(g, sl);
+  const last = delirLast(alt, treiber, a, opioid) + pe.delirRisiko * (k.altersgruppe === 'hochbetagt' ? 0.8 : 0.2)
+    + schlafDelirLast(alt, treiber, k);
   g.delir += last > 0 ? 0.006 * last * p.delirAnfaellig * min : -0.003 * min;
 
   // Angst: Atemnot und starker Schmerz steigern, sonst langsames Abklingen
@@ -460,7 +465,7 @@ function naechster(alt: Grundgroessen, treiber: readonly Treiber[], dt: number, 
   g.vigilanz = hin(alt.vigilanz, b.vigilanz * vf * neuroVigilanz(g) + off(k, 'vigilanz'), 60, dt);
 
   const orientZiel = b.orientierung - 0.9 * Math.max(0, g.delir - b.delir) - 0.8 * Math.max(0, b.vigilanz - g.vigilanz)
-    - (g.blutzucker < 60 ? 0.3 : 0) + off(k, 'orientierung');
+    - (g.blutzucker < 60 ? 0.3 : 0) - sundowning(g, treiber, k) + off(k, 'orientierung');
   g.orientierung = hin(alt.orientierung, orientZiel, 60, dt);
 
   const unruheZiel = (b.unruhe + 0.8 * Math.max(0, g.delir - b.delir) + 0.5 * Math.max(0, g.angst - b.angst)
@@ -521,6 +526,7 @@ function neuroAnzeige(g: Grundgroessen, k: ModellKontext, saO2: number, stillsta
     gcsAugen: t.augen, gcsVerbal: t.verbal, gcsMotorik: t.motorik, gcs: t.augen + t.verbal + t.motorik,
     ...schlaganfallZeichen(g),
     ...(g.dysphagie !== undefined ? { guss: guss(g) } : {}),
+    ...(g.schlafdefizit !== undefined ? { schlaf: schlafZustand(g, k) } : {}),
   };
 }
 

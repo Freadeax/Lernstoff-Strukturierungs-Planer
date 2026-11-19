@@ -45,10 +45,10 @@ export const FALLPLAN: readonly PlanEintrag[] = [
   { ce: 'ce.05', titel: 'Medikationsfehler und Verwechslung', art: 'neu', abschnitt: ['ad12', 'ad3'], paket: 'P16', fall: 'kh-medikationsverwechslung' },
 
   { ce: 'ce.06', titel: 'Septischer Schock im Schockraum', art: 'vorhanden', abschnitt: ['ad3'], fall: 'sr-septischer-schock' },
-  { ce: 'ce.06', titel: 'Brustschmerz in der Notaufnahme', art: 'migrieren', abschnitt: ['ad3'], paket: 'P16', alt: ['zna'] },
-  { ce: 'ce.06', titel: 'Akuter Schlaganfall im Heim', art: 'migrieren', abschnitt: ['ad12', 'ad3'], paket: 'P16', alt: ['schlaganfall'] },
-  { ce: 'ce.06', titel: 'Alarm während der Übergabe auf der Intensivstation', art: 'migrieren', abschnitt: ['ad3'], paket: 'P16', alt: ['its'] },
-  { ce: 'ce.06', titel: 'Reanimation (BLS) im Zimmer', art: 'neu', abschnitt: ['ad12', 'ad3'], paket: 'P16' },
+  { ce: 'ce.06', titel: 'Brustschmerz in der Notaufnahme', art: 'migrieren', abschnitt: ['ad3'], paket: 'P16', alt: ['zna'], fall: 'na-acs-brustschmerz' },
+  { ce: 'ce.06', titel: 'Akuter Schlaganfall im Heim', art: 'migrieren', abschnitt: ['ad12', 'ad3'], paket: 'P16', alt: ['schlaganfall'], fall: 'lz-schlaganfall-akut' },
+  { ce: 'ce.06', titel: 'Alarm während der Übergabe auf der Intensivstation', art: 'migrieren', abschnitt: ['ad3'], paket: 'P16', alt: ['its'], fall: 'its-beatmung-alarm' },
+  { ce: 'ce.06', titel: 'Reanimation (BLS) im Zimmer', art: 'neu', abschnitt: ['ad12', 'ad3'], paket: 'P16', fall: 'kh-reanimation-bls' },
 
   { ce: 'ce.07', titel: 'Schlaganfall in der Reha: Schlucken, Lagerung, Angehörige anleiten', art: 'neu', abschnitt: ['ad12', 'ad3'], paket: 'P17' },
 
