@@ -52,13 +52,13 @@ export const FALLPLAN: readonly PlanEintrag[] = [
 
   { ce: 'ce.07', titel: 'Schlaganfall in der Reha: Schlucken, Lagerung, Angehörige anleiten', art: 'neu', abschnitt: ['ad12', 'ad3'], paket: 'P17' },
 
-  { ce: 'ce.08', titel: 'Zeit für ein schwieriges Gespräch', art: 'migrieren', abschnitt: ['ad12', 'ad3'], paket: 'P18', alt: ['palliativ'] },
-  { ce: 'ce.08', titel: 'Sterbephase: Atemnot, Unruhe, Angehörige', art: 'neu', abschnitt: ['ad12', 'ad3'], paket: 'P18' },
+  { ce: 'ce.08', titel: 'Zeit für ein schwieriges Gespräch', art: 'migrieren', abschnitt: ['ad12', 'ad3'], paket: 'P18', alt: ['palliativ'], fall: 'lz-palliativ-gespraech' },
+  { ce: 'ce.08', titel: 'Sterbephase: Atemnot, Unruhe, Angehörige', art: 'neu', abschnitt: ['ad3'], paket: 'P18', fall: 'kh-sterbephase-nacht' },
 
   { ce: 'ce.09', titel: 'Demenz und Schmerz im Pflegeheim', art: 'vorhanden', abschnitt: ['ad12', 'ad3'], fall: 'lz-demenz-schmerz' },
-  { ce: 'ce.09', titel: 'Frau Kühn isst seit gestern nichts', art: 'migrieren', abschnitt: ['ad12', 'ad3'], paket: 'P18', alt: ['demenz'] },
-  { ce: 'ce.09', titel: 'Unruhe vor dem Mittagessen', art: 'migrieren', abschnitt: ['ad12'], paket: 'P18', alt: ['pflegeheim'] },
-  { ce: 'ce.09', titel: 'Die Wohnung ist heute ungewohnt still', art: 'migrieren', abschnitt: ['ad12', 'ad3'], paket: 'P18', alt: ['hausbesuch'] },
+  { ce: 'ce.09', titel: 'Herr Kühn isst seit gestern nichts', art: 'migrieren', abschnitt: ['ad12', 'ad3'], paket: 'P18', alt: ['demenz'], fall: 'lz-demenz-aspiration' },
+  { ce: 'ce.09', titel: 'Unruhe vor dem Mittagessen', art: 'migrieren', abschnitt: ['ad12'], paket: 'P18', alt: ['pflegeheim'], fall: 'lz-unterzucker-mittag' },
+  { ce: 'ce.09', titel: 'Die Wohnung ist heute ungewohnt still', art: 'migrieren', abschnitt: ['ad12'], paket: 'P18', alt: ['hausbesuch'], fall: 'amb-hausbesuch-still' },
 
   { ce: 'ce.10', titel: 'Fieberkrampf beim Kleinkind', art: 'vorhanden', abschnitt: ['ad12', 'ad3'], fall: 'paed-fieberkrampf' },
   { ce: 'ce.10', titel: 'Asthmaanfall beim Schulkind', art: 'vorhanden', abschnitt: ['ad12', 'ad3'], fall: 'paed-asthma-schulkind', alt: ['asthma'] },
@@ -75,7 +75,7 @@ export const FALLPLAN: readonly PlanEintrag[] = [
 /** Wo noch kein Fall auf dem neuen Kern die Abdeckungsregel erfüllt (Stand main). Wird kleiner, sobald Fälle kommen;
  *  der Test verlangt, dass keine Lücke außerhalb der Liste entsteht (parallele Fallwellen: erledigte Einträge dürfen kurz stehen bleiben, beim nächsten PR streichen). Regel: jede CE ein Kernfall im 1./2. Drittel, CE04–CE11 einer im 3. Drittel. */
 export const ABDECKUNG_OFFEN: readonly string[] = [
-  'ce.04:ad12', 'ce.04:ad3', 'ce.07:ad12', 'ce.07:ad3', 'ce.08:ad12', 'ce.08:ad3',
+  'ce.04:ad3', 'ce.07:ad12', 'ce.07:ad3',
 ];
 
 const MIT_AD3 = ['ce.04', 'ce.05', 'ce.06', 'ce.07', 'ce.08', 'ce.09', 'ce.10', 'ce.11'];

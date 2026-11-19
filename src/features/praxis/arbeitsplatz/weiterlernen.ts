@@ -84,6 +84,28 @@ export const WEITERLERNEN_V2: Record<string, WeiterlernenEintrag> = {
     themen: ['thema.kl.psych', 'thema.ph.medikamente', 'thema.beo.vitalzeichen', 'thema.kom.gespraech'],
     krankheiten: ['kh.alkohol', 'kh.delir'],
   },
+  'lz-demenz-aspiration': {
+    themen: ['thema.pro.aspiration', 'thema.kl.demenz', 'thema.re.betreuung', 'thema.pro.pneumonie'],
+    krankheiten: ['kh.demenz', 'kh.pneumonie'],
+    extra: [{ label: 'Expertenstandards nachschlagen', path: '/lernen/schnellsuche', warum: 'Ernährungsmanagement und Beziehungsgestaltung bei Demenz im Überblick.' }],
+  },
+  'lz-unterzucker-mittag': {
+    themen: ['thema.kl.diabetes', 'thema.ph.medikamente', 'thema.ph.ernaehrung'],
+    krankheiten: ['kh.diabetes-typ2'],
+    extra: [{ label: 'Rechentrainer: Insulin', path: '/lernen/rechnen', warum: 'Einheiten und Insulindosen sicher rechnen.' }],
+  },
+  'amb-hausbesuch-still': {
+    themen: ['thema.fa.ambulant', 'thema.pro.dehydratation', 'thema.pro.sturz', 'thema.ph.medikamente'],
+    krankheiten: [],
+  },
+  'lz-palliativ-gespraech': {
+    themen: ['thema.ph.palliativ', 'thema.kl.atmung', 'thema.ph.medikamente', 'thema.re.betreuung'],
+    krankheiten: [],
+  },
+  'kh-sterbephase-nacht': {
+    themen: ['thema.ph.palliativ', 'thema.kl.atmung', 'thema.ph.medikamente'],
+    krankheiten: [],
+  },
   'kh-reanimation-bls': {
     themen: ['thema.beo.notfall', 'thema.beo.bewusstsein', 'thema.kl.herz.khk'],
     krankheiten: ['kh.herzinfarkt'],

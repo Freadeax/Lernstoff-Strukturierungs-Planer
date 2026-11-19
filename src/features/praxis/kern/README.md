@@ -178,6 +178,15 @@ Code: `kommunikation.ts` (rein, vom Kern aufgerufen), Zustand in `SimZustand.kom
 - `kh-reha-erster-weg` (CE 02, aus Altfall „reha“): Mobilisation Tag 1 nach Hüft-TEP vorbereiten, Kollaps beim Gehen (Entscheidung), Rückfrage Hb, Novaminsulfon trotz Metamizol-Allergie remonstrieren, Physio/Ehefrau.
 - Tests: `faelle/p17a.test.ts` (u. a. Musterweg im 1. Drittel ≥ 90 %), Browserprüfung Block P17A in `check-arbeitsplatz.mjs`.
 
+## Fallwelle P18: Lebenswelt und Lebensende (CE 08/09)
+- `lz-demenz-aspiration` (CE 09/08, aus „demenz“): Herr Kühn isst nicht → Aspirationspneumonie, Mund/Andicken/aufrecht, Patientenverfügung und Betreuer (Sohn will 112), Antibiotika-Tablette bei Schluckstörung remonstrieren (Ersatz Saft), Rückauftrag Temperatur/AF.
+- `lz-unterzucker-mittag` (CE 09/04, aus „pflegeheim“): Unruhe vor dem Essen = Unterzucker, BZ, langsame Kohlenhydrate nach Lebenswelt (Frühstücksgewohnheit), Insulin zum Mittag zurückstellen und Anordnung hinterfragen, Kollegin will spritzen, Mitbewohnerin (Schweigepflicht).
+- `amb-hausbesuch-still` (CE 09/02, aus „hausbesuch“): Witwe, Trauer und Rückzug, volles Dosett, Orthostase prüfen (Pflegetasche RR), Todesgedanken offen nachfragen, „vergessene Tabletten nachholen“ remonstrieren, Einwilligung vor Tochter/Nachbarin, Versorgung absprechen.
+- `lz-palliativ-gespraech` (CE 08/09, aus „palliativ“): Atemnot und Tumorschmerz, IPOS, Atemnot ohne Medikament lindern (beendet `panik_eskaliert`), Tochter will den Notarzt, Morphin 10 mg bei Opioidnaivität remonstrieren (Ersatz 2,5 mg oral, G1), Rückauftrag Wirkung, SAPV.
+- `kh-sterbephase-nacht` (CE 08, 3. Drittel, neu): Sterbephase, Bedarfsplan liegt als `start.anordnungen` vor (Morphin s. c., Lorazepam s. l., G1), Rasselatmung lagern statt absaugen, Monitoring/Rea-Team-Anordnung gegen das Therapieziel remonstrieren, Ehefrau und Bettnachbar, Grenzweg Butylscopolamin ohne Rücksprache.
+- Hinweis: Bedingungen in `auftraege[].erledigt` gelten relativ zur Auftragszeit (`ab` zählt ab Auftrag).
+- Browserprüfung Block P18 in `check-arbeitsplatz.mjs`, Screenshots im Projektordner `praxissimulator-neu/runde2/P18/`.
+
 ## Grundsystem G3: Haut, Mobilität, Sturz
 
 `physiologie/haut-mobilitaet.ts` (Lernmodell). Das Druck-mal-Zeit-Modell `haut()` der Lernseite liegt jetzt in `physiologie/organe.ts` (Lernseite re-exportiert, gleiche Funktion).
