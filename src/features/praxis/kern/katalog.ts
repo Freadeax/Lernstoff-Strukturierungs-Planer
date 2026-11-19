@@ -292,7 +292,6 @@ const LISTE: MassnahmeDefinition[] = [
   m('gewicht-messen', 'Körpergewicht messen', 'messen', 60, ['I'], nw(['ernaehrung1', 'messgeraete1']), { spur: 'A' }),
   m('dosett-pruefen', 'Medikamentendosett prüfen', 'messen', 30, ['I', 'IV'], nw(['medi12', 'pharma12'])),
   m('kurve-lesen', 'Kurve, Vorbefunde und Medikamentenplan lesen', 'messen', 60, ['I'], nw(['doku1', 'aufnahme12'])),
-  m('patient-identifizieren', 'Identität sicher prüfen (Name und Geburtsdatum erfragen, Patientenarmband)', 'messen', 30, ['I', 'IV'], nw(['risiko12', 'medi12'])),
   m('medikation-pruefen-6r', 'Medikation nach den 6 R prüfen (Patient, Arzneimittel, Dosis, Zeit, Art, Dokumentation)', 'messen', 60, ['I', 'IV'], nw(['medi12', 'risiko12', 'medfehler3']), { klinisch: ['medikamente'] }),
   m('monitor-anlegen', 'Überwachungsmonitor anlegen (EKG, SpO₂, RR)', 'messen', 60, ['I'], nw(['messgeraete1', 'vitalScreening12']), { klinisch: ['geraete'] }),
   m('ekg-12-kanal', '12-Kanal-EKG schreiben', 'messen', 180, ['I', 'III'], nw(['mitwirken12', 'stabil12', 'eigenstaendig3'], { anmerkung: 'Diagnostik in stabilen Situationen im 1./2. Drittel mit Anleitung, im 3. Drittel eigenständig.' }), {
