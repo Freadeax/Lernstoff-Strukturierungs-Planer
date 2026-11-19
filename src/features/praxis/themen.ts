@@ -49,6 +49,10 @@ export const KERN_THEMEN: Record<string, string[]> = {
   'amb-hausbesuch-still': ['thema.fa.ambulant', 'thema.pro.dehydratation', 'thema.pro.sturz', 'thema.ph.medikamente', 'thema.re.versorgung'],
   'lz-palliativ-gespraech': ['thema.ph.palliativ', 'thema.kl.atmung', 'thema.ph.medikamente', 'thema.re.betreuung'],
   'kh-sterbephase-nacht': ['thema.ph.palliativ', 'thema.kl.atmung', 'thema.ph.medikamente', 'thema.re.betreuung'],
+  'kh-reanimation-bls': ['thema.beo.notfall', 'thema.beo.bewusstsein', 'thema.kl.herz.khk', 'thema.pp.uebergabe', 'thema.kom.ethik'],
+  'na-acs-brustschmerz': ['thema.kl.herz.khk', 'thema.beo.notfall', 'thema.beo.vitalzeichen', 'thema.ph.medikamente', 'thema.pp.uebergabe'],
+  'lz-schlaganfall-akut': ['thema.kl.neuro.schlaganfall', 'thema.beo.notfall', 'thema.beo.bewusstsein', 'thema.fa.langzeit', 'thema.pp.uebergabe'],
+  'its-beatmung-alarm': ['thema.beo.notfall', 'thema.kl.atmung', 'thema.ph.medikamente', 'thema.pp.uebergabe', 'thema.re.schweigepflicht'],
 };
 
 /** Kernfälle (IDs für ?neu=), die ein Thema üben. */
