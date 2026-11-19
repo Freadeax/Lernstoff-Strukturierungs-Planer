@@ -243,3 +243,13 @@ Alle Felder gehen als Platzhalter in Befundtexte (`{qsofa}`, `{schockindex}` mit
 - **Delir**: Schlafdefizit und nächtliche Störung sind zusätzliche Delir-Auslöser; bei bestehendem Delir sinkt die Orientierung abends/nachts (Sundowning).
 - **Schutz**: „reizarm-gestalten“ setzt `schlafSchutz` (Wirkkurve, etwa 4 Stunden, in `OPTIONALE_WIRKGROESSEN`); senkt die Störung um 70 %.
 - **Anzeige `schlaf`**: „schläft“ / „wach“ / „wach, unruhig“ (Platzhalter `{schlaf}`).
+
+## Grundsystem G8: Labor aus dem Modell
+Datei `physiologie/labor.ts` (Werte) und `labor-auftrag.ts` (Abnahme, Laufzeit, Akte). Parameter, Einheiten, Referenzen, Laufzeiten und Bewertung kommen aus dem Labor-Modell der Diagnostik-Seite (`src/ui/sim/labor`), beide rechnen gleich.
+- **Bestände mit Verzögerung** (Grundgrößen, optional): `entzuendung`, `crp` (steigt mit ≈ 12 h, fällt mit 24 h), `leuko` (3 h), `pct` (Sepsis), `krea`/`harnstoff` (Niere aus Stundenurin je kg, G2; Harnstoff zusätzlich bei Exsikkose), `hbMasse` (sinkt bei Blutung). Startwert = Zielwert, weil die Krankheit vor Fallbeginn besteht.
+- **Entzündungsquellen**: Treiber `sepsis_verlauf`, `pneumonie`, Grundgrößen `aspirationsPneumonie` (G6) und `wundInfekt` (G9).
+- **Hb ist ein später Wert**: Hb = Ausgangs-Hb × `hbMasse` / Volumen. Bei akuter Blutung bleibt es zunächst, es fällt erst mit Auffüllung; Exsikkose konzentriert.
+- **Natrium** steigt bei Exsikkose, **Kalium** aus G2 plus Anstieg bei Nierenversagen, **Gerinnung grob**: Sepsis (Verbrauch) und Massivblutung (Verdünnung) senken Thrombozyten, verlängern INR/aPTT. eGFR nur bei Erwachsenen.
+- **Anzeige** (Platzhalter/Bedingungen): `hb`, `leuko`, `thrombo`, `crp`, `pct`, `natrium`, `kalium`, `krea`, `egfr`, `harnstoff`, `inr`, `aptt`.
+- **Blutentnahme**: Maßnahme `blutentnahme-venoes` (`LABOR_ABNAHME`) friert die Werte ein (`SimZustand.laborProben`). Ergebnisse je Parameter erst nach Sofort-Transport (15 min) plus Notfall-Laufzeit. `laborBefunde(z, uhr)` liefert Akte-Zeilen (neueste zuerst), ausstehende Proben und `kritisch`; die Akte zeigt sie unter Befunde vor den festen Laborwerten des Falls.
+- Fall braucht dafür nur `blutentnahme-venoes` in `massnahmen`.

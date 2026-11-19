@@ -98,6 +98,18 @@ export interface Grundgroessen {
   schlafdefizit?: number;
   nachtWach?: number;
   schlafSchutz?: number;
+  // G8 Labor (vom Modell geführt, Startwert = Zielwert; Fälle dürfen Ausgangswerte setzen): Entzündung 0..1,2,
+  // Sepsisgrad, CRP mg/l, Leukozyten G/l, PCT ng/ml, Kreatinin mg/dl, Harnstoff mg/dl, Erythrozytenmasse relativ (Blutung)
+  entzuendung?: number;
+  sepsisGrad?: number;
+  crp?: number;
+  leuko?: number;
+  pct?: number;
+  krea?: number;
+  harnstoff?: number;
+  hbMasse?: number;
+  // G9 Wunde (optional): Infektgrad 0..1
+  wundInfekt?: number;
 }
 
 /** Vom Kern abgeleitet, Ziele für den Monitor (Logik-Takt 5 s, Render interpoliert). */
@@ -138,6 +150,9 @@ export interface Anzeige {
   guss?: number;
   /** G7: Schlafzustand, nur wenn der Fall Schlaf führt */
   schlaf?: 'schläft' | 'wach' | 'wach, unruhig';
+  // G8 Labor: wahrer Modellwert jetzt (für Bedingungen; Befunde nach Laufzeit über laborBefunde() im Kern)
+  hb?: number; leuko?: number; thrombo?: number; crp?: number; pct?: number; natrium?: number;
+  krea?: number; egfr?: number; harnstoff?: number; inr?: number; aptt?: number;
   // G4 Einschätzungen aus dem Modell (Kern ergänzt sie in anzeige(z); vereinfacht, physiologie/einschaetzungen.ts)
   /** Puls / RR systolisch */
   schockindex?: number;
