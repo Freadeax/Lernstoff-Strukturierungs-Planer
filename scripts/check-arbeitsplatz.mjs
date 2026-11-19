@@ -30,8 +30,9 @@ try {
     const suche = p.getByRole('searchbox', { name: 'Was willst du tun?' });
     const tu = async (name) => { await suche.fill(name); await p.getByRole('button', { name: new RegExp(name) }).first().click(); if (await suche.count()) await suche.fill(''); };
 
-    // Die Fallauswahl ist seit P15 nach CE sortiert (erster Eintrag = CE 01); der Pilotfall wird direkt geöffnet.
-    await p.goto(base + '#/lernen/praxis?neu=amb-sturz-exsikkose', { waitUntil: 'networkidle' });
+    await p.goto(base + '#/lernen/praxis', { waitUntil: 'networkidle' });
+    // Pilotfall gezielt über seinen Titel öffnen (Fallauswahl nach CE, P15: steht unter CE 02 und CE 09).
+    await p.locator('.praxis-fall', { hasText: 'Ich bin nur kurz hingesessen' }).first().getByRole('button', { name: 'Neu üben' }).click();
     await p.getByRole('radio', { name: /2\. Drittel/ }).check();
     for (const box of await p.locator('.ap-briefing__rolle label').all()) {
       const [r, l] = [await box.locator('input').boundingBox(), await box.boundingBox()];

@@ -113,10 +113,12 @@ describe('P16b Beatmungsalarm bei der Übergabe (Intensiv)', () => {
     const z = spiele(start(ITS, 3, 2), [...vorAnruf, { art: 'anruf', an: 'aerztin', sbar: ['s-unruhig'] }]);
     expect(letzteArzt(z)).toMatch(/RASS und BPS/);
   });
-  it('Analgesie zuerst: nach der Korrektur läuft Sufentanil 8 ml/h, Propofol bleibt bei 6 ml/h', () => {
+  it('Analgesie zuerst: nach der Korrektur läuft Sufentanil 7 ml/h, Propofol bleibt bei 4 ml/h, RASS 0/−1', () => {
     const z = spiele(start(ITS, 3, 2), ITS.pruefwege.muster);
     const raten = Object.fromEntries((z.module?.perfusoren ?? []).map((p) => [p.id, p.mlProH]));
-    expect(raten).toMatchObject({ propofol: 6, sufentanil: 8 });
+    expect(raten).toMatchObject({ propofol: 4, sufentanil: 7 });
+    expect(anzeige(z).rass).toBeGreaterThanOrEqual(-1);
+    expect(anzeige(z).rass).toBeLessThanOrEqual(0);
     expect(z.ende?.ausgang).toBe('stabil');
   });
 });
