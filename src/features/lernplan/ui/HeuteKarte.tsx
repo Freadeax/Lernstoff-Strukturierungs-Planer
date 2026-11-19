@@ -11,7 +11,7 @@ import { usePlan } from './usePlan';
 import { daysBetween } from '../dates';
 import { zaehleHeute } from '../../karteikarten/store';
 import { heuteDran, ladeFehler } from '../../fehlerheft/fehlerheft';
-import { PRAXIS_THEMEN } from '../../praxis/themen';
+import { KERN_THEMEN } from '../../praxis/themen';
 import { ceZuThema } from '../../ce/modell';
 import { heuteAktion } from '../../thema/thema';
 
@@ -76,7 +76,7 @@ export function HeuteKarte() {
       themaName: block && ctx.topics.get(block.topicId)?.name,
       ceCode: block && modul ? ceZuThema(modul, block.topicId)?.code : undefined,
       kartenFaellig: neben.faellig, kartenNeu: neben.neu, fehlerFaellig: neben.fehlerFaellig,
-      fallZumThema: !!block && Object.values(PRAXIS_THEMEN).some((t) => t.includes(block.topicId)),
+      fallZumThema: !!block && Object.values(KERN_THEMEN).some((t) => t.includes(block.topicId)),
       hatPruefung: data.exams.some((e) => e.date >= data.today),
       ersterBesuch: spuren === 0,
     });

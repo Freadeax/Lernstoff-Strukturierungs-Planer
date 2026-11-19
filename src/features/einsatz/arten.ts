@@ -32,7 +32,7 @@ export const EINSATZ_ARTEN: EinsatzArtInfo[] = [
   {
     id: 'orientierung', name: 'Orientierungseinsatz', kurz: 'Orientierung',
     themen: ['thema.ph.hygiene', 'thema.beo.vitalzeichen', 'thema.ph.koerperpflege', 'thema.ph.mobilisation', 'thema.pro.sturz', 'thema.pro.dekubitus', 'thema.pp.uebergabe', 'thema.re.schweigepflicht', 'thema.kom.grundlagen', 'thema.fs.abkuerzungen'],
-    praxisSettings: ['station', 'heim', 'ambulant'],
+    praxisSettings: ['krankenhaus', 'langzeit', 'ambulant'],
     notfall: [{ ...NOTFALL, path: '/lernen/notfall?modus=rea' }],
     handgriffe: [HYGIENE, { trainer: 'normwerte', label: 'Normwerte-Trainer: Vitalzeichen', path: '/lernen/normwerte?bereich=vital' }],
     alltag: [
@@ -43,7 +43,7 @@ export const EINSATZ_ARTEN: EinsatzArtInfo[] = [
   {
     id: 'akut', name: 'Stationäre Akutpflege (Krankenhaus)', kurz: 'Akutpflege',
     themen: ['thema.beo.vitalzeichen', 'thema.beo.notfall', 'thema.ph.hygiene', 'thema.ph.medikamente', 'thema.ph.injektion', 'thema.ph.wunde', 'thema.ph.periop', 'thema.pro.thrombose', 'thema.pro.pneumonie', 'thema.kl.herz.insuffizienz', 'thema.kl.atmung', 'thema.kl.diabetes', 'thema.kl.infektion', 'thema.pp.uebergabe', 'thema.fa.akut'],
-    praxisSettings: ['station', 'zna', 'its'],
+    praxisSettings: ['krankenhaus', 'notaufnahme', 'aufwachraum', 'intensiv', 'imc', 'schockraum'],
     notfall: [{ ...NOTFALL, label: 'Notfall-Trainer: ABCDE', path: '/lernen/notfall?modus=abcde' }],
     handgriffe: [{ trainer: 'ablauf', label: 'Ablauf-Werkbank: Verbandwechsel', path: '/lernen/ablauf?ablauf=verbandwechsel&modus=durchfuehren' }, { trainer: 'arzneimittel', label: 'Arzneimittel-Trainer', path: '/lernen/arzneimittel' }, { trainer: 'rechnen', label: 'Rechentrainer', path: '/lernen/rechnen' }, HYGIENE],
     alltag: [
@@ -54,7 +54,7 @@ export const EINSATZ_ARTEN: EinsatzArtInfo[] = [
   {
     id: 'langzeit', name: 'Stationäre Langzeitpflege (Pflegeheim)', kurz: 'Langzeitpflege',
     themen: ['thema.kl.demenz', 'thema.kl.geriatrie', 'thema.pro.dekubitus', 'thema.pro.sturz', 'thema.pro.dehydratation', 'thema.pro.kontraktur', 'thema.pro.deprivation', 'thema.ph.koerperpflege', 'thema.ph.ernaehrung', 'thema.ph.ausscheidung', 'thema.pp.sis', 'thema.re.fem', 'thema.re.pflegegrade', 'thema.kom.kultur', 'thema.fa.langzeit'],
-    praxisSettings: ['heim'],
+    praxisSettings: ['langzeit'],
     notfall: [{ ...NOTFALL, path: '/lernen/notfall?modus=rea' }],
     handgriffe: [{ trainer: 'ablauf', label: 'Ablauf-Werkbank: Medikamente richten', path: '/lernen/ablauf?ablauf=medikamente&modus=durchfuehren' }, { trainer: 'assessment', label: 'Assessments', path: '/lernen/assessment' }, { trainer: 'expertenstandards', label: 'Expertenstandards-Trainer', path: '/lernen/expertenstandards' }, { trainer: 'sis', label: 'SIS-Trainer', path: '/lernen/sis' }],
     alltag: [

@@ -63,7 +63,7 @@ export function verwendungZiel(w: string): string | undefined {
   const m = /^([a-z]+):([a-z0-9-]+)/.exec(w);
   if (!m) return undefined;
   const [, sim, id] = m;
-  if (sim === 'praxis' && id !== 'lernclips') return `#/lernen/praxis?fall=${id}`;
+  if (sim === 'praxis' && id !== 'lernclips') return `#/lernen/praxis?neu=${id}`;
   if (sim === 'praxis') return '#/lernen/praxis';
   if (sim === 'diagnostik') return `#/lernen/diagnostik?fall=${id}`;
   if (sim === 'fall') return '#/lernen/fall';

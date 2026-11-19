@@ -184,7 +184,7 @@ export function bereitCheck(e: Einsatz, f: CheckFakten): Station[] {
   const faelle: Station = {
     id: 'faelle', titel: 'Typische Situationen im Simulator', ampel: !f.faelle.length ? 'gelb' : fertig >= ziel ? 'gruen' : fertig ? 'gelb' : 'rot',
     text: f.faelle.length ? `${fertig} von ${f.faelle.length} passenden Praxisfällen abgeschlossen (Ziel: ${ziel}).` : 'Für dieses Setting gibt es noch keinen eigenen Praxisfall. Nimm einen Fall aus einem ähnlichen Bereich.',
-    links: f.faelle.length ? f.faelle.map((x) => ({ label: x.titel, path: `/lernen/praxis?fall=${encodeURIComponent(x.id)}`, erledigt: x.erledigt })) : [{ label: 'Praxissimulator', path: '/lernen/praxis' }],
+    links: f.faelle.length ? f.faelle.map((x) => ({ label: x.titel, path: `/lernen/praxis?neu=${encodeURIComponent(x.id)}`, erledigt: x.erledigt })) : [{ label: 'Praxissimulator', path: '/lernen/praxis' }],
   };
   const beste = besteErgebnisse(f.ergebnisse, f.heute);
   return [wissen, faelle, uebungsStation('notfall', 'Notfall erkennen und handeln', info.notfall, beste), uebungsStation('handgriffe', 'Typische Aufgaben im Einsatz', info.handgriffe, beste)];

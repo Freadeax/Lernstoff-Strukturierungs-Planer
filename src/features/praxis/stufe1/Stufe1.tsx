@@ -16,6 +16,7 @@ import {
   beginne, bilanz, entscheide, fertig, gutGewaehlt, meldungenZu, offeneEntscheidung, PHASE_TEXT, rekonstruiere, urteil,
   waehlbar, waehle, weiter, type Aktion, type Option, type Stufe1Stand,
 } from './ablauf';
+import { merkeErledigt } from '../erledigt';
 import './stufe1.css';
 
 const KEY = 'lernstoff.praxis.stufe1';
@@ -46,6 +47,8 @@ export function Stufe1({ fall, onZurueck, onFrei }: { fall: FallV2; onZurueck: (
   useEffect(() => {
     if (lauf) schreibe({ version: 1, fall: fall.id, fallVersion: fall.version, rolle: lauf.st.stand.z.rolle, aktionen: lauf.aktionen });
   }, [lauf, fall]);
+  const istFertig = !!lauf && fertig(lauf.st);
+  useEffect(() => { if (istFertig) merkeErledigt(fall.id, 'gefuehrt'); }, [istFertig, fall.id]);
 
   if (!lauf) {
     return <Briefing fall={fall} rolle={rolle} setRolle={setRolle} onZurueck={onZurueck}

@@ -10,9 +10,6 @@
 import { FAELLE as DX_FAELLE } from '../diagnostik/faelle';
 import { SZENARIEN } from '../fall/faelle';
 import { FOTORAEUME, fotoRaumFuer, RAUM_FUER_FALL } from '../fall/fotoraeume';
-import { FALL_RAUM, RAUMFOTOS } from '../praxis/raumfotos';
-import { SCENARIOS } from '../praxis/catalog';
-import { istNachtFall } from '../praxis/szene';
 import { PERSONEN, type PortraetZustand } from '../../ui/sim/personen';
 import { RAEUME, type RaumId } from '../../ui/sim/raeume/katalog';
 import { FREIGABEN } from './freigaben';
@@ -54,13 +51,6 @@ export function zustandsAnfragen(): Map<RaumId, Map<Achse, Set<string>>> {
     for (const a of achsen) r.set(a, (r.get(a) ?? new Set()).add(wo));
     m.set(id, r);
   };
-  for (const [fallId, key] of Object.entries(FALL_RAUM)) {
-    const rf = RAUMFOTOS[key]!;
-    // Praxis: Monitor fehlt bis zum Anschließen, läuft danach; ein Nachtfall wählt die Nachtvariante.
-    const sc = SCENARIOS.find((x) => x.id === fallId);
-    const nacht = !rf.nacht && !!sc && istNachtFall(sc);
-    frag(rf.id, ['ohne_monitor', 'sensor_an', ...(nacht ? ['nacht' as const] : [])], `praxis:${fallId}`);
-  }
   for (const [fallId, id] of Object.entries(RAUM_FUER_FALL)) if (FOTORAEUME[id].monitor) frag(id, ['ohne_monitor', 'sensor_an'], `fall:${fallId}`);
   for (const f of DX_FAELLE) frag(f.raum, ['ohne_monitor', 'sensor_an', 'sensor_ab'], `diagnostik:${f.id}`);
   return m;
@@ -96,15 +86,6 @@ export function bestellung(): Position[] {
     });
   }
 
-  for (const [fallId, key] of Object.entries(FALL_RAUM)) {
-    const rf = RAUMFOTOS[key]!;
-    if (!rf.beispiel) continue;
-    aus.push({
-      id: `${rf.id}_fall_${fallId}`, prioritaet: 'P1', art: 'variante', titel: `Passendes Foto für Praxisfall ${fallId}`, referenz: RAEUME[rf.id].datei,
-      grund: rf.beispiel, faelle: [`praxis:${fallId}`],
-      prompt: `${GLEICH(RAEUME[rf.id].datei).replace('dieselben Personen, ', '')} Die Person im Bett so ändern, dass sie zum Fall passt: ${rf.beispiel.replace(/^Beispielfoto: /, '')} ${RAHMEN}`,
-    });
-  }
   for (const s of SZENARIEN) {
     const r = fotoRaumFuer(s.id, s.setting, s.kurz);
     if (!r || r.personPasst) continue;

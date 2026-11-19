@@ -20,9 +20,9 @@ const UEBEN: Array<{ title: string; text: string; icon: IconName; tag: string; g
   { gruppe: 'pruefung', tag: 'Prüfung', title: 'Prüfungsbereit werden', text: 'Prüfungssimulation, Examen, Fehlerheft.', icon: 'timer' },
 ];
 
-/** Läuft im Praxissimulator noch ein Fall oder eine Schicht? Nur der Schlüssel wird geprüft, der Simulator selbst bleibt ungeladen. */
+/** Läuft im Praxissimulator noch ein Fall (Arbeitsplatz oder Stufe 1)? Nur der Schlüssel wird geprüft, der Simulator selbst bleibt ungeladen. */
 function fallLaeuft(): boolean {
-  try { return !!(localStorage.getItem('lernstoff.praxis.schicht') || localStorage.getItem('lernstoff.praxis.aktuell')); } catch { return false; }
+  try { return !!(localStorage.getItem('lernstoff.praxis.arbeitsplatz') || localStorage.getItem('lernstoff.praxis.stufe1')); } catch { return false; }
 }
 
 /** Die häufigsten Wege, jeder mit einem Tipp erreichbar. Der letzte erklärt Neuen, wie die Lernseiten zusammenhängen. */

@@ -7,8 +7,6 @@ import type { Freigabe, Quelle } from '../../ui/sim/freigabe';
 import { HANDLUNGSVIDEOS } from '../../ui/sim/handlungsvideos';
 import { TRAINER_REGISTER } from '../qm/register';
 import { PROFIL_FREIGABE, NOTFALL_FREIGABE } from '../notfall/freigaben';
-import { SCENARIOS } from '../praxis/catalog';
-import { freigabeFuer as praxisFreigabe } from '../praxis/freigaben';
 import { FAELLE as DIAGNOSTIK_FAELLE } from '../diagnostik/faelle';
 import { freigabeFuer as diagnostikFreigabe } from '../diagnostik/freigaben';
 import { SZENARIEN } from '../fall/faelle';
@@ -50,7 +48,6 @@ export function alleNutzungen(): Nutzung[] {
   for (const r of TRAINER_REGISTER) out.push(...aus('Übungstrainer', `${r.name}-Trainer`, r.pfad, r.freigabe));
   for (const [id, f] of Object.entries(PROFIL_FREIGABE)) out.push(...aus('Reanimation', `Reanimation ${id}`, '/lernen/notfall?modus=rea', f));
   for (const [id, f] of Object.entries(NOTFALL_FREIGABE)) out.push(...aus('ABCDE-Notfall', `ABCDE ${id}`, '/lernen/notfall?modus=abcde', f));
-  for (const s of SCENARIOS) out.push(...aus('Praxissimulator', `Praxisfall ${s.title}`, '/lernen/praxis', praxisFreigabe(s)));
   for (const f of DIAGNOSTIK_FAELLE) out.push(...aus('Diagnostik', `Diagnostik ${f.titel}`, '/lernen/diagnostik', diagnostikFreigabe(f)));
   for (const s of [...SZENARIEN, ...PROBEFAELLE.map((p) => p.szenario)]) out.push(...aus('Fallsimulator', `Fall ${s.titel}`, '/lernen/fall', freigabeFuerFall(s)));
   for (const v of Object.values(HANDLUNGSVIDEOS)) out.push(...aus('Handlungsvideos', `Video ${v.titel}`, '/lernen/praxis', v.freigabe));

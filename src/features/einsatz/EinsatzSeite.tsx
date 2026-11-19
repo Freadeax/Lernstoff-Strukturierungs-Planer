@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import './einsatz.css';
+import { erledigteFaelle } from '../praxis/erledigt';
 import type { ID } from '../../core/types';
 import type { CatalogModule } from '../../modules/catalog-types';
 import { getModule, modules } from '../../modules/registry';
@@ -182,38 +183,30 @@ function AktuellerEinsatz({ ctx, einsatz: e }: { ctx: SeitenCtx; einsatz: Einsat
   );
 }
 
-interface PraxisFall { id: string; title: string; setting: string }
-
-/** Abgeschlossene Praxisfälle aus dem Archiv des Praxissimulators (nur Fall-IDs, ohne den Simulator zu laden). */
-function archivierteFaelle(): Set<string> {
-  try {
-    const raw: unknown = JSON.parse(localStorage.getItem('lernstoff.praxis.archiv') ?? '[]');
-    if (!Array.isArray(raw)) return new Set();
-    return new Set(raw.flatMap((s) => (s && typeof s === 'object' && (s as { phase?: unknown }).phase === 'finished' && typeof (s as { scenario?: { id?: unknown } }).scenario?.id === 'string' ? [(s as { scenario: { id: string } }).scenario.id] : [])));
-  } catch { return new Set(); }
-}
+interface PraxisFall { id: string; titel: string; setting: string; abschnitt: string[] }
 
 function BereitCheck({ ctx, einsatz }: { ctx: SeitenCtx; einsatz: Einsatz }) {
   const { ctx: plan, error } = usePlan();
   const [faelle, setFaelle] = useState<PraxisFall[] | null>(null);
   useEffect(() => {
     let an = true;
-    import('../praxis/scenarios.json').then((m) => {
+    import('../praxis/kern/faelle').then((m) => {
       if (!an) return;
-      const roh = (m.default as unknown as Array<{ id: string; title: string; setting: string }>);
-      setFaelle(roh.map(({ id, title, setting }) => ({ id, title, setting })));
+      setFaelle(m.FAELLE_V2.map((f) => ({ id: f.id, titel: f.titel.replace(/[„“]/g, ''), setting: f.setting, abschnitt: f.lehrplan?.abschnitt ?? [] })));
     }, () => { if (an) setFaelle([]); });
     return () => { an = false; };
   }, []);
   const stationen = useMemo<Station[] | undefined>(() => {
     if (!plan || !faelle) return undefined;
-    const erledigt = archivierteFaelle();
+    const erledigt = erledigteFaelle();
     const settings = ART.get(einsatz.art)!.praxisSettings;
+    // Orientierungseinsatz: nur Fälle für das 1./2. Drittel, sonst wird die Liste zu lang.
+    const passt = (f: PraxisFall) => settings.includes(f.setting) && (einsatz.art !== 'orientierung' || f.abschnitt.includes('ad12'));
     return bereitCheck(einsatz, {
       heute: ctx.heute,
       status: (id) => plan.plan.progress[id]?.status ?? 'offen',
       themaName: ctx.themaName,
-      faelle: faelle.filter((f) => settings.includes(f.setting)).map((f) => ({ id: f.id, titel: f.title, erledigt: erledigt.has(f.id) })),
+      faelle: faelle.filter(passt).map((f) => ({ id: f.id, titel: f.titel, erledigt: erledigt.has(f.id) })),
       ergebnisse: plan.data.reviewLogs,
     });
   }, [plan, faelle, einsatz, ctx.heute]);

@@ -1,5 +1,5 @@
 import { storage } from '../../ui/lib/store';
-import { findeSitzung, berichtFall } from '../praxis/weitergabe';
+import { AltPraxisHinweis } from '../praxis/AltPraxisHinweis';
 import { findeNeu, berichtFallNeu } from '../praxis/arbeitsplatz/weitergabe';
 import { DatenHinweis } from '../../ui/DatenHinweis';
 import { PersonenWarnung, personenbezug } from '../../ui/PersonenWarnung';
@@ -141,7 +141,7 @@ export default function Berichttrainer() {
   const wunsch = route.params.get('fall') ?? '';
   // Fall aus dem Praxissimulator (Link aus dem Debriefing): wird vorne in die Auswahl gestellt
   const praxisId = route.params.get('aus') === 'praxis' ? route.params.get('sitzung') : null;
-  const praxisFall = useMemo(() => { const s = findeSitzung(praxisId); if (s) return berichtFall(s); const n = findeNeu(praxisId); return n ? berichtFallNeu(n) : null; }, [praxisId]);
+  const praxisFall = useMemo(() => { const n = findeNeu(praxisId); return n ? berichtFallNeu(n) : null; }, [praxisId]);
   const LISTE = useMemo(() => (praxisFall ? [praxisFall, ...BERICHT_FAELLE] : BERICHT_FAELLE), [praxisFall]);
   const [fallId, setFallId] = useState(() => (praxisFall?.id ?? (LISTE.some((f) => f.id === wunsch) ? wunsch : LISTE[0]!.id)));
   const [text, setText] = useState(() => ladeEntwurf(fallId));
@@ -211,7 +211,7 @@ export default function Berichttrainer() {
         <p className="muted">Schreib Berichtseinträge sachlich: was du gesehen, gehört und getan hast, ohne Wertung. Die Checkliste prüft offline und markiert wertende, ungenaue und vermutende Wörter.</p>
       </div>
       <AkteLeiste art="bericht" fallId={fallId} />
-      {praxisId && !praxisFall && <p className="note warn">Der Praxisfall ist auf diesem Gerät nicht mehr gespeichert (nur die letzten zehn Fälle bleiben). Wähle einen Übungsfall oder spiel den Fall erneut.</p>}
+      {praxisId && !praxisFall && <AltPraxisHinweis sitzung={praxisId} />}
       {praxisFall && fallId === praxisFall.id && <p className="note">Dieser Fall stammt aus deinem <a href="#/lernen/praxis">Praxissimulator</a>. Erwartet wird nur, was in deinem Spiel passiert ist. Er zählt nicht für die Bestwerte.</p>}
 
       <div className="card bericht__auswahl">

@@ -6,8 +6,8 @@ import { db } from '../../core/db';
 import type { ID } from '../../core/types';
 import type { CatalogModule } from '../../modules/catalog-types';
 import { SZENARIEN } from '../fall/faelle';
-import { readArchive } from '../praxis/storage';
-import { kernZuThema, PRAXIS_THEMEN, praxisZuThema } from '../praxis/themen';
+import { erledigteFaelle } from '../praxis/erledigt';
+import { KERN_THEMEN, kernZuThema } from '../praxis/themen';
 import { ladeKartenDaten } from '../karteikarten/store';
 import type { Karte, KartenStand } from '../karteikarten/typen';
 import { faelleZuThema } from '../krankheitsbilder/bewertung';
@@ -40,7 +40,7 @@ export function useGeraeteDaten(modul: CatalogModule) {
   const [stand, setStand] = useState(0);
   useEffect(() => {
     let aktiv = true;
-    const lokal = { lesestaende: ladeLesestaende(), haken: ladeHaken(), praxisFertig: readArchive().filter((x) => x.phase === 'finished').map((x) => x.scenario.id) };
+    const lokal = { lesestaende: ladeLesestaende(), haken: ladeHaken(), praxisFertig: [...erledigteFaelle()] };
     setDaten((d) => ({ ...d, ...lokal }));
     db.skripte.toArray().then((skripte) => { if (aktiv) setDaten((d) => ({ ...d, skripte })); }).catch(() => undefined);
     ladeKartenDaten(modul).then((k) => {
@@ -65,7 +65,6 @@ const enc = encodeURIComponent;
 
 /** Trainer, die der Schritt „Üben“ meint: alles außer Fällen (eigener Schritt), Mindmap und CE-Selbsttest. */
 export const UEBEN_TRAINER = (t: string) => !['fall', 'krankheitsbilder', 'praxis', 'mindmap', 'selbsttest'].includes(t);
-const PRAXISFAELLE = Object.keys(PRAXIS_THEMEN).map((id) => ({ id }));
 
 /** Baut für alle Themen einer CE die Fakten, aus denen der Lernpfad entsteht. */
 export function sammleFakten(themen: CeThema[], q: FaktenQuelle): ThemaFakten[] {
@@ -83,7 +82,7 @@ export function sammleFakten(themen: CeThema[], q: FaktenQuelle): ThemaFakten[] 
   }
   const geuebt = new Set(q.reviewLogs.filter((l) => l.trainer === 'fall' || l.trainer === 'krankheitsbilder').map((l) => l.topicId));
   // Ein abgeschlossener Praxisfall hinterlässt keine Abfrage, ist aber eine Spur: Fall-Schritt erledigt.
-  for (const id of daten.praxisFertig ?? []) for (const t of PRAXIS_THEMEN[id] ?? []) geuebt.add(t);
+  for (const id of daten.praxisFertig ?? []) for (const t of KERN_THEMEN[id] ?? []) geuebt.add(t);
   // Letztes Ergebnis je Thema aus einem Übungstrainer (Logs sind nach Zeit sortiert; das jüngste gewinnt)
   const trainerErgebnis = new Map<ID, { at: string; prozent: number }>();
   for (const l of q.reviewLogs) {
@@ -107,7 +106,7 @@ export function sammleFakten(themen: CeThema[], q: FaktenQuelle): ThemaFakten[] 
   return themen.map((e) => {
     const id = e.topic.id;
     const szen = szenarienZuThema(id, SZENARIEN);
-    const praxis = [...praxisZuThema(id, PRAXISFAELLE), ...kernZuThema(id).map((k) => ({ id: k }))];
+    const praxis = kernZuThema(id);
     const kf = faelleZuThema(id, KRANKHEITSFAELLE, modul);
     const p = q.progress[id];
     const alleUebungen = uebungenFuer(id, modul);

@@ -2,6 +2,7 @@
 // Quelle: Projektordner praxissimulator-neu/FALLPLAN-CE.md, Abschnitt 4. Rein und ohne den Kern, damit die CE-Seite
 // den Plan lesen kann, ohne die Fälle zu laden. Neue Kernfälle tragen ihre Einordnung selbst (`fall.lehrplan`);
 // hier steht nur, welcher Altfall bzw. welcher geplante Fall damit erledigt ist (Feld `fall`).
+// Seit P10 ist jeder Altfall abgelöst; `alt` dient nur noch der Weiterleitung alter Links.
 //
 // Pflege: Ist ein Fall auf dem neuen Kern fertig, beim passenden Eintrag `fall: '<id>'` setzen. Der Test
 // `fallplan.test.ts` prüft, dass jeder Kernfall hier vorkommt und die Abdeckungslücken (ABDECKUNG_OFFEN) stimmen.
@@ -18,7 +19,7 @@ export interface PlanEintrag {
   abschnitt: Abschnitt[];
   /** Paket der Fallwelle (P16–P19), leer bei vorhandenen Fällen. */
   paket?: 'P16' | 'P17' | 'P18' | 'P19';
-  /** Altfall im alten Simulator (scenarios.json), der durch diesen Eintrag abgelöst wird. */
+  /** Altfall des entfernten Simulators, den dieser Eintrag abgelöst hat (Weiterleitung, altfaelle.ts). */
   alt?: string[];
   /** Fall auf dem neuen Kern (FAELLE_V2), sobald es ihn gibt. */
   fall?: string;
@@ -81,11 +82,9 @@ const MIT_AD3 = ['ce.04', 'ce.05', 'ce.06', 'ce.07', 'ce.08', 'ce.09', 'ce.10', 
 
 /** Minimaler Blick auf einen Kernfall, damit die Funktionen ohne den Kern testbar bleiben. */
 export interface KernFallKopf { id: string; titel: string; kurz: string; lehrplan?: { ce: string[]; abschnitt: Abschnitt[] } }
-export interface AltFallKopf { id: string; title: string }
 
 export type AuswahlEintrag =
   | { art: 'kern'; id: string; titel: string; kurz: string; abschnitt: Abschnitt[]; auchIn: string[]; haupt: boolean }
-  | { art: 'alt'; id: string; titel: string; abschnitt: Abschnitt[]; paket?: string; abgeloestDurch?: string }
   | { art: 'geplant'; titel: string; abschnitt: Abschnitt[]; paket?: string };
 
 export interface CeGruppe { ce: string; eintraege: AuswahlEintrag[] }
@@ -93,10 +92,10 @@ export interface CeGruppe { ce: string; eintraege: AuswahlEintrag[] }
 const passt = (abschnitt: Abschnitt[], filter: Abschnitt | 'alle') => filter === 'alle' || abschnitt.includes(filter);
 
 /**
- * Fallauswahl nach CE: zuerst Kernfälle (Haupt-CE vor „auch in“), dann Altfälle (Markierung „alt“, bis zur Ablösung),
- * dann noch geplante Fälle. `ceIds` gibt Reihenfolge und Umfang vor (z. B. alle CE oder nur ?ce=).
+ * Fallauswahl nach CE: zuerst Kernfälle (Haupt-CE vor „auch in“), dann noch geplante Fälle.
+ * `ceIds` gibt Reihenfolge und Umfang vor (z. B. alle CE oder nur ?ce=). Altfälle gibt es seit P10 nicht mehr.
  */
-export function fallauswahl(ceIds: string[], kern: readonly KernFallKopf[], alt: readonly AltFallKopf[], filter: Abschnitt | 'alle' = 'alle'): CeGruppe[] {
+export function fallauswahl(ceIds: string[], kern: readonly KernFallKopf[], filter: Abschnitt | 'alle' = 'alle'): CeGruppe[] {
   const kernIds = new Set(kern.map((k) => k.id));
   return ceIds.map((ce) => {
     const k: AuswahlEintrag[] = kern
@@ -104,11 +103,9 @@ export function fallauswahl(ceIds: string[], kern: readonly KernFallKopf[], alt:
       .map((f) => ({ art: 'kern' as const, id: f.id, titel: f.titel, kurz: f.kurz, abschnitt: f.lehrplan!.abschnitt, auchIn: f.lehrplan!.ce.filter((c) => c !== ce), haupt: f.lehrplan!.ce[0] === ce }))
       .sort((a, b) => Number(b.haupt) - Number(a.haupt));
     const plan = FALLPLAN.filter((p) => p.ce === ce && passt(p.abschnitt, filter));
-    const a: AuswahlEintrag[] = plan.flatMap((p) => (p.alt ?? []).map((id) => alt.find((s) => s.id === id)).filter((s): s is AltFallKopf => !!s)
-      .map((s) => ({ art: 'alt' as const, id: s.id, titel: s.title, abschnitt: p.abschnitt, paket: p.paket, abgeloestDurch: p.fall && kernIds.has(p.fall) ? kern.find((x) => x.id === p.fall)!.titel : undefined })));
-    const g: AuswahlEintrag[] = plan.filter((p) => !p.alt?.length && !(p.fall && kernIds.has(p.fall)))
+    const g: AuswahlEintrag[] = plan.filter((p) => !(p.fall && kernIds.has(p.fall)))
       .map((p) => ({ art: 'geplant' as const, titel: p.titel, abschnitt: p.abschnitt, paket: p.paket }));
-    return { ce, eintraege: [...k, ...a, ...g] };
+    return { ce, eintraege: [...k, ...g] };
   });
 }
 
@@ -123,12 +120,8 @@ export function abdeckungsLuecken(ceIds: string[], kern: readonly KernFallKopf[]
   return out;
 }
 
-/** Wie viele Fälle (Kern, alt) es je CE gibt; für die CE-Seite ohne Kern-Import. */
-export function planZaehler(ce: string): { vorhanden: number; alt: number; geplant: number } {
+/** Wie viele Fälle es je CE gibt (vorhanden auf dem Kern, geplant); für die CE-Seite ohne Kern-Import. */
+export function planZaehler(ce: string): { vorhanden: number; geplant: number } {
   const p = FALLPLAN.filter((x) => x.ce === ce);
-  return {
-    vorhanden: p.filter((x) => x.fall).length,
-    alt: p.filter((x) => !x.fall).reduce((s, x) => s + (x.alt?.length ?? 0), 0),
-    geplant: p.filter((x) => !x.fall && !x.alt?.length).length,
-  };
+  return { vorhanden: p.filter((x) => x.fall).length, geplant: p.filter((x) => !x.fall).length };
 }

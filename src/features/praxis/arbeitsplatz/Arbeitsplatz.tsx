@@ -24,6 +24,7 @@ import { Abschluss, Auswertung } from './Auswertung';
 import { partner } from './gespraeche';
 import { Kommunikation } from './Kommunikation';
 import { lies, schreibe } from './speicher';
+import { merkeErledigt } from '../erledigt';
 import { StreifenKurve } from './StreifenKurve';
 import { journal } from './journal';
 import { Journal, VerlaufBlatt } from './Verlauf';
@@ -54,6 +55,8 @@ export function Arbeitsplatz({ fall, onZurueck }: { fall: FallV2; onZurueck: () 
     if (!stand) return;
     schreibe({ version: 1, fall: fall.id, fallVersion: fall.version, rolle: stand.z.rolle, stufe: stand.z.stufe, seed: stand.z.seed, eingaben: stand.z.eingaben });
   }, [stand, fall]);
+  const abgeschlossen = !!stand?.z.abschluss;
+  useEffect(() => { if (abgeschlossen) merkeErledigt(fall.id, 'frei'); }, [abgeschlossen, fall.id]);
 
   if (!stand) {
     return <Briefing fall={fall} rolle={rolle} setRolle={setRolle} onZurueck={onZurueck}

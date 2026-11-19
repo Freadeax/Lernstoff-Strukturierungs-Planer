@@ -38,7 +38,7 @@ Modulare Oberfläche mit Seitenleiste (Handy: untere Leiste), Suche (Strg/Cmd+K)
 
 Unter **Üben & anwenden → Praxissimulator** gibt es eine eigenständige technische Lernvorschau ohne KI-Anbindung. Sie enthält einen regelbasierten Einzelpatienten-Verlauf, Simulationszeit, verzögerte Aufträge, eine Medikations-Rechenprüfung, Dokumentation, SBAR, Debriefing, lokale Speicherung und Replay. Der bisherige Text-Fallsimulator bleibt erhalten. Alle neuen Szenarien sind **fachlich ungeprüft**.
 
-Architektur, vollständiges Anforderungsregister, tatsächlicher Funktionsumfang, Freigabegrenzen und nächste Arbeitspakete: [Praxissimulator](docs/PRAXISSIMULATOR.md). Browserprüfung: `npm run test:praxis` mit laufendem Server (standardmäßig Port 5187, alternativ `UI_BASE_URL`).
+Architektur, vollständiges Anforderungsregister, tatsächlicher Funktionsumfang, Freigabegrenzen und nächste Arbeitspakete: [Praxissimulator](docs/PRAXISSIMULATOR.md). Aufbau des neuen Kerns: `src/features/praxis/kern/README.md`. Browserprüfungen: `npm run test:arbeitsplatz`, `npm run test:stufe1` und `npm run test:praxis` (Weiterleitung alter Links) mit laufendem Server (standardmäßig Port 5187, alternativ `UI_BASE_URL`).
 
 ## Große Dateien für Claude
 
@@ -54,7 +54,7 @@ Architektur, vollständiges Anforderungsregister, tatsächlicher Funktionsumfang
 
 Die App läuft unter **https://lernstoff-planer.pages.dev/** (Cloudflare Pages mit Sicherheitsheadern, siehe `docs/HOSTING-CLOUDFLARE.md`). Cloudflare baut jeden Push auf `main` selbst. Vorerst läuft die App gleichberechtigt auch unter https://freadeax.github.io/Lernstoff-Strukturierungs-Planer/ weiter; dort baut `.github/workflows/pages.yml` jeden Push auf `main`. Beide Adressen haben getrennte Speicher (Lernstand nur per Datensicherung übertragen). Ein separater Veröffentlichungsbranch entfällt. Der Workflow lässt sich auch manuell über GitHub Actions starten.
 
-Vor jedem Push: `npm run check`. Der Befehl führt Typprüfung, Tests, Katalog-Abgleich, Build, Startgrößen-Budget und alle Browserprüfungen (`test:ui`, `test:material`, `test:wissen`, `test:praxis`, `test:geraete`) gegen den gebauten Stand aus und startet dafür selbst einen Server. Einzelne Browserprüfungen laufen weiterhin mit `UI_BASE_URL` gegen einen laufenden Server. Regeln für Datenbank-Versionen und neue Fachgebiete: [docs/ENTWICKLUNG.md](docs/ENTWICKLUNG.md).
+Vor jedem Push: `npm run check`. Der Befehl führt Typprüfung, Tests, Katalog-Abgleich, Build, Startgrößen-Budget und alle Browserprüfungen (`test:ui`, `test:material`, `test:wissen`, `test:praxis`, `test:arbeitsplatz`, `test:stufe1`, `test:geraete` u. a.) gegen den gebauten Stand aus und startet dafür selbst einen Server. Einzelne Browserprüfungen laufen weiterhin mit `UI_BASE_URL` gegen einen laufenden Server. Regeln für Datenbank-Versionen und neue Fachgebiete: [docs/ENTWICKLUNG.md](docs/ENTWICKLUNG.md).
 
 Unter **Lernplan → Wissensstand** stehen alle lernbaren Themen mit Abfragen, Statusbegründung und nächster Fälligkeit – auch ohne Prüfungstermin. Suche, Fach- und Statusfilter zeigen gezielt bearbeitete, unsichere oder fällige Themen. Passende Trainer lassen sich direkt öffnen; eigene Themen aus importierten Materialien sind ebenfalls enthalten. Die Browserprüfung `npm run test:wissen` prüft diesen Ablauf und die Einstiege in die Lernmodule bei 390, 820 und 1440 Pixeln.
 

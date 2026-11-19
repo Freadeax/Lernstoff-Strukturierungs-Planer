@@ -1,5 +1,5 @@
 // Neuer Arbeitsplatz → Dokumentation (P5): Ein abgeschlossener Fall auf dem Kern wird zur Vorlage für
-// Übergabe, Pflegebericht und Pflegeplanung, wie beim bisherigen Simulator (../weitergabe.ts).
+// Übergabe, Pflegebericht und Pflegeplanung, wie früher beim alten Simulator (entfernt mit P10).
 // Erwartet wird nur, was im Spiel vorkam: Werte, die sichtbar waren, eigene Maßnahmen, erhaltene Anordnungen.
 // Links tragen nur „neu:<fall>“; der Stand liegt im Gerätespeicher des Arbeitsplatzes (nur Eingaben, Replay).
 
@@ -10,7 +10,7 @@ import { FAELLE_V2 } from '../kern/faelle';
 import { alarmFuer } from '../kern/physiologie/altersprofile';
 import { anzeige, massnahme, replay, type SimZustand } from '../kern/kern';
 import type { Anzeige, FallV2 } from '../kern/typen';
-import { schluessel, stamm } from '../weitergabe';
+import { schluessel, stamm } from '../textschluessel';
 import { uhrzeit } from './ansicht';
 import { lies } from './speicher';
 
