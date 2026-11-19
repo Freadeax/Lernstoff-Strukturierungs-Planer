@@ -631,6 +631,12 @@ export interface MedPlanEintrag {
   hinweis?: string;               // „PRISCUS“, „vor Gabe RR messen“
   /** Anordnung, die den Eintrag im Fall ändert (pausieren, neu) */
   geaendertDurch?: string;
+  /**
+   * Anordnungs-ID: Der Eintrag gilt erst ab dieser Anordnung im Fall (z. B. neu angeordnete Bedarfsmedikation).
+   * Vorher steht er nicht in der Akte; ab dann prüft medPruefung Abstand, Höchstmenge und Doppelgabe.
+   * Gaben vor der Anordnung zählen nicht mit. Wird die Anordnung zurückgezogen, prüft der Kern nicht mehr gegen den Eintrag.
+   */
+  ab?: string;
 }
 
 export interface Vorwert {

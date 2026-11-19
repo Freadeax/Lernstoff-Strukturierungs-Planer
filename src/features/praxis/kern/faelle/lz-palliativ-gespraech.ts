@@ -134,6 +134,8 @@ export const LZ_PALLIATIV_GESPRAECH: FallV2 = {
       { id: 'mp-metamizol', wirkstoff: 'Metamizol', staerke: '500 mg', form: 'Tbl.', schema: '1-1-1-1', zuletzt: 'heute 14:00' },
       { id: 'mp-torasemid', wirkstoff: 'Torasemid', staerke: '5 mg', form: 'Tbl.', schema: '1-0-0-0', zuletzt: 'heute 08:00' },
       { id: 'mp-macrogol', wirkstoff: 'Macrogol', staerke: '13,1 g', form: 'Btl.', schema: '1-0-0-0', zuletzt: 'heute 08:00' },
+      { id: 'mp-morphin', wirkstoff: 'Morphin-Lösung', staerke: '2,5 mg', form: 'oral', massnahme: 'morphin-25-geben', ab: 'an-morphin-25',
+        bedarf: { indikation: 'Atemnot oder Schmerz', einzeldosis: '2,5 mg', maxProTag: '6×', abstandH: 4 } },
     ],
     vorwerte: [
       { zeit: 'vor 1 Woche', vorH: 168, werte: { rrSys: 118, rrDia: 70, hf: 84, af: 18, spo2: 93, gewicht: 52.5 }, kuerzel: 'BK' },

@@ -125,6 +125,8 @@ export const LZ_DEKUBITUS_IMMOBIL: FallV2 = {
     medikation: [
       { id: 'mp-donepezil', wirkstoff: 'Donepezil', staerke: '10 mg', form: 'Tbl.', schema: '0-0-1-0', zuletzt: 'gestern 20:00' },
       { id: 'mp-macrogol', wirkstoff: 'Macrogol', staerke: '13,1 g', form: 'Btl.', schema: '1-0-0-0', zuletzt: 'gestern 08:00' },
+      { id: 'mp-paracetamol', wirkstoff: 'Paracetamol', staerke: '500 mg', form: 'Tbl.', massnahme: 'bedarfsmedikation-oral', ab: 'an-paracetamol',
+        bedarf: { indikation: 'Schmerzen, 30 Min. vor dem Lagern', einzeldosis: '500 mg', maxProTag: '4 Gaben', abstandH: 6 } },
     ],
     vorwerte: [
       { zeit: 'vor 7 Tagen', vorH: 168, werte: { rrSys: 128, rrDia: 72, hf: 84, temp: 38.1, gewicht: 53.5 }, kuerzel: 'SB' },

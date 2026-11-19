@@ -140,6 +140,8 @@ export const PAED_FIEBERKRAMPF: FallV2 = {
         hinweis: 'Je 3,5 ml (ca. 175 mg) nach Gewicht, nächste Gabe 18:00. Saft im Kühlschrank.' },
       { id: 'mp-nasentropfen', wirkstoff: 'Xylometazolin 0,025 %', staerke: '1 Hub', form: 'Nasenspray (Kleinkind)', schema: '1-0-1-0', zuletzt: '12:30',
         hinweis: 'Höchstens 5 Tage.' },
+      { id: 'mp-paracetamol-supp', wirkstoff: 'Paracetamol', staerke: '125 mg', form: 'Supp.', massnahme: 'paracetamol-supp', ab: 'an-para-125',
+        bedarf: { indikation: 'Fieber mit Unwohlsein', einzeldosis: '125 mg', maxProTag: '4 Gaben', abstandH: 6 } },
     ],
     vorwerte: [
       { zeit: 'Aufnahme 12:00', vorH: 3.7, werte: { temp: 38.9, hf: 152, af: 34, spo2: 98, gewicht: 11 }, kuerzel: 'TS' },
