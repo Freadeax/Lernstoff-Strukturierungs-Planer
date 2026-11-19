@@ -1,6 +1,6 @@
 // Praxissimulator neu – Bedingungen auswerten (rein).
 
-import type { Anzeige, Bedingung, Grundgroessen } from './typen';
+import type { Anzeige, AuftragStatus, Bedingung, Gegenueber, Grundgroessen } from './typen';
 
 export interface BedingungsKontext {
   t: number;
@@ -10,6 +10,10 @@ export interface BedingungsKontext {
   anzeige: () => Anzeige;
   letzterAnruf: readonly string[];
   anordnungen: Readonly<Record<string, { rueckgelesen: boolean }>>;
+  /** P11: Rückauftrag im Status (siehe kommunikation.ts auftragGilt) */
+  auftrag?: (id: string, status: AuftragStatus) => boolean;
+  /** P11: Baustein irgendwann im Fall an … gesagt */
+  gesagt?: (id: string, an?: Gegenueber) => boolean;
 }
 
 const vergleiche = (a: number, v: '<' | '<=' | '>' | '>=', b: number) =>
@@ -34,6 +38,8 @@ export function pruefe(b: Bedingung, k: BedingungsKontext): boolean {
     const a = k.anordnungen[b.anordnung];
     return !!a && (b.rueckgelesen === undefined || a.rueckgelesen === b.rueckgelesen);
   }
+  if ('auftrag' in b) return !!k.auftrag?.(b.auftrag, b.status);
+  if ('gesagt' in b) return !!k.gesagt?.(b.gesagt, b.an);
   if ('wert' in b) {
     const w = b.wert in k.grund ? k.grund[b.wert as keyof Grundgroessen] : k.anzeige()[b.wert as keyof Anzeige];
     return typeof w === 'number' && vergleiche(w, b.vergleich, b.grenze);

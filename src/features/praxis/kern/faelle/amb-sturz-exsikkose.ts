@@ -4,11 +4,12 @@
 import type { Bedingung, FallV2 } from '../typen';
 
 const ZEICHEN_EXSIKKOSE: Bedingung = { alle: [{ getan: 'schleimhaut-pruefen' }, { getan: 'rr-messen' }] };
+const HAUSBESUCH = '„Danke, der Zucker ist in Ordnung. Das klingt nach zu wenig Flüssigkeit. Torasemid heute weglassen, Trinken fördern und Protokoll führen. Ich komme um 11 Uhr vorbei. Messen Sie bitte in einer Viertelstunde noch einmal den Blutdruck und schicken Sie mir den Wert.“';
 
 export const PILOT_AMBULANT: FallV2 = {
   schema: 2,
   id: 'amb-sturz-exsikkose',
-  version: '0.1.0',
+  version: '0.2.0',
   spur: 'A',
   setting: 'ambulant',
   altersgruppe: 'hochbetagt',
@@ -81,7 +82,7 @@ export const PILOT_AMBULANT: FallV2 = {
     // Versorgen
     'trinken-anbieten', 'tabletten-wie-geplant-geben', 'lorazepam-geben', 'torasemid-zurueckhalten', 'kompression-anziehen', 'umgebung-sichern',
     // Melden
-    'tochter-informieren', 'pflegebericht', 'pdl-informieren',
+    'pflegebericht', 'pdl-informieren',
   ],
   massnahmenZusatz: [
     {
@@ -134,6 +135,18 @@ export const PILOT_AMBULANT: FallV2 = {
     { id: 'g-beruhigen', frage: 'Ruhig erklären, dass du bleibst und hilfst', an: 'patient', kompetenzbereiche: ['II'],
       antwort: [{ text: 'Sie wirkt etwas ruhiger und hält deine Hand.' }],
       wirkung: [{ groesse: 'angst', delta: -0.2, beginnSek: 0, spitzeSek: 60, dauerSek: 'dauerhaft' }] },
+    // Runde 2 (P11): Angehörige mit Schweigepflicht
+    { id: 'g-einwilligung', frage: 'Fragen, ob du ihre Tochter informieren darfst', an: 'patient', kompetenzbereiche: ['II', 'IV'],
+      antwort: [{ text: '„Die Anke? Ja, rufen Sie sie ruhig an. Die macht sich sonst Sorgen.“', setzt: ['einwilligung-tochter'] }],
+      fakten: ['Tochter heißt Anke', 'Frau Lindner ist einverstanden'] },
+    { id: 'g-tochter-lage', frage: 'Tochter anrufen: Lage, Befunde und Arztbesuch mitteilen', an: 'angehoerige', kanal: 'telefon', kompetenzbereiche: ['II', 'IV'],
+      schweigepflicht: { erlaubtWenn: { flag: 'einwilligung-tochter' },
+        fehlerText: 'Du hast der Tochter Befunde mitgeteilt, ohne Frau Lindner vorher zu fragen. Auch nahe Angehörige brauchen eine Einwilligung (oder eine Vorsorgevollmacht). Frau Lindner ist trotz Verwirrtheit ansprechbar und kann gefragt werden.' },
+      antwort: [
+        { wenn: { flag: 'arzt-kommt' }, text: '„Danke, dass Sie Bescheid geben. Ich fahre gleich los und bin gegen zehn bei ihr.“', setzt: ['tochter-kommt'] },
+        { text: '„Oh je. Soll ich kommen? Was sagt denn die Hausärztin?“' },
+      ],
+      fakten: ['Tochter wohnt 20 km entfernt', 'gestern Abend am Telefon noch klar', 'Mutter trinkt wenig wegen der Wassertablette'] },
   ],
 
   sbar: [
@@ -161,10 +174,13 @@ export const PILOT_AMBULANT: FallV2 = {
   arzt: {
     name: 'Hausärztin Dr. Sommer',
     erreichbar: 'hausarzt-praxis',
+    // Runde 2 (P11): Rückfrage nach dem Zucker, Rückauftrag RR-Kontrolle. Nach dem ersten Kontakt geht auch der Praxis-Messenger.
     regeln: [
-      { wenn: { gemeldet: ['a-verwirrt-neu', 'a-rr-niedrig', 'b-herz-diuretikum'] },
-        antwort: '„Danke, das klingt nach zu wenig Flüssigkeit. Torasemid heute weglassen, Trinken fördern und Protokoll führen. Ich komme um 11 Uhr vorbei.“',
-        anordnungen: ['an-torasemid-pause', 'an-trinken'], setzt: ['arzt-kommt'] },
+      { id: 'r-hausbesuch', wenn: { gemeldet: ['a-verwirrt-neu', 'a-rr-niedrig', 'b-herz-diuretikum', 'wert:bz'] },
+        antwort: HAUSBESUCH, anordnungen: ['an-torasemid-pause', 'an-trinken'], setzt: ['arzt-kommt'], auftraege: ['af-rr-kontrolle'] },
+      { id: 'r-bz-frage', wenn: { gemeldet: ['a-verwirrt-neu', 'a-rr-niedrig', 'b-herz-diuretikum'] },
+        antwort: '„Danke. Bei einer akuten Verwirrtheit muss ich zuerst eine Unterzuckerung ausschließen.“',
+        rueckfrage: { text: '„Wie hoch ist der Zucker?“', erwartet: ['wert:bz'], auftrag: 'af-bz' } },
       { wenn: { gemeldet: ['a-verwirrt-neu'] },
         antwort: '„Ist sie verletzt? Haben Sie Blutdruck gemessen? Rufen Sie mich mit den Werten noch einmal an.“' },
       { wenn: { eine: [{ gemeldet: ['a-demenz'] }, { gemeldet: ['s-nur-sturz'] }] },
@@ -172,7 +188,20 @@ export const PILOT_AMBULANT: FallV2 = {
       { wenn: { flag: 'zweiter-anruf-unruhe' },
         antwort: '„Dann geben Sie ihr 1 mg Lorazepam aus der Hausapotheke, damit sie zur Ruhe kommt.“', anordnungen: ['an-lorazepam'] },
     ],
+    auftraege: [
+      { id: 'af-bz', text: 'Blutzucker messen und der Hausärztin melden', erledigt: { getan: 'bz-messen' }, meldung: ['wert:bz'], meldenBinnenSek: 600,
+        folge: [{ id: 'r-hausbesuch', wenn: { gemeldet: ['a-verwirrt-neu'] }, antwort: HAUSBESUCH,
+          anordnungen: ['an-torasemid-pause', 'an-trinken'], setzt: ['arzt-kommt'], auftraege: ['af-rr-kontrolle'] }] },
+      { id: 'af-rr-kontrolle', text: 'In einer Viertelstunde Blutdruck nachmessen und der Hausärztin melden', erledigt: { getan: 'rr-messen' },
+        meldung: ['wert:rrSys'], meldenBinnenSek: 1500,
+        folge: [
+          { wenn: { wert: 'rrSys', vergleich: '>=', grenze: 105 }, antwort: '„Danke, das geht in die richtige Richtung. Weiter trinken lassen, ich bin um 11 bei ihr.“', setzt: ['rr-rueckmeldung'] },
+          { wenn: { ab: 0 }, antwort: '„Immer noch niedrig. Sie soll sitzen bleiben und weiter trinken. Wird sie schläfriger oder kaltschweißig, rufen Sie sofort den Rettungsdienst.“', setzt: ['rr-rueckmeldung'] },
+        ] },
+    ],
   },
+
+  team: { weitere: { angehoerige: 'Tochter Anke Lindner' } },
 
   ereignisse: [
     { id: 'e-tochter', art: 'telefon', wann: { ab: 300 },
@@ -192,6 +221,8 @@ export const PILOT_AMBULANT: FallV2 = {
     hilfen: [
       { wenn: { nicht: { getan: 'verletzung-pruefen-sturz' } }, impuls: 'Bevor du irgendwas bewegst: Was musst du nach einem Sturz zuerst wissen?', tipp: 'Schau dir Hüfte, Beine und Kopf an, bevor du sie aufhebst.' },
       { wenn: { nicht: { getan: 'trinkmenge-erfragen' } }, impuls: 'Was hat die Tochter gestern am Telefon erzählt?', tipp: 'Frag nach, wie viel sie getrunken hat, und schau dir Zunge und Urin an.' },
+      { wenn: { auftrag: 'af-bz', status: 'offen' }, impuls: 'Was wollte die Hausärztin noch von dir wissen?', tipp: 'Blutzucker messen und ihr den Wert schicken.' },
+      { wenn: { alle: [{ auftrag: 'af-rr-kontrolle', status: 'offen' }, { nicht: { auftrag: 'af-rr-kontrolle', status: 'gemeldet' } }] }, impuls: 'Hat die Hausärztin dir noch etwas aufgetragen?', tipp: 'Blutdruck in einer Viertelstunde nachmessen und ihr den Wert schicken.' },
       { impuls: 'Ist diese Verwirrtheit neu oder kennst du sie so?', tipp: 'Akut neue Verwirrtheit ist ein Warnzeichen. Ein Screening (z. B. 4AT) hilft dir, das zu begründen.' },
     ],
   },
@@ -205,15 +236,20 @@ export const PILOT_AMBULANT: FallV2 = {
       { id: 'p-exsikkose-zeichen', text: 'Hydratation eingeschätzt (Schleimhäute, Urin, Trinkmenge)', gewicht: 2, kompetenzbereiche: ['I', 'V'],
         erfuellt: { alle: [{ getan: 'schleimhaut-pruefen' }, { eine: [{ getan: 'urin-beobachten' }, { getan: 'trinkmenge-erfragen' }] }] }, warum: 'Hautfalte allein ist im Alter unzuverlässig.' },
       { id: 'p-delir-erkannt', text: 'Akute Verwirrtheit als neu erkannt und gemeldet', gewicht: 3, kompetenzbereiche: ['I', 'III'],
-        erfuellt: { gemeldet: ['a-verwirrt-neu'] }, warum: 'Ein Delir ist ein Notfall mit Ursache; „wird halt dement“ übersieht sie.' },
+        erfuellt: { gesagt: 'a-verwirrt-neu', an: 'aerztin' }, warum: 'Ein Delir ist ein Notfall mit Ursache; „wird halt dement“ übersieht sie.' },
+      { id: 'p-bz', text: 'Blutzucker bei akuter Verwirrtheit gemessen', gewicht: 2, kompetenzbereiche: ['I'],
+        erfuellt: { getan: 'bz-messen' }, warum: 'Eine Unterzuckerung ist eine häufige, schnell behebbare Ursache akuter Verwirrtheit und muss früh ausgeschlossen werden.' },
       { id: 'p-arzt-sbar', text: 'Hausärztin mit vollständiger SBAR informiert', gewicht: 3, kompetenzbereiche: ['II', 'III'],
         erfuellt: { flag: 'arzt-kommt' }, warum: 'Nur mit RR, Trinkmenge und Diuretikum kann die Ärztin richtig entscheiden.' },
       { id: 'p-rueckgelesen', text: 'Anordnungen rückgelesen', gewicht: 2, kompetenzbereiche: ['III'],
         erfuellt: { anordnung: 'an-torasemid-pause', rueckgelesen: true }, warum: 'Closed-Loop-Kommunikation verhindert Missverständnisse.' },
       { id: 'p-trinken', text: 'Trinken angeboten und Protokoll begonnen', gewicht: 2, kompetenzbereiche: ['I', 'V'],
         erfuellt: { getan: 'trinken-anbieten' }, warum: 'Expertenstandard Ernährungsmanagement: Flüssigkeit aktiv anbieten und dokumentieren.' },
-      { id: 'p-tochter', text: 'Tochter einbezogen', gewicht: 1, kompetenzbereiche: ['II'], erfuellt: { getan: 'tochter-informieren' },
-        warum: 'Die Tochter kennt den Normalzustand und kann bei Delir beruhigen und begleiten.' },
+      { id: 'p-rueckauftrag', text: 'Rückauftrag der Hausärztin erledigt und gemeldet (RR-Kontrolle)', gewicht: 2, kompetenzbereiche: ['II', 'III'],
+        erfuellt: { auftrag: 'af-rr-kontrolle', status: 'gemeldet' }, warum: 'Die Ärztin entscheidet aus der Ferne. Sie braucht die Kontrolle, um den Verlauf einzuschätzen (Closed Loop).' },
+      { id: 'p-tochter', text: 'Tochter einbezogen (mit Einverständnis)', gewicht: 1, kompetenzbereiche: ['II', 'IV'],
+        erfuellt: { eine: [{ getan: 'tochter-informieren' }, { alle: [{ getan: 'frage:g-tochter-lage' }, { flag: 'einwilligung-tochter' }] }] },
+        warum: 'Die Tochter kennt den Normalzustand und kann bei Delir beruhigen und begleiten. Vorher Frau Lindner fragen (Schweigepflicht).' },
       { id: 'p-doku', text: 'Pflegebericht geschrieben', gewicht: 1, kompetenzbereiche: ['I', 'IV'], erfuellt: { getan: 'pflegebericht' }, warum: 'Sturz, Befunde, Anordnungen und Maßnahmen müssen nachvollziehbar sein.' },
     ],
     fehler: [
@@ -233,8 +269,8 @@ export const PILOT_AMBULANT: FallV2 = {
         warum: 'Vor dem Telefonat sichern: bequem sitzend, warm, Hilfe in Reichweite.' },
     ],
     ende: [
-      { wenn: { alle: [{ flag: 'arzt-kommt' }, { getan: 'pflegebericht' }] }, text: 'Die Hausärztin kommt um 11 Uhr. Frau Lindner sitzt im Sessel mit einem Glas Wasser, die Tochter ist auf dem Weg.', ausgang: 'stabil' },
-      { wenn: { ab: 1800 }, text: 'Die Tour muss weiter. Die Lage ist nicht geklärt.', ausgang: 'verschlechtert' },
+      { wenn: { alle: [{ flag: 'arzt-kommt' }, { getan: 'pflegebericht' }, { flag: 'rr-rueckmeldung' }] }, text: 'Die Hausärztin kommt um 11 Uhr. Frau Lindner sitzt im Sessel mit einem Glas Wasser, die Tochter ist auf dem Weg.', ausgang: 'stabil' },
+      { wenn: { ab: 2700 }, text: 'Die Tour muss weiter. Die Lage ist nicht geklärt.', ausgang: 'verschlechtert' },
     ],
   },
 
@@ -274,14 +310,22 @@ export const PILOT_AMBULANT: FallV2 = {
       { art: 'massnahme', id: 'schleimhaut-pruefen' },
       { art: 'massnahme', id: 'trinkmenge-erfragen' },
       { art: 'massnahme', id: 'trinken-anbieten' },
+      { art: 'pflegetasche', geraet: 'bz-geraet' },
+      { art: 'massnahme', id: 'bz-messen' },
       { art: 'massnahme', id: 'delir-screening-4at' },
       { art: 'massnahme', id: 'aufhelfen-stuhltechnik' },
-      { art: 'anruf', an: 'aerztin', sbar: ['s-sturz', 'b-herz-diuretikum', 'a-rr-niedrig', 'a-exsikkose', 'a-verwirrt-neu', 'a-verletzung', 'r-hausbesuch'] },
+      { art: 'nachricht', an: 'aerztin', kanal: 'telefon', bausteine: ['s-sturz', 'b-herz-diuretikum', 'a-rr-niedrig', 'a-exsikkose', 'a-verwirrt-neu', 'a-verletzung', 'wert:bz', 'r-hausbesuch'] },
       { art: 'rueckmelden', anordnung: 'an-torasemid-pause', rueckgelesen: true },
       { art: 'rueckmelden', anordnung: 'an-trinken', rueckgelesen: true },
+      { art: 'auflegen', an: 'aerztin' },
       { art: 'massnahme', id: 'torasemid-zurueckhalten' },
-      { art: 'massnahme', id: 'tochter-informieren' },
+      { art: 'frage', id: 'g-einwilligung' },
+      { art: 'frage', id: 'g-tochter-lage' },
       { art: 'massnahme', id: 'pflegebericht' },
+      { art: 'warten', sek: 600 },
+      { art: 'massnahme', id: 'rr-messen' },
+      { art: 'nachricht', an: 'aerztin', kanal: 'messenger', bausteine: ['wert:rrSys'] },
+      { art: 'warten', sek: 120 },
       { art: 'abschluss', probleme: ['pb-fluessigkeit', 'pb-verwirrtheit', 'pb-sturzrisiko', 'pb-schmerz'], ziele: ['z-trinken', 'z-orientiert', 'z-notruf'],
         sbar: ['s-sturz', 'b-herz-diuretikum', 'a-rr-niedrig', 'a-exsikkose', 'a-verwirrt-neu', 'a-verletzung'] },
     ],

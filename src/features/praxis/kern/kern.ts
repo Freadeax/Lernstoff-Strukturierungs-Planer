@@ -5,6 +5,10 @@
 
 import { pruefe, type BedingungsKontext } from './bedingung';
 import { KATALOG } from './katalog';
+import {
+  aktualisiereAuftraege, andereNachricht, arztAnruf, arztNachricht, auftragGilt, auflegen, gesagtGilt, KOSTEN, legeAufWennOffen,
+  neuerKommStand, stelleZu, type KommStand,
+} from './kommunikation';
 import { NORMAL, type ModellKontext, type PhysiologieModell } from './modell';
 import { alarmFuer } from './physiologie/altersprofile';
 import { wendeModulAn } from './spur-b/modul';
@@ -31,6 +35,8 @@ export interface Meldung {
   /** P11: zu welchem Gesprächsfaden die Meldung gehört; `richtung` aus Sicht der Lernenden */
   faden?: Gegenueber;
   richtung?: 'raus' | 'rein';
+  /** Messwerte zum Messzeitpunkt (Befund-Meldungen); Grundlage der Wert-Bausteine `wert:<schlüssel>` (P11) und der Kurve (P13) */
+  werte?: Partial<Record<keyof Anzeige | 'schmerz', number>>;
 }
 
 interface AktiveWirkung { kurve: Wirkkurve; t0: number; delta: number }
@@ -66,6 +72,8 @@ export interface SimZustand {
   /** Spur B: Laufzeitkopie der Modellmodule (Perfusoren, Beatmung, Störungen …), entsteht im Replay identisch */
   module?: ModellModule;
   ende?: { text: string; ausgang: string; t: number };
+  /** P11: Gesprächsfäden, Rückaufträge, ausstehende Messenger-Antworten (kommunikation.ts) */
+  komm: KommStand;
   abschluss?: Extract<SimEventEingabe, { art: 'abschluss' }>;
   /** Eingaben in Reihenfolge: Grundlage für Replay */
   eingaben: SimEventEingabe[];
@@ -109,13 +117,14 @@ export function anzeige(z: SimZustand): Anzeige {
   return modell.anzeige(z.grund, kontextModell(z));
 }
 
-function bk(z: SimZustand): BedingungsKontext {
+export function kontext(z: SimZustand): BedingungsKontext {
   return {
     t: z.t, getan: z.getan, flags: z.flags, grund: z.grund, anzeige: () => anzeige(z),
     letzterAnruf: z.letzterAnruf, anordnungen: z.anordnungen,
+    auftrag: (id, status) => auftragGilt(z.komm, id, status), gesagt: (id, an) => gesagtGilt(z.komm, id, an),
   };
 }
-export const gilt = (z: SimZustand, b: Bedingung) => pruefe(b, bk(z));
+export const gilt = (z: SimZustand, b: Bedingung) => pruefe(b, kontext(z));
 
 /* ─────────────── Maßnahmen, Verfügbarkeit, Befugnis ─────────────── */
 
@@ -168,7 +177,7 @@ export function start(fall: FallV2, rolle: Rolle, stufe: Stufe, seed = 1): SimZu
     wirkungen: [], flags: [...(fall.start.flags ?? [])], getan: {}, geraete: [],
     sichtbar: [...(fall.start.sichtbar ?? [])], anordnungen, angeboten: [], zurueckgezogen: [],
     letzterAnruf: [], anleitung: [], paZaehler: {}, ereignisseAus: [], fehlerAus: [], alarme: {},
-    bild: { ...fall.start.bild }, eingaben: [], log: [], meldungen: [],
+    bild: { ...fall.start.bild }, eingaben: [], log: [], meldungen: [], komm: neuerKommStand(),
     ...(fall.start.module ? { module: structuredClone(fall.start.module) } : {}),
   };
 }
@@ -216,6 +225,8 @@ function schritt(z: SimZustand, dt: number): Stopp | undefined {
   }
   z.t = t0 + dt;
   let stopp: Stopp | undefined;
+  stelleZu(z);
+  aktualisiereAuftraege(z);
   if (pruefeEreignisse(z)) stopp = 'ereignis';
   // Alarme nur für sichtbare Werte
   const a = anzeige(z);
@@ -285,19 +296,6 @@ function pruefeEnde(z: SimZustand): boolean {
   return true;
 }
 
-/* ─────────────────────────── Arzt ─────────────────────────── */
-
-function arztAntwort(z: SimZustand) {
-  const r = z.fall.arzt.regeln.find((x) => gilt(z, x.wenn));
-  if (!r) {
-    z.meldungen.push({ t: z.t, art: 'arzt', text: `${z.fall.arzt.name}: „Ich habe Sie nicht ganz verstanden. Was genau ist los?“` });
-    return;
-  }
-  z.meldungen.push({ t: z.t, art: 'arzt', text: `${z.fall.arzt.name}: ${r.antwort}` });
-  for (const f of r.setzt ?? []) if (!z.flags.includes(f)) z.flags.push(f);
-  for (const a of r.anordnungen ?? []) if (!z.angeboten.includes(a) && !z.anordnungen[a]) z.angeboten.push(a);
-}
-
 /* ─────────────────────────── Eingaben ─────────────────────────── */
 
 /** Wartezeiten werden NICHT zusammengefasst: lauf(7)+lauf(3) rechnet andere Takte als lauf(10). */
@@ -325,7 +323,10 @@ function befund(z: SimZustand, id: string) {
   const b = z.fall.befunde.find((x) => x.massnahme === id);
   const v = b?.varianten.find((x) => !x.wenn || gilt(z, x.wenn));
   if (v) {
-    z.meldungen.push({ t: z.t, art: 'befund', text: fuelle(v.text, z), quelle: id, ...(v.zeigt?.length ? { zeigt: v.zeigt } : {}) });
+    const a = anzeige(z);
+    const werte: NonNullable<Meldung['werte']> = {};
+    for (const k of v.zeigt ?? []) if (typeof a[k] === 'number') werte[k] = a[k] as number;
+    z.meldungen.push({ t: z.t, art: 'befund', text: fuelle(v.text, z), quelle: id, ...(v.zeigt?.length ? { zeigt: v.zeigt, werte } : {}) });
     for (const k of v.zeigt ?? []) if (!z.sichtbar.includes(k)) z.sichtbar.push(k);
   }
 }
@@ -399,19 +400,45 @@ export function sende(alt: SimZustand, e: SimEventEingabe): SimZustand {
       lauf(z, e.sek);
       break;
     case 'massnahme':
+      legeAufWennOffen(z);
       massnahmeEingabe(z, e.id);
       break;
     case 'frage': {
       const g = z.fall.gespraech.find((x) => x.id === e.id);
       if (!g) break;
+      if (g.nurWenn && !gilt(z, g.nurWenn)) { z.meldungen.push({ t: z.t, art: 'hinweis', text: 'Das passt gerade nicht.', quelle: g.id, faden: g.an }); break; }
+      if (g.an !== 'aerztin') legeAufWennOffen(z);
       markiere(z, `frage:${g.id}`);
+      z.komm.gesagt.push({ id: g.id, an: g.an, t: z.t });
+      z.meldungen.push({ t: z.t, art: 'nachricht', text: g.frage, quelle: g.id, faden: g.an, richtung: 'raus' });
       const a = g.antwort.find((x) => !x.wenn || gilt(z, x.wenn));
-      if (a) z.meldungen.push({ t: z.t, art: 'gespraech', text: a.text, quelle: g.id });
+      if (a) {
+        z.meldungen.push({ t: z.t, art: 'gespraech', text: a.text, quelle: g.id, faden: g.an, richtung: 'rein' });
+        z.log.push({ t: z.t, art: 'antwort', von: g.an, text: a.text, regel: g.id });
+        for (const f of a.setzt ?? []) if (!z.flags.includes(f)) z.flags.push(f);
+      }
+      if (g.schweigepflicht && !gilt(z, g.schweigepflicht.erlaubtWenn)) {
+        const fid = `schweigepflicht:${g.id}`;
+        if (!z.fehlerAus.includes(fid)) { z.fehlerAus.push(fid); z.log.push({ t: z.t, art: 'fehler', id: fid }); }
+        z.meldungen.push({ t: z.t, art: 'fehler', text: g.schweigepflicht.fehlerText, quelle: fid, faden: g.an });
+      }
       aktiviere(z, g.wirkung);
-      lauf(z, 30);
+      lauf(z, (g.kanal ?? 'vor-ort') === 'vor-ort' ? KOSTEN.vorOrt : KOSTEN.telefon);
       break;
     }
+    case 'nachricht': {
+      const kosten = e.an === 'aerztin'
+        ? arztNachricht(z, e.kanal, e.bausteine, e.freitext, e.auftrag)
+        : andereNachricht(z, e.an, e.kanal, e.bausteine, e.freitext);
+      pruefeFehler(z);
+      lauf(z, kosten);
+      break;
+    }
+    case 'auflegen':
+      if (auflegen(z, e.an)) lauf(z, KOSTEN.auflegen);
+      break;
     case 'pflegetasche':
+      legeAufWennOffen(z);
       if (!z.geraete.includes(e.geraet)) z.geraete.push(e.geraet);
       markiere(z, `pflegetasche:${e.geraet}`);
       z.bild = { ...z.bild, geraete: [...(z.bild.geraete ?? []), e.geraet] };
@@ -423,11 +450,10 @@ export function sende(alt: SimZustand, e: SimEventEingabe): SimZustand {
       lauf(z, 15);
       break;
     case 'anruf':
-      z.letzterAnruf = [...e.sbar];
       markiere(z, 'anruf-aerztin');
-      arztAntwort(z);
+      arztAnruf(z, e.sbar);
       pruefeFehler(z);
-      lauf(z, 90);
+      lauf(z, KOSTEN.anruf);
       break;
     case 'rueckmelden':
       if (z.angeboten.includes(e.anordnung)) {
@@ -445,11 +471,11 @@ export function sende(alt: SimZustand, e: SimEventEingabe): SimZustand {
         z.angeboten = z.angeboten.filter((x) => x !== a.id);
         if (!z.zurueckgezogen.includes(a.id)) z.zurueckgezogen.push(a.id);
         z.flags.push(`remonstriert:${a.id}`);
-        z.meldungen.push({ t: z.t, art: 'arzt', text: `${z.fall.arzt.name}: „Sie haben recht. ${a.fehlerhaft.korrektur}“`, quelle: a.id });
+        z.meldungen.push({ t: z.t, art: 'arzt', text: `${z.fall.arzt.name}: „Sie haben recht. ${a.fehlerhaft.korrektur}“`, quelle: a.id, faden: 'aerztin', richtung: 'rein' });
         const ersatz = a.fehlerhaft.ersatz;
         if (ersatz && !z.angeboten.includes(ersatz) && !z.anordnungen[ersatz]) z.angeboten.push(ersatz);
       } else {
-        z.meldungen.push({ t: z.t, art: 'arzt', text: `${z.fall.arzt.name}: „Doch, das ist so richtig. Bitte umsetzen.“`, quelle: a.id });
+        z.meldungen.push({ t: z.t, art: 'arzt', text: `${z.fall.arzt.name}: „Doch, das ist so richtig. Bitte umsetzen.“`, quelle: a.id, faden: 'aerztin', richtung: 'rein' });
       }
       lauf(z, 60);
       break;
@@ -457,13 +483,13 @@ export function sende(alt: SimZustand, e: SimEventEingabe): SimZustand {
     case 'pa-fragen': {
       if (z.stufe === 3) { z.meldungen.push({ t: z.t, art: 'hinweis', text: 'In der Prüfung gibt es keine Hilfe der Praxisanleitung.' }); break; }
       const i = z.fall.pa.hilfen.findIndex((h) => !h.wenn || gilt(z, h.wenn));
-      if (i < 0) { z.meldungen.push({ t: z.t, art: 'pa', text: `${z.fall.pa.name}: „Du bist auf einem guten Weg.“` }); break; }
+      if (i < 0) { z.meldungen.push({ t: z.t, art: 'pa', text: `${z.fall.pa.name}: „Du bist auf einem guten Weg.“`, faden: 'pa', richtung: 'rein' }); break; }
       const n = z.paZaehler[i] ?? 0;
       z.paZaehler[i] = n + 1;
       const stufe = n === 0 ? 'impuls' : 'tipp';
       z.log.push({ t: z.t, art: 'pa-hilfe', stufe });
       const h = z.fall.pa.hilfen[i];
-      z.meldungen.push({ t: z.t, art: 'pa', text: `${z.fall.pa.name}: „${stufe === 'impuls' ? h.impuls : h.tipp}“` });
+      z.meldungen.push({ t: z.t, art: 'pa', text: `${z.fall.pa.name}: „${stufe === 'impuls' ? h.impuls : h.tipp}“`, faden: 'pa', richtung: 'rein' });
       lauf(z, 10);
       break;
     }
@@ -476,7 +502,7 @@ export function sende(alt: SimZustand, e: SimEventEingabe): SimZustand {
       for (const f of o.setzt ?? []) if (!z.flags.includes(f)) z.flags.push(f);
       modulEingriff(z, o.modul);
       markiere(z, `wahl:${e.ereignis}:${o.id}`);
-      if (o.loestAnrufAus) { z.letzterAnruf = []; markiere(z, 'anruf-aerztin'); arztAntwort(z); }
+      if (o.loestAnrufAus) { markiere(z, 'anruf-aerztin'); arztAnruf(z, []); }
       pruefeFehler(z);
       lauf(z, 30);
       break;
@@ -486,6 +512,7 @@ export function sende(alt: SimZustand, e: SimEventEingabe): SimZustand {
       z.ende ??= { text: 'Fall abgeschlossen.', ausgang: 'abgeschlossen', t: z.t };
       break;
   }
+  aktualisiereAuftraege(z);
   pruefeFehler(z);
   pruefeEnde(z);
   return z;
