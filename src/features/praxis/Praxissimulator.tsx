@@ -1,11 +1,13 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { getModule, modules } from '../../modules/registry';
 import type { CatalogModule } from '../../modules/catalog-types';
 import { PageHeading } from '../../ui/PageHeading';
 import { useStore } from '../../ui/lib/store';
 import { navigate, useRoute } from '../../ui/shell/router';
 import { session as shellSession } from '../../ui/shell/session';
-import { PRAXIS_THEMEN, praxisZuThema } from './themen';
+import { kernZuThema, PRAXIS_THEMEN, praxisZuThema } from './themen';
+import { ceListe } from '../ce/modell';
+import { FallauswahlCe } from './FallauswahlCe';
 import { faelleZuKrankheit, krankheitenZuFall, PRAXIS_KRANKHEITEN } from '../krankheitsbilder/fallbezug';
 import { SCENARIOS, RESOURCES } from './catalog';
 import { praxisSbar } from './sbar';
@@ -425,6 +427,19 @@ export default function Praxissimulator() {
     <Gefuehrt key={gefuehrt} fall={gefuehrt} onZurueck={() => navigate('/lernen/praxis')}
       onFrei={(id) => { const sc = SCENARIOS.find(x => x.id === id); navigate('/lernen/praxis'); if (sc) { setLevel(2); preserveUnreadable.current = false; setSession(start(sc, 2)); setRunning(false); setPanel('Patientenzimmer'); } }} />
   </section>;
+  // Fallauswahl nach CE und Drittel (P15), solange kein Sprung (Thema, Fall, Krankheitsbild) und kein Einsatzort-Filter aktiv ist.
+  const ceParam = params.get('ce') ?? '';
+  const ces = ceListe(getModule(moduleId) ?? modules[0]!);
+  const nachCe = !zumThema.length && !thema && !kb && setting === 'alle';
+  const kernZumThema = thema && !zumFall.length && !kb ? FAELLE_V2.filter((f) => kernZuThema(thema).includes(f.id)) : [];
+  const altZeile = (scenario: Scenario, zusatz: ReactNode, H: 'h3' | 'h4') => <li className="praxis-fall" key={scenario.id}>
+    {personFuer('praxis', scenario.id) ? <Portraet person={personFuer('praxis', scenario.id)!} groesse={44} /> : <span className="praxis-fall__ohnebild" aria-hidden="true" />}
+    <div className="praxis-fall__text"><H>{scenario.title}</H><p>{scenario.patient}, {alterText(scenario.age)} · {SETTINGS[scenario.setting]}</p>{zusatz}</div>
+    <div className="praxis-fall__knoepfe">
+      {leitfallFuer(scenario.id) ? <button className="primary" onClick={() => navigate(`/lernen/praxis?gefuehrt=${scenario.id}`)}>Geführt</button> : <span className="praxis-fall__bald">Geführt folgt</span>}
+      <button onClick={() => begin(scenario)}>Frei üben</button>
+    </div>
+  </li>;
   return <section className="page praxis">
     <PageHeading eyebrow="Generalistische Pflegeausbildung" title="Praxissimulator" description="Beobachten. Entscheiden. Handeln. Ein eigener Übungsraum mit regelbasiertem Patientenverlauf – ohne KI und ohne API-Schlüssel." />
         {error && <p className="note warn" role="alert">{error}</p>}
@@ -436,28 +451,19 @@ export default function Praxissimulator() {
       </div>
       {zumFall.length > 0 && <p className="note" role="status">Fall aus deinem Fehlerheft: <strong>{zumFall[0]!.title}</strong>. <button type="button" className="link" onClick={() => navigate('/lernen/praxis')}>Alle Fälle zeigen</button></p>}
       {kb && !zumFall.length && <p className="note" role="status">{zumKb.length ? <>Fälle zum Krankheitsbild <strong>{kbName}</strong>. </> : <>Zum Krankheitsbild <strong>{kbName}</strong> gibt es noch keinen Praxisfall. </>}<button type="button" className="link" onClick={() => navigate('/lernen/praxis')}>Alle Fälle zeigen</button></p>}
-      {thema && !zumFall.length && !zumKb.length && <p className="note" role="status">{zumThema.length ? <>Fälle zum Thema <strong>{themaName}</strong>. </> : <>Zum Thema <strong>{themaName}</strong> gibt es noch keinen Praxisfall. </>}<button type="button" className="link" onClick={() => navigate('/lernen/praxis')}>Alle Fälle zeigen</button></p>}
+      {thema && !zumFall.length && !zumKb.length && <p className="note" role="status">{zumThema.length || kernZumThema.length ? <>Fälle zum Thema <strong>{themaName}</strong>. </> : <>Zum Thema <strong>{themaName}</strong> gibt es noch keinen Praxisfall. </>}<button type="button" className="link" onClick={() => navigate('/lernen/praxis')}>Alle Fälle zeigen</button></p>}
       <div className="praxis-filters">
         <label>Einsatzort<select value={setting} onChange={e => setSetting(e.target.value)}><option value="alle">Alle Einsatzorte</option><option value="gefuehrt">Nur mit geführter Stufe</option>{Object.entries(SETTINGS).filter(([k]) => SCENARIOS.some(x => x.setting === k)).map(([k, v]) => <option value={k} key={k}>{v}</option>)}</select></label>
         <label>Tempo in Stufe 2<select value={level} onChange={e => setLevel(Number(e.target.value) as 1 | 2 | 3)}><option value="1">1. Jahr · langsamer Verlauf</option><option value="2">2. Jahr · regulärer Verlauf</option><option value="3">3. Jahr · schnellerer Verlauf</option></select></label>
       </div>
-      {!zumThema.length && setting === 'alle' && <section className="praxis-neu" aria-labelledby="praxis-neu">
-        <h2 id="praxis-neu">Neuer Arbeitsplatz (Vorschau)</h2>
-        <p className="muted">Ein Bildschirm mit Raumfoto, Werteleiste, Uhr, Team und sechs Pflege-Reitern. Was du darfst, hängt von deinem Ausbildungsdrittel ab. Fachlich noch ungeprüft.</p>
-        <ul className="praxis-fallliste">{FAELLE_V2.map((f) => <li className="praxis-fall" key={f.id}>
-          <span className="praxis-fall__ohnebild" aria-hidden="true" />
-          <div className="praxis-fall__text"><h3>{f.titel}</h3><p>{f.person.name}, {f.person.alter.jahre ?? `${f.person.alter.monate} Monate`} · {f.kurz}</p></div>
-          <div className="praxis-fall__knoepfe"><button className="primary" onClick={() => navigate(`/lernen/praxis?neu=${f.id}`)}>Neu üben</button></div>
-        </li>)}</ul>
-      </section>}
-      <ul className="praxis-fallliste">{sichtbar.filter(x => setting === 'alle' || (setting === 'gefuehrt' ? !!leitfallFuer(x.id) : x.setting === setting)).sort((a, b) => Number(!!leitfallFuer(b.id)) - Number(!!leitfallFuer(a.id))).map(scenario => <li className="praxis-fall" key={scenario.id}>
-        {personFuer('praxis', scenario.id) ? <Portraet person={personFuer('praxis', scenario.id)!} groesse={44} /> : <span className="praxis-fall__ohnebild" aria-hidden="true" />}
-        <div className="praxis-fall__text"><h3>{scenario.title}</h3><p>{scenario.patient}, {alterText(scenario.age)} · {SETTINGS[scenario.setting]}</p></div>
-        <div className="praxis-fall__knoepfe">
-          {leitfallFuer(scenario.id) ? <button className="primary" onClick={() => navigate(`/lernen/praxis?gefuehrt=${scenario.id}`)}>Geführt</button> : <span className="praxis-fall__bald">Geführt folgt</span>}
-          <button onClick={() => begin(scenario)}>Frei üben</button>
-        </div>
-      </li>)}</ul>
+      {nachCe ? <FallauswahlCe ces={ces} kern={FAELLE_V2} alt={SCENARIOS} nurCe={ceParam || undefined} renderAlt={(id, zusatz) => { const sc = SCENARIOS.find((x) => x.id === id); return sc ? altZeile(sc, zusatz, 'h4') : null; }} /> : <>
+      {kernZumThema.length > 0 && <ul className="praxis-fallliste">{kernZumThema.map((f) => <li className="praxis-fall praxis-fall--kern" key={f.id}>
+        <span className="praxis-fall__ohnebild" aria-hidden="true" />
+        <div className="praxis-fall__text"><h3>{f.titel}</h3><p>{f.person.name}, {f.person.alter.jahre ?? `${f.person.alter.monate} Monate`} · {f.kurz}</p><p className="praxis-fall__marken"><span className="praxis-marke praxis-marke--neu">Neu</span></p></div>
+        <div className="praxis-fall__knoepfe"><button className="primary" onClick={() => navigate(`/lernen/praxis?neu=${f.id}`)}>Neu üben</button></div>
+      </li>)}</ul>}
+      {(zumThema.length || !kernZumThema.length) && <ul className="praxis-fallliste">{sichtbar.filter(x => setting === 'alle' || (setting === 'gefuehrt' ? !!leitfallFuer(x.id) : x.setting === setting)).sort((a, b) => Number(!!leitfallFuer(b.id)) - Number(!!leitfallFuer(a.id))).map(scenario => altZeile(scenario, kernZumThema.length ? <p className="praxis-fall__marken"><span className="praxis-marke">alt</span></p> : null, 'h3'))}</ul>}
+      </>}
       <p className="praxis-disclaimer">Fiktive Fälle mit vereinfachtem Verlauf, fachlich noch nicht freigegeben. Speicherung nur auf diesem Gerät.</p>
       <details className="card praxis-mehr"><summary>Weitere Möglichkeiten: Schichtmodus, eigene Fälle, Archiv</summary>
       <section className="praxis-schichtwahl" aria-labelledby="schichtwahl"><h2 id="schichtwahl">Schichtmodus: mehrere Patienten, eine Uhr</h2><p>Übernimm zwei oder drei Patienten gleichzeitig. Während du bei einem bist, verändern sich die anderen weiter.</p>

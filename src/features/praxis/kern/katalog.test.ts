@@ -7,7 +7,7 @@ import { KATALOG, KATALOG_LISTE, NACHWEIS, PFLEGETASCHE } from './katalog';
 import { freigabe, massnahme, replay, start } from './kern';
 import { LP, spaltenStaerke, staerke } from './lehrplan-belege';
 import { befugnisMatrix } from './matrix';
-import { NORMAL } from './modell';
+import { NORMAL, OPTIONALE_WIRKGROESSEN } from './modell';
 import type { BefugnisLevel, Reiter } from './typen';
 
 const REITER: Reiter[] = ['gespraech', 'beobachten', 'akut', 'messen', 'versorgen', 'melden'];
@@ -54,7 +54,7 @@ describe('Handlungskatalog P3', () => {
   });
   it('Wirkkurven zeigen auf echte Grundgrößen und sind zeitlich geordnet', () => {
     for (const m of KATALOG_LISTE) for (const k of m.wirkung ?? []) {
-      expect(Object.keys(NORMAL), m.id).toContain(k.groesse);
+      expect([...Object.keys(NORMAL), ...OPTIONALE_WIRKGROESSEN], m.id).toContain(k.groesse);
       expect(k.spitzeSek, m.id).toBeGreaterThanOrEqual(k.beginnSek);
       if (k.dauerSek !== 'dauerhaft') expect(k.dauerSek, m.id).toBeGreaterThanOrEqual(k.spitzeSek);
       expect(k.delta !== undefined || k.faktor !== undefined, m.id).toBe(true);
