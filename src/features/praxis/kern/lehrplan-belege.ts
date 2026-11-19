@@ -78,6 +78,9 @@ export const LP = {
 
   // CE 04, 05, 07, 08 (kurative Pflege)
   diabetes12: s(33, '04', '1./2.', 'Handlungsmuster', 'Information, Schulung, Beratung bei Diabetes Typ 2'),
+  schulung04_12: s(33, '04', '1./2.', 'Handlungsmuster', 'Gesundheitskommunikation: Information und Schulung verschiedener Zielgruppen'),
+  praevention04_12: s(33, '04', '1./2.', 'Handlungsmuster', 'präventive Angebote bei gesundheitlichen Risiken (z. B. Lebensstil nach Herzinfarkt)'),
+  beratung04_3: s(33, '04', '3.', 'Handlungsmuster', 'spezielle Gesundheitskommunikation: Beratung verschiedener Zielgruppen'),
   aufnahme12: s(59, '05', '1./2.', 'Handlungsmuster', 'Patientenaufnahme, Pflegebedarf feststellen, Pflegeprozess steuern'),
   zuAbleitungen12: s(59, '05', '1./2.', 'Handlungsmuster', 'Assistenz bei ärztlichen Interventionen, z. B. Umgang mit Zu- und Ableitungen'),
   sbar12: s(59, '05', '1./2.', 'Handlungsmuster', 'Zusammenarbeit im Team, Visite nach SBAR'),
@@ -127,6 +130,11 @@ export const LP = {
   inhalation3: s(170, '10', '3.', 'Handlungsmuster', 'Inhalationen, atemunterstützende Maßnahmen, Peak-Flow'),
   hypo3: s(170, '10', '3.', 'Handlungsmuster', 'Hypo- und Hyperglykämie früh erkennen und vermeiden'),
   insulin3: s(171, '10', '3.', 'Handlungsmuster', 'Schulung zu Ernährung, Aktivität und Insulin'),
+  // CE 07 Rehabilitatives Pflegehandeln (P17b, geprüft am 19.11.2026)
+  bezugAnleiten12: s(97, '07', '1./2.', 'Kompetenz II.2.a', 'Bezugspersonen bei der Fremdpflege anleiten', 'kompetenz'),
+  rehaSelbst12: s(103, '07', '1./2.', 'Handlungsmuster', 'Selbstständigkeit bei Beeinträchtigung der Selbstversorgung fördern, Schulung zur Alltagsbewältigung'),
+  rehaInterprof12: s(103, '07', '1./2.', 'Handlungsmuster', 'interprofessionellen Rehaprozess mitgestalten, therapeutisch Erlerntes in den Alltag übernehmen'),
+  rehaBeratung3: s(104, '07', '3.', 'Handlungsmuster', 'Bezugspersonen zur Wiedererlangung der eigenständigen Lebensführung beraten und schulen'),
   validation12: s(192, '11', '1./2.', 'Handlungsmuster', 'Beziehungsgestaltung bei veränderter Realitätswahrnehmung, z. B. Validation; Milieugestaltung'),
   uebergabe12: s(192, '11', '1./2.', 'Handlungsmuster', 'Beobachtungen bei Übergaben und Fallbesprechungen weitergeben'),
   krise3: s(192, '11', '3.', 'Handlungsmuster', 'psychische Krisen erkennen, kurzfristige Hilfe, Deeskalation'),

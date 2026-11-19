@@ -113,6 +113,11 @@ const LISTE: MassnahmeDefinition[] = [
     ],
   }),
   m('trinken-beraten', 'Zum Trinken beraten und Trinkplan vereinbaren', 'gespraech', 90, ['II', 'V'], nw(['selbstpflege1', 'ernaehrung1']), { spur: 'A', quellen: [Q.ernaehrung] }),
+  // P17b (CE04/CE07): Schulung, Anleitung, Bezugspersonen
+  m('schulen-selbstmanagement', 'Zu Selbstkontrolle und Warnzeichen schulen (chronische Erkrankung)', 'gespraech', 240, ['II', 'I'], nw(['schulung04_12', 'praevention04_12', 'diabetes12']), {
+    spur: 'A', setzt: ['geschult'],
+  }),
+  m('bezugsperson-anleiten', 'Bezugsperson anleiten (vormachen, üben lassen, Rückmeldung geben)', 'gespraech', 300, ['II'], nw(['bezugAnleiten12', 'rehaBeratung3']), { spur: 'A' }),
   m('eltern-einbeziehen', 'Eltern/Bezugsperson beruhigen und einbeziehen', 'gespraech', 90, ['II'], nw(['psychErsteHilfe12', 'bezugspersonen3']), { spur: 'A' }),
   m('kommunikation-tubus', 'Mit intubierter Person kommunizieren (Ja/Nein, Buchstabentafel)', 'gespraech', 120, ['II'], NICHT_BELEGT(
     'Lehrplan nennt nur den Besuch einer Intensivstation (S. 62). Grundwert: im 1./2. Drittel mit Anleitung.',
@@ -148,6 +153,7 @@ const LISTE: MassnahmeDefinition[] = [
   m('ausscheidung-beobachten', 'Erbrechen und Stuhl beobachten (Menge, Häufigkeit, Aussehen), Windel wiegen', 'beobachten', 60, ['I'], nw(['selbstversorgung1', 'vital1', 'wasser12'])),
   m('sturzrisiko-einschaetzen', 'Sturzrisiko einschätzen', 'beobachten', 120, ['I', 'V'], nw(['mobil1', 'standards1']), { spur: 'A', quellen: [Q.sturz] }),
   m('dekubitusrisiko-einschaetzen', 'Dekubitusrisiko und Haut an Druckstellen einschätzen', 'beobachten', 120, ['I', 'V'], nw(['standards1', 'selbstversorgung1']), { spur: 'A', quellen: [Q.dekubitus] }),
+  m('spritzstellen-pruefen', 'Insulin-Spritzstellen ansehen und tasten (Verhärtung, Lipohypertrophie)', 'beobachten', 60, ['I'], nw(['diabetes12', 'insulin3']), { spur: 'A' }),
   m('wunde-beurteilen', 'Wunde beurteilen (Größe, Exsudat, Rötung, Geruch)', 'beobachten', 60, ['I', 'V'], nw(['wunde12', 'wunde3']), { spur: 'A', quellen: [Q.wunden] }),
   m('schlucken-pruefen', 'Schluckfähigkeit prüfen (vor dem Trinken/Essen)', 'beobachten', 90, ['I', 'V'], nw(['aspiration1', 'selbstversorgung1'], {
     anmerkung: 'Anreichen mit Aspirationsprophylaxe ist im 1. Drittel genannt; ein strukturiertes Schluckscreening nicht. Darum bis zum 2. Drittel mit Anleitung.',
@@ -329,6 +335,18 @@ const LISTE: MassnahmeDefinition[] = [
   m('inkontinenz-versorgen', 'Bei Ausscheidung unterstützen, Inkontinenz versorgen', 'versorgen', 300, ['I', 'II'], nw(['selbstversorgung1', 'ernaehrung1']), { quellen: [Q.kontinenz] }),
   m('positionieren-druckentlastung', 'Positionieren zur Druckentlastung', 'versorgen', 180, ['I', 'V'], nw(['mobil1', 'standards1']), { quellen: [Q.dekubitus] }),
   m('mobilisieren-transfer', 'Mobilisieren, Transfer Bett–Stuhl', 'versorgen', 300, ['I', 'V'], nw(['mobil1', 'standards1']), { quellen: [Q.mobilitaet] }),
+  // P17b (CE04/CE07)
+  m('positionieren-hemiplegie', 'Nach Schlaganfall positionieren (betroffene Seite einbeziehen, Schulter schützen)', 'versorgen', 240, ['I', 'V'], nw(['mobil1', 'rehaSelbst12'], { anmerkung: B_ANLEITUNG_DANN_SELBST }), {
+    spur: 'A', befugnis: befugnis(A, S), quellen: [Q.mobilitaet],
+  }),
+  m('anleiten-selbstpflege', 'Zur Selbstpflege anleiten statt abnehmen (vormachen, selbst tun lassen, Rückmeldung)', 'versorgen', 300, ['I', 'II'], nw(['selbstpflege1', 'rehaSelbst12']), { spur: 'A' }),
+  m('kost-anpassen', 'Kost und Getränke nach Schluckbefund anpassen (angedickt, weich)', 'versorgen', 60, ['I', 'V'], nw(['aspiration1', 'rehaInterprof12'], {
+    anmerkung: 'Setzt die Empfehlung von Logopädie bzw. Ärztin um; die Kostform legt das Team fest.',
+  }), { spur: 'A', setzt: ['kost-angepasst'] }),
+  m('kompression-ausziehen', 'Kompressionsstrümpfe ausziehen bzw. heute weglassen', 'versorgen', 90, ['I'], nw(['zirkulation12', 'selbstversorgung1']), { setzt: ['kompression-aus'] }),
+  m('kohlenhydrate-langsam', 'Langsam wirksame Kohlenhydrate nachgeben (Brot, Mahlzeit)', 'versorgen', 120, ['I', 'V'], nw(['hypo3', 'diabetes12']), {
+    spur: 'A', treiber: [{ art: 'kohlenhydrate', gramm: 24 }],
+  }),
   m('kompression-anziehen', 'Kompressionsstrümpfe anziehen', 'versorgen', 300, ['I'], nw(['zirkulation12'], { anmerkung: B_ANLEITUNG_DANN_SELBST }), { befugnis: befugnis(A, S) }),
   m('hausnotruf-anlegen', 'Hausnotruf anlegen und erklären', 'versorgen', 30, ['I', 'II'], nw(['umgebung1', 'selbstpflege1']), { spur: 'A' }),
   m('lippenbremse-anleiten', 'Lippenbremse und Atemtechnik anleiten', 'versorgen', 90, ['I', 'II'], nw(['atem12', 'selbstpflege1']), {
@@ -359,6 +377,9 @@ const LISTE: MassnahmeDefinition[] = [
     anordnungspflichtig: true, befugnis: befugnis(A, A, S), risikoBeiUeberschreitung: 'patientenschaden', klinisch: ['medikamente'],
   }),
   m('torasemid-zurueckhalten', 'Torasemid heute zurückhalten', 'versorgen', 20, ['I', 'III'], nw(['medi12', 'eigenstaendig3']), { anordnungspflichtig: true }),
+  m('gabe-zurueckstellen', 'Geplante Gabe zurückstellen und sofort ärztlich Rücksprache halten', 'versorgen', 20, ['I', 'III'], nw(['medi12', 'medfehler3'], {
+    anmerkung: 'Keine Gabe, darum ohne Anordnung: Bei klarem Hinderungsgrund (z. B. Unterzucker vor dem Insulin) stellt die Pflege zurück und informiert sofort. Über das Weglassen entscheidet die Ärztin.',
+  }), { setzt: ['gabe-zurueckgestellt'], klinisch: ['medikamente'] }),
   m('lorazepam-geben', 'Lorazepam geben', 'versorgen', 60, ['I', 'III'], nw(['medi12', 'eigenstaendig3', 'medfehler3']), {
     treiber: [{ art: 'wirkstoff', id: 'lorazepam', dosisMg: 1, weg: 'oral' }],   // G1: Wirkung aus dem Wirkstoffregister
     anordnungspflichtig: true, befugnis: befugnis(A, A, S), risikoBeiUeberschreitung: 'patientenschaden',
@@ -435,6 +456,7 @@ const LISTE: MassnahmeDefinition[] = [
   m('tochter-informieren', 'Angehörige informieren', 'melden', 120, ['II'], nw(['bezugspersonen3', 'beziehung1'], {
     anmerkung: 'Information über Gesundheitszustand nach Absprache mit der verantwortlichen Pflegefachperson (Schweigepflicht CE 01, S. 9).',
   })),
+  m('therapieteam-informieren', 'Therapieteam einbeziehen (Logopädie, Physio-, Ergotherapie)', 'melden', 60, ['III', 'II'], nw(['rehaInterprof12']), { spur: 'A' }),
   m('pflegebericht', 'Pflegebericht schreiben', 'melden', 180, ['I', 'IV'], nw(['doku1'])),
   m('pdl-informieren', 'Pflegedienstleitung informieren', 'melden', 60, ['III'], nw(['abgrenzen1'])),
   m('pflegefachperson-informieren', 'Verantwortliche Pflegefachperson/Schichtleitung informieren', 'melden', 60, ['III'], nw(['abgrenzen1', 'aufsicht1']), { klinisch: ['team'] }),
