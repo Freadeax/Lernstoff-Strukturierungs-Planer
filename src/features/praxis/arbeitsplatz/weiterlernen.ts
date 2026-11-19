@@ -49,6 +49,26 @@ export const WEITERLERNEN_V2: Record<string, WeiterlernenEintrag> = {
     themen: ['thema.fa.paediatrie', 'thema.kl.paediatrie', 'thema.beo.notfall', 'thema.kom.beratung'],
     krankheiten: ['kh.fieberkrampf'],
   },
+  'kh-nachblutung': {
+    themen: ['thema.ph.periop', 'thema.ph.wunde', 'thema.beo.vitalzeichen', 'thema.pro.thrombose'],
+    krankheiten: [],
+  },
+  'kh-medikationsverwechslung': {
+    themen: ['thema.ph.medikamente', 'thema.qw.qm', 'thema.kl.diabetes', 'thema.re.haftung'],
+    krankheiten: [],
+  },
+  'kh-lungenembolie': {
+    themen: ['thema.pro.thrombose', 'thema.ph.mobilisation', 'thema.ph.periop', 'thema.beo.notfall'],
+    krankheiten: [],
+  },
+  'kh-anaphylaxie-infusion': {
+    themen: ['thema.ph.medikamente', 'thema.beo.notfall', 'thema.beo.haut', 'thema.beo.vitalzeichen'],
+    krankheiten: [],
+  },
+  'awr-opioid-atemdepression': {
+    themen: ['thema.ph.periop', 'thema.ph.medikamente', 'thema.kl.atmung', 'thema.beo.bewusstsein'],
+    krankheiten: [],
+  },
   'psy-panik-suizidalitaet': {
     themen: ['thema.fa.psychiatrie', 'thema.kl.psych', 'thema.kom.gespraech'],
     krankheiten: ['kh.angststoerung', 'kh.depression'],

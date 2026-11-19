@@ -38,11 +38,11 @@ export const FALLPLAN: readonly PlanEintrag[] = [
   { ce: 'ce.04', titel: 'Diabetes: Unterzuckerung und Insulinschulung', art: 'neu', abschnitt: ['ad12', 'ad3'], paket: 'P17' },
 
   { ce: 'ce.05', titel: 'Pneumonie mit beginnender Sepsis', art: 'vorhanden', abschnitt: ['ad12', 'ad3'], fall: 'kh-pneumonie-sepsis', alt: ['sepsis', 'nachtwache'] },
-  { ce: 'ce.05', titel: 'Nachblutung nach der OP', art: 'migrieren', abschnitt: ['ad12', 'ad3'], paket: 'P16', alt: ['nachblutung'] },
-  { ce: 'ce.05', titel: 'Aufwachraum: Atemdepression nach Opioid', art: 'migrieren', abschnitt: ['ad12', 'ad3'], paket: 'P16', alt: ['aufwachraum'] },
-  { ce: 'ce.05', titel: 'Anaphylaxie bei der ersten Infusion', art: 'migrieren', abschnitt: ['ad12', 'ad3'], paket: 'P16', alt: ['anaphylaxie'] },
-  { ce: 'ce.05', titel: 'Lungenembolie bei der Mobilisation', art: 'migrieren', abschnitt: ['ad12', 'ad3'], paket: 'P16', alt: ['lungenembolie'] },
-  { ce: 'ce.05', titel: 'Medikationsfehler und Verwechslung', art: 'neu', abschnitt: ['ad12', 'ad3'], paket: 'P16' },
+  { ce: 'ce.05', titel: 'Nachblutung nach der OP', art: 'migrieren', abschnitt: ['ad12', 'ad3'], paket: 'P16', alt: ['nachblutung'], fall: 'kh-nachblutung' },
+  { ce: 'ce.05', titel: 'Aufwachraum: Atemdepression nach Opioid', art: 'migrieren', abschnitt: ['ad12', 'ad3'], paket: 'P16', alt: ['aufwachraum'], fall: 'awr-opioid-atemdepression' },
+  { ce: 'ce.05', titel: 'Anaphylaxie bei der ersten Infusion', art: 'migrieren', abschnitt: ['ad12', 'ad3'], paket: 'P16', alt: ['anaphylaxie'], fall: 'kh-anaphylaxie-infusion' },
+  { ce: 'ce.05', titel: 'Lungenembolie bei der Mobilisation', art: 'migrieren', abschnitt: ['ad12', 'ad3'], paket: 'P16', alt: ['lungenembolie'], fall: 'kh-lungenembolie' },
+  { ce: 'ce.05', titel: 'Medikationsfehler und Verwechslung', art: 'neu', abschnitt: ['ad12', 'ad3'], paket: 'P16', fall: 'kh-medikationsverwechslung' },
 
   { ce: 'ce.06', titel: 'Septischer Schock im Schockraum', art: 'vorhanden', abschnitt: ['ad3'], fall: 'sr-septischer-schock' },
   { ce: 'ce.06', titel: 'Brustschmerz in der Notaufnahme', art: 'migrieren', abschnitt: ['ad3'], paket: 'P16', alt: ['zna'], fall: 'na-acs-brustschmerz' },

@@ -18,7 +18,7 @@ const HANDBEATMET: Bedingung = { getan: 'handbeatmung' };
 const DICHT = { beatmung: { fio2: 0.4, peep: 8, af: 16, vt: 480 }, stoerungAus: ['diskonnektion' as const] };
 const SEKRET_DA: Bedingung = { alle: [BEHOBEN, { ab: 480 }] };
 const SPRITZE_LEER: Bedingung = { alle: [ABGESAUGT, { ab: 840 }] };
-/** Propofol 2 % (20 mg/ml), 80 kg: 6 ml/h = 1,5 mg/kg/h */
+/** Propofol 2 % (20 mg/ml), 80 kg: 4 ml/h = 1 mg/kg/h */
 const PROPOFOL = { id: 'propofol', wirkstoff: 'propofol', konzentration: '1000 mg/50 ml (2 %)', mgProMl: 20 };
 
 export const ITS_BEATMUNG_ALARM: FallV2 = {
@@ -50,8 +50,8 @@ export const ITS_BEATMUNG_ALARM: FallV2 = {
     pruefpunkte: [
       'DOPES-Vorgehen und Handbeatmung mit Beutel bei unklarer Ursache gegen S3-Leitlinie Invasive Beatmung (AWMF 001-021, 2017) und Hausstandard prüfen',
       'Geschlossenes Absaugen durch Auszubildende im 3. Drittel mit Anleitung (Katalog P3) bestätigen',
-      'Propofol-Dosis (2 %, 80 kg, 6 ml/h = 1,5 mg/kg/h; Höchstdosis 4 mg/kg/h) und die Remonstration bei 40 ml/h prüfen',
-      'Begründete tiefere Sedierung (RASS −2 bis −3 bei offenem Abdomen, Relaparotomie geplant) statt RASS 0/−1 und Analgesie zuerst (S3-Leitlinie DAS 2020) im Text korrekt?',
+      'Propofol-Dosis (2 %, 80 kg, 4 ml/h = 1 mg/kg/h; Höchstdosis 4 mg/kg/h) und die Remonstration bei 40 ml/h prüfen',
+      'Sedierungsziel RASS 0 bis −1 und Analgesie zuerst (S3-Leitlinie DAS 2020) im Text korrekt?',
       'Modell: Abfall der SpO₂ bei Diskonnektion, Spitzendruck bei Sekret und Aufwachen nach leerem Perfusor plausibel?',
     ],
   },
@@ -68,22 +68,22 @@ export const ITS_BEATMUNG_ALARM: FallV2 = {
     geschlecht: 'm',
     biografie: ['verheiratet, die Ehefrau ist Lehrerin', 'Hobbygärtner, züchtet Tomaten'],
     diagnosenBekannt: ['Peritonitis nach Darmperforation, Laparotomie vorgestern', 'COPD GOLD 2', 'arterielle Hypertonie'],
-    medikamentePlan: ['Propofol 2 % 6 ml/h', 'Sufentanil 5 µg/ml 6 ml/h', 'Noradrenalin 0,1 mg/ml 3 ml/h', 'Piperacillin/Tazobactam 4,5 g i. v. alle 8 h'],
+    medikamentePlan: ['Propofol 2 % 4 ml/h', 'Sufentanil 5 µg/ml 5 ml/h', 'Noradrenalin 0,1 mg/ml 3 ml/h', 'Piperacillin/Tazobactam 4,5 g i. v. alle 8 h'],
     allergien: ['keine bekannt'],
     gewichtKg: 80,
   },
   medien: { raum: '15_intensiv_beatmung' },
-  uebernahme: 'Pfleger Ben: „Herr Fuchs, 67, vorgestern Laparotomie bei Peritonitis, seitdem beatmet, Tubus 8,0 bei 23 cm Zahnreihe. Druckkontrolliert, FiO₂ 40 %, PEEP 8. Propofol 6 und Sufentanil 6 ml/h, Noradrenalin 3 ml/h, MAP über 65. Er war heute Nacht ruhig, RASS minus drei. Die Propofol-Spritze ist bald leer, ich hab die neue noch nicht aufgezogen …“',
+  uebernahme: 'Pfleger Ben: „Herr Fuchs, 67, vorgestern Laparotomie bei Peritonitis, seitdem beatmet, Tubus 8,0 bei 23 cm Zahnreihe. Druckkontrolliert, FiO₂ 40 %, PEEP 8. Propofol 4 und Sufentanil 5 ml/h, Noradrenalin 3 ml/h, MAP über 65. Er war heute Nacht ruhig, RASS minus eins. Die Propofol-Spritze ist bald leer, ich hab die neue noch nicht aufgezogen …“',
   startUhrzeit: '06:10',
 
   start: {
-    grund: { gefaesstonus: 0.8, gasaustausch: 0.85, atemarbeit: 1.1, temperatur: 38.1, sedierung: 0.65, schmerz: 2, angst: 0.1, laktat: 1.8, kalium: 4.0, einfuhrMl: 0, ausfuhrMl: 0 },
+    grund: { gefaesstonus: 0.8, gasaustausch: 0.85, atemarbeit: 1.1, temperatur: 38.1, sedierung: 0.26, schmerz: 2, angst: 0.1, laktat: 1.8, kalium: 4.0, einfuhrMl: 0, ausfuhrMl: 0 },
     treiber: [],
     module: {
       beatmung: { fio2: 0.4, peep: 8, af: 16, vt: 480 },
       perfusoren: [
-        { ...PROPOFOL, mlProH: 6 },
-        { id: 'sufentanil', wirkstoff: 'sufentanil', konzentration: '250 µg/50 ml', mgProMl: 0.005, mlProH: 6 },
+        { ...PROPOFOL, mlProH: 4 },
+        { id: 'sufentanil', wirkstoff: 'sufentanil', konzentration: '250 µg/50 ml', mgProMl: 0.005, mlProH: 5 },
         { id: 'na', wirkstoff: 'noradrenalin', konzentration: '5 mg/50 ml', mgProMl: 0.1, mlProH: 3 },
       ],
       arteriell: true, bilanz: true,
@@ -102,7 +102,7 @@ export const ITS_BEATMUNG_ALARM: FallV2 = {
     // Messen
     'bga-abnehmen-arteriell', 'bga-messen-lesen', 'cuffdruck-messen', 'kurve-lesen', 'bilanz-fuehren',
     // Versorgen
-    'geschlossen-absaugen', 'perfusor-wechseln', 'sufentanil-8', 'propofol-40', 'mundpflege-beatmet',
+    'geschlossen-absaugen', 'perfusor-wechseln', 'sufentanil-7', 'propofol-40', 'mundpflege-beatmet',
     // Melden
     'pflegebericht',
   ],
@@ -113,14 +113,14 @@ export const ITS_BEATMUNG_ALARM: FallV2 = {
     aus('beatmung-diskonnektion-beheben', { modul: DICHT }),
     aus('beatmung-beobachten', { id: 'alarm-stummschalten', name: 'Alarm stummschalten und die Übergabe fortsetzen', zeitbedarfSekunden: 10, setzt: ['alarm-stumm'] }),
     aus('fem-anlegen', { id: 'haende-fixieren', name: 'Beide Hände am Bett fixieren, damit er den Tubus nicht zieht' }),
-    aus('perfusor-wechseln', { name: 'Neue Propofol-Spritze aufziehen und ohne Unterbrechung wechseln (6 ml/h)', modul: { perfusor: { ...PROPOFOL, mlProH: 6 } }, setzt: ['spritze-neu'] }),
-    aus('perfusor-wechseln', { id: 'sufentanil-8', name: 'Sufentanil-Laufrate auf 8 ml/h stellen', zeitbedarfSekunden: 30, modul: { perfusor: { id: 'sufentanil', mlProH: 8 } } }),
+    aus('perfusor-wechseln', { name: 'Neue Propofol-Spritze aufziehen und ohne Unterbrechung wechseln (4 ml/h)', modul: { perfusor: { ...PROPOFOL, mlProH: 4 } }, setzt: ['spritze-neu'] }),
+    aus('perfusor-wechseln', { id: 'sufentanil-7', name: 'Sufentanil-Laufrate auf 7 ml/h stellen', zeitbedarfSekunden: 30, modul: { perfusor: { id: 'sufentanil', mlProH: 7 } } }),
     aus('perfusor-wechseln', { id: 'propofol-40', name: 'Propofol-Laufrate auf 40 ml/h stellen', zeitbedarfSekunden: 30, modul: { perfusor: { id: 'propofol', mlProH: 40 } } }),
     aus('geschlossen-absaugen', { voraussetzung: undefined }),
   ],
 
   akte: {
-    aufnahmegrund: 'Übernahme aus dem OP vorgestern: Laparotomie mit Übernähung einer Sigmaperforation bei Divertikulitis, kotige Peritonitis, Hartmann-Situation. Abdomen offen mit Vakuumverband, Relaparotomie (Second Look) morgen geplant. Postoperativ beatmet, Katecholaminbedarf.',
+    aufnahmegrund: 'Übernahme aus dem OP vorgestern: Laparotomie mit Übernähung einer Sigmaperforation bei Divertikulitis, kotige Peritonitis, Hartmann-Situation. Postoperativ beatmet, Katecholaminbedarf.',
     anamnese: ['COPD GOLD 2, Ex-Raucher seit 5 Jahren', 'Hypertonie', 'Divertikulitis 2024 konservativ behandelt'],
     diagnosen: [
       { text: 'Kotige Peritonitis bei Sigmaperforation, Hartmann-OP', icd: 'K57.22', seit: 'vorgestern' },
@@ -128,7 +128,7 @@ export const ITS_BEATMUNG_ALARM: FallV2 = {
       { text: 'COPD GOLD 2', icd: 'J44.89', seit: '2019' },
     ],
     medikation: [
-      { id: 'mp-propofol', wirkstoff: 'Propofol 2 %', staerke: '1000 mg/50 ml', form: 'Perfusor', schema: 'kontinuierlich', hinweis: 'Ziel RASS −2 bis −3, Laufrate nach Anordnung 4–10 ml/h.' },
+      { id: 'mp-propofol', wirkstoff: 'Propofol 2 %', staerke: '1000 mg/50 ml', form: 'Perfusor', schema: 'kontinuierlich', hinweis: 'Ziel RASS 0 bis −1, Laufrate nach Anordnung 2–8 ml/h.' },
       { id: 'mp-sufentanil', wirkstoff: 'Sufentanil', staerke: '250 µg/50 ml', form: 'Perfusor', schema: 'kontinuierlich', hinweis: 'Ziel BPS ≤ 5.' },
       { id: 'mp-noradrenalin', wirkstoff: 'Noradrenalin', staerke: '5 mg/50 ml', form: 'Perfusor', schema: 'kontinuierlich', hinweis: 'Ziel MAP ≥ 65 mmHg.' },
       { id: 'mp-piptaz', wirkstoff: 'Piperacillin/Tazobactam', staerke: '4,5 g', form: 'i. v.', schema: '1-1-1-0', zuletzt: 'heute 06:00', hinweis: '6, 14, 22 Uhr.' },
@@ -138,11 +138,11 @@ export const ITS_BEATMUNG_ALARM: FallV2 = {
       { zeit: 'heute 02:00', vorH: 4, werte: { rrSys: 118, rrDia: 60, hf: 88, spo2: 96, temp: 38.0 }, kuerzel: 'ND' },
     ],
     pflegebericht: [
-      { zeit: 'heute 02:00', wer: 'Nachtdienst', text: 'RASS −3, BPS 4. Endotracheal abgesaugt, wenig weißliches Sekret. Lagerung 30° rechts. Ehefrau hat um 22 Uhr angerufen, Auskunft gegeben.' },
+      { zeit: 'heute 02:00', wer: 'Nachtdienst', text: 'RASS −1, BPS 4. Endotracheal abgesaugt, wenig weißliches Sekret. Lagerung 30° rechts. Ehefrau hat um 22 Uhr angerufen, Auskunft gegeben.' },
       { zeit: 'heute 05:30', wer: 'Nachtdienst', text: 'Noradrenalin von 4 auf 3 ml/h reduziert (MAP 72). Propofol-Spritze zu etwa 90 % leer, Wechsel bei Übergabe.' },
     ],
     aerztlicheAnordnungen: [
-      { zeit: 'gestern 08:00', wer: 'Dr. Lorenz', text: 'Offenes Abdomen mit Vakuumverband, Relaparotomie morgen geplant: tiefere Sedierung begründet. Propofol 2 % 4–10 ml/h, Sufentanil 4–12 ml/h nach RASS/BPS. Ziel RASS −2 bis −3, BPS ≤ 5. Analgesie vor Sedierung. Spritzenwechsel durch Pflege.' },
+      { zeit: 'gestern 08:00', wer: 'Dr. Lorenz', text: 'Propofol 2 % 2–8 ml/h, Sufentanil 3–10 ml/h nach RASS/BPS. Ziel RASS 0 bis −1, BPS ≤ 5. Analgesie vor Sedierung. Spritzenwechsel durch Pflege.' },
       { zeit: 'gestern 08:00', wer: 'Dr. Lorenz', text: 'Beatmung PCV, FiO₂ nach SpO₂ 92–96 %, PEEP 8. Absaugen nach Bedarf geschlossen.' },
     ],
     labor: [
@@ -151,9 +151,9 @@ export const ITS_BEATMUNG_ALARM: FallV2 = {
       { name: 'Laktat', wert: '1,9', einheit: 'mmol/l', norm: 'unter 2', datum: 'heute 04:00' },
     ],
     assessments: [
-      { name: 'RASS', wert: '−3', datum: 'heute 02:00' },
+      { name: 'RASS', wert: '−1', datum: 'heute 02:00' },
       { name: 'BPS', wert: '4', datum: 'heute 02:00' },
-      { name: 'CAM-ICU', wert: 'nicht beurteilbar (RASS −3)', datum: 'heute 02:00' },
+      { name: 'CAM-ICU', wert: 'negativ (RASS −1)', datum: 'heute 02:00' },
     ],
     rechtliches: ['Vorsorgevollmacht für die Ehefrau Martina Fuchs, Auskunft erlaubt.', 'Keine Patientenverfügung.'],
   },
@@ -182,7 +182,7 @@ export const ITS_BEATMUNG_ALARM: FallV2 = {
     ] },
     { massnahme: 'schmerz-bps', varianten: [
       { wenn: { wert: 'rass', vergleich: '>=', grenze: 1 }, text: 'BPS: Gesicht angespannt (3), Arme gebeugt (3), hustet gegen das Gerät (2). BPS 8, Schmerz und Unruhe zu stark.' },
-      { wenn: { alle: [SPRITZE_LEER, { nicht: { getan: 'sufentanil-8' } }] }, text: 'BPS: Stirn gerunzelt (2), Arme zeitweise gebeugt (2), hustet immer wieder gegen das Gerät (2). BPS 6, Schmerz nicht ausreichend behandelt.' },
+      { wenn: { alle: [SPRITZE_LEER, { nicht: { getan: 'sufentanil-7' } }] }, text: 'BPS: Stirn gerunzelt (2), Arme zeitweise gebeugt (2), hustet immer wieder gegen das Gerät (2). BPS 6, Schmerz nicht ausreichend behandelt.' },
       { text: 'BPS: Gesicht entspannt, Arme ruhig, toleriert die Beatmung. BPS 4.' },
     ] },
     { massnahme: 'delir-cam-icu', varianten: [{ text: 'Mit RASS −2 und tiefer nicht beurteilbar; ab RASS −1 erneut prüfen.' }] },
@@ -191,9 +191,9 @@ export const ITS_BEATMUNG_ALARM: FallV2 = {
     { massnahme: 'bga-abnehmen-arteriell', varianten: [{ text: 'BGA aus der Arterie luftfrei abgenommen, System gespült.' }] },
     { massnahme: 'bga-messen-lesen', varianten: [{ text: 'BGA: pH {ph}, paCO₂ {paco2} mmHg, paO₂ {pao2} mmHg, HCO₃⁻ {hco3}, Laktat {laktat} mmol/l.', zeigt: ['ph', 'paco2', 'pao2', 'hco3', 'laktat'] }] },
     { massnahme: 'cuffdruck-messen', varianten: [{ text: 'Cuffdruck 26 cmH₂O (Ziel 20–30).' }] },
-    { massnahme: 'kurve-lesen', varianten: [{ text: 'Anordnung: Propofol 2 % 4–10 ml/h, Sufentanil 4–12 ml/h nach RASS/BPS, Ziel RASS −2 bis −3 (offenes Abdomen). Vorsorgevollmacht: Ehefrau, Auskunft erlaubt.' }] },
+    { massnahme: 'kurve-lesen', varianten: [{ text: 'Anordnung: Propofol 2 % 2–8 ml/h, Sufentanil 3–10 ml/h nach RASS/BPS, Ziel RASS 0 bis −1, Analgesie zuerst. Vorsorgevollmacht: Ehefrau, Auskunft erlaubt.' }] },
     { massnahme: 'bilanz-fuehren', varianten: [{ text: 'Urin {urinMlH} ml/h, Bilanz seit Dienstbeginn {bilanzMl} ml.', zeigt: ['urinMlH', 'bilanzMl'] }] },
-    { massnahme: 'perfusor-wechseln', varianten: [{ text: 'Mit der Praxisanleitung neue Spritze Propofol 2 % beschriftet, Leitung entlüftet, gewechselt, 6 ml/h. Pause unter einer Minute.' }] },
+    { massnahme: 'perfusor-wechseln', varianten: [{ text: 'Mit der Praxisanleitung neue Spritze Propofol 2 % beschriftet, Leitung entlüftet, gewechselt, 4 ml/h. Pause unter einer Minute.' }] },
     { massnahme: 'mundpflege-beatmet', varianten: [{ text: 'Mundpflege mit Zahnbürste, Mundhöhle feucht, Lippen gepflegt.' }] },
   ],
 
@@ -210,25 +210,25 @@ export const ITS_BEATMUNG_ALARM: FallV2 = {
 
   sbar: [
     { id: 's-unruhig', teil: 'S', text: 'Herr Fuchs, Bett 4, beatmet, war eben wach, hat gegen das Gerät gepresst und zum Tubus gegriffen.', art: 'kern', bekanntWenn: { getan: 'rass-einschaetzen' } },
-    { id: 'b-propofol-leer', teil: 'B', text: 'Die Propofol-Spritze ist leer gelaufen, die neue läuft wieder mit 6 ml/h.', art: 'kern', bekanntWenn: SPRITZE_NEU },
+    { id: 'b-propofol-leer', teil: 'B', text: 'Die Propofol-Spritze ist leer gelaufen, die neue läuft wieder mit 4 ml/h.', art: 'kern', bekanntWenn: SPRITZE_NEU },
     { id: 'b-laparotomie', teil: 'B', text: 'Tag 2 nach Laparotomie bei Peritonitis, Noradrenalin 3 ml/h.', art: 'hilfreich' },
     { id: 'b-tomaten', teil: 'B', text: 'Er züchtet Tomaten.', art: 'ablenker' },
-    { id: 'a-rass-bps', teil: 'A', text: 'Jetzt wieder RASS −3, aber BPS 6, er hustet immer wieder gegen das Gerät.', art: 'kern', bekanntWenn: { alle: [{ getan: 'rass-einschaetzen' }, { getan: 'schmerz-bps' }] } },
+    { id: 'a-rass-bps', teil: 'A', text: 'Jetzt wieder ruhiger, aber BPS 6, er hustet immer wieder gegen das Gerät.', art: 'kern', bekanntWenn: { alle: [{ getan: 'rass-einschaetzen' }, { getan: 'schmerz-bps' }] } },
     { id: 'a-alarm', teil: 'A', text: 'Diskonnektion bei der Übergabe und Sekretverlegung, beides behoben.', art: 'hilfreich', bekanntWenn: { alle: [BEHOBEN, ABGESAUGT] } },
-    { id: 'a-rass-ziel', teil: 'A', text: 'Nach der Anpassung RASS −3, BPS 4, toleriert die Beatmung.', art: 'kern', bekanntWenn: { alle: [{ getan: 'sufentanil-8' }, { getan: 'schmerz-bps' }] } },
+    { id: 'a-rass-ziel', teil: 'A', text: 'Nach der Anpassung RASS −1, BPS 4, toleriert die Beatmung.', art: 'kern', bekanntWenn: { alle: [{ getan: 'sufentanil-7' }, { getan: 'schmerz-bps' }] } },
     { id: 'a-alles-gut', teil: 'A', text: 'Sonst alles unauffällig.', art: 'falsch' },
     { id: 'r-analgesie', teil: 'R', text: 'Brauchen wir mehr Analgesie und Sedierung? Bitte kommen Sie.', art: 'kern' },
   ],
 
   anordnungen: [
-    { id: 'an-sedierung', massnahme: 'perfusor-wechseln', text: 'Sedierung laut Plan: Propofol 2 % 4–10 ml/h nach RASS, Spritzenwechsel durch die Pflege.' },
+    { id: 'an-sedierung', massnahme: 'perfusor-wechseln', text: 'Sedierung laut Plan: Propofol 2 % 2–8 ml/h nach RASS, Spritzenwechsel durch die Pflege.' },
     { id: 'an-propofol-40', massnahme: 'propofol-40', text: 'Propofol auf 40 ml/h.',
       fehlerhaft: {
         warum: '40 ml/h Propofol 2 % sind 800 mg/h, bei 80 kg also 10 mg/kg/h. Das ist mehr als das Doppelte der Höchstdosis (4 mg/kg/h) und senkt den Blutdruck gefährlich. Wahrscheinlich ein Hör- oder Kommafehler.',
-        korrektur: 'Propofol bleibt bei 6, er hustet ja vor Schmerz gegen das Gerät. Stellen Sie Sufentanil auf 8 ml/h, den Bolus gebe ich selbst. Sagen Sie mir in zehn Minuten RASS und BPS.',
-        ersatz: 'an-sufentanil-8',
+        korrektur: 'Propofol bleibt bei 4, er hustet ja vor Schmerz gegen das Gerät. Stellen Sie Sufentanil auf 7 ml/h, den Bolus gebe ich selbst. Sagen Sie mir in zehn Minuten RASS und BPS.',
+        ersatz: 'an-sufentanil-7',
       } },
-    { id: 'an-sufentanil-8', massnahme: 'sufentanil-8', text: 'Sufentanil auf 8 ml/h (Analgesie zuerst), Propofol bleibt bei 6 ml/h. RASS und BPS nach zehn Minuten melden.' },
+    { id: 'an-sufentanil-7', massnahme: 'sufentanil-7', text: 'Sufentanil auf 7 ml/h (Analgesie zuerst), Propofol bleibt bei 4 ml/h. RASS und BPS nach zehn Minuten melden.' },
   ],
 
   arzt: {
@@ -342,7 +342,7 @@ export const ITS_BEATMUNG_ALARM: FallV2 = {
     ],
     ziele: [
       { id: 'z-beatmung', text: 'Beatmung dicht und wirksam, SpO₂ 92–96 %, Spitzendruck stabil', passtZu: ['pb-beatmung'], richtig: true },
-      { id: 'z-rass', text: 'RASS −2 bis −3 wie angeordnet, BPS ≤ 5, kein Ziehen am Tubus', passtZu: ['pb-sedierung'], richtig: true },
+      { id: 'z-rass', text: 'RASS 0 bis −1, BPS ≤ 5, kein Ziehen am Tubus', passtZu: ['pb-sedierung'], richtig: true },
       { id: 'z-vap', text: 'Keine Pneumonie unter Beatmung', passtZu: ['pb-vap'], richtig: true },
       { id: 'z-extubiert', text: 'Herr Fuchs ist heute Mittag extubiert', passtZu: ['pb-beatmung'], richtig: false },
     ],
@@ -368,9 +368,9 @@ export const ITS_BEATMUNG_ALARM: FallV2 = {
     { titel: 'Geschlossenes Absaugen', quellen: ['krinko-vap'],
       text: 'Nach Bedarf (Brodeln, Druckanstieg, Sägezahn in der Kurve, Sättigungsabfall), nicht nach Uhr. Geschlossenes System senkt Kontamination und PEEP-Verlust. Danach Wirkung prüfen (Druck, Kurve, Sättigung).' },
     { titel: 'Analgesie, Sedierung, Delir', quellen: ['s3-das'],
-      text: 'Ziel ist meist RASS 0 bis −1. Tiefer nur mit ärztlicher Begründung (hier offenes Abdomen, RASS −2 bis −3). Analgesie vor Sedierung: Schmerz und Husten gegen das Gerät zuerst mit dem Opioid behandeln, nicht mit mehr Hypnotikum, Schmerz mit BPS einschätzen. Leere Perfusoren vorausschauend wechseln (Spritze rechtzeitig aufziehen), Laufrate gegen Anordnung und Dosis prüfen.' },
+      text: 'Ziel ist meist RASS 0 bis −1. Tiefer nur mit ärztlicher Begründung. Analgesie vor Sedierung: Schmerz und Husten gegen das Gerät zuerst mit dem Opioid behandeln, nicht mit mehr Hypnotikum, Schmerz mit BPS einschätzen. Leere Perfusoren vorausschauend wechseln (Spritze rechtzeitig aufziehen), Laufrate gegen Anordnung und Dosis prüfen.' },
     { titel: 'Laufrate in Dosis umrechnen', quellen: ['fi-propofol'],
-      text: 'Dosis = Laufrate (ml/h) × Konzentration (mg/ml) ÷ Gewicht (kg). Propofol 2 % = 20 mg/ml: 6 ml/h bei 80 kg = 1,5 mg/kg/h; 40 ml/h = 10 mg/kg/h, weit über der Höchstdosis von 4 mg/kg/h.' },
+      text: 'Dosis = Laufrate (ml/h) × Konzentration (mg/ml) ÷ Gewicht (kg). Propofol 2 % = 20 mg/ml: 4 ml/h bei 80 kg = 1 mg/kg/h; 40 ml/h = 10 mg/kg/h, weit über der Höchstdosis von 4 mg/kg/h.' },
   ],
 
   pruefwege: {
@@ -395,8 +395,8 @@ export const ITS_BEATMUNG_ALARM: FallV2 = {
       { art: 'massnahme', id: 'schmerz-bps' },
       { art: 'anruf', an: 'aerztin', sbar: ['s-unruhig', 'b-propofol-leer', 'b-laparotomie', 'a-rass-bps', 'a-alarm', 'r-analgesie'] },
       { art: 'remonstrieren', anordnung: 'an-propofol-40', grund: '40 ml/h sind 10 mg/kg/h, über der Höchstdosis' },
-      { art: 'rueckmelden', anordnung: 'an-sufentanil-8', rueckgelesen: true },
-      { art: 'massnahme', id: 'sufentanil-8' },
+      { art: 'rueckmelden', anordnung: 'an-sufentanil-7', rueckgelesen: true },
+      { art: 'massnahme', id: 'sufentanil-7' },
       { art: 'massnahme', id: 'kommunikation-tubus' },
       { art: 'warten', sek: 420 },
       { art: 'massnahme', id: 'rass-einschaetzen' },

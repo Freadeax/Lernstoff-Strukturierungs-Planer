@@ -30,8 +30,9 @@ try {
     const suche = p.getByRole('searchbox', { name: 'Was willst du tun?' });
     const tu = async (name) => { await suche.fill(name); await p.getByRole('button', { name: new RegExp(name) }).first().click(); if (await suche.count()) await suche.fill(''); };
 
-    // Seit der Fallauswahl nach CE (P15) steht nicht mehr der Hausbesuch oben: Pilotfall direkt öffnen
-    await p.goto(base + '#/lernen/praxis?neu=amb-sturz-exsikkose', { waitUntil: 'networkidle' });
+    await p.goto(base + '#/lernen/praxis', { waitUntil: 'networkidle' });
+    // Pilotfall gezielt über seinen Titel öffnen (Fallauswahl nach CE, P15: steht unter CE 02 und CE 09).
+    await p.locator('.praxis-fall', { hasText: 'Ich bin nur kurz hingesessen' }).first().getByRole('button', { name: 'Neu üben' }).click();
     await p.getByRole('radio', { name: /2\. Drittel/ }).check();
     for (const box of await p.locator('.ap-briefing__rolle label').all()) {
       const [r, l] = [await box.locator('input').boundingBox(), await box.boundingBox()];
@@ -282,7 +283,7 @@ try {
       { id: 'lz-unterzucker-mittag', person: /Frau Winter/, partner: [/Karin|Tochter/, /Dr\. Okafor/], med: /insulin/i },
       { id: 'amb-hausbesuch-still', person: /Frau Sommer/, partner: [/Sabine|Tochter/, /Dr\. Brenner/], med: /Ramipril[\s\S]*Hydrochlorothiazid/ },
       { id: 'lz-palliativ-gespraech', person: /Frau Roth/, partner: [/Petra|Tochter/, /Dr\. Feld/], med: /Metamizol/ },
-      { id: 'kh-sterbephase-nacht', person: /Herr Albrecht/, partner: [/Ingrid|Ehefrau/, /Dr\. Weiß/], med: /Morphin[\s\S]*Lorazepam/ },
+      { id: 'kh-sterbephase-nacht', person: /Herr Hartwig/, partner: [/Ingrid|Ehefrau/, /Dr\. Weiß/], med: /Morphin[\s\S]*Lorazepam/ },
     ];
     for (const f of P18) {
       await p.goto(base + `#/lernen/praxis?neu=${f.id}`, { waitUntil: 'networkidle' });

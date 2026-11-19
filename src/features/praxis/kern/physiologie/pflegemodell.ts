@@ -28,6 +28,9 @@
 // - panik_eskaliert {tempo}: Angst steigt, Hyperventilation (CO₂ sinkt).
 // - anaphylaxie {staerke 0..1} (P16a): Gefäßtonus sinkt (−0,9·s je Stunde), Kapillarleck (Volumen −0,15·s je Stunde),
 //   Bronchospasmus 0,7·s. Adrenalin (G1) bremst die Mediatorwirkung, solange es wirkt; danach geht es weiter (Zweitgabe).
+// - lungenembolie {staerke 0..1} (P16a): Gasaustausch −0,8·s (Shunt), Atemantrieb +0,5·s (Totraum, Reizung), Pumpleistung sofort auf 1 − 0,4·s
+//   (akute Rechtsherzbelastung), danach −0,3·s je Stunde, nicht unter 1 − 0,7·s.
+//   Massive Embolie (s > 0,7): Kreislauf dekompensiert (Gefäßtonus fällt, Lernmodell). Mehrere Treiber: der stärkste zählt (Nachschub = neuer Treiber).
 // - fieberkrampf_kind {temperaturSchwelle}: Fieber steigt über die Schwelle → ein Anfall (krampf 1 → 3 Min. → postiktal).
 
 import type { Altersgruppe, Anzeige, AktiverTreiber, Grundgroessen, Rhythmus, Treiber } from '../typen';
@@ -106,7 +109,7 @@ function anteilAnwenden(bestand: number, alterAnteil: number, neuerAnteil: numbe
 }
 
 const hat = (treiber: readonly Treiber[], art: Treiber['art']) => treiber.some((t) => t.art === art);
-const staerke = (treiber: readonly Treiber[], art: 'bronchospasmus' | 'pneumonie' | 'anaphylaxie') =>
+const staerke = (treiber: readonly Treiber[], art: 'bronchospasmus' | 'pneumonie' | 'anaphylaxie' | 'lungenembolie') =>
   treiber.reduce((s, t) => (t.art === art ? Math.max(s, t.staerke) : s), 0);
 /** Bronchospasmus gesamt: eigener Treiber oder Anteil einer Anaphylaxie (P16a) */
 const spasmus = (treiber: readonly Treiber[]) => Math.max(staerke(treiber, 'bronchospasmus'), 0.7 * staerke(treiber, 'anaphylaxie'));
@@ -356,6 +359,15 @@ function naechster(alt: Grundgroessen, treiber: readonly Treiber[], dt: number, 
         g.volumen -= 0.15 * tr.staerke * std * bremse;
         break;
       }
+      case 'lungenembolie':
+        if (tr.staerke >= staerke(treiber, 'lungenembolie')) {
+          // akute Rechtsherzbelastung sofort, danach langsame Erschöpfung bis zur Untergrenze
+          const akut = Math.min(g.pumpleistung, 1 - 0.4 * tr.staerke);
+          g.pumpleistung = Math.max(Math.min(akut, 1 - 0.7 * tr.staerke), akut - 0.3 * tr.staerke * std);
+          // massive Embolie (s > 0,7): das Herz dekompensiert, der Kreislauf bricht ein (Lernmodell über den Gefäßtonus)
+          if (tr.staerke > 0.7) g.gefaesstonus = Math.max(0.4, g.gefaesstonus - 1.5 * ((tr.staerke - 0.7) / 0.3) * std);
+        }
+        break;
       case 'pneumonie': fieberZiel = Math.max(fieberZiel, 37 + 1.8 * tr.staerke * p.fieberAntwort); break;
       case 'fieberkrampf_kind': fieberZiel = Math.max(fieberZiel, tr.temperaturSchwelle + 0.4); break;
       case 'panik_eskaliert': g.angst += 0.02 * tr.tempo * min; break;
@@ -436,13 +448,14 @@ function naechster(alt: Grundgroessen, treiber: readonly Treiber[], dt: number, 
   const bs = spasmus(treiber) * (1 - pe.bronchodilatation);
   const pn = staerke(treiber, 'pneumonie') + (g.aspirationsPneumonie ?? 0);
   const akut = g.aspirationAkut ?? 0;      // G6: frische Aspiration (Husten, Atemnot)
+  const le = staerke(treiber, 'lungenembolie');
   const sep = sepsisTempo(treiber);
   const atemarbeitZiel = b.atemarbeit + 2 * bs + 0.6 * pn + 1.2 * akut + off(k, 'atemarbeit');
-  const gasZiel = b.gasaustausch - 0.3 * bs - PNEUMONIE_VERLUST * pn - 0.6 * akut - (sep > 0 ? 0.1 * (1 - g.gefaesstonus) : 0) + off(k, 'gasaustausch');
+  const gasZiel = b.gasaustausch - 0.3 * bs - PNEUMONIE_VERLUST * pn - 0.6 * akut - 0.8 * le - (sep > 0 ? 0.1 * (1 - g.gefaesstonus) : 0) + off(k, 'gasaustausch');
   g.atemarbeit = hin(alt.atemarbeit, atemarbeitZiel, bs > 0 ? 120 : 300, dt);
   g.gasaustausch = hin(alt.gasaustausch, gasZiel, pn > 0 && bs === 0 ? 900 : 180, dt);
 
-  const antriebZiel = b.atemantrieb * (1 - 0.75 * hill(pe.atemdepression, 0.7)) * (1 - 0.5 * cushing(g)) + off(k, 'atemantrieb');
+  const antriebZiel = b.atemantrieb * (1 - 0.75 * hill(pe.atemdepression, 0.7)) * (1 - 0.5 * cushing(g)) + 0.5 * le + off(k, 'atemantrieb');
   g.atemantrieb = hin(alt.atemantrieb, antriebZiel, 60, dt);
 
   const tempZiel = Math.max(b.temperatur, fieberZiel - pe.fiebersenkung) + off(k, 'temperatur');
