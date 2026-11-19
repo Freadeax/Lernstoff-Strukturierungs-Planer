@@ -15,6 +15,7 @@ Noch nicht in der Oberfläche eingebunden; die alte Engine (`../engine.ts`) und 
 | `physiologie/pflegemodell.ts` | Pflege-Physiologiemodell v2 (P1), Standard im Kern; `atmung()`, `kreislauf()`, `befinden()`, `lagerungsWirkung()` |
 | `physiologie/organe.ts` | Herz, Lunge, Blutzucker: dieselben Modelle wie die Lernseite `#/lernen/physiologie` |
 | `physiologie/altersprofile.ts` | Ruhewerte Säugling bis Hochbetagte, Alarmfarben (monitor.ts), `fruehwarnung()` (NEWS2/Kinderprofil) |
+| `akte.ts` | Patientenakte (P13): Medikationsprüfung gegen `fall.akte.medikation` (Doppelgabe, Bedarfs-Abstand, Höchstmenge), Minimal-Akte `akteVon()`, Bausteine für den Pflegebericht |
 | `kern.ts` | `start`, `sende`, `vorspulen`, `replay`, `freigabe`, `verfuegbar`, `anzeige` |
 | `faelle/` | Fälle im Schema v2: Pilotstaffel Spur A (ambulant Sturz/Exsikkose, Krankenhaus Pneumonie/Sepsis, Langzeit Demenz/Schmerz/FEM, Pädiatrie Fieberkrampf, Psychiatrie Panik/Suizidalität) und Spur B (Schockraum Sepsis); `pilot-a.test.ts` kalibriert gegen das Modell |
 | `spur-b/` | Spur B (P1b): `modul.ts` Hülle `spurB(basis)` mit Beatmung, Perfusoren, arterieller Messung, Rhythmus, Sedierung (RASS), Laktat, Bilanz; `perfusor.ts` Laufrate ↔ Dosis; `bga.ts` BGA aus dem Modell; `standard.ts` `SPUR_B_MODELL` (Standard im Kern); `katalog.ts` fehlende Spur-B-Maßnahmen mit Beleg; `monitor.ts` Anzeige → `MonitorWerte` |
@@ -81,3 +82,19 @@ Browserprüfung: `npm run test:arbeitsplatz` (390/820/1180 px, axe).
 - Test je Fall: Musterweg ≥ 90 % in allen Bereichen, Unterlassung deutlich schlechter, Grenzweg KB III schlechter.
   Ein neuer Fall braucht im Musterweg einen `abschluss` mit `sbar` und einen Eintrag in `../arbeitsplatz/weiterlernen.ts`.
 - Darstellung: `../arbeitsplatz/Auswertung.tsx` (Adapter `auswertung-karte.ts`, Weitergabe `weitergabe.ts` mit `sitzung=neu:<fall>`, KI-Tutor `tutor.ts`).
+
+## Patientenakte (Paket P13)
+- `fall.akte` (optional, Typ `Akte`): Medikationsplan (`MedPlanEintrag` mit `massnahme`, `zuletzt`, `geaendertDurch`), Vorwerte fürs
+  Kurvenblatt, Pflegebericht/ärztliche Anordnungen vor dem Fall, Assessments, Labor, Pflegeplanung, Rechtliches. Fehlt sie,
+  baut `akteVon()` eine Kurzakte aus `person`. Muster: `faelle/amb-sturz-exsikkose.ts` (Frau Lindner).
+- `Meldung.werte`: Befund-Meldungen mit `zeigt`, Schmerzeinschätzungen (`SCHMERZ_MESSUNG`) und Doku-Einträge tragen die Werte
+  zum Messzeitpunkt. Quelle für Kurvenblatt, Wert-Bausteine und Verlauf; nie den aktuellen Modellwert nachträglich lesen.
+- Gabe einer Maßnahme mit Plan-Eintrag prüft `medPruefung()`: Dauermedikation Mindestabstand aus dem Schema (1×/Tag 12 h,
+  2× 6 h, sonst 3 h), Bedarf `abstandH` und `maxProTag` („4 Gaben“ oder Menge/Einzeldosis). Durch eine erhaltene Anordnung
+  geänderte Einträge (`geaendertDurch`) zählen nicht. Fehler im Log `med-doppelt:<eintrag>`, `med-abstand:…`, `med-max:…`
+  mit Text als Meldung; Auswertung KB I+III, klinisch Medikamente (Doppelgabe/Höchstmenge schwer, Abstand mittel).
+- Eingabe `dokumentieren` (Bausteine + Freitext): `dokuBausteine(z)` bietet nur Bekanntes an (`wert:<k>`, `befund:<maßnahme>`,
+  `massnahme:<id>`, `anordnung:<id>`, SBAR-A-Bausteine). Markiert `doku:<baustein>` (Bedingung `{ dokumentiert }`), `doku` und
+  – wenn der Fall sie anbietet – die Maßnahme `pflegebericht`. Kostet 60 s + 15 s je Baustein (+30 s Freitext, max. 240 s).
+- Oberfläche: `../arbeitsplatz/Akte.tsx` (Dialog, Uhr steht) mit `akte-ansicht.ts`; Knopf in der Kopfzeile und Hotspot im Foto,
+  „Pflegebericht schreiben“ öffnet den Bericht.

@@ -1,6 +1,6 @@
 // Neuer Arbeitsplatz des Praxissimulators (Paket P2, #/lernen/praxis?neu=<fall>): Pilotfall einmal durchspielen
 // bei 390 (iPhone), 820 (iPad hoch, „Bewegung reduzieren“) und 1180 px (iPad quer), axe WCAG 2.2 AA je Zustand.
-// Prüft: Briefing mit Rolle, Pflegetasche (Gerät holen kostet Zeit, Werte erst nach dem Messen), Befugnis-Abzeichen,
+// Prüft: Briefing mit Rolle, Patientenakte (P13: Kurve, Medikation, Anordnungen, Pflegebericht schreiben), Pflegetasche (Gerät holen kostet Zeit, Werte erst nach dem Messen), Befugnis-Abzeichen,
 // SBAR → Anordnung → Rücklesen, Abschluss (Pflegebedarf priorisieren, Übergabe) und Auswertung (P5) inkl. Weitergabe
 // in den Übergabetrainer; bei 1180 px zusätzlich Spur B (Verdacht, klinische Bereiche).
 import { chromium } from 'playwright';
@@ -70,7 +70,29 @@ try {
     while (await p.getByRole('button', { name: 'Rücklesen und bestätigen' }).count()) await p.getByRole('button', { name: 'Rücklesen und bestätigen' }).first().click();
     if (await p.getByText('Entscheidungsmoment').count()) { await axe('entscheidung'); await p.getByRole('button', { name: /Ruhig auf sie eingehen/ }).click(); }
     await tu('Trinken anbieten');
-    await tu('Pflegebericht');
+
+    // Patientenakte (P13): Kopfzeilen-Knopf, Uhr steht, Kurve mit Vorwerten + eigener Messung, Medikation geändert, Anordnung rückgelesen
+    await p.getByRole('button', w === 820 ? { name: 'Patientenakte öffnen' } : { name: 'Patientenakte', exact: true }).click();   // iPad hoch: über den Hotspot im Foto
+    const akte = p.getByRole('dialog', { name: /Frau Lindner/ });
+    await akte.waitFor();
+    await axe('akte-ueberblick');
+    await akte.getByRole('tab', { name: 'Kurve' }).click();
+    assert.ok(await akte.locator('.akte-kurve thead th').count() >= 5, `${w}: Kurve mit Vorwerten und eigener Messung`);
+    await axe('akte-kurve');
+    await akte.getByRole('tab', { name: 'Medikation' }).click();
+    assert.match(await akte.locator('.akte-med tr.is-geaendert').innerText(), /Torasemid/, `${w}: Torasemid durch Anordnung geändert`);
+    await axe('akte-medikation');
+    await akte.getByRole('tab', { name: 'Anordnungen' }).click();
+    assert.match(await akte.innerText(), /vorgelesen und bestätigt/, `${w}: mündliche Anordnung mit Rücklese-Vermerk`);
+    await akte.getByRole('button', { name: 'Schließen' }).click();
+    // „Pflegebericht schreiben“ öffnet die Akte beim Bericht; Eintrag aus Bausteinen beendet den Fall wie bisher
+    await suche.fill('Pflegebericht');
+    await p.getByRole('button', { name: /Pflegebericht/ }).first().click();
+    await akte.getByRole('heading', { name: 'Eintrag schreiben' }).waitFor();
+    await akte.getByRole('checkbox', { name: /^RR \d+\/\d+ mmHg/ }).check();
+    await akte.getByRole('checkbox', { name: /Exsikkose/ }).check();
+    await axe('akte-bericht');
+    await akte.getByRole('button', { name: 'Eintrag speichern' }).click();
 
     await p.getByRole('heading', { name: 'Fall abschließen' }).waitFor();
     for (const t of [/Erhöhtes Sturzrisiko/, /Flüssigkeitsdefizit/, /Akute Verwirrtheit/]) await p.getByRole('checkbox', { name: t }).check();
