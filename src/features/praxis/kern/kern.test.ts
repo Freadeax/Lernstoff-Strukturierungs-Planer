@@ -267,3 +267,21 @@ describe('Pilotfall: Modell passt zu den Befundtexten', () => {
     expect(a.hf).toBeLessThanOrEqual(112);
   });
 });
+
+describe('Messwerte in Meldungen (P13)', () => {
+  it('Befund mit zeigt trägt die Werte zum Messzeitpunkt, Schmerzeinschätzung den NRS-Wert', () => {
+    let z = start(FALL, 2, 2);
+    z = sende(z, { art: 'pflegetasche', geraet: 'rr-geraet' });
+    z = sende(z, { art: 'massnahme', id: 'rr-messen' });
+    const m = z.meldungen.find((x) => x.quelle === 'rr-messen')!;
+    expect(m.werte?.rrSys).toBeGreaterThan(80);
+    expect(m.werte?.rrDia).toBeGreaterThan(40);
+    const vorher = m.werte!.rrSys;
+    z = sende(z, { art: 'warten', sek: 600 });
+    expect(z.meldungen.find((x) => x.quelle === 'rr-messen')!.werte!.rrSys).toBe(vorher);
+    z = sende(z, { art: 'massnahme', id: 'schmerz-nrs' });
+    const s = z.meldungen.find((x) => x.quelle === 'schmerz-nrs');
+    if (s) expect(s.werte?.schmerz).toBeGreaterThanOrEqual(0);
+    expect(z.meldungen.find((x) => x.quelle === 'schleimhaut-pruefen')?.werte).toBeUndefined();
+  });
+});

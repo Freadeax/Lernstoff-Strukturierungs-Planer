@@ -3,6 +3,7 @@
 // Die Darstellung ruft nur start/sende/vorspulen auf und liest Zustand, Meldungen und anzeige().
 // Konzept: KONZEPT.md 3, 3.1, 6.1–6.4 (Projektordner praxissimulator-neu).
 
+import { bausteinText, dokuBausteine as dokuBausteineAus, letzteWerte, medPruefung, type DokuBaustein, type DokuKontext } from './akte';
 import { pruefe, type BedingungsKontext } from './bedingung';
 import { KATALOG } from './katalog';
 import {
@@ -35,7 +36,7 @@ export interface Meldung {
   /** P11: zu welchem Gesprächsfaden die Meldung gehört; `richtung` aus Sicht der Lernenden */
   faden?: Gegenueber;
   richtung?: 'raus' | 'rein';
-  /** Messwerte zum Messzeitpunkt (Befund-Meldungen); Grundlage der Wert-Bausteine `wert:<schlüssel>` (P11) und der Kurve (P13) */
+  /** P13: Messwerte zum Messzeitpunkt (Befund mit `zeigt`, Schmerzeinschätzung, Doku). Eine Quelle für Kurve, Wert-Bausteine und Verlauf. */
   werte?: Partial<Record<keyof Anzeige | 'schmerz', number>>;
 }
 
@@ -296,6 +297,64 @@ function pruefeEnde(z: SimZustand): boolean {
   return true;
 }
 
+/* ─────────────────── Patientenakte (P13) ─────────────────── */
+
+/** Uhrzeit der Spielzeit (für Doku-Texte), „08:10“ + 95 s → „08:11“ */
+function uhrVon(z: SimZustand) {
+  const [h, m] = z.fall.startUhrzeit.split(':').map(Number);
+  return (t: number) => {
+    const s = ((((h || 0) * 3600 + (m || 0) * 60 + Math.floor(t)) % 86400) + 86400) % 86400;
+    return `${String(Math.floor(s / 3600)).padStart(2, '0')}:${String(Math.floor((s % 3600) / 60)).padStart(2, '0')}`;
+  };
+}
+
+function dokuKontext(z: SimZustand): DokuKontext {
+  return {
+    fall: z.fall, t: z.t, meldungen: z.meldungen, getan: z.getan, anordnungen: z.anordnungen, zurueckgezogen: z.zurueckgezogen,
+    massnahme: (id) => massnahme(z.fall, id), gilt: (b) => gilt(z, b),
+  };
+}
+
+/** Bausteine für den Pflegebericht, die jetzt angeboten werden (nur Bekanntes). */
+export const dokuBausteine = (z: SimZustand): DokuBaustein[] => dokuBausteineAus(dokuKontext(z), uhrVon(z));
+
+/** Gabe gegen den Medikationsplan prüfen (Doppelgabe, Abstand, Höchstmenge) → Fehler im Log mit Text. */
+function pruefeMedikation(z: SimZustand, id: string) {
+  for (const f of medPruefung(z.fall, id, z.getan[id] ?? [], z.anordnungen, z.zurueckgezogen)) {
+    if (z.fehlerAus.includes(f.id)) continue;
+    z.fehlerAus.push(f.id);
+    z.log.push({ t: z.t, art: 'fehler', id: f.id });
+    z.meldungen.push({ t: z.t, art: 'fehler', text: f.text, quelle: f.id });
+  }
+}
+
+/** Eintrag in den Pflegebericht: Text aus den Bausteinen + Freitext, Werte der Wert-Bausteine als Momentaufnahme. */
+function dokumentiere(z: SimZustand, bausteine: readonly string[], freitext?: string) {
+  const k = dokuKontext(z);
+  const uhr = uhrVon(z);
+  const texte: string[] = [];
+  const gueltig: string[] = [];
+  for (const id of bausteine) {
+    const t = bausteinText(k, id, uhr);
+    if (t) { texte.push(t); gueltig.push(id); }
+  }
+  const frei = freitext?.trim();
+  if (!texte.length && !frei) return false;
+  const letzte = letzteWerte(z.meldungen);
+  const werte: NonNullable<Meldung['werte']> = {};
+  for (const id of gueltig) {
+    if (!id.startsWith('wert:')) continue;
+    const key = id.slice(5) as keyof NonNullable<Meldung['werte']>;
+    const w = letzte[key];
+    if (w) { werte[key] = w.wert; if (key === 'rrSys' && letzte.rrDia) werte.rrDia = letzte.rrDia.wert; }
+  }
+  for (const id of gueltig) markiere(z, `doku:${id}`);
+  markiere(z, 'doku');
+  if (z.fall.massnahmen.includes('pflegebericht')) markiere(z, 'pflegebericht');
+  z.meldungen.push({ t: z.t, art: 'doku', text: [...texte, ...(frei ? [frei] : [])].join(' '), quelle: 'pflegebericht', ...(Object.keys(werte).length ? { werte } : {}) });
+  return true;
+}
+
 /* ─────────────────────────── Eingaben ─────────────────────────── */
 
 /** Wartezeiten werden NICHT zusammengefasst: lauf(7)+lauf(3) rechnet andere Takte als lauf(10). */
@@ -319,20 +378,31 @@ function fuelle(text: string, z: SimZustand): string {
   });
 }
 
+/** Schmerzeinschätzungen: Ergebnis (NRS 0–10 aus der Grundgröße) geht als `werte.schmerz` in die Meldung (P13). */
+export const SCHMERZ_MESSUNG: ReadonlySet<string> = new Set(['schmerz-nrs', 'schmerz-besd', 'schmerz-kinderskala', 'schmerz-bps']);
+
+/** Momentaufnahme der gezeigten Werte (P13): was in diesem Augenblick gemessen wurde, nicht der spätere Modellwert. */
+function messwerte(z: SimZustand, id: string, zeigt: ReadonlyArray<keyof Anzeige> | undefined): Meldung['werte'] {
+  const a = anzeige(z);
+  const w: NonNullable<Meldung['werte']> = {};
+  for (const k of zeigt ?? []) { const x = a[k]; if (typeof x === 'number') w[k] = x; }
+  if (SCHMERZ_MESSUNG.has(id)) w.schmerz = Math.round(z.grund.schmerz);
+  return Object.keys(w).length ? w : undefined;
+}
+
 function befund(z: SimZustand, id: string) {
   const b = z.fall.befunde.find((x) => x.massnahme === id);
   const v = b?.varianten.find((x) => !x.wenn || gilt(z, x.wenn));
   if (v) {
-    const a = anzeige(z);
-    const werte: NonNullable<Meldung['werte']> = {};
-    for (const k of v.zeigt ?? []) if (typeof a[k] === 'number') werte[k] = a[k] as number;
-    z.meldungen.push({ t: z.t, art: 'befund', text: fuelle(v.text, z), quelle: id, ...(v.zeigt?.length ? { zeigt: v.zeigt, werte } : {}) });
+    const werte = messwerte(z, id, v.zeigt);
+    z.meldungen.push({ t: z.t, art: 'befund', text: fuelle(v.text, z), quelle: id, ...(v.zeigt?.length ? { zeigt: v.zeigt } : {}), ...(werte ? { werte } : {}) });
     for (const k of v.zeigt ?? []) if (!z.sichtbar.includes(k)) z.sichtbar.push(k);
   }
 }
 
 function fuehreAus(z: SimZustand, m: MassnahmeDefinition, zusatzSek = 0) {
   markiere(z, m.id);
+  pruefeMedikation(z, m.id);
   for (const f of m.setzt ?? []) if (!z.flags.includes(f)) z.flags.push(f);
   aktiviere(z, m.wirkung);
   if (m.beendet?.length) z.treiber = z.treiber.filter((tr) => !m.beendet!.includes(tr.art));
@@ -507,6 +577,9 @@ export function sende(alt: SimZustand, e: SimEventEingabe): SimZustand {
       lauf(z, 30);
       break;
     }
+    case 'dokumentieren':
+      if (dokumentiere(z, e.bausteine, e.freitext)) lauf(z, Math.min(240, 60 + 15 * e.bausteine.length + (e.freitext?.trim() ? 30 : 0)));
+      break;
     case 'abschluss':
       z.abschluss = e;
       z.ende ??= { text: 'Fall abgeschlossen.', ausgang: 'abgeschlossen', t: z.t };

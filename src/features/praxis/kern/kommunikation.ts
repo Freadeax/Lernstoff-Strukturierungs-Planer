@@ -121,6 +121,7 @@ export function uhr(startUhrzeit: string, t: number): string {
 export function letzteMesswerte(z: SimZustand): Partial<Record<WertSchluessel, { wert: number; t: number }>> {
   const r: Partial<Record<WertSchluessel, { wert: number; t: number }>> = {};
   for (const m of z.meldungen) {
+    if (m.art === 'doku') continue;   // Pflegebericht wiederholt nur Werte, misst nicht neu
     for (const [k, w] of Object.entries(m.werte ?? {}) as Array<[WertSchluessel, number]>) if (typeof w === 'number') r[k] = { wert: w, t: m.t };
   }
   return r;

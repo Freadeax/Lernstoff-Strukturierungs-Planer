@@ -18,6 +18,8 @@ import {
   pflegetasche, raumJetzt, REITER, REITER_LEISTE, rekonstruiere, ROLLE_TEXT, spule, STUFE_TEXT, suche, team,
   uhrzeit, wende, werteleiste, type Arbeitsstand, type Handlung,
 } from './ansicht';
+import { Akte } from './Akte';
+import type { AkteReiter } from './akte-ansicht';
 import { Abschluss, Auswertung } from './Auswertung';
 import { partner } from './gespraeche';
 import { Kommunikation } from './Kommunikation';
@@ -105,6 +107,8 @@ function Platz({ stand, setStand, onZurueck, onNeu }: {
   const [suchtext, setSuchtext] = useState('');
   const [tascheOffen, setTascheOffen] = useState(false);
   const [abschluss, setAbschluss] = useState(false);
+  /** P13: Patientenakte offen (Reiter); die Uhr steht, solange sie offen ist */
+  const [akteOffen, setAkteOffen] = useState<AkteReiter | null>(null);
   /** Meldungen seit der letzten eigenen Eingabe */
   const [seit, setSeit] = useState(z.meldungen.length);
   const [fotoWeg, setFotoWeg] = useState(false);
@@ -119,7 +123,7 @@ function Platz({ stand, setStand, onZurueck, onNeu }: {
   const [gelesen, setGelesen] = useState<Partial<Record<Gegenueber, number>>>({});
 
   const entscheidung = offeneEntscheidung(z);
-  const laeuft = tempo > 0 && !z.ende && !entscheidung;
+  const laeuft = tempo > 0 && !z.ende && !entscheidung && !akteOffen;
 
   // Uhr: alle TAKT/tempo Sekunden einen Logik-Schritt. Im Hintergrund-Tab nichts tun.
   useEffect(() => {
@@ -184,6 +188,11 @@ function Platz({ stand, setStand, onZurueck, onNeu }: {
     }
   }
 
+  if (raum) {
+    const ort = RAEUME[raum].hotspots.find((h) => /akte|tablet|mappe|kurve/.test(h.id));
+    hotspots.push({ id: 'akte', label: 'Patientenakte öffnen', kurz: '📋 Akte', x: ort?.x ?? 0.04, y: ort?.y ?? 0.9, onClick: () => setAkteOffen('ueberblick') });
+  }
+
   function zeigeReiter(r: Reiter) {
     setSuchtext('');
     setReiter(r);
@@ -220,6 +229,7 @@ function Platz({ stand, setStand, onZurueck, onNeu }: {
           <p>{fall.titel} · Spur {fall.spur}</p>
         </div>
         <span className="ap-kopf__rolle">{ROLLE_TEXT(z.rolle)} · {STUFE_TEXT[z.stufe]}</span>
+        <button type="button" className="ap-kopf__akte small" onClick={() => setAkteOffen('ueberblick')}><span aria-hidden="true">📋 </span>Patientenakte</button>
       </header>
 
       <div className="ap-foto" ref={fotoRef}>
@@ -294,25 +304,29 @@ function Platz({ stand, setStand, onZurueck, onNeu }: {
             ? <Kommunikation z={z} eingabe={eingabe} an={gegenueber} setAn={setGegenueber} gelesen={gelesen} setGelesen={setGelesen}
               onAbschluss={() => setAbschluss(true)}
               weitere={liste.length > 0 && <section aria-labelledby="ap-weitere"><h4 id="ap-weitere" className="ap-weitere">Weitere Handlungen: Gespräch, Melden, Dokumentieren</h4>
-                <ul className="ap-liste">{liste.map((h) => <Zeile key={`${h.art}:${h.id}`} h={h} z={z} mitReiter={false} eingabe={eingabe} onTasche={() => setTascheOffen(true)} />)}</ul></section>} />
+                <ul className="ap-liste">{liste.map((h) => <Zeile key={`${h.art}:${h.id}`} h={h} z={z} mitReiter={false} eingabe={eingabe} onTasche={() => setTascheOffen(true)}
+                  onBericht={h.id === 'pflegebericht' ? () => setAkteOffen('bericht') : undefined} />)}</ul></section>} />
             : <ul className="ap-liste">
-              {liste.map((h) => <Zeile key={`${h.art}:${h.id}`} h={h} z={z} mitReiter={!!suchtext} eingabe={eingabe} onTasche={() => setTascheOffen(true)} />)}
+              {liste.map((h) => <Zeile key={`${h.art}:${h.id}`} h={h} z={z} mitReiter={!!suchtext} eingabe={eingabe} onTasche={() => setTascheOffen(true)}
+                onBericht={h.id === 'pflegebericht' ? () => setAkteOffen('bericht') : undefined} />)}
               {liste.length === 0 && <li className="muted">Dazu gibt es in diesem Fall nichts. Versuch ein anderes Wort.</li>}
             </ul>}
         </div>
       </>}
       <p className="visually-hidden" aria-live="polite">{neu.at(-1)?.text ?? ''}</p>
     </div>
+    {akteOffen && <Akte z={z} start={akteOffen} eingabe={eingabe} onSchliessen={() => setAkteOffen(null)} />}
   </div>;
 }
 
 /* ─────────────────────────── Bausteine ─────────────────────────── */
 
-function Zeile({ h, z, mitReiter, eingabe, onTasche }: { h: Handlung; z: SimZustand; mitReiter: boolean; eingabe: (e: SimEventEingabe) => void; onTasche: () => void }) {
+function Zeile({ h, z, mitReiter, eingabe, onTasche, onBericht }: { h: Handlung; z: SimZustand; mitReiter: boolean; eingabe: (e: SimEventEingabe) => void; onTasche: () => void; onBericht?: () => void }) {
   const zuletzt = h.getan.at(-1);
   const brauchtPa = z.stufe === 3 && h.freigabe === 'mit-pa' && !h.anleitungDa;
   const ausfuehren = () => {
     if (h.fehlendesGeraet) return onTasche();
+    if (onBericht) return onBericht();   // P13: Pflegebericht schreibt man in der Akte
     eingabe(h.art === 'frage' ? { art: 'frage', id: h.id } : { art: 'massnahme', id: h.id });
   };
   const badge = h.fehlendesGeraet ? { klasse: 'is-geraet', text: 'erst holen', lang: 'Gerät erst aus der Pflegetasche holen' }

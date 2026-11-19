@@ -68,7 +68,7 @@ export const PILOT_AMBULANT: FallV2 = {
     ],
     bild: { haltung: 'am-boden', haut: 'trocken', mimik: 'verwirrt' },
     sichtbar: [],                                   // ambulant: nichts gemessen, Geräte aus der Pflegetasche
-    anordnungen: ['an-plan'],
+    anordnungen: ['an-plan', 'an-bedarf'],
   },
 
   massnahmen: [
@@ -80,7 +80,7 @@ export const PILOT_AMBULANT: FallV2 = {
     // Messen (Pflegetasche)
     'pulsoxy-anlegen', 'rr-messen', 'puls-zaehlen', 'temperatur-ohr', 'bz-messen', 'dosett-pruefen',
     // Versorgen
-    'trinken-anbieten', 'tabletten-wie-geplant-geben', 'lorazepam-geben', 'torasemid-zurueckhalten', 'kompression-anziehen', 'umgebung-sichern',
+    'trinken-anbieten', 'tabletten-wie-geplant-geben', 'bedarfsmedikation-oral', 'lorazepam-geben', 'torasemid-zurueckhalten', 'kompression-anziehen', 'umgebung-sichern',
     // Melden
     'pflegebericht', 'pdl-informieren',
   ],
@@ -99,6 +99,70 @@ export const PILOT_AMBULANT: FallV2 = {
       quellen: [{ id: 'dnqp-sturz', titel: 'DNQP Sturzprophylaxe' }],
     },
   ],
+
+  akte: {
+    aufnahmegrund: 'Häusliche Versorgung seit 03/2025 nach Krankenhausaufenthalt (kardiale Dekompensation): Kompressionsstrümpfe morgens, Medikamente aus dem Wochendosett, Unterstützung bei der Körperpflege 2×/Woche.',
+    anamnese: [
+      'Lebt allein im 2. Stock ohne Aufzug, Tochter (Frau Brandt) wohnt 20 km entfernt und kommt am Wochenende.',
+      'Geht in der Wohnung mit Rollator, draußen nur in Begleitung. Ein Sturz im Februar ohne Verletzung.',
+      'Trinkt laut eigener Aussage „wegen der Wassertablette“ wenig, damit sie nachts nicht raus muss.',
+      'Bisher zu Zeit, Ort und Person orientiert, liest täglich Zeitung.',
+    ],
+    diagnosen: [
+      { text: 'Herzinsuffizienz NYHA II', icd: 'I50.12', seit: '2024' },
+      { text: 'Arterielle Hypertonie', icd: 'I10.90', seit: '2009' },
+      { text: 'Chronische venöse Insuffizienz', icd: 'I87.2', seit: '2016' },
+      { text: 'Refluxkrankheit', icd: 'K21.9', seit: '2019' },
+      { text: 'Chronische Nierenkrankheit Stadium 3a', icd: 'N18.3', seit: '2024' },
+    ],
+    medikation: [
+      { id: 'mp-torasemid', wirkstoff: 'Torasemid', staerke: '10 mg', form: 'Tbl.', schema: '1-0-0-0', massnahme: 'tabletten-wie-geplant-geben', zuletzt: 'gestern 08:10',
+        hinweis: 'Diuretikum. Bei Schwindel, niedrigem RR oder wenig Trinken Rücksprache mit der Hausärztin.', geaendertDurch: 'an-torasemid-pause' },
+      { id: 'mp-ramipril', wirkstoff: 'Ramipril', staerke: '5 mg', form: 'Tbl.', schema: '1-0-0-0', massnahme: 'tabletten-wie-geplant-geben', zuletzt: 'gestern 08:10',
+        hinweis: 'Vor Gabe RR messen; bei RR systolisch unter 100 Rücksprache.' },
+      { id: 'mp-pantoprazol', wirkstoff: 'Pantoprazol', staerke: '20 mg', form: 'Tbl.', schema: '1-0-0-0', massnahme: 'tabletten-wie-geplant-geben', zuletzt: 'gestern 08:10',
+        hinweis: 'Vor dem Frühstück.' },
+      { id: 'mp-paracetamol', wirkstoff: 'Paracetamol', staerke: '500 mg', form: 'Tbl.', massnahme: 'bedarfsmedikation-oral', zuletzt: 'gestern 21:00',
+        bedarf: { indikation: 'Schmerzen (z. B. Gelenke, Kopf)', einzeldosis: '500 mg', maxProTag: '4 Gaben', abstandH: 6 },
+        hinweis: 'Nimmt sie abends selbst aus der Hausapotheke; letzte Einnahme laut Tochter.' },
+    ],
+    vorwerte: [
+      { zeit: 'vor 7 Tagen', vorH: 168, werte: { rrSys: 142, rrDia: 86, hf: 72, temp: 36.5, gewicht: 59.4 }, kuerzel: 'MH' },
+      { zeit: 'vor 3 Tagen', vorH: 72, werte: { rrSys: 138, rrDia: 84, hf: 76, gewicht: 58.6 }, kuerzel: 'SK' },
+      { zeit: 'gestern 08:15', vorH: 24, werte: { rrSys: 128, rrDia: 78, hf: 84, temp: 36.8, schmerz: 1 }, kuerzel: 'SK' },
+    ],
+    pflegebericht: [
+      { zeit: 'vor 3 Tagen 08:30', wer: 'SK', text: 'Kompressionsstrümpfe angezogen, Haut an den Unterschenkeln intakt. Klientin gut gelaunt, erzählt von ihrer Enkelin.' },
+      { zeit: 'gestern 08:20', wer: 'SK', text: 'Medikamente aus dem Dosett gegeben. Klientin wirkt müde, sagt, sie habe schlecht geschlafen. Trinkflasche vom Vortag kaum angerührt. Auf Trinken hingewiesen, sie lehnt ab („sonst muss ich nachts raus“). RR 128/78.' },
+      { zeit: 'gestern 17:40', wer: 'Tochter (Telefon)', text: 'Tochter ruft im Büro an: Mutter trinke seit Tagen kaum, sei aber am Telefon klar. Bitte morgen darauf achten. Info an Frühtour weitergegeben (PDL).' },
+    ],
+    aerztlicheAnordnungen: [
+      { zeit: '12.03.', wer: 'Dr. Sommer', text: 'Medikationsplan (Torasemid, Ramipril, Pantoprazol morgens; Paracetamol bei Bedarf). Behandlungspflege: Medikamentengabe, Kompressionsstrümpfe AD Kl. II morgens an, abends aus.' },
+      { zeit: '12.03.', wer: 'Dr. Sommer', text: 'Gewicht 1×/Woche; Zunahme über 2 kg in 3 Tagen oder Atemnot melden.' },
+    ],
+    assessments: [
+      { name: 'Sturzrisiko (Risikofaktoren nach Expertenstandard)', wert: 'erhöht', datum: 'vor 4 Wochen', hinweis: 'Sturz in der Vorgeschichte, Diuretikum, Gangunsicherheit, Hausnotruf wird nicht getragen.' },
+      { name: 'Barthel-Index', wert: '70 von 100', datum: 'vor 4 Wochen' },
+      { name: 'Braden-Skala', wert: '19 Punkte (kein erhöhtes Risiko)', datum: 'vor 4 Wochen' },
+      { name: 'MNA-SF (Ernährung)', wert: '10 Punkte (Risiko für Mangelernährung)', datum: 'vor 4 Wochen', hinweis: 'Trinkmenge geschätzt unter 1 l am Tag.' },
+    ],
+    labor: [
+      { name: 'Natrium', wert: '136', einheit: 'mmol/l', norm: '135–145', datum: 'vor 3 Wochen (Hausärztin)' },
+      { name: 'Kalium', wert: '4,1', einheit: 'mmol/l', norm: '3,5–5,0', datum: 'vor 3 Wochen (Hausärztin)' },
+      { name: 'Kreatinin', wert: '1,2', einheit: 'mg/dl', norm: '0,5–1,0', datum: 'vor 3 Wochen (Hausärztin)', auffaellig: true },
+      { name: 'eGFR', wert: '44', einheit: 'ml/min', norm: 'über 60', datum: 'vor 3 Wochen (Hausärztin)', auffaellig: true },
+    ],
+    pflegeplanung: [
+      { problem: 'Gefahr eines Flüssigkeitsdefizits: trinkt bewusst wenig wegen nächtlicher Toilettengänge', ziel: 'Trinkt tagsüber mindestens 1,3 l, abends weniger', massnahmen: ['Getränke morgens bereitstellen', 'Trinkplan mit Schwerpunkt vormittags besprechen', 'Tochter einbeziehen'] },
+      { problem: 'Erhöhtes Sturzrisiko (Diuretikum, Gangunsicherheit)', ziel: 'Bleibt sturzfrei, trägt den Hausnotruf', massnahmen: ['Hausnotruf an das Tragen erinnern', 'Wege frei halten, Rollator in Reichweite', 'Nachtlicht'] },
+      { problem: 'Chronische venöse Insuffizienz', ziel: 'Haut der Unterschenkel bleibt intakt', massnahmen: ['Kompressionsstrümpfe AD Kl. II morgens', 'Hautinspektion beim An- und Ausziehen'] },
+    ],
+    rechtliches: [
+      'Vorsorgevollmacht für Gesundheit und Aufenthalt: Tochter, Frau Brandt (liegt in Kopie in der Pflegemappe).',
+      'Schweigepflichtentbindung: Auskunft an die Tochter erlaubt.',
+      'Patientenverfügung vorhanden: keine Wiederbelebung im Endstadium einer schweren Erkrankung; Krankenhausbehandlung grundsätzlich erwünscht.',
+    ],
+  },
 
   befunde: [
     { massnahme: 'ansprechen-orientierung', varianten: [
@@ -123,6 +187,7 @@ export const PILOT_AMBULANT: FallV2 = {
       { text: 'BZ {bz} mg/dl – keine Unterzuckerung.', zeigt: ['bz'] },
     ] },
     { massnahme: 'delir-screening-4at', varianten: [{ text: '4AT: Wachheit normal (0), AMT4 zwei Fehler (2), Monate rückwärts nicht möglich (2), akuter Beginn laut Tochter ja (4) = 8 Punkte → Delir wahrscheinlich.' }] },
+    { massnahme: 'bedarfsmedikation-oral', varianten: [{ text: 'Du gibst eine Tablette Paracetamol 500 mg mit einem Glas Wasser.' }] },
     { massnahme: 'dosett-pruefen', varianten: [{ text: 'Dosett: Gestern und vorgestern Morgen wurden alle Tabletten genommen, Mittag/Abend leer wie vorgesehen.' }] },
   ],
 
@@ -165,6 +230,7 @@ export const PILOT_AMBULANT: FallV2 = {
 
   anordnungen: [
     { id: 'an-plan', massnahme: 'tabletten-wie-geplant-geben', text: 'Medikamentenplan der Hausärztin (Torasemid, Ramipril, Pantoprazol morgens).' },
+    { id: 'an-bedarf', massnahme: 'bedarfsmedikation-oral', text: 'Bedarfsmedikation laut Medikationsplan: Paracetamol 500 mg bei Schmerzen, Abstand mind. 6 h, max. 4 Gaben am Tag.' },
     { id: 'an-torasemid-pause', massnahme: 'torasemid-zurueckhalten', text: 'Torasemid heute nicht geben.' },
     { id: 'an-trinken', massnahme: 'trinken-anbieten', text: 'Trinken fördern, Ziel heute mind. 1,5 l, Trinkprotokoll.' },
     { id: 'an-lorazepam', massnahme: 'lorazepam-geben', text: 'Geben Sie ihr gegen die Unruhe 1 mg Lorazepam aus der Hausapotheke.',

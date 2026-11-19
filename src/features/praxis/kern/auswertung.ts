@@ -6,6 +6,7 @@
 // Die Zeitleiste entsteht per Replay der Eingaben; Wartezeiten werden dabei in Takt-Stücke geteilt
 // (gleiches Ergebnis wie am Stück, Test in auswertung.test.ts), damit die Werte im 5-s-Raster vorliegen.
 
+import { istMedFehler, medFehlerText } from './akte';
 import { anzeige, gilt, massnahme, sende, start, TAKT_SEK, type SimZustand } from './kern';
 import { GEGENUEBER_NAME, kommFehler, ZUSAGE_ID, ZUSAGE_TEXT } from './kommunikation';
 import type { Bedingung, FallV2, KB, KlinischerBereich, SbarBaustein, SimEventEingabe } from './typen';
@@ -32,6 +33,8 @@ export const KLINISCHE: readonly KlinischerBereich[] = ['abcde', 'geraete', 'med
 /** Abzug je Pflegefehler nach Schwere (in Gewichtspunkten, wie Pflichthandlungen 1–3). */
 export const ABZUG_FEHLER = { leicht: 1, mittel: 2, schwer: 4 } as const;
 export const ABZUG_GRENZE = 3;
+/** Medikationsfehler gegen den Plan (P13): Doppelgabe und Höchstmenge schwer, zu kurzer Abstand mittel */
+export const MED_SCHWERE = (id: string): 'mittel' | 'schwer' => (id.startsWith('med-abstand:') ? 'mittel' : 'schwer');
 export const ABZUG_GRENZE_SCHADEN = 4;
 export const ABZUG_PA_WARNT = 1;
 export const ABZUG_PA_TIPP = 0.5;
@@ -214,7 +217,7 @@ function spieleNach(z: SimZustand): Replay {
       marken.push({ t: vorher.t, text: eingabeText(fall, e), art: e.art, ausgefuehrt });
     }
     for (const l of s.log.slice(vorher.log.length)) {
-      if (l.art === 'fehler') marken.push({ t: l.t, text: fall.bewertung.fehler.find((f) => f.id === l.id)?.text ?? kommFehler(z, l.id)?.text ?? l.id, art: 'fehler', ausgefuehrt: true });
+      if (l.art === 'fehler') marken.push({ t: l.t, text: fall.bewertung.fehler.find((f) => f.id === l.id)?.text ?? kommFehler(z, l.id)?.text ?? medFehlerText(fall, l.id) ?? l.id, art: 'fehler', ausgefuehrt: true });
       else if (l.art === 'grenzueberschreitung') marken.push({ t: l.t, text: `Grenze überschritten: ${massnahme(fall, l.massnahmeId)?.name ?? l.massnahmeId}`, art: 'grenze', ausgefuehrt: true });
       else if (l.art === 'ereignis') marken.push({ t: l.t, text: fall.ereignisse.find((x) => x.id === l.id)?.text ?? l.id, art: 'ereignis', ausgefuehrt: true });
     }
@@ -382,6 +385,20 @@ export function bewerte(z: SimZustand): KernAuswertung {
     });
   }
 
+  // Medikationsfehler gegen den Plan (P13): Doppelgabe, Abstand, Höchstmenge
+  for (const id of z.fehlerAus) {
+    if (!istMedFehler(id)) continue;
+    const schwere = MED_SCHWERE(id);
+    const t = z.log.find((e) => e.art === 'fehler' && e.id === id)?.t;
+    const meldung = z.meldungen.find((m) => m.art === 'fehler' && m.quelle === id)?.text;
+    beitraege.push({
+      id: `fehler:${id}`, art: 'fehler', text: medFehlerText(fall, id) ?? id, bereiche: mitKlinisch(['I', 'III'], ['medikamente']),
+      moeglich: 0, erreicht: 0, abzug: ABZUG_FEHLER[schwere], urteil: 'fehler',
+      warum: 'Vor jeder Gabe den Medikationsplan prüfen: letzte Gabe, Abstand, Tageshöchstmenge (6-R-Regel, richtige Zeit).',
+      deine: `Medikationsfehler (${schwere})${meldung ? `: ${meldung}` : ''}`, ...(t !== undefined ? { t } : {}),
+    });
+  }
+
   // Grenzüberschreitungen (Stufe 3) und Warnungen der PA (Stufe 2)
   z.log.forEach((e, i) => {
     if (e.art === 'grenzueberschreitung') {
@@ -462,7 +479,7 @@ export function bewerte(z: SimZustand): KernAuswertung {
   const m = beitraege.reduce((s, b) => s + b.moeglich, 0);
   const gesamt = m > 0 ? Math.round(Math.max(0, Math.min(1, (beitraege.reduce((s, b) => s + b.erreicht - b.abzug, 0)) / m)) * 100) : 0;
 
-  const schwer = z.fehlerAus.some((id) => fall.bewertung.fehler.find((f) => f.id === id)?.schwere === 'schwer');
+  const schwer = z.fehlerAus.some((id) => (istMedFehler(id) ? MED_SCHWERE(id) : fall.bewertung.fehler.find((f) => f.id === id)?.schwere) === 'schwer');
   const grenzen = beitraege.some((b) => b.art === 'grenze');
   const schlecht = z.ende && ['verschlechtert', 'verstorben'].includes(z.ende.ausgang);
   const stufe = verpasste.length || schwer || schlecht ? 'kritisch' : gesamt < 80 || grenzen || z.fehlerAus.length ? 'unsicher' : 'stabil';
