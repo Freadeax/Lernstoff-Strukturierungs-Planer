@@ -48,7 +48,11 @@ describe('Fallplan nach CE (P15)', () => {
     const arten = ce05!.eintraege.map((e) => e.art);
     expect(arten[0]).toBe('kern');
     expect(arten.lastIndexOf('kern')).toBeLessThan(arten.indexOf('alt'));
-    expect(arten.lastIndexOf('alt')).toBeLessThan(arten.indexOf('geplant'));
+    // Reihenfolge alt vor geplant an jeder CE prüfen, die noch beides hat (Fallwellen schließen nach und nach Lücken)
+    for (const g of fallauswahl(CE, FAELLE_V2, SCENARIOS)) {
+      const a = g.eintraege.map((e) => e.art);
+      if (a.includes('alt') && a.includes('geplant')) expect(a.lastIndexOf('alt'), g.ce).toBeLessThan(a.indexOf('geplant'));
+    }
     const sepsis = ce05!.eintraege.find((e) => e.art === 'alt' && e.id === 'sepsis');
     expect(sepsis && sepsis.art === 'alt' && sepsis.abgeloestDurch).toBeTruthy();
     // Schockraum nur im 3. Drittel
