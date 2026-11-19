@@ -46,6 +46,14 @@ describe('G1 Wirkstoffe: Register und Kinetik', () => {
 });
 
 describe('G1 Wirkstoffe: Wirkung im Modell', () => {
+  it('Adrenalin i. m.: hebt den Blutdruck nach Minuten, nach einer Stunde kaum noch wirksam (P16a)', () => {
+    const start = { gefaesstonus: 0.6 };
+    const vorher = lauf('erwachsen', 0, [], start);
+    const m10 = lauf('erwachsen', 10, [[ws('adrenalin', 0.5, 'im'), 0]], start);
+    const m60 = lauf('erwachsen', 60, [[ws('adrenalin', 0.5, 'im'), 0]], start);
+    expect(m10.a.rrSys).toBeGreaterThan(vorher.a.rrSys + 10);
+    expect(m60.a.rrSys).toBeLessThan(m10.a.rrSys - 8);
+  });
   it('Morphin s. c.: Schmerz sinkt, kehrt nach Stunden zurück; Atemfrequenz bleibt bei üblicher Dosis ≥ 10', () => {
     const start = { schmerz: 7 };
     const m30 = lauf('erwachsen', 40, [[ws('morphin', 10, 'sc'), 0]], start);
