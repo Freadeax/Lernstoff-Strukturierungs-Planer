@@ -105,6 +105,19 @@ export interface Anzeige {
   blaseMl?: number;
   /** Dekubitus-Kategorie 0–4 an der Auflagestelle, nur wenn das Modell Haut führt (G3) */
   dekubitusKat?: number;
+  // G4 Einschätzungen aus dem Modell (Kern ergänzt sie in anzeige(z); vereinfacht, physiologie/einschaetzungen.ts)
+  /** Puls / RR systolisch */
+  schockindex?: number;
+  /** qSOFA 0–3 */
+  qsofa?: number;
+  /** NEWS2-Punkte (nur Erwachsenenprofil) */
+  news2?: number;
+  /** PEWS 0–9 (nur Kinder) */
+  pews?: number;
+  /** Nu-DESC 0–10 (≥ 2 Delir wahrscheinlich) */
+  nuDesc?: number;
+  /** BESD 0–10 (≥ 2 Schmerz möglich) */
+  besd?: number;
   bilanzMl?: number;             // Einfuhr − Ausfuhr seit Fallbeginn
   /** Beatmung: Spitzendruck in cmH₂O */
   ppeak?: number;
