@@ -42,7 +42,7 @@ export const AMB_HYPOGLYKAEMIE: FallV2 = {
   freigabe: {
     status: 'entwurf',
     pruefpunkte: [
-      'Vorgehen Hypoglykämie (15 g bzw. 20 g schnelle KH, nach 15 Min. nachmessen) gegen NVL Typ-2-Diabetes und DDG-Praxisempfehlung prüfen',
+      'Vorgehen Hypoglykämie mit DDG-Praxisempfehlung 2025 (Diabetes im Krankenhaus, Tab. 4) abgeglichen: unter 70 mg/dl, 20 g, nach 15 Min. nachmessen, danach essen. Abgleich mit NVL Typ-2-Diabetes noch offen',
       'Remonstrationspunkt „volle Insulindosis nach Unterzucker“ und Ersatzanordnung fachlich prüfen',
       'Befugnis Insulin s. c. im 2. Drittel (mit Anleitung) gegen Lehrplan und Einrichtung',
       'Spritzstellen/Lipohypertrophie als Ursache didaktisch passend?',
@@ -50,7 +50,8 @@ export const AMB_HYPOGLYKAEMIE: FallV2 = {
   },
   quellen: [
     { id: 'nvl-diabetes', titel: 'Nationale VersorgungsLeitlinie Typ-2-Diabetes, Version 3.0 (2023)', fundstelle: 'Hypoglykämie, Schulung' },
-    { id: 'ddg-hypo', titel: 'DDG Praxisempfehlungen: Therapie des Typ-2-Diabetes und Diabetes im Alter (Diabetologie und Stoffwechsel, Supplement, aktuelle Fassung 2024)' },
+    { id: 'ddg-hypo', titel: 'DDG Praxisempfehlungen 2025: Diabetes im Krankenhaus (Diabetol Stoffwechs 2025; 20: S428–S442)', fundstelle: 'Tab. 3 und 4, S. S433: Hypoglykämie unter 70 mg/dl, 20 g Kohlenhydrate (Glukose oder 200 ml Saft), nach 15 Minuten messen und wenn nötig wiederholen, danach Mahlzeit oder Snack' },
+    { id: 'ddg-t2d', titel: 'DDG Praxisempfehlungen 2025: Therapie des Typ-2-Diabetes (Diabetol Stoffwechs 2025; 20: S193–S210)', fundstelle: 'Hypoglykämiegefahr unter Insulin' },
     { id: 'ddg-injektion', titel: 'Forum Injektionstechnik/DDG: Empfehlungen zur Injektionstechnik (Spritzstellenwechsel, Lipohypertrophie)' },
     { id: 'dnqp-ernaehrung', titel: 'DNQP: Expertenstandard Ernährungsmanagement, 1. Aktualisierung 2017' },
   ],

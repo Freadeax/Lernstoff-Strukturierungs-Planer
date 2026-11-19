@@ -482,8 +482,7 @@ export const PRAXIS_LEITLINIEN: QuellenEintrag[] = [
     id: 'ddg.praxisempfehlungen', titel: 'DDG Praxisempfehlungen (Diabetologie und Stoffwechsel, Supplement)', herausgeber: 'Deutsche Diabetes Gesellschaft', art: 'empfehlung', muster: /^DDG Praxisempfehlungen/,
     aktuell: { stand: '2025', fundstelle: 'https://www.ddg.info/fileadmin/user_upload/05_Behandlung/01_Leitlinien/Praxisempfehlungen/2025/PE_Therapie_Typ-2-Diabetes_2025.pdf' }, geprueftAm: P20,
     beobachten: 'https://www.ddg.info/behandlung/leitlinien', intervallMonate: 12,
-    offen: 'Praxisfall Unterzucker vor dem Abendinsulin (P17b) zitiert die Ausgabe 2024. Ausgabe 2025 liegt vor (u. a. Therapie Typ-2-Diabetes); Hypoglykämie-Regeln abgleichen.',
-    hinweis: 'Erscheinen jährlich neu.',
+    hinweis: 'Erscheinen jährlich neu (Supplement S2, Dezember). Praxisfall Unterzucker vor dem Abendinsulin (P17b) am 19.11.2026 gegen die Ausgabe 2025 abgeglichen: „Diabetes im Krankenhaus“ (Diabetol Stoffwechs 2025; 20: S428–S442), Tab. 3/4 S. S433 – unter 70 mg/dl, 20 g Kohlenhydrate, nach 15 Minuten messen, wenn nötig wiederholen, danach Mahlzeit oder Snack. Deckt sich mit dem Fall.',
   },
   {
     id: 'fit.injektion', titel: 'Forum Injektionstechnik: Empfehlungen zur Injektionstechnik', herausgeber: 'Forum Injektionstechnik (FIT) mit DDG', art: 'empfehlung', muster: /^Forum Injektionstechnik/,
