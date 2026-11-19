@@ -232,7 +232,16 @@ export const AMB_HYPOGLYKAEMIE: FallV2 = {
         folge: [
           { wenn: { wert: 'bz', vergleich: '>=', grenze: 75 }, antwort: '„Gut, über 70. Er soll jetzt essen. Danach heute nur 8 Einheiten, und eine andere Spritzstelle. Vor dem Schlafen noch einmal messen lassen, unter 100 soll er eine Scheibe Brot essen.“',
             anordnungen: ['an-insulin-reduziert'], setzt: ['bz-rueckmeldung'] },
-          { wenn: { ab: 0 }, antwort: '„Noch zu niedrig. Noch einmal Traubenzucker, dann essen. Insulin heute nur 8 Einheiten, erst nach dem Essen.“',
+          // Zu früh oder zu niedrig nachgemessen: noch keine Dosis, sondern noch einmal nach 15 Minuten (Review #282)
+          { wenn: { ab: 0 }, antwort: '„Noch unter 75. Bitte noch einmal Traubenzucker und nach einer Viertelstunde wieder messen, dann entscheide ich die Dosis.“',
+            auftraege: ['af-bz-kontrolle2'] },
+        ] },
+      { id: 'af-bz-kontrolle2', text: 'Nach weiteren 15 Minuten Blutzucker messen und dem Hausarzt melden', erledigt: { alle: [{ ab: 600 }, { getan: 'bz-messen' }] },
+        meldung: ['wert:bz'], meldenBinnenSek: 1500,
+        folge: [
+          { wenn: { wert: 'bz', vergleich: '>=', grenze: 75 }, antwort: '„Gut, jetzt passt es. Er soll essen, danach nur 8 Einheiten an einer anderen Stelle. Vor dem Schlafen noch einmal messen.“',
+            anordnungen: ['an-insulin-reduziert'], setzt: ['bz-rueckmeldung'] },
+          { wenn: { ab: 0 }, antwort: '„Immer noch niedrig. Er soll jetzt essen, Insulin heute nur 8 Einheiten nach dem Essen. Vor dem Schlafen messen, ich rufe später noch einmal an.“',
             anordnungen: ['an-insulin-reduziert'], setzt: ['bz-rueckmeldung'] },
         ] },
     ],
@@ -278,7 +287,7 @@ export const AMB_HYPOGLYKAEMIE: FallV2 = {
       { id: 'p-arzt', text: 'Hausarzt mit Wert und Insulinplan informiert', gewicht: 2, kompetenzbereiche: ['II', 'III'],
         erfuellt: { flag: 'arzt-informiert' }, warum: 'Die Dosis heute Abend entscheidet der Arzt.' },
       { id: 'p-nachmessen', text: 'Nach 15 Minuten nachgemessen und gemeldet', gewicht: 2, kompetenzbereiche: ['I', 'II'],
-        erfuellt: { auftrag: 'af-bz-kontrolle', status: 'gemeldet' }, warum: 'Erst der zweite Wert zeigt, ob der Traubenzucker gereicht hat.' },
+        erfuellt: { flag: 'bz-rueckmeldung' }, warum: 'Erst der zweite Wert zeigt, ob der Traubenzucker gereicht hat.' },
       { id: 'p-essen', text: 'Danach langsam wirksame Kohlenhydrate (Abendbrot)', gewicht: 2, kompetenzbereiche: ['I'],
         erfuellt: { getan: 'kohlenhydrate-langsam' }, warum: 'Traubenzucker wirkt kurz; ohne Mahlzeit sinkt der Zucker wieder.' },
       { id: 'p-rueckgelesen', text: 'Geänderte Insulindosis rückgelesen', gewicht: 2, kompetenzbereiche: ['III'],

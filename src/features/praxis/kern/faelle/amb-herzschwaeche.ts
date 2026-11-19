@@ -95,7 +95,8 @@ export const AMB_HERZSCHWAECHE: FallV2 = {
     // Versorgen
     'kompression-anziehen', 'kompression-ausziehen', 'viel-trinken', 'tabletten-wie-geplant-geben', 'torasemid-zusatz',
     // Melden
-    'tochter-informieren', 'pflegebericht', 'pdl-informieren',
+    // Angehörige nur über das Gespräch g-tochter-lage (mit Einwilligung), keine zweite Abkürzung (Review #282)
+    'pflegebericht', 'pdl-informieren',
   ],
   massnahmenZusatz: [
     aus('oberkoerper-hoch', { id: 'herzbettlage', name: 'Herzbettlage: Oberkörper hoch, Beine tief (im Sessel/Stuhl)', setzt: ['herzbett'] }),
