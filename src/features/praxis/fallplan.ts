@@ -25,14 +25,14 @@ export interface PlanEintrag {
 }
 
 export const FALLPLAN: readonly PlanEintrag[] = [
-  { ce: 'ce.01', titel: 'Erster Tag: Händehygiene, erste Begegnung, Vitalzeichen, Schweigepflicht', art: 'vorhanden', abschnitt: ['ad12'], fall: 'kh-erster-tag' },
+  { ce: 'ce.01', titel: 'Erster Tag: Händehygiene, erste Begegnung, Vitalzeichen, Schweigepflicht', art: 'neu', abschnitt: ['ad12'], paket: 'P17', fall: 'kh-erster-tag' },
 
   { ce: 'ce.02', titel: 'Sturz und Exsikkose im Hausbesuch', art: 'vorhanden', abschnitt: ['ad12'], fall: 'amb-sturz-exsikkose' },
-  { ce: 'ce.02', titel: 'Erster Weg zum Bad nach Hüft-TEP', art: 'vorhanden', abschnitt: ['ad12'], fall: 'kh-reha-erster-weg', alt: ['reha'] },
+  { ce: 'ce.02', titel: 'Erster Weg zum Bad nach Hüft-TEP', art: 'migrieren', abschnitt: ['ad12'], paket: 'P17', alt: ['reha'], fall: 'kh-reha-erster-weg' },
   { ce: 'ce.02', titel: 'Dekubitusgefahr bei Immobilität', art: 'neu', abschnitt: ['ad12'], paket: 'P17' },
   { ce: 'ce.02', titel: 'Harnverhalt nach der OP, Inkontinenz', art: 'neu', abschnitt: ['ad12'], paket: 'P17' },
 
-  { ce: 'ce.03', titel: 'Bewohner lehnt die Körperpflege ab', art: 'vorhanden', abschnitt: ['ad12'], fall: 'lz-koerperpflege-abgelehnt' },
+  { ce: 'ce.03', titel: 'Bewohner lehnt die Körperpflege ab', art: 'neu', abschnitt: ['ad12'], paket: 'P17', fall: 'lz-koerperpflege-abgelehnt' },
 
   { ce: 'ce.04', titel: 'Herzschwäche: Gewicht, Ödeme, Schulung', art: 'migrieren', abschnitt: ['ad12', 'ad3'], paket: 'P17', alt: ['herzschwaeche'] },
   { ce: 'ce.04', titel: 'Diabetes: Unterzuckerung und Insulinschulung', art: 'neu', abschnitt: ['ad12', 'ad3'], paket: 'P17' },
@@ -73,9 +73,9 @@ export const FALLPLAN: readonly PlanEintrag[] = [
 ];
 
 /** Wo noch kein Fall auf dem neuen Kern die Abdeckungsregel erfüllt (Stand main). Wird kleiner, sobald Fälle kommen;
- *  der Test verlangt, dass die Liste genau stimmt. Regel: jede CE ein Kernfall im 1./2. Drittel, CE04–CE11 einer im 3. Drittel. */
+ *  der Test verlangt, dass keine Lücke außerhalb der Liste entsteht (parallele Fallwellen: erledigte Einträge dürfen kurz stehen bleiben, beim nächsten PR streichen). Regel: jede CE ein Kernfall im 1./2. Drittel, CE04–CE11 einer im 3. Drittel. */
 export const ABDECKUNG_OFFEN: readonly string[] = [
-  'ce.07:ad12', 'ce.07:ad3', 'ce.08:ad12', 'ce.08:ad3',
+  'ce.04:ad12', 'ce.04:ad3', 'ce.07:ad12', 'ce.07:ad3', 'ce.08:ad12', 'ce.08:ad3',
 ];
 
 const MIT_AD3 = ['ce.04', 'ce.05', 'ce.06', 'ce.07', 'ce.08', 'ce.09', 'ce.10', 'ce.11'];

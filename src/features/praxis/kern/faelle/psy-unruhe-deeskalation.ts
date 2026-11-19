@@ -29,7 +29,7 @@ export const PSY_UNRUHE_DEESKALATION: FallV2 = {
     'Schweigepflicht gegenüber Angehörigen ohne Entbindung wahren.',
   ],
   lehrplan: {
-    ce: ['ce.11', 'ce.04'], abschnitt: ['ad12', 'ad3'],
+    ce: ['ce.11', 'ce.06'], abschnitt: ['ad12', 'ad3'],
     themen: ['thema.fa.psychiatrie', 'thema.kl.psych', 'thema.re.fem', 'thema.re.schweigepflicht', 'thema.kom.gespraech'],
     kompetenzen: ['I.6.a', 'II.1.b', 'II.1.d', 'III.2.a', 'IV.1.b'],
   },
