@@ -398,6 +398,9 @@ export interface FallV2 {
   kurz: string;                   // eine Zeile für die Fallliste
   rahmen: string;                 // Rolle/Situation in einem Satz
   lernziele: string[];
+  /** Runde 3 (P15): Einordnung nach Landeslehrplan BW 3BFP. ce = IDs aus ce/lehrplan.ts ('ce.05'),
+   *  abschnitt = Ausbildungsabschnitte, themen = Topic-IDs aus pflege-generalistisch.json, kompetenzen = PflAPrV-Kennungen ('I.2.a'). */
+  lehrplan?: { ce: string[]; abschnitt: Array<'ad12' | 'ad3'>; themen?: string[]; kompetenzen?: string[] };
   geeignet: { rollen: Rolle[]; stufen: Stufe[] };
   dauerMin: [number, number];     // geplante Spielzeit, z. B. [10, 15]
   freigabe: { status: 'entwurf' | 'ungeprueft' | 'geprueft'; pruefer?: string; datum?: string; pruefpunkte: string[] };

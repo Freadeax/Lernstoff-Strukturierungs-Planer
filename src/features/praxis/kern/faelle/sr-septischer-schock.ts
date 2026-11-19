@@ -39,6 +39,7 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
     'Arterielle Druckmessung führen: Nullabgleich, gedämpfte Kurve erkennen.',
     'Ausscheidung über den Dauerkatheter stündlich messen und die Bilanz führen.',
   ],
+  lehrplan: { ce: ['ce.06', 'ce.05'], abschnitt: ['ad3'], themen: ['thema.kl.infektion', 'thema.beo.notfall', 'thema.pp.uebergabe'] },
   geeignet: { rollen: [3, 'pflegefachperson'], stufen: [2, 3] },
   dauerMin: [12, 18],
   freigabe: {

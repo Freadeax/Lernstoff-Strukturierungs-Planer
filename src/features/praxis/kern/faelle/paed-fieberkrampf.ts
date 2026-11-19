@@ -36,6 +36,7 @@ export const PAED_FIEBERKRAMPF: FallV2 = {
     'Eine Dosis für ein Kind nach Gewicht nachrechnen und eine falsche Anordnung hinterfragen.',
     'Eltern in der Krise beruhigen, einbeziehen und verständlich informieren.',
   ],
+  lehrplan: { ce: ['ce.10', 'ce.06'], abschnitt: ['ad12', 'ad3'], themen: ['thema.kl.neuro.epilepsie', 'thema.kl.paediatrie', 'thema.re.schweigepflicht'] },
   geeignet: { rollen: [1, 2, 3], stufen: [1, 2, 3] },
   dauerMin: [12, 18],
   freigabe: {

@@ -23,6 +23,7 @@ export const PILOT_AMBULANT: FallV2 = {
     'Den Hausarzt strukturiert (SBAR) informieren und Anordnungen rücklesen.',
     'Eine potenziell gefährliche Anordnung (Benzodiazepin bei Delir im Alter) hinterfragen.',
   ],
+  lehrplan: { ce: ['ce.02', 'ce.09'], abschnitt: ['ad12'], themen: ['thema.pro.sturz', 'thema.pro.dehydratation', 'thema.kl.demenz', 'thema.beo.vitalzeichen', 'thema.pp.uebergabe'] },
   geeignet: { rollen: [1, 2, 3], stufen: [1, 2, 3] },
   dauerMin: [10, 15],
   freigabe: {

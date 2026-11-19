@@ -35,6 +35,7 @@ export const KH_PNEUMONIE_SEPSIS: FallV2 = {
     'Anordnungen (O₂, Infusion) rücklesen und im Rahmen der eigenen Befugnis umsetzen.',
     'Grenzen kennen: i. v.-Antibiotikum vorziehen ist für Auszubildende gesperrt.',
   ],
+  lehrplan: { ce: ['ce.05'], abschnitt: ['ad12', 'ad3'], themen: ['thema.kl.atmung', 'thema.kl.infektion', 'thema.beo.vitalzeichen', 'thema.re.schweigepflicht', 'thema.pp.uebergabe'] },
   geeignet: { rollen: [1, 2, 3], stufen: [1, 2, 3] },
   dauerMin: [12, 18],
   freigabe: {

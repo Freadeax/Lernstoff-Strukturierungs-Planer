@@ -38,6 +38,7 @@ export const LZ_DEMENZ_SCHMERZ: FallV2 = {
     'Eine freiheitsentziehende Maßnahme (Bettgitter) als solche erkennen, mildere Mittel wählen und eine Anordnung dazu hinterfragen.',
     'Hausarzt und Betreuerin strukturiert informieren.',
   ],
+  lehrplan: { ce: ['ce.09', 'ce.11'], abschnitt: ['ad12', 'ad3'], themen: ['thema.kl.demenz', 'thema.beo.bewusstsein', 'thema.ph.medikamente'] },
   geeignet: { rollen: [1, 2, 3], stufen: [1, 2, 3] },
   dauerMin: [12, 18],
   freigabe: {
