@@ -26,6 +26,8 @@
 //   Medikamente/Opioid, fremde Umgebung bei Angst, Harnverhalt-Treiber), sonst klingt es langsam ab.
 // - harnverhalt: Schmerz und Unruhe steigen; endet über MassnahmeDefinition.beendet (z. B. Einmalkatheter nach Anordnung).
 // - panik_eskaliert {tempo}: Angst steigt, Hyperventilation (CO₂ sinkt).
+// - anaphylaxie {staerke 0..1} (P16a): Gefäßtonus sinkt (−0,9·s je Stunde), Kapillarleck (Volumen −0,15·s je Stunde),
+//   Bronchospasmus 0,7·s. Adrenalin (G1) bremst die Mediatorwirkung, solange es wirkt; danach geht es weiter (Zweitgabe).
 // - fieberkrampf_kind {temperaturSchwelle}: Fieber steigt über die Schwelle → ein Anfall (krampf 1 → 3 Min. → postiktal).
 
 import type { Altersgruppe, Anzeige, AktiverTreiber, Grundgroessen, Rhythmus, Treiber } from '../typen';
@@ -100,8 +102,10 @@ function anteilAnwenden(bestand: number, alterAnteil: number, neuerAnteil: numbe
 }
 
 const hat = (treiber: readonly Treiber[], art: Treiber['art']) => treiber.some((t) => t.art === art);
-const staerke = (treiber: readonly Treiber[], art: 'bronchospasmus' | 'pneumonie') =>
+const staerke = (treiber: readonly Treiber[], art: 'bronchospasmus' | 'pneumonie' | 'anaphylaxie') =>
   treiber.reduce((s, t) => (t.art === art ? Math.max(s, t.staerke) : s), 0);
+/** Bronchospasmus gesamt: eigener Treiber oder Anteil einer Anaphylaxie (P16a) */
+const spasmus = (treiber: readonly Treiber[]) => Math.max(staerke(treiber, 'bronchospasmus'), 0.7 * staerke(treiber, 'anaphylaxie'));
 const sepsisTempo = (treiber: readonly Treiber[]) => treiber.reduce((s, t) => (t.art === 'sepsis_verlauf' ? Math.max(s, t.tempo) : s), 0);
 
 /** Panik: Angst oberhalb 0,6 wirkt überproportional (Hyperventilation, Tachykardie) 0..1 */
@@ -340,6 +344,13 @@ function naechster(alt: Grundgroessen, treiber: readonly Treiber[], dt: number, 
         g.volumen -= 0.04 * tr.tempo * std;
         fieberZiel = Math.max(fieberZiel, 37 + 2.2 * Math.min(1.2, tr.tempo) * p.fieberAntwort);
         break;
+      case 'anaphylaxie': {
+        // Adrenalin hemmt die Mediatorfreisetzung und -wirkung, solange es wirkt (Spiegel 1 = volle Hemmung)
+        const bremse = 1 - klemme(pe.spiegel['adrenalin'] ?? 0, 0, 1);
+        g.gefaesstonus = Math.max(0.3, g.gefaesstonus - 0.9 * tr.staerke * std * bremse);
+        g.volumen -= 0.15 * tr.staerke * std * bremse;
+        break;
+      }
       case 'pneumonie': fieberZiel = Math.max(fieberZiel, 37 + 1.8 * tr.staerke * p.fieberAntwort); break;
       case 'fieberkrampf_kind': fieberZiel = Math.max(fieberZiel, tr.temperaturSchwelle + 0.4); break;
       case 'panik_eskaliert': g.angst += 0.02 * tr.tempo * min; break;
@@ -400,7 +411,7 @@ function naechster(alt: Grundgroessen, treiber: readonly Treiber[], dt: number, 
   if (alt.krampf > 0 && pe.krampfStopp) g.krampf = -1;   // z. B. Midazolam bukkal beendet den Anfall
 
   // ── Abgeleitete Größen: Ziel = Basis + Treiber-Effekt + Wirkkurven
-  const bs = staerke(treiber, 'bronchospasmus') * (1 - pe.bronchodilatation);
+  const bs = spasmus(treiber) * (1 - pe.bronchodilatation);
   const pn = staerke(treiber, 'pneumonie');
   const sep = sepsisTempo(treiber);
   const atemarbeitZiel = b.atemarbeit + 2 * bs + 0.6 * pn + off(k, 'atemarbeit');
@@ -512,7 +523,7 @@ export function befinden(g: Grundgroessen, treiber: readonly Treiber[], k: Model
   const b = basisVon(k);
   const a = atmung(g, k);
   const kr = kreislauf(g, k, a.saO2);
-  const bs = staerke(treiber, 'bronchospasmus');
+  const bs = spasmus(treiber);
   const pn = staerke(treiber, 'pneumonie');
   const atemgeraeusch: Atemgeraeusch =
     bs >= 0.8 && g.atemarbeit > 2.5 ? 'abgeschwaecht'          // „stille Lunge“

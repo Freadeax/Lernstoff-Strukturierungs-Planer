@@ -120,6 +120,8 @@ export type Treiber =
   | { art: 'panik_eskaliert'; tempo: number }
   | { art: 'fieberkrampf_kind'; temperaturSchwelle: number }
   | { art: 'pneumonie'; staerke: number }
+  /** P16a: allergische Sofortreaktion (Anaphylaxie): Gefäßtonus fällt, Kapillarleck, Bronchospasmus; Adrenalin bremst */
+  | { art: 'anaphylaxie'; staerke: number }
   // Zusätze Paket P1
   /** Normalinsulin s. c. (Gipfel nach etwa 2 h) */
   | { art: 'insulin'; ie: number; gipfelMin?: number }

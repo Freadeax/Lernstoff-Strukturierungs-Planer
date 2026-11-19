@@ -151,6 +151,18 @@ describe('Pflege-Physiologiemodell: Treiber fachlich plausibel', () => {
       expect(voll.a.hf).toBeGreaterThanOrEqual(110);          // Panikattacke: deutliche Tachykardie
       expect(voll.a.af).toBeGreaterThanOrEqual(26);
     },
+    anaphylaxie: () => {
+      // P16a: Blutdruck fällt, Puls steigt, Giemen und Atemnot; Adrenalin i. m. hebt den Blutdruck für eine Weile
+      const r = lauf('erwachsen', 0, [], { gefaesstonus: 0.75 });
+      const ohne = lauf('erwachsen', 20, [{ art: 'anaphylaxie', staerke: 0.8 }], { gefaesstonus: 0.75 });
+      expect(ohne.a.rrSys).toBeLessThan(r.a.rrSys - 15);
+      expect(ohne.a.hf).toBeGreaterThan(r.a.hf + 10);
+      expect(ohne.a.af).toBeGreaterThan(22);
+      expect(befinden(ohne.g, ohne.treiber, ohne.k).atemgeraeusch).toBe('atem-giemen');
+      const mit = lauf('erwachsen', 20, [{ art: 'anaphylaxie', staerke: 0.8 }, { art: 'wirkstoff', id: 'adrenalin', dosisMg: 0.5, weg: 'im' }], { gefaesstonus: 0.75 });
+      expect(mit.a.rrSys).toBeGreaterThan(ohne.a.rrSys + 10);
+      expect(mit.a.spo2).toBeGreaterThanOrEqual(ohne.a.spo2);
+    },
     fieberkrampf_kind: () => {
       const tr: Treiber[] = [{ art: 'fieberkrampf_kind', temperaturSchwelle: 39.5 }];
       const verlauf = [20, 38, 42, 60, 180].map((m) => lauf('kleinkind', m, tr, { temperatur: 38.6 }));
