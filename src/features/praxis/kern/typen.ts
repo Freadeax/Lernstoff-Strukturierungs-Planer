@@ -108,8 +108,13 @@ export interface Grundgroessen {
   krea?: number;
   harnstoff?: number;
   hbMasse?: number;
-  // G9 Wunde (optional): Infektgrad 0..1
+  // G9 Wunde (optional, nur mit Treiber wunde/wundblutung): Infektgrad 0..1, Tag nach OP, Blut im Verband ml,
+  // wirksame Nachblutung ml/min (vom Modell), Druckverband 0..1 (Wirkkurve aus „blutung-stillen“)
   wundInfekt?: number;
+  wundTag?: number;
+  verbandBlutMl?: number;
+  wundBlutungMlMin?: number;
+  blutstillung?: number;
   // Alkoholentzug (vom Modell geführt, nur mit Treiber alkoholentzug): wirksamer Entzug 0..1,2 (nach Benzodiazepin),
   // Stunden seit letztem Konsum, Halluzinationen 0..1, Krampfbereitschaft 0..1 (1 = Anfall gehabt), Wernicke-Verwirrtheit 0..1, Thiamin gegeben 0/1
   entzug?: number;
@@ -169,6 +174,12 @@ export interface Anzeige {
   /** Atemerschöpfung (nur wenn das Modell sie führt): keine / droht / dekompensiert; Apnoen bei Säuglingen und Kleinkindern */
   atemerschoepfung?: 'keine' | 'droht' | 'dekompensiert';
   apnoen?: boolean;
+  /** G9 Wunde: Phase, Sekret, Infektzeichen 0–5 (Rötung, Überwärmung, Schwellung, Schmerz, Eiter), Verband, Blut im Verband ml */
+  wundPhase?: 'exsudativ' | 'proliferativ' | 'reparativ';
+  wundsekret?: 'keins' | 'serös' | 'blutig' | 'eitrig';
+  wundInfektZeichen?: number;
+  verband?: 'trocken' | 'leicht durchgeblutet' | 'durchgeblutet' | 'durchnässt';
+  verbandBlutMl?: number;
   // G8 Labor: wahrer Modellwert jetzt (für Bedingungen; Befunde nach Laufzeit über laborBefunde() im Kern)
   hb?: number; leuko?: number; thrombo?: number; crp?: number; pct?: number; natrium?: number;
   krea?: number; egfr?: number; harnstoff?: number; inr?: number; aptt?: number;
@@ -236,6 +247,10 @@ export type Treiber =
   | { art: 'alkoholentzug'; schwere: number; letzterKonsumVorStd: number }
   /** Atemerschöpfung bei hoher Atemarbeit über Zeit (v. a. Säuglinge); tempo multipliziert die Erschöpfungsrate (Standard 1) */
   | { art: 'atemerschoepfung'; tempo?: number }
+  /** G9: Wunde (OP-Wunde, Trauma, chronisch); tagPostOp bei Fallstart, infektTempo = Anstieg des Wundinfekts je Stunde */
+  | { art: 'wunde'; ort: string; tagPostOp?: number; infektTempo?: number }
+  /** G9: Nachblutung in den Verband (Volumenverlust wie blutung); Druckverband senkt sie um 80 % */
+  | { art: 'wundblutung'; mlProMin: number }
   // G1 Wirkstoffe (Register physiologie/wirkstoffe.ts): Kinetik nach Weg, Halbwertszeit, Alter und Gewicht
   | { art: 'wirkstoff'; id: string; dosisMg: number; weg?: ArzneiWeg };
 

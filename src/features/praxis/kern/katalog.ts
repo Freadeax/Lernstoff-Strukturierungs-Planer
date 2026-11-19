@@ -30,6 +30,9 @@ const NUR_AERZTLICH = befugnis(X);
 /** Geräte, die im Heim und ambulant in der Pflegetasche stecken (E9). */
 /** G3: Lagewechsel/Mobilisation verlegt den Auflagedruck an eine neue Stelle (Druckbelastung dort beginnt bei 0). */
 const ENTLASTUNG = { groesse: 'druckLast', faktor: 0, beginnSek: 0, spitzeSek: 60, dauerSek: 'dauerhaft' } as const;
+/** G9: frischer Verband (Blut im Verband → 0), Druckverband (Nachblutung −80 %) */
+const VERBAND_NEU = { groesse: 'verbandBlutMl', faktor: 0, beginnSek: 0, spitzeSek: 30, dauerSek: 'dauerhaft' } as const;
+const DRUCKVERBAND = { groesse: 'blutstillung', delta: 1, beginnSek: 0, spitzeSek: 30, dauerSek: 'dauerhaft' } as const;
 
 export const PFLEGETASCHE = ['rr-geraet', 'pulsoxy', 'thermometer', 'bz-geraet', 'stethoskop', 'urinstix'] as const;
 
@@ -223,7 +226,7 @@ const LISTE: MassnahmeDefinition[] = [
     anordnungspflichtig: true, befugnis: befugnis(A, S), risikoBeiUeberschreitung: 'warnung-pa', setzt: ['o2-laeuft'], klinisch: ['abcde', 'medikamente'],
     wirkung: [{ groesse: 'sauerstoff', delta: 2, beginnSek: 0, spitzeSek: 30, dauerSek: 'dauerhaft' }],   // 2 l/min; Fall kann Menge überschreiben
   }),
-  m('blutung-stillen', 'Blutung stillen (Druck, Druckverband, hochlagern)', 'akut', 60, ['I'], nw(['ersteHilfe12', 'sofort12']), { setzt: ['blutung-gestillt'], klinisch: ['abcde'] }),
+  m('blutung-stillen', 'Blutung stillen (Druck, Druckverband, hochlagern)', 'akut', 60, ['I'], nw(['ersteHilfe12', 'sofort12']), { setzt: ['blutung-gestillt'], klinisch: ['abcde'], wirkung: [DRUCKVERBAND] }),
   m('krampf-schuetzen', 'Bei Krampfanfall schützen und Zeit messen', 'akut', 30, ['I'], nw(['ersteHilfe12', 'sofort12']), { setzt: ['krampf-geschuetzt'] }),
   m('glukose-oral', 'Bei Unterzucker schnell wirksame Kohlenhydrate geben (wach, kann schlucken)', 'akut', 60, ['I', 'V'], nw(['hypo3', 'ersteHilfe12'], {
     anmerkung: 'Hypoglykämie ausdrücklich erst im 3. Drittel (CE 10); Erste Hilfe ab 1./2. Drittel. Gilt als Sofortmaßnahme nach Standard ohne Einzelanordnung.',
@@ -396,10 +399,10 @@ const LISTE: MassnahmeDefinition[] = [
     spur: 'A', wirkung: [{ groesse: 'temperatur', delta: -0.5, beginnSek: 300, spitzeSek: 1200, dauerSek: 2400 }],
   }),
   m('verband-unkompliziert', 'Verbandwechsel bei unkomplizierter Wunde (aseptisch)', 'versorgen', 300, ['I', 'V'], nw(['wunde12', 'hygiene1'], { anmerkung: B_ANLEITUNG_DANN_SELBST }), {
-    anordnungspflichtig: true, befugnis: befugnis(A, S), quellen: [Q.krinko],
+    anordnungspflichtig: true, befugnis: befugnis(A, S), quellen: [Q.krinko], wirkung: [VERBAND_NEU],
   }),
   m('verband-kompliziert', 'Verbandwechsel bei komplizierter/chronischer Wunde', 'versorgen', 600, ['I', 'V'], nw(['wunde3'], { anmerkung: 'Komplizierte Wunden ausdrücklich erst im 3. Drittel.' }), {
-    spur: 'A', anordnungspflichtig: true, befugnis: befugnis(G, G, A, S), risikoBeiUeberschreitung: 'warnung-pa', quellen: [Q.wunden],
+    spur: 'A', anordnungspflichtig: true, befugnis: befugnis(G, G, A, S), risikoBeiUeberschreitung: 'warnung-pa', quellen: [Q.wunden], wirkung: [VERBAND_NEU],
   }),
   m('tabletten-wie-geplant-geben', 'Tabletten aus dem Dosett geben (wie geplant)', 'versorgen', 60, ['I', 'III'], nw(['medi12', 'aufsicht1', 'eigenstaendig3']), {
     anordnungspflichtig: true, befugnis: befugnis(A, A, S), risikoBeiUeberschreitung: 'warnung-pa',

@@ -28,7 +28,7 @@ export interface PhysiologieModell {
 }
 
 /** Optionale Grundgrößen, auf die Wirkkurven zeigen dürfen (fehlen in NORMAL; ohne Wert bleibt die Wirkkurve wirkungslos). */
-export const OPTIONALE_WIRKGROESSEN: ReadonlyArray<keyof Grundgroessen> = ['druckLast', 'blaseMl', 'kostAngepasst', 'schlafSchutz'];
+export const OPTIONALE_WIRKGROESSEN: ReadonlyArray<keyof Grundgroessen> = ['druckLast', 'blaseMl', 'kostAngepasst', 'schlafSchutz', 'verbandBlutMl', 'blutstillung'];
 
 export const NORMAL: Grundgroessen = {
   volumen: 1, pumpleistung: 1, gefaesstonus: 1,
