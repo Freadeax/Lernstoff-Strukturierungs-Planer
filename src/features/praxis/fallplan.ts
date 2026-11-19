@@ -29,8 +29,8 @@ export const FALLPLAN: readonly PlanEintrag[] = [
 
   { ce: 'ce.02', titel: 'Sturz und Exsikkose im Hausbesuch', art: 'vorhanden', abschnitt: ['ad12'], fall: 'amb-sturz-exsikkose' },
   { ce: 'ce.02', titel: 'Erster Weg zum Bad nach Hüft-TEP', art: 'migrieren', abschnitt: ['ad12'], paket: 'P17', alt: ['reha'], fall: 'kh-reha-erster-weg' },
-  { ce: 'ce.02', titel: 'Dekubitusgefahr bei Immobilität', art: 'neu', abschnitt: ['ad12'], paket: 'P17' },
-  { ce: 'ce.02', titel: 'Harnverhalt nach der OP, Inkontinenz', art: 'neu', abschnitt: ['ad12'], paket: 'P17' },
+  { ce: 'ce.02', titel: 'Dekubitusgefahr bei Immobilität', art: 'neu', abschnitt: ['ad12'], paket: 'P17', fall: 'lz-dekubitus-immobil' },
+  { ce: 'ce.02', titel: 'Harnverhalt nach der OP, Inkontinenz', art: 'neu', abschnitt: ['ad12'], paket: 'P17', fall: 'kh-harnverhalt-postop' },
 
   { ce: 'ce.03', titel: 'Bewohner lehnt die Körperpflege ab', art: 'neu', abschnitt: ['ad12'], paket: 'P17', fall: 'lz-koerperpflege-abgelehnt' },
 

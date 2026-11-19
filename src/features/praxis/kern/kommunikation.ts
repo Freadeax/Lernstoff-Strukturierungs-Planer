@@ -107,6 +107,7 @@ const WERT: Partial<Record<WertSchluessel, { label: string; einheit: string; ste
   af: { label: 'AF', einheit: '/min' }, temp: { label: 'Temp.', einheit: '°C', stellen: 1 }, bz: { label: 'BZ', einheit: 'mg/dl' },
   schmerz: { label: 'Schmerz (0–10)', einheit: '' }, map: { label: 'MAP', einheit: 'mmHg' }, etco2: { label: 'etCO₂', einheit: 'mmHg' },
   laktat: { label: 'Laktat', einheit: 'mmol/l', stellen: 1 }, gcs: { label: 'GCS', einheit: '' },
+  besd: { label: 'BESD (0–10)', einheit: '' }, blaseMl: { label: 'Blasenfüllung', einheit: 'ml' },
 };
 
 const zahl = (w: number, stellen = 0) => w.toLocaleString('de-DE', { minimumFractionDigits: stellen, maximumFractionDigits: stellen });

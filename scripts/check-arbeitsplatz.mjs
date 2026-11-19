@@ -31,7 +31,8 @@ try {
     const tu = async (name) => { await suche.fill(name); await p.getByRole('button', { name: new RegExp(name) }).first().click(); if (await suche.count()) await suche.fill(''); };
 
     await p.goto(base + '#/lernen/praxis', { waitUntil: 'networkidle' });
-    await p.getByRole('button', { name: 'Neu üben' }).first().click();
+    // Fallauswahl ist nach CE sortiert (P15): den ambulanten Pilotfall gezielt öffnen
+    await p.locator('.praxis-fall', { hasText: 'Ich bin nur kurz hingesessen' }).getByRole('button', { name: 'Neu üben' }).first().click();
     await p.getByRole('radio', { name: /2\. Drittel/ }).check();
     for (const box of await p.locator('.ap-briefing__rolle label').all()) {
       const [r, l] = [await box.locator('input').boundingBox(), await box.boundingBox()];
@@ -234,6 +235,8 @@ try {
       { id: 'kh-erster-tag', person: /Frau Hoffmann/, partner: [/Jana/, /Frau Berger/, /Dr\. Aydin/], med: /Cefpodoxim[\s\S]*Ramipril/ },
       { id: 'lz-koerperpflege-abgelehnt', person: /Herr Schäfer/, partner: [/Mehmet/, /Frau Weber/, /Dr\. Lorenz/], med: /Tamsulosin/ },
       { id: 'kh-reha-erster-weg', person: /Herr Brenner/, partner: [/Ben/, /Frau Brenner/, /Dr\. Hahn/], med: /Enoxaparin[\s\S]*Ibuprofen/ },
+      { id: 'lz-dekubitus-immobil', person: /Frau Berger/, partner: [/Petrović/, /Dr\. Brandt/], med: /Donepezil[\s\S]*Macrogol/ },
+      { id: 'kh-harnverhalt-postop', person: /Herr Kraus/, partner: [/Jonas/, /Dr\. Neumann/], med: /Tamsulosin[\s\S]*Metamizol/ },
     ];
     for (const f of P17A) {
       await p.goto(base + `#/lernen/praxis?neu=${f.id}`, { waitUntil: 'networkidle' });
