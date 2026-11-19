@@ -192,8 +192,44 @@ try {
       assert.equal(await p.getByRole('tab').count(), 5, `${w} ${id}: fünf Reiter`);
       await axe(`start-${id}`);
     }
+
+    // P14a: Klinik-, Schockraum- und Heimfall auf Runde 2 – Rückfrage der Ärztin im Gespräch, weitere Gesprächspartner, volle Akte
+    const P14A = [
+      { id: 'kh-pneumonie-sepsis', person: /Frau Albrecht/, arzt: /Dr\. Brandt/, tun: ['Atemfrequenz zählen', 'Ansprechen und Orientierung'],
+        sbar: [/Zimmer 3, Pneumonie rechts/, /Atemfrequenz deutlich erhöht/, /Seit Mittag neu verwirrt/], rueckfrage: /Wie ist der Blutdruck/,
+        partner: [/Tochter Petra/, /IMC/, /Jonas/], med: /Ampicillin\/Sulbactam[\s\S]*Paracetamol/ },
+      { id: 'sr-septischer-schock', person: /Herr Kranz/, arzt: /Dr\. Aydin/, rolle: /3\. Drittel/, tun: ['Überwachungsmonitor anlegen'],
+        sbar: [/RR um 90 systolisch/], rueckfrage: /qSOFA/, partner: [/Herr Wolf/, /Sohn Thomas/, /Intensivstation/], med: /Metformin[\s\S]*Paracetamol/ },
+      { id: 'lz-demenz-schmerz', person: /Frau Brückner/, arzt: /Dr\. Kaiser/, tun: ['Schmerz bei Demenz einschätzen', 'Mundschleimhaut und Zunge'],
+        sbar: [/BESD deutlich erhöht/, /Offene Druckstelle/], rueckfrage: /Hat sie Fieber/, partner: [/Betreuerin/, /Enkel Kevin/, /Sabine/], med: /Ramipril[\s\S]*Paracetamol/ },
+    ];
+    for (const f of P14A) {
+      await p.goto(base + `#/lernen/praxis?neu=${f.id}`, { waitUntil: 'networkidle' });
+      if (f.rolle) await p.getByRole('radio', { name: f.rolle }).check();
+      await p.getByRole('button', { name: 'Fall beginnen' }).click();
+      await p.getByRole('button', { name: 'Pause' }).click();
+      for (const t of f.tun) await tu(t);
+      await p.getByRole('tab', { name: /Sprechen/ }).click();
+      const leiste = p.getByRole('navigation', { name: 'Gesprächspartner' });
+      for (const t of f.partner) assert.match(await leiste.innerText(), t, `${w} ${f.id}: Gesprächspartner ${t}`);
+      await leiste.getByRole('button', { name: f.arzt }).click();
+      for (const t of f.sbar) await p.getByRole('checkbox', { name: t }).first().check();
+      await p.getByRole('button', { name: /anrufen$/ }).click();
+      await p.getByText('Rückfrage:').waitFor();
+      assert.match(await p.locator('.kom-chat').innerText(), f.rueckfrage, `${w} ${f.id}: Rückfrage der Ärztin`);
+      await axe(`p14a-${f.id}-sprechen`, { faden: true });
+      await p.getByRole('button', { name: 'Patientenakte', exact: true }).or(p.getByRole('button', { name: 'Patientenakte öffnen' })).first().click();
+      const akte = p.getByRole('dialog', { name: f.person });
+      await akte.waitFor();
+      await akte.getByRole('tab', { name: 'Medikation' }).click();
+      assert.match(await akte.innerText(), f.med, `${w} ${f.id}: Medikationsplan`);
+      await axe(`p14a-${f.id}-akte`);
+      await akte.getByRole('tab', { name: 'Kurve' }).click();
+      await axe(`p14a-${f.id}-kurve`);
+      await akte.getByRole('button', { name: 'Schließen' }).click();
+    }
     await ctx.close();
   }
 } finally { await browser.close(); }
 assert.deepEqual(fehler, [], 'Arbeitsplatz');
-console.log('Arbeitsplatz: Pilotfall bei 390, 820 und 1180 px durchgespielt, Pilotstaffel Spur A gestartet, axe WCAG 2.2 AA ohne Befund (inkl. Abschluss, Auswertung, Spur B).');
+console.log('Arbeitsplatz: Pilotfall bei 390, 820 und 1180 px durchgespielt, Pilotstaffel Spur A gestartet, P14a-Fälle (Rückfrage, Gesprächspartner, Akte) geprüft, axe WCAG 2.2 AA ohne Befund (inkl. Abschluss, Auswertung, Spur B).');

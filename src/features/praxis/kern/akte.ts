@@ -168,7 +168,7 @@ export const WERT_TEXT: ReadonlyArray<{ k: keyof Anzeige | 'schmerz'; label: str
   { k: 'spo2', label: 'SpO₂', fmt: (w) => (w.spo2 !== undefined ? `${ganz(w.spo2)} %` : undefined) },
   { k: 'temp', label: 'Temp', fmt: (w) => (w.temp !== undefined ? `${eins(w.temp)} °C` : undefined) },
   { k: 'bz', label: 'BZ', fmt: (w) => (w.bz !== undefined ? `${ganz(w.bz)} mg/dl` : undefined) },
-  { k: 'schmerz', label: 'Schmerz', fmt: (w) => (w.schmerz !== undefined ? `NRS ${ganz(w.schmerz)}` : undefined) },
+  { k: 'schmerz', label: 'Schmerz', fmt: (w) => (w.schmerz !== undefined ? `${ganz(w.schmerz)}/10` : undefined) },
 ];
 
 /** Zuletzt gemessene Werte je Schlüssel (mit Zeit), aus Befund- und Doku-Meldungen. */

@@ -105,7 +105,7 @@ type WertSchluessel = keyof Anzeige | 'schmerz';
 const WERT: Partial<Record<WertSchluessel, { label: string; einheit: string; stellen?: number }>> = {
   rrSys: { label: 'RR', einheit: 'mmHg' }, hf: { label: 'Puls', einheit: '/min' }, spo2: { label: 'SpO₂', einheit: '%' },
   af: { label: 'AF', einheit: '/min' }, temp: { label: 'Temp.', einheit: '°C', stellen: 1 }, bz: { label: 'BZ', einheit: 'mg/dl' },
-  schmerz: { label: 'Schmerz NRS', einheit: '' }, map: { label: 'MAP', einheit: 'mmHg' }, etco2: { label: 'etCO₂', einheit: 'mmHg' },
+  schmerz: { label: 'Schmerz (0–10)', einheit: '' }, map: { label: 'MAP', einheit: 'mmHg' }, etco2: { label: 'etCO₂', einheit: 'mmHg' },
   laktat: { label: 'Laktat', einheit: 'mmol/l', stellen: 1 }, gcs: { label: 'GCS', einheit: '' },
 };
 

@@ -2,7 +2,7 @@
 // Entwurf, fachlich UNGEPRÜFT. Inhalte fiktiv/didaktisch. Muster: amb-sturz-exsikkose.ts (Paket P6).
 
 import { KATALOG } from '../katalog';
-import type { Bedingung, FallV2, MassnahmeDefinition } from '../typen';
+import type { ArztRegel, Bedingung, FallV2, MassnahmeDefinition } from '../typen';
 
 /** Katalog-Maßnahme mit fallspezifischen Angaben (Name, Wirkung), Befugnis und Nachweis bleiben. */
 const aus = (id: string, mehr: Partial<MassnahmeDefinition>): MassnahmeDefinition => ({ ...KATALOG[id]!, ...mehr });
@@ -11,10 +11,17 @@ const ATMUNG_ERHOBEN: Bedingung = { eine: [{ getan: 'af-zaehlen' }, { getan: 'at
 const SPO2_BEKANNT: Bedingung = { eine: [{ getan: 'pulsoxy-anlegen' }, { getan: 'monitor-anlegen' }] };
 const RR_BEKANNT: Bedingung = { eine: [{ getan: 'rr-messen' }, { getan: 'monitor-anlegen' }] };
 
+// Runde 2 (P14a): Sepsis-Antwort der Ärztin, auch als Folge der Rückfrage nach dem Blutdruck
+const SEPSIS_ANTWORT = '„Danke, das klingt nach Sepsis. Ich komme sofort. Sauerstoff über die Brille nach Ziel 92 bis 96 Prozent, 500 ml Vollelektrolyt jetzt anhängen, Monitor dran. Blutkulturen und Laktat nehme ich selbst ab, danach ziehen wir das Antibiotikum vor. Messen Sie bitte zehn Minuten nach Infusionsstart den Blutdruck und schicken Sie ihn mir über den Messenger.“';
+const SEPSIS_REGEL: ArztRegel = {
+  id: 'r-sepsis', wenn: { gemeldet: ['a-verwirrt-neu', 'a-af-hoch'] }, antwort: SEPSIS_ANTWORT,
+  anordnungen: ['an-o2', 'an-infusion', 'an-abx'], kommtNachSek: 300, setzt: ['arzt-kommt'], auftraege: ['af-rr-kontrolle'],
+};
+
 export const KH_PNEUMONIE_SEPSIS: FallV2 = {
   schema: 2,
   id: 'kh-pneumonie-sepsis',
-  version: '0.1.0',
+  version: '0.2.0',
   spur: 'A',
   setting: 'krankenhaus',
   altersgruppe: 'erwachsen',
@@ -63,7 +70,7 @@ export const KH_PNEUMONIE_SEPSIS: FallV2 = {
     raum: '30b_station_zimmer_frau_sepsis_ohne_monitor',
     raumVarianten: [{ wenn: { getan: 'monitor-anlegen' }, raum: '30b_station_zimmer_frau_sepsis_sensor_an' }],
   },
-  uebernahme: 'Frau Albrecht, 74, liegt seit gestern mit einer Lungenentzündung rechts bei uns, Antibiotikum i. v. läuft, peripherer Zugang links. Am Morgen war sie ganz klar und hat Rätsel gemacht. Mittags hat sie kaum gegessen. Die Vitalzeichen von heute früh waren in Ordnung.',
+  uebernahme: 'Frau Albrecht, 74, liegt seit gestern mit einer Lungenentzündung rechts bei uns, Antibiotikum i. v. läuft, peripherer Zugang links. Am Morgen war sie ganz klar und hat Rätsel gemacht. Mittags hat sie kaum gegessen. Die Vitalzeichen von heute früh waren in Ordnung. Ihre Tochter ist gerade gekommen und sitzt bei ihr.',
   startUhrzeit: '14:20',
 
   start: {
@@ -79,7 +86,9 @@ export const KH_PNEUMONIE_SEPSIS: FallV2 = {
     ],
     bild: { haltung: 'liegt', haut: 'gerötet-heiss', mimik: 'verwirrt' },
     flags: ['zugang-liegt'],
+    // Normalstation: kein Monitor ab Beginn, Werte werden selbst erhoben (Lernziel Atemfrequenz zählen)
     sichtbar: [],
+    anordnungen: ['an-bedarf'],
   },
 
   massnahmen: [
@@ -111,6 +120,76 @@ export const KH_PNEUMONIE_SEPSIS: FallV2 = {
     }),
   ],
 
+  // Runde 2 (P14a): vollständige Akte nach dem Muster Lindner (Klinik: Kurve seit Aufnahme, i. v.-Antibiotikum, Bedarfsplan)
+  akte: {
+    aufnahmegrund: 'Aufnahme gestern 13:40 über die Notaufnahme mit ambulant erworbener Pneumonie rechts (Fieber, Husten, Atemnot seit 3 Tagen). CRB-65: 1 Punkt (Alter), stationär wegen Sauerstoffbedarf und Diabetes.',
+    anamnese: [
+      'Lebt allein in einer Wohnung im Erdgeschoss, versorgt sich selbst. Tochter Petra Albrecht kommt täglich vorbei.',
+      'Röntgen-Thorax gestern: Infiltrat im rechten Unterlappen, kein Erguss.',
+      'Bei Aufnahme wach und voll orientiert, macht im Bett Kreuzworträtsel.',
+      'Raucht nicht, kein Alkohol. Keine COPD bekannt.',
+    ],
+    diagnosen: [
+      { text: 'Ambulant erworbene Pneumonie rechter Unterlappen', icd: 'J18.1', seit: 'gestern' },
+      { text: 'Diabetes mellitus Typ 2, nicht insulinpflichtig', icd: 'E11.90', seit: '2012' },
+      { text: 'Arterielle Hypertonie', icd: 'I10.90', seit: '2008' },
+      { text: 'Gonarthrose links', icd: 'M17.1', seit: '2019' },
+    ],
+    medikation: [
+      { id: 'mp-ampisulb', wirkstoff: 'Ampicillin/Sulbactam', staerke: '3 g', form: 'i. v. (Kurzinfusion)', schema: '1-1-0-1', massnahme: 'abx-iv-vorziehen', zuletzt: 'heute 08:00',
+        hinweis: 'Um 8, 16 und 24 Uhr. Gabe durch Pflegefachperson oder Ärztin. Vor der ersten Gabe Blutkulturen (bei Aufnahme abgenommen).', geaendertDurch: 'an-abx' },
+      { id: 'mp-ramipril', wirkstoff: 'Ramipril', staerke: '5 mg', form: 'Tbl.', schema: '1-0-0-0', zuletzt: 'heute 08:00',
+        hinweis: 'Vor Gabe RR messen; bei RR systolisch unter 100 nicht geben, Rücksprache.' },
+      { id: 'mp-metformin', wirkstoff: 'Metformin', staerke: '1000 mg', form: 'Tbl.', schema: '0-0-0-0', hinweis: 'PAUSIERT seit Aufnahme (akute Infektion, Gefahr Laktatazidose).' },
+      { id: 'mp-insulin', wirkstoff: 'Insulin glulisin', staerke: 'nach Schema', form: 's. c.', hinweis: 'Korrekturschema zu den Mahlzeiten: BZ 200–250 → 2 IE, 251–300 → 4 IE, über 300 Ärztin informieren.' },
+      { id: 'mp-enoxaparin', wirkstoff: 'Enoxaparin', staerke: '40 mg', form: 's. c.', schema: '0-0-1-0', zuletzt: 'gestern 18:00', hinweis: 'Thromboseprophylaxe.' },
+      { id: 'mp-paracetamol', wirkstoff: 'Paracetamol', staerke: '1 g', form: 'Tbl.', massnahme: 'paracetamol-geben', zuletzt: 'heute 11:30',
+        bedarf: { indikation: 'Fieber über 38,5 °C oder Schmerzen', einzeldosis: '1 g', maxProTag: '4 Gaben', abstandH: 6 },
+        hinweis: 'Höchstens 4 g am Tag. Fieber senken ändert nichts an der Ursache: Atemfrequenz, RR und Bewusstsein mitbeurteilen.' },
+    ],
+    vorwerte: [
+      { zeit: 'gestern 14:00 (Aufnahme)', vorH: 24.3, werte: { rrSys: 142, rrDia: 84, hf: 96, af: 20, spo2: 93, temp: 38.4, bz: 188 }, kuerzel: 'NA' },
+      { zeit: 'gestern 20:00', vorH: 18.3, werte: { rrSys: 136, rrDia: 80, hf: 92, af: 19, spo2: 94, temp: 38.1, bz: 164 }, kuerzel: 'TK' },
+      { zeit: 'heute 06:00', vorH: 8.3, werte: { rrSys: 138, rrDia: 82, hf: 88, af: 18, spo2: 95, temp: 37.9, bz: 142, schmerz: 2 }, kuerzel: 'TK' },
+      { zeit: 'heute 11:30', vorH: 2.8, werte: { temp: 38.6, schmerz: 3 }, kuerzel: 'MS' },
+    ],
+    pflegebericht: [
+      { zeit: 'gestern 15:10', wer: 'NA', text: 'Aufnahme aus der Notaufnahme. Wach, orientiert, mobil mit Begleitung. PVK 20 G Unterarm links. Ampicillin/Sulbactam 1. Gabe 16 Uhr nach Blutkulturen. Tochter war dabei, Schweigepflichtentbindung für die Tochter unterschrieben.' },
+      { zeit: 'gestern 22:30', wer: 'TK', text: 'Hustet produktiv, Sekret gelblich. Schläft mit erhöhtem Oberkörper. Trinkt etwa 800 ml, Ausfuhr nicht gemessen.' },
+      { zeit: 'heute 06:20', wer: 'TK', text: 'Ruhige Nacht. Vitalzeichen stabil (NEWS2 1). Zum Frühstück einen halben Brei gegessen, Kreuzworträtsel gemacht.' },
+      { zeit: 'heute 11:45', wer: 'MS', text: 'Fieber 38,6 °C, fröstelt. Paracetamol 1 g aus dem Bedarfsplan um 11:30 gegeben. Mittagessen kaum angerührt, wirkt müde. Kontrolle im Spätdienst.' },
+    ],
+    aerztlicheAnordnungen: [
+      { zeit: 'gestern 14:30', wer: 'Dr. Brandt', text: 'Ampicillin/Sulbactam 3 g i. v. alle 8 h nach Blutkulturen. Metformin pausieren. BZ vor den Mahlzeiten, Insulin nach Korrekturschema.' },
+      { zeit: 'gestern 14:30', wer: 'Dr. Brandt', text: 'Vitalzeichen und NEWS2 zweimal pro Schicht. Ab NEWS2 5 oder 3 Punkten in einem Wert sofort ärztlich informieren.' },
+      { zeit: 'gestern 14:30', wer: 'Dr. Brandt', text: 'Bedarf: Paracetamol 1 g bei Fieber über 38,5 °C, Abstand 6 h, max. 4 g am Tag. Enoxaparin 40 mg s. c. abends.' },
+    ],
+    assessments: [
+      { name: 'NEWS2', wert: '1 Punkt (heute 06:00)', datum: 'heute 06:00', hinweis: 'gestern 20:00: 3 Punkte' },
+      { name: 'Sturzrisiko', wert: 'erhöht', datum: 'gestern', hinweis: 'Alter, Fieber, Infusion, neue Umgebung.' },
+      { name: 'Braden-Skala', wert: '18 Punkte (geringes Risiko)', datum: 'gestern' },
+      { name: 'Delir-Screening (4AT) bei Aufnahme', wert: '0 Punkte (unauffällig)', datum: 'gestern', hinweis: 'Ausgangswert für Vergleiche.' },
+    ],
+    labor: [
+      { name: 'CRP', wert: '148', einheit: 'mg/l', norm: 'unter 5', datum: 'gestern (Aufnahme)', auffaellig: true },
+      { name: 'Leukozyten', wert: '15,8', einheit: '/nl', norm: '4–10', datum: 'gestern (Aufnahme)', auffaellig: true },
+      { name: 'Procalcitonin', wert: '0,8', einheit: 'ng/ml', norm: 'unter 0,1', datum: 'gestern (Aufnahme)', auffaellig: true },
+      { name: 'Kreatinin', wert: '1,0', einheit: 'mg/dl', norm: '0,5–1,0', datum: 'gestern (Aufnahme)' },
+      { name: 'Natrium', wert: '137', einheit: 'mmol/l', norm: '135–145', datum: 'gestern (Aufnahme)' },
+      { name: 'Laktat', wert: 'nicht bestimmt', datum: '–' },
+    ],
+    bilanzVortag: { einfuhrMl: 1100, ausfuhrMl: 650 },
+    pflegeplanung: [
+      { problem: 'Beeinträchtigte Atmung bei Pneumonie, Sekretverhalt', ziel: 'SpO₂ ab 92 %, kann abhusten', massnahmen: ['Oberkörper hoch lagern', 'Atemübungen und Abhusten anleiten', 'Vitalzeichen und NEWS2 zweimal pro Schicht'] },
+      { problem: 'Fieber, Flüssigkeitsbedarf erhöht', ziel: 'Trinkt mindestens 1,5 l am Tag', massnahmen: ['Getränke in Reichweite', 'Trinkmenge erfassen', 'Bedarfsmedikation nach Plan'] },
+      { problem: 'Sturzgefahr (Fieber, Infusion, neue Umgebung)', ziel: 'Bleibt sturzfrei', massnahmen: ['Klingel in Reichweite', 'Bett tief', 'Begleitung zur Toilette'] },
+    ],
+    rechtliches: [
+      'Schweigepflichtentbindung bei Aufnahme unterschrieben: Auskunft an die Tochter Petra Albrecht erlaubt.',
+      'Keine Patientenverfügung, keine Vorsorgevollmacht. Volle Therapie gewünscht.',
+    ],
+  },
+
   befunde: [
     { massnahme: 'ansprechen-orientierung', varianten: [
       { text: '„Wo bin ich denn hier? Ich muss doch den Laden aufmachen.“ Sie weiß den Wochentag nicht und zupft an der Bettdecke. Heute Morgen war sie laut Kurve voll orientiert.' },
@@ -132,7 +211,7 @@ export const KH_PNEUMONIE_SEPSIS: FallV2 = {
     { massnahme: 'puls-zaehlen', varianten: [{ text: 'Puls {hf}/min, regelmäßig, eher flach.', zeigt: ['hf'] }] },
     { massnahme: 'temperatur-ohr', varianten: [{ text: '{temp} °C.', zeigt: ['temp'] }] },
     { massnahme: 'bz-messen', varianten: [{ text: 'BZ {bz} mg/dl.', zeigt: ['bz'] }] },
-    { massnahme: 'kurve-lesen', varianten: [{ text: 'Kurve heute 6 Uhr: RR 138/82, Puls 88, AF 18, SpO₂ 95 %, 37,9 °C, wach und orientiert. Ein- und Ausfuhr nicht geführt.' }] },
+    { massnahme: 'kurve-lesen', varianten: [{ text: 'Kurve heute 6 Uhr: RR 138/82, Puls 88, AF 18, SpO₂ 95 %, 37,9 °C, wach und orientiert. Paracetamol 1 g um 11:30 aus dem Bedarfsplan. Ein- und Ausfuhr nicht geführt. Aufnahmebogen: Auskunft an die Tochter Petra Albrecht erlaubt (gestern unterschrieben).' }] },
     { massnahme: 'monitor-anlegen', varianten: [{ text: 'Monitor läuft: HF {hf}/min, RR {rrSys}/{rrDia}, SpO₂ {spo2} %, AF {af}/min.', zeigt: ['hf', 'rrSys', 'rrDia', 'spo2', 'af'] }] },
     { massnahme: 'news2-berechnen', varianten: [
       { wenn: { nicht: { alle: [ATMUNG_ERHOBEN, SPO2_BEKANNT, RR_BEKANNT] } }, text: 'Für den NEWS2 fehlen dir noch Werte (Atemfrequenz, SpO₂, Blutdruck, Puls, Temperatur, Bewusstsein).' },
@@ -148,6 +227,21 @@ export const KH_PNEUMONIE_SEPSIS: FallV2 = {
     { id: 'g-beruhigen', frage: 'Erklären, was du tust, und dass du Hilfe holst', an: 'patient', kompetenzbereiche: ['II'],
       antwort: [{ text: 'Sie nickt und hält deinen Arm fest.' }],
       wirkung: [{ groesse: 'angst', delta: -0.15, beginnSek: 0, spitzeSek: 60, dauerSek: 'dauerhaft' }] },
+    // Runde 2 (P14a): Tochter (Fremdanamnese, Auskunft nur mit Schweigepflichtentbindung)
+    { id: 'g-einwilligung', frage: 'Frau Albrecht fragen, ob du ihrer Tochter Auskunft geben darfst', an: 'patient', kompetenzbereiche: ['II', 'IV'],
+      antwort: [{ text: '„Wer? … Die Petra? Ja … ja.“ Sie schaut dabei an dir vorbei und zupft an der Decke. Ob sie die Frage verstanden hat, bleibt unklar.' }] },
+    { id: 'g-tochter-frueher', frage: 'Tochter fragen, wie ihre Mutter sonst ist und seit wann sie sich verändert hat', an: 'angehoerige', kompetenzbereiche: ['I', 'II'],
+      antwort: [{ text: '„Gestern Abend hat sie noch Rätsel gemacht und mich nach den Enkeln gefragt. Heute Mittag am Telefon hat sie mich Mama genannt. So kenne ich sie gar nicht.“' }],
+      fakten: ['gestern Abend klar', 'seit heute Mittag verändert', 'Tochter heißt Petra'] },
+    { id: 'g-tochter-lage', frage: 'Tochter sagen, was los ist: Verdacht auf Verschlechterung, die Ärztin kommt', an: 'angehoerige', kompetenzbereiche: ['II', 'IV'],
+      schweigepflicht: { erlaubtWenn: { getan: 'kurve-lesen' },
+        fehlerText: 'Du hast der Tochter Auskunft gegeben, ohne zu prüfen, ob du darfst. Frau Albrecht ist gerade verwirrt und kann nicht sicher einwilligen. Im Aufnahmebogen steht, dass sie gestern eine Schweigepflichtentbindung für die Tochter unterschrieben hat: erst nachsehen, dann informieren.' },
+      antwort: [
+        { wenn: { flag: 'arzt-kommt' }, text: '„Danke, dass Sie es mir so offen sagen. Ich bleibe bei ihr und halte ihre Hand.“', setzt: ['tochter-informiert'] },
+        { text: '„Und was passiert jetzt? Kommt denn ein Arzt?“', setzt: ['tochter-informiert'] },
+      ],
+      wirkung: [{ groesse: 'unruhe', delta: -0.1, beginnSek: 0, spitzeSek: 120, dauerSek: 'dauerhaft' }],
+      fakten: ['Ärztin kommt', 'mögliche Verlegung auf die IMC'] },
   ],
 
   sbar: [
@@ -163,6 +257,9 @@ export const KH_PNEUMONIE_SEPSIS: FallV2 = {
     { id: 'a-alter', teil: 'A', text: 'Sie ist wohl einfach durcheinander, weil sie im Krankenhaus ist.', art: 'falsch' },
     { id: 'r-kommen', teil: 'R', text: 'Bitte kommen Sie jetzt zur Einschätzung. Brauchen wir Sauerstoff, Infusion, Blutkulturen und Laktat?', art: 'kern' },
     { id: 'r-paracetamol', teil: 'R', text: 'Darf ich ihr etwas gegen das Fieber geben?', art: 'hilfreich' },
+    // Runde 2 (P14a): Übergabe an die IMC
+    { id: 'r-imc-laeuft', teil: 'R', text: 'Sauerstoff über die Nasenbrille nach Zielbereich, Infusion läuft, Blutkulturen und Laktat abgenommen, Antibiotikum vorgezogen. Bitte engmaschig RR, Atemfrequenz und Bewusstsein überwachen.', art: 'hilfreich',
+      bekanntWenn: { alle: [{ getan: 'o2-geben' }, { getan: 'infusion-anhaengen' }] } },
   ],
 
   anordnungen: [
@@ -170,24 +267,39 @@ export const KH_PNEUMONIE_SEPSIS: FallV2 = {
     { id: 'an-infusion', massnahme: 'infusion-anhaengen', text: '500 ml Vollelektrolytlösung jetzt zügig über den liegenden Zugang.' },
     { id: 'an-paracetamol', massnahme: 'paracetamol-geben', text: 'Paracetamol 1 g oral bei Fieber über 38,5 °C, höchstens 4 g am Tag.' },
     { id: 'an-abx', massnahme: 'abx-iv-vorziehen', text: 'Die nächste Antibiotikagabe jetzt vorziehen.' },
+    { id: 'an-bedarf', massnahme: 'paracetamol-geben', text: 'Bedarfsplan: Paracetamol 1 g oral bei Fieber über 38,5 °C, Abstand mind. 6 h, max. 4 g am Tag.' },
   ],
 
   arzt: {
     name: 'Stationsärztin Dr. Brandt',
     erreichbar: 'telefon',
+    // Runde 2 (P14a): genau → allgemein. Ohne Blutdruck fragt die Ärztin zurück; Rückauftrag RR nach Infusionsstart.
     regeln: [
-      { wenn: { alle: [{ gemeldet: ['a-verwirrt-neu', 'a-af-hoch'] }, { eine: [{ gemeldet: ['a-rr-niedrig'] }, { gemeldet: ['a-news2'] }] }] },
-        antwort: '„Danke, das klingt nach Sepsis. Ich komme sofort. Sauerstoff über die Brille nach Ziel 92 bis 96 Prozent, 500 ml Vollelektrolyt jetzt anhängen, Monitor dran. Blutkulturen und Laktat nehme ich selbst ab, danach ziehen wir das Antibiotikum vor.“',
-        anordnungen: ['an-o2', 'an-infusion', 'an-abx'], kommtNachSek: 300, setzt: ['arzt-kommt'] },
+      { ...SEPSIS_REGEL, wenn: { alle: [{ gemeldet: ['a-verwirrt-neu', 'a-af-hoch'] }, { eine: [{ gemeldet: ['a-rr-niedrig'] }, { gemeldet: ['a-news2'] }, { gemeldet: ['wert:rrSys'] }] }] } },
+      { id: 'r-rr-frage', wenn: { gemeldet: ['a-verwirrt-neu', 'a-af-hoch'] },
+        antwort: '„Neu verwirrt und schnelle Atmung bei Pneumonie, da muss ich an eine Sepsis denken.“',
+        rueckfrage: { text: '„Wie ist der Blutdruck?“', erwartet: ['wert:rrSys'], auftrag: 'af-rr' } },
       { wenn: { gemeldet: ['a-verwirrt-neu'] },
         antwort: '„Verwirrt allein sagt mir zu wenig. Wie atmet sie, wie ist der Blutdruck? Messen Sie bitte alles und rufen Sie mich gleich wieder an.“' },
       { wenn: { eine: [{ gemeldet: ['s-fieber'] }, { gemeldet: ['a-alter'] }] },
         antwort: '„Fieber bei Pneumonie ist erst mal zu erwarten. Geben Sie Paracetamol nach Plan, ich schaue nach der Aufnahme vorbei.“',
         anordnungen: ['an-paracetamol'], setzt: ['arzt-beruhigt'] },
     ],
+    auftraege: [
+      { id: 'af-rr', text: 'Blutdruck messen und der Stationsärztin melden', erledigt: { getan: 'rr-messen' }, meldung: ['wert:rrSys'], meldenBinnenSek: 300,
+        folge: [SEPSIS_REGEL] },
+      { id: 'af-rr-kontrolle', text: 'Zehn Minuten nach Infusionsstart Blutdruck messen und der Ärztin schicken', erledigt: { alle: [{ getan: 'infusion-anhaengen' }, { getan: 'rr-messen' }] },
+        meldung: ['wert:rrSys'], meldenBinnenSek: 1200,
+        folge: [
+          { wenn: { wert: 'rrSys', vergleich: '>=', grenze: 100 }, antwort: '„Danke, das reicht fürs Erste. Infusion weiterlaufen lassen, ich bin gleich bei Ihnen.“', setzt: ['rr-rueckmeldung'] },
+          { wenn: { ab: 0 }, antwort: '„Noch zu niedrig. Infusion zügig weiterlaufen lassen, Oberkörper wegen der Atmung nicht flach legen. Ich bin in zwei Minuten da.“', setzt: ['rr-rueckmeldung'] },
+        ] },
+    ],
   },
 
   ereignisse: [
+    { id: 'e-imc', art: 'telefon', wann: { alle: [{ flag: 'arzt-kommt' }, { ab: 960 }] },
+      text: 'Das Stationstelefon: „Hier die IMC, Pflegefachfrau Lena. Wir haben das Bett für Frau Albrecht frei. Gibst du mir bitte die Übergabe?“' },
     { id: 'e-kollegin', art: 'team', wann: { ab: 240 },
       text: 'Pflegefachmann Jonas schaut herein: „Brauchst du was? Ich bin nebenan bei der Aufnahme.“' },
     { id: 'e-aerztin-da', art: 'visite', wann: { alle: [{ flag: 'arzt-kommt' }, { getan: 'anruf-aerztin' }, { ab: 900 }] },
@@ -208,10 +320,12 @@ export const KH_PNEUMONIE_SEPSIS: FallV2 = {
       { wenn: { nicht: ATMUNG_ERHOBEN }, impuls: 'Welcher Vitalwert verändert sich bei einer Verschlechterung meist als Erstes?', tipp: 'Zähl ihre Atemfrequenz eine volle Minute lang.' },
       { wenn: { nicht: { getan: 'news2-berechnen' } }, impuls: 'Wie kannst du begründen, wie dringend das ist?', tipp: 'Rechne den NEWS2 aus und denk an die neue Verwirrtheit.' },
       { wenn: { nicht: { flag: 'arzt-kommt' } }, impuls: 'Was braucht die Ärztin von dir, damit sie sofort kommt?', tipp: 'Verwirrtheit, Atemfrequenz und Blutdruck gehören zusammen in deine Meldung.' },
+      { wenn: { auftrag: 'af-rr', status: 'offen' }, impuls: 'Was wollte die Ärztin noch von dir wissen?', tipp: 'Blutdruck messen und ihr den Wert schicken.' },
+      { wenn: { alle: [{ auftrag: 'af-rr-kontrolle', status: 'offen' }, { nicht: { auftrag: 'af-rr-kontrolle', status: 'gemeldet' } }] }, impuls: 'Hat dir die Ärztin noch etwas aufgetragen?', tipp: 'Zehn Minuten nach Infusionsstart den Blutdruck messen und über den Messenger schicken.' },
       { impuls: 'Wie geht es Frau Albrecht jetzt, und was hast du schon dokumentiert?', tipp: 'Bilanz beginnen, Werte engmaschig kontrollieren, Pflegebericht schreiben.' },
     ],
   },
-  team: { kollegin: 'Pflegefachmann Jonas (Schichtleitung)' },
+  team: { kollegin: 'Pflegefachmann Jonas (Schichtleitung)', weitere: { angehoerige: 'Tochter Petra Albrecht', 'aufnehmende-station': 'IMC, Pflegefachfrau Lena' } },
 
   bewertung: {
     pflicht: [
@@ -235,8 +349,17 @@ export const KH_PNEUMONIE_SEPSIS: FallV2 = {
         warum: 'Erleichtert die Atmung bei Pneumonie.' },
       { id: 'p-team', text: 'Schichtleitung informiert', gewicht: 1, kompetenzbereiche: ['III'], erfuellt: { getan: 'pflegefachperson-informieren' },
         warum: 'Die verantwortliche Pflegefachperson muss von der Verschlechterung wissen.' },
-      { id: 'p-doku', text: 'Pflegebericht geschrieben', gewicht: 1, kompetenzbereiche: ['I', 'IV'], erfuellt: { getan: 'pflegebericht' },
-        warum: 'Werte, Meldung, Anordnungen und Wirkung müssen nachvollziehbar sein.' },
+      { id: 'p-rueckauftrag', text: 'Rückauftrag der Ärztin erledigt und gemeldet (RR nach Infusionsstart)', gewicht: 2, kompetenzbereiche: ['II', 'III'],
+        erfuellt: { auftrag: 'af-rr-kontrolle', status: 'gemeldet' }, warum: 'Die Ärztin plant mit deiner Kontrolle, ob das Volumen wirkt (Closed Loop).' },
+      { id: 'p-tochter', text: 'Tochter einbezogen, Auskunft erst nach Blick auf die Schweigepflichtentbindung', gewicht: 1, kompetenzbereiche: ['II', 'IV'],
+        erfuellt: { alle: [{ getan: 'frage:g-tochter-lage' }, { getan: 'kurve-lesen' }] },
+        warum: 'Die Tochter kennt den Normalzustand und braucht Information. Frau Albrecht kann gerade nicht sicher einwilligen, die unterschriebene Entbindung von gestern gilt.' },
+      { id: 'p-uebergabe-imc', text: 'Strukturierte Übergabe an die IMC (Lage und laufende Therapie)', gewicht: 2, kompetenzbereiche: ['II', 'III'],
+        erfuellt: { alle: [{ gesagt: 's-verschlechtert', an: 'aufnehmende-station' }, { gesagt: 'r-imc-laeuft', an: 'aufnehmende-station' }] },
+        warum: 'Bei der Verlegung gehen sonst Sauerstoff, Infusion und Zeitpunkt der Antibiotikagabe verloren.' },
+      { id: 'p-doku', text: 'Pflegebericht mit Werten und mündlichen Anordnungen geschrieben', gewicht: 1, kompetenzbereiche: ['I', 'IV'],
+        erfuellt: { alle: [{ getan: 'pflegebericht' }, { dokumentiert: 'anordnung:an-o2' }, { dokumentiert: 'wert:rrSys' }] },
+        warum: 'Mündliche Anordnungen (Sauerstoff, Infusion) und die Werte dazu müssen mit Uhrzeit nachvollziehbar sein.' },
     ],
     fehler: [
       { id: 'f-flach', text: 'Bei Atemnot flach gelagert, Beine hoch', schwere: 'mittel', kompetenzbereiche: ['I', 'V'], wenn: { getan: 'flachlagern-beine-hoch' },
@@ -252,7 +375,7 @@ export const KH_PNEUMONIE_SEPSIS: FallV2 = {
         warum: 'Neue Verwirrtheit, schnelle Atmung und sinkender Blutdruck bei Infekt verlangen eine sofortige ärztliche Einschätzung.' },
     ],
     ende: [
-      { wenn: { alle: [{ flag: 'arzt-kommt' }, { ab: 900 }, { getan: 'infusion-anhaengen' }, { getan: 'pflegebericht' }] },
+      { wenn: { alle: [{ flag: 'arzt-kommt' }, { ab: 900 }, { getan: 'infusion-anhaengen' }, { getan: 'pflegebericht' }, { flag: 'rr-rueckmeldung' }, { gesagt: 'r-imc-laeuft', an: 'aufnehmende-station' }] },
         text: 'Dr. Brandt hat Blutkulturen und Laktat abgenommen und das Antibiotikum vorgezogen. Frau Albrecht wird mit Sauerstoff und Infusion zur Überwachung auf die IMC verlegt.', ausgang: 'verlegt' },
       { wenn: { ab: 2400 }, text: 'Frau Albrecht ist kaum noch erweckbar, der Blutdruck fällt weiter. Das Notfallteam übernimmt.', ausgang: 'verschlechtert' },
     ],
@@ -287,6 +410,7 @@ export const KH_PNEUMONIE_SEPSIS: FallV2 = {
     muster: [
       { art: 'massnahme', id: 'ansprechen-orientierung' },
       { art: 'massnahme', id: 'ersteindruck-abcde' },
+      { art: 'frage', id: 'g-tochter-frueher' },
       { art: 'massnahme', id: 'af-zaehlen' },
       { art: 'massnahme', id: 'pulsoxy-anlegen' },
       { art: 'massnahme', id: 'rr-messen' },
@@ -300,8 +424,15 @@ export const KH_PNEUMONIE_SEPSIS: FallV2 = {
       { art: 'massnahme', id: 'infusion-anhaengen' },
       { art: 'massnahme', id: 'monitor-anlegen' },
       { art: 'massnahme', id: 'pflegefachperson-informieren' },
+      { art: 'massnahme', id: 'kurve-lesen' },
+      { art: 'frage', id: 'g-tochter-lage' },
       { art: 'massnahme', id: 'bilanz-fuehren' },
-      { art: 'massnahme', id: 'pflegebericht' },
+      { art: 'warten', sek: 180 },
+      { art: 'massnahme', id: 'rr-messen' },
+      { art: 'nachricht', an: 'aerztin', kanal: 'messenger', bausteine: ['wert:rrSys'] },
+      { art: 'dokumentieren', bausteine: ['wert:af', 'wert:spo2', 'wert:rrSys', 'wert:temp', 'a-verwirrt-neu', 'a-news2', 'anordnung:an-o2', 'anordnung:an-infusion'] },
+      { art: 'warten', sek: 240 },
+      { art: 'nachricht', an: 'aufnehmende-station', kanal: 'telefon', bausteine: ['s-verschlechtert', 'b-pneumonie', 'a-verwirrt-neu', 'a-news2', 'wert:rrSys', 'r-imc-laeuft'] },
       { art: 'abschluss', probleme: ['pb-atmung', 'pb-kreislauf', 'pb-delir', 'pb-fluessigkeit'], ziele: ['z-spo2', 'z-kreislauf', 'z-sicher'],
         sbar: ['s-verschlechtert', 'b-pneumonie', 'a-af-hoch', 'a-spo2', 'a-rr-niedrig', 'a-verwirrt-neu', 'a-news2'] },
     ],
