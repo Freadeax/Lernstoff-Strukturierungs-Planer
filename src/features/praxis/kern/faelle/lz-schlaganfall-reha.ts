@@ -76,7 +76,8 @@ export const LZ_SCHLAGANFALL_REHA: FallV2 = {
   startUhrzeit: '08:00',
 
   start: {
-    grund: { gefaesstonus: 1.12, schmerz: 2, angst: 0.2, orientierung: 0.95, temperatur: 36.8, blutzucker: 112 },
+    // G5 Neurologie: Restdefizit nach Infarkt rechts, linke Körperseite betroffen (neuroSeite 1)
+    grund: { gefaesstonus: 1.12, schmerz: 2, angst: 0.2, orientierung: 0.95, temperatur: 36.8, blutzucker: 112, neuroDefizit: 0.4, neuroSeite: 1 },
     treiber: [],
     bild: { haltung: 'sitzt', haut: 'rosig', mimik: 'ruhig' },
     sichtbar: [],
