@@ -10,6 +10,7 @@ import { alarmFuer } from './physiologie/altersprofile';
 import { wendeModulAn } from './spur-b/modul';
 import { SPUR_B_MODELL } from './spur-b/standard';
 import type {
+  Gegenueber,
   AktiverTreiber, Anzeige, Bedingung, Bildzustand, FallV2, Freigabe, Grundgroessen, MassnahmeDefinition, ModellModule, ModulEingriff, Rolle,
   SimEvent, SimEventEingabe, Stufe, Treiber, Wirkkurve,
 } from './typen';
@@ -20,11 +21,16 @@ export const PA_ZUSATZ_SEK = 30;
 
 export interface Meldung {
   t: number;
-  art: 'befund' | 'gespraech' | 'arzt' | 'pa' | 'ereignis' | 'hinweis' | 'fehler' | 'ende';
+  art: 'befund' | 'gespraech' | 'arzt' | 'pa' | 'ereignis' | 'hinweis' | 'fehler' | 'ende'
+    /** Runde 2: P11 Nachrichten in Fäden, P12 Zustandsänderungen („wirkt wacher“), P13 Pflegebericht */
+    | 'nachricht' | 'verlauf' | 'doku';
   text: string;
   quelle?: string;
   /** Bei Befunden: welche Werte die Variante sichtbar macht (Texte mit Platzhaltern lassen sich nicht vergleichen). */
   zeigt?: ReadonlyArray<keyof Anzeige>;
+  /** P11: zu welchem Gesprächsfaden die Meldung gehört; `richtung` aus Sicht der Lernenden */
+  faden?: Gegenueber;
+  richtung?: 'raus' | 'rein';
 }
 
 interface AktiveWirkung { kurve: Wirkkurve; t0: number; delta: number }

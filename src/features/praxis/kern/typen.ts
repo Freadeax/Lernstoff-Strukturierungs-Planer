@@ -169,6 +169,10 @@ export type Bedingung =
   | { wert: keyof Grundgroessen | keyof Anzeige; vergleich: Vergleich; grenze: number }
   | { gemeldet: string[] }                                        // SBAR-Bausteine im letzten Anruf
   | { anordnung: string; rueckgelesen?: boolean }
+  // Runde 2 (P11/P13): Kommunikation und Dokumentation
+  | { auftrag: string; status: AuftragStatus }                   // Rückauftrag der Ärztin (P11)
+  | { gesagt: string; an?: Gegenueber }                          // Baustein in einer Nachricht an … (P11, jederzeit im Fall)
+  | { dokumentiert: string }                                     // Baustein im Pflegebericht (P13)
   | { alle: Bedingung[] }
   | { eine: Bedingung[] }
   | { nicht: Bedingung };
@@ -225,12 +229,49 @@ export interface Befund {
 
 /* ─────────────────────── Kommunikation & Team ─────────────────────── */
 
+/** Runde 2 (P11): alle Gesprächspartner. Jede/r hat einen eigenen Gesprächsverlauf (Faden). */
+export type Gegenueber =
+  | 'patient' | 'angehoerige' | 'eltern' | 'betreuer'
+  | 'aerztin' | 'kollegin' | 'pa' | 'rettungsdienst' | 'aufnehmende-station';
+/** vor-ort = im Zimmer · telefon = Anruf (Faden offen bis auflegen) · messenger = Klinik-/Praxis-Chat, Antwort kommt verzögert */
+export type Kanal = 'vor-ort' | 'telefon' | 'messenger';
+export type AuftragStatus = 'offen' | 'erledigt' | 'gemeldet' | 'verspaetet';
+
+/**
+ * Rückauftrag (P11): „BZ messen und melden“, „in 30 Minuten RR kontrollieren und Bescheid geben“.
+ * Entsteht aus einer ArztRegel (`auftraege`). Erledigt = Bedingung erfüllt NACH Auftragszeit (Kern prüft getan-Zeitpunkte ≥ seit).
+ * Gemeldet = Nachricht an die Ärztin mit allen `meldung`-Bausteinen. Dann antwortet die erste passende `folge`-Regel.
+ */
+export interface Rueckauftrag {
+  id: string;
+  text: string;
+  erledigt: Bedingung;
+  /** Bausteine, die die Rückmeldung enthalten muss, z. B. ['wert:bz'] oder SBAR-IDs. */
+  meldung: string[];
+  /** Ab Auftrag; danach Status verspaetet, PA erinnert, Fehler `auftrag-verspaetet:<id>` im Log. */
+  meldenBinnenSek?: Sek;
+  folge: ArztRegel[];
+}
+
+/**
+ * Wert-Bausteine (P11): Der Kern bietet für jeden gemessenen Wert automatisch einen Baustein an,
+ * ID `wert:<Anzeige-Schlüssel>` (wert:bz, wert:rrSys, wert:spo2 …), Teil 'A', Text mit dem zuletzt gemessenen Wert.
+ * Fälle verweisen nur auf die ID (in `gemeldet`, `meldung`, `erwartet`).
+ */
+export type WertBausteinId = `wert:${string}`;
+
 export interface GespraechsEintrag {
   id: string;
   /** Frage im Offline-Katalog */
   frage: string;
-  an: 'patient' | 'angehoerige' | 'eltern' | 'betreuer';
-  antwort: Array<{ wenn?: Bedingung; text: string }>;
+  an: Gegenueber;
+  /** P11: Standard vor-ort für Patient/Angehörige, telefon für Ärztin/Rettungsdienst. */
+  kanal?: Kanal;
+  antwort: Array<{ wenn?: Bedingung; text: string; setzt?: string[] }>;
+  /** P11: nur anbieten, wenn erfüllt (z. B. Kollegin erst, wenn sie im Dienst ist). */
+  nurWenn?: Bedingung;
+  /** P11: Auskunft unterliegt der Schweigepflicht (Angehörige ohne Einwilligung) → Fehler, wenn nicht `erlaubtWenn`. */
+  schweigepflicht?: { erlaubtWenn: Bedingung; fehlerText: string };
   /** Beziehungsgestaltung: Wirkung auf Angst/Unruhe */
   wirkung?: Wirkkurve[];
   kompetenzbereiche: KB[];
@@ -260,12 +301,22 @@ export interface Anordnung {
 }
 
 export interface ArztRegel {
+  /** P11: Mit id antwortet eine Regel nur einmal je Faden-Verlauf (der Kern merkt sich beantwortete IDs). */
+  id?: string;
   /** Reihenfolge zählt: erste passende Regel antwortet. */
   wenn: Bedingung;
   antwort: string;                // was die Ärztin sagt
   anordnungen?: string[];         // Anordnung-IDs
   kommtNachSek?: Sek;             // Ärztin kommt persönlich
   setzt?: string[];
+  /** P11: Rückfrage der Ärztin („Wie hoch ist der Zucker?“). Der Faden bleibt offen; die nächste Nachricht mit
+   *  den `erwartet`-Bausteinen wird wieder gegen die Regeln geprüft. `nichtBekannt`: Antwort, wenn der Wert fehlt
+   *  (Lernende sagen „messe ich und melde mich“) → Kern legt den Auftrag `auftrag` an. */
+  rueckfrage?: { text: string; erwartet: string[]; auftrag?: string };
+  /** P11: Rückaufträge (IDs aus fall.arzt.auftraege), die mit dieser Antwort entstehen. */
+  auftraege?: string[];
+  /** P11: Antwort über Messenger kommt nach … Sek (Standard 0 am Telefon). */
+  antwortNachSek?: Sek;
 }
 
 export interface Ereignis {
@@ -385,11 +436,19 @@ export interface FallV2 {
   gespraech: GespraechsEintrag[];
   sbar: SbarBaustein[];
   anordnungen: Anordnung[];
-  arzt: { name: string; erreichbar: 'telefon' | 'vor-ort' | 'hausarzt-praxis' | 'bereitschaft'; regeln: ArztRegel[] };
+  arzt: {
+    name: string; erreichbar: 'telefon' | 'vor-ort' | 'hausarzt-praxis' | 'bereitschaft'; regeln: ArztRegel[];
+    /** P11: Rückaufträge, auf die Regeln verweisen */
+    auftraege?: Rueckauftrag[];
+    /** P11: welche Kanäle es in diesem Setting gibt (Standard ['telefon']) */
+    kanaele?: Kanal[];
+  };
   ereignisse: Ereignis[];
   pa: { name: string; hilfen: PaHilfe[] };
   /** Team-Leiste (P6, optional): Name der Kollegin/des Kollegen im Dienst; sonst „Umfeld und Team“. */
-  team?: { kollegin?: string };
+  team?: { kollegin?: string; /** P11: Leitung/Stationsleitung, Rettungsdienst usw. als Gesprächspartner */ weitere?: Partial<Record<Gegenueber, string>> };
+  /** Runde 2 (P13): Patientenakte. Fehlt sie, baut die Oberfläche eine Minimal-Akte aus `person`. */
+  akte?: Akte;
 
   bewertung: {
     pflicht: Pflichthandlung[];
@@ -409,6 +468,58 @@ export interface FallV2 {
   };
 }
 
+/* ─────────────────────────── Patientenakte (P13) ─────────────────────────── */
+
+export type KurvenWert = 'rrSys' | 'rrDia' | 'hf' | 'af' | 'spo2' | 'temp' | 'bz' | 'schmerz' | 'gewicht';
+
+export interface MedPlanEintrag {
+  id: string;
+  wirkstoff: string;
+  handelsname?: string;
+  staerke: string;                 // „10 mg“
+  form: string;                    // „Tbl.“, „i. v.“, „s. c.“
+  /** Dauermedikation „1-0-1-0“; leer bei Bedarf */
+  schema?: string;
+  /** Bedarfsmedikation mit Indikation und Höchstmenge */
+  bedarf?: { indikation: string; einzeldosis: string; maxProTag: string; abstandH?: number };
+  /** Katalog-Maßnahme, mit der die Gabe im Fall geschieht (z. B. 'tabletten-wie-geplant-geben') */
+  massnahme?: string;
+  /** zuletzt gegeben (Uhrzeit vor Fallbeginn), für Abstand/Doppelgabe */
+  zuletzt?: string;
+  hinweis?: string;               // „PRISCUS“, „vor Gabe RR messen“
+  /** Anordnung, die den Eintrag im Fall ändert (pausieren, neu) */
+  geaendertDurch?: string;
+}
+
+export interface Vorwert {
+  /** Uhrzeit oder „gestern 18:00“ – nur Anzeige */
+  zeit: string;
+  /** Stunden vor Fallbeginn, für die Kurve */
+  vorH: number;
+  werte: Partial<Record<KurvenWert, number>>;
+  kuerzel?: string;
+}
+
+export interface AkteEintrag { zeit: string; wer: string; text: string }
+
+export interface Akte {
+  aufnahmegrund?: string;
+  anamnese?: string[];
+  diagnosen?: Array<{ text: string; icd?: string; seit?: string }>;
+  medikation: MedPlanEintrag[];
+  /** Vorwerte für das Kurvenblatt (Tage/Stunden vor dem Fall) */
+  vorwerte?: Vorwert[];
+  /** bisherige Pflegeberichte und ärztliche Einträge */
+  pflegebericht?: AkteEintrag[];
+  aerztlicheAnordnungen?: AkteEintrag[];
+  assessments?: Array<{ name: string; wert: string; datum: string; hinweis?: string }>;
+  labor?: Array<{ name: string; wert: string; einheit?: string; norm?: string; datum: string; auffaellig?: boolean }>;
+  bilanzVortag?: { einfuhrMl: number; ausfuhrMl: number };
+  pflegeplanung?: Array<{ problem: string; ziel: string; massnahmen: string[] }>;
+  /** Patientenverfügung, Vorsorgevollmacht, Einwilligung Auskunft an Angehörige … */
+  rechtliches?: string[];
+}
+
 /* ─────────────────────────── Event-Log ─────────────────────────── */
 
 /** Was die Darstellung an den Kern schickt (ohne Zeit; der Kern stempelt t). */
@@ -417,6 +528,11 @@ export type SimEventEingabe =
   | { art: 'frage'; id: string }
   | { art: 'pflegetasche'; geraet: string }
   | { art: 'anruf'; an: 'aerztin'; sbar: string[]; freitext?: string }
+  /** P11: Nachricht in einem Faden (Telefon offen, Messenger, vor Ort). `anruf` bleibt = Faden Ärztin neu öffnen + Nachricht. */
+  | { art: 'nachricht'; an: Gegenueber; kanal: Kanal; bausteine: string[]; freitext?: string; auftrag?: string }
+  | { art: 'auflegen'; an: Gegenueber }
+  /** P13: Eintrag in den Pflegebericht (Bausteine wie SBAR/Wert-Bausteine, optional Freitext) */
+  | { art: 'dokumentieren'; bausteine: string[]; freitext?: string }
   | { art: 'rueckmelden'; anordnung: string; rueckgelesen: boolean }
   | { art: 'remonstrieren'; anordnung: string; grund?: string }
   | { art: 'pa-fragen' }
@@ -434,6 +550,8 @@ export type SimEvent =
   | { t: Sek; art: 'pa-hilfe'; stufe: 'impuls' | 'tipp' }
   | { t: Sek; art: 'ereignis'; id: string }
   | { t: Sek; art: 'alarm'; groesse: keyof Anzeige; stufe: 'gelb' | 'rot' }
-  | { t: Sek; art: 'fehler'; id: string };
+  | { t: Sek; art: 'fehler'; id: string }
+  | { t: Sek; art: 'auftrag'; id: string; status: AuftragStatus }
+  | { t: Sek; art: 'antwort'; von: Gegenueber; text: string; regel?: string };
 
 export type Freigabe = 'frei' | 'mit-pa' | 'braucht-anordnung' | 'grenze';
