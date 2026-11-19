@@ -246,6 +246,7 @@ const LISTE: MassnahmeDefinition[] = [
     wirkung: [
       { groesse: 'unruhe', delta: -0.1, beginnSek: 30, spitzeSek: 300, dauerSek: 'dauerhaft' },
       { groesse: 'angst', delta: -0.05, beginnSek: 30, spitzeSek: 300, dauerSek: 'dauerhaft' },
+      { groesse: 'schlafSchutz', delta: 1, beginnSek: 0, spitzeSek: 120, dauerSek: 14400 },   // G7: etwa 4 h ungestörter
     ],
   }),
   m('gefaehrliche-gegenstaende-sichern', 'Gefährliche Gegenstände und gesammelte Tabletten gemeinsam sichern', 'akut', 120, ['I', 'IV'], nw(['suizid12', 'krise3'], {
