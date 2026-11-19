@@ -206,3 +206,21 @@ Alle Felder gehen als Platzhalter in Befundtexte (`{qsofa}`, `{schockindex}` mit
 - **Anzeige für alle**: `pupilleRechtsMm`/`pupilleLinksMm`, `pupilleRechtsLicht`/`pupilleLinksLicht` (Opioide eng, schwere Hypoxie/Stillstand weit und lichtstarr), `gcsAugen`/`gcsVerbal`/`gcsMotorik` (Summe = `gcs`; ohne Neuro unverändert, Aphasie senkt nur den verbalen Wert).
 - **Anzeige mit Schlaganfall**: `fast` (0–3), `nihss` (grob), `seitBeginnMin`, `lyseFensterMin` – für Befundtexte und Zeitdruck-Bedingungen.
 - Grundgrößen `neuroSeite`, `seitBeginnMin`, `wirkOpioid` schreibt das Modell; Fälle setzen sie nicht.
+
+## Fallwelle P19: Kinder und Psyche (CE 10/11)
+
+Sieben neue Fälle im Schema v2, alle mit `lehrplan`, Akte, mindestens zwei Gesprächspartnern, Rückfrage und Rückauftrag,
+Remonstrationspunkt, Entscheidungs- bzw. Komplikationsereignis und Weiterlernen-Eintrag. Fallbezogene Prüfungen in `faelle/p19.test.ts`.
+
+| Fall | CE | Kern | Remonstration | Modell |
+|---|---|---|---|---|
+| `paed-asthma-schulkind` | 10, 06 | Asthmaanfall 7 J., Spacer, Rückfrage SpO₂, Vater (Sorgerecht) | Diazepam bei Atemnot | `bronchospasmus`, Salbutamol beendet ihn |
+| `paed-bronchiolitis-saeugling` | 10 | RSV 4 Mon., Nase absaugen vor dem Trinken, Isolation | Xylometazolin 0,1 % → Kochsalz (`ersatz`) | Sekretstau-Ereignis, `nase-absaugen` |
+| `paed-gastroenteritis-kleinkind` | 10 | Exsikkose 3 J., orale Rehydratation, BZ, Kita (keine Auskunft) | Ondansetron 4 mg → 2 mg | `exsikkose_progressiv`, `hypoglykaemie` |
+| `paed-rausch-jugendliche` | 10, 06 | Alkoholintoxikation 15 J., Seitenlage, BZ/Temperatur, Mutter, Freundin | Traubenzucker-Gel bei Bewusstseinstrübung | `hypoglykaemie`, Glukose-Infusion beendet sie |
+| `kh-delir-nacht` | 11, 05 | Postoperatives Delir 84 J., 4AT, Harnverhalt, Brille/Hörgerät, Sohn (Vollmacht) | Lorazepam bei Hochbetagten | `delir_trigger` (Schmerz, Harnverhalt, Umgebung), Einmalkatheter beendet `harnverhalt` |
+| `psy-unruhe-deeskalation` | 11, 04 | Psychose, Deeskalation, Krisenplan, Mutter ohne Entbindung | Telefonische „Vorrats“-Fixierung → freiwilliges Lorazepam | `panik_eskaliert` als Näherung, Deeskalation beendet ihn |
+| `kh-alkoholentzug` | 11, 05 | Entzug nach OP, Score (CIWA-Ar/AESB), Ehefrau mit Einwilligung | Lorazepam starr stündlich → nach Score | Näherung `panik_eskaliert` + `delir_trigger`; eigener Entzugs-Treiber fehlt noch |
+
+- Psychiatrie: Foto Aufenthaltsraum fehlt, `psy-unruhe-deeskalation` nutzt vorläufig `11_pflegeheim_speiseraum` (Beispielbild).
+- `kh-alkoholentzug` ist nur für das 3. Drittel (`ad3`, Lehrplan sucht3).

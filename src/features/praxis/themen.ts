@@ -41,6 +41,16 @@ export const KERN_THEMEN: Record<string, string[]> = {
   'paed-fieberkrampf': ['thema.kl.neuro.epilepsie', 'thema.kl.paediatrie', 'thema.re.schweigepflicht'],
   'psy-panik-suizidalitaet': ['thema.kl.psych', 'thema.re.schweigepflicht'],
   'sr-septischer-schock': ['thema.kl.infektion', 'thema.beo.notfall', 'thema.pp.uebergabe'],
+  'kh-erster-tag': ['thema.ph.hygiene', 'thema.beo.vitalzeichen', 'thema.re.schweigepflicht', 'thema.re.berufsrecht', 'thema.pro.sturz', 'thema.kom.selbstpflege'],
+  'lz-koerperpflege-abgelehnt': ['thema.kom.gespraech', 'thema.kom.grundlagen', 'thema.ph.koerperpflege', 'thema.kom.ethik', 'thema.ph.ausscheidung', 'thema.pro.zystitis'],
+  'kh-reha-erster-weg': ['thema.ph.mobilisation', 'thema.pro.sturz', 'thema.ph.periop', 'thema.pro.thrombose', 'thema.beo.vitalzeichen'],
+  'paed-asthma-schulkind': ['thema.kl.paediatrie', 'thema.kl.atmung', 'thema.fa.paediatrie', 'thema.kom.beratung', 'thema.re.schweigepflicht'],
+  'paed-bronchiolitis-saeugling': ['thema.kl.paediatrie', 'thema.kl.atmung', 'thema.fa.paediatrie', 'thema.ph.hygiene', 'thema.pro.dehydratation'],
+  'paed-gastroenteritis-kleinkind': ['thema.kl.paediatrie', 'thema.kl.verdauung', 'thema.pro.dehydratation', 'thema.ph.hygiene', 'thema.re.schweigepflicht'],
+  'paed-rausch-jugendliche': ['thema.kl.paediatrie', 'thema.beo.bewusstsein', 'thema.pro.aspiration', 'thema.re.schweigepflicht', 'thema.kom.gespraech'],
+  'kh-delir-nacht': ['thema.pro.delir', 'thema.pro.sturz', 'thema.re.fem', 'thema.ph.ausscheidung', 'thema.ph.medikamente'],
+  'psy-unruhe-deeskalation': ['thema.fa.psychiatrie', 'thema.kl.psych', 'thema.re.fem', 'thema.re.schweigepflicht', 'thema.kom.gespraech'],
+  'kh-alkoholentzug': ['thema.kl.psych', 'thema.ph.medikamente', 'thema.beo.vitalzeichen', 'thema.kom.gespraech', 'thema.re.schweigepflicht'],
 };
 
 /** Kernfälle (IDs für ?neu=), die ein Thema üben. */

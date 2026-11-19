@@ -25,14 +25,14 @@ export interface PlanEintrag {
 }
 
 export const FALLPLAN: readonly PlanEintrag[] = [
-  { ce: 'ce.01', titel: 'Erster Tag: Händehygiene, erste Begegnung, Vitalzeichen, Schweigepflicht', art: 'neu', abschnitt: ['ad12'], paket: 'P17' },
+  { ce: 'ce.01', titel: 'Erster Tag: Händehygiene, erste Begegnung, Vitalzeichen, Schweigepflicht', art: 'vorhanden', abschnitt: ['ad12'], fall: 'kh-erster-tag' },
 
   { ce: 'ce.02', titel: 'Sturz und Exsikkose im Hausbesuch', art: 'vorhanden', abschnitt: ['ad12'], fall: 'amb-sturz-exsikkose' },
-  { ce: 'ce.02', titel: 'Erster Weg zum Bad nach Hüft-TEP', art: 'migrieren', abschnitt: ['ad12'], paket: 'P17', alt: ['reha'] },
+  { ce: 'ce.02', titel: 'Erster Weg zum Bad nach Hüft-TEP', art: 'vorhanden', abschnitt: ['ad12'], fall: 'kh-reha-erster-weg', alt: ['reha'] },
   { ce: 'ce.02', titel: 'Dekubitusgefahr bei Immobilität', art: 'neu', abschnitt: ['ad12'], paket: 'P17' },
   { ce: 'ce.02', titel: 'Harnverhalt nach der OP, Inkontinenz', art: 'neu', abschnitt: ['ad12'], paket: 'P17' },
 
-  { ce: 'ce.03', titel: 'Bewohner lehnt die Körperpflege ab', art: 'neu', abschnitt: ['ad12'], paket: 'P17' },
+  { ce: 'ce.03', titel: 'Bewohner lehnt die Körperpflege ab', art: 'vorhanden', abschnitt: ['ad12'], fall: 'lz-koerperpflege-abgelehnt' },
 
   { ce: 'ce.04', titel: 'Herzschwäche: Gewicht, Ödeme, Schulung', art: 'migrieren', abschnitt: ['ad12', 'ad3'], paket: 'P17', alt: ['herzschwaeche'] },
   { ce: 'ce.04', titel: 'Diabetes: Unterzuckerung und Insulinschulung', art: 'neu', abschnitt: ['ad12', 'ad3'], paket: 'P17' },
@@ -61,21 +61,21 @@ export const FALLPLAN: readonly PlanEintrag[] = [
   { ce: 'ce.09', titel: 'Die Wohnung ist heute ungewohnt still', art: 'migrieren', abschnitt: ['ad12', 'ad3'], paket: 'P18', alt: ['hausbesuch'] },
 
   { ce: 'ce.10', titel: 'Fieberkrampf beim Kleinkind', art: 'vorhanden', abschnitt: ['ad12', 'ad3'], fall: 'paed-fieberkrampf' },
-  { ce: 'ce.10', titel: 'Asthmaanfall beim Schulkind', art: 'migrieren', abschnitt: ['ad12', 'ad3'], paket: 'P19', alt: ['asthma'] },
-  { ce: 'ce.10', titel: 'Bronchiolitis beim Säugling', art: 'migrieren', abschnitt: ['ad12', 'ad3'], paket: 'P19', alt: ['bronchiolitis'] },
-  { ce: 'ce.10', titel: 'Gastroenteritis und Exsikkose beim Kind', art: 'migrieren', abschnitt: ['ad12'], paket: 'P19', alt: ['kind'] },
-  { ce: 'ce.10', titel: 'Jugendlicher nach der Party nicht wach', art: 'migrieren', abschnitt: ['ad3'], paket: 'P19', alt: ['rausch'] },
+  { ce: 'ce.10', titel: 'Asthmaanfall beim Schulkind', art: 'vorhanden', abschnitt: ['ad12', 'ad3'], fall: 'paed-asthma-schulkind', alt: ['asthma'] },
+  { ce: 'ce.10', titel: 'Bronchiolitis beim Säugling', art: 'vorhanden', abschnitt: ['ad12', 'ad3'], fall: 'paed-bronchiolitis-saeugling', alt: ['bronchiolitis'] },
+  { ce: 'ce.10', titel: 'Gastroenteritis und Exsikkose beim Kind', art: 'vorhanden', abschnitt: ['ad12', 'ad3'], fall: 'paed-gastroenteritis-kleinkind', alt: ['kind'] },
+  { ce: 'ce.10', titel: 'Jugendliche nach der Party nicht wach', art: 'vorhanden', abschnitt: ['ad12', 'ad3'], fall: 'paed-rausch-jugendliche', alt: ['rausch'] },
 
   { ce: 'ce.11', titel: 'Panik und Suizidalität', art: 'vorhanden', abschnitt: ['ad12', 'ad3'], fall: 'psy-panik-suizidalitaet' },
-  { ce: 'ce.11', titel: 'Delir in der Nacht', art: 'migrieren', abschnitt: ['ad12', 'ad3'], paket: 'P19', alt: ['delir'] },
-  { ce: 'ce.11', titel: 'Unruhe im Aufenthaltsraum, Deeskalation', art: 'migrieren', abschnitt: ['ad12', 'ad3'], paket: 'P19', alt: ['psychiatrie'] },
-  { ce: 'ce.11', titel: 'Alkoholentzug auf Station', art: 'neu', abschnitt: ['ad12', 'ad3'], paket: 'P19' },
+  { ce: 'ce.11', titel: 'Delir in der Nacht', art: 'vorhanden', abschnitt: ['ad12', 'ad3'], fall: 'kh-delir-nacht', alt: ['delir'] },
+  { ce: 'ce.11', titel: 'Unruhe im Aufenthaltsraum, Deeskalation', art: 'vorhanden', abschnitt: ['ad12', 'ad3'], fall: 'psy-unruhe-deeskalation', alt: ['psychiatrie'] },
+  { ce: 'ce.11', titel: 'Alkoholentzug auf Station', art: 'vorhanden', abschnitt: ['ad3'], fall: 'kh-alkoholentzug' },
 ];
 
 /** Wo noch kein Fall auf dem neuen Kern die Abdeckungsregel erfüllt (Stand main). Wird kleiner, sobald Fälle kommen;
  *  der Test verlangt, dass die Liste genau stimmt. Regel: jede CE ein Kernfall im 1./2. Drittel, CE04–CE11 einer im 3. Drittel. */
 export const ABDECKUNG_OFFEN: readonly string[] = [
-  'ce.01:ad12', 'ce.03:ad12', 'ce.04:ad12', 'ce.04:ad3', 'ce.07:ad12', 'ce.07:ad3', 'ce.08:ad12', 'ce.08:ad3',
+  'ce.07:ad12', 'ce.07:ad3', 'ce.08:ad12', 'ce.08:ad3',
 ];
 
 const MIT_AD3 = ['ce.04', 'ce.05', 'ce.06', 'ce.07', 'ce.08', 'ce.09', 'ce.10', 'ce.11'];

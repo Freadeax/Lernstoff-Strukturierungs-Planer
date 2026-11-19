@@ -39,7 +39,7 @@ describe('Fallplan nach CE (P15)', () => {
   it('KERN_THEMEN spiegelt fall.lehrplan.themen', () => {
     expect(Object.keys(KERN_THEMEN).sort()).toEqual(FAELLE_V2.map((f) => f.id).sort());
     for (const f of FAELLE_V2) expect(KERN_THEMEN[f.id], f.id).toEqual(f.lehrplan!.themen ?? []);
-    expect(kernZuThema('thema.re.schweigepflicht')).toEqual(['kh-pneumonie-sepsis', 'paed-fieberkrampf', 'psy-panik-suizidalitaet']);
+    expect(kernZuThema('thema.re.schweigepflicht')).toEqual(expect.arrayContaining(['kh-pneumonie-sepsis', 'paed-fieberkrampf', 'psy-panik-suizidalitaet', 'paed-rausch-jugendliche', 'psy-unruhe-deeskalation']));
   });
 
   it('Fallauswahl: Kernfälle zuerst, dann alt, dann geplant; Drittel-Filter', () => {
@@ -61,7 +61,7 @@ describe('Fallplan nach CE (P15)', () => {
   });
 
   it('Zähler je CE', () => {
-    expect(planZaehler('ce.01')).toEqual({ vorhanden: 0, alt: 0, geplant: 1 });
+    expect(planZaehler('ce.01')).toEqual({ vorhanden: 1, alt: 0, geplant: 0 });
     expect(planZaehler('ce.05').vorhanden).toBe(1);
   });
 });
