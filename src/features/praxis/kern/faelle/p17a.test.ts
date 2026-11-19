@@ -151,6 +151,17 @@ describe('P17a CE 02 Dekubitusgefahr (Frau Berger, G3)', () => {
     expect(z.grund.druckLast!).toBeLessThan(3);
     expect(bis(z, 1800).grund.dekubitusKat).toBe(0);
   });
+  it('Entlastet, aber ohne Rückmeldung: Fall endet nach dem Vormittag stabil, nicht verschlechtert', () => {
+    const z = bis(spiele(start(DK, 2, 2), [{ art: 'frage', id: 'g-ankuendigen' }, m('positionieren-druckentlastung')]), 2500);
+    expect(z.grund.dekubitusKat).toBe(0);
+    expect(z.ende?.ausgang).toBe('stabil');
+  });
+  it('Paracetamol nur einmal im Fall', () => {
+    const z = spiele(start(DK, 2, 2), [m('schmerz-besd'), m('kurve-lesen'), { art: 'anruf', an: 'aerztin', sbar: ['s-schmerz-lagern', 'a-besd', 'a-trinkt-wenig'] },
+      { art: 'rueckmelden', anordnung: 'an-paracetamol', rueckgelesen: true }, { art: 'auflegen', an: 'aerztin' }, m('bedarfsmedikation-oral'), m('bedarfsmedikation-oral')]);
+    expect(z.treiber.filter((t) => t.art === 'wirkstoff').length).toBe(1);
+    expect(z.meldungen.at(-1)?.text).toMatch(/noch nicht/);
+  });
   it('Lagern ohne Ankündigung: Fehler; Franzbranntwein: Fehler', () => {
     expect(spiele(start(DK, 2, 2), [m('positionieren-druckentlastung')]).fehlerAus).toContain('f-ohne-ankuendigen');
     expect(spiele(start(DK, 2, 2), [m('franzbranntwein-einreiben')]).fehlerAus).toContain('f-franzbranntwein');
@@ -200,7 +211,17 @@ describe('P17a CE 02 Harnverhalt nach der OP (Herr Kraus, G2)', () => {
     expect(y.offeneEntscheidung).toBe('e-vorlage');
     y = sende(y, { art: 'entscheidung', ereignis: 'e-vorlage', wahl: 'w-nur-vorlage' });
     expect(y.fehlerAus).toContain('f-nur-vorlage');
-    expect(spiele(start(HV, 2, 2), [m('vorlage-anlegen')]).fehlerAus).toContain('f-nur-vorlage');
+    expect(bis(spiele(start(HV, 2, 2), [m('vorlage-anlegen')]), 950).fehlerAus).toContain('f-nur-vorlage');
+  });
+  it('Vorlage zum Schutz und danach Blasenscan: kein Fehler', () => {
+    const z = bis(spiele(start(HV, 2, 2), [m('blase-tasten'), m('vorlage-anlegen'), m('blasenscan')]), 950);
+    expect(z.fehlerAus).not.toContain('f-nur-vorlage');
+  });
+  it('Scan-Wert und BESD stehen als Doku-Bausteine bereit', () => {
+    const hv = spiele(start(HV, 2, 2), [m('blasenscan'), { art: 'dokumentieren', bausteine: ['wert:blaseMl'] }]);
+    expect(hv.meldungen.filter((x) => x.art === 'doku').at(-1)?.text).toMatch(/Blasenfüllung \d+ ml/);
+    const dk = spiele(start(DK, 2, 2), [m('schmerz-besd'), { art: 'dokumentieren', bausteine: ['wert:besd'] }]);
+    expect(dk.meldungen.filter((x) => x.art === 'doku').at(-1)?.text).toMatch(/BESD \d+\/10/);
   });
   it('Blasenscan als Wert-Baustein', () => {
     const z = spiele(start(HV, 2, 2), [m('blasenscan')]);
