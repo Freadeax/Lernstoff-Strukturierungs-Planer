@@ -58,6 +58,15 @@ export const LP = {
   abgrenzen1: s(13, '02', '1.', 'Kompetenz III.1.a', 'Verantwortungs- und Aufgabenbereiche im Team abgrenzen', 'kompetenz'),
   delegation3: s(58, '05', '3.', 'Kontextbedingungen', 'Delegation einschließlich Anordnungen, Aufklärung, Einwilligung'),
 
+  // CE 01 und CE 03 (1. Drittel): Ausbildungsstart, erste Pflegeerfahrungen (P17a, geprüft am 19.11.2026 am PDF)
+  schweigepflicht1: s(9, '01', '1.', 'Handlungsanlässe/Kontext', 'Datenschutz, Verschwiegenheit, Schweigepflicht (auch digital)'),
+  patsicher1: s(9, '01', '1.', 'Handlungsanlässe/Kontext', 'Patientensicherheit'),
+  teamkontakt1: s(9, '01', '1.', 'Handlungsmuster', 'Kontakt zum Team aufnehmen, Rollenerwartungen und Rollenkonflikte'),
+  selbstbestimmung1: s(7, '01', '1.', 'Kompetenz I.6.a', 'Selbstbestimmungsrecht wahren, auch bei eingeschränkter Selbstbestimmungsfähigkeit', 'kompetenz'),
+  reflexion1: s(24, '03', '1.', 'Handlungsmuster', 'erste Pflegeerfahrungen reflektieren (Ekel, Scham), kollegiale Beratung in Anspruch nehmen'),
+  aushandeln1: s(24, '03', '1.', 'Handlungsmuster', 'Aushandlungsprozesse zwischen Pflegeanforderungen und Bedürfnissen gestalten, verbal, nonverbal, taktil'),
+  intimsphaere1: s(24, '03', '1.', 'Erleben/Deuten', 'Eindringen in die Intimsphäre, Grenzüberschreitungen', 'kompetenz'),
+
   // CE 02 (1. Drittel): Grundpflege, Beobachtung, Dokumentation
   daten1: s(13, '02', '1.', 'Kompetenz I.2.a', 'pflegebezogene Daten erheben', 'kompetenz'),
   ziele1: s(13, '02', '1.', 'Kompetenz I.1.e', 'Pflegeziele vorschlagen, Wirksamkeit gemeinsam evaluieren', 'kompetenz'),
@@ -78,6 +87,9 @@ export const LP = {
 
   // CE 04, 05, 07, 08 (kurative Pflege)
   diabetes12: s(33, '04', '1./2.', 'Handlungsmuster', 'Information, Schulung, Beratung bei Diabetes Typ 2'),
+  schulung04_12: s(33, '04', '1./2.', 'Handlungsmuster', 'Gesundheitskommunikation: Information und Schulung verschiedener Zielgruppen'),
+  praevention04_12: s(33, '04', '1./2.', 'Handlungsmuster', 'präventive Angebote bei gesundheitlichen Risiken (z. B. Lebensstil nach Herzinfarkt)'),
+  beratung04_3: s(33, '04', '3.', 'Handlungsmuster', 'spezielle Gesundheitskommunikation: Beratung verschiedener Zielgruppen'),
   aufnahme12: s(59, '05', '1./2.', 'Handlungsmuster', 'Patientenaufnahme, Pflegebedarf feststellen, Pflegeprozess steuern'),
   zuAbleitungen12: s(59, '05', '1./2.', 'Handlungsmuster', 'Assistenz bei ärztlichen Interventionen, z. B. Umgang mit Zu- und Ableitungen'),
   sbar12: s(59, '05', '1./2.', 'Handlungsmuster', 'Zusammenarbeit im Team, Visite nach SBAR'),
@@ -127,6 +139,11 @@ export const LP = {
   inhalation3: s(170, '10', '3.', 'Handlungsmuster', 'Inhalationen, atemunterstützende Maßnahmen, Peak-Flow'),
   hypo3: s(170, '10', '3.', 'Handlungsmuster', 'Hypo- und Hyperglykämie früh erkennen und vermeiden'),
   insulin3: s(171, '10', '3.', 'Handlungsmuster', 'Schulung zu Ernährung, Aktivität und Insulin'),
+  // CE 07 Rehabilitatives Pflegehandeln (P17b, geprüft am 19.11.2026)
+  bezugAnleiten12: s(97, '07', '1./2.', 'Kompetenz II.2.a', 'Bezugspersonen bei der Fremdpflege anleiten', 'kompetenz'),
+  rehaSelbst12: s(103, '07', '1./2.', 'Handlungsmuster', 'Selbstständigkeit bei Beeinträchtigung der Selbstversorgung fördern, Schulung zur Alltagsbewältigung'),
+  rehaInterprof12: s(103, '07', '1./2.', 'Handlungsmuster', 'interprofessionellen Rehaprozess mitgestalten, therapeutisch Erlerntes in den Alltag übernehmen'),
+  rehaBeratung3: s(104, '07', '3.', 'Handlungsmuster', 'Bezugspersonen zur Wiedererlangung der eigenständigen Lebensführung beraten und schulen'),
   validation12: s(192, '11', '1./2.', 'Handlungsmuster', 'Beziehungsgestaltung bei veränderter Realitätswahrnehmung, z. B. Validation; Milieugestaltung'),
   uebergabe12: s(192, '11', '1./2.', 'Handlungsmuster', 'Beobachtungen bei Übergaben und Fallbesprechungen weitergeben'),
   krise3: s(192, '11', '3.', 'Handlungsmuster', 'psychische Krisen erkennen, kurzfristige Hilfe, Deeskalation'),
@@ -138,6 +155,15 @@ export const LP = {
   milieu12: s(192, '11', '1./2.', 'Handlungsmuster', 'Kommunikation bei psychischen und kognitiven Einschränkungen, Milieugestaltung'),
   risikoPsych12: s(192, '11', '1./2.', 'Handlungsmuster', 'begünstigende Faktoren ermitteln, Risikofaktoren und Ausmaß der Beeinträchtigung einschätzen'),
   sucht3: s(190, '11', '3.', 'Handlungsanlässe', 'Sucht und Verhaltensstörungen durch psychotrope Substanzen'),
+  // P18 (Fallwelle Lebenswelt/Lebensende CE08/CE09, geprüft am 19.11.2026 am hochgeladenen PDF)
+  palliativCare12: s(129, '08', '1./2.', 'Handlungsmuster', 'Palliative Care als Konzept, Interventionen zur Unterstützung medizinischer Therapien'),
+  palliativInterv3: s(130, '08', '3.', 'Handlungsmuster', 'Begleitung sterbender Menschen: Interventionen in der letzten Lebensphase, würdevolle Pflegeprozessgestaltung'),
+  palliativEntscheidung3: s(130, '08', '3.', 'Handlungsmuster', 'Entscheidungsfindung zu Medikamentengabe, Ernährung und Flüssigkeit in der letzten Lebensphase'),
+  sapv3: s(130, '08', '3.', 'Handlungsmuster', 'Kontinuität der palliativen Versorgung an Schnittstellen, SAPV'),
+  haeuslichkeit12: s(152, '09', '1./2.', 'Handlungsmuster', 'Orientierungsmuster und Bedürfnisse erfassen, auch in der eigenen Häuslichkeit'),
+  demenzInteraktion12: s(152, '09', '1./2.', 'Handlungsmuster', 'sprachlich-prozedurale und leiblich-affektive Interaktion mit dementiell veränderten Menschen'),
+  bezugspersonen09_3: s(152, '09', '3.', 'Handlungsmuster', 'Pflegebereitschaft und Ressourcen von Bezugspersonen einschätzen, über entlastende Dienste informieren'),
+  schnittstelle09_3: s(153, '09', '3.', 'Handlungsmuster', 'Beratung und Begleitung an Schnittstellen und beim Wechsel des Versorgungskontextes'),
 } as const satisfies Record<string, LehrplanStelle>;
 
 export type LpSchluessel = keyof typeof LP;

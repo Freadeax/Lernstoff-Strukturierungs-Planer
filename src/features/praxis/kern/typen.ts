@@ -73,6 +73,19 @@ export interface Grundgroessen {
   wirkAngst?: number;            // Anteil, um den Anxiolytika die Angst gerade senken (≤ 0)
   wirkTonus?: number;            // Gefäßtonus-Anteil durch Arzneimittel (z. B. Metamizol i. v. < 0)
   wirkHf?: number;               // Pulsanstieg relativ durch Arzneimittel (z. B. Salbutamol)
+  wirkDiurese?: number;          // zusätzliche Diurese durch Arzneimittel ml/h (Furosemid …)
+  // G2 Ausscheidung (optional): Blasenfüllung in ml; Fall setzt sie, ein Harnverhalt legt sie an
+  blaseMl?: number;
+  // G3 Haut (optional): Druckbelastung mmHg·h über Kapillardruck an der Auflagestelle, höchste Dekubitus-Kategorie 0–4
+  druckLast?: number;
+  dekubitusKat?: number;
+  // G5 Neuro (optional, vom Modell geführt): Defizit 0..1, Hirndruck 0..1, betroffene Körperseite (1 = links, −1 = rechts),
+  // Minuten seit Symptombeginn; wirkOpioid = wirksamer Opioidanteil (für enge Pupillen), vom Modell geschrieben
+  neuroDefizit?: number;
+  hirndruck?: number;
+  neuroSeite?: number;
+  seitBeginnMin?: number;
+  wirkOpioid?: number;
 }
 
 /** Vom Kern abgeleitet, Ziele für den Monitor (Logik-Takt 5 s, Render interpoliert). */
@@ -91,7 +104,37 @@ export interface Anzeige {
   /** Arterielle Kurve gedämpft (Luft, Gerinnsel, abgeknickt): Systole zu niedrig, Diastole zu hoch */
   artGedaempft?: boolean;
   rass?: number;                 // −5 … +4
+  /** Stundenurin ml/h (Spur A immer aus dem Modell; Spur B mit Bilanzmodul über den Dauerkatheter) */
   urinMlH?: number;
+  /** Urinfarbe 1 (hell) bis 8 (dunkel) nach Urinfarbtafel (G2) */
+  urinFarbe?: number;
+  /** Blasenfüllung ml, nur wenn das Modell sie führt (G2; Ultraschall-Blasenscan) */
+  blaseMl?: number;
+  /** Dekubitus-Kategorie 0–4 an der Auflagestelle, nur wenn das Modell Haut führt (G3) */
+  dekubitusKat?: number;
+  // G5 Neuro: Pupillen (mm, Lichtreaktion), GCS-Teilwerte; Schlaganfallzeichen nur mit Schlaganfall
+  pupilleRechtsMm?: number; pupilleLinksMm?: number;
+  pupilleRechtsLicht?: 'prompt' | 'träge' | 'lichtstarr'; pupilleLinksLicht?: 'prompt' | 'träge' | 'lichtstarr';
+  gcsAugen?: number; gcsVerbal?: number; gcsMotorik?: number;
+  /** FAST positiv 0–3 (Gesicht, Arm, Sprache) */
+  fast?: number;
+  /** NIHSS grob geschätzt 0–42 */
+  nihss?: number;
+  /** Minuten seit Symptombeginn, verbleibendes Lysefenster (4,5 h) in Minuten */
+  seitBeginnMin?: number; lyseFensterMin?: number;
+  // G4 Einschätzungen aus dem Modell (Kern ergänzt sie in anzeige(z); vereinfacht, physiologie/einschaetzungen.ts)
+  /** Puls / RR systolisch */
+  schockindex?: number;
+  /** qSOFA 0–3 */
+  qsofa?: number;
+  /** NEWS2-Punkte (nur Erwachsenenprofil) */
+  news2?: number;
+  /** PEWS 0–9 (nur Kinder) */
+  pews?: number;
+  /** Nu-DESC 0–10 (≥ 2 Delir wahrscheinlich) */
+  nuDesc?: number;
+  /** BESD 0–10 (≥ 2 Schmerz möglich) */
+  besd?: number;
   bilanzMl?: number;             // Einfuhr − Ausfuhr seit Fallbeginn
   /** Beatmung: Spitzendruck in cmH₂O */
   ppeak?: number;
@@ -112,6 +155,8 @@ export type Treiber =
   | { art: 'panik_eskaliert'; tempo: number }
   | { art: 'fieberkrampf_kind'; temperaturSchwelle: number }
   | { art: 'pneumonie'; staerke: number }
+  /** P16a: allergische Sofortreaktion (Anaphylaxie): Gefäßtonus fällt, Kapillarleck, Bronchospasmus; Adrenalin bremst */
+  | { art: 'anaphylaxie'; staerke: number }
   // Zusätze Paket P1
   /** Normalinsulin s. c. (Gipfel nach etwa 2 h) */
   | { art: 'insulin'; ie: number; gipfelMin?: number }
@@ -121,6 +166,14 @@ export type Treiber =
   | { art: 'naloxon'; halbwertMin: number }
   /** volle Blase / Harnverhalt: Schmerz, Unruhe, Delir-Auslöser; endet über MassnahmeDefinition.beendet */
   | { art: 'harnverhalt' }
+  /** G5: Schlaganfall; seite = betroffene Körperseite (rechts → Aphasie), schwere 0..1, blutung = intrazerebrale Blutung, beginnVorMin = Symptombeginn vor Fallstart */
+  | { art: 'schlaganfall'; seite: 'links' | 'rechts'; schwere: number; blutung?: boolean; beginnVorMin?: number }
+  /** G5: Lyse (rtPA) nach ärztlicher Anordnung; Nutzen hängt vom Zeitpunkt ab, bei Blutung Schaden */
+  | { art: 'lyse' }
+  /** G5: Raumforderung im Kopf (Blutung, Schädel-Hirn-Trauma); seite = Hirnhälfte */
+  | { art: 'hirndruck'; tempo: number; seite?: 'links' | 'rechts' }
+  /** G3: liegt/sitzt ohne Eigenbewegung; Auflagedruck in mmHg (Weichlagerung ≈ 30, Standardmatratze ≈ 60–80) */
+  | { art: 'immobil'; druckMmHg: number; scherkraefte?: boolean; feucht?: boolean }
   // G1 Wirkstoffe (Register physiologie/wirkstoffe.ts): Kinetik nach Weg, Halbwertszeit, Alter und Gewicht
   | { art: 'wirkstoff'; id: string; dosisMg: number; weg?: ArzneiWeg };
 
