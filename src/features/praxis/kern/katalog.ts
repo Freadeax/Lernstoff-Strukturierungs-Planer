@@ -28,6 +28,9 @@ const S = 'selbst', A = 'mit-anleitung', X = 'nur-aerztlich', G = 'gesperrt';
 const NUR_AERZTLICH = befugnis(X);
 
 /** Geräte, die im Heim und ambulant in der Pflegetasche stecken (E9). */
+/** G3: Lagewechsel/Mobilisation verlegt den Auflagedruck an eine neue Stelle (Druckbelastung dort beginnt bei 0). */
+const ENTLASTUNG = { groesse: 'druckLast', faktor: 0, beginnSek: 0, spitzeSek: 60, dauerSek: 'dauerhaft' } as const;
+
 export const PFLEGETASCHE = ['rr-geraet', 'pulsoxy', 'thermometer', 'bz-geraet', 'stethoskop', 'urinstix'] as const;
 
 /* ───────────────────────── Quellen ───────────────────────── */
@@ -327,8 +330,9 @@ const LISTE: MassnahmeDefinition[] = [
     setzt: ['isoliert'], quellen: [Q.krinko],
   }),
   m('inkontinenz-versorgen', 'Bei Ausscheidung unterstützen, Inkontinenz versorgen', 'versorgen', 300, ['I', 'II'], nw(['selbstversorgung1', 'ernaehrung1']), { quellen: [Q.kontinenz] }),
-  m('positionieren-druckentlastung', 'Positionieren zur Druckentlastung', 'versorgen', 180, ['I', 'V'], nw(['mobil1', 'standards1']), { quellen: [Q.dekubitus] }),
-  m('mobilisieren-transfer', 'Mobilisieren, Transfer Bett–Stuhl', 'versorgen', 300, ['I', 'V'], nw(['mobil1', 'standards1']), { quellen: [Q.mobilitaet] }),
+  m('positionieren-druckentlastung', 'Positionieren zur Druckentlastung', 'versorgen', 180, ['I', 'V'], nw(['mobil1', 'standards1']), {
+    quellen: [Q.dekubitus], wirkung: [ENTLASTUNG] }),
+  m('mobilisieren-transfer', 'Mobilisieren, Transfer Bett–Stuhl', 'versorgen', 300, ['I', 'V'], nw(['mobil1', 'standards1']), { quellen: [Q.mobilitaet], wirkung: [ENTLASTUNG] }),
   m('kompression-anziehen', 'Kompressionsstrümpfe anziehen', 'versorgen', 300, ['I'], nw(['zirkulation12'], { anmerkung: B_ANLEITUNG_DANN_SELBST }), { befugnis: befugnis(A, S) }),
   m('hausnotruf-anlegen', 'Hausnotruf anlegen und erklären', 'versorgen', 30, ['I', 'II'], nw(['umgebung1', 'selbstpflege1']), { spur: 'A' }),
   m('lippenbremse-anleiten', 'Lippenbremse und Atemtechnik anleiten', 'versorgen', 90, ['I', 'II'], nw(['atem12', 'selbstpflege1']), {

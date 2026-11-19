@@ -162,3 +162,13 @@ Code: `kommunikation.ts` (rein, vom Kern aufgerufen), Zustand in `SimZustand.kom
 - **Blase** (`Grundgroessen.blaseMl`, optional): nur wenn der Fall eine Füllung vorgibt oder ein Treiber `harnverhalt` läuft. Ohne Abflusshindernis Entleerung ab 350 ml (Restharn 30 ml), bei Harnverhalt füllt sie sich weiter; „blasenkatheter-legen“ beendet den Harnverhalt. `Anzeige.blaseMl` passt zu einem Blasenscan-Befund.
 - **Kalium**: Ausgangswert 4,2 mmol/l, Schleifendiuretika senken es; `Anzeige.kalium` erscheint in Spur A, sobald der Fall oder ein Wirkstoff es führt.
 - Befundtexte können `{urinMlH}`, `{urinFarbe}`, `{blaseMl}`, `{kalium}` als Platzhalter nutzen.
+
+## Grundsystem G3: Haut, Mobilität, Sturz
+
+`physiologie/haut-mobilitaet.ts` (Lernmodell). Das Druck-mal-Zeit-Modell `haut()` der Lernseite liegt jetzt in `physiologie/organe.ts` (Lernseite re-exportiert, gleiche Funktion).
+
+- **Treiber `immobil`** `{ druckMmHg, scherkraefte?, feucht? }`: Auflagedruck an der belasteten Stelle (Weichlagerung ≈ 30, Standardmatratze 60–80 mmHg).
+- **`Grundgroessen.druckLast`** (mmHg·h über Kapillardruck 32): steigt unter Druck; Scherkräfte ×1,5, Feuchte ×1,3, MAP < 65 bis ×1,6, Exsikkose ×1,2. Ohne Druck erholt sich das Gewebe (−40 je Stunde).
+- **`Grundgroessen.dekubitusKat`** / `Anzeige.dekubitusKat` 0–4: höchste erreichte Kategorie (gleiche Schwellen wie die Lernseite), geht im Fall nicht zurück.
+- **Entlastung**: Katalog „positionieren-druckentlastung“ und „mobilisieren-transfer“ tragen die Wirkkurve `druckLast` faktor 0 (neue Auflagestelle). Wirkkurven dürfen auf die optionalen Größen in `OPTIONALE_WIRKGROESSEN` (modell.ts) zeigen.
+- **Sturzrisiko** `sturzrisiko(g, eingabe)`: Gründe aus dem Zustand (Alter, Delir/Verwirrtheit, Unruhe, Bewusstsein, Kreislauf/Schwindel, Sedierung aus G1, Harndrang aus G2, Unterzucker, Schmerz, Fieber, Immobilität) und Stufe gering/erhöht/hoch; G4 stellt es als Einschätzung bereit.

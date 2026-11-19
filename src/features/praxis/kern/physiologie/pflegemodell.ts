@@ -33,6 +33,7 @@ import { NORMAL, type ModellKontext, type PhysiologieModell } from '../modell';
 import { profil, type Altersprofil } from './altersprofile';
 import { herz, HERZ_START, klemme, lunge, wirkAnteil, ZUCKER_FAUSTWERTE, type Befund, type Lage } from './organe';
 import { pharmaEffekte, type PharmaEffekte } from './wirkstoffe';
+import { hautSchritt } from './haut-mobilitaet';
 import { blaseNaechste, kaliumNachDiurese, stundenurin, urinFarbe } from './niere';
 
 /* ───────────────────────── Hilfen ───────────────────────── */
@@ -371,6 +372,9 @@ function naechster(alt: Grundgroessen, treiber: readonly Treiber[], dt: number, 
     const mlH = kr.stillstand ? 0 : stundenurin(kr.map, alt.volumen, alt.hydratation, gewicht(k, p), pe.diureseMlH);
     g.blaseMl = blaseNaechste(alt.blaseMl ?? 150, mlH, dt, harnverhalt);
   }
+  // G3 Haut: Druckbelastung und Dekubitus-Kategorie (nur mit Treiber immobil oder vorgegebener Druckbelastung)
+  const hs = hautSchritt(alt, treiber, dt, kr.stillstand ? 0 : kr.map);
+  if (hs) Object.assign(g, hs);
   if (pe.bzProStunde) g.blutzucker += pe.bzProStunde * std;
 
   // Delir: steigt mit Auslösern (Altersprofil), klingt sonst langsam ab
@@ -476,6 +480,7 @@ function ausscheidung(g: Grundgroessen, k: ModellKontext, p: Altersprofil, kr: K
   const a: Partial<Anzeige> = { urinMlH: Math.round(mlH), urinFarbe: urinFarbe(g.hydratation, mlH, kg) };
   if (g.blaseMl !== undefined) a.blaseMl = Math.round(g.blaseMl);
   if (g.kalium !== undefined) a.kalium = Math.round(g.kalium * 10) / 10;
+  if (g.dekubitusKat !== undefined) a.dekubitusKat = g.dekubitusKat;
   return a;
 }
 
