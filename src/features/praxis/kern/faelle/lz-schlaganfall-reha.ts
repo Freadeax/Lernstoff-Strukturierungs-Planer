@@ -52,7 +52,7 @@ export const LZ_SCHLAGANFALL_REHA: FallV2 = {
   quellen: [
     { id: 'dgn-dysphagie', titel: 'DGN/DGG S1-Leitlinie Neurogene Dysphagie (030-111), Fassung 2020', fundstelle: 'Screening, Kostanpassung' },
     { id: 'dgnr-reha', titel: 'DGNR S2e-Leitlinie Rehabilitation der Mobilität nach Schlaganfall (ReMoS), 2020/2021' },
-    { id: 'dnqp-mobilitaet', titel: 'DNQP: Expertenstandard Erhaltung und Förderung der Mobilität in der Pflege, Aktualisierung 2020' },
+    { id: 'dnqp-mobilitaet', titel: 'DNQP Expertenstandard Mobilität: Erhaltung und Förderung der Mobilität in der Pflege, Aktualisierung 2020 (nie in Kraft gesetzt, fachlicher Hintergrund)' },
     { id: 'iddsi', titel: 'IDDSI Framework: International Dysphagia Diet Standardisation Initiative (2019)' },
     { id: 'adka-teilbar', titel: 'Fachinformation Pantoprazol (magensaftresistente Tablette, nicht zerkleinern)' },
   ],
@@ -135,9 +135,9 @@ export const LZ_SCHLAGANFALL_REHA: FallV2 = {
       { text: 'Arterielle Hypertonie', icd: 'I10.90', seit: '2010' },
     ],
     medikation: [
-      { id: 'mp-ass', wirkstoff: 'Acetylsalicylsäure', staerke: '100 mg', form: 'Tbl.', schema: '1-0-0-0', massnahme: 'tabletten-angepasst', zuletzt: 'gestern 08:15', geaendertDurch: 'an-tabletten-geprueft' },
-      { id: 'mp-ramipril', wirkstoff: 'Ramipril', staerke: '5 mg', form: 'Tbl.', schema: '1-0-0-0', massnahme: 'tabletten-angepasst', zuletzt: 'gestern 08:15', geaendertDurch: 'an-tabletten-geprueft' },
-      { id: 'mp-pantoprazol', wirkstoff: 'Pantoprazol', staerke: '20 mg', form: 'Tbl. magensaftresistent', schema: '1-0-0-0', massnahme: 'tabletten-angepasst', zuletzt: 'gestern 08:15',
+      { id: 'mp-ass', wirkstoff: 'Acetylsalicylsäure', staerke: '100 mg', form: 'Tbl.', schema: '1-0-0-0', massnahme: 'tabletten-wie-geplant-geben', zuletzt: 'gestern 08:15', geaendertDurch: 'an-tabletten-geprueft' },
+      { id: 'mp-ramipril', wirkstoff: 'Ramipril', staerke: '5 mg', form: 'Tbl.', schema: '1-0-0-0', massnahme: 'tabletten-wie-geplant-geben', zuletzt: 'gestern 08:15', geaendertDurch: 'an-tabletten-geprueft' },
+      { id: 'mp-pantoprazol', wirkstoff: 'Pantoprazol', staerke: '20 mg', form: 'Tbl. magensaftresistent', schema: '1-0-0-0', massnahme: 'tabletten-wie-geplant-geben', zuletzt: 'gestern 08:15',
         hinweis: 'Magensaftresistent: nicht teilen, nicht mörsern.', geaendertDurch: 'an-tabletten-geprueft' },
       { id: 'mp-atorvastatin', wirkstoff: 'Atorvastatin', staerke: '40 mg', form: 'Tbl.', schema: '0-0-1-0', zuletzt: 'gestern 18:00' },
     ],
@@ -245,7 +245,7 @@ export const LZ_SCHLAGANFALL_REHA: FallV2 = {
         meldung: ['wert:spo2', 'wert:temp'], meldenBinnenSek: 2100,
         folge: [
           { wenn: { wert: 'spo2', vergleich: '>=', grenze: 94 }, antwort: '„Danke, unauffällig. Weiter so, die Logopädin übernimmt ab Mittag.“', setzt: ['kontrolle-gemeldet'] },
-          { wenn: { ab: 0 }, antwort: '„Die Sättigung gefällt mir nicht. Oberkörper hoch, nichts mehr zu trinken geben, ich komme in einer halben Stunde.“', setzt: ['kontrolle-gemeldet'], kommtNachSek: 1800 },
+          { wenn: { ab: 0 }, antwort: '„Die Sättigung gefällt mir nicht. Oberkörper hoch, nichts mehr zu trinken geben, ich komme in einer halben Stunde.“', setzt: ['kontrolle-auffaellig'], kommtNachSek: 1800 },
         ] },
     ],
   },
@@ -325,6 +325,9 @@ export const LZ_SCHLAGANFALL_REHA: FallV2 = {
     ende: [
       { wenn: { alle: [{ flag: 'kontrolle-gemeldet' }, { getan: 'ehefrau-anleiten' }, { getan: 'pflegebericht' }] },
         text: 'Herr Wagner hat selbst gefrühstückt, ohne sich zu verschlucken. Frau Wagner weiß, wie sie den Kaffee andickt. Die Logopädin kommt um 12.', ausgang: 'stabil' },
+      // Aspiration gemeldet: kein „stabil“, die Ärztin kommt (Review #282)
+      { wenn: { alle: [{ flag: 'kontrolle-auffaellig' }, { getan: 'pflegebericht' }, { ab: 1500 }] },
+        text: 'Herr Wagner hat sich verschluckt, die Sättigung ist noch nicht wieder gut. Er sitzt aufrecht, bekommt nichts zu trinken, die Ärztin ist unterwegs. Die Aspiration kann noch eine Lungenentzündung nach sich ziehen.', ausgang: 'verschlechtert' },
       { wenn: { ab: 2700 }, text: 'Der Frühdienst geht weiter. Vieles ist offen geblieben.', ausgang: 'verschlechtert' },
     ],
   },

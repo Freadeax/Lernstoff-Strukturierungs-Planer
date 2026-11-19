@@ -47,9 +47,9 @@ export const KH_REHA_ERSTER_WEG: FallV2 = {
     ],
   },
   quellen: [
-    { id: 'dnqp-mobilitaet', titel: 'DNQP: Expertenstandard Erhaltung und Förderung der Mobilität in der Pflege (2020)' },
-    { id: 'dnqp-sturz', titel: 'DNQP: Expertenstandard Sturzprophylaxe in der Pflege, 2. Aktualisierung 2022' },
-    { id: 'dnqp-schmerz', titel: 'DNQP: Expertenstandard Schmerzmanagement in der Pflege (Aktualisierung 2020)' },
+    { id: 'dnqp-mobilitaet', titel: 'DNQP Expertenstandard Mobilität: Erhaltung und Förderung der Mobilität in der Pflege, Aktualisierung 2020 (nie in Kraft gesetzt, fachlicher Hintergrund)' },
+    { id: 'dnqp-sturz', titel: 'DNQP Expertenstandard Sturzprophylaxe in der Pflege, 2. Aktualisierung 2022' },
+    { id: 'dnqp-schmerz', titel: 'DNQP Expertenstandard Schmerzmanagement in der Pflege, Aktualisierung 2020' },
     { id: 'fi-metamizol', titel: 'Fachinformation Metamizol (Novaminsulfon): Gegenanzeigen, Agranulozytose' },
   ],
 

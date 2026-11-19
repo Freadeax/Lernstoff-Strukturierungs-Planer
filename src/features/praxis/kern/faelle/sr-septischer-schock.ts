@@ -32,14 +32,13 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
   kurz: 'Schockraum, Nacht: 81-Jähriger aus dem Pflegeheim mit Fieber, Verwirrtheit und niedrigem Blutdruck.',
   rahmen: 'Du arbeitest im Nachtdienst in der Notaufnahme. Der Rettungsdienst bringt einen Bewohner aus dem Pflegeheim in den Schockraum.',
   lernziele: [
-    'Sepsis früh erkennen (qSOFA, Laktat) und der Ärztin strukturiert mit SBAR melden.',
+    'Sepsis früh erkennen (Frühwarnwert NEWS2, qSOFA als schneller Hinweis, Laktat) und der Ärztin strukturiert mit SBAR melden.',
     'Die erste Stunde der Sepsis-Versorgung im Team umsetzen: Blutkulturen vor dem Antibiotikum, Volumen, Laktat.',
     'Eine Anordnung trotz dokumentierter Allergie erkennen und hinterfragen (Remonstration).',
     'Die Laufrate eines Noradrenalin-Perfusors sicher berechnen und nach Zielvorgabe anpassen.',
-    'Arterielle Druckmessung führen: Nullabgleich, gedämpfte Kurve erkennen.',
-    'Ausscheidung über den Dauerkatheter stündlich messen und die Bilanz führen.',
+    'Arterielle Druckmessung führen (Nullabgleich, gedämpfte Kurve) und die Ausscheidung über den Dauerkatheter stündlich bilanzieren.',
   ],
-  lehrplan: { ce: ['ce.06', 'ce.05'], abschnitt: ['ad3'], themen: ['thema.kl.infektion', 'thema.beo.notfall', 'thema.pp.uebergabe'] },
+  lehrplan: { ce: ['ce.06', 'ce.05'], abschnitt: ['ad3'], themen: ['thema.kl.infektion', 'thema.beo.notfall', 'thema.pp.uebergabe'], kompetenzen: ['I.4.a', 'I.4.b', 'II.3.b', 'III.2.b'] },
   geeignet: { rollen: [3, 'pflegefachperson'], stufen: [2, 3] },
   dauerMin: [12, 18],
   freigabe: {
@@ -53,9 +52,9 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
     ],
   },
   quellen: [
-    { id: 'ssc-2021', titel: 'Surviving Sepsis Campaign: International Guidelines for Management of Sepsis and Septic Shock 2021', fundstelle: 'Evans L. et al., Crit Care Med 2021;49(11):e1063–e1143' },
-    { id: 'sepsis-3', titel: 'Third International Consensus Definitions for Sepsis and Septic Shock (Sepsis-3)', fundstelle: 'Singer M. et al., JAMA 2016;315(8):801–810' },
-    { id: 's3-sepsis', titel: 'S3-Leitlinie Sepsis – Prävention, Diagnose, Therapie und Nachsorge (AWMF 079-001), Fassung 2018', fundstelle: 'Aktualisierung in Arbeit, Fassung prüfen' },
+    { id: 'ssc-2026', titel: 'Surviving Sepsis Campaign: International Guidelines for Management of Sepsis and Septic Shock 2026', fundstelle: 'SCCM/ESICM, veröffentlicht 23.03.2026' },
+    { id: 'sepsis-3', titel: 'Sepsis-3: Third International Consensus Definitions for Sepsis and Septic Shock (2016)', fundstelle: 'Singer M. et al., JAMA 2016;315(8):801–810' },
+    { id: 's3-sepsis', titel: 'S3-Leitlinie Sepsis – Prävention, Diagnose, Therapie und Nachsorge (AWMF 079-001), Fassung 2018', fundstelle: 'Update 2025 erschienen (AWMF 07/2025); Abgleich offen, siehe Quellenregister' },
   ],
 
   person: {
@@ -97,7 +96,7 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
 
   massnahmen: [
     // Gespräch & Beobachten
-    'ansprechen-orientierung', 'beruhigen-zusprechen', 'ersteindruck-abcde', 'qsofa-erheben', 'rekap-pruefen', 'haut-beobachten',
+    'ansprechen-orientierung', 'beruhigen-zusprechen', 'ersteindruck-abcde', 'qsofa-erheben', 'news2-berechnen', 'rekap-pruefen', 'haut-beobachten',
     'bewusstsein-avpu', 'schmerz-nrs', 'urin-beobachten',
     // Akut & Sicherheit
     'o2-geben', 'flachlagern-beine-hoch', 'oberkoerper-hoch',
@@ -125,7 +124,7 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
     aus('iv-medikament-geben', { id: 'meropenem-iv', name: 'Meropenem 1 g i. v. als Kurzinfusion geben', setzt: ['antibiotikum'], wirkung: EINFUHR_100 }),
     aus('iv-medikament-vorbereiten', { id: 'piptaz-richten', name: 'Piperacillin/Tazobactam 4,5 g richten, mit der Praxisanleitung anhängen', setzt: ['antibiotikum'] }),
     aus('iv-medikament-geben', { id: 'piptaz-iv', name: 'Piperacillin/Tazobactam 4,5 g i. v. geben', setzt: ['antibiotikum'] }),
-    aus('iv-medikament-geben', { id: 'paracetamol-iv', name: 'Paracetamol 1 g i. v. als Kurzinfusion', wirkung: EINFUHR_100 }),
+    aus('iv-medikament-geben', { id: 'paracetamol-iv', name: 'Paracetamol 1 g i. v. als Kurzinfusion', wirkung: EINFUHR_100, treiber: [{ art: 'wirkstoff', id: 'paracetamol', dosisMg: 1000, weg: 'iv' }] }),   // G1
     aus('perfusor-vorbereiten', {
       name: 'Noradrenalin-Perfusor (5 mg/50 ml) vorbereiten und anschließen',
       // Laufrate kommt aus der Entscheidung (rechnen); bis dahin 0 ml/h. Nur einmal, sonst stünde die laufende Pumpe wieder auf 0.
@@ -204,6 +203,10 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
     { massnahme: 'ersteindruck-abcde', varianten: [{ text: 'A frei, spricht. B: schnelle, flache Atmung. C: Haut an Armen und Beinen kühl, am Rumpf heiß, Puls schnell und schwach. D: schläfrig, verwirrt. E: 39 °C laut Heim, Dauerkatheter mit trübem, dunklem Urin, Steiß gerötet.' }] },
     { massnahme: 'monitor-anlegen', varianten: [{ text: 'Monitor läuft: HF {hf}/min, RR {rrSys}/{rrDia} mmHg (MAP {map}), AF {af}/min, SpO₂ {spo2} %.', zeigt: ['hf', 'rrSys', 'rrDia', 'map', 'af', 'spo2', 'rhythmus'] }] },
     { massnahme: 'qsofa-erheben', varianten: [{ text: 'qSOFA: Atemfrequenz {af}/min (≥ 22), systolischer Blutdruck {rrSys} mmHg (≤ 100), Bewusstsein verändert. 3 von 3 Punkten → hohes Risiko, an Sepsis denken.' }] },
+    { massnahme: 'news2-berechnen', varianten: [
+      { wenn: { nicht: { getan: 'monitor-anlegen' } }, text: 'Für den NEWS2 fehlen dir noch Werte (Atemfrequenz, SpO₂, Blutdruck, Puls, Temperatur, Bewusstsein). Schließ zuerst den Monitor an.' },
+      { text: 'NEWS2 aus Monitor, Temperatur vom Heim und dem neuen Verwirrtheitszustand: Wert deutlich im roten Bereich (7 und mehr). Das heißt: sofort ärztlich beurteilen lassen und an Sepsis denken.' },
+    ] },
     { massnahme: 'rekap-pruefen', varianten: [{ text: 'Rekapillarisierung {rekapSek} s.' }] },
     { massnahme: 'haut-beobachten', varianten: [
       { wenn: { wert: 'map', vergleich: '>=', grenze: 65 }, text: 'Rumpf warm, Knie nur noch leicht marmoriert.' },
@@ -251,7 +254,7 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
   ],
 
   sbar: [
-    { id: 's-sepsis-verdacht', teil: 'S', text: 'Herr Kranz, 81, aus dem Pflegeheim: Verdacht auf Sepsis, qSOFA 3 von 3.', art: 'kern', bekanntWenn: { getan: 'qsofa-erheben' } },
+    { id: 's-sepsis-verdacht', teil: 'S', text: 'Herr Kranz, 81, aus dem Pflegeheim: Verdacht auf Sepsis, Frühwarnzeichen hoch (NEWS2 rot bzw. qSOFA 3 von 3).', art: 'kern', bekanntWenn: { eine: [{ getan: 'qsofa-erheben' }, { getan: 'news2-berechnen' }] } },
     { id: 's-fieber', teil: 'S', text: 'Herr Kranz hat Fieber.', art: 'hilfreich' },
     { id: 'b-dk-harnweg', teil: 'B', text: 'Dauerkatheter seit 5 Wochen, Urin trüb, Diabetes, seit Mittag zunehmend verwirrt.', art: 'kern' },
     { id: 'b-penicillin-allergie', teil: 'B', text: 'Penicillinallergie mit Luftnot im Notfallbogen.', art: 'kern',
@@ -304,7 +307,7 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
         anordnungen: ['an-bk', 'an-bga', 'an-ringer', 'an-piptaz'], setzt: ['sepsis-gemeldet'], auftraege: ['af-laktat'] },
       { id: 'r-qsofa-frage', wenn: { gemeldet: ['a-hypotonie'] },
         antwort: '„Ich bin noch im anderen Raum. Niedriger Blutdruck allein sagt mir noch nicht, woran Sie denken.“',
-        rueckfrage: { text: '„Was ergibt der qSOFA, und gibt es einen Infektfokus?“', erwartet: ['s-sepsis-verdacht'] } },
+        rueckfrage: { text: '„Wie hoch ist der Frühwarnwert, und gibt es einen Infektfokus?“', erwartet: ['s-sepsis-verdacht'] } },
       { wenn: { eine: [{ gemeldet: ['s-fieber'] }, { gemeldet: ['a-nur-unruhig'] }] },
         antwort: '„Dann geben Sie erst einmal 1 g Paracetamol. Ich schaue in einer halben Stunde vorbei.“', anordnungen: ['an-paracetamol'], setzt: ['arzt-verzoegert'] },
     ],
@@ -349,7 +352,7 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
     name: 'Praxisanleiterin Jana Roth (Fachpflege Notfall)',
     hilfen: [
       { wenn: { nicht: { getan: 'monitor-anlegen' } }, impuls: 'Was brauchst du, um seinen Zustand überhaupt beurteilen zu können?', tipp: 'Schließ zuerst den Monitor an und lass dir die Übergabe vom Rettungsdienst geben.' },
-      { wenn: { nicht: { flag: 'sepsis-gemeldet' } }, impuls: 'Fieber, niedriger Blutdruck, schnelle Atmung, neu verwirrt: Woran denkst du?', tipp: 'Erhebe den qSOFA und melde der Ärztin mit SBAR den Verdacht auf Sepsis. Denk an die Allergie im Notfallbogen.' },
+      { wenn: { nicht: { flag: 'sepsis-gemeldet' } }, impuls: 'Fieber, niedriger Blutdruck, schnelle Atmung, neu verwirrt: Woran denkst du?', tipp: 'Rechne den NEWS2 (oder erhebe den qSOFA) und melde der Ärztin mit SBAR den Verdacht auf Sepsis. Denk an die Allergie im Notfallbogen.' },
       { wenn: { auftrag: 'af-laktat', status: 'offen' }, impuls: 'Worauf wartet die Ärztin noch von dir?', tipp: 'BGA mit Laktat abnehmen, messen und ihr den Wert sagen.' },
       { wenn: { alle: [{ flag: 'sepsis-gemeldet' }, { nicht: { getan: 'blutkulturen-abnehmen' } }] }, impuls: 'In welcher Reihenfolge laufen Blutkulturen und Antibiotikum?', tipp: 'Erst die Blutkulturen, dann sofort das Antibiotikum. Das Volumen kann parallel laufen.' },
       { wenn: { alle: [{ flag: 'arterie-liegt' }, { nicht: { flag: 'art-genullt' } }] }, impuls: 'Kannst du dem arteriellen Wert schon trauen?', tipp: 'Ohne Nullabgleich auf Herzhöhe ist der Wert verschoben. Erst nullen, dann titrieren.' },
@@ -361,8 +364,8 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
     pflicht: [
       { id: 'p-monitor', text: 'Monitor in den ersten 2 Minuten angeschlossen', gewicht: 2, kompetenzbereiche: ['I'], klinisch: ['abcde', 'zeit'],
         erfuellt: { getan: 'monitor-anlegen', bis: 120 }, warum: 'Im Schockraum braucht es sofort kontinuierliche Überwachung von Rhythmus, Blutdruck und Sauerstoffsättigung.' },
-      { id: 'p-qsofa', text: 'Sepsis-Risiko mit qSOFA eingeschätzt', gewicht: 2, kompetenzbereiche: ['I', 'V'], klinisch: ['abcde'],
-        erfuellt: { getan: 'qsofa-erheben' }, warum: 'qSOFA (AF ≥ 22, RR sys ≤ 100, verändertes Bewusstsein) ist ein schneller Hinweis außerhalb der Intensivstation.' },
+      { id: 'p-qsofa', text: 'Sepsis-Risiko mit Frühwarnwert eingeschätzt (NEWS2 oder qSOFA)', gewicht: 2, kompetenzbereiche: ['I', 'V'], klinisch: ['abcde'],
+        erfuellt: { eine: [{ getan: 'news2-berechnen' }, { getan: 'qsofa-erheben' }] }, warum: 'Die Surviving Sepsis Campaign 2026 empfiehlt zum Erkennen Frühwarnscores wie NEWS2, die alle Vitalzeichen erfassen; qSOFA (AF ≥ 22, RR sys ≤ 100, verändertes Bewusstsein) ist ein schneller Hinweis, aber nicht als alleiniges Screening.' },
       { id: 'p-sepsis-gemeldet', text: 'Verdacht auf Sepsis mit SBAR gemeldet', gewicht: 3, kompetenzbereiche: ['II', 'III'], klinisch: ['team'],
         erfuellt: { flag: 'sepsis-gemeldet' }, warum: 'Sepsis ist ein Notfall. Jede Stunde Verzögerung der Therapie verschlechtert die Prognose.' },
       { id: 'p-allergie', text: 'Penicillinallergie berücksichtigt (gemeldet oder remonstriert), kein Penicillin gegeben', gewicht: 3, kompetenzbereiche: ['III', 'IV'], klinisch: ['medikamente'],
@@ -456,9 +459,9 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
     ],
   },
   leitfaden: [
-    { titel: 'Sepsis und septischer Schock', quellen: ['sepsis-3'],
-      text: 'Sepsis ist eine lebensbedrohliche Organfunktionsstörung durch eine fehlregulierte Antwort des Körpers auf eine Infektion. Septischer Schock: trotz ausreichend Volumen braucht es Vasopressoren für einen MAP ≥ 65 mmHg, und das Laktat liegt über 2 mmol/l. qSOFA (AF ≥ 22/min, systolischer RR ≤ 100 mmHg, verändertes Bewusstsein) ist ein schneller Hinweis; er ersetzt keine Diagnose.' },
-    { titel: 'Die erste Stunde', quellen: ['ssc-2021', 's3-sepsis'],
+    { titel: 'Sepsis und septischer Schock', quellen: ['sepsis-3', 'ssc-2026'],
+      text: 'Sepsis ist eine lebensbedrohliche Organfunktionsstörung durch eine fehlregulierte Antwort des Körpers auf eine Infektion. Septischer Schock: trotz ausreichend Volumen braucht es Vasopressoren für einen MAP ≥ 65 mmHg, und das Laktat liegt über 2 mmol/l. qSOFA (AF ≥ 22/min, systolischer RR ≤ 100 mmHg, verändertes Bewusstsein) ist ein schneller Hinweis; er ersetzt keine Diagnose und soll nach der Surviving Sepsis Campaign nicht allein zum Screening dienen. NEWS2 bezieht alle Vitalzeichen ein.' },
+    { titel: 'Die erste Stunde', quellen: ['ssc-2026', 's3-sepsis'],
       text: 'Laktat messen, Blutkulturen vor dem Antibiotikum, Antibiotikum bei Schock möglichst innerhalb einer Stunde, balancierte Kristalloide bei Hypotonie oder Laktat ≥ 4 mmol/l, Vasopressor (Noradrenalin als erste Wahl), wenn der MAP trotz Volumen unter 65 mmHg bleibt. Die Pflege erkennt, meldet, bereitet vor, führt nach Anordnung durch und überwacht.' },
     { titel: 'Allergie und Remonstration',
       text: 'Wer ein Medikament gibt, trägt die Durchführungsverantwortung. Passt eine Anordnung nicht zu einer dokumentierten Allergie, wird sie nicht ausgeführt, sondern mit der Ärztin geklärt (Remonstration). Bei Penicillinallergie sind andere Betalaktame nicht automatisch verboten; die Ärztin entscheidet, die Pflege beobachtet nach der ersten Gabe besonders auf Reaktionen.' },

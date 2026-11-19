@@ -44,6 +44,8 @@ import { laborSchritt, laborWerte } from './labor';
 import { laktatZiel } from './niere';
 import { schlafDelirLast, schlafSchritt, schlafZustand, sundowning } from './schlaf';
 import { entzugSchritt, tremorAus } from './entzug';
+import { wundSchritt, wundZustand } from './wunde';
+import { erschoepfungAntrieb, erschoepfungAnzeige, erschoepfungArbeit, erschoepfungSchritt } from './atemerschoepfung';
 import { cushing, cushingDruck, gcsTeile, neuroNachlast, neuroSchritt, neuroVigilanz, pupillen, schlaganfallZeichen } from './neuro';
 import { blaseNaechste, kaliumNachDiurese, stundenurin, urinFarbe } from './niere';
 
@@ -422,8 +424,17 @@ function naechster(alt: Grundgroessen, treiber: readonly Treiber[], dt: number, 
   // G7 Schlaf/Tageszeit
   const sl = schlafSchritt(alt, treiber, dt, k);
   if (sl) Object.assign(g, sl);
+  // G9 Wunde: Infekt, Nachblutung in den Verband (Volumenverlust), Fieber und Wundschmerz bei Infekt
+  const ws = wundSchritt(alt, treiber, dt, (tr) => seitMin(tr, k) / 60);
+  if (ws) {
+    Object.assign(g, ws);
+    g.volumen -= ((ws.wundBlutungMlMin ?? 0) * min) / blutvolumenMl;
+    const inf = ws.wundInfekt ?? 0;
+    if (inf > 0.2) fieberZiel = Math.max(fieberZiel, 37 + 1.8 * (inf - 0.2) * p.fieberAntwort);
+    if (inf > 0.3 && g.schmerz < 2 + 5 * inf) g.schmerz += 0.05 * min;
+  }
   // G8 Labor: Entzündung, CRP/Leukos/PCT, Niere, Erythrozytenmasse (verzögert)
-  const blutungMlMin = treiber.reduce((x, t) => (t.art === 'blutung' ? x + t.mlProMin : x), 0);
+  const blutungMlMin = treiber.reduce((x, t) => (t.art === 'blutung' ? x + t.mlProMin : x), 0) + (ws?.wundBlutungMlMin ?? 0);
   Object.assign(g, laborSchritt(alt, treiber, dt, k, kr.stillstand ? 0 : kr.map, gewicht(k, p), blutungMlMin, blutvolumenMl));
   // Alkoholentzug: Tremor, Schwitzen, Halluzinationen, Entzugskrampf, Delirium tremens; Benzodiazepine dämpfen
   const ae = treiber.find((t): t is Extract<Treiber, { art: 'alkoholentzug' }> => t.art === 'alkoholentzug');
@@ -472,12 +483,16 @@ function naechster(alt: Grundgroessen, treiber: readonly Treiber[], dt: number, 
   const akut = g.aspirationAkut ?? 0;      // G6: frische Aspiration (Husten, Atemnot)
   const le = staerke(treiber, 'lungenembolie');
   const sep = sepsisTempo(treiber);
-  const atemarbeitZiel = b.atemarbeit + 2 * bs + 0.6 * pn + 1.2 * akut + off(k, 'atemarbeit');
+  // Atemerschöpfung: wächst mit der Atemarbeit, senkt dann Antrieb und sichtbare Atemarbeit (Apnoen, Bradykardie über Hypoxie)
+  const ersch = erschoepfungSchritt(alt, treiber, dt, k.altersgruppe);
+  if (ersch !== undefined) g.erschoepfung = ersch;
+  const ef = ersch ?? 0;
+  const atemarbeitZiel = b.atemarbeit + (2 * bs + 0.6 * pn + 1.2 * akut) * erschoepfungArbeit(ef) + off(k, 'atemarbeit');
   const gasZiel = b.gasaustausch - 0.3 * bs - PNEUMONIE_VERLUST * pn - 0.6 * akut - 0.8 * le - (sep > 0 ? 0.1 * (1 - g.gefaesstonus) : 0) + off(k, 'gasaustausch');
   g.atemarbeit = hin(alt.atemarbeit, atemarbeitZiel, bs > 0 ? 120 : 300, dt);
   g.gasaustausch = hin(alt.gasaustausch, gasZiel, pn > 0 && bs === 0 ? 900 : 180, dt);
 
-  const antriebZiel = b.atemantrieb * (1 - 0.75 * hill(pe.atemdepression, 0.7)) * (1 - 0.5 * cushing(g)) + 0.5 * le + off(k, 'atemantrieb');
+  const antriebZiel = b.atemantrieb * (1 - 0.75 * hill(pe.atemdepression, 0.7)) * (1 - 0.5 * cushing(g)) * erschoepfungAntrieb(ef) + 0.5 * le + off(k, 'atemantrieb');
   g.atemantrieb = hin(alt.atemantrieb, antriebZiel, 60, dt);
 
   const tempZiel = Math.max(b.temperatur, fieberZiel - pe.fiebersenkung) + off(k, 'temperatur');
@@ -566,6 +581,8 @@ function neuroAnzeige(g: Grundgroessen, k: ModellKontext, saO2: number, stillsta
       tremor: tremorAus(g.entzug), schwitzen: g.entzug > 0.3, halluzinationen: (g.halluzination ?? 0) > 0.3,
       entzugStd: Math.round(g.entzugStd ?? 0),
     } : {}),
+    ...erschoepfungAnzeige(g, k.altersgruppe),
+    ...wundZustand(g),
   };
 }
 

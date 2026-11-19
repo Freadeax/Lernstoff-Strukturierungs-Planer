@@ -3,6 +3,7 @@
 import { describe, expect, it } from 'vitest';
 import { anzeige, gilt, sende, start, type SimZustand } from '../kern';
 import type { SimEventEingabe } from '../typen';
+import { medikation, neuAngeordnet } from '../../arbeitsplatz/akte-ansicht';
 import { AMB_HERZSCHWAECHE as HI } from './amb-herzschwaeche';
 import { AMB_HYPOGLYKAEMIE as DM } from './amb-hypoglykaemie';
 import { LZ_SCHLAGANFALL_REHA as SA } from './lz-schlaganfall-reha';
@@ -76,6 +77,33 @@ describe('P17b Unterzucker vor dem Abendinsulin (Herr Becker)', () => {
       warte(600), warte(300), m('bz-messen'), anArzt('messenger', ['wert:bz']), warte(120)]);
     expect(z.flags).toContain('bz-rueckmeldung');
     expect(z.angeboten).toContain('an-insulin-reduziert');
+  });
+});
+
+describe('P17b Review-Befunde (#282)', () => {
+  it('zu früh nachgemessen: noch keine Dosis, sondern ein zweiter Messauftrag', () => {
+    const z = spiele(start(DM, 2, 2), [tasche('bz-geraet'), m('bz-messen'), m('glukose-oral'), m('beschwerden-erfragen'),
+      anArzt('telefon', ['s-hypo', 'b-insulin', 'a-hypo', 'wert:bz']), { art: 'remonstrieren', anordnung: 'an-insulin-voll' }, { art: 'auflegen', an: 'aerztin' },
+      m('bz-messen'), anArzt('messenger', ['wert:bz']), warte(120)]);
+    expect(z.angeboten).not.toContain('an-insulin-reduziert');
+    expect(z.flags).not.toContain('bz-rueckmeldung');
+    expect(gilt(z, { auftrag: 'af-bz-kontrolle2', status: 'offen' })).toBe(true);
+  });
+  it('Herzschwäche: keine Abkürzung „Angehörige informieren“ an der Einwilligung vorbei', () => {
+    expect(HI.massnahmen).not.toContain('tochter-informieren');
+  });
+  it('Schlaganfall: nach Aspiration endet der Fall nicht als „stabil“', () => {
+    let z = start(SA, 2, 2);
+    z = sende(z, warte(300));
+    z = sende(z, { art: 'entscheidung', ereignis: 'e-kaffee', wahl: 'w-lassen' });
+    z = spiele(z, SA.pruefwege.muster);
+    z = spiele(z, [warte(1800)]);
+    expect(z.ende?.ausgang).not.toBe('stabil');
+  });
+  it('Schlaganfall: angepasste Tablettengabe erscheint in der Akte', () => {
+    const z = spiele(start(SA, 2, 2), SA.pruefwege.muster);
+    const gaben = [...medikation(z).flatMap((e) => e.gaben), ...neuAngeordnet(z).flatMap((n) => n.gaben)];
+    expect(gaben.length).toBeGreaterThan(0);
   });
 });
 

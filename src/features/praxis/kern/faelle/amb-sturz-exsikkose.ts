@@ -23,7 +23,7 @@ export const PILOT_AMBULANT: FallV2 = {
     'Den Hausarzt strukturiert (SBAR) informieren und Anordnungen rücklesen.',
     'Eine potenziell gefährliche Anordnung (Benzodiazepin bei Delir im Alter) hinterfragen.',
   ],
-  lehrplan: { ce: ['ce.02', 'ce.09'], abschnitt: ['ad12'], themen: ['thema.pro.sturz', 'thema.pro.dehydratation', 'thema.kl.demenz', 'thema.beo.vitalzeichen', 'thema.pp.uebergabe'] },
+  lehrplan: { ce: ['ce.02', 'ce.09'], abschnitt: ['ad12'], themen: ['thema.pro.sturz', 'thema.pro.dehydratation', 'thema.kl.demenz', 'thema.beo.vitalzeichen', 'thema.pp.uebergabe'], kompetenzen: ['I.1.b', 'I.2.a', 'II.1.b', 'III.2.a'] },
   geeignet: { rollen: [1, 2, 3], stufen: [1, 2, 3] },
   dauerMin: [10, 15],
   freigabe: {
@@ -36,8 +36,8 @@ export const PILOT_AMBULANT: FallV2 = {
     ],
   },
   quellen: [
-    { id: 'dnqp-sturz', titel: 'DNQP: Expertenstandard Sturzprophylaxe in der Pflege, 2. Aktualisierung 2022' },
-    { id: 'dnqp-ernaehrung', titel: 'DNQP: Expertenstandard Ernährungsmanagement zur Sicherung und Förderung der oralen Ernährung in der Pflege, 1. Aktualisierung 2017' },
+    { id: 'dnqp-sturz', titel: 'DNQP Expertenstandard Sturzprophylaxe in der Pflege, 2. Aktualisierung 2022' },
+    { id: 'dnqp-ernaehrung', titel: 'DNQP Expertenstandard Ernährungsmanagement zur Sicherung und Förderung der oralen Ernährung in der Pflege, 1. Aktualisierung 2017' },
     { id: 'nice-delir', titel: 'NICE CG103: Delirium – prevention, diagnosis and management (aktualisierte Fassung 2023)' },
     { id: 'priscus', titel: 'PRISCUS 2.0 – potenziell inadäquate Medikation für ältere Menschen (2023)' },
   ],

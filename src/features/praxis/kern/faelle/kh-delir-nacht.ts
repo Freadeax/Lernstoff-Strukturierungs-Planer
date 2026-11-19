@@ -48,7 +48,7 @@ export const KH_DELIR_NACHT: FallV2 = {
   },
   quellen: [
     { id: 's3-delir', titel: 'S3-Leitlinie Analgesie, Sedierung und Delirmanagement (AWMF 001-012), 2020, und S3-Leitlinie Delir im höheren Lebensalter (AWMF 038-015, in Erstellung)' },
-    { id: 'nice-delir', titel: 'NICE Guideline CG103: Delirium – prevention, diagnosis and management in hospital and long-term care (Update 2023)' },
+    { id: 'nice-delir', titel: 'NICE CG103: Delirium – prevention, diagnosis and management in hospital and long-term care (Update 2023)' },
     { id: '4at', titel: '4AT – Rapid clinical test for delirium (www.the4at.com), deutsche Fassung' },
     { id: 'priscus', titel: 'PRISCUS 2.0 Liste potenziell inadäquater Medikation für ältere Menschen (2023)' },
     { id: 'dnqp-sturz', titel: 'DNQP Expertenstandard Sturzprophylaxe in der Pflege, 2. Aktualisierung 2022' },
