@@ -250,11 +250,7 @@ Remonstrationspunkt, Entscheidungs- bzw. Komplikationsereignis und Weiterlernen-
 
 - Psychiatrie: Foto Aufenthaltsraum fehlt, `psy-unruhe-deeskalation` nutzt vorläufig `11_pflegeheim_speiseraum` (Beispielbild).
 - `kh-alkoholentzug` ist nur für das 3. Drittel (`ad3`, Lehrplan sucht3).
-<<<<<<< HEAD
 - `paed-bronchiolitis-saeugling` v0.2.0: Treiber `atemerschoepfung` (tempo 6) von Anfang an; ohne Absaugen HF um 195, AF um 75, „droht“ nach etwa 15 min, Atempausen nach etwa 28 min, dann Bradykardie über die Hypoxie; Unterlassung: SpO₂ < 80 und HF < 120 bis 40 min.
-=======
-- `paed-bronchiolitis-saeugling` v0.1.1: ohne Hilfe Sekretstau (HF um 195, AF um 75), ab Minute 25 Erschöpfung mit Atempausen und Bradykardie (Näherung über gedämpften Atemantrieb, `opioid_ueberhang` als Erschöpfungslast); Unterlassung: SpO₂ < 80 und HF < 100.
->>>>>>> e45a8cec97019bf1f1fcf14a0bdedbce5a59ac3c
 
 ## Grundsystem G6: Schlucken, Aspiration, Ernährung
 
