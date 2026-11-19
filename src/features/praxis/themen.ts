@@ -44,6 +44,11 @@ export const KERN_THEMEN: Record<string, string[]> = {
   'kh-erster-tag': ['thema.ph.hygiene', 'thema.beo.vitalzeichen', 'thema.re.schweigepflicht', 'thema.re.berufsrecht', 'thema.pro.sturz', 'thema.kom.selbstpflege'],
   'kh-reha-erster-weg': ['thema.ph.mobilisation', 'thema.pro.sturz', 'thema.ph.periop', 'thema.pro.thrombose', 'thema.beo.vitalzeichen'],
   'lz-koerperpflege-abgelehnt': ['thema.kom.gespraech', 'thema.kom.grundlagen', 'thema.ph.koerperpflege', 'thema.kom.ethik', 'thema.ph.ausscheidung', 'thema.pro.zystitis'],
+  'lz-demenz-aspiration': ['thema.kl.demenz', 'thema.pro.aspiration', 'thema.kl.atmung', 'thema.re.betreuung', 'thema.pro.pneumonie'],
+  'lz-unterzucker-mittag': ['thema.kl.diabetes', 'thema.ph.medikamente', 'thema.beo.bewusstsein', 'thema.ph.ernaehrung'],
+  'amb-hausbesuch-still': ['thema.fa.ambulant', 'thema.pro.dehydratation', 'thema.pro.sturz', 'thema.ph.medikamente', 'thema.re.versorgung'],
+  'lz-palliativ-gespraech': ['thema.ph.palliativ', 'thema.kl.atmung', 'thema.ph.medikamente', 'thema.re.betreuung'],
+  'kh-sterbephase-nacht': ['thema.ph.palliativ', 'thema.kl.atmung', 'thema.ph.medikamente', 'thema.re.betreuung'],
 };
 
 /** Kernfälle (IDs für ?neu=), die ein Thema üben. */

@@ -134,9 +134,6 @@ export const LZ_PALLIATIV_GESPRAECH: FallV2 = {
       { id: 'mp-metamizol', wirkstoff: 'Metamizol', staerke: '500 mg', form: 'Tbl.', schema: '1-1-1-1', zuletzt: 'heute 14:00' },
       { id: 'mp-torasemid', wirkstoff: 'Torasemid', staerke: '5 mg', form: 'Tbl.', schema: '1-0-0-0', zuletzt: 'heute 08:00' },
       { id: 'mp-macrogol', wirkstoff: 'Macrogol', staerke: '13,1 g', form: 'Btl.', schema: '1-0-0-0', zuletzt: 'heute 08:00' },
-      { id: 'mp-morphin', wirkstoff: 'Morphin-Lösung 2 %', staerke: '2,5 mg', form: 'Lsg. oral', massnahme: 'morphin-25-geben',
-        bedarf: { indikation: 'Atemnot oder Schmerz', einzeldosis: '2,5 mg', maxProTag: '6 Gaben', abstandH: 4 },
-        hinweis: 'Neu nach telefonischer Anordnung des Bereitschaftsdienstes.', geaendertDurch: 'an-morphin-25' },
     ],
     vorwerte: [
       { zeit: 'vor 1 Woche', vorH: 168, werte: { rrSys: 118, rrDia: 70, hf: 84, af: 18, spo2: 93, gewicht: 52.5 }, kuerzel: 'BK' },
@@ -270,7 +267,7 @@ export const LZ_PALLIATIV_GESPRAECH: FallV2 = {
   ],
 
   pa: {
-    name: 'Praxisanleiterin Frau Yilmaz',
+    name: 'Praxisanleiterin Frau Hartmann',
     hilfen: [
       { wenn: { nicht: SYMPTOME }, impuls: 'Wie stark ist die Atemnot für Frau Roth selbst?', tipp: 'Erfasse die Symptomlast gemeinsam mit ihr (IPOS): Atemnot, Schmerz, Angst, Mund.' },
       { wenn: { nicht: LINDERUNG }, impuls: 'Was hilft gegen Atemnot, bevor ein Medikament da ist?', tipp: 'Aufrecht setzen, Fenster auf, Handventilator ins Gesicht, ruhig bei ihr bleiben.' },
