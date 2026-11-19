@@ -296,3 +296,9 @@ Datei `physiologie/entzug.ts`. Treiber `{ art: 'alkoholentzug', schwere: 0..1, l
 - `amb-hypoglykaemie` (CE 04): BZ vor Insulin, Traubenzucker (30 g schnell), Gabe zurückstellen, fehlerhafte Anordnung „volle 14 IE“ (Ersatz: zurückstellen), Rückauftrag Nachmessen → 8 IE nach dem Essen, Lipohypertrophie, Schulung Klient und Ehefrau. Treiber `hypoglykaemie` endet mit der Mahlzeit.
 - `lz-schlaganfall-reha` (CE 07, Kurzzeitpflege): Schluckprüfung, Kost nach Logopädie, Positionieren bei Hemiparese, Anleiten statt Anreichen, Ehefrau anleiten, Therapieteam, fehlerhafte Anordnung „alle Tabletten mörsern“ (Pantoprazol), Entscheidung dünner Kaffee → Aspiration. G5 `neuroDefizit`/`neuroSeite` gesetzt, daraus über G6 eine leichte Dysphagie.
 - Tests `faelle/p17b.test.ts`, Browserprüfung Block P17B in `check-arbeitsplatz.mjs`. Ein Messenger-Kontakt zählt im Bericht als „Ärztin informiert“ (`arbeitsplatz/weitergabe.ts`).
+
+## Grundsystem: Atemerschöpfung
+Datei `physiologie/atemerschoepfung.ts`. Treiber `{ art: 'atemerschoepfung', tempo? }` (oder Startwert `erschoepfung` in den Grundgrößen); ohne beides bleibt alles wie bisher.
+- **Aufbau**: `erschoepfung` 0..1 wächst, solange die Atemarbeit über 1,6 liegt, je Stunde um Rate × tempo × Überschuss (Säugling 0,6, Kleinkind 0,4, Schulkind/Hochbetagte 0,25, sonst 0,15); darunter erholt sie sich um 0,3 je Stunde (Absaugen, High-Flow, Ruhe).
+- **Folgen ab 0,4**: Atemantrieb fällt (bis auf 20 %), die sichtbare Atemarbeit nimmt ab: Das Kind wird „ruhiger“ und atmet langsamer, CO₂ steigt, SpO₂ fällt, dann präfinale Bradykardie über die Hypoxie. Ab 0,6 bei Säuglingen und Kleinkindern Apnoen.
+- **Anzeige**: `atemerschoepfung` (keine / droht / dekompensiert), `apnoen`. Ersetzt den Notbehelf `opioid_ueberhang` in Bronchiolitis-Fällen.
