@@ -25,6 +25,9 @@ export interface PhysiologieModell {
   anzeige(grund: Grundgroessen, kontext: ModellKontext): Anzeige;
 }
 
+/** Optionale Grundgrößen, auf die Wirkkurven zeigen dürfen (fehlen in NORMAL; ohne Wert bleibt die Wirkkurve wirkungslos). */
+export const OPTIONALE_WIRKGROESSEN: ReadonlyArray<keyof Grundgroessen> = ['druckLast', 'blaseMl', 'kostAngepasst'];
+
 export const NORMAL: Grundgroessen = {
   volumen: 1, pumpleistung: 1, gefaesstonus: 1,
   atemantrieb: 1, atemarbeit: 1, gasaustausch: 1,

@@ -136,6 +136,35 @@ describe('Pflege-Physiologiemodell: Treiber fachlich plausibel', () => {
       expect(befinden(mit.g, mit.treiber, mit.k).neuVerwirrt).toBe(true);
       expect(lauf('hochbetagt', 60, [{ art: 'delir_trigger', ausloeser: ['exsikkose'] }]).g.delir).toBe(0);
     },
+    schlaganfall: () => {
+      const r = lauf('erwachsen', 30, [{ art: 'schlaganfall', seite: 'rechts', schwere: 0.6, beginnVorMin: 40 }]);
+      expect(r.a.fast).toBeGreaterThanOrEqual(2);
+      expect(r.a.gcsVerbal).toBeLessThan(5);                   // Aphasie
+      expect(r.a.lyseFensterMin).toBe(270 - 70);
+    },
+    lyse: () => {
+      const sa: Treiber = { art: 'schlaganfall', seite: 'links', schwere: 0.6, beginnVorMin: 60 };
+      expect(lauf('erwachsen', 120, [sa, { art: 'lyse' }]).g.neuroDefizit!).toBeLessThan(lauf('erwachsen', 120, [sa]).g.neuroDefizit! - 0.2);
+    },
+    hirndruck: () => {
+      const r = lauf('erwachsen', 70, [{ art: 'hirndruck', tempo: 1.2, seite: 'links' }]);
+      expect(r.a.pupilleLinksMm!).toBeGreaterThan(r.a.pupilleRechtsMm!);
+      expect(r.a.avpu).not.toBe('A');
+    },
+    schluckstoerung: () => {
+      const r = lauf('hochbetagt', 30, [{ art: 'schluckstoerung', schwere: 0.6 }, { art: 'nahrung', form: 'trinken' }]);
+      expect(r.g.aspiration!).toBeGreaterThan(0);
+      expect(r.a.guss!).toBeLessThan(15);
+    },
+    nahrung: () => {
+      const r = lauf('erwachsen', 30, [{ art: 'nahrung', form: 'essen' }]);
+      expect(r.g.aspiration ?? 0).toBe(0);                     // ohne Dysphagie folgenlos
+    },
+    immobil: () => {
+      const r = lauf('hochbetagt', 240, [{ art: 'immobil', druckMmHg: 70, feucht: true }]);
+      expect(r.g.dekubitusKat).toBeGreaterThanOrEqual(1);
+      expect(r.a.dekubitusKat).toBe(r.g.dekubitusKat);
+    },
     harnverhalt: () => {
       const r = lauf('hochbetagt', 60, [{ art: 'harnverhalt' }, { art: 'delir_trigger', ausloeser: ['harnverhalt'] }]);
       expect(r.g.schmerz).toBeGreaterThan(2);

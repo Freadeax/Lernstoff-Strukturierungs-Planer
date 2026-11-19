@@ -28,6 +28,9 @@ const S = 'selbst', A = 'mit-anleitung', X = 'nur-aerztlich', G = 'gesperrt';
 const NUR_AERZTLICH = befugnis(X);
 
 /** Geräte, die im Heim und ambulant in der Pflegetasche stecken (E9). */
+/** G3: Lagewechsel/Mobilisation verlegt den Auflagedruck an eine neue Stelle (Druckbelastung dort beginnt bei 0). */
+const ENTLASTUNG = { groesse: 'druckLast', faktor: 0, beginnSek: 0, spitzeSek: 60, dauerSek: 'dauerhaft' } as const;
+
 export const PFLEGETASCHE = ['rr-geraet', 'pulsoxy', 'thermometer', 'bz-geraet', 'stethoskop', 'urinstix'] as const;
 
 /* ───────────────────────── Quellen ───────────────────────── */
@@ -57,6 +60,8 @@ const Q = {
   who5: { id: 'who-5-momente', titel: 'WHO: Guidelines on Hand Hygiene in Health Care – „5 Momente der Händehygiene“ (2009)' },
   identitaet: { id: 'aps-identifikation', titel: 'Aktionsbündnis Patientensicherheit: Handlungsempfehlung sichere Patientenidentifikation' },
   sbar: { id: 'sbar', titel: 'SBAR-Kommunikation (WHO High 5s / Aktionsbündnis Patientensicherheit)' },
+  palliativ: { id: 's3-palliativ', titel: 'S3-Leitlinie Palliativmedizin für Patienten mit einer nicht-heilbaren Krebserkrankung (Leitlinienprogramm Onkologie, AWMF 128-001OL), Version 2.2, 2020' },
+  ipos: { id: 'ipos', titel: 'IPOS – Integrated Palliative care Outcome Scale, deutsche Fassung (Cicely Saunders Institute)' },
   alkohol: { id: 's3-alkohol', titel: 'S3-Leitlinie Screening, Diagnose und Behandlung alkoholbezogener Störungen (AWMF 076-001), 2021' },
   gastro: { id: 'gpge-gastroenteritis', titel: 'S2k-Leitlinie Akute infektiöse Gastroenteritis im Säuglings-, Kindes- und Jugendalter (GPGE, AWMF 068-003)' },
 } satisfies Record<string, Quelle>;
@@ -324,6 +329,7 @@ const LISTE: MassnahmeDefinition[] = [
   /* ─────────────── 5 Pflegen & Versorgen ─────────────── */
   m('trinken-anbieten', 'Trinken anbieten, Trinkprotokoll beginnen', 'versorgen', 120, ['I', 'V'], nw(['selbstversorgung1', 'ernaehrung1']), {
     setzt: ['trinkprotokoll'],
+    treiber: [{ art: 'nahrung', form: 'trinken' }],   // G6: bei Dysphagie Aspirationsgefahr
     wirkung: [
       { groesse: 'hydratation', delta: 0.12, beginnSek: 120, spitzeSek: 1800, dauerSek: 'dauerhaft' },
       { groesse: 'volumen', delta: 0.08, beginnSek: 120, spitzeSek: 1800, dauerSek: 'dauerhaft' },
@@ -338,7 +344,8 @@ const LISTE: MassnahmeDefinition[] = [
       { groesse: 'volumen', delta: 0.06, beginnSek: 300, spitzeSek: 2400, dauerSek: 'dauerhaft' },
     ],
   }),
-  m('essen-anreichen', 'Essen anreichen (aufrecht, kleine Bissen, Aspirationsprophylaxe)', 'versorgen', 300, ['I', 'V'], nw(['aspiration1', 'selbstversorgung1']), { spur: 'A', quellen: [Q.ernaehrung] }),
+  m('essen-anreichen', 'Essen anreichen (aufrecht, kleine Bissen, Aspirationsprophylaxe)', 'versorgen', 300, ['I', 'V'], nw(['aspiration1', 'selbstversorgung1']), {
+    spur: 'A', quellen: [Q.ernaehrung], treiber: [{ art: 'nahrung', form: 'essen' }] }),
   m('haendedesinfektion', 'Hände desinfizieren (vor und nach Kontakt, 30 Sekunden)', 'versorgen', 30, ['I', 'III'], nw(['hygiene1']), { quellen: [Q.haende, Q.who5, Q.krinko] }),
   m('privatsphaere-wahren', 'Intimsphäre schützen (Tür zu, Sichtschutz, nur aufdecken, was nötig ist)', 'versorgen', 20, ['I', 'II'], nw(['intimsphaere1', 'selbstversorgung1'])),
   m('koerperpflege', 'Bei der Körperpflege unterstützen', 'versorgen', 600, ['I', 'II'], nw(['selbstversorgung1', 'hygiene1'])),
@@ -353,18 +360,19 @@ const LISTE: MassnahmeDefinition[] = [
     setzt: ['isoliert'], quellen: [Q.krinko],
   }),
   m('inkontinenz-versorgen', 'Bei Ausscheidung unterstützen, Inkontinenz versorgen', 'versorgen', 300, ['I', 'II'], nw(['selbstversorgung1', 'ernaehrung1']), { quellen: [Q.kontinenz] }),
-  m('positionieren-druckentlastung', 'Positionieren zur Druckentlastung', 'versorgen', 180, ['I', 'V'], nw(['mobil1', 'standards1']), { quellen: [Q.dekubitus] }),
+  m('positionieren-druckentlastung', 'Positionieren zur Druckentlastung', 'versorgen', 180, ['I', 'V'], nw(['mobil1', 'standards1']), {
+    quellen: [Q.dekubitus], wirkung: [ENTLASTUNG] }),
   m('bettkante-sitzen', 'Erst an der Bettkante sitzen lassen, nach Schwindel fragen', 'versorgen', 60, ['I', 'V'], nw(['mobil1', 'standards1']), { quellen: [Q.sturz, Q.mobilitaet] }),
   m('gehen-begleiten', 'Gehen mit Gehhilfe begleiten (auf der unsicheren Seite, Stuhl in Reichweite)', 'versorgen', 180, ['I', 'V'], nw(['mobil1', 'standards1']), { quellen: [Q.mobilitaet, Q.sturz] }),
-  m('mobilisieren-transfer', 'Mobilisieren, Transfer Bett–Stuhl', 'versorgen', 300, ['I', 'V'], nw(['mobil1', 'standards1']), { quellen: [Q.mobilitaet] }),
+  m('mobilisieren-transfer', 'Mobilisieren, Transfer Bett–Stuhl', 'versorgen', 300, ['I', 'V'], nw(['mobil1', 'standards1']), { quellen: [Q.mobilitaet], wirkung: [ENTLASTUNG] }),
   // P17b (CE04/CE07)
   m('positionieren-hemiplegie', 'Nach Schlaganfall positionieren (betroffene Seite einbeziehen, Schulter schützen)', 'versorgen', 240, ['I', 'V'], nw(['mobil1', 'rehaSelbst12'], { anmerkung: B_ANLEITUNG_DANN_SELBST }), {
-    spur: 'A', befugnis: befugnis(A, S), quellen: [Q.mobilitaet],
+    spur: 'A', befugnis: befugnis(A, S), quellen: [Q.mobilitaet], wirkung: [ENTLASTUNG],
   }),
   m('anleiten-selbstpflege', 'Zur Selbstpflege anleiten statt abnehmen (vormachen, selbst tun lassen, Rückmeldung)', 'versorgen', 300, ['I', 'II'], nw(['selbstpflege1', 'rehaSelbst12']), { spur: 'A' }),
   m('kost-anpassen', 'Kost und Getränke nach Schluckbefund anpassen (angedickt, weich)', 'versorgen', 60, ['I', 'V'], nw(['aspiration1', 'rehaInterprof12'], {
     anmerkung: 'Setzt die Empfehlung von Logopädie bzw. Ärztin um; die Kostform legt das Team fest.',
-  }), { spur: 'A', setzt: ['kost-angepasst'] }),
+  }), { spur: 'A', setzt: ['kost-angepasst'], wirkung: [{ groesse: 'kostAngepasst', delta: 1, beginnSek: 0, spitzeSek: 60, dauerSek: 'dauerhaft' }] }),
   m('kompression-ausziehen', 'Kompressionsstrümpfe ausziehen bzw. heute weglassen', 'versorgen', 90, ['I'], nw(['zirkulation12', 'selbstversorgung1']), { setzt: ['kompression-aus'] }),
   m('kohlenhydrate-langsam', 'Langsam wirksame Kohlenhydrate nachgeben (Brot, Mahlzeit)', 'versorgen', 120, ['I', 'V'], nw(['hypo3', 'diabetes12']), {
     spur: 'A', treiber: [{ art: 'kohlenhydrate', gramm: 24 }],
@@ -504,6 +512,37 @@ const LISTE: MassnahmeDefinition[] = [
   }),
   m('verlegung-uebergabe', 'Verlegungsübergabe Intensiv ↔ Station', 'melden', 300, ['II', 'III'], nw(['uebergabe12', 'intensiv3']), {
     spur: 'B', befugnis: befugnis(A, A, S), klinisch: ['team'],
+  }),
+
+  /* ─────────────── P18: Lebenswelt und Lebensende (CE08/CE09) ─────────────── */
+  m('symptome-erfassen-palliativ', 'Symptomlast erfassen (z. B. IPOS: Schmerz, Atemnot, Unruhe, Mundtrockenheit, Angst)', 'beobachten', 120, ['I', 'V'], nw(['palliativ12', 'schmerz12', 'palliativInterv3']), {
+    spur: 'A', quellen: [Q.ipos, Q.palliativ],
+  }),
+  m('atemnot-lindern', 'Atemnot ohne Medikament lindern (aufrecht, kühler Luftzug/Handventilator, Fenster, ruhig dableiben)', 'akut', 90, ['I', 'II'], nw(['palliativ12', 'atem12', 'palliativInterv3']), {
+    spur: 'A', setzt: ['atemnot-gelindert'], quellen: [Q.palliativ],
+    wirkung: [
+      { groesse: 'angst', delta: -0.15, beginnSek: 0, spitzeSek: 120, dauerSek: 'dauerhaft' },
+      { groesse: 'atemarbeit', faktor: 0.92, beginnSek: 0, spitzeSek: 60, dauerSek: 'dauerhaft' },
+    ],
+  }),
+  m('mundbefeuchtung', 'Mund befeuchten und pflegen nach Wunsch (Lieblingsgetränk getupft, Spray, Lippenpflege)', 'versorgen', 120, ['I', 'II'], nw(['selbstversorgung1', 'palliativ12']), {
+    spur: 'A', setzt: ['mund-befeuchtet'], quellen: [Q.palliativ],
+    wirkung: [{ groesse: 'angst', delta: -0.05, beginnSek: 0, spitzeSek: 60, dauerSek: 'dauerhaft' }],
+  }),
+  m('rasselatmung-lagern', 'Bei Rasselatmung lagern (Seitenlage, Oberkörper leicht hoch) statt tief absaugen', 'versorgen', 120, ['I', 'II'], nw(['palliativ12', 'atem12', 'palliativInterv3']), {
+    spur: 'A', setzt: ['rassel-gelagert'], quellen: [Q.palliativ],
+  }),
+  m('sterbende-angehoerige-begleiten', 'Angehörige begleiten: Veränderungen im Sterben erklären, Dasein und Abschied ermöglichen', 'gespraech', 180, ['II'], nw(['palliativ12', 'palliativInterv3']), {
+    spur: 'A', setzt: ['angehoerige-begleitet'],
+  }),
+  m('palliativdienst-informieren', 'Palliativdienst/SAPV-Team informieren', 'melden', 60, ['II', 'III'], nw(['palliativ12', 'sapv3']), {
+    spur: 'A', setzt: ['palliativdienst-informiert'], klinisch: ['team'],
+  }),
+  m('orthostase-pruefen', 'Blutdruck und Puls im Sitzen und nach dem Aufstehen vergleichen (Orthostase)', 'messen', 240, ['I'], nw(['vital1', 'mobil1'], { anmerkung: B_ANLEITUNG_DANN_SELBST }), {
+    geraet: 'rr-geraet', befugnis: befugnis(A, S), setzt: ['orthostase-geprueft'],
+  }),
+  m('versorgung-zuhause-absprechen', 'Versorgung zu Hause gemeinsam absprechen (Hilfen, Einsätze, Hausnotruf, Nachbarschaft, Entlastung)', 'gespraech', 180, ['II', 'III'], nw(['haeuslichkeit12', 'bezugspersonen09_3', 'schnittstelle09_3']), {
+    spur: 'A', setzt: ['versorgung-abgesprochen'],
   }),
 ];
 

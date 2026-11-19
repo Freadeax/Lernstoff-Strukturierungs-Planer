@@ -25,6 +25,7 @@ import {
 import { findeCePruefung } from './pruefung';
 import { Selbsttest } from './Selbsttest';
 import { lehrplanStunden, LehrplanAbschnitt } from './Lehrplan';
+import { planZaehler } from '../praxis/fallplan';
 import { testbareThemen } from './selbsttest';
 
 const modul = pflegeModule;
@@ -196,6 +197,8 @@ function Detail({ ce, daten, ctx, status, minuten, setHaken }: {
       {ctx && <CePruefung ce={ce} themen={themen.map((t) => t.topic)} ctx={ctx} />}
       <LehrplanAbschnitt ceId={ce.id} />
 
+      <PraxisAbschnitt ceId={ce.id} code={ce.code} />
+
       <section className="ce__abschnitt">
         <h2>Deine Skripte</h2>
         {eigene.length ? (
@@ -237,6 +240,21 @@ function Detail({ ce, daten, ctx, status, minuten, setHaken }: {
       </section>
       {themen.length > 0 && <MaterialStand m={matrix} />}
     </>
+  );
+}
+
+/** Praxissimulator: Fälle dieser CE aus dem Fallplan (P15), Sprung in die Fallauswahl mit ?ce=. */
+function PraxisAbschnitt({ ceId, code }: { ceId: string; code: string }) {
+  const z = planZaehler(ceId);
+  const teile = [z.vorhanden && anzahl(z.vorhanden, 'Fall im neuen Arbeitsplatz', 'Fälle im neuen Arbeitsplatz'), z.alt && anzahl(z.alt, 'Altfall', 'Altfälle'), z.geplant && `${z.geplant} geplant`].filter(Boolean);
+  return (
+    <section className="ce__abschnitt">
+      <div className="ce__kopfzeile">
+        <h2>Praxisfälle</h2>
+        {z.vorhanden + z.alt > 0 && <button type="button" className="small" onClick={() => navigate(`/lernen/praxis?ce=${encodeURIComponent(ceId)}`)}>Fälle zu {code} üben</button>}
+      </div>
+      <p className="muted">{teile.length ? teile.join(' · ') : 'Noch kein Praxisfall geplant.'}{z.vorhanden + z.alt === 0 && z.geplant > 0 ? ' Noch kein spielbarer Fall.' : ''}</p>
+    </section>
   );
 }
 
