@@ -287,8 +287,9 @@ export const KH_HARNVERHALT_POSTOP: FallV2 = {
         warum: 'Damit der Nachtdienst weiß, wann er wieder scannen muss.' },
     ],
     fehler: [
-      { id: 'f-nur-vorlage', text: 'Tröpfeln mit einer Vorlage versorgt, ohne die Blase zu prüfen', schwere: 'schwer', kompetenzbereiche: ['I'],
-        wenn: { eine: [{ flag: 'nur-vorlage' }, { alle: [{ getan: 'vorlage-anlegen' }, { nicht: { getan: 'blasenscan' } }] }] },
+      { id: 'f-nur-vorlage', text: 'Tröpfeln mit einer Vorlage versorgt, Blase nicht geprüft', schwere: 'schwer', kompetenzbereiche: ['I'],
+        // Vorlage zum Schutz ist in Ordnung, solange die Blase danach noch geprüft wird (vgl. Entscheidung w-beides)
+        wenn: { eine: [{ flag: 'nur-vorlage' }, { alle: [{ getan: 'vorlage-anlegen' }, { nicht: { getan: 'blasenscan' } }, { ab: 900 }] }] },
         warum: 'Eine Überlaufinkontinenz bei Harnverhalt wird mit einer Vorlage verdeckt. Die Blase dehnt sich weiter.' },
     ],
     ende: [
