@@ -112,6 +112,8 @@ const SPALTE: Record<'rrSys' | 'hf' | 'temp' | 'spo2' | 'af' | 'bz' | 'schmerz',
 interface XAchse { pos: (t: number) => number; ticks: Array<{ t: number; pos: number; label?: string }> }
 
 const RAND = 10;
+/** grobe Breite eines Zeichens der Achsenschrift (Mono, text-xs) */
+const ZEICHEN_PX = 7.2;
 
 function xAchse(d: KurvenDaten, art: 'zeit' | 'blatt', breite: number): XAchse {
   const innen = Math.max(40, breite - 2 * RAND);
@@ -129,8 +131,17 @@ function xAchse(d: KurvenDaten, art: 'zeit' | 'blatt', breite: number): XAchse {
       }
       return mitte(n - 1);
     };
-    const jeder = Math.max(1, Math.ceil(n / Math.max(1, Math.floor(innen / 64))));
-    return { pos, ticks: ts.flatMap((t, i) => (i % jeder === 0 || i === n - 1 ? [{ t, pos: mitte(i), label: labels.get(t) }] : [])) };
+    // Beschriftungen nur so dicht, dass sie sich nicht berühren (Breite grob aus der Zeichenzahl); die letzte Spalte immer
+    const breiteVon = (t: number) => (labels.get(t) ?? '00:00').length * ZEICHEN_PX + 8;
+    const ticks: XAchse['ticks'] = [];
+    ts.forEach((t, i) => {
+      const tk: XAchse['ticks'][number] = { t, pos: mitte(i), label: labels.get(t) };
+      // erste Beschriftung steht linksbündig, letzte rechtsbündig (kurve.css): dort zählt die volle Breite
+      const passt = (a: typeof tk, b: typeof tk) => b.pos - a.pos >= breiteVon(a.t) * (ticks[0] === a ? 1 : 0.5) + breiteVon(b.t) * (i === n - 1 && b === tk ? 1 : 0.5);
+      if (i === n - 1) { while (ticks.length && !passt(ticks.at(-1)!, tk)) ticks.pop(); ticks.push(tk); return; }
+      if (!ticks.length || passt(ticks.at(-1)!, tk)) ticks.push(tk);
+    });
+    return { pos, ticks };
   }
   const t0 = Math.min(0, ...d.punkte.map((p) => p.t));
   const t1 = Math.max(d.ende, 60);
