@@ -301,8 +301,44 @@ try {
       await axe(`p18-${f.id}-akte`);
       await akte.getByRole('button', { name: 'Schließen' }).click();
     }
+    // P19: Fallwelle Kinder und Psyche (CE 10/11) – Start, Gesprächspartner, Akte; Delir mit Rückfrage des Arztes
+    const P19 = [
+      { id: 'paed-asthma-schulkind', person: /Schäfer/, partner: [/Dr\. Brandl/, /Vater/], med: /Budesonid/ },
+      { id: 'paed-bronchiolitis-saeugling', person: /Hoffmann/, partner: [/Dr\. Weiß/, /Mutter/] },
+      { id: 'paed-gastroenteritis-kleinkind', person: /Kaya/, partner: [/Dr\. Aydın/, /Mutter/] },
+      { id: 'paed-rausch-jugendliche', person: /Brandt/, partner: [/Dr\. Weiß/, /Jana/], rolle: /3\. Drittel/ },
+      { id: 'kh-delir-nacht', person: /Vogt/, partner: [/Dr\. Yilmaz/, /Thomas/], med: /Tamsulosin/, rueckfrage: true },
+      { id: 'psy-unruhe-deeskalation', person: /Weber/, partner: [/Dr\. Brandl/, /Mutter/], med: /Aripiprazol[\s\S]*Lorazepam/ },
+      { id: 'kh-alkoholentzug', person: /Krüger/, partner: [/Dr\. Schulte/, /Ehefrau/], med: /Amlodipin/, rolle: /3\. Drittel/ },
+    ];
+    for (const f of P19) {
+      await p.goto(base + `#/lernen/praxis?neu=${f.id}`, { waitUntil: 'networkidle' });
+      if (f.rolle) await p.getByRole('radio', { name: f.rolle }).check().catch(() => {});
+      await p.getByRole('button', { name: 'Fall beginnen' }).click();
+      await p.getByRole('button', { name: 'Pause' }).click();
+      assert.equal(await p.getByRole('tab').count(), 5, `${w} ${f.id}: fünf Reiter`);
+      await axe(`p19-${f.id}-start`);
+      if (f.rueckfrage) await tu('Delir-Screening');
+      await p.getByRole('tab', { name: /Sprechen/ }).click();
+      const leiste = p.getByRole('navigation', { name: 'Gesprächspartner' });
+      for (const t of f.partner) assert.match(await leiste.innerText(), t, `${w} ${f.id}: Gesprächspartner ${t}`);
+      if (f.rueckfrage) {
+        await leiste.getByRole('button', { name: f.partner[0] }).click();
+        for (const t of [/akut verwirrt/, /4AT deutlich auffällig/]) await p.getByRole('checkbox', { name: t }).first().check();
+        await p.getByRole('button', { name: /anrufen$/ }).click();
+        await p.getByText('Rückfrage:').waitFor();
+        assert.match(await p.locator('.kom-chat').innerText(), /Blase/, `${w} ${f.id}: Rückfrage nach der Blase`);
+        await axe(`p19-${f.id}-sprechen`, { faden: true });
+      } else await axe(`p19-${f.id}-sprechen`);
+      await p.getByRole('button', { name: 'Patientenakte', exact: true }).or(p.getByRole('button', { name: 'Patientenakte öffnen' })).first().click();
+      const akte = p.getByRole('dialog', { name: f.person });
+      await akte.waitFor();
+      if (f.med) { await akte.getByRole('tab', { name: 'Medikation' }).click(); assert.match(await akte.innerText(), f.med, `${w} ${f.id}: Medikationsplan`); }
+      await axe(`p19-${f.id}-akte`);
+      await akte.getByRole('button', { name: 'Schließen' }).click();
+    }
     await ctx.close();
   }
 } finally { await browser.close(); }
 assert.deepEqual(fehler, [], 'Arbeitsplatz');
-console.log('Arbeitsplatz: Pilotfall bei 390, 820 und 1180 px durchgespielt, Pilotstaffel Spur A gestartet, P14a-Fälle (Rückfrage, Gesprächspartner, Akte) P17a-Einstiegsfälle und P16b-Fälle (CE06) geprüft, P18-Fälle (Lebenswelt/Lebensende) geprüft, axe WCAG 2.2 AA ohne Befund (inkl. Abschluss, Auswertung, Spur B).');
+console.log('Arbeitsplatz: Pilotfall bei 390, 820 und 1180 px durchgespielt, Pilotstaffel Spur A gestartet, P14a-Fälle (Rückfrage, Gesprächspartner, Akte) P17a-Einstiegsfälle und P16b-Fälle (CE06) geprüft, P18-Fälle (Lebenswelt/Lebensende) und P19-Fälle (Kinder, Psyche) geprüft, axe WCAG 2.2 AA ohne Befund (inkl. Abschluss, Auswertung, Spur B).');
