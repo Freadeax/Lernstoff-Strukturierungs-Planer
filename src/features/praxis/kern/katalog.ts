@@ -54,6 +54,8 @@ const Q = {
   camicu: { id: 'cam-icu', titel: 'CAM-ICU' },
   bps: { id: 'bps', titel: 'Behavioral Pain Scale (BPS)' },
   sbar: { id: 'sbar', titel: 'SBAR-Kommunikation (WHO High 5s / Aktionsbündnis Patientensicherheit)' },
+  palliativ: { id: 's3-palliativ', titel: 'S3-Leitlinie Palliativmedizin für Patienten mit einer nicht-heilbaren Krebserkrankung (Leitlinienprogramm Onkologie, AWMF 128-001OL), Version 2.2, 2020' },
+  ipos: { id: 'ipos', titel: 'IPOS – Integrated Palliative care Outcome Scale, deutsche Fassung (Cicely Saunders Institute)' },
   alkohol: { id: 's3-alkohol', titel: 'S3-Leitlinie Screening, Diagnose und Behandlung alkoholbezogener Störungen (AWMF 076-001), 2021' },
   gastro: { id: 'gpge-gastroenteritis', titel: 'S2k-Leitlinie Akute infektiöse Gastroenteritis im Säuglings-, Kindes- und Jugendalter (GPGE, AWMF 068-003)' },
 } satisfies Record<string, Quelle>;
@@ -474,6 +476,37 @@ const LISTE: MassnahmeDefinition[] = [
   }),
   m('verlegung-uebergabe', 'Verlegungsübergabe Intensiv ↔ Station', 'melden', 300, ['II', 'III'], nw(['uebergabe12', 'intensiv3']), {
     spur: 'B', befugnis: befugnis(A, A, S), klinisch: ['team'],
+  }),
+
+  /* ─────────────── P18: Lebenswelt und Lebensende (CE08/CE09) ─────────────── */
+  m('symptome-erfassen-palliativ', 'Symptomlast erfassen (z. B. IPOS: Schmerz, Atemnot, Unruhe, Mundtrockenheit, Angst)', 'beobachten', 120, ['I', 'V'], nw(['palliativ12', 'schmerz12', 'palliativInterv3']), {
+    spur: 'A', quellen: [Q.ipos, Q.palliativ],
+  }),
+  m('atemnot-lindern', 'Atemnot ohne Medikament lindern (aufrecht, kühler Luftzug/Handventilator, Fenster, ruhig dableiben)', 'akut', 90, ['I', 'II'], nw(['palliativ12', 'atem12', 'palliativInterv3']), {
+    spur: 'A', setzt: ['atemnot-gelindert'], quellen: [Q.palliativ],
+    wirkung: [
+      { groesse: 'angst', delta: -0.15, beginnSek: 0, spitzeSek: 120, dauerSek: 'dauerhaft' },
+      { groesse: 'atemarbeit', faktor: 0.92, beginnSek: 0, spitzeSek: 60, dauerSek: 'dauerhaft' },
+    ],
+  }),
+  m('mundbefeuchtung', 'Mund befeuchten und pflegen nach Wunsch (Lieblingsgetränk getupft, Spray, Lippenpflege)', 'versorgen', 120, ['I', 'II'], nw(['selbstversorgung1', 'palliativ12']), {
+    spur: 'A', setzt: ['mund-befeuchtet'], quellen: [Q.palliativ],
+    wirkung: [{ groesse: 'angst', delta: -0.05, beginnSek: 0, spitzeSek: 60, dauerSek: 'dauerhaft' }],
+  }),
+  m('rasselatmung-lagern', 'Bei Rasselatmung lagern (Seitenlage, Oberkörper leicht hoch) statt tief absaugen', 'versorgen', 120, ['I', 'II'], nw(['palliativ12', 'atem12', 'palliativInterv3']), {
+    spur: 'A', setzt: ['rassel-gelagert'], quellen: [Q.palliativ],
+  }),
+  m('sterbende-angehoerige-begleiten', 'Angehörige begleiten: Veränderungen im Sterben erklären, Dasein und Abschied ermöglichen', 'gespraech', 180, ['II'], nw(['palliativ12', 'palliativInterv3']), {
+    spur: 'A', setzt: ['angehoerige-begleitet'],
+  }),
+  m('palliativdienst-informieren', 'Palliativdienst/SAPV-Team informieren', 'melden', 60, ['II', 'III'], nw(['palliativ12', 'sapv3']), {
+    spur: 'A', setzt: ['palliativdienst-informiert'], klinisch: ['team'],
+  }),
+  m('orthostase-pruefen', 'Blutdruck und Puls im Sitzen und nach dem Aufstehen vergleichen (Orthostase)', 'messen', 240, ['I'], nw(['vital1', 'mobil1'], { anmerkung: B_ANLEITUNG_DANN_SELBST }), {
+    geraet: 'rr-geraet', befugnis: befugnis(A, S), setzt: ['orthostase-geprueft'],
+  }),
+  m('versorgung-zuhause-absprechen', 'Versorgung zu Hause gemeinsam absprechen (Hilfen, Einsätze, Hausnotruf, Nachbarschaft, Entlastung)', 'gespraech', 180, ['II', 'III'], nw(['haeuslichkeit12', 'bezugspersonen09_3', 'schnittstelle09_3']), {
+    spur: 'A', setzt: ['versorgung-abgesprochen'],
   }),
 ];
 
