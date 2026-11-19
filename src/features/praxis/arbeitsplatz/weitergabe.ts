@@ -151,7 +151,8 @@ export function berichtFallNeu(z: SimZustand): BerichtFall {
   const f = z.fall;
   const werte = werteNeu(z);
   const tat = erledigtNeu(z);
-  const arzt = Object.keys(z.getan).includes('anruf-aerztin');
+  // Telefon setzt anruf-aerztin; ein Kontakt nur per Messenger zählt ebenso (P17b: Fall ohne Anruf)
+  const arzt = Object.keys(z.getan).includes('anruf-aerztin') || z.log.some((e) => e.art === 'nachricht' && e.an === 'aerztin');
   const gespraech = z.fall.gespraech.filter((g) => z.getan[`frage:${g.id}`]).flatMap((g) => g.antwort.slice(0, 1).map((a) => a.text)).find((t) => t.startsWith('„'));
   const k: BerichtPunkt[] = [{ id: 'zeit', baustein: 'zeit', pflicht: true, text: 'Uhrzeit oder Zeitraum', muster: ['uhr', 'minut'] }];
   if (werte.length) k.push({ id: 'werte', baustein: 'beobachtung', pflicht: true, text: `Gemessene Werte (${werte.map((w) => w.text).join(', ')})`, muster: (werte.some((w) => w.auffaellig) ? werte.filter((w) => w.auffaellig) : werte).map((w) => w.zahl) });

@@ -155,4 +155,17 @@ export const WEITERLERNEN_V2: Record<string, WeiterlernenEintrag> = {
     krankheiten: ['kh.pneumonie'],
     extra: [{ label: 'Rechentrainer: Perfusor und Laufrate', path: '/lernen/rechnen?typen=perfusor,laufrate', warum: 'Laufraten in Dosis umrechnen (Propofol, Sufentanil, Noradrenalin).' }],
   },
+  'amb-herzschwaeche': {
+    themen: ['thema.kl.herz.insuffizienz', 'thema.kom.beratung', 'thema.fa.ambulant'],
+    krankheiten: ['kh.herzinsuffizienz'],
+  },
+  'amb-hypoglykaemie': {
+    themen: ['thema.kl.diabetes', 'thema.kom.beratung', 'thema.fa.ambulant'],
+    krankheiten: ['kh.diabetes-typ2'],
+    extra: [{ label: 'Physiologie: Blutzucker', path: '/lernen/physiologie', warum: 'Wie Insulin, Kohlenhydrate und Bewegung den Zucker verschieben.' }],
+  },
+  'lz-schlaganfall-reha': {
+    themen: ['thema.kl.neuro.schlaganfall', 'thema.pro.aspiration', 'thema.ph.mobilisation', 'thema.kom.beratung'],
+    krankheiten: ['kh.schlaganfall'],
+  },
 };

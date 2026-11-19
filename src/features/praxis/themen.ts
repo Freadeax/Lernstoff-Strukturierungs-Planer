@@ -67,6 +67,9 @@ export const KERN_THEMEN: Record<string, string[]> = {
   'na-acs-brustschmerz': ['thema.kl.herz.khk', 'thema.beo.notfall', 'thema.beo.vitalzeichen', 'thema.ph.medikamente', 'thema.pp.uebergabe'],
   'lz-schlaganfall-akut': ['thema.kl.neuro.schlaganfall', 'thema.beo.notfall', 'thema.beo.bewusstsein', 'thema.fa.langzeit', 'thema.pp.uebergabe'],
   'its-beatmung-alarm': ['thema.beo.notfall', 'thema.kl.atmung', 'thema.ph.medikamente', 'thema.pp.uebergabe', 'thema.re.schweigepflicht'],
+  'amb-herzschwaeche': ['thema.kl.herz.insuffizienz', 'thema.kom.beratung', 'thema.fa.ambulant', 'thema.beo.vitalzeichen'],
+  'amb-hypoglykaemie': ['thema.kl.diabetes', 'thema.kom.beratung', 'thema.fa.ambulant', 'thema.beo.bewusstsein'],
+  'lz-schlaganfall-reha': ['thema.kl.neuro.schlaganfall', 'thema.pro.aspiration', 'thema.ph.mobilisation', 'thema.kom.beratung'],
 };
 
 /** Kernfälle (IDs für ?neu=), die ein Thema üben. */
