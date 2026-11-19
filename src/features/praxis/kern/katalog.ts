@@ -329,6 +329,7 @@ const LISTE: MassnahmeDefinition[] = [
   /* ─────────────── 5 Pflegen & Versorgen ─────────────── */
   m('trinken-anbieten', 'Trinken anbieten, Trinkprotokoll beginnen', 'versorgen', 120, ['I', 'V'], nw(['selbstversorgung1', 'ernaehrung1']), {
     setzt: ['trinkprotokoll'],
+    treiber: [{ art: 'nahrung', form: 'trinken' }],   // G6: bei Dysphagie Aspirationsgefahr
     wirkung: [
       { groesse: 'hydratation', delta: 0.12, beginnSek: 120, spitzeSek: 1800, dauerSek: 'dauerhaft' },
       { groesse: 'volumen', delta: 0.08, beginnSek: 120, spitzeSek: 1800, dauerSek: 'dauerhaft' },
@@ -343,7 +344,8 @@ const LISTE: MassnahmeDefinition[] = [
       { groesse: 'volumen', delta: 0.06, beginnSek: 300, spitzeSek: 2400, dauerSek: 'dauerhaft' },
     ],
   }),
-  m('essen-anreichen', 'Essen anreichen (aufrecht, kleine Bissen, Aspirationsprophylaxe)', 'versorgen', 300, ['I', 'V'], nw(['aspiration1', 'selbstversorgung1']), { spur: 'A', quellen: [Q.ernaehrung] }),
+  m('essen-anreichen', 'Essen anreichen (aufrecht, kleine Bissen, Aspirationsprophylaxe)', 'versorgen', 300, ['I', 'V'], nw(['aspiration1', 'selbstversorgung1']), {
+    spur: 'A', quellen: [Q.ernaehrung], treiber: [{ art: 'nahrung', form: 'essen' }] }),
   m('haendedesinfektion', 'Hände desinfizieren (vor und nach Kontakt, 30 Sekunden)', 'versorgen', 30, ['I', 'III'], nw(['hygiene1']), { quellen: [Q.haende, Q.who5, Q.krinko] }),
   m('privatsphaere-wahren', 'Intimsphäre schützen (Tür zu, Sichtschutz, nur aufdecken, was nötig ist)', 'versorgen', 20, ['I', 'II'], nw(['intimsphaere1', 'selbstversorgung1'])),
   m('koerperpflege', 'Bei der Körperpflege unterstützen', 'versorgen', 600, ['I', 'II'], nw(['selbstversorgung1', 'hygiene1'])),
@@ -370,7 +372,7 @@ const LISTE: MassnahmeDefinition[] = [
   m('anleiten-selbstpflege', 'Zur Selbstpflege anleiten statt abnehmen (vormachen, selbst tun lassen, Rückmeldung)', 'versorgen', 300, ['I', 'II'], nw(['selbstpflege1', 'rehaSelbst12']), { spur: 'A' }),
   m('kost-anpassen', 'Kost und Getränke nach Schluckbefund anpassen (angedickt, weich)', 'versorgen', 60, ['I', 'V'], nw(['aspiration1', 'rehaInterprof12'], {
     anmerkung: 'Setzt die Empfehlung von Logopädie bzw. Ärztin um; die Kostform legt das Team fest.',
-  }), { spur: 'A', setzt: ['kost-angepasst'] }),
+  }), { spur: 'A', setzt: ['kost-angepasst'], wirkung: [{ groesse: 'kostAngepasst', delta: 1, beginnSek: 0, spitzeSek: 60, dauerSek: 'dauerhaft' }] }),
   m('kompression-ausziehen', 'Kompressionsstrümpfe ausziehen bzw. heute weglassen', 'versorgen', 90, ['I'], nw(['zirkulation12', 'selbstversorgung1']), { setzt: ['kompression-aus'] }),
   m('kohlenhydrate-langsam', 'Langsam wirksame Kohlenhydrate nachgeben (Brot, Mahlzeit)', 'versorgen', 120, ['I', 'V'], nw(['hypo3', 'diabetes12']), {
     spur: 'A', treiber: [{ art: 'kohlenhydrate', gramm: 24 }],

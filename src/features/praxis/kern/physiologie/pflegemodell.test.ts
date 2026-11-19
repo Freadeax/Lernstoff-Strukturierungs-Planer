@@ -151,6 +151,15 @@ describe('Pflege-Physiologiemodell: Treiber fachlich plausibel', () => {
       expect(r.a.pupilleLinksMm!).toBeGreaterThan(r.a.pupilleRechtsMm!);
       expect(r.a.avpu).not.toBe('A');
     },
+    schluckstoerung: () => {
+      const r = lauf('hochbetagt', 30, [{ art: 'schluckstoerung', schwere: 0.6 }, { art: 'nahrung', form: 'trinken' }]);
+      expect(r.g.aspiration!).toBeGreaterThan(0);
+      expect(r.a.guss!).toBeLessThan(15);
+    },
+    nahrung: () => {
+      const r = lauf('erwachsen', 30, [{ art: 'nahrung', form: 'essen' }]);
+      expect(r.g.aspiration ?? 0).toBe(0);                     // ohne Dysphagie folgenlos
+    },
     immobil: () => {
       const r = lauf('hochbetagt', 240, [{ art: 'immobil', druckMmHg: 70, feucht: true }]);
       expect(r.g.dekubitusKat).toBeGreaterThanOrEqual(1);
