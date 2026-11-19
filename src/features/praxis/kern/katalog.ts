@@ -28,6 +28,9 @@ const S = 'selbst', A = 'mit-anleitung', X = 'nur-aerztlich', G = 'gesperrt';
 const NUR_AERZTLICH = befugnis(X);
 
 /** Geräte, die im Heim und ambulant in der Pflegetasche stecken (E9). */
+/** G3: Lagewechsel/Mobilisation verlegt den Auflagedruck an eine neue Stelle (Druckbelastung dort beginnt bei 0). */
+const ENTLASTUNG = { groesse: 'druckLast', faktor: 0, beginnSek: 0, spitzeSek: 60, dauerSek: 'dauerhaft' } as const;
+
 export const PFLEGETASCHE = ['rr-geraet', 'pulsoxy', 'thermometer', 'bz-geraet', 'stethoskop', 'urinstix'] as const;
 
 /* ───────────────────────── Quellen ───────────────────────── */
@@ -355,13 +358,14 @@ const LISTE: MassnahmeDefinition[] = [
     setzt: ['isoliert'], quellen: [Q.krinko],
   }),
   m('inkontinenz-versorgen', 'Bei Ausscheidung unterstützen, Inkontinenz versorgen', 'versorgen', 300, ['I', 'II'], nw(['selbstversorgung1', 'ernaehrung1']), { quellen: [Q.kontinenz] }),
-  m('positionieren-druckentlastung', 'Positionieren zur Druckentlastung', 'versorgen', 180, ['I', 'V'], nw(['mobil1', 'standards1']), { quellen: [Q.dekubitus] }),
+  m('positionieren-druckentlastung', 'Positionieren zur Druckentlastung', 'versorgen', 180, ['I', 'V'], nw(['mobil1', 'standards1']), {
+    quellen: [Q.dekubitus], wirkung: [ENTLASTUNG] }),
   m('bettkante-sitzen', 'Erst an der Bettkante sitzen lassen, nach Schwindel fragen', 'versorgen', 60, ['I', 'V'], nw(['mobil1', 'standards1']), { quellen: [Q.sturz, Q.mobilitaet] }),
   m('gehen-begleiten', 'Gehen mit Gehhilfe begleiten (auf der unsicheren Seite, Stuhl in Reichweite)', 'versorgen', 180, ['I', 'V'], nw(['mobil1', 'standards1']), { quellen: [Q.mobilitaet, Q.sturz] }),
-  m('mobilisieren-transfer', 'Mobilisieren, Transfer Bett–Stuhl', 'versorgen', 300, ['I', 'V'], nw(['mobil1', 'standards1']), { quellen: [Q.mobilitaet] }),
+  m('mobilisieren-transfer', 'Mobilisieren, Transfer Bett–Stuhl', 'versorgen', 300, ['I', 'V'], nw(['mobil1', 'standards1']), { quellen: [Q.mobilitaet], wirkung: [ENTLASTUNG] }),
   // P17b (CE04/CE07)
   m('positionieren-hemiplegie', 'Nach Schlaganfall positionieren (betroffene Seite einbeziehen, Schulter schützen)', 'versorgen', 240, ['I', 'V'], nw(['mobil1', 'rehaSelbst12'], { anmerkung: B_ANLEITUNG_DANN_SELBST }), {
-    spur: 'A', befugnis: befugnis(A, S), quellen: [Q.mobilitaet],
+    spur: 'A', befugnis: befugnis(A, S), quellen: [Q.mobilitaet], wirkung: [ENTLASTUNG],
   }),
   m('anleiten-selbstpflege', 'Zur Selbstpflege anleiten statt abnehmen (vormachen, selbst tun lassen, Rückmeldung)', 'versorgen', 300, ['I', 'II'], nw(['selbstpflege1', 'rehaSelbst12']), { spur: 'A' }),
   m('kost-anpassen', 'Kost und Getränke nach Schluckbefund anpassen (angedickt, weich)', 'versorgen', 60, ['I', 'V'], nw(['aspiration1', 'rehaInterprof12'], {
