@@ -122,6 +122,8 @@ export type Treiber =
   | { art: 'pneumonie'; staerke: number }
   /** P16a: allergische Sofortreaktion (Anaphylaxie): Gefäßtonus fällt, Kapillarleck, Bronchospasmus; Adrenalin bremst */
   | { art: 'anaphylaxie'; staerke: number }
+  /** P16a: Lungenembolie (Totraum/Shunt, Rechtsherzbelastung), staerke 0..1 */
+  | { art: 'lungenembolie'; staerke: number }
   // Zusätze Paket P1
   /** Normalinsulin s. c. (Gipfel nach etwa 2 h) */
   | { art: 'insulin'; ie: number; gipfelMin?: number }
