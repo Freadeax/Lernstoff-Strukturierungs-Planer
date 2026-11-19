@@ -250,6 +250,7 @@ Remonstrationspunkt, Entscheidungs- bzw. Komplikationsereignis und Weiterlernen-
 
 - Psychiatrie: Foto Aufenthaltsraum fehlt, `psy-unruhe-deeskalation` nutzt vorläufig `11_pflegeheim_speiseraum` (Beispielbild).
 - `kh-alkoholentzug` ist nur für das 3. Drittel (`ad3`, Lehrplan sucht3).
+- `paed-bronchiolitis-saeugling` v0.1.1: ohne Hilfe Sekretstau (HF um 195, AF um 75), ab Minute 25 Erschöpfung mit Atempausen und Bradykardie (Näherung über gedämpften Atemantrieb, `opioid_ueberhang` als Erschöpfungslast); Unterlassung: SpO₂ < 80 und HF < 100.
 
 ## Grundsystem G6: Schlucken, Aspiration, Ernährung
 

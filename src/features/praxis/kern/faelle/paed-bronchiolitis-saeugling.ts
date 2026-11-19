@@ -15,7 +15,7 @@ const R_KOMMT = { id: 'r-kommt', antwort: KOMMT, anordnungen: ['an-o2', 'an-xylo
 export const PAED_BRONCHIOLITIS_SAEUGLING: FallV2 = {
   schema: 2,
   id: 'paed-bronchiolitis-saeugling',
-  version: '0.1.0',
+  version: '0.1.1',
   spur: 'A',
   setting: 'paediatrie',
   altersgruppe: 'saeugling',
@@ -263,12 +263,18 @@ export const PAED_BRONCHIOLITIS_SAEUGLING: FallV2 = {
   ereignisse: [
     { id: 'e-sekretstau', art: 'komplikation', wann: { ab: 900 }, verhindertDurch: ABGESAUGT,
       text: 'Mila wird unruhig, die Nase ist komplett verlegt, sie zieht bei jedem Atemzug tief ein und wird um den Mund grau.',
-      treiber: [{ art: 'bronchospasmus', staerke: 1 }],
+      treiber: [{ art: 'bronchospasmus', staerke: 0.55 }],
       bild: { haltung: 'liegt', haut: 'zyanotisch', mimik: 'angst' },
       entscheidung: [
         { id: 'w-absaugen', text: 'Klingeln, Nase absaugen, Kopfteil hoch, Sättigung prüfen und die Ärztin sofort rufen', wertung: 'gut', warum: 'Säuglinge atmen vor allem durch die Nase. Freie Nase und Hilfe zuerst.' },
         { id: 'w-flasche', text: 'Flasche geben, damit sie sich beruhigt', wertung: 'gefaehrlich', warum: 'Mit verlegter Nase und Atemnot kann sie nicht trinken und atmen zugleich: Aspiration und Erschöpfung.' },
       ] },
+    // Spätzeichen ohne Hilfe: Erschöpfung mit Atempausen, dann Bradykardie. Näherung im Modell über gedämpften Atemantrieb
+    // (opioid_ueberhang als „Erschöpfungs“-Last, kein Medikament); ein eigener Erschöpfungs-Treiber fehlt noch.
+    { id: 'e-erschoepfung', art: 'komplikation', wann: { ab: 1500 }, verhindertDurch: ABGESAUGT,
+      text: 'Mila wird plötzlich still und schlapp. Sie macht Atempausen von mehreren Sekunden, die Haut ist grau-marmoriert. Die Mutter ruft: „Sie atmet nicht richtig!“',
+      treiber: [{ art: 'opioid_ueberhang', spiegel: 1.2, halbwertMin: 240 }],
+      bild: { haltung: 'liegt', haut: 'zyanotisch', mimik: 'schlaefrig' } },
     { id: 'e-alarm', art: 'geraet', wann: { alle: [{ getan: 'pulsoxy-anlegen' }, { wert: 'spo2', vergleich: '<', grenze: 92 }] },
       text: 'Der Monitor piept: Sättigung unter 92 %. Die Mutter schreckt hoch.' },
     { id: 'e-sara', art: 'team', wann: { getan: 'hilfe-holen' }, text: 'Kinderkrankenschwester Sara kommt: „Was ist los?“' },
@@ -383,7 +389,7 @@ export const PAED_BRONCHIOLITIS_SAEUGLING: FallV2 = {
       { art: 'abschluss', probleme: ['pb-atmung', 'pb-fluessigkeit', 'pb-infektion', 'pb-mutter'], ziele: ['z-atmung', 'z-trinken', 'z-hygiene'],
         sbar: ['s-atemnot', 'b-rsv', 'a-atemnot', 'a-trinkmenge', 'a-trinkt-besser'] },
     ],
-    unterlassung: { bisSek: 1500, erwartet: { wert: 'spo2', vergleich: '<', grenze: 90 } },
+    unterlassung: { bisSek: 1900, erwartet: { alle: [{ wert: 'spo2', vergleich: '<', grenze: 80 }, { wert: 'hf', vergleich: '<', grenze: 100 }] } },
     grenze: { rolle: 2, events: [{ art: 'massnahme', id: 'o2-geben' }], erwartet: 'pa-eingriff' },
   },
 };
