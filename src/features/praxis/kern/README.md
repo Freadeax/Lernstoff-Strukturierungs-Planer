@@ -290,3 +290,9 @@ Datei `physiologie/entzug.ts`. Treiber `{ art: 'alkoholentzug', schwere: 0..1, l
 - **Benzodiazepine** (G1-Kanal `entzugsschutz`: Lorazepam 0,6, Diazepam 0,7, Midazolam 0,5) dämpfen den wirksamen Entzug, solange sie wirken; der zugrunde liegende Entzug läuft weiter (symptomgesteuerte Gabe). Flumazenil hebt den Schutz auf.
 - **Thiamin** (G1, `thiamin-geben`): Ohne Thiamin baut sich langsam eine Wernicke-Verwirrtheit auf (`wernicke`, senkt die Orientierung), mit Thiamin nicht.
 - **Anzeige**: `tremor` (kein/leicht/deutlich/grob), `schwitzen`, `halluzinationen`, `entzugStd`; **G4** `ciwa` (CIWA-Ar 0–67, `ciwaAr(g)` mit den 10 Bereichen; unter 10 leicht, 10–15 mittel, über 15 schwer). Katalog: `entzug-einschaetzen`, `lorazepam-geben`, `diazepam-geben`, `thiamin-geben`.
+
+## Grundsystem: Atemerschöpfung
+Datei `physiologie/atemerschoepfung.ts`. Treiber `{ art: 'atemerschoepfung', tempo? }` (oder Startwert `erschoepfung` in den Grundgrößen); ohne beides bleibt alles wie bisher.
+- **Aufbau**: `erschoepfung` 0..1 wächst, solange die Atemarbeit über 1,6 liegt, je Stunde um Rate × tempo × Überschuss (Säugling 0,6, Kleinkind 0,4, Schulkind/Hochbetagte 0,25, sonst 0,15); darunter erholt sie sich um 0,3 je Stunde (Absaugen, High-Flow, Ruhe).
+- **Folgen ab 0,4**: Atemantrieb fällt (bis auf 20 %), die sichtbare Atemarbeit nimmt ab: Das Kind wird „ruhiger“ und atmet langsamer, CO₂ steigt, SpO₂ fällt, dann präfinale Bradykardie über die Hypoxie. Ab 0,6 bei Säuglingen und Kleinkindern Apnoen.
+- **Anzeige**: `atemerschoepfung` (keine / droht / dekompensiert), `apnoen`. Ersetzt den Notbehelf `opioid_ueberhang` in Bronchiolitis-Fällen.

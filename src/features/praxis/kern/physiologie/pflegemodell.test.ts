@@ -168,6 +168,10 @@ describe('Pflege-Physiologiemodell: Treiber fachlich plausibel', () => {
       expect(g.schlafdefizit!).toBeGreaterThan(0.3);
       expect(g.delir).toBeGreaterThan(0.1);
     },
+    atemerschoepfung: () => {
+      const r = lauf('saeugling', 120, [{ art: 'bronchospasmus', staerke: 0.6 }, { art: 'atemerschoepfung', tempo: 2 }]);
+      expect(r.g.erschoepfung!).toBeGreaterThan(0.3);
+    },
     alkoholentzug: () => {
       const r = lauf('erwachsen', 60, [{ art: 'alkoholentzug', schwere: 0.7, letzterKonsumVorStd: 20 }]);
       expect(r.g.entzug!).toBeGreaterThan(0.4);

@@ -118,6 +118,8 @@ export interface Grundgroessen {
   entzugKrampf?: number;
   wernicke?: number;
   thiamin?: number;
+  // Atemerschöpfung (nur mit Treiber atemerschoepfung oder Startwert): 0..1
+  erschoepfung?: number;
 }
 
 /** Vom Kern abgeleitet, Ziele für den Monitor (Logik-Takt 5 s, Render interpoliert). */
@@ -164,6 +166,9 @@ export interface Anzeige {
   halluzinationen?: boolean;
   entzugStd?: number;
   ciwa?: number;
+  /** Atemerschöpfung (nur wenn das Modell sie führt): keine / droht / dekompensiert; Apnoen bei Säuglingen und Kleinkindern */
+  atemerschoepfung?: 'keine' | 'droht' | 'dekompensiert';
+  apnoen?: boolean;
   // G8 Labor: wahrer Modellwert jetzt (für Bedingungen; Befunde nach Laufzeit über laborBefunde() im Kern)
   hb?: number; leuko?: number; thrombo?: number; crp?: number; pct?: number; natrium?: number;
   krea?: number; egfr?: number; harnstoff?: number; inr?: number; aptt?: number;
@@ -229,6 +234,8 @@ export type Treiber =
   | { art: 'immobil'; druckMmHg: number; scherkraefte?: boolean; feucht?: boolean }
   /** Alkoholentzug: schwere 0..1 (≥ 0,6 Gefahr Delirium tremens), letzterKonsumVorStd = Stunden seit dem letzten Trinken bei Fallstart */
   | { art: 'alkoholentzug'; schwere: number; letzterKonsumVorStd: number }
+  /** Atemerschöpfung bei hoher Atemarbeit über Zeit (v. a. Säuglinge); tempo multipliziert die Erschöpfungsrate (Standard 1) */
+  | { art: 'atemerschoepfung'; tempo?: number }
   // G1 Wirkstoffe (Register physiologie/wirkstoffe.ts): Kinetik nach Weg, Halbwertszeit, Alter und Gewicht
   | { art: 'wirkstoff'; id: string; dosisMg: number; weg?: ArzneiWeg };
 
