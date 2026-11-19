@@ -3,66 +3,9 @@
 // Alles hier ist rein und testbar; Zeichnungen und Regler liegen in PhysiologieSeite.tsx.
 
 // Herz, Lunge und Blutzucker liegen im Praxissimulator-Kern, damit Lernseite und Simulator dasselbe Modell nutzen.
-import { blutzucker, herz, HERZ_START, lunge, ZUCKER_START, type Befund, type HerzEingabe, type Lage, type ZuckerEingabe } from '../praxis/kern/physiologie/organe';
+// Haut/Dekubitus ebenso (Grundsystem G3: Druckbelastung im Simulator).
+import { blutzucker, haut, HAUT_START, herz, HERZ_START, lunge, ZUCKER_START, type Befund, type HautEingabe, type HerzEingabe, type Lage, type ZuckerEingabe } from '../praxis/kern/physiologie/organe';
 export * from '../praxis/kern/physiologie/organe';
-
-const klemme = (x: number, min: number, max: number) => Math.min(max, Math.max(min, x));
-
-// ------------------------------------------------------------------ Haut / Dekubitus
-
-export interface HautEingabe {
-  /** Auflagedruck in mmHg (0 bis 150). */
-  druck: number;
-  /** Stunden ohne Entlastung (0 bis 8). */
-  stunden: number;
-  scherkraefte: boolean;
-  feuchtigkeit: boolean;
-}
-
-export const HAUT_START: HautEingabe = { druck: 40, stunden: 1, scherkraefte: false, feuchtigkeit: false };
-
-/** Faustwert aus der Lehre: Über etwa 32 mmHg werden Kapillaren zugedrückt. Individuell sehr verschieden. */
-export const KAPILLARDRUCK = 32;
-
-export type Kategorie = 0 | 1 | 2 | 3 | 4;
-
-export const KATEGORIE_TEXT: Record<Kategorie, { titel: string; text: string }> = {
-  0: { titel: 'Keine Schädigung', text: 'Die Haut wird wieder durchblutet. Rötung verschwindet beim Fingertest.' },
-  1: { titel: 'Kategorie 1', text: 'Nicht wegdrückbare Rötung bei intakter Haut. Fingertest: Die Rötung bleibt. Sofort entlasten.' },
-  2: { titel: 'Kategorie 2', text: 'Teilverlust der Haut: flache, offene Wunde oder Blase. Epidermis und Teile der Dermis sind betroffen.' },
-  3: { titel: 'Kategorie 3', text: 'Vollständiger Hautverlust bis ins Unterhautfettgewebe. Knochen, Sehnen und Muskeln liegen nicht frei.' },
-  4: { titel: 'Kategorie 4', text: 'Vollständiger Gewebeverlust mit freiliegendem Knochen, Sehnen oder Muskeln.' },
-};
-
-export interface HautErgebnis {
-  kategorie: Kategorie;
-  /** Belastung im Modell, 0 bis 1 je Schicht von außen nach innen: Epidermis, Dermis, Subkutis, Muskel. */
-  schichten: [number, number, number, number];
-  hinweise: string[];
-}
-
-/**
- * Druck mal Zeit: Nur der Anteil über dem Kapillardruck schadet. Scherkräfte und Feuchtigkeit verstärken.
- * Tiefe Schäden beginnen am Knochen (Muskel ist empfindlicher als Haut), daher wächst die Belastung von innen.
- */
-export function haut(e: HautEingabe): HautErgebnis {
-  const ueber = Math.max(0, e.druck - KAPILLARDRUCK);
-  const faktor = (e.scherkraefte ? 1.5 : 1) * (e.feuchtigkeit ? 1.3 : 1);
-  const last = ueber * e.stunden * faktor;
-  const kategorie: Kategorie = last < 25 || e.stunden < 0.5 ? 0 : last < 80 ? 1 : last < 200 ? 2 : last < 350 ? 3 : 4;
-  const s = (schwelle: number) => klemme((last - 15) / schwelle, 0, 1);
-  // Muskel nahe am Knochen leidet zuerst; Feuchtigkeit trifft die Oberfläche.
-  const schichten: [number, number, number, number] = [
-    klemme(s(200) + (e.feuchtigkeit ? 0.2 : 0), 0, 1), s(260), s(320), s(200),
-  ];
-  const hinweise: string[] = [];
-  if (e.druck <= KAPILLARDRUCK) hinweise.push(`Unter etwa ${KAPILLARDRUCK} mmHg bleiben die Kapillaren offen: Weichlagerung senkt den Auflagedruck.`);
-  else if (e.stunden >= 2) hinweise.push('Der Druck liegt über dem Kapillardruck und das schon lange: Bewegungsplan prüfen, Lage wechseln, Mikrobewegungen fördern.');
-  if (e.scherkraefte) hinweise.push('Scherkräfte (Hinunterrutschen im Bett, Ziehen statt Heben) verschieben die Schichten gegeneinander und reißen Gefäße ab.');
-  if (e.feuchtigkeit) hinweise.push('Feuchte Haut (Inkontinenz, Schweiß) weicht auf und wird schneller verletzt: Hautschutz, rasch versorgen.');
-  if (kategorie >= 3) hinweise.push('Tiefe Schäden entstehen oft am Knochen und sind außen erst spät sichtbar.');
-  return { kategorie, schichten, hinweise };
-}
 
 // ------------------------------------------------------------------ Erkundungsaufträge
 

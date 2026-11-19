@@ -136,6 +136,11 @@ describe('Pflege-Physiologiemodell: Treiber fachlich plausibel', () => {
       expect(befinden(mit.g, mit.treiber, mit.k).neuVerwirrt).toBe(true);
       expect(lauf('hochbetagt', 60, [{ art: 'delir_trigger', ausloeser: ['exsikkose'] }]).g.delir).toBe(0);
     },
+    immobil: () => {
+      const r = lauf('hochbetagt', 240, [{ art: 'immobil', druckMmHg: 70, feucht: true }]);
+      expect(r.g.dekubitusKat).toBeGreaterThanOrEqual(1);
+      expect(r.a.dekubitusKat).toBe(r.g.dekubitusKat);
+    },
     harnverhalt: () => {
       const r = lauf('hochbetagt', 60, [{ art: 'harnverhalt' }, { art: 'delir_trigger', ausloeser: ['harnverhalt'] }]);
       expect(r.g.schmerz).toBeGreaterThan(2);

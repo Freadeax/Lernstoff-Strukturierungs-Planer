@@ -76,6 +76,9 @@ export interface Grundgroessen {
   wirkDiurese?: number;          // zusätzliche Diurese durch Arzneimittel ml/h (Furosemid …)
   // G2 Ausscheidung (optional): Blasenfüllung in ml; Fall setzt sie, ein Harnverhalt legt sie an
   blaseMl?: number;
+  // G3 Haut (optional): Druckbelastung mmHg·h über Kapillardruck an der Auflagestelle, höchste Dekubitus-Kategorie 0–4
+  druckLast?: number;
+  dekubitusKat?: number;
 }
 
 /** Vom Kern abgeleitet, Ziele für den Monitor (Logik-Takt 5 s, Render interpoliert). */
@@ -100,6 +103,8 @@ export interface Anzeige {
   urinFarbe?: number;
   /** Blasenfüllung ml, nur wenn das Modell sie führt (G2; Ultraschall-Blasenscan) */
   blaseMl?: number;
+  /** Dekubitus-Kategorie 0–4 an der Auflagestelle, nur wenn das Modell Haut führt (G3) */
+  dekubitusKat?: number;
   bilanzMl?: number;             // Einfuhr − Ausfuhr seit Fallbeginn
   /** Beatmung: Spitzendruck in cmH₂O */
   ppeak?: number;
@@ -131,6 +136,8 @@ export type Treiber =
   | { art: 'naloxon'; halbwertMin: number }
   /** volle Blase / Harnverhalt: Schmerz, Unruhe, Delir-Auslöser; endet über MassnahmeDefinition.beendet */
   | { art: 'harnverhalt' }
+  /** G3: liegt/sitzt ohne Eigenbewegung; Auflagedruck in mmHg (Weichlagerung ≈ 30, Standardmatratze ≈ 60–80) */
+  | { art: 'immobil'; druckMmHg: number; scherkraefte?: boolean; feucht?: boolean }
   // G1 Wirkstoffe (Register physiologie/wirkstoffe.ts): Kinetik nach Weg, Halbwertszeit, Alter und Gewicht
   | { art: 'wirkstoff'; id: string; dosisMg: number; weg?: ArzneiWeg };
 
