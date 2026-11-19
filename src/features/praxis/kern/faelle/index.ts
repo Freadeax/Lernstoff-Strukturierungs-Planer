@@ -8,9 +8,11 @@ import { KH_MEDIKATIONSVERWECHSLUNG } from './kh-medikationsverwechslung';
 import { KH_NACHBLUTUNG } from './kh-nachblutung';
 import { KH_ERSTER_TAG } from './kh-erster-tag';
 import { KH_REHA_ERSTER_WEG } from './kh-reha-erster-weg';
+import { KH_HARNVERHALT_POSTOP } from './kh-harnverhalt-postop';
 import { KH_PNEUMONIE_SEPSIS } from './kh-pneumonie-sepsis';
 import { LZ_DEMENZ_ASPIRATION } from './lz-demenz-aspiration';
 import { LZ_KOERPERPFLEGE_ABGELEHNT } from './lz-koerperpflege-abgelehnt';
+import { LZ_DEKUBITUS_IMMOBIL } from './lz-dekubitus-immobil';
 import { LZ_DEMENZ_SCHMERZ } from './lz-demenz-schmerz';
 import { PAED_ASTHMA_SCHULKIND } from './paed-asthma-schulkind';
 import { PAED_BRONCHIOLITIS_SAEUGLING } from './paed-bronchiolitis-saeugling';
@@ -31,7 +33,7 @@ import { NA_ACS_BRUSTSCHMERZ } from './na-acs-brustschmerz';
 import { LZ_SCHLAGANFALL_AKUT } from './lz-schlaganfall-akut';
 import { ITS_BEATMUNG_ALARM } from './its-beatmung-alarm';
 
-export const FAELLE_V2: readonly FallV2[] = [PILOT_AMBULANT, KH_PNEUMONIE_SEPSIS, LZ_DEMENZ_SCHMERZ, PAED_FIEBERKRAMPF, PSY_PANIK_SUIZIDALITAET, SR_SEPTISCHER_SCHOCK, KH_ERSTER_TAG, LZ_KOERPERPFLEGE_ABGELEHNT, KH_REHA_ERSTER_WEG,
+export const FAELLE_V2: readonly FallV2[] = [PILOT_AMBULANT, KH_PNEUMONIE_SEPSIS, LZ_DEMENZ_SCHMERZ, PAED_FIEBERKRAMPF, PSY_PANIK_SUIZIDALITAET, SR_SEPTISCHER_SCHOCK, KH_ERSTER_TAG, LZ_KOERPERPFLEGE_ABGELEHNT, KH_REHA_ERSTER_WEG, LZ_DEKUBITUS_IMMOBIL, KH_HARNVERHALT_POSTOP,
   // Fallwelle P16a (CE05)
   KH_NACHBLUTUNG, AWR_OPIOID_ATEMDEPRESSION, KH_ANAPHYLAXIE_INFUSION, KH_LUNGENEMBOLIE, KH_MEDIKATIONSVERWECHSLUNG,
   // Fallwelle P16b (CE06 Akutsituationen)

@@ -12,6 +12,16 @@ export interface WeiterlernenEintrag {
 }
 
 export const WEITERLERNEN_V2: Record<string, WeiterlernenEintrag> = {
+  'kh-harnverhalt-postop': {
+    themen: ['thema.ph.ausscheidung', 'thema.ph.periop', 'thema.ph.hygiene', 'thema.pro.delir'],
+    krankheiten: ['kh.hwi', 'kh.delir'],
+    extra: [{ label: 'Hygiene-Trainer', path: '/lernen/hygiene', warum: 'Aseptisches Arbeiten beim Katheterisieren üben.' }],
+  },
+  'lz-dekubitus-immobil': {
+    themen: ['thema.pro.dekubitus', 'thema.ph.mobilisation', 'thema.beo.haut', 'thema.pro.dehydratation'],
+    krankheiten: ['kh.dekubitus', 'kh.demenz'],
+    extra: [{ label: 'Expertenstandards nachschlagen', path: '/lernen/schnellsuche', warum: 'Dekubitusprophylaxe und Schmerzmanagement im Überblick.' }],
+  },
   'lz-koerperpflege-abgelehnt': {
     themen: ['thema.kom.gespraech', 'thema.ph.koerperpflege', 'thema.ph.ausscheidung', 'thema.pro.zystitis'],
     krankheiten: ['kh.hwi'],

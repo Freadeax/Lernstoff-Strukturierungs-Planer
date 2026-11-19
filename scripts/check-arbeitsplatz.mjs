@@ -235,6 +235,8 @@ try {
       { id: 'kh-erster-tag', person: /Frau Hoffmann/, partner: [/Jana/, /Frau Berger/, /Dr\. Aydin/], med: /Cefpodoxim[\s\S]*Ramipril/ },
       { id: 'lz-koerperpflege-abgelehnt', person: /Herr Schäfer/, partner: [/Mehmet/, /Frau Weber/, /Dr\. Lorenz/], med: /Tamsulosin/ },
       { id: 'kh-reha-erster-weg', person: /Herr Brenner/, partner: [/Ben/, /Frau Brenner/, /Dr\. Hahn/], med: /Enoxaparin[\s\S]*Ibuprofen/ },
+      { id: 'lz-dekubitus-immobil', person: /Frau Berger/, partner: [/Petrović/, /Dr\. Brandt/], med: /Donepezil[\s\S]*Macrogol/ },
+      { id: 'kh-harnverhalt-postop', person: /Herr Kraus/, partner: [/Jonas/, /Dr\. Neumann/], med: /Tamsulosin[\s\S]*Metamizol/ },
     ];
     for (const f of P17A) {
       await p.goto(base + `#/lernen/praxis?neu=${f.id}`, { waitUntil: 'networkidle' });

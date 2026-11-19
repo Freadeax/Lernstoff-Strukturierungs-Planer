@@ -6,7 +6,9 @@ import { bewerte } from '../auswertung';
 import { gilt, sende, start, type SimZustand } from '../kern';
 import type { FallV2, SimEventEingabe } from '../typen';
 import { KH_ERSTER_TAG as TAG } from './kh-erster-tag';
+import { KH_HARNVERHALT_POSTOP as HV } from './kh-harnverhalt-postop';
 import { KH_REHA_ERSTER_WEG as REHA } from './kh-reha-erster-weg';
+import { LZ_DEKUBITUS_IMMOBIL as DK } from './lz-dekubitus-immobil';
 import { LZ_KOERPERPFLEGE_ABGELEHNT as KP } from './lz-koerperpflege-abgelehnt';
 
 function spiele(z: SimZustand, eingaben: readonly SimEventEingabe[]): SimZustand {
@@ -132,5 +134,97 @@ describe('P17a CE 02 Erster Weg zum Bad (Herr Brenner, Hüft-TEP)', () => {
     expect(gegeben.fehlerAus).toContain('f-metamizol');
     const remonstriert = spiele(vorher, [{ art: 'remonstrieren', anordnung: 'an-novamin' }]);
     expect(remonstriert.angeboten).not.toContain('an-novamin');
+  });
+});
+
+describe('P17a CE 02 Dekubitusgefahr (Frau Berger, G3)', () => {
+  it('Musterweg auch im 1. Drittel ≥ 90 %', () => erstesDrittel(DK));
+  it('Ohne Entlastung: Kategorie 1 nach gut 25 Minuten, Fingertest bleibt rot', () => {
+    const z = bis(start(DK, 2, 2), 1700);
+    expect(z.grund.dekubitusKat).toBe(1);
+    expect(z.fehlerAus).toContain('f-kategorie1');
+    const h = spiele(z, [m('haut-beobachten')]);
+    expect(h.meldungen.filter((x) => x.art === 'befund').at(-1)?.text).toMatch(/rot bleibt/);
+  });
+  it('Positionieren setzt die Druckbelastung zurück, Rötung blasst ab', () => {
+    const z = spiele(start(DK, 2, 2), [{ art: 'frage', id: 'g-ankuendigen' }, m('positionieren-druckentlastung'), { art: 'warten', sek: 60 }]);
+    expect(z.grund.druckLast!).toBeLessThan(3);
+    expect(bis(z, 1800).grund.dekubitusKat).toBe(0);
+  });
+  it('Entlastet, aber ohne Rückmeldung: Fall endet nach dem Vormittag stabil, nicht verschlechtert', () => {
+    const z = bis(spiele(start(DK, 2, 2), [{ art: 'frage', id: 'g-ankuendigen' }, m('positionieren-druckentlastung')]), 2500);
+    expect(z.grund.dekubitusKat).toBe(0);
+    expect(z.ende?.ausgang).toBe('stabil');
+  });
+  it('Paracetamol nur einmal im Fall', () => {
+    const z = spiele(start(DK, 2, 2), [m('schmerz-besd'), m('kurve-lesen'), { art: 'anruf', an: 'aerztin', sbar: ['s-schmerz-lagern', 'a-besd', 'a-trinkt-wenig'] },
+      { art: 'rueckmelden', anordnung: 'an-paracetamol', rueckgelesen: true }, { art: 'auflegen', an: 'aerztin' }, m('bedarfsmedikation-oral'), m('bedarfsmedikation-oral')]);
+    expect(z.treiber.filter((t) => t.art === 'wirkstoff').length).toBe(1);
+    expect(z.meldungen.at(-1)?.text).toMatch(/noch nicht/);
+  });
+  it('Lagern ohne Ankündigung: Fehler; Franzbranntwein: Fehler', () => {
+    expect(spiele(start(DK, 2, 2), [m('positionieren-druckentlastung')]).fehlerAus).toContain('f-ohne-ankuendigen');
+    expect(spiele(start(DK, 2, 2), [m('franzbranntwein-einreiben')]).fehlerAus).toContain('f-franzbranntwein');
+  });
+  it('Meldung ohne Trinkmenge: Hausärztin fragt zurück; Rückmeldung bringt Paracetamol und BESD-Auftrag', () => {
+    let z = spiele(start(DK, 2, 2), [m('schmerz-besd'), { art: 'anruf', an: 'aerztin', sbar: ['s-schmerz-lagern', 'a-besd'] }]);
+    expect(letzteArzt(z)).toMatch(/Wie viel trinkt sie/);
+    z = spiele(z, [{ art: 'nachricht', an: 'aerztin', kanal: 'telefon', bausteine: ['zusage:melde-mich'] }, m('kurve-lesen'),
+      { art: 'nachricht', an: 'aerztin', kanal: 'messenger', bausteine: ['a-trinkt-wenig'] }, { art: 'warten', sek: 120 }]);
+    expect(z.angeboten).toEqual(expect.arrayContaining(['an-paracetamol', 'an-trinken']));
+    expect(gilt(z, { auftrag: 'af-besd', status: 'offen' })).toBe(true);
+  });
+  it('BESD als Wert-Baustein für die Rückmeldung', () => {
+    const z = spiele(start(DK, 2, 2), [m('schmerz-besd')]);
+    expect(z.meldungen.some((x) => x.werte?.besd !== undefined)).toBe(true);
+  });
+});
+
+describe('P17a CE 02 Harnverhalt nach der OP (Herr Kraus, G2)', () => {
+  it('Musterweg auch im 1. Drittel ≥ 90 %', () => erstesDrittel(HV));
+  it('Blase füllt sich weiter, Schmerz steigt; Katheter entleert und entlastet', () => {
+    const ohne = bis(start(HV, 2, 2), 1200);
+    expect(ohne.grund.blaseMl!).toBeGreaterThan(630);
+    expect(ohne.grund.schmerz).toBeGreaterThan(4.8);
+    const muster = HV.pruefwege.muster.filter((e) => e.art !== 'abschluss');
+    const mit = spiele(start(HV, 2, 2), muster);
+    expect(mit.grund.blaseMl!).toBeLessThan(150);
+    expect(mit.grund.schmerz).toBeLessThan(3);
+  });
+  it('Meldung ohne Blasenscan: Arzt fragt zurück; nach dem Scan ordnet er den Einmalkatheter an', () => {
+    let z = spiele(start(HV, 2, 2), [m('kurve-lesen'), { art: 'anruf', an: 'aerztin', sbar: ['s-kein-urin', 'b-prostata'] }]);
+    expect(letzteArzt(z)).toMatch(/Wie voll ist die Blase/);
+    z = spiele(z, [{ art: 'nachricht', an: 'aerztin', kanal: 'telefon', bausteine: ['zusage:melde-mich'] }, m('blasenscan'),
+      { art: 'nachricht', an: 'aerztin', kanal: 'messenger', bausteine: ['a-blasenscan'] }]);
+    z = bis(z, z.t + 120);
+    expect(z.angeboten).toEqual(expect.arrayContaining(['an-einmalkatheter', 'an-bilanz']));
+  });
+  it('Katheter im 1. Drittel: selbst gesperrt, Assistenz nach Anordnung möglich', () => {
+    const z = spiele(start(HV, 1, 2), [m('blasenscan'), { art: 'anruf', an: 'aerztin', sbar: ['s-kein-urin', 'a-blasenscan'] },
+      { art: 'rueckmelden', anordnung: 'an-einmalkatheter', rueckgelesen: true }, { art: 'auflegen', an: 'aerztin' }]);
+    expect(spiele(z, [m('einmalkatheter')]).flags).not.toContain('katheterisiert');
+    expect(spiele(z, [m('katheter-assistieren')]).flags).toContain('katheterisiert');
+  });
+  it('„Er ist halt inkontinent“: nur Vorlage ist ein schwerer Fehler', () => {
+    const z = bis(start(HV, 2, 2), 290);
+    let y = sende(z, { art: 'warten', sek: 30 });
+    expect(y.offeneEntscheidung).toBe('e-vorlage');
+    y = sende(y, { art: 'entscheidung', ereignis: 'e-vorlage', wahl: 'w-nur-vorlage' });
+    expect(y.fehlerAus).toContain('f-nur-vorlage');
+    expect(bis(spiele(start(HV, 2, 2), [m('vorlage-anlegen')]), 950).fehlerAus).toContain('f-nur-vorlage');
+  });
+  it('Vorlage zum Schutz und danach Blasenscan: kein Fehler', () => {
+    const z = bis(spiele(start(HV, 2, 2), [m('blase-tasten'), m('vorlage-anlegen'), m('blasenscan')]), 950);
+    expect(z.fehlerAus).not.toContain('f-nur-vorlage');
+  });
+  it('Scan-Wert und BESD stehen als Doku-Bausteine bereit', () => {
+    const hv = spiele(start(HV, 2, 2), [m('blasenscan'), { art: 'dokumentieren', bausteine: ['wert:blaseMl'] }]);
+    expect(hv.meldungen.filter((x) => x.art === 'doku').at(-1)?.text).toMatch(/Blasenfüllung \d+ ml/);
+    const dk = spiele(start(DK, 2, 2), [m('schmerz-besd'), { art: 'dokumentieren', bausteine: ['wert:besd'] }]);
+    expect(dk.meldungen.filter((x) => x.art === 'doku').at(-1)?.text).toMatch(/BESD \d+\/10/);
+  });
+  it('Blasenscan als Wert-Baustein', () => {
+    const z = spiele(start(HV, 2, 2), [m('blasenscan')]);
+    expect(z.meldungen.some((x) => x.werte?.blaseMl !== undefined)).toBe(true);
   });
 });

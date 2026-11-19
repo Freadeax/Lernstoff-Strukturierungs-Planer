@@ -175,6 +175,9 @@ Code: `kommunikation.ts` (rein, vom Kern aufgerufen), Zustand in `SimZustand.kom
 - `kh-erster-tag` (CE 01): Händedesinfektion vor dem Kontakt (Fehler `f-haende-vergessen`, wenn eine patientennahe Handlung vorher kommt), Identität, Vorwerte vergleichen, Schwindel beim Aufsetzen (Entscheidung), Rückfrage Trinkmenge, Rückauftrag RR/Puls, Nachbarin am Telefon (keine Auskunft), Infusion im 1. Drittel durch Pflegefachfrau Jana (Gespräch mit Volumenwirkung), Ramipril- und Paracetamol-Fallen.
 - `lz-koerperpflege-abgelehnt` (CE 03): Körperpflege erst nach Grund (`grund-scham`) und Aushandeln (`einverstanden-pflege`), „trotzdem waschen“ und Druck der WBL als Grenzüberschreitung, neue Inkontinenz → Urinstix-Rückfrage, Dauerkatheter als fehlerhafte Anordnung, Reflexion mit der PA als Pflicht (KB V).
 - `kh-reha-erster-weg` (CE 02, aus Altfall „reha“): Mobilisation Tag 1 nach Hüft-TEP vorbereiten, Kollaps beim Gehen (Entscheidung), Rückfrage Hb, Novaminsulfon trotz Metamizol-Allergie remonstrieren, Physio/Ehefrau.
+- `lz-dekubitus-immobil` (CE 02, G3): Treiber `immobil` 55 mmHg, feucht, Start `druckLast` 12 → ohne Entlastung Kategorie 1 nach gut 25 min (Fehler `f-kategorie1`, Fingertest-Befund über `wert: dekubitusKat`). Braden neu, BESD (Wert-Baustein `wert:besd`), Rückfrage Trinkmenge, Paracetamol vor dem Lagern, Ankündigen vor dem Lagern, Franzbranntwein (Entscheidung), Bewegungsplan und Matratze.
+- `kh-harnverhalt-postop` (CE 02/05, G2): Treiber `harnverhalt`, Start `blaseMl` 610, Überlaufinkontinenz (Entscheidung „Vorlage“), Miktion erst nicht-invasiv, Blasenscan (`{blaseMl}`, Wert-Baustein `wert:blaseMl`), Rückfrage Scan, Einmalkatheter nach Anordnung: 1. Drittel assistiert (`katheter-assistieren`), selbst ab 2. Drittel mit PA; Katheter beendet den Harnverhalt und senkt Schmerz/Unruhe.
+- `kommunikation.ts`: Wert-Bausteine zusätzlich für `besd` und `blaseMl`.
 - Tests: `faelle/p17a.test.ts` (u. a. Musterweg im 1. Drittel ≥ 90 %), Browserprüfung Block P17A in `check-arbeitsplatz.mjs`.
 
 ## Fallwelle P16a: CE 05 (2./3. Drittel)
@@ -247,6 +250,7 @@ Remonstrationspunkt, Entscheidungs- bzw. Komplikationsereignis und Weiterlernen-
 
 - Psychiatrie: Foto Aufenthaltsraum fehlt, `psy-unruhe-deeskalation` nutzt vorläufig `11_pflegeheim_speiseraum` (Beispielbild).
 - `kh-alkoholentzug` ist nur für das 3. Drittel (`ad3`, Lehrplan sucht3).
+- `paed-bronchiolitis-saeugling` v0.1.1: ohne Hilfe Sekretstau (HF um 195, AF um 75), ab Minute 25 Erschöpfung mit Atempausen und Bradykardie (Näherung über gedämpften Atemantrieb, `opioid_ueberhang` als Erschöpfungslast); Unterlassung: SpO₂ < 80 und HF < 100.
 
 ## Grundsystem G6: Schlucken, Aspiration, Ernährung
 

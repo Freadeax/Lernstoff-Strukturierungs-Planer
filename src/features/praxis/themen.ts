@@ -43,6 +43,8 @@ export const KERN_THEMEN: Record<string, string[]> = {
   'sr-septischer-schock': ['thema.kl.infektion', 'thema.beo.notfall', 'thema.pp.uebergabe'],
   'kh-erster-tag': ['thema.ph.hygiene', 'thema.beo.vitalzeichen', 'thema.re.schweigepflicht', 'thema.re.berufsrecht', 'thema.pro.sturz', 'thema.kom.selbstpflege'],
   'kh-reha-erster-weg': ['thema.ph.mobilisation', 'thema.pro.sturz', 'thema.ph.periop', 'thema.pro.thrombose', 'thema.beo.vitalzeichen'],
+  'kh-harnverhalt-postop': ['thema.ph.ausscheidung', 'thema.ph.periop', 'thema.ph.hygiene', 'thema.beo.vitalzeichen', 'thema.pro.delir'],
+  'lz-dekubitus-immobil': ['thema.pro.dekubitus', 'thema.ph.mobilisation', 'thema.beo.haut', 'thema.pro.dehydratation', 'thema.kl.demenz'],
   'lz-koerperpflege-abgelehnt': ['thema.kom.gespraech', 'thema.kom.grundlagen', 'thema.ph.koerperpflege', 'thema.kom.ethik', 'thema.ph.ausscheidung', 'thema.pro.zystitis'],
   'paed-asthma-schulkind': ['thema.kl.paediatrie', 'thema.kl.atmung', 'thema.fa.paediatrie', 'thema.kom.beratung', 'thema.re.schweigepflicht'],
   'paed-bronchiolitis-saeugling': ['thema.kl.paediatrie', 'thema.kl.atmung', 'thema.fa.paediatrie', 'thema.ph.hygiene', 'thema.pro.dehydratation'],
