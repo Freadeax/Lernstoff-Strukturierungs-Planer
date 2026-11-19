@@ -40,6 +40,7 @@ export const PSY_PANIK_SUIZIDALITAET: FallV2 = {
     'Bei akuter Suizidalität nicht allein lassen, Mittel sichern, Schweigepflicht ehrlich begrenzen.',
     'Eine unzureichende Anordnung („stündliche Kontrolle reicht“) hinterfragen.',
   ],
+  lehrplan: { ce: ['ce.11'], abschnitt: ['ad12', 'ad3'], themen: ['thema.kl.psych', 'thema.re.schweigepflicht'] },
   geeignet: { rollen: [1, 2, 3], stufen: [1, 2, 3] },
   dauerMin: [12, 18],
   freigabe: {
