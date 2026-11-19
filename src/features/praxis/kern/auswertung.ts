@@ -157,6 +157,10 @@ export function eingabeText(fall: FallV2, e: SimEventEingabe): string {
     }
     case 'warten': return `${e.sek} s gewartet`;
     case 'abschluss': return 'Fall abgeschlossen';
+    // Runde 2 (P11/P13): der Kern setzt sie um; Texte hier vorläufig, P11/P13 verfeinern
+    case 'nachricht': return `Nachricht an ${e.an}: ${e.bausteine.map((id) => fall.sbar.find((s) => s.id === id)?.text ?? id).join(' · ') || e.freitext || 'ohne Inhalt'}`;
+    case 'auflegen': return `Gespräch mit ${e.an} beendet`;
+    case 'dokumentieren': return 'Im Pflegebericht dokumentiert';
   }
 }
 
