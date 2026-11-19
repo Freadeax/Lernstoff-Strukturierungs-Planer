@@ -277,8 +277,32 @@ try {
       assert.match(await akte.innerText(), f.med, `${w} ${f.id}: Medikationsplan`);
       await akte.getByRole('button', { name: 'Schließen' }).click();
     }
+    // P18 Fallwelle Lebenswelt/Lebensende (CE08/CE09): Gesprächspartner und Medikationsplan je Fall
+    const P18 = [
+      { id: 'lz-demenz-aspiration', person: /Herr Kühn/, partner: [/Thomas/, /Dr\. Sander/], med: /Bisoprolol/ },
+      { id: 'lz-unterzucker-mittag', person: /Frau Winter/, partner: [/Karin|Tochter/, /Dr\. Okafor/], med: /insulin/i },
+      { id: 'amb-hausbesuch-still', person: /Frau Sommer/, partner: [/Sabine|Tochter/, /Dr\. Brenner/], med: /Ramipril[\s\S]*Hydrochlorothiazid/ },
+      { id: 'lz-palliativ-gespraech', person: /Frau Roth/, partner: [/Petra|Tochter/, /Dr\. Feld/], med: /Metamizol/ },
+      { id: 'kh-sterbephase-nacht', person: /Herr Hartwig/, partner: [/Ingrid|Ehefrau/, /Dr\. Weiß/], med: /Morphin[\s\S]*Lorazepam/ },
+    ];
+    for (const f of P18) {
+      await p.goto(base + `#/lernen/praxis?neu=${f.id}`, { waitUntil: 'networkidle' });
+      await p.getByRole('button', { name: 'Fall beginnen' }).click();
+      await p.getByRole('button', { name: 'Pause' }).click();
+      await p.getByRole('tab', { name: /Sprechen/ }).click();
+      const leiste = p.getByRole('navigation', { name: 'Gesprächspartner' });
+      for (const t of f.partner) assert.match(await leiste.innerText(), t, `${w} ${f.id}: Gesprächspartner ${t}`);
+      await axe(`p18-${f.id}-sprechen`);
+      await p.getByRole('button', { name: 'Patientenakte', exact: true }).or(p.getByRole('button', { name: 'Patientenakte öffnen' })).first().click();
+      const akte = p.getByRole('dialog', { name: f.person });
+      await akte.waitFor();
+      await akte.getByRole('tab', { name: 'Medikation' }).click();
+      assert.match(await akte.innerText(), f.med, `${w} ${f.id}: Medikationsplan`);
+      await axe(`p18-${f.id}-akte`);
+      await akte.getByRole('button', { name: 'Schließen' }).click();
+    }
     await ctx.close();
   }
 } finally { await browser.close(); }
 assert.deepEqual(fehler, [], 'Arbeitsplatz');
-console.log('Arbeitsplatz: Pilotfall bei 390, 820 und 1180 px durchgespielt, Pilotstaffel Spur A gestartet, P14a-Fälle (Rückfrage, Gesprächspartner, Akte) P17a-Einstiegsfälle und P16b-Fälle (CE06) geprüft, axe WCAG 2.2 AA ohne Befund (inkl. Abschluss, Auswertung, Spur B).');
+console.log('Arbeitsplatz: Pilotfall bei 390, 820 und 1180 px durchgespielt, Pilotstaffel Spur A gestartet, P14a-Fälle (Rückfrage, Gesprächspartner, Akte) P17a-Einstiegsfälle und P16b-Fälle (CE06) geprüft, P18-Fälle (Lebenswelt/Lebensende) geprüft, axe WCAG 2.2 AA ohne Befund (inkl. Abschluss, Auswertung, Spur B).');
