@@ -6,5 +6,8 @@ import { LZ_DEMENZ_SCHMERZ } from './lz-demenz-schmerz';
 import { PAED_FIEBERKRAMPF } from './paed-fieberkrampf';
 import { PSY_PANIK_SUIZIDALITAET } from './psy-panik-suizidalitaet';
 import { SR_SEPTISCHER_SCHOCK } from './sr-septischer-schock';
+import { AMB_HERZSCHWAECHE } from './amb-herzschwaeche';
+import { AMB_HYPOGLYKAEMIE } from './amb-hypoglykaemie';
+import { LZ_SCHLAGANFALL_REHA } from './lz-schlaganfall-reha';
 
-export const FAELLE_V2: readonly FallV2[] = [PILOT_AMBULANT, KH_PNEUMONIE_SEPSIS, LZ_DEMENZ_SCHMERZ, PAED_FIEBERKRAMPF, PSY_PANIK_SUIZIDALITAET, SR_SEPTISCHER_SCHOCK];
+export const FAELLE_V2: readonly FallV2[] = [PILOT_AMBULANT, KH_PNEUMONIE_SEPSIS, LZ_DEMENZ_SCHMERZ, PAED_FIEBERKRAMPF, PSY_PANIK_SUIZIDALITAET, SR_SEPTISCHER_SCHOCK, AMB_HERZSCHWAECHE, AMB_HYPOGLYKAEMIE, LZ_SCHLAGANFALL_REHA];

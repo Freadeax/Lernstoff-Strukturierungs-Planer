@@ -39,4 +39,17 @@ export const WEITERLERNEN_V2: Record<string, WeiterlernenEintrag> = {
     themen: ['thema.fa.psychiatrie', 'thema.kl.psych', 'thema.kom.gespraech'],
     krankheiten: ['kh.angststoerung', 'kh.depression'],
   },
+  'amb-herzschwaeche': {
+    themen: ['thema.kl.herz.insuffizienz', 'thema.kom.beratung', 'thema.fa.ambulant'],
+    krankheiten: ['kh.herzinsuffizienz'],
+  },
+  'amb-hypoglykaemie': {
+    themen: ['thema.kl.diabetes', 'thema.kom.beratung', 'thema.fa.ambulant'],
+    krankheiten: ['kh.diabetes-typ2'],
+    extra: [{ label: 'Physiologie: Blutzucker', path: '/lernen/physiologie', warum: 'Wie Insulin, Kohlenhydrate und Bewegung den Zucker verschieben.' }],
+  },
+  'lz-schlaganfall-reha': {
+    themen: ['thema.kl.neuro.schlaganfall', 'thema.pro.aspiration', 'thema.ph.mobilisation', 'thema.kom.beratung'],
+    krankheiten: ['kh.schlaganfall'],
+  },
 };
