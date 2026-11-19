@@ -34,8 +34,8 @@ export const FALLPLAN: readonly PlanEintrag[] = [
 
   { ce: 'ce.03', titel: 'Bewohner lehnt die Körperpflege ab', art: 'neu', abschnitt: ['ad12'], paket: 'P17', fall: 'lz-koerperpflege-abgelehnt' },
 
-  { ce: 'ce.04', titel: 'Herzschwäche: Gewicht, Ödeme, Schulung', art: 'migrieren', abschnitt: ['ad12', 'ad3'], paket: 'P17', alt: ['herzschwaeche'] },
-  { ce: 'ce.04', titel: 'Diabetes: Unterzuckerung und Insulinschulung', art: 'neu', abschnitt: ['ad12', 'ad3'], paket: 'P17' },
+  { ce: 'ce.04', titel: 'Herzschwäche: Gewicht, Ödeme, Schulung', art: 'migrieren', abschnitt: ['ad12', 'ad3'], paket: 'P17', alt: ['herzschwaeche'], fall: 'amb-herzschwaeche' },
+  { ce: 'ce.04', titel: 'Diabetes: Unterzuckerung und Insulinschulung', art: 'neu', abschnitt: ['ad12', 'ad3'], paket: 'P17', fall: 'amb-hypoglykaemie' },
 
   { ce: 'ce.05', titel: 'Pneumonie mit beginnender Sepsis', art: 'vorhanden', abschnitt: ['ad12', 'ad3'], fall: 'kh-pneumonie-sepsis', alt: ['sepsis', 'nachtwache'] },
   { ce: 'ce.05', titel: 'Nachblutung nach der OP', art: 'migrieren', abschnitt: ['ad12', 'ad3'], paket: 'P16', alt: ['nachblutung'], fall: 'kh-nachblutung' },
@@ -50,7 +50,7 @@ export const FALLPLAN: readonly PlanEintrag[] = [
   { ce: 'ce.06', titel: 'Alarm während der Übergabe auf der Intensivstation', art: 'migrieren', abschnitt: ['ad3'], paket: 'P16', alt: ['its'], fall: 'its-beatmung-alarm' },
   { ce: 'ce.06', titel: 'Reanimation (BLS) im Zimmer', art: 'neu', abschnitt: ['ad12', 'ad3'], paket: 'P16', fall: 'kh-reanimation-bls' },
 
-  { ce: 'ce.07', titel: 'Schlaganfall in der Reha: Schlucken, Lagerung, Angehörige anleiten', art: 'neu', abschnitt: ['ad12', 'ad3'], paket: 'P17' },
+  { ce: 'ce.07', titel: 'Schlaganfall in der Reha: Schlucken, Lagerung, Angehörige anleiten', art: 'neu', abschnitt: ['ad12', 'ad3'], paket: 'P17', fall: 'lz-schlaganfall-reha' },
 
   { ce: 'ce.08', titel: 'Zeit für ein schwieriges Gespräch', art: 'migrieren', abschnitt: ['ad12', 'ad3'], paket: 'P18', alt: ['palliativ'], fall: 'lz-palliativ-gespraech' },
   { ce: 'ce.08', titel: 'Sterbephase: Atemnot, Unruhe, Angehörige', art: 'neu', abschnitt: ['ad3'], paket: 'P18', fall: 'kh-sterbephase-nacht' },
@@ -75,7 +75,6 @@ export const FALLPLAN: readonly PlanEintrag[] = [
 /** Wo noch kein Fall auf dem neuen Kern die Abdeckungsregel erfüllt (Stand main). Wird kleiner, sobald Fälle kommen;
  *  der Test verlangt, dass keine Lücke außerhalb der Liste entsteht (parallele Fallwellen: erledigte Einträge dürfen kurz stehen bleiben, beim nächsten PR streichen). Regel: jede CE ein Kernfall im 1./2. Drittel, CE04–CE11 einer im 3. Drittel. */
 export const ABDECKUNG_OFFEN: readonly string[] = [
-  'ce.04:ad3', 'ce.07:ad12', 'ce.07:ad3',
 ];
 
 const MIT_AD3 = ['ce.04', 'ce.05', 'ce.06', 'ce.07', 'ce.08', 'ce.09', 'ce.10', 'ce.11'];
