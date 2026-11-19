@@ -206,3 +206,14 @@ Alle Felder gehen als Platzhalter in Befundtexte (`{qsofa}`, `{schockindex}` mit
 - **Anzeige für alle**: `pupilleRechtsMm`/`pupilleLinksMm`, `pupilleRechtsLicht`/`pupilleLinksLicht` (Opioide eng, schwere Hypoxie/Stillstand weit und lichtstarr), `gcsAugen`/`gcsVerbal`/`gcsMotorik` (Summe = `gcs`; ohne Neuro unverändert, Aphasie senkt nur den verbalen Wert).
 - **Anzeige mit Schlaganfall**: `fast` (0–3), `nihss` (grob), `seitBeginnMin`, `lyseFensterMin` – für Befundtexte und Zeitdruck-Bedingungen.
 - Grundgrößen `neuroSeite`, `seitBeginnMin`, `wirkOpioid` schreibt das Modell; Fälle setzen sie nicht.
+
+## Grundsystem G6: Schlucken, Aspiration, Ernährung
+
+`physiologie/schlucken.ts` (Lernmodell; Logopädie und Schluckdiagnostik gehen vor).
+
+- **Dysphagie** (`Grundgroessen.dysphagie`, vom Modell): Treiber `schluckstoerung { schwere }`, Schlaganfall (0,8 × `neuroDefizit`) oder Eintrübung (Vigilanz < 0,55). Ohne Schluckthema (kein Treiber, kein Schlaganfall, keine Mahlzeit) führt das Modell nichts davon.
+- **Treiber `nahrung { form: 'essen' | 'trinken' }`**: wirkt 15 Minuten. Katalog: „essen-anreichen“ und „trinken-anbieten“ setzen ihn. Dünne Flüssigkeit aspiriert mehr als Essen, Eintrübung mehr als wach; „kost-anpassen“ (Wirkkurve `kostAngepasst` 0→1, in `OPTIONALE_WIRKGROESSEN`) senkt die Aspiration um 65 %.
+- **Akut** (`aspirationAkut`): Husten, schnelle Atmung, SpO₂ fällt, klingt in etwa 20 Minuten ab.
+- **Folge** (`aspirationsPneumonie`): Schwere nach aspirierter Menge, entwickelt sich über Stunden; wirkt wie Treiber `pneumonie` (Fieber, Rasselgeräusche im Befinden, Gasaustausch). Beatmete Personen (Spur B mit Beatmung) aspirieren im Modell nicht.
+- **Anzeige `guss`** (Gugging Swallowing Screen 0–20; ≤ 14 Aspirationsgefahr, eingetrübt ≤ 4) als Platzhalter für den Befund von „schlucken-pruefen“.
+- Ernährungszustand (Gewicht, MNA) ändert sich in Fallzeit nicht; er gehört in die Falldaten, Braden schätzt die Ernährung aus der Hydratation.

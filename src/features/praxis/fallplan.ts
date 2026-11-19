@@ -73,7 +73,7 @@ export const FALLPLAN: readonly PlanEintrag[] = [
 ];
 
 /** Wo noch kein Fall auf dem neuen Kern die Abdeckungsregel erfüllt (Stand main). Wird kleiner, sobald Fälle kommen;
- *  der Test verlangt, dass die Liste genau stimmt. Regel: jede CE ein Kernfall im 1./2. Drittel, CE04–CE11 einer im 3. Drittel. */
+ *  der Test verlangt, dass keine Lücke außerhalb der Liste entsteht (parallele Fallwellen: erledigte Einträge dürfen kurz stehen bleiben, beim nächsten PR streichen). Regel: jede CE ein Kernfall im 1./2. Drittel, CE04–CE11 einer im 3. Drittel. */
 export const ABDECKUNG_OFFEN: readonly string[] = [
   'ce.04:ad12', 'ce.04:ad3', 'ce.07:ad12', 'ce.07:ad3', 'ce.08:ad12', 'ce.08:ad3',
 ];
