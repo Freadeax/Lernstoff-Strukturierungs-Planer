@@ -1,6 +1,6 @@
 // Neuer Arbeitsplatz des Praxissimulators (Paket P2, #/lernen/praxis?neu=<fall>): Pilotfall einmal durchspielen
 // bei 390 (iPhone), 820 (iPad hoch, „Bewegung reduzieren“) und 1180 px (iPad quer), axe WCAG 2.2 AA je Zustand.
-// Prüft: Briefing mit Rolle, Patientenakte (P13: Kurve, Medikation, Anordnungen, Pflegebericht schreiben), Pflegetasche (Gerät holen kostet Zeit, Werte erst nach dem Messen), Befugnis-Abzeichen,
+// Prüft: Briefing mit Rolle, Verlauf (P12: Kurve + Journal), Patientenakte (P13: Kurve, Medikation, Anordnungen, Pflegebericht schreiben), Pflegetasche (Gerät holen kostet Zeit, Werte erst nach dem Messen), Befugnis-Abzeichen,
 // SBAR → Anordnung → Rücklesen, Abschluss (Pflegebedarf priorisieren, Übergabe) und Auswertung (P5) inkl. Weitergabe
 // in den Übergabetrainer; bei 1180 px zusätzlich Spur B (Verdacht, klinische Bereiche).
 import { chromium } from 'playwright';
@@ -70,6 +70,19 @@ try {
     while (await p.getByRole('button', { name: 'Rücklesen und bestätigen' }).count()) await p.getByRole('button', { name: 'Rücklesen und bestätigen' }).first().click();
     if (await p.getByText('Entscheidungsmoment').count()) { await axe('entscheidung'); await p.getByRole('button', { name: /Ruhig auf sie eingehen/ }).click(); }
     await tu('Trinken anbieten');
+    // P12: Verlauf aus der Werteleiste – Kurve mit eigenen Messungen, Journal mit Filter, iPhone als Vollbild
+    await p.getByRole('button', { name: /Verlauf: Kurve/ }).click();
+    const verlauf = p.getByRole('dialog', { name: /Verlauf/ });
+    await verlauf.waitFor();
+    assert.ok(await verlauf.locator('.kb-rr').count() >= 1, `${w}: RR als Pfeil in der Kurve`);
+    assert.ok(await verlauf.locator('.vl-journal li').count() >= 8, `${w}: Journal mit Einträgen`);
+    if (w < 768) { await p.waitForTimeout(400); const b = await verlauf.boundingBox(); assert.ok(b && b.width >= w - 20 && b.height >= 800, `${w}: Verlauf als Vollbild ${JSON.stringify(b)}`); }
+    await verlauf.getByRole('button', { name: /Meine Handlungen/ }).click();
+    assert.equal(await verlauf.locator('.vl-journal li:not(.is-handlung)').count(), 0, `${w}: Filter Meine Handlungen`);
+    await verlauf.getByRole('button', { name: /^Alles/ }).click();
+    await axe('verlauf');
+    await verlauf.getByRole('button', { name: 'Schließen' }).click();
+    await verlauf.waitFor({ state: 'hidden' });
 
     // Patientenakte (P13): Kopfzeilen-Knopf, Uhr steht, Kurve mit Vorwerten + eigener Messung, Medikation geändert, Anordnung rückgelesen
     await p.getByRole('button', w === 820 ? { name: 'Patientenakte öffnen' } : { name: 'Patientenakte', exact: true }).click();   // iPad hoch: über den Hotspot im Foto

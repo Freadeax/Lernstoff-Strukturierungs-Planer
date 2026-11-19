@@ -1,0 +1,58 @@
+/* Kurvenblatt (P12/P13): Spuren untereinander, Beschriftung über jeder Spur, Grafik volle Breite. */
+.kb { margin: 0; display: grid; gap: var(--space-2); min-width: 0; }
+.kb__raster { display: grid; gap: 6px; min-width: 0; overflow: hidden; }
+.kb__zeile { display: grid; gap: 2px; }
+.kb__zeile svg { display: block; background: var(--color-surface-sunken); border-radius: var(--radius-sm, 6px); }
+.kb__marken { background: transparent !important; }
+.kb__label { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; font-size: var(--text-sm); line-height: 1.25; }
+.kb__label strong { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.kb__label small { color: var(--color-text-muted); }
+.kb__achse { position: relative; height: 18px; font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-text-muted); }
+.kb__achse span { position: absolute; top: 0; transform: translateX(-50%); white-space: nowrap; }
+.kb__achse span:first-child { transform: none; }
+.kb__achse span:last-child:not(:first-child) { transform: translateX(-100%); }
+.kb__leer { margin: 0; padding: var(--space-3); background: var(--color-surface-sunken); border-radius: var(--radius-md); }
+.kb__wahl { margin: 0; padding: 6px 10px; border-radius: var(--radius-md); background: var(--color-info-soft); font-size: var(--text-sm); }
+.kb__wahl time { font-family: var(--font-mono); margin-right: 4px; }
+.kb__legende { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: var(--text-xs); color: var(--color-text-muted); }
+.kb__legende span { display: inline-flex; align-items: center; gap: 4px; }
+.kb-sym { display: inline-block; width: 10px; height: 10px; }
+.kb-sym--punkt { border-radius: 50%; background: var(--color-text); }
+.kb-sym--hohl { border-radius: 50%; border: 2px solid var(--color-text); }
+.kb-sym--linie { height: 2px; width: 14px; background: var(--color-info); }
+.kb-sym--marke { width: 2px; height: 12px; background: var(--color-text); }
+.kb-sym--dreieck { width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 9px solid var(--color-warning); }
+.kb__tabelle summary { cursor: pointer; font-weight: 600; min-height: 44px; display: flex; align-items: center; }
+.kb__scroll { overflow-x: auto; }
+.kb__scroll table { border-collapse: collapse; font-size: var(--text-sm); font-variant-numeric: tabular-nums; }
+.kb__scroll th, .kb__scroll td { padding: 4px 8px; text-align: right; border-bottom: 1px solid var(--color-border); white-space: nowrap; }
+.kb__scroll th[scope='row'], .kb__scroll thead th:first-child { text-align: left; }
+.kb__scroll tr.is-vorwert { color: var(--color-text-muted); }
+
+/* Zeichnung */
+.kb-raster line { stroke: var(--color-border); stroke-width: 1; }
+.kb-raster text { fill: var(--color-text-muted); font-size: 10px; font-family: var(--font-mono); }
+.kb-jetzt { stroke: var(--color-primary); stroke-width: 1.5; stroke-dasharray: 3 3; }
+.kb-monitor { fill: none; stroke-width: 1.5; opacity: 0.6; stroke: var(--color-info); }
+.kb-monitor.is-hf { stroke: var(--color-danger); }
+.kb-monitor.is-rrSys, .kb-monitor.is-rrDia { stroke: var(--color-text); opacity: 0.4; }
+.kb-verbindung { fill: none; stroke-width: 1.2; stroke: var(--color-text-muted); }
+.kb-verbindung.is-hf { stroke: var(--color-danger); opacity: 0.6; }
+.kb-verbindung.is-temp { stroke: var(--color-info); opacity: 0.7; }
+.kb-punkt circle { fill: var(--color-text); stroke: var(--color-surface); stroke-width: 1; cursor: pointer; }
+.kb-punkt circle.is-hf { fill: var(--color-danger); }
+.kb-punkt circle.is-temp { fill: var(--color-info); }
+.kb-punkt.is-vorwert circle { fill: var(--color-surface); stroke: var(--color-text); stroke-width: 2; }
+.kb-punkt.is-vorwert circle.is-hf { stroke: var(--color-danger); }
+.kb-punkt.is-vorwert circle.is-temp { stroke: var(--color-info); }
+.kb-rr { cursor: pointer; }
+.kb-rr line, .kb-rr path { fill: none; stroke: var(--color-text); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.kb-punkt.is-vorwert .kb-rr line, .kb-punkt.is-vorwert .kb-rr path { stroke: var(--color-text-muted); }
+.kb-marke { cursor: pointer; }
+.kb-marke line { stroke: var(--color-text); stroke-width: 2; }
+.kb-marke.is-anordnung line, .kb-marke.is-nachricht line { stroke: var(--color-primary); }
+.kb-marke.is-doku line { stroke: var(--color-success); }
+.kb-marke.is-nicht line { stroke-dasharray: 2 2; opacity: 0.6; }
+.kb-marke path { fill: var(--color-warning); }
+.kb-marke.is-ereignis path { fill: var(--color-info); }
+.kb-marke.is-wichtig path, .kb-marke.is-alarm.is-wichtig path { fill: var(--color-danger); }
