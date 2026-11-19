@@ -44,6 +44,7 @@ import { laborSchritt, laborWerte } from './labor';
 import { laktatZiel } from './niere';
 import { schlafDelirLast, schlafSchritt, schlafZustand, sundowning } from './schlaf';
 import { entzugSchritt, tremorAus } from './entzug';
+import { wundSchritt, wundZustand } from './wunde';
 import { erschoepfungAntrieb, erschoepfungAnzeige, erschoepfungArbeit, erschoepfungSchritt } from './atemerschoepfung';
 import { cushing, cushingDruck, gcsTeile, neuroNachlast, neuroSchritt, neuroVigilanz, pupillen, schlaganfallZeichen } from './neuro';
 import { blaseNaechste, kaliumNachDiurese, stundenurin, urinFarbe } from './niere';
@@ -423,8 +424,17 @@ function naechster(alt: Grundgroessen, treiber: readonly Treiber[], dt: number, 
   // G7 Schlaf/Tageszeit
   const sl = schlafSchritt(alt, treiber, dt, k);
   if (sl) Object.assign(g, sl);
+  // G9 Wunde: Infekt, Nachblutung in den Verband (Volumenverlust), Fieber und Wundschmerz bei Infekt
+  const ws = wundSchritt(alt, treiber, dt, (tr) => seitMin(tr, k) / 60);
+  if (ws) {
+    Object.assign(g, ws);
+    g.volumen -= ((ws.wundBlutungMlMin ?? 0) * min) / blutvolumenMl;
+    const inf = ws.wundInfekt ?? 0;
+    if (inf > 0.2) fieberZiel = Math.max(fieberZiel, 37 + 1.8 * (inf - 0.2) * p.fieberAntwort);
+    if (inf > 0.3 && g.schmerz < 2 + 5 * inf) g.schmerz += 0.05 * min;
+  }
   // G8 Labor: Entzündung, CRP/Leukos/PCT, Niere, Erythrozytenmasse (verzögert)
-  const blutungMlMin = treiber.reduce((x, t) => (t.art === 'blutung' ? x + t.mlProMin : x), 0);
+  const blutungMlMin = treiber.reduce((x, t) => (t.art === 'blutung' ? x + t.mlProMin : x), 0) + (ws?.wundBlutungMlMin ?? 0);
   Object.assign(g, laborSchritt(alt, treiber, dt, k, kr.stillstand ? 0 : kr.map, gewicht(k, p), blutungMlMin, blutvolumenMl));
   // Alkoholentzug: Tremor, Schwitzen, Halluzinationen, Entzugskrampf, Delirium tremens; Benzodiazepine dämpfen
   const ae = treiber.find((t): t is Extract<Treiber, { art: 'alkoholentzug' }> => t.art === 'alkoholentzug');
@@ -572,6 +582,7 @@ function neuroAnzeige(g: Grundgroessen, k: ModellKontext, saO2: number, stillsta
       entzugStd: Math.round(g.entzugStd ?? 0),
     } : {}),
     ...erschoepfungAnzeige(g, k.altersgruppe),
+    ...wundZustand(g),
   };
 }
 

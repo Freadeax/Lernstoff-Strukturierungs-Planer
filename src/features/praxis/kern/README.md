@@ -302,3 +302,12 @@ Datei `physiologie/atemerschoepfung.ts`. Treiber `{ art: 'atemerschoepfung', tem
 - **Aufbau**: `erschoepfung` 0..1 wächst, solange die Atemarbeit über 1,6 liegt, je Stunde um Rate × tempo × Überschuss (Säugling 0,6, Kleinkind 0,4, Schulkind/Hochbetagte 0,25, sonst 0,15); darunter erholt sie sich um 0,3 je Stunde (Absaugen, High-Flow, Ruhe).
 - **Folgen ab 0,4**: Atemantrieb fällt (bis auf 20 %), die sichtbare Atemarbeit nimmt ab: Das Kind wird „ruhiger“ und atmet langsamer, CO₂ steigt, SpO₂ fällt, dann präfinale Bradykardie über die Hypoxie. Ab 0,6 bei Säuglingen und Kleinkindern Apnoen.
 - **Anzeige**: `atemerschoepfung` (keine / droht / dekompensiert), `apnoen`. Ersetzt den Notbehelf `opioid_ueberhang` in Bronchiolitis-Fällen.
+
+## Grundsystem G9: Wunde
+Datei `physiologie/wunde.ts`. Nur aktiv mit Treiber `wunde` oder `wundblutung`.
+- **Treiber** `{ art: 'wunde', ort, tagPostOp?, infektTempo? }` und `{ art: 'wundblutung', mlProMin }` (Nachblutung). Grundgrößen `wundTag`, `wundInfekt` (Startwert erlaubt), `verbandBlutMl`, `wundBlutungMlMin` (wirksam), `blutstillung`.
+- **Phase** aus dem Tag nach der OP: exsudativ bis Tag 3, proliferativ bis Tag 14, danach reparativ; ein Infekt (> 0,3) hält die Wunde exsudativ.
+- **Infekt**: `wundInfekt` wächst um `infektTempo` je Stunde. Zeichen Rötung, Überwärmung, Schwellung, Schmerz, Eiter (`wundInfektZeichen` 0–5), Fieber (Altersprofil), Wundschmerz, Entzündungslabor über G8 (CRP, Leukos).
+- **Nachblutung**: Blut geht aus dem Kreislauf (Volumen, G8 Hb-Masse: Hb fällt erst später) und in den Verband. `blutung-stillen` (Druckverband, Wirkkurve `blutstillung`) senkt sie um 80 %, eine chirurgische Blutung braucht trotzdem die Ärztin. `verband-unkompliziert`/`verband-kompliziert` setzen den Verband zurück (Wirkkurve `verbandBlutMl` Faktor 0); Blut im Verband vorher dokumentieren.
+- **Anzeige**: `wundPhase`, `wundsekret` (keins/serös/blutig/eitrig), `wundInfektZeichen`, `verband` (trocken / leicht durchgeblutet < 15 ml / durchgeblutet < 60 ml / durchnässt), `verbandBlutMl`.
+- P16a (Nachblutung): `{ art: 'wundblutung', mlProMin: 1–3 }` ab einem Ereignis; Bedingung z. B. `{ wert: 'verbandBlutMl', vergleich: '>', grenze: 30 }`.
