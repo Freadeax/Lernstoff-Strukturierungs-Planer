@@ -1,5 +1,6 @@
 // Praxissimulator neu – Patientenakte im Kern (Paket P13). Rein und deterministisch.
 // 1. Medikationsprüfung gegen den Plan (fall.akte.medikation): Doppelgabe, Bedarfs-Abstand, Höchstmenge pro Tag.
+//    Einträge mit `ab` (Anordnungs-ID) gelten erst nach dieser Anordnung im Fall.
 // 2. Bausteine für den Pflegebericht (Eingabe `dokumentieren`): Messwerte, Befunde, Maßnahmen, Anordnungen, SBAR-Einschätzungen.
 // Kein Import aus kern.ts (keine Ringabhängigkeit): kern.ts übergibt, was gebraucht wird.
 
@@ -36,6 +37,17 @@ export const planEintraege = (fall: FallV2, massnahmeId: string): MedPlanEintrag
 /** Eintrag ist durch eine erhaltene Anordnung geändert (z. B. pausiert) */
 export const istGeaendert = (e: MedPlanEintrag, anordnungen: Readonly<Record<string, unknown>>, zurueckgezogen: readonly string[] = []) =>
   !!e.geaendertDurch && !!anordnungen[e.geaendertDurch] && !zurueckgezogen.includes(e.geaendertDurch);
+
+/** Spielzeit, ab der der Eintrag gilt: 0 ohne `ab`, sonst Zeitpunkt der Anordnung; undefined = noch nicht angeordnet. */
+export function giltAb(e: MedPlanEintrag, anordnungen: Readonly<Record<string, unknown>>): number | undefined {
+  if (!e.ab) return 0;
+  const a = anordnungen[e.ab] as { t?: number } | undefined;
+  return a ? a.t ?? 0 : undefined;
+}
+
+/** Eintrag gilt jetzt: ohne `ab` immer, sonst nach erhaltener und nicht zurückgezogener Anordnung. */
+export const istAktiv = (e: MedPlanEintrag, anordnungen: Readonly<Record<string, unknown>>, zurueckgezogen: readonly string[] = []) =>
+  giltAb(e, anordnungen) !== undefined && !(e.ab && zurueckgezogen.includes(e.ab));
 
 /** Gaben pro Tag aus dem Schema („1-0-1-0“ → 2) */
 export function gabenProTag(schema: string | undefined): number {
@@ -85,8 +97,9 @@ export function medPruefung(fall: FallV2, massnahmeId: string, zeiten: readonly 
   const fehler: MedFehler[] = [];
   const tagBeginn = -uhrSek(fall.startUhrzeit);          // Mitternacht als Spielzeit
   for (const e of planEintraege(fall, massnahmeId)) {
-    if (istGeaendert(e, anordnungen, zurueckgezogen)) continue;
-    const vorher = [zuletztSek(e.zuletzt, fall.startUhrzeit), ...frueher].filter((x): x is number => x !== undefined);
+    if (istGeaendert(e, anordnungen, zurueckgezogen) || !istAktiv(e, anordnungen, zurueckgezogen)) continue;
+    const ab = giltAb(e, anordnungen)!;
+    const vorher = [zuletztSek(e.zuletzt, fall.startUhrzeit), ...frueher.filter((t) => !e.ab || t >= ab)].filter((x): x is number => x !== undefined);
     const letzte = vorher.length ? Math.max(...vorher) : undefined;
     const abstandH = mindestAbstandH(e);
     if (letzte !== undefined && abstandH > 0 && jetzt - letzte < abstandH * 3600) {

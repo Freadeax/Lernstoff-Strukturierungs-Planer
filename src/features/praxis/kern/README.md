@@ -93,7 +93,9 @@ Browserprüfung: `npm run test:arbeitsplatz` (390/820/1180 px, axe).
   zum Messzeitpunkt. Quelle für Kurvenblatt, Wert-Bausteine und Verlauf; nie den aktuellen Modellwert nachträglich lesen.
 - Gabe einer Maßnahme mit Plan-Eintrag prüft `medPruefung()`: Dauermedikation Mindestabstand aus dem Schema (1×/Tag 12 h,
   2× 6 h, sonst 3 h), Bedarf `abstandH` und `maxProTag` („4 Gaben“ oder Menge/Einzeldosis). Durch eine erhaltene Anordnung
-  geänderte Einträge (`geaendertDurch`) zählen nicht. Fehler im Log `med-doppelt:<eintrag>`, `med-abstand:…`, `med-max:…`
+  geänderte Einträge (`geaendertDurch`) zählen nicht. Im Fall neu angeordnete Bedarfsmedikation bekommt einen Plan-Eintrag mit
+  `ab: '<anordnungs-id>'`: erst nach der Anordnung in der Akte und geprüft, Gaben davor zählen nicht (Beispiele: Alkoholentzug,
+  Fieberkrampf, Dekubitus, Palliativgespräch). Fehler im Log `med-doppelt:<eintrag>`, `med-abstand:…`, `med-max:…`
   mit Text als Meldung; Auswertung KB I+III, klinisch Medikamente (Doppelgabe/Höchstmenge schwer, Abstand mittel).
 - Eingabe `dokumentieren` (Bausteine + Freitext): `dokuBausteine(z)` bietet nur Bekanntes an (`wert:<k>`, `befund:<maßnahme>`,
   `massnahme:<id>`, `anordnung:<id>`, SBAR-A-Bausteine). Markiert `doku:<baustein>` (Bedingung `{ dokumentiert }`), `doku` und

@@ -3,7 +3,7 @@
 // Anordnungen (frühere und mündliche im Fall), Pflegebericht, Befunde, Assessments, Pflegeplanung.
 // Keine Fachlogik: Prüfungen (Doppelgabe usw.) macht kern/akte.ts.
 
-import { akteVon, istGeaendert, kurvenwerte, medName, zuletztSek, type DokuBaustein, type DokuGruppe } from '../kern/akte';
+import { akteVon, giltAb, istGeaendert, kurvenwerte, medName, zuletztSek, type DokuBaustein, type DokuGruppe } from '../kern/akte';
 import { dokuBausteine, massnahme, type SimZustand } from '../kern/kern';
 import type { Akte, AkteEintrag, KurvenWert, MedPlanEintrag } from '../kern/typen';
 import { uhrzeit } from './ansicht';
@@ -122,13 +122,14 @@ function schemaSpalten(schema: string | undefined): MedZeile['schema'] {
 
 /** Medikationsplan mit Gaben im Fall (automatisch abgezeichnet mit Uhrzeit und Kürzel) und Änderungen durch Anordnungen. */
 export function medikation(z: SimZustand): MedZeile[] {
-  const plan = akte(z).medikation;
+  // Einträge mit `ab` erscheinen erst, wenn die Anordnung da ist (auch zurückgezogen bleiben die Gaben sichtbar)
+  const plan = akte(z).medikation.filter((e) => giltAb(e, z.anordnungen) !== undefined);
   return plan.map((e) => {
     const geaendert = istGeaendert(e, z.anordnungen, z.zurueckgezogen) ? z.anordnungen[e.geaendertDurch!] : undefined;
     const anordnung = geaendert ? z.fall.anordnungen.find((a) => a.id === e.geaendertDurch) : undefined;
     const zeiten = e.massnahme ? z.getan[e.massnahme] ?? [] : [];
     const gaben: Gabe[] = zeiten
-      .filter((t) => !geaendert || t < geaendert.t)
+      .filter((t) => (!geaendert || t < geaendert.t) && t >= (giltAb(e, z.anordnungen) ?? 0))
       .map((t) => {
         const fehler = z.meldungen.find((m) => m.art === 'fehler' && m.t === t && !!m.quelle?.startsWith('med-') && m.quelle.endsWith(`:${e.id}`));
         return { t, uhr: uhrzeit(z.fall.startUhrzeit, t), kuerzel: `${eigenesKuerzel(z)}${e.massnahme && mitPa(z, e.massnahme, t) ? ' mit PA' : ''}`, ...(fehler ? { fehler: fehler.text } : {}) };

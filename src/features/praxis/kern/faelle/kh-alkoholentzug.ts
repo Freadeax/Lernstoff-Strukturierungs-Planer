@@ -116,6 +116,8 @@ export const KH_ALKOHOLENTZUG: FallV2 = {
       { id: 'mp-amlodipin', wirkstoff: 'Amlodipin', staerke: '5 mg', form: 'Tbl.', schema: '1-0-0-0', zuletzt: 'gestern 08:00' },
       { id: 'mp-ibuprofen', wirkstoff: 'Ibuprofen', staerke: '400 mg', form: 'Tbl.', schema: '1-1-1-0', zuletzt: 'gestern 18:00' },
       { id: 'mp-enoxaparin', wirkstoff: 'Enoxaparin', staerke: '40 mg', form: 's. c.', schema: '0-0-1-0', zuletzt: 'gestern 20:00' },
+      { id: 'mp-lorazepam', wirkstoff: 'Lorazepam', staerke: '1 mg', form: 'Tbl.', massnahme: 'lorazepam-geben', ab: 'an-lorazepam-score',
+        bedarf: { indikation: 'Entzugsscore ab mittelschwer, nicht bei Schläfrigkeit', einzeldosis: '1 mg', maxProTag: 'nach Score', abstandH: 1 } },
     ],
     vorwerte: [
       { zeit: 'gestern 20:00', vorH: 11, werte: { rrSys: 148, rrDia: 90, hf: 92, af: 16, spo2: 96, temp: 37.3 }, kuerzel: 'SD' },

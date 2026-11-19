@@ -467,40 +467,43 @@ export const PRAXIS_LEITLINIEN: QuellenEintrag[] = [
   {
     id: 'mts', titel: 'Manchester-Triage-System (Ersteinschätzung in der Notaufnahme)', herausgeber: 'Manchester Triage Group', art: 'instrument', muster: /^Manchester-Triage-System/,
     aktuell: { stand: '3. Auflage 2014', fundstelle: 'https://www.triagenet.net/' }, beobachten: 'https://www.triagenet.net/', intervallMonate: 24,
-  },  // Praxisfälle P17a/P17b (CE02, CE04, CE07). Ohne geprueftAm: Fassungen aus den Fallquellen, noch nicht beim Herausgeber nachgesehen.
+  },  // Praxisfälle P17a/P17b (CE02, CE04, CE07). Am 19.11.2026 (P20) per Websuche beim Herausgeber bzw. im AWMF-Register nachgesehen.
   {
     id: 'nvl.herzinsuffizienz', titel: 'Nationale VersorgungsLeitlinie Chronische Herzinsuffizienz', herausgeber: 'BÄK, KBV, AWMF', art: 'leitlinie', muster: /VersorgungsLeitlinie Chronische Herzinsuffizienz/,
-    aktuell: { stand: '4. Auflage 2023', fundstelle: 'https://www.leitlinien.de/themen/herzinsuffizienz' }, beobachten: 'https://www.leitlinien.de/themen/herzinsuffizienz', intervallMonate: 12,
-    hinweis: 'Praxisfall Herzschwäche zu Hause (P17b): Selbstmanagement, tägliches Wiegen, Trinkmenge.',
+    aktuell: { stand: '4. Auflage 2023', fundstelle: 'https://www.leitlinien.de/themen/herzinsuffizienz/pdf/herzinsuffizienz-vers4-0.pdf' }, geprueftAm: P20, beobachten: 'https://www.leitlinien.de/themen/herzinsuffizienz', intervallMonate: 12,
+    hinweis: 'Praxisfall Herzschwäche zu Hause (P17b): Selbstmanagement, tägliches Wiegen, Trinkmenge. Version 4.0 (12/2023) im AWMF-Register belegt. Laut Ärzteblatt ist danach ein neues Kapitel zur medikamentösen Therapie erschienen; Versionsnummer bei der nächsten Prüfung nachtragen (betrifft den Pflegefall kaum).',
   },
   {
     id: 'epuap.dekubitus', titel: 'EPUAP/NPIAP/PPPIA: Prevention and Treatment of Pressure Ulcers/Injuries (International Guideline)', herausgeber: 'EPUAP, NPIAP und PPPIA', art: 'leitlinie', muster: /^EPUAP\/NPIAP\/PPPIA/,
-    aktuell: { stand: '2019', fundstelle: 'https://internationalguideline.com/' }, beobachten: 'https://internationalguideline.com/', intervallMonate: 12,
-    hinweis: 'Praxisfall Dekubitusgefahr (P17a). Beim nächsten Abgleich nachsehen, ob eine neuere Auflage erschienen ist; der DNQP-Expertenstandard Dekubitusprophylaxe geht für Deutschland vor.',
+    aktuell: { stand: '2019', fundstelle: 'https://internationalguideline.com/' }, geprueftAm: P20, beobachten: 'https://internationalguideline.com/', intervallMonate: 6,
+    hinweis: 'Praxisfall Dekubitusgefahr (P17a). Die Herausgeber führen eine 4. Auflage („4th edition, 2026“, internationalguideline.com/2025) mit Umsetzungs-Zeitplan seit Juni 2025. Ein vollständiger Veröffentlichungsbeleg lag am 19.11.2026 nicht vor; bis dahin bleibt 2019 stehen. Der DNQP-Expertenstandard Dekubitusprophylaxe geht für Deutschland vor.',
   },
   {
     id: 'ddg.praxisempfehlungen', titel: 'DDG Praxisempfehlungen (Diabetologie und Stoffwechsel, Supplement)', herausgeber: 'Deutsche Diabetes Gesellschaft', art: 'empfehlung', muster: /^DDG Praxisempfehlungen/,
-    aktuell: { stand: '2024', fundstelle: 'https://www.ddg.info/behandlung/leitlinien' }, beobachten: 'https://www.ddg.info/behandlung/leitlinien', intervallMonate: 12,
-    hinweis: 'Erscheinen jährlich neu. Praxisfall Unterzucker vor dem Abendinsulin (P17b).',
+    aktuell: { stand: '2025', fundstelle: 'https://www.ddg.info/fileadmin/user_upload/05_Behandlung/01_Leitlinien/Praxisempfehlungen/2025/PE_Therapie_Typ-2-Diabetes_2025.pdf' }, geprueftAm: P20,
+    beobachten: 'https://www.ddg.info/behandlung/leitlinien', intervallMonate: 12,
+    offen: 'Praxisfall Unterzucker vor dem Abendinsulin (P17b) zitiert die Ausgabe 2024. Ausgabe 2025 liegt vor (u. a. Therapie Typ-2-Diabetes); Hypoglykämie-Regeln abgleichen.',
+    hinweis: 'Erscheinen jährlich neu.',
   },
   {
     id: 'fit.injektion', titel: 'Forum Injektionstechnik: Empfehlungen zur Injektionstechnik', herausgeber: 'Forum Injektionstechnik (FIT) mit DDG', art: 'empfehlung', muster: /^Forum Injektionstechnik/,
-    aktuell: { stand: 'ohne Jahresangabe', fundstelle: 'https://www.ddg.info/' }, beobachten: 'https://www.ddg.info/', intervallMonate: 24,
+    aktuell: { stand: 'ohne Jahresangabe', fundstelle: 'https://www.ddg.info/' }, geprueftAm: P20, beobachten: 'https://www.ddg.info/', intervallMonate: 24,
     hinweis: 'Spritzstellenwechsel und Lipohypertrophie im Praxisfall Unterzucker (P17b). Fassung beim nächsten Abgleich nachtragen.',
   },
   {
     id: 'awmf.dysphagie', titel: 'S1-Leitlinie Neurogene Dysphagie (AWMF 030-111)', herausgeber: 'DGN über AWMF', art: 'leitlinie', muster: /Neurogene Dysphagie \(030-111\)|AWMF 030-111/,
-    aktuell: { stand: '2020', fundstelle: 'https://register.awmf.org/de/leitlinien/detail/030-111' }, beobachten: AWMF, intervallMonate: 12,
-    hinweis: 'Praxisfall Schlaganfall in der Reha (P17b): Schluckscreening, Kostanpassung.',
+    aktuell: { stand: '2020 (Gültigkeit abgelaufen 03/2025)', fundstelle: AWMF_PDF('030-111l_Neurogene-Dysphagie_2025-03_abgelaufen.pdf') }, geprueftAm: P20, beobachten: AWMF, intervallMonate: 6,
+    hinweis: 'Praxisfall Schlaganfall in der Reha (P17b): Schluckscreening, Kostanpassung. Im AWMF-Register als abgelaufen geführt, eine Nachfolgefassung war nicht zu finden. Inhalte bleiben fachlich gebräuchlich; halbjährlich nachsehen.',
   },
   {
     id: 'dgnr.remos', titel: 'S2e-Leitlinie Rehabilitation der Mobilität nach Schlaganfall (ReMoS)', herausgeber: 'DGNR über AWMF', art: 'leitlinie', muster: /\(ReMoS\)/,
-    aktuell: { stand: '2020', fundstelle: AWMF }, beobachten: AWMF, intervallMonate: 12,
+    aktuell: { stand: '2020', fundstelle: AWMF }, geprueftAm: P20, beobachten: AWMF, intervallMonate: 6,
+    hinweis: 'Fachpresse meldet die Nachfolge „Aus ReMoS wird TheMoS – Leitlinie Therapie der Mobilität nach Schlaganfall“. Fassung und Erscheinen im AWMF-Register belegen, dann den Reha-Fall abgleichen.',
   },
   {
     id: 'iddsi', titel: 'IDDSI Framework (International Dysphagia Diet Standardisation Initiative)', herausgeber: 'IDDSI', art: 'empfehlung', muster: /^IDDSI Framework/,
-    aktuell: { stand: '2019', fundstelle: 'https://iddsi.org/framework' }, beobachten: 'https://iddsi.org/', intervallMonate: 24,
-    hinweis: 'Kostformstufen (z. B. Getränke leicht angedickt, Stufe 2) im Praxisfall Schlaganfall in der Reha (P17b).',
+    aktuell: { stand: '2019 (Framework 2.0)', fundstelle: 'https://iddsi.org/framework' }, geprueftAm: P20, beobachten: 'https://iddsi.org/', intervallMonate: 24,
+    hinweis: 'Kostformstufen (z. B. Getränke leicht angedickt, Stufe 2) im Praxisfall Schlaganfall in der Reha (P17b). Übersetzungen der Testmethoden tragen „V2-1 2024“; die Stufen sind unverändert, Version 2.1 bei der nächsten Prüfung bestätigen.',
   },
 ];
 

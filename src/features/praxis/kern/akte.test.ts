@@ -115,3 +115,31 @@ describe('Pflegebericht (dokumentieren)', () => {
     expect(b.log).toEqual(a.log);
   });
 });
+
+describe('Planeintrag ab Anordnung (ab)', () => {
+  const FALL_AB = FAELLE_V2.find((f) => f.id === 'kh-alkoholentzug')!;
+  const e = FALL_AB.akte!.medikation.find((m) => m.ab)!;
+  it('Fälle: ab verweist auf eine Anordnung derselben Maßnahme', () => {
+    for (const f of FAELLE_V2) for (const m of f.akte?.medikation ?? []) if (m.ab) {
+      const a = f.anordnungen.find((x) => x.id === m.ab);
+      expect(a, `${f.id} ${m.id}`).toBeDefined();
+      expect(m.massnahme, `${f.id} ${m.id}`).toBe(a!.massnahme);
+    }
+  });
+  it('vor der Anordnung keine Prüfung, danach Abstand; Gaben vor der Anordnung zählen nicht', () => {
+    expect(e.massnahme).toBe('lorazepam-geben');
+    expect(medPruefung(FALL_AB, 'lorazepam-geben', [0, 600], {})).toEqual([]);
+    const an = { [e.ab!]: { rueckgelesen: true, t: 300 } };
+    expect(medPruefung(FALL_AB, 'lorazepam-geben', [600, 1200], an).map((f) => f.id)).toEqual([`med-abstand:${e.id}`]);
+    expect(medPruefung(FALL_AB, 'lorazepam-geben', [0, 600], an)).toEqual([]);
+    expect(medPruefung(FALL_AB, 'lorazepam-geben', [600, 600 + 3600], an)).toEqual([]);
+    expect(medPruefung(FALL_AB, 'lorazepam-geben', [600, 1200], an, [e.ab!])).toEqual([]);
+  });
+  it('Höchstmenge greift ab Anordnung (Palliativ: 6× Morphin)', () => {
+    const f = FAELLE_V2.find((x) => x.id === 'lz-palliativ-gespraech')!;
+    const m = f.akte!.medikation.find((x) => x.ab)!;
+    const an = { [m.ab!]: { rueckgelesen: true, t: 0 } };
+    const tag = [0, 1, 2, 3, 4, 5, 6].map((i) => i * 4 * 3600 - 15 * 3600);
+    expect(medPruefung({ ...f, startUhrzeit: '23:59' }, m.massnahme!, tag.map((t) => t + 15 * 3600), an).map((x) => x.art)).toContain('med-max');
+  });
+});
