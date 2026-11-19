@@ -131,12 +131,22 @@ describe('Hülle um das Basismodell', () => {
     const schock = MODELL.anzeige({ ...SEPSIS, volumen: 0.7, gefaesstonus: 0.25 }, k({ bilanz: true }));
     expect(schock.urinMlH!).toBeLessThan(20);
   });
-  it('Propofol senkt die Sedierungstiefe (RASS)', () => {
-    const p: ModellModule = { perfusoren: [{ id: 'p', wirkstoff: 'propofol', konzentration: '1 %', mgProMl: 10, mlProH: 20 }] };
-    const g = laufe({ ...NORMAL }, 600, k(p));
-    expect(g.sedierung!).toBeGreaterThan(0.5);
-    expect(MODELL.anzeige(g, k(p)).rass!).toBeLessThanOrEqual(-3);
+  it('Propofol senkt die Sedierungstiefe (RASS) dosisabhängig und flach: 1 mg/kg/h ≈ −1, 4 mg/kg/h ≈ −3', () => {
+    // 1 % Propofol (10 mg/ml), 75 kg: 7,5 ml/h = 1 mg/kg/h
+    const rassBei = (mgKgH: number, sufentanil = 0) => {
+      const perfusoren: NonNullable<ModellModule['perfusoren']> = [{ id: 'p', wirkstoff: 'propofol', konzentration: '1 %', mgProMl: 10, mlProH: 7.5 * mgKgH }];
+      if (sufentanil) perfusoren.push({ id: 's', wirkstoff: 'sufentanil', konzentration: '5 µg/ml', mgProMl: 0.005, mlProH: (sufentanil * 75) / 5 });
+      const g = laufe({ ...NORMAL }, 900, k({ perfusoren }));
+      return MODELL.anzeige(g, k({ perfusoren })).rass!;
+    };
     expect(MODELL.anzeige(NORMAL, k({})).rass).toBe(0);
+    expect(rassBei(1)).toBeGreaterThanOrEqual(-1);
+    expect(rassBei(2)).toBeGreaterThanOrEqual(-2);
+    expect(rassBei(4)).toBeLessThanOrEqual(-3);
+    expect(rassBei(4)).toBeGreaterThanOrEqual(-4);
+    // leitliniennahes Ziel RASS 0/−1 mit Propofol 1 mg/kg/h + Sufentanil 0,3 µg/kg/h erreichbar (Synergie moderat)
+    expect(rassBei(1, 0.3)).toBeGreaterThanOrEqual(-1);
+    expect(rassBei(2, 0.3)).toBeLessThanOrEqual(rassBei(2));
   });
 });
 
