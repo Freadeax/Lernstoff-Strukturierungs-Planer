@@ -2,17 +2,29 @@
 // Entwurf, fachlich UNGEPRÜFT. Inhalte fiktiv/didaktisch. Muster: amb-sturz-exsikkose.ts (Paket P6).
 
 import { KATALOG } from '../katalog';
-import type { Bedingung, FallV2, MassnahmeDefinition } from '../typen';
+import type { ArztRegel, Bedingung, FallV2, MassnahmeDefinition } from '../typen';
 
 const aus = (id: string, mehr: Partial<MassnahmeDefinition>): MassnahmeDefinition => ({ ...KATALOG[id]!, ...mehr });
 
 const MUND_GESEHEN: Bedingung = { getan: 'schleimhaut-pruefen' };
 const SCHMERZ_GELINDERT: Bedingung = { wert: 'schmerz', vergleich: '<', grenze: 3 };
 
+// Runde 2 (P14a): Antworten des Hausarztes, auch als Folge der Rückfrage nach der Temperatur
+const ANTWORT_SCHMERZ = 'Gut beobachtet, das erklärt einiges. Fieber hat sie nicht, dann gehe ich von den Schmerzen und zu wenig Trinken aus. Prothese draußen lassen, Paracetamol 500 mg bis dreimal täglich, Trinken fördern mit Protokoll. Den Zahnarzt-Hausbesuch organisiere ich. Machen Sie in einer halben Stunde nach dem Schmerzmittel noch einmal die BESD und schicken Sie mir das Ergebnis.';
+const REGEL_MIT_GITTER: ArztRegel = {
+  id: 'r-schmerz-gitter', wenn: { gemeldet: ['a-besd', 'a-druckstelle', 'a-nachts', 'wert:temp'] },
+  antwort: `„${ANTWORT_SCHMERZ} Und wegen der Nächte: Machen Sie das Bettgitter hoch, ich schreibe es an.“`,
+  anordnungen: ['an-schmerz', 'an-trinken', 'an-gitter'], setzt: ['arzt-informiert'], auftraege: ['af-besd'],
+};
+const REGEL_OHNE_GITTER: ArztRegel = {
+  id: 'r-schmerz', wenn: { gemeldet: ['a-besd', 'a-druckstelle', 'wert:temp'] },
+  antwort: `„${ANTWORT_SCHMERZ}“`, anordnungen: ['an-schmerz', 'an-trinken'], setzt: ['arzt-informiert'], auftraege: ['af-besd'],
+};
+
 export const LZ_DEMENZ_SCHMERZ: FallV2 = {
   schema: 2,
   id: 'lz-demenz-schmerz',
-  version: '0.1.0',
+  version: '0.2.0',
   spur: 'A',
   setting: 'langzeit',
   altersgruppe: 'hochbetagt',
@@ -110,6 +122,71 @@ export const LZ_DEMENZ_SCHMERZ: FallV2 = {
     }),
   ],
 
+  // Runde 2 (P14a): Heim-Dokumentation (Stammblatt, Trink-/Gewichtsverlauf, Nachtberichte, Betreuung ohne FEM-Genehmigung)
+  akte: {
+    aufnahmegrund: 'Einzug in den Wohnbereich 2 vor drei Jahren, als die Versorgung zu Hause nicht mehr ging (Hinlauftendenz, Stürze). Vollstationäre Pflege, Pflegegrad 4.',
+    anamnese: [
+      '30 Jahre Gärtnerin, liebt Rosen und Schlager. Trinkt morgens Milchkaffee aus ihrer Rosentasse.',
+      'Spricht in kurzen Sätzen, versteht einfache Aufforderungen. Ober- und Unterkieferprothese seit vielen Jahren, Zahnarzt zuletzt vor zwei Jahren.',
+      'Geht mit Rollator, vergisst ihn oft. Sturz ohne Verletzung vor fünf Monaten.',
+      'Tochter Monika Brückner ist gesetzliche Betreuerin (Gesundheitssorge, Aufenthaltsbestimmung), besucht sie zweimal pro Woche.',
+    ],
+    diagnosen: [
+      { text: 'Alzheimer-Demenz, fortgeschritten', icd: 'G30.1', seit: '2019' },
+      { text: 'Arterielle Hypertonie', icd: 'I10.90', seit: '2004' },
+      { text: 'Gonarthrose beidseits', icd: 'M17.0', seit: '2012' },
+      { text: 'Chronische Obstipation', icd: 'K59.09', seit: '2021' },
+    ],
+    medikation: [
+      { id: 'mp-ramipril', wirkstoff: 'Ramipril', staerke: '2,5 mg', form: 'Tbl. (gemörsert in Apfelmus)', schema: '1-0-0-0', zuletzt: 'heute 08:00',
+        hinweis: 'Heute früh ausgespuckt (Nachtdienst/Frühdienst-Notiz). Bei wenig Trinken auf niedrigen RR achten.' },
+      { id: 'mp-macrogol', wirkstoff: 'Macrogol', staerke: '13,1 g', form: 'Btl.', zuletzt: 'vor 3 Tagen',
+        bedarf: { indikation: 'kein Stuhlgang seit 3 Tagen', einzeldosis: '1 Beutel', maxProTag: '2 Gaben' } },
+      { id: 'mp-paracetamol', wirkstoff: 'Paracetamol', staerke: '500 mg', form: 'Brausetbl.', massnahme: 'schmerzmittel-geben',
+        bedarf: { indikation: 'Schmerz (BESD ab 2)', einzeldosis: '500 mg', maxProTag: '3 Gaben', abstandH: 6 },
+        hinweis: 'Neu nach Anordnung des Hausarztes. Bei 52 kg und hohem Alter höchstens 1,5 g am Tag.', geaendertDurch: 'an-schmerz' },
+    ],
+    vorwerte: [
+      { zeit: 'vor 4 Wochen', vorH: 672, werte: { rrSys: 134, rrDia: 76, hf: 74, temp: 36.6, gewicht: 54.5 }, kuerzel: 'SB' },
+      { zeit: 'vor 2 Wochen', vorH: 336, werte: { rrSys: 130, rrDia: 74, hf: 76, gewicht: 54.0, schmerz: 1 }, kuerzel: 'SB' },
+      { zeit: 'vorgestern', vorH: 49.5, werte: { rrSys: 126, rrDia: 72, hf: 80, temp: 36.9 }, kuerzel: 'JK' },
+      { zeit: 'heute 07:30', vorH: 2, werte: { gewicht: 52.0 }, kuerzel: 'ND' },
+    ],
+    pflegebericht: [
+      { zeit: 'vorgestern 12:30', wer: 'JK', text: 'Mittagessen kaum gegessen, schiebt den Teller weg. Hält sich zwischendurch die Wange. Trinkmenge 850 ml.' },
+      { zeit: 'gestern 18:00', wer: 'SB', text: 'Abendbrot abgelehnt, nur etwas Tee. Bei der Mundpflege abwehrend, Prothesen nicht herausgenommen (Bewohnerin hat den Mund zugekniffen). Trinkmenge 700 ml.' },
+      { zeit: 'heute 03:15', wer: 'ND', text: 'Mehrfach aufgestanden, ruft nach ihrer Mutter, wäre an der Bettkante fast gestürzt. Nachtlicht an, zurück ins Bett begleitet. Frage an Frühdienst: Bettgitter?' },
+      { zeit: 'heute 07:45', wer: 'ND', text: 'Beim Waschen geschlagen und geschrien, Gesichtswäsche abgebrochen. Ramipril im Apfelmus ausgespuckt. Gewicht 52,0 kg (vor 4 Wochen 54,5 kg).' },
+    ],
+    aerztlicheAnordnungen: [
+      { zeit: 'vor 3 Monaten', wer: 'Dr. Kaiser', text: 'Ramipril 2,5 mg morgens. Macrogol 1 Beutel bei Bedarf. RR einmal pro Woche, Gewicht einmal pro Woche.' },
+    ],
+    assessments: [
+      { name: 'BESD (Ruhe)', wert: '1 von 10', datum: 'vor 2 Wochen', hinweis: 'Ausgangswert ohne Schmerzhinweis.' },
+      { name: 'MNA-SF', wert: '7 Punkte (Mangelernährung)', datum: 'vor 2 Wochen', hinweis: 'Gewichtsverlust 2,5 kg in 4 Wochen.' },
+      { name: 'Sturzrisiko (Risikofaktoren nach Expertenstandard)', wert: 'hoch', datum: 'vor 1 Monat', hinweis: 'Demenz, Unruhe nachts, Gangunsicherheit, Sturz vor 5 Monaten.' },
+      { name: 'Braden-Skala', wert: '15 Punkte (mittleres Risiko)', datum: 'vor 1 Monat' },
+      { name: 'Barthel-Index', wert: '25 von 100', datum: 'vor 1 Monat' },
+    ],
+    labor: [
+      { name: 'Natrium', wert: '141', einheit: 'mmol/l', norm: '135–145', datum: 'vor 3 Monaten (Hausarzt)' },
+      { name: 'Kreatinin', wert: '0,9', einheit: 'mg/dl', norm: '0,5–1,0', datum: 'vor 3 Monaten (Hausarzt)' },
+      { name: 'Hb', wert: '12,1', einheit: 'g/dl', norm: '12–16', datum: 'vor 3 Monaten (Hausarzt)' },
+    ],
+    bilanzVortag: { einfuhrMl: 700, ausfuhrMl: 500 },
+    pflegeplanung: [
+      { problem: 'Kann Bedürfnisse (z. B. Schmerz, Durst) nicht sicher mitteilen (Demenz)', ziel: 'Schmerzen und Unwohlsein werden erkannt', massnahmen: ['BESD bei Verhaltensänderung', 'Biografie nutzen (Rosen, Schlager)', 'Ruhige, validierende Ansprache'] },
+      { problem: 'Gefahr von Flüssigkeitsdefizit und Mangelernährung', ziel: 'Trinkt mindestens 1300 ml, Gewicht stabil', massnahmen: ['Milchkaffee in der Rosentasse', 'Trinkprotokoll', 'Fingerfood anbieten'] },
+      { problem: 'Erhöhtes Sturzrisiko nachts', ziel: 'Bleibt ohne freiheitsentziehende Maßnahmen sturzfrei', massnahmen: ['Niedrigbett prüfen', 'Nachtlicht', 'Toilettengang vor dem Schlafen'] },
+    ],
+    rechtliches: [
+      'Gesetzliche Betreuung: Tochter Monika Brückner (Gesundheitssorge, Aufenthaltsbestimmung). Auskunft an die Betreuerin.',
+      'Keine Genehmigung des Betreuungsgerichts für freiheitsentziehende Maßnahmen.',
+      'Patientenverfügung: keine Ernährung über eine Magensonde, keine Krankenhauseinweisung, wenn vermeidbar.',
+      'Andere Angehörige (z. B. Enkel) erhalten Auskunft nur über die Betreuerin.',
+    ],
+  },
+
   befunde: [
     { massnahme: 'vorstellen-einverstaendnis', varianten: [{ text: 'Du setzt dich auf Augenhöhe, nennst deinen Namen und berührst kurz ihren Unterarm. Sie schaut dich misstrauisch an, zieht den Arm aber nicht weg.' }] },
     { massnahme: 'schmerz-nrs', varianten: [{ text: 'Sie schaut dich fragend an und sagt „Ja, ja“. Eine Zahl kann sie nicht nennen. Bei fortgeschrittener Demenz gelingt die Selbsteinschätzung oft nicht.' }] },
@@ -147,6 +224,21 @@ export const LZ_DEMENZ_SCHMERZ: FallV2 = {
       wirkung: [{ groesse: 'angst', delta: -0.15, beginnSek: 0, spitzeSek: 60, dauerSek: 'dauerhaft' }], fakten: ['Gärtnerei', 'Rosen'] },
     { id: 'g-weh', frage: 'Fragen, ob ihr etwas wehtut, und dabei auf ihre Hände achten', an: 'patient', kompetenzbereiche: ['I', 'II'],
       antwort: [{ wenn: SCHMERZ_GELINDERT, text: '„Jetzt geht’s.“' }, { text: 'Sie greift sich an die linke Wange: „Da … da beißt was.“' }], fakten: ['zeigt auf linke Wange'] },
+    // Runde 2 (P14a): Betreuerin, Wohnbereichsleitung, Enkel (Schweigepflicht)
+    { id: 'g-tochter-lage', frage: 'Tochter (Betreuerin) anrufen: Schmerz, Druckstelle, Anordnungen und warum kein Bettgitter', an: 'betreuer', kanal: 'telefon', kompetenzbereiche: ['II', 'IV'],
+      antwort: [
+        { wenn: { flag: 'remonstriert:an-gitter' }, text: '„Danke, dass Sie mir das so erklären. Dann lieber das niedrige Bett, ich will ja nicht, dass sie eingesperrt ist. Ich komme heute Nachmittag zum Gespräch.“', setzt: ['betreuerin-informiert'] },
+        { text: '„Schmerzen im Mund? Das hätte ich nie gedacht. Und was ist jetzt mit dem Gitter für die Nacht?“', setzt: ['betreuerin-informiert'] },
+      ],
+      fakten: ['Tochter ist Betreuerin', 'kommt heute Nachmittag'] },
+    { id: 'g-wbl', frage: 'Sabine (Wohnbereichsleitung) über die Nächte und die hinterfragte Bettgitter-Anordnung informieren', an: 'kollegin', kompetenzbereiche: ['III', 'IV'],
+      antwort: [{ text: '„Gut, dass du nachgefragt hast. Ich plane die Nachtkontrollen um und lade die Tochter zur Fallbesprechung ein.“', setzt: ['wbl-informiert'] }] },
+    { id: 'g-enkel-auskunft', frage: 'Dem Enkel erzählen, was mit seiner Oma los ist', an: 'angehoerige', kanal: 'telefon', nurWenn: { ab: 1500 }, kompetenzbereiche: ['II', 'IV'],
+      schweigepflicht: { erlaubtWenn: { flag: 'enkel-auskunftsberechtigt' },
+        fehlerText: 'Der Enkel ist weder Betreuer noch bevollmächtigt. Auskünfte über die Gesundheit gibt es nur an die Betreuerin oder mit deren Einverständnis. Freundlich an die Tochter verweisen.' },
+      antwort: [{ text: '„Ach so, danke. Dann sag ich das gleich meiner Mutter.“' }] },
+    { id: 'g-enkel-verweisen', frage: 'Freundlich erklären, dass du am Telefon keine Auskunft geben darfst, und an die Tochter verweisen', an: 'angehoerige', kanal: 'telefon', nurWenn: { ab: 1500 }, kompetenzbereiche: ['II', 'IV'],
+      antwort: [{ text: '„Verstehe ich. Dann rufe ich meine Mutter an. Grüßen Sie die Oma von mir.“' }] },
   ],
 
   sbar: [
@@ -178,17 +270,28 @@ export const LZ_DEMENZ_SCHMERZ: FallV2 = {
   arzt: {
     name: 'Hausarzt Dr. Kaiser',
     erreichbar: 'hausarzt-praxis',
+    // Runde 2 (P14a): genau → allgemein. Ohne Temperatur fragt der Hausarzt zurück (Infekt als Delir-Ursache ausschließen),
+    // Rückauftrag BESD-Kontrolle nach dem Schmerzmittel. Nach dem ersten Kontakt geht auch der Praxis-Messenger.
     regeln: [
-      { wenn: { gemeldet: ['a-besd', 'a-druckstelle', 'a-nachts'] },
-        antwort: '„Gut beobachtet, das erklärt einiges. Prothese draußen lassen, Paracetamol 500 mg bis dreimal täglich, Trinken fördern mit Protokoll. Den Zahnarzt-Hausbesuch organisiere ich. Und wegen der Nächte: Machen Sie das Bettgitter hoch, ich schreibe es an.“',
-        anordnungen: ['an-schmerz', 'an-trinken', 'an-gitter'], setzt: ['arzt-informiert'] },
-      { wenn: { gemeldet: ['a-besd', 'a-druckstelle'] },
-        antwort: '„Gut beobachtet. Prothese draußen lassen, Paracetamol 500 mg bis dreimal täglich, Trinken fördern mit Protokoll. Den Zahnarzt-Hausbesuch organisiere ich.“',
-        anordnungen: ['an-schmerz', 'an-trinken'], setzt: ['arzt-informiert'] },
+      REGEL_MIT_GITTER,
+      REGEL_OHNE_GITTER,
+      { id: 'r-temp-frage', wenn: { gemeldet: ['a-besd', 'a-druckstelle'] },
+        antwort: '„Gut beobachtet. Bevor ich etwas anordne: Wenn sie unruhig ist und wenig trinkt, will ich einen Infekt ausschließen.“',
+        rueckfrage: { text: '„Hat sie Fieber?“', erwartet: ['wert:temp'], auftrag: 'af-temp' } },
       { wenn: { gemeldet: ['a-demenz'] },
         antwort: '„Das ist bei ihrer Demenz leider der Verlauf. Bieten Sie weiter an, ich komme Donnerstag zur Visite.“', setzt: ['arzt-beruhigt'] },
       { wenn: { gemeldet: ['s-isst-nicht'] },
         antwort: '„Hat sie Schmerzen? Haben Sie in den Mund geschaut? Melden Sie sich mit genaueren Beobachtungen wieder.“' },
+    ],
+    auftraege: [
+      { id: 'af-temp', text: 'Temperatur messen und dem Hausarzt melden', erledigt: { getan: 'temperatur-ohr' }, meldung: ['wert:temp'], meldenBinnenSek: 600,
+        folge: [REGEL_MIT_GITTER, REGEL_OHNE_GITTER] },
+      { id: 'af-besd', text: 'Eine halbe Stunde nach dem Schmerzmittel BESD wiederholen und dem Hausarzt schicken', erledigt: { alle: [{ getan: 'schmerzmittel-geben' }, { getan: 'schmerz-besd' }] },
+        meldung: ['wert:schmerz'], meldenBinnenSek: 2400,
+        folge: [
+          { wenn: SCHMERZ_GELINDERT, antwort: '„Sehr gut, dann wirkt es. So weitermachen, der Zahnarzt kommt morgen Vormittag.“', setzt: ['besd-rueckmeldung'] },
+          { wenn: { ab: 0 }, antwort: '„Noch nicht gut genug. Prothese bleibt draußen, nächste Gabe frühestens nach sechs Stunden. Melden Sie sich, wenn sie weiter abwehrt, dann komme ich heute noch.“', setzt: ['besd-rueckmeldung'] },
+        ] },
     ],
   },
 
@@ -200,6 +303,8 @@ export const LZ_DEMENZ_SCHMERZ: FallV2 = {
         { id: 'w-zusagen', text: 'Zusagen, dass das Gitter nachts hochkommt, weil die Tochter einverstanden ist', wertung: 'falsch', warum: 'Die Einwilligung der Betreuerin allein reicht bei einer regelmäßigen FEM nicht, das Betreuungsgericht muss genehmigen. Als Auszubildende kannst du das nicht zusagen.' },
         { id: 'w-abwimmeln', text: '„Dafür bin ich nicht zuständig“ sagen und auflegen', wertung: 'vertretbar', warum: 'Weiterleiten ist richtig, aber die Tochter braucht eine freundliche Erklärung und einen Ansprechpartner.' },
       ] },
+    { id: 'e-enkel', art: 'telefon', wann: { ab: 1500 },
+      text: 'Das Telefon im Dienstzimmer: „Hier ist Kevin, der Enkel von Frau Brückner. Meine Mutter sagt, die Oma wäre fast gestürzt. Was ist denn los mit ihr?“' },
     { id: 'e-unruhe', art: 'patient', wann: { alle: [{ ab: 900 }, { nicht: { getan: 'validierend-sprechen' } }] },
       text: 'Frau Brückner steht ohne Rollator auf und will „in die Gärtnerei“. Sie schwankt.',
       bild: { haltung: 'unruhig', mimik: 'verwirrt' },
@@ -214,11 +319,13 @@ export const LZ_DEMENZ_SCHMERZ: FallV2 = {
     hilfen: [
       { wenn: { nicht: { getan: 'schmerz-besd' } }, impuls: 'Wie findest du heraus, ob sie Schmerzen hat, wenn sie es nicht sagen kann?', tipp: 'Nimm ein Fremdeinschätzungsinstrument für Menschen mit Demenz, zum Beispiel BESD.' },
       { wenn: { nicht: MUND_GESEHEN }, impuls: 'Sie isst nicht und hält sich die Wange. Wo würdest du nachsehen?', tipp: 'Schau mit ihrem Einverständnis in den Mund, auch unter die Prothesen.' },
+      { wenn: { auftrag: 'af-temp', status: 'offen' }, impuls: 'Was wollte der Hausarzt noch wissen?', tipp: 'Temperatur messen und ihm den Wert schicken.' },
+      { wenn: { alle: [{ auftrag: 'af-besd', status: 'offen' }, { nicht: { auftrag: 'af-besd', status: 'gemeldet' } }] }, impuls: 'Hat der Hausarzt dir noch etwas aufgetragen?', tipp: 'Eine halbe Stunde nach dem Schmerzmittel noch einmal die BESD erheben und ihm schicken.' },
       { wenn: { nicht: { getan: 'sturzprophylaxe-bett' } }, impuls: 'Was kann nachts helfen, ohne sie einzusperren?', tipp: 'Niedrigbett, Sturzmatte, Licht, Klingel in Reichweite. Und an die Ursache denken.' },
       { impuls: 'Wer muss von deinen Beobachtungen wissen?', tipp: 'Hausarzt, Tochter als Betreuerin und die Wohnbereichsleitung. Und alles in den Pflegebericht.' },
     ],
   },
-  team: { kollegin: 'Pflegefachfrau Sabine (Wohnbereichsleitung)' },
+  team: { kollegin: 'Pflegefachfrau Sabine (Wohnbereichsleitung)', weitere: { betreuer: 'Tochter Monika Brückner (Betreuerin)', angehoerige: 'Enkel Kevin (Telefon)' } },
 
   bewertung: {
     pflicht: [
@@ -238,10 +345,15 @@ export const LZ_DEMENZ_SCHMERZ: FallV2 = {
         warum: 'Expertenstandard Sturzprophylaxe und Leitlinie FEM: Alternativen zu Gittern und Gurten nutzen.' },
       { id: 'p-schmerzmittel', text: 'Schmerzmittel nach rückgelesener Anordnung gegeben', gewicht: 2, kompetenzbereiche: ['I', 'III'],
         erfuellt: { alle: [{ anordnung: 'an-schmerz', rueckgelesen: true }, { getan: 'schmerzmittel-geben' }] }, warum: 'Schmerz behandeln ist die eigentliche Lösung für Abwehr, Unruhe und Nahrungsverweigerung.' },
-      { id: 'p-tochter', text: 'Tochter (Betreuerin) informiert', gewicht: 1, kompetenzbereiche: ['II', 'IV'], erfuellt: { getan: 'tochter-informieren' },
+      { id: 'p-tochter', text: 'Tochter (Betreuerin) informiert', gewicht: 1, kompetenzbereiche: ['II', 'IV'], erfuellt: { eine: [{ getan: 'tochter-informieren' }, { flag: 'betreuerin-informiert' }] },
         warum: 'Die Betreuerin entscheidet in der Gesundheitssorge mit und kennt Gewohnheiten.' },
-      { id: 'p-doku', text: 'Pflegebericht geschrieben', gewicht: 1, kompetenzbereiche: ['I', 'IV'], erfuellt: { getan: 'pflegebericht' },
-        warum: 'BESD-Wert, Befund, Anordnungen und Wirkung müssen nachvollziehbar sein.' },
+      { id: 'p-rueckauftrag', text: 'Rückauftrag des Hausarztes erledigt und gemeldet (BESD nach dem Schmerzmittel)', gewicht: 2, kompetenzbereiche: ['II', 'III'],
+        erfuellt: { auftrag: 'af-besd', status: 'gemeldet' }, warum: 'Ob das Schmerzmittel wirkt, sieht der Hausarzt nur über deine erneute Einschätzung (Closed Loop).' },
+      { id: 'p-wbl', text: 'Wohnbereichsleitung über die Nächte und die hinterfragte Anordnung informiert', gewicht: 1, kompetenzbereiche: ['III'],
+        erfuellt: { eine: [{ getan: 'pflegefachperson-informieren' }, { getan: 'frage:g-wbl' }] }, warum: 'Die verantwortliche Pflegefachperson plant die Nächte und die Fallbesprechung.' },
+      { id: 'p-doku', text: 'Pflegebericht mit BESD-Wert und der hinterfragten Anordnung geschrieben', gewicht: 1, kompetenzbereiche: ['I', 'IV'],
+        erfuellt: { alle: [{ getan: 'pflegebericht' }, { dokumentiert: 'wert:schmerz' }, { dokumentiert: 'anordnung:an-gitter' }] },
+        warum: 'BESD-Wert, Befund, Anordnungen und die Remonstration (warum kein Bettgitter) müssen nachvollziehbar sein.' },
     ],
     fehler: [
       { id: 'f-fem', text: 'Bettgitter ohne Genehmigung hochgezogen', schwere: 'schwer', kompetenzbereiche: ['IV'], wenn: { getan: 'fem-anlegen' },
@@ -257,7 +369,7 @@ export const LZ_DEMENZ_SCHMERZ: FallV2 = {
         warum: 'Eine plötzliche Veränderung hat bei Demenz meist eine behandelbare Ursache (Schmerz, Delir, Exsikkose).' },
     ],
     ende: [
-      { wenn: { alle: [{ flag: 'arzt-informiert' }, { getan: 'sturzprophylaxe-bett' }, { getan: 'pflegebericht' }] },
+      { wenn: { alle: [{ flag: 'arzt-informiert' }, { getan: 'sturzprophylaxe-bett' }, { getan: 'pflegebericht' }, { flag: 'besd-rueckmeldung' }] },
         text: 'Frau Brückner sitzt mit ihrer Rosentasse im Sessel, die Prothesen liegen in der Dose. Der Zahnarzt kommt morgen, die Tochter kommt am Nachmittag zum Gespräch.', ausgang: 'stabil' },
       { wenn: { ab: 2700 }, text: 'Der Vormittag ist vorbei. Frau Brückner hat kaum getrunken und ist unruhiger geworden.', ausgang: 'verschlechtert' },
     ],
@@ -302,15 +414,24 @@ export const LZ_DEMENZ_SCHMERZ: FallV2 = {
       { art: 'pflegetasche', geraet: 'rr-geraet' },
       { art: 'massnahme', id: 'rr-messen' },
       { art: 'massnahme', id: 'puls-zaehlen' },
-      { art: 'anruf', an: 'aerztin', sbar: ['s-isst-nicht', 'b-demenz', 'a-besd', 'a-druckstelle', 'a-exsikkose', 'a-nachts', 'r-schmerz-zahnarzt'] },
+      { art: 'pflegetasche', geraet: 'thermometer' },
+      { art: 'massnahme', id: 'temperatur-ohr' },
+      { art: 'nachricht', an: 'aerztin', kanal: 'telefon', bausteine: ['s-isst-nicht', 'b-demenz', 'a-besd', 'a-druckstelle', 'a-exsikkose', 'a-nachts', 'wert:temp', 'r-schmerz-zahnarzt'] },
       { art: 'rueckmelden', anordnung: 'an-schmerz', rueckgelesen: true },
       { art: 'rueckmelden', anordnung: 'an-trinken', rueckgelesen: true },
       { art: 'remonstrieren', anordnung: 'an-gitter', grund: 'Bettgitter ist eine freiheitsentziehende Maßnahme, dafür braucht es die Genehmigung des Betreuungsgerichts.' },
       { art: 'rueckmelden', anordnung: 'an-niedrigbett', rueckgelesen: true },
+      { art: 'auflegen', an: 'aerztin' },
       { art: 'massnahme', id: 'schmerzmittel-geben' },
       { art: 'massnahme', id: 'sturzprophylaxe-bett' },
-      { art: 'massnahme', id: 'tochter-informieren' },
-      { art: 'massnahme', id: 'pflegebericht' },
+      { art: 'frage', id: 'g-wbl' },
+      { art: 'frage', id: 'g-tochter-lage' },
+      { art: 'warten', sek: 900 },
+      { art: 'frage', id: 'g-enkel-verweisen' },
+      { art: 'massnahme', id: 'schmerz-besd' },
+      { art: 'nachricht', an: 'aerztin', kanal: 'messenger', bausteine: ['wert:schmerz'] },
+      { art: 'dokumentieren', bausteine: ['wert:schmerz', 'a-druckstelle', 'anordnung:an-schmerz', 'anordnung:an-gitter', 'anordnung:an-niedrigbett'] },
+      { art: 'warten', sek: 60 },
       { art: 'abschluss', probleme: ['pb-schmerz', 'pb-ernaehrung', 'pb-sturz', 'pb-delir'], ziele: ['z-besd', 'z-trinken', 'z-sturz'],
         sbar: ['s-isst-nicht', 'b-demenz', 'a-besd', 'a-druckstelle', 'a-exsikkose', 'a-nachts'] },
     ],

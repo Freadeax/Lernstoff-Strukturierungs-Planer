@@ -81,8 +81,8 @@ describe('Pilot Langzeit: Demenz, Schmerz, Bettgitter', () => {
     expect(z.meldungen.filter((x) => x.art !== 'verlauf').at(-1)!.text).toMatch(/in den Mund geschaut/);
   });
   it('Bettgitter bleibt für Auszubildende gesperrt, auch mit Anordnung; Stufe 3 → Fehler', () => {
-    const vorher: SimEventEingabe[] = [m('schmerz-besd'), m('schleimhaut-pruefen'), m('kurve-lesen'),
-      { art: 'anruf', an: 'aerztin', sbar: ['a-besd', 'a-druckstelle', 'a-nachts'] }, { art: 'rueckmelden', anordnung: 'an-gitter', rueckgelesen: true }];
+    const vorher: SimEventEingabe[] = [m('schmerz-besd'), m('schleimhaut-pruefen'), m('kurve-lesen'), { art: 'pflegetasche', geraet: 'thermometer' }, m('temperatur-ohr'),
+      { art: 'anruf', an: 'aerztin', sbar: ['a-besd', 'a-druckstelle', 'a-nachts', 'wert:temp'] }, { art: 'rueckmelden', anordnung: 'an-gitter', rueckgelesen: true }];
     const z2 = spiele(start(LZ, 3, 2), [...vorher, m('fem-anlegen')]);
     expect(z2.getan['fem-anlegen']).toBeUndefined();
     const z3 = spiele(start(LZ, 3, 3), [...vorher, m('fem-anlegen')]);

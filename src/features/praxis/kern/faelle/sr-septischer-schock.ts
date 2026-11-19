@@ -3,7 +3,7 @@
 // Inhalte fiktiv/didaktisch. Werte entstehen im Modell (Basis P1 + Spur-B-Hülle), nicht als feste Zahlen.
 
 import { KATALOG } from '../katalog';
-import type { Bedingung, FallV2, MassnahmeDefinition } from '../typen';
+import type { ArztRegel, Bedingung, FallV2, MassnahmeDefinition } from '../typen';
 
 const VOLUMEN_GEGEBEN: Bedingung = { getan: 'infusion-anhaengen' };
 const PENICILLIN_GEGEBEN: Bedingung = { eine: [{ getan: 'piptaz-iv' }, { getan: 'piptaz-richten' }] };
@@ -13,10 +13,18 @@ const ANTIBIOTIKUM: Bedingung = { eine: [{ getan: 'meropenem-iv' }, { getan: 'me
 const aus = (id: string, mehr: Partial<MassnahmeDefinition>): MassnahmeDefinition => ({ ...KATALOG[id]!, ...mehr });
 const EINFUHR_100: MassnahmeDefinition['wirkung'] = [{ groesse: 'einfuhrMl', delta: 100, beginnSek: 0, spitzeSek: 900, dauerSek: 'dauerhaft' }];
 
+// Runde 2 (P14a): Schock-Antwort auch als Folge der Laktat-Rückmeldung
+const SCHOCK_REGEL: ArztRegel = {
+  id: 'r-schock', wenn: { alle: [{ gemeldet: ['a-map-nach-volumen'] }, VOLUMEN_GEGEBEN] },
+  antwort: '„Septischer Schock. Wir starten Noradrenalin, Ziel MAP über 65. Ich lege eine Arterie, bereiten Sie bitte alles vor. Die Intensiv ist informiert. Sagen Sie mir den MAP, sobald die Arterie genullt ist.“',
+  anordnungen: ['an-noradrenalin', 'an-na-titrieren', 'an-arterie', 'an-intensiv'], setzt: ['schock-gemeldet'], auftraege: ['af-map'],
+};
+const LAKTAT_AUFTRAG = ' Sagen Sie mir das Laktat, sobald die BGA durch ist.';
+
 export const SR_SEPTISCHER_SCHOCK: FallV2 = {
   schema: 2,
   id: 'sr-septischer-schock',
-  version: '0.1.0',
+  version: '0.2.0',
   spur: 'B',
   setting: 'schockraum',
   altersgruppe: 'hochbetagt',
@@ -80,7 +88,8 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
     ],
     module: { bilanz: true },
     bild: { haltung: 'liegt', haut: 'gerötet-heiss', mimik: 'verwirrt', geraete: ['venenzugang'] },
-    sichtbar: [],
+    // Der Rettungsdienst hat das Pulsoxymeter noch am Finger (Transportmonitor): HF und SpO₂ laufen, RR/AF erst am Schockraum-Monitor
+    sichtbar: ['hf', 'spo2'],
     flags: ['zugang-liegt'],
     anordnungen: ['an-o2-standard'],
   },
@@ -98,7 +107,7 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
     'infusion-anhaengen', 'meropenem-richten', 'meropenem-iv', 'piptaz-richten', 'piptaz-iv', 'paracetamol-iv',
     'perfusor-vorbereiten', 'katecholamin-anpassen', 'katecholamin-schenkel-spuelen', 'arterie-assistieren',
     // Melden
-    'uebergabe-rd-annehmen', 'verlegung-uebergabe',
+    'uebergabe-rd-annehmen', 'verlegung-uebergabe', 'pflegebericht',
   ],
   // Fallspezifische Fassungen (Menge, Wirkstoff, Modul); Befugnisse bleiben die des Katalogs (P3)
   massnahmenZusatz: [
@@ -126,8 +135,70 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
     aus('verlegung-uebergabe', { name: 'Verlegung: strukturierte Übergabe an die Intensivstation', voraussetzung: { anordnung: 'an-intensiv' }, setzt: ['auf-intensiv'] }),
   ],
 
+  // Runde 2 (P14a): Akte aus Überleitungsbogen des Pflegeheims, Notfallprotokoll des Rettungsdienstes und Vorbefunden
+  akte: {
+    aufnahmegrund: 'Einweisung durch den Notarzt aus dem Pflegeheim: Fieber, akute Verwirrtheit, Hypotonie bei transurethralem Dauerkatheter. Verdacht auf Urosepsis.',
+    anamnese: [
+      'Lebt seit zwei Jahren im Pflegeheim (Pflegegrad 3), geht mit Rollator, leichte Demenz, sonst zeitlich unsicher, örtlich orientiert.',
+      'Transurethraler Dauerkatheter seit 5 Wochen wegen Harnverhalt bei Prostatahyperplasie, Wechsel geplant in einer Woche.',
+      'Heim: seit Mittag zunehmend verwirrt, Fieber 38,4 °C um 14 Uhr, abends 39 °C, kaum getrunken. Hausarzt nicht erreicht, Notruf 22:40.',
+      'Rettungsdienst: 500 ml Vollelektrolyt über Zugang 18 G links gelaufen, O₂ 2 l/min über Nasenbrille.',
+    ],
+    diagnosen: [
+      { text: 'Benigne Prostatahyperplasie mit Harnverhalt, Dauerkatheter', icd: 'N40', seit: '2025' },
+      { text: 'Diabetes mellitus Typ 2', icd: 'E11.90', seit: '2010' },
+      { text: 'Arterielle Hypertonie', icd: 'I10.90', seit: '2006' },
+      { text: 'Leichte Alzheimer-Demenz', icd: 'G30.1', seit: '2023' },
+    ],
+    medikation: [
+      { id: 'mp-metformin', wirkstoff: 'Metformin', staerke: '1000 mg', form: 'Tbl.', schema: '1-0-1-0', zuletzt: 'heute 18:00',
+        hinweis: 'Bei Sepsis, Schock oder Kontrastmittel pausieren (Laktatazidose), ärztlich entscheiden.' },
+      { id: 'mp-ramipril', wirkstoff: 'Ramipril', staerke: '5 mg', form: 'Tbl.', schema: '1-0-0-0', zuletzt: 'heute 08:00', hinweis: 'Bei Hypotonie nicht geben.' },
+      { id: 'mp-tamsulosin', wirkstoff: 'Tamsulosin', staerke: '0,4 mg', form: 'Kps.', schema: '0-0-1-0', zuletzt: 'gestern 20:00', hinweis: 'Heute Abend im Heim nicht mehr gegeben.' },
+      { id: 'mp-paracetamol', wirkstoff: 'Paracetamol', staerke: '500 mg', form: 'Tbl. (Heim)', massnahme: 'paracetamol-iv', zuletzt: 'heute 21:00',
+        bedarf: { indikation: 'Fieber über 38,5 °C oder Schmerzen', einzeldosis: '500 mg', maxProTag: '4 Gaben', abstandH: 6 },
+        hinweis: 'Im Heim um 21 Uhr gegeben (Überleitungsbogen). Vor einer weiteren Gabe Abstand beachten.' },
+    ],
+    vorwerte: [
+      { zeit: 'vor 3 Tagen (Heim)', vorH: 72, werte: { rrSys: 138, rrDia: 76, hf: 78, temp: 36.8, bz: 142 }, kuerzel: 'Heim' },
+      { zeit: 'heute 14:00 (Heim)', vorH: 9.7, werte: { rrSys: 124, rrDia: 70, hf: 96, temp: 38.4 }, kuerzel: 'Heim' },
+      { zeit: 'heute 22:50 (Rettungsdienst)', vorH: 0.8, werte: { rrSys: 92, rrDia: 50, hf: 118, af: 26, spo2: 92, temp: 39.0, bz: 176 }, kuerzel: 'RD' },
+    ],
+    pflegebericht: [
+      { zeit: 'heute 14:10', wer: 'Heim, Pflegefachkraft', text: 'Bewohner wirkt verlangsamt, verwechselt die Pflegekräfte. 38,4 °C. Urin im Beutel trüb und flockig. Hausarztpraxis angerufen, Rückruf zugesagt.' },
+      { zeit: 'heute 21:00', wer: 'Heim, Nachtdienst', text: '39 °C, fröstelt. Paracetamol 500 mg aus dem Bedarf gegeben. Trinkt nur wenige Schlucke. Hausarzt nicht erreicht.' },
+      { zeit: 'heute 22:40', wer: 'Heim, Nachtdienst', text: 'Kaum noch ansprechbar, RR 90/55. Notruf 112. Sohn informiert (Vorsorgevollmacht), er kommt in die Klinik.' },
+      { zeit: 'heute 23:30', wer: 'Rettungsdienst', text: 'Notfallprotokoll: GCS 13, RR 92/50, HF 118, AF 26, SpO₂ 92 % unter Raumluft, 39,0 °C, BZ 176. 500 ml VEL i. v. Penicillinallergie laut Notfallbogen.' },
+    ],
+    aerztlicheAnordnungen: [
+      { zeit: 'heute 23:40', wer: 'Notaufnahme (Standard)', text: 'Schockraum-Standard: Monitoring, O₂ bei SpO₂ unter 94 %, Ziel 94–98 %. Ärztin wird gerufen.' },
+      { zeit: 'vor 5 Wochen', wer: 'Urologie', text: 'Transurethraler Dauerkatheter 14 Ch, Wechsel alle 6 Wochen; Tamsulosin weiter.' },
+    ],
+    assessments: [
+      { name: 'Barthel-Index (Heim)', wert: '45 von 100', datum: 'vor 2 Monaten' },
+      { name: 'Braden-Skala (Heim)', wert: '14 Punkte (mittleres Risiko)', datum: 'vor 2 Monaten', hinweis: 'Steiß heute laut Heim gerötet.' },
+      { name: 'Sturzrisiko (Heim)', wert: 'hoch', datum: 'vor 2 Monaten', hinweis: 'Demenz, Rollator, Tamsulosin.' },
+    ],
+    labor: [
+      { name: 'Urin-Stix (Heim)', wert: 'Leukozyten +++, Nitrit positiv', datum: 'heute 14:30', auffaellig: true },
+      { name: 'Kreatinin', wert: '1,3', einheit: 'mg/dl', norm: '0,7–1,2', datum: 'vor 4 Wochen (Hausarzt)', auffaellig: true },
+      { name: 'HbA1c', wert: '7,4', einheit: '%', norm: 'unter 6,5', datum: 'vor 4 Wochen (Hausarzt)', auffaellig: true },
+      { name: 'Kalium', wert: '4,5', einheit: 'mmol/l', norm: '3,5–5,0', datum: 'vor 4 Wochen (Hausarzt)' },
+    ],
+    pflegeplanung: [
+      { problem: 'Infektionsgefahr durch Dauerkatheter', ziel: 'Keine Harnwegsinfektion, geschlossenes System', massnahmen: ['Katheterpflege 1× täglich', 'Beutel unter Blasenniveau', 'Trinkmenge mind. 1,5 l'] },
+      { problem: 'Sturzgefahr (Demenz, Rollator)', ziel: 'Bleibt sturzfrei', massnahmen: ['Rollator in Reichweite', 'Nachtlicht', 'Hüftprotektoren'] },
+      { problem: 'Dekubitusgefahr', ziel: 'Haut intakt', massnahmen: ['Hautinspektion täglich', 'Positionswechsel nachts'] },
+    ],
+    rechtliches: [
+      'Vorsorgevollmacht (Gesundheit, Aufenthalt) für den Sohn Thomas Kranz, Kopie im Überleitungsbogen.',
+      'Keine Patientenverfügung. Laut Sohn wünscht der Vater „alles, was hilft“.',
+      'Allergie: Penicillin (2019 Hautausschlag und Luftnot), im Notfallbogen rot markiert.',
+    ],
+  },
+
   befunde: [
-    { massnahme: 'uebergabe-rd-annehmen', varianten: [{ text: 'Notfallsanitäter: „Herr Kranz, 81, Pflegeheim. Seit Mittag verwirrt, Fieber 39 im Heim, Dauerkatheter mit trübem Urin. RR im Wagen 92/50, Puls 118, AF 26. Zugang 18 G links, 500 ml Vollelektrolyt gelaufen. Allergie: Penicillin, steht im Notfallbogen. Medikamentenplan liegt bei.“' }] },
+    { massnahme: 'uebergabe-rd-annehmen', varianten: [{ text: 'Notfallsanitäter: „Herr Kranz, 81, Pflegeheim. Seit Mittag verwirrt, Fieber 39 im Heim, Dauerkatheter mit trübem Urin. RR im Wagen 92/50, Puls 118, AF 26. Zugang 18 G links, 500 ml Vollelektrolyt gelaufen. Allergie: Penicillin, steht im Notfallbogen. Medikamentenplan und Überleitungsbogen liegen bei. Der Sohn hat eine Vorsorgevollmacht und kommt nach.“' }] },
     { massnahme: 'ansprechen-orientierung', varianten: [{ text: '„Wo bin ich denn hier … in der Werkstatt?“ Er öffnet die Augen auf Ansprache, ist zeitlich und örtlich nicht orientiert. Der Sohn sagt am Telefon, gestern sei er noch klar gewesen.' }] },
     { massnahme: 'ersteindruck-abcde', varianten: [{ text: 'A frei, spricht. B: schnelle, flache Atmung. C: Haut an Armen und Beinen kühl, am Rumpf heiß, Puls schnell und schwach. D: schläfrig, verwirrt. E: 39 °C laut Heim, Dauerkatheter mit trübem, dunklem Urin, Steiß gerötet.' }] },
     { massnahme: 'monitor-anlegen', varianten: [{ text: 'Monitor läuft: HF {hf}/min, RR {rrSys}/{rrDia} mmHg (MAP {map}), AF {af}/min, SpO₂ {spo2} %.', zeigt: ['hf', 'rrSys', 'rrDia', 'map', 'af', 'spo2', 'rhythmus'] }] },
@@ -167,6 +238,15 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
     { id: 'g-beruhigen', frage: 'Mit Namen ansprechen, erklären, wo er ist und was passiert', an: 'patient', kompetenzbereiche: ['II'],
       antwort: [{ text: 'Er hält deine Hand und wird etwas ruhiger.' }],
       wirkung: [{ groesse: 'angst', delta: -0.2, beginnSek: 0, spitzeSek: 60, dauerSek: 'dauerhaft' }] },
+    // Runde 2 (P14a): Rettungsdienst nachfragen, Sohn (Vorsorgevollmacht) informieren
+    { id: 'g-rd-nachfragen', frage: 'Nachfragen: Letzte Medikamente, Patientenverfügung, Ansprechpartner?', an: 'rettungsdienst', kompetenzbereiche: ['II', 'IV'],
+      antwort: [{ text: '„Metformin heute um 18 Uhr, Paracetamol 500 mg um 21 Uhr im Heim. Patientenverfügung gibt es keine. Ansprechpartner ist der Sohn mit Vorsorgevollmacht, die Nummer steht im Überleitungsbogen.“' }],
+      fakten: ['Metformin 18 Uhr', 'Paracetamol 500 mg 21 Uhr', 'keine Patientenverfügung', 'Sohn mit Vorsorgevollmacht'] },
+    { id: 'g-sohn-info', frage: 'Sohn anrufen: Lage im Schockraum, Verdacht auf Sepsis, Verlegung auf die Intensivstation', an: 'angehoerige', kanal: 'telefon', kompetenzbereiche: ['II', 'IV'],
+      schweigepflicht: { erlaubtWenn: { eine: [{ getan: 'uebergabe-rd-annehmen' }, { getan: 'frage:g-rd-nachfragen' }] },
+        fehlerText: 'Du hast den Sohn informiert, bevor du wusstest, ob er Auskunft bekommen darf. Herr Kranz kann gerade nicht einwilligen. Der Rettungsdienst und der Überleitungsbogen nennen die Vorsorgevollmacht: erst klären, dann informieren.' },
+      antwort: [{ text: '„Danke, dass Sie anrufen. Ich bin in einer Viertelstunde da. Er wollte immer, dass man alles macht, was hilft.“', setzt: ['sohn-informiert'] }],
+      fakten: ['Sohn kommt in 15 Minuten', 'Vater wünscht volle Therapie'] },
   ],
 
   sbar: [
@@ -185,6 +265,9 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
     { id: 'r-sofort', teil: 'R', text: 'Bitte kommen Sie sofort in den Schockraum.', art: 'kern' },
     { id: 'r-noradrenalin', teil: 'R', text: 'Brauchen wir Noradrenalin und eine arterielle Druckmessung?', art: 'hilfreich' },
     { id: 'r-abwarten', teil: 'R', text: 'Ich messe in einer Stunde noch einmal.', art: 'falsch' },
+    // Runde 2 (P14a): Übergabe an die Intensivstation
+    { id: 'r-its-laeuft', teil: 'R', text: 'Noradrenalin läuft nach Zielvorgabe MAP über 65, Arterie genullt, Meropenem nach den Blutkulturen gegeben, Bilanz läuft. Bitte weiter auf allergische Reaktion achten.', art: 'hilfreich',
+      bekanntWenn: { alle: [{ getan: 'perfusor-vorbereiten' }, { getan: 'arterie-nullabgleich' }] } },
   ],
 
   anordnungen: [
@@ -209,22 +292,36 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
   arzt: {
     name: 'Dr. Aydin',
     erreichbar: 'vor-ort',
+    // Runde 2 (P14a): genau → allgemein. Rückaufträge Laktat und MAP nach Nullabgleich; ohne Verdacht fragt die Ärztin zurück.
     regeln: [
-      { wenn: { alle: [{ gemeldet: ['a-map-nach-volumen'] }, VOLUMEN_GEGEBEN] },
-        antwort: '„Septischer Schock. Wir starten Noradrenalin, Ziel MAP über 65. Ich lege eine Arterie, bereiten Sie bitte alles vor. Die Intensiv ist informiert.“',
-        anordnungen: ['an-noradrenalin', 'an-na-titrieren', 'an-arterie', 'an-intensiv'], setzt: ['schock-gemeldet'] },
+      SCHOCK_REGEL,
       { wenn: { gemeldet: ['s-sepsis-verdacht', 'a-hypotonie', 'b-penicillin-allergie'] },
-        antwort: '„Danke, ich komme. Blutkulturen, BGA mit Laktat, 1000 ml Volumen rasch. Wegen der Penicillinallergie nehmen wir Meropenem, nach den Kulturen.“',
-        anordnungen: ['an-bk', 'an-bga', 'an-ringer', 'an-meropenem'], setzt: ['sepsis-gemeldet', 'allergie-gemeldet'] },
+        antwort: `„Danke, ich komme. Blutkulturen, BGA mit Laktat, 1000 ml Volumen rasch. Wegen der Penicillinallergie nehmen wir Meropenem, nach den Kulturen.${LAKTAT_AUFTRAG}“`,
+        anordnungen: ['an-bk', 'an-bga', 'an-ringer', 'an-meropenem'], setzt: ['sepsis-gemeldet', 'allergie-gemeldet'], auftraege: ['af-laktat'] },
       { wenn: { gemeldet: ['s-sepsis-verdacht', 'a-hypotonie'] },
-        antwort: '„Danke, ich komme. Blutkulturen, BGA mit Laktat, 1000 ml Volumen rasch und Piperacillin/Tazobactam 4,5 g nach den Kulturen.“',
-        anordnungen: ['an-bk', 'an-bga', 'an-ringer', 'an-piptaz'], setzt: ['sepsis-gemeldet'] },
-      { wenn: { gemeldet: ['a-hypotonie'] },
-        antwort: '„Woran denken Sie denn? Haben Sie schon einen qSOFA erhoben? Ich bin noch im anderen Raum, melden Sie sich mit mehr Informationen.“' },
+        antwort: `„Danke, ich komme. Blutkulturen, BGA mit Laktat, 1000 ml Volumen rasch und Piperacillin/Tazobactam 4,5 g nach den Kulturen.${LAKTAT_AUFTRAG}“`,
+        anordnungen: ['an-bk', 'an-bga', 'an-ringer', 'an-piptaz'], setzt: ['sepsis-gemeldet'], auftraege: ['af-laktat'] },
+      { id: 'r-qsofa-frage', wenn: { gemeldet: ['a-hypotonie'] },
+        antwort: '„Ich bin noch im anderen Raum. Niedriger Blutdruck allein sagt mir noch nicht, woran Sie denken.“',
+        rueckfrage: { text: '„Was ergibt der qSOFA, und gibt es einen Infektfokus?“', erwartet: ['s-sepsis-verdacht'] } },
       { wenn: { eine: [{ gemeldet: ['s-fieber'] }, { gemeldet: ['a-nur-unruhig'] }] },
         antwort: '„Dann geben Sie erst einmal 1 g Paracetamol. Ich schaue in einer halben Stunde vorbei.“', anordnungen: ['an-paracetamol'], setzt: ['arzt-verzoegert'] },
     ],
+    auftraege: [
+      { id: 'af-laktat', text: 'Laktat aus der BGA der Ärztin sagen', erledigt: { getan: 'bga-messen-lesen' }, meldung: ['wert:laktat'], meldenBinnenSek: 1200,
+        folge: [
+          SCHOCK_REGEL,
+          { wenn: { wert: 'laktat', vergleich: '>=', grenze: 4 }, antwort: '„Laktat über 4, das ist ernst. Volumen weiterlaufen lassen und sagen Sie mir sofort, wie der MAP nach dem Liter ist.“' },
+          { wenn: { ab: 0 }, antwort: '„Danke. Volumen weiter, wir beurteilen nach dem Liter neu.“' },
+        ] },
+      { id: 'af-map', text: 'MAP nach dem Nullabgleich der Arterie der Ärztin sagen', erledigt: { getan: 'arterie-nullabgleich' }, meldung: ['wert:map'], meldenBinnenSek: 900,
+        folge: [
+          { wenn: { wert: 'map', vergleich: '>=', grenze: 65 }, antwort: '„Gut, MAP im Ziel. So halten, die Intensiv erwartet ihn.“', setzt: ['map-rueckmeldung'] },
+          { wenn: { ab: 0 }, antwort: '„Noch unter 65. Weiter in 1-ml/h-Schritten alle fünf Minuten nach Schema, ich bleibe dabei.“', setzt: ['map-rueckmeldung'] },
+        ] },
+    ],
   },
+  team: { weitere: { rettungsdienst: 'Notfallsanitäter Herr Wolf', angehoerige: 'Sohn Thomas Kranz (Vorsorgevollmacht)', 'aufnehmende-station': 'Intensivstation, Pfleger Malte' } },
 
   ereignisse: [
     { id: 'e-vhf', art: 'geraet', wann: { nichtGetan: 'infusion-anhaengen', bis: 600 },
@@ -252,6 +349,7 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
     hilfen: [
       { wenn: { nicht: { getan: 'monitor-anlegen' } }, impuls: 'Was brauchst du, um seinen Zustand überhaupt beurteilen zu können?', tipp: 'Schließ zuerst den Monitor an und lass dir die Übergabe vom Rettungsdienst geben.' },
       { wenn: { nicht: { flag: 'sepsis-gemeldet' } }, impuls: 'Fieber, niedriger Blutdruck, schnelle Atmung, neu verwirrt: Woran denkst du?', tipp: 'Erhebe den qSOFA und melde der Ärztin mit SBAR den Verdacht auf Sepsis. Denk an die Allergie im Notfallbogen.' },
+      { wenn: { auftrag: 'af-laktat', status: 'offen' }, impuls: 'Worauf wartet die Ärztin noch von dir?', tipp: 'BGA mit Laktat abnehmen, messen und ihr den Wert sagen.' },
       { wenn: { alle: [{ flag: 'sepsis-gemeldet' }, { nicht: { getan: 'blutkulturen-abnehmen' } }] }, impuls: 'In welcher Reihenfolge laufen Blutkulturen und Antibiotikum?', tipp: 'Erst die Blutkulturen, dann sofort das Antibiotikum. Das Volumen kann parallel laufen.' },
       { wenn: { alle: [{ flag: 'arterie-liegt' }, { nicht: { flag: 'art-genullt' } }] }, impuls: 'Kannst du dem arteriellen Wert schon trauen?', tipp: 'Ohne Nullabgleich auf Herzhöhe ist der Wert verschoben. Erst nullen, dann titrieren.' },
       { impuls: 'Erreicht ihr das Ziel? Woran misst du das außer am Monitor?', tipp: 'MAP, Haut, Bewusstsein und die Urin-Stundenmenge zeigen dir, ob die Organe wieder durchblutet werden.' },
@@ -287,8 +385,17 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
         erfuellt: { wert: 'map', vergleich: '>=', grenze: 65 }, warum: 'MAP ≥ 65 mmHg ist das Startziel bei septischem Schock (SSC 2021).' },
       { id: 'p-urin', text: 'Urin-Stundenmenge gemessen und Bilanz geführt', gewicht: 1, kompetenzbereiche: ['I'], klinisch: ['abcde'],
         erfuellt: { getan: 'bilanz-fuehren' }, warum: 'Die Urinmenge zeigt, ob die Nieren wieder durchblutet werden (Ziel ≥ 0,5 ml/kg/h).' },
-      { id: 'p-uebergabe', text: 'Strukturierte Übergabe an die Intensivstation', gewicht: 2, kompetenzbereiche: ['II', 'III'], klinisch: ['team'],
-        erfuellt: { getan: 'verlegung-uebergabe' }, warum: 'Bei der Verlegung gehen sonst Laufraten, Allergie und Zeitpunkte verloren.' },
+      { id: 'p-uebergabe', text: 'Strukturierte Übergabe an die Intensivstation (mit Allergie und laufender Therapie)', gewicht: 2, kompetenzbereiche: ['II', 'III'], klinisch: ['team'],
+        erfuellt: { alle: [{ getan: 'verlegung-uebergabe' }, { gesagt: 'b-penicillin-allergie', an: 'aufnehmende-station' }, { gesagt: 'r-its-laeuft', an: 'aufnehmende-station' }] },
+        warum: 'Bei der Verlegung gehen sonst Laufraten, Allergie und Zeitpunkte verloren.' },
+      { id: 'p-rueckauftrag', text: 'Rückaufträge der Ärztin gemeldet (Laktat, MAP nach Nullabgleich)', gewicht: 2, kompetenzbereiche: ['II', 'III'], klinisch: ['team'],
+        erfuellt: { alle: [{ auftrag: 'af-laktat', status: 'gemeldet' }, { auftrag: 'af-map', status: 'gemeldet' }] },
+        warum: 'Die Ärztin entscheidet über Noradrenalin und Titration nach deinen Werten (Closed Loop).' },
+      { id: 'p-sohn', text: 'Sohn (Vorsorgevollmacht) informiert, nachdem die Vollmacht geklärt war', gewicht: 1, kompetenzbereiche: ['II', 'IV'],
+        erfuellt: { flag: 'sohn-informiert' }, warum: 'Der Bevollmächtigte entscheidet mit, wenn Herr Kranz nicht einwilligen kann, und kennt seinen Willen.' },
+      { id: 'p-doku', text: 'Zeitpunkte von Blutkulturen und Antibiotikum dokumentiert', gewicht: 1, kompetenzbereiche: ['I', 'IV'], klinisch: ['medikamente'],
+        erfuellt: { alle: [{ dokumentiert: 'befund:blutkulturen-abnehmen' }, { dokumentiert: 'massnahme:meropenem-richten' }] },
+        warum: 'Die Zeit bis zum Antibiotikum ist ein Qualitätsmerkmal der Sepsisversorgung und muss nachvollziehbar sein.' },
     ],
     fehler: [
       { id: 'f-penicillin', text: 'Penicillin trotz dokumentierter Allergie gegeben', wenn: PENICILLIN_GEGEBEN, schwere: 'schwer', kompetenzbereiche: ['III', 'IV'],
@@ -367,6 +474,7 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
     muster: [
       { art: 'massnahme', id: 'uebergabe-rd-annehmen' },
       { art: 'massnahme', id: 'monitor-anlegen' },
+      { art: 'frage', id: 'g-rd-nachfragen' },
       { art: 'massnahme', id: 'ersteindruck-abcde' },
       { art: 'massnahme', id: 'qsofa-erheben' },
       { art: 'massnahme', id: 'o2-geben' },
@@ -383,9 +491,9 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
       { art: 'massnahme', id: 'bga-messen-lesen' },
       { art: 'massnahme', id: 'temperatur-ohr' },
       { art: 'massnahme', id: 'beruhigen-zusprechen' },
-      { art: 'warten', sek: 120 },
+      { art: 'dokumentieren', bausteine: ['befund:blutkulturen-abnehmen', 'massnahme:meropenem-richten', 'anordnung:an-meropenem', 'wert:laktat', 'b-penicillin-allergie'] },
       { art: 'massnahme', id: 'bilanz-fuehren' },
-      { art: 'anruf', an: 'aerztin', sbar: ['s-sepsis-verdacht', 'a-map-nach-volumen', 'a-laktat-hoch', 'r-noradrenalin'] },
+      { art: 'nachricht', an: 'aerztin', kanal: 'telefon', bausteine: ['wert:laktat', 'a-laktat-hoch', 'a-map-nach-volumen', 'wert:map', 'r-noradrenalin'] },
       { art: 'rueckmelden', anordnung: 'an-noradrenalin', rueckgelesen: true },
       { art: 'rueckmelden', anordnung: 'an-na-titrieren', rueckgelesen: true },
       { art: 'rueckmelden', anordnung: 'an-arterie', rueckgelesen: true },
@@ -393,9 +501,11 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
       { art: 'massnahme', id: 'perfusor-vorbereiten' },
       { art: 'massnahme', id: 'arterie-assistieren' },
       { art: 'massnahme', id: 'arterie-nullabgleich' },
-      { art: 'warten', sek: 120 },
+      { art: 'nachricht', an: 'aerztin', kanal: 'telefon', bausteine: ['wert:map'] },
+      { art: 'frage', id: 'g-sohn-info' },
       { art: 'massnahme', id: 'art-system-pruefen' },
       { art: 'massnahme', id: 'bilanz-fuehren' },
+      { art: 'nachricht', an: 'aufnehmende-station', kanal: 'telefon', bausteine: ['s-sepsis-verdacht', 'b-dk-harnweg', 'b-penicillin-allergie', 'a-map-nach-volumen', 'a-laktat-hoch', 'r-its-laeuft'] },
       { art: 'massnahme', id: 'verlegung-uebergabe' },
       { art: 'abschluss', probleme: ['pb-kreislauf', 'pb-infekt', 'pb-allergie', 'pb-delir'], ziele: ['z-map', 'z-orientierung', 'z-keine-reaktion'],
         verdacht: 'v-septischer-schock', begruendung: ['bg-infekt', 'bg-map-trotz-volumen', 'bg-laktat'],
