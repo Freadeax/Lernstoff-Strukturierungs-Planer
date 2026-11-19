@@ -57,4 +57,8 @@ export const WEITERLERNEN_V2: Record<string, WeiterlernenEintrag> = {
     themen: ['thema.ph.palliativ', 'thema.kl.atmung', 'thema.ph.medikamente', 'thema.re.betreuung'],
     krankheiten: [],
   },
+  'kh-sterbephase-nacht': {
+    themen: ['thema.ph.palliativ', 'thema.kl.atmung', 'thema.ph.medikamente'],
+    krankheiten: [],
+  },
 };
