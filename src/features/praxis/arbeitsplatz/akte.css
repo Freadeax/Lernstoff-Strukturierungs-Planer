@@ -72,3 +72,4 @@
 
 /* Kopfzeile Arbeitsplatz: Akte-Knopf */
 .ap-kopf__akte { min-height: 44px; }
+.akte-med__schema--text { width: auto; white-space: normal; }

@@ -102,6 +102,8 @@ export interface MedZeile {
   art: 'dauer' | 'bedarf';
   /** Schema in vier Spalten morgens/mittags/abends/nachts */
   schema: [string, string, string, string];
+  /** Schema, das nicht in vier Spalten passt (z. B. „8-16-24 Uhr“, „alle 6 h“): als Text über alle Spalten */
+  schemaText?: string;
   zuletztVorFall?: string;
   gaben: Gabe[];
   /** Durch Anordnung im Fall geändert (z. B. pausiert) */
@@ -110,8 +112,11 @@ export interface MedZeile {
   priscus: boolean;
 }
 
+/** Nur „1-0-1-0“-artige Schemata (1 bis 4 Zahlen/Brüche) gehen in Spalten; alles andere bleibt Text. */
+export const istSpaltenSchema = (schema: string | undefined) => !schema || /^\s*[\d½¼¾.,/]+(\s*[-–]\s*[\d½¼¾.,/]+){0,3}\s*$/.test(schema);
+
 function schemaSpalten(schema: string | undefined): MedZeile['schema'] {
-  const teile = (schema ?? '').split(/[-–/]/).map((x) => x.trim());
+  const teile = (schema ?? '').split(/[-–]/).map((x) => x.trim());
   return [0, 1, 2, 3].map((i) => teile[i] ?? (schema ? '0' : '')) as MedZeile['schema'];
 }
 
@@ -130,7 +135,8 @@ export function medikation(z: SimZustand): MedZeile[] {
       });
     const zurueck = e.wirkstoff ? Object.keys(z.getan).find((id) => id.endsWith('-zurueckhalten') && id.startsWith(e.wirkstoff.toLowerCase())) : undefined;
     return {
-      eintrag: e, name: medName(e), art: e.bedarf ? 'bedarf' : 'dauer', schema: schemaSpalten(e.schema),
+      eintrag: e, name: medName(e), art: e.bedarf ? 'bedarf' : 'dauer', schema: schemaSpalten(istSpaltenSchema(e.schema) ? e.schema : undefined),
+      ...(istSpaltenSchema(e.schema) ? {} : { schemaText: e.schema }),
       ...(e.zuletzt ? { zuletztVorFall: e.zuletzt } : {}),
       gaben,
       ...(geaendert && anordnung ? { geaendert: { text: anordnung.text, uhr: uhrzeit(z.fall.startUhrzeit, geaendert.t) } } : {}),
