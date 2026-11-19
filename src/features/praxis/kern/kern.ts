@@ -14,6 +14,7 @@ import { NORMAL, type ModellKontext, type PhysiologieModell } from './modell';
 import { alarmFuer } from './physiologie/altersprofile';
 import { wendeModulAn } from './spur-b/modul';
 import { SPUR_B_MODELL } from './spur-b/standard';
+import { beobachte, befinden, bildNach, istWichtig, verlaufTakt, type VerlaufStand } from './verlauf';
 import type {
   Gegenueber,
   AktiverTreiber, Anzeige, Bedingung, Bildzustand, FallV2, Freigabe, Grundgroessen, MassnahmeDefinition, ModellModule, ModulEingriff, Rolle,
@@ -36,6 +37,8 @@ export interface Meldung {
   /** P11: zu welchem Gesprächsfaden die Meldung gehört; `richtung` aus Sicht der Lernenden */
   faden?: Gegenueber;
   richtung?: 'raus' | 'rein';
+  /** P12: Verlauf-Meldung beschreibt eine wichtige Verschlechterung (Bewusstsein, Atmung, Haut, Krampf) */
+  wichtig?: boolean;
   /** P13: Messwerte zum Messzeitpunkt (Befund mit `zeigt`, Schmerzeinschätzung, Doku). Eine Quelle für Kurve, Wert-Bausteine und Verlauf. */
   werte?: Partial<Record<keyof Anzeige | 'schmerz', number>>;
 }
@@ -70,6 +73,8 @@ export interface SimZustand {
   alarme: Partial<Record<keyof Anzeige, 'gelb' | 'rot'>>;
   offeneEntscheidung?: string;
   bild: Bildzustand;
+  /** P12: Stand der sichtbaren Beobachtungen (Entprellung der Meldungen `art: 'verlauf'`), entsteht im ersten Takt */
+  verlaufStand?: VerlaufStand;
   /** Spur B: Laufzeitkopie der Modellmodule (Perfusoren, Beatmung, Störungen …), entsteht im Replay identisch */
   module?: ModellModule;
   ende?: { text: string; ausgang: string; t: number };
@@ -171,7 +176,7 @@ export function freigabe(z: SimZustand, m: MassnahmeDefinition, rolle: Rolle = z
 export function start(fall: FallV2, rolle: Rolle, stufe: Stufe, seed = 1): SimZustand {
   const anordnungen: SimZustand['anordnungen'] = {};
   for (const id of fall.start.anordnungen ?? []) anordnungen[id] = { rueckgelesen: true, t: 0 };
-  return {
+  return mitVerlaufStart({
     fall, rolle, stufe, seed, t: 0,
     grund: basisGrund(fall),
     treiber: fall.start.treiber.map((tr) => ({ ...tr, seit: 0 })),
@@ -180,7 +185,13 @@ export function start(fall: FallV2, rolle: Rolle, stufe: Stufe, seed = 1): SimZu
     letzterAnruf: [], anleitung: [], paZaehler: {}, ereignisseAus: [], fehlerAus: [], alarme: {},
     bild: { ...fall.start.bild }, eingaben: [], log: [], meldungen: [], komm: neuerKommStand(),
     ...(fall.start.module ? { module: structuredClone(fall.start.module) } : {}),
-  };
+  });
+}
+
+/** Verlauf-Stand ab Fallbeginn (P12), damit die erste Änderung gegen die Ausgangslage geprüft wird. */
+function mitVerlaufStart(z: SimZustand): SimZustand {
+  z.verlaufStand = { stand: beobachtung(z), kandidat: {}, zuletzt: {} };
+  return z;
 }
 
 function kopie(z: SimZustand): SimZustand {
@@ -238,6 +249,7 @@ function schritt(z: SimZustand, dt: number): Stopp | undefined {
       if (stufe) z.alarme[key] = stufe; else delete z.alarme[key];
     }
   }
+  pruefeVerlauf(z);
   pruefeFehler(z);
   if (pruefeEnde(z)) stopp = 'ende';
   return stopp;
@@ -256,6 +268,18 @@ function lauf(z: SimZustand, sek: number, stoppBeiSignal = false): number {
 }
 
 /* ─────────────────── Ereignisse, Fehler, Ende ─────────────────── */
+
+const beobachtung = (z: SimZustand) => beobachte({ b: befinden(z.grund, z.treiber, kontextModell(z)), a: anzeige(z), fall: z.fall });
+
+/** P12: sichtbare Zustandswechsel als Meldung `verlauf` (entprellt, nur Beobachtbares). Fallereignis im selben Takt hat Vorrang. */
+function pruefeVerlauf(z: SimZustand) {
+  const jetzt = beobachtung(z);
+  const st = (z.verlaufStand ??= { stand: {}, kandidat: {}, zuletzt: {} });
+  const still = z.meldungen.some((m) => m.t === z.t && m.art === 'ereignis');
+  const neu = verlaufTakt(st, jetzt, z.t, z.fall.person.name, still);
+  for (const v of neu) z.meldungen.push({ t: z.t, art: 'verlauf', text: v.text, quelle: `verlauf:${v.merkmal}`, ...(istWichtig(v) ? { wichtig: true } : {}) });
+  z.bild = bildNach(z.bild, neu, jetzt);
+}
 
 function pruefeEreignisse(z: SimZustand): boolean {
   let neu = false;

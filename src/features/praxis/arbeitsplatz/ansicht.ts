@@ -129,10 +129,8 @@ export const FREIGABE_TEXT: Record<Freigabe, { kurz: string; lang: string }> = {
 /** Settings, in denen Messgeräte erst aus der Pflegetasche kommen (E9, wie im Kern). */
 export const hatPflegetasche = (fall: FallV2) => fall.setting === 'ambulant' || fall.setting === 'langzeit';
 
-export const GERAET_NAME: Record<string, string> = {
-  pulsoxy: 'Pulsoxymeter', 'rr-geraet': 'Blutdruckgerät', thermometer: 'Ohrthermometer', 'bz-geraet': 'Blutzuckergerät',
-};
-export const geraetName = (id: string) => GERAET_NAME[id] ?? id;
+export { GERAET_NAME, geraetName } from '../kern/geraete';
+import { geraetName } from '../kern/geraete';
 
 export interface Handlung {
   art: 'massnahme' | 'frage';

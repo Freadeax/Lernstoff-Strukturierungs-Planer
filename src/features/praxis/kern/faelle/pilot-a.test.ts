@@ -78,7 +78,7 @@ describe('Pilot Langzeit: Demenz, Schmerz, Bettgitter', () => {
   it('ohne Blick in den Mund fragt der Hausarzt nach', () => {
     const z = spiele(start(LZ, 2, 2), [{ art: 'anruf', an: 'aerztin', sbar: ['s-isst-nicht', 'b-demenz'] }]);
     expect(z.angeboten).toEqual([]);
-    expect(z.meldungen.at(-1)!.text).toMatch(/in den Mund geschaut/);
+    expect(z.meldungen.filter((x) => x.art !== 'verlauf').at(-1)!.text).toMatch(/in den Mund geschaut/);
   });
   it('Bettgitter bleibt für Auszubildende gesperrt, auch mit Anordnung; Stufe 3 → Fehler', () => {
     const vorher: SimEventEingabe[] = [m('schmerz-besd'), m('schleimhaut-pruefen'), m('kurve-lesen'),
@@ -148,7 +148,7 @@ describe('Pilot Psychiatrie: Panik und Suizidalität', () => {
   });
   it('Plan erst bekannt, wenn sie ruhiger ist', () => {
     const vorher = spiele(start(PSY, 3, 2), [m('suizidalitaet-ansprechen')]);
-    expect(vorher.meldungen.at(-1)!.text).toMatch(/keine Luft/);
+    expect(vorher.meldungen.filter((x) => x.art !== 'verlauf').at(-1)!.text).toMatch(/keine Luft/); // P12: Verlauf-Meldungen laufen dazwischen
     expect(vorher.ereignisseAus).not.toContain('e-versprechen');
   });
   it('Telefonieren, ohne dass jemand bei ihr bleibt: schwerer Fehler', () => {

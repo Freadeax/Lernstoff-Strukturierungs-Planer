@@ -8,6 +8,7 @@
 
 import { istMedFehler, medFehlerText } from './akte';
 import { anzeige, gilt, massnahme, sende, start, TAKT_SEK, type SimZustand } from './kern';
+import { geraetName } from './geraete';
 import { GEGENUEBER_NAME, kommFehler, ZUSAGE_ID, ZUSAGE_TEXT } from './kommunikation';
 import type { Bedingung, FallV2, KB, KlinischerBereich, SbarBaustein, SimEventEingabe } from './typen';
 
@@ -149,7 +150,7 @@ export function eingabeText(fall: FallV2, e: SimEventEingabe): string {
   switch (e.art) {
     case 'massnahme': return massnahme(fall, e.id)?.name ?? e.id;
     case 'frage': return `Gespräch: ${fall.gespraech.find((g) => g.id === e.id)?.frage ?? e.id}`;
-    case 'pflegetasche': return `Aus der Pflegetasche geholt: ${e.geraet}`;
+    case 'pflegetasche': return `Aus der Pflegetasche geholt: ${geraetName(e.geraet)}`;
     case 'anruf': return `${fall.arzt.name} angerufen: ${e.sbar.map((id) => fall.sbar.find((s) => s.id === id)?.text ?? id).join(' · ') || 'ohne Inhalt'}`;
     case 'rueckmelden': return `Anordnung ${e.rueckgelesen ? 'rückgelesen' : 'ohne Rücklesen übernommen'}: ${fall.anordnungen.find((a) => a.id === e.anordnung)?.text ?? e.anordnung}`;
     case 'remonstrieren': return `Anordnung hinterfragt: ${fall.anordnungen.find((a) => a.id === e.anordnung)?.text ?? e.anordnung}`;
