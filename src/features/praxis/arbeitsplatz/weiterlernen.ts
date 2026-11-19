@@ -12,6 +12,20 @@ export interface WeiterlernenEintrag {
 }
 
 export const WEITERLERNEN_V2: Record<string, WeiterlernenEintrag> = {
+  'lz-koerperpflege-abgelehnt': {
+    themen: ['thema.kom.gespraech', 'thema.ph.koerperpflege', 'thema.ph.ausscheidung', 'thema.pro.zystitis'],
+    krankheiten: ['kh.hwi'],
+  },
+  'kh-reha-erster-weg': {
+    themen: ['thema.ph.mobilisation', 'thema.pro.sturz', 'thema.ph.periop', 'thema.pro.thrombose'],
+    krankheiten: ['kh.arthrose'],
+    extra: [{ label: 'Expertenstandards nachschlagen', path: '/lernen/schnellsuche', warum: 'Mobilität, Sturzprophylaxe und Schmerzmanagement im Überblick.' }],
+  },
+  'kh-erster-tag': {
+    themen: ['thema.ph.hygiene', 'thema.beo.vitalzeichen', 'thema.re.schweigepflicht', 'thema.pro.sturz'],
+    krankheiten: ['kh.hwi'],
+    extra: [{ label: 'Hygiene-Trainer', path: '/lernen/hygiene', warum: 'Händedesinfektion und die fünf Momente üben.' }],
+  },
   'amb-sturz-exsikkose': {
     themen: ['thema.fa.ambulant', 'thema.pro.dehydratation', 'thema.pro.sturz', 'thema.pro.delir'],
     krankheiten: ['kh.exsikkose', 'kh.delir'],

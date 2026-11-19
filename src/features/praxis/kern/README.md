@@ -26,7 +26,9 @@ Regeln
 - Wartezeiten nie zusammenfassen (Takt-Grenzen ändern sonst das Ergebnis).
 - Freigabe: `nur-aerztlich` und `gesperrt` → Grenze (gesperrt = in diesem Drittel nicht, keine ärztliche Aufgabe); anordnungspflichtig ohne Anordnung → braucht Anordnung; `mit-anleitung` → mit PA.
   Stufe 2: PA unterstützt bzw. warnt und führt nicht aus. Stufe 3: Knopf bleibt klickbar, `grenzueberschreitung` im Log.
-- Neuer Fall: Datei in `faelle/`, in `faelle/index.ts` eintragen, `lehrplan` (CE, Abschnitt, Themen) setzen (Test `faelle/lehrplan.test.ts`, Fallplan im Projektordner `FALLPLAN-CE.md`). Messwerte in Befunden nur als Platzhalter (`{rrSys}`, `{hf}` …), SBAR beschreibend ohne Zahlen.
+- Neuer Fall: Datei in `faelle/`, in `faelle/index.ts` eintragen, `lehrplan` (CE, Abschnitt, Themen) setzen (Test `faelle/lehrplan.test.ts`, Fallplan im Projektordner `FALLPLAN-CE.md`).
+  Danach in `../fallplan.ts` beim Plan-Eintrag `fall: '<id>'` setzen (löst den Altfall ab), `KERN_THEMEN` in `../themen.ts` ergänzen und
+  erledigte Lücken aus `ABDECKUNG_OFFEN` streichen (Test `../fallplan.test.ts`). Die Fallauswahl `#/lernen/praxis` gruppiert nach CE und Drittel (`?ce=ce.05`). Messwerte in Befunden nur als Platzhalter (`{rrSys}`, `{hf}` …), SBAR beschreibend ohne Zahlen.
   Katalog-Maßnahme mit fallspezifischem Namen/Wirkung: `aus(id, { … })` (Befugnis und Nachweis bleiben). Optional `team.kollegin` (Team-Leiste) und `medien.raumVarianten` (Foto je Zustand). `kern.test.ts` prüft Verweise, Musterweg (keine Fehler,
   alle Pflichthandlungen), Unterlassungsweg, Grenzweg und Replay automatisch.
 - Konzept: Projektordner `praxissimulator-neu/KONZEPT.md`.
@@ -163,6 +165,12 @@ Code: `kommunikation.ts` (rein, vom Kern aufgerufen), Zustand in `SimZustand.kom
 - **Kalium**: Ausgangswert 4,2 mmol/l, Schleifendiuretika senken es; `Anzeige.kalium` erscheint in Spur A, sobald der Fall oder ein Wirkstoff es führt.
 - Befundtexte können `{urinMlH}`, `{urinFarbe}`, `{blaseMl}`, `{kalium}` als Platzhalter nutzen.
 
+## Fallwelle P17a: Einstiegsfälle CE 01–03 (1. Drittel)
+- `kh-erster-tag` (CE 01): Händedesinfektion vor dem Kontakt (Fehler `f-haende-vergessen`, wenn eine patientennahe Handlung vorher kommt), Identität, Vorwerte vergleichen, Schwindel beim Aufsetzen (Entscheidung), Rückfrage Trinkmenge, Rückauftrag RR/Puls, Nachbarin am Telefon (keine Auskunft), Infusion im 1. Drittel durch Pflegefachfrau Jana (Gespräch mit Volumenwirkung), Ramipril- und Paracetamol-Fallen.
+- `lz-koerperpflege-abgelehnt` (CE 03): Körperpflege erst nach Grund (`grund-scham`) und Aushandeln (`einverstanden-pflege`), „trotzdem waschen“ und Druck der WBL als Grenzüberschreitung, neue Inkontinenz → Urinstix-Rückfrage, Dauerkatheter als fehlerhafte Anordnung, Reflexion mit der PA als Pflicht (KB V).
+- `kh-reha-erster-weg` (CE 02, aus Altfall „reha“): Mobilisation Tag 1 nach Hüft-TEP vorbereiten, Kollaps beim Gehen (Entscheidung), Rückfrage Hb, Novaminsulfon trotz Metamizol-Allergie remonstrieren, Physio/Ehefrau.
+- Tests: `faelle/p17a.test.ts` (u. a. Musterweg im 1. Drittel ≥ 90 %), Browserprüfung Block P17A in `check-arbeitsplatz.mjs`.
+
 ## Grundsystem G3: Haut, Mobilität, Sturz
 
 `physiologie/haut-mobilitaet.ts` (Lernmodell). Das Druck-mal-Zeit-Modell `haut()` der Lernseite liegt jetzt in `physiologie/organe.ts` (Lernseite re-exportiert, gleiche Funktion).
@@ -199,8 +207,19 @@ Alle Felder gehen als Platzhalter in Befundtexte (`{qsofa}`, `{schockindex}` mit
 - **Anzeige mit Schlaganfall**: `fast` (0–3), `nihss` (grob), `seitBeginnMin`, `lyseFensterMin` – für Befundtexte und Zeitdruck-Bedingungen.
 - Grundgrößen `neuroSeite`, `seitBeginnMin`, `wirkOpioid` schreibt das Modell; Fälle setzen sie nicht.
 
+## Grundsystem G6: Schlucken, Aspiration, Ernährung
+
+`physiologie/schlucken.ts` (Lernmodell; Logopädie und Schluckdiagnostik gehen vor).
+
+- **Dysphagie** (`Grundgroessen.dysphagie`, vom Modell): Treiber `schluckstoerung { schwere }`, Schlaganfall (0,8 × `neuroDefizit`) oder Eintrübung (Vigilanz < 0,55). Ohne Schluckthema (kein Treiber, kein Schlaganfall, keine Mahlzeit) führt das Modell nichts davon.
+- **Treiber `nahrung { form: 'essen' | 'trinken' }`**: wirkt 15 Minuten. Katalog: „essen-anreichen“ und „trinken-anbieten“ setzen ihn. Dünne Flüssigkeit aspiriert mehr als Essen, Eintrübung mehr als wach; „kost-anpassen“ (Wirkkurve `kostAngepasst` 0→1, in `OPTIONALE_WIRKGROESSEN`) senkt die Aspiration um 65 %.
+- **Akut** (`aspirationAkut`): Husten, schnelle Atmung, SpO₂ fällt, klingt in etwa 20 Minuten ab.
+- **Folge** (`aspirationsPneumonie`): Schwere nach aspirierter Menge, entwickelt sich über Stunden; wirkt wie Treiber `pneumonie` (Fieber, Rasselgeräusche im Befinden, Gasaustausch). Beatmete Personen (Spur B mit Beatmung) aspirieren im Modell nicht.
+- **Anzeige `guss`** (Gugging Swallowing Screen 0–20; ≤ 14 Aspirationsgefahr, eingetrübt ≤ 4) als Platzhalter für den Befund von „schlucken-pruefen“.
+- Ernährungszustand (Gewicht, MNA) ändert sich in Fallzeit nicht; er gehört in die Falldaten, Braden schätzt die Ernährung aus der Hydratation.
+
 ## Fallwelle P17b (CE 04/CE 07, Runde 3)
 - `amb-herzschwaeche` (CE 04, migriert aus dem Altfall „herzschwaeche“): Gewicht/Protokoll, Dosett (Torasemid ausgelassen), Rückfrage „Gewicht und Sättigung?“, fehlerhafte Anordnung Kompression bei Dekompensation (Ersatz: weglassen), Rückauftrag SpO₂/AF per Messenger, Tochter mit Einwilligung, Patientenwille (Krankenhaus abgelehnt) als Entscheidung, Schulung Gewichtstagebuch. Torasemid über G1.
 - `amb-hypoglykaemie` (CE 04): BZ vor Insulin, Traubenzucker (30 g schnell), Gabe zurückstellen, fehlerhafte Anordnung „volle 14 IE“ (Ersatz: zurückstellen), Rückauftrag Nachmessen → 8 IE nach dem Essen, Lipohypertrophie, Schulung Klient und Ehefrau. Treiber `hypoglykaemie` endet mit der Mahlzeit.
-- `lz-schlaganfall-reha` (CE 07, Kurzzeitpflege): Schluckprüfung, Kost nach Logopädie, Positionieren bei Hemiparese, Anleiten statt Anreichen, Ehefrau anleiten, Therapieteam, fehlerhafte Anordnung „alle Tabletten mörsern“ (Pantoprazol), Entscheidung dünner Kaffee → Aspiration. G5 `neuroDefizit`/`neuroSeite` gesetzt; G6 Schlucken folgt.
+- `lz-schlaganfall-reha` (CE 07, Kurzzeitpflege): Schluckprüfung, Kost nach Logopädie, Positionieren bei Hemiparese, Anleiten statt Anreichen, Ehefrau anleiten, Therapieteam, fehlerhafte Anordnung „alle Tabletten mörsern“ (Pantoprazol), Entscheidung dünner Kaffee → Aspiration. G5 `neuroDefizit`/`neuroSeite` gesetzt, daraus über G6 eine leichte Dysphagie.
 - Tests `faelle/p17b.test.ts`, Browserprüfung Block P17B in `check-arbeitsplatz.mjs`. Ein Messenger-Kontakt zählt im Bericht als „Ärztin informiert“ (`arbeitsplatz/weitergabe.ts`).
