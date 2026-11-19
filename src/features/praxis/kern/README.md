@@ -177,12 +177,20 @@ Code: `kommunikation.ts` (rein, vom Kern aufgerufen), Zustand in `SimZustand.kom
 - `kh-reha-erster-weg` (CE 02, aus Altfall „reha“): Mobilisation Tag 1 nach Hüft-TEP vorbereiten, Kollaps beim Gehen (Entscheidung), Rückfrage Hb, Novaminsulfon trotz Metamizol-Allergie remonstrieren, Physio/Ehefrau.
 - Tests: `faelle/p17a.test.ts` (u. a. Musterweg im 1. Drittel ≥ 90 %), Browserprüfung Block P17A in `check-arbeitsplatz.mjs`.
 
+## Fallwelle P16a: CE 05 (2./3. Drittel)
+- Neue Treiber (additiv): `anaphylaxie {staerke}` (Gefäßtonus und Kapillarleck, Bronchospasmus 0,7·s, Adrenalin aus G1 bremst) und `lungenembolie {staerke}` (Gasaustausch −0,8·s, Atemantrieb +0,5·s, Pumpleistung sofort 1 − 0,4·s, ab s > 0,7 Kreislaufdekompensation). Nachschub = zweiter, stärkerer Treiber per Ereignis.
+- `kh-nachblutung`: Druckverband ersetzt den Blutungstreiber (`beendet` vor `treiber`), Enoxaparin trotz Nachblutung als fehlerhafte Anordnung, Rückauftrag RR/Puls nach der Infusion, Ehefrau am Telefon, Übergabe an die OP-/Anästhesiepflege.
+- `awr-opioid-atemdepression` (Spur B, etCO₂): O₂ verdeckt die Hypoventilation, Naloxon gibt die Ärztin per Ereignis (`NALOXON_DA` = Bedingung des Ereignisses, weil Ereignisse keine Flags setzen), Station will das Bett (Entscheidung), Piritramid nach Naloxon als fehlerhafte Anordnung.
+- `kh-anaphylaxie-infusion`: Infusion stoppen ohne Anordnung, Lagerung nach Leitsymptom, Adrenalin i. m. durch die Ärztin, Rückauftrag Werte nach 5 Min., „Cefuroxim langsam wieder anhängen“ remonstrieren, Allergie kennzeichnen, Schwester nur mit Einwilligung.
+- `kh-lungenembolie`: Mobilisation stoppen (Entscheidung + Sichern verhindert den Nachschub), ausgelassenes Enoxaparin in der Akte (Rückfrage), Rückauftrag Beine vergleichen, „allein mit dem Transportdienst ins CT“ remonstrieren, Sohn nur mit Einwilligung.
+- `kh-medikationsverwechslung`: Meier/Maier im Zweibettzimmer, Glimepirid als Lernmodell über `hypoglykaemie`, Kollegin bittet ums Schweigen (Entscheidung), CIRS-Meldung, Rückauftrag BZ/Puls, Doppelgabe Metoprolol remonstrieren.
+- Muster-Wege enthalten keine `entscheidung`-Schritte (die Testhelfer wählen „gut“ selbst; doppelt führt zu doppelten Auswertungs-IDs).
 ## Fallwelle P18: Lebenswelt und Lebensende (CE 08/09)
 - `lz-demenz-aspiration` (CE 09/08, aus „demenz“): Herr Kühn isst nicht → Aspirationspneumonie, Mund/Andicken/aufrecht, Patientenverfügung und Betreuer (Sohn will 112), Antibiotika-Tablette bei Schluckstörung remonstrieren (Ersatz Saft), Rückauftrag Temperatur/AF.
 - `lz-unterzucker-mittag` (CE 09/04, aus „pflegeheim“): Unruhe vor dem Essen = Unterzucker, BZ, langsame Kohlenhydrate nach Lebenswelt (Frühstücksgewohnheit), Insulin zum Mittag zurückstellen und Anordnung hinterfragen, Kollegin will spritzen, Mitbewohnerin (Schweigepflicht).
 - `amb-hausbesuch-still` (CE 09/02, aus „hausbesuch“): Witwe, Trauer und Rückzug, volles Dosett, Orthostase prüfen (Pflegetasche RR), Todesgedanken offen nachfragen, „vergessene Tabletten nachholen“ remonstrieren, Einwilligung vor Tochter/Nachbarin, Versorgung absprechen.
 - `lz-palliativ-gespraech` (CE 08/09, aus „palliativ“): Atemnot und Tumorschmerz, IPOS, Atemnot ohne Medikament lindern (beendet `panik_eskaliert`), Tochter will den Notarzt, Morphin 10 mg bei Opioidnaivität remonstrieren (Ersatz 2,5 mg oral, G1), Rückauftrag Wirkung, SAPV.
-- `kh-sterbephase-nacht` (CE 08, 3. Drittel, neu): Sterbephase, Bedarfsplan liegt als `start.anordnungen` vor (Morphin s. c., Lorazepam s. l., G1), Rasselatmung lagern statt absaugen, Monitoring/Rea-Team-Anordnung gegen das Therapieziel remonstrieren, Ehefrau und Bettnachbar, Grenzweg Butylscopolamin ohne Rücksprache.
+- `kh-sterbephase-nacht` (CE 08, 3. Drittel, neu, Herr Hartwig): Sterbephase, Bedarfsplan liegt als `start.anordnungen` vor (Morphin s. c., Lorazepam s. l., G1), Rasselatmung lagern statt absaugen, Monitoring/Rea-Team-Anordnung gegen das Therapieziel remonstrieren, Ehefrau und Bettnachbar, Grenzweg Butylscopolamin ohne Rücksprache.
 - Hinweis: Bedingungen in `auftraege[].erledigt` gelten relativ zur Auftragszeit (`ab` zählt ab Auftrag).
 - Browserprüfung Block P18 in `check-arbeitsplatz.mjs`, Screenshots im Projektordner `praxissimulator-neu/runde2/P18/`.
 
