@@ -110,6 +110,14 @@ export interface Grundgroessen {
   hbMasse?: number;
   // G9 Wunde (optional): Infektgrad 0..1
   wundInfekt?: number;
+  // Alkoholentzug (vom Modell geführt, nur mit Treiber alkoholentzug): wirksamer Entzug 0..1,2 (nach Benzodiazepin),
+  // Stunden seit letztem Konsum, Halluzinationen 0..1, Krampfbereitschaft 0..1 (1 = Anfall gehabt), Wernicke-Verwirrtheit 0..1, Thiamin gegeben 0/1
+  entzug?: number;
+  entzugStd?: number;
+  halluzination?: number;
+  entzugKrampf?: number;
+  wernicke?: number;
+  thiamin?: number;
 }
 
 /** Vom Kern abgeleitet, Ziele für den Monitor (Logik-Takt 5 s, Render interpoliert). */
@@ -150,6 +158,12 @@ export interface Anzeige {
   guss?: number;
   /** G7: Schlafzustand, nur wenn der Fall Schlaf führt */
   schlaf?: 'schläft' | 'wach' | 'wach, unruhig';
+  /** Alkoholentzug: Zittern, Schwitzen, Halluzinationen, Stunden seit letztem Konsum, CIWA-Ar 0–67 (G4) */
+  tremor?: 'kein' | 'leicht' | 'deutlich' | 'grob';
+  schwitzen?: boolean;
+  halluzinationen?: boolean;
+  entzugStd?: number;
+  ciwa?: number;
   // G8 Labor: wahrer Modellwert jetzt (für Bedingungen; Befunde nach Laufzeit über laborBefunde() im Kern)
   hb?: number; leuko?: number; thrombo?: number; crp?: number; pct?: number; natrium?: number;
   krea?: number; egfr?: number; harnstoff?: number; inr?: number; aptt?: number;
@@ -213,6 +227,8 @@ export type Treiber =
   | { art: 'hirndruck'; tempo: number; seite?: 'links' | 'rechts' }
   /** G3: liegt/sitzt ohne Eigenbewegung; Auflagedruck in mmHg (Weichlagerung ≈ 30, Standardmatratze ≈ 60–80) */
   | { art: 'immobil'; druckMmHg: number; scherkraefte?: boolean; feucht?: boolean }
+  /** Alkoholentzug: schwere 0..1 (≥ 0,6 Gefahr Delirium tremens), letzterKonsumVorStd = Stunden seit dem letzten Trinken bei Fallstart */
+  | { art: 'alkoholentzug'; schwere: number; letzterKonsumVorStd: number }
   // G1 Wirkstoffe (Register physiologie/wirkstoffe.ts): Kinetik nach Weg, Halbwertszeit, Alter und Gewicht
   | { art: 'wirkstoff'; id: string; dosisMg: number; weg?: ArzneiWeg };
 

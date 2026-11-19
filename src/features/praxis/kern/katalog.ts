@@ -415,6 +415,14 @@ const LISTE: MassnahmeDefinition[] = [
     treiber: [{ art: 'wirkstoff', id: 'lorazepam', dosisMg: 1, weg: 'oral' }],   // G1: Wirkung aus dem Wirkstoffregister
     anordnungspflichtig: true, befugnis: befugnis(A, A, S), risikoBeiUeberschreitung: 'patientenschaden',
   }),
+  m('diazepam-geben', 'Diazepam geben (z. B. im Alkoholentzug, nach Anordnung)', 'versorgen', 60, ['I', 'III'], nw(['medi12', 'eigenstaendig3', 'medfehler3']), {
+    treiber: [{ art: 'wirkstoff', id: 'diazepam', dosisMg: 10, weg: 'oral' }],
+    anordnungspflichtig: true, befugnis: befugnis(A, A, S), risikoBeiUeberschreitung: 'patientenschaden',
+  }),
+  m('thiamin-geben', 'Thiamin (Vitamin B1) geben, vor Glukose (nach Anordnung)', 'versorgen', 60, ['I', 'III'], nw(['medi12', 'eigenstaendig3', 'medfehler3']), {
+    treiber: [{ art: 'wirkstoff', id: 'thiamin', dosisMg: 100, weg: 'iv' }],
+    anordnungspflichtig: true, befugnis: befugnis(A, A, S), risikoBeiUeberschreitung: 'warnung-pa',
+  }),
   m('sc-injektion', 'Subkutan spritzen (z. B. Heparin, nach Anordnung)', 'versorgen', 90, ['I', 'III'], nw(['medi12', 'mitwirken12', 'eigenstaendig3'], {
     anmerkung: 'Injektionen sind im Lehrplan nicht einzeln genannt; abgeleitet aus Medikamentengabe auf Anordnung (1./2.) und eigenständiger Durchführung (3.).',
   }), { anordnungspflichtig: true, befugnis: befugnis(A, A, S), risikoBeiUeberschreitung: 'patientenschaden', klinisch: ['medikamente'] }),

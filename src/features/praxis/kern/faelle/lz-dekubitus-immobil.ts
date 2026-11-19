@@ -98,7 +98,9 @@ export const LZ_DEKUBITUS_IMMOBIL: FallV2 = {
     aus('positionieren-druckentlastung', { name: '30°-Seitenlage rechts, Fersen frei lagern, Kopfteil höchstens 30°', setzt: ['gelagert'] }),
     aus('mobilisieren-transfer', { name: 'In den Pflegerollstuhl mobilisieren' }),
     aus('inkontinenz-versorgen', { name: 'Vorlage wechseln, Haut sanft reinigen und trocknen, Hautschutz auftragen', setzt: ['haut-trocken'] }),
-    aus('bedarfsmedikation-oral', { name: 'Paracetamol 500 mg geben (Anordnung Hausärztin)', treiber: [{ art: 'wirkstoff', id: 'paracetamol', dosisMg: 500, weg: 'oral' }] }),
+    aus('bedarfsmedikation-oral', { name: 'Paracetamol 500 mg geben (Anordnung Hausärztin)',
+      // Nur eine Gabe im Fall (Abstand 6 h); die Medikationsprüfung kennt nur Planeinträge, und der Plan hat zu Beginn kein Paracetamol
+      voraussetzung: { nicht: { getan: 'bedarfsmedikation-oral' } }, treiber: [{ art: 'wirkstoff', id: 'paracetamol', dosisMg: 500, weg: 'oral' }] }),
     aus('pflegefachperson-informieren', { name: 'Wohnbereichsleitung Frau Petrović informieren', setzt: ['wbl-informiert'] }),
     aus('pflegeplanung-anpassen', { name: 'Bewegungsplan festlegen (Positionswechsel, Mikrolagerung) und Pflegeplanung anpassen', setzt: ['bewegungsplan'] }),
     {
@@ -298,7 +300,8 @@ export const LZ_DEKUBITUS_IMMOBIL: FallV2 = {
     ende: [
       { wenn: { alle: [{ getan: 'positionieren-druckentlastung' }, { flag: 'bewegungsplan' }, { flag: 'besd-rueckmeldung' }] },
         text: 'Frau Berger liegt entspannt in der Seitenlage, die Musik läuft. Die Rötung am Kreuzbein blasst ab. Ab Mittag liegt sie auf einer Wechseldruckmatratze.', ausgang: 'stabil' },
-      { wenn: { ab: 2400 }, text: 'Der Vormittag ist um. Die Rötung am Kreuzbein ist nicht mehr wegzudrücken.', ausgang: 'verschlechtert' },
+      { wenn: { alle: [{ ab: 2400 }, { wert: 'dekubitusKat', vergleich: '>=', grenze: 1 }] }, text: 'Der Vormittag ist um. Die Rötung am Kreuzbein ist nicht mehr wegzudrücken.', ausgang: 'verschlechtert' },
+      { wenn: { ab: 2400 }, text: 'Der Vormittag ist um. Die Haut am Kreuzbein ist noch intakt, aber Bewegungsplan oder Rückmeldung an die Hausärztin fehlen.', ausgang: 'stabil' },
     ],
   },
 
