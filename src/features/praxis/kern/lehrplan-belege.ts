@@ -58,6 +58,15 @@ export const LP = {
   abgrenzen1: s(13, '02', '1.', 'Kompetenz III.1.a', 'Verantwortungs- und Aufgabenbereiche im Team abgrenzen', 'kompetenz'),
   delegation3: s(58, '05', '3.', 'Kontextbedingungen', 'Delegation einschließlich Anordnungen, Aufklärung, Einwilligung'),
 
+  // CE 01 und CE 03 (1. Drittel): Ausbildungsstart, erste Pflegeerfahrungen (P17a, geprüft am 19.11.2026 am PDF)
+  schweigepflicht1: s(9, '01', '1.', 'Handlungsanlässe/Kontext', 'Datenschutz, Verschwiegenheit, Schweigepflicht (auch digital)'),
+  patsicher1: s(9, '01', '1.', 'Handlungsanlässe/Kontext', 'Patientensicherheit'),
+  teamkontakt1: s(9, '01', '1.', 'Handlungsmuster', 'Kontakt zum Team aufnehmen, Rollenerwartungen und Rollenkonflikte'),
+  selbstbestimmung1: s(7, '01', '1.', 'Kompetenz I.6.a', 'Selbstbestimmungsrecht wahren, auch bei eingeschränkter Selbstbestimmungsfähigkeit', 'kompetenz'),
+  reflexion1: s(24, '03', '1.', 'Handlungsmuster', 'erste Pflegeerfahrungen reflektieren (Ekel, Scham), kollegiale Beratung in Anspruch nehmen'),
+  aushandeln1: s(24, '03', '1.', 'Handlungsmuster', 'Aushandlungsprozesse zwischen Pflegeanforderungen und Bedürfnissen gestalten, verbal, nonverbal, taktil'),
+  intimsphaere1: s(24, '03', '1.', 'Erleben/Deuten', 'Eindringen in die Intimsphäre, Grenzüberschreitungen', 'kompetenz'),
+
   // CE 02 (1. Drittel): Grundpflege, Beobachtung, Dokumentation
   daten1: s(13, '02', '1.', 'Kompetenz I.2.a', 'pflegebezogene Daten erheben', 'kompetenz'),
   ziele1: s(13, '02', '1.', 'Kompetenz I.1.e', 'Pflegeziele vorschlagen, Wirksamkeit gemeinsam evaluieren', 'kompetenz'),

@@ -53,6 +53,9 @@ const Q = {
   rass: { id: 'rass', titel: 'Richmond Agitation-Sedation Scale (RASS)' },
   camicu: { id: 'cam-icu', titel: 'CAM-ICU' },
   bps: { id: 'bps', titel: 'Behavioral Pain Scale (BPS)' },
+  haende: { id: 'krinko-haende', titel: 'KRINKO: Händehygiene in Einrichtungen des Gesundheitswesens (Bundesgesundheitsblatt 2016)' },
+  who5: { id: 'who-5-momente', titel: 'WHO: Guidelines on Hand Hygiene in Health Care – „5 Momente der Händehygiene“ (2009)' },
+  identitaet: { id: 'aps-identifikation', titel: 'Aktionsbündnis Patientensicherheit: Handlungsempfehlung sichere Patientenidentifikation' },
   sbar: { id: 'sbar', titel: 'SBAR-Kommunikation (WHO High 5s / Aktionsbündnis Patientensicherheit)' },
   alkohol: { id: 's3-alkohol', titel: 'S3-Leitlinie Screening, Diagnose und Behandlung alkoholbezogener Störungen (AWMF 076-001), 2021' },
   gastro: { id: 'gpge-gastroenteritis', titel: 'S2k-Leitlinie Akute infektiöse Gastroenteritis im Säuglings-, Kindes- und Jugendalter (GPGE, AWMF 068-003)' },
@@ -79,6 +82,7 @@ const LISTE: MassnahmeDefinition[] = [
   m('trinkmenge-erfragen', 'Nach Trinkmenge fragen', 'gespraech', 30, ['I', 'II'], nw(['daten1', 'selbstversorgung1'])),
   m('biografie-erfragen', 'Gewohnheiten und Biografie erfragen', 'gespraech', 120, ['I', 'II'], nw(['daten1', 'biografie12'])),
   m('beschwerden-erfragen', 'Beschwerden, Beginn und Verlauf erfragen', 'gespraech', 60, ['I', 'II'], nw(['daten1', 'beziehung1'])),
+  m('wuensche-aushandeln', 'Gründe erfragen, Wahl lassen, Pflege gemeinsam aushandeln', 'gespraech', 90, ['II', 'IV'], nw(['aushandeln1', 'selbstbestimmung1', 'beziehung1'])),
   m('patientenwille-erfragen', 'Patientenwillen und Patientenverfügung erfragen', 'gespraech', 90, ['II', 'IV'], nw(['palliativ12'], { anmerkung: 'Selbstbestimmung I.6.a in CE 06 (S. 78).' })),
   m('beruhigen-zusprechen', 'Ruhig zusprechen, Halt geben, nicht allein lassen', 'gespraech', 60, ['II'], nw(['psychErsteHilfe12', 'beziehung1']), {
     wirkung: [{ groesse: 'angst', delta: -0.15, beginnSek: 0, spitzeSek: 120, dauerSek: 'dauerhaft' }],
@@ -135,6 +139,7 @@ const LISTE: MassnahmeDefinition[] = [
   m('schmerz-kinderskala', 'Schmerz beim Kind einschätzen (altersgerechte Skala)', 'beobachten', 60, ['I', 'V'], nw(['schmerz12']), { spur: 'A', quellen: [Q.schmerz] }),
   m('schleimhaut-pruefen', 'Mundschleimhaut und Zunge ansehen', 'beobachten', 20, ['I'], nw(['daten1', 'wasser12'])),
   m('hautturgor-pruefen', 'Hautspannung prüfen', 'beobachten', 20, ['I'], nw(['daten1', 'wasser12'])),
+  m('patient-identifizieren', 'Identität prüfen (Name und Geburtsdatum nennen lassen, Armband)', 'beobachten', 20, ['I', 'IV'], nw(['patsicher1']), { quellen: [Q.identitaet] }),
   m('haut-beobachten', 'Haut ansehen (Farbe, Temperatur, Schweiß, Zyanose)', 'beobachten', 20, ['I'], nw(['vital1', 'vitalScreening12'])),
   m('rekap-pruefen', 'Rekapillarisierungszeit prüfen', 'beobachten', 15, ['I'], nw(['vitalScreening12', 'zirkulation12']), { klinisch: ['abcde'] }),
   m('atmung-beobachten', 'Atmung beobachten (Muster, Einziehungen, Atemhilfsmuskulatur)', 'beobachten', 30, ['I'], nw(['vital1', 'atem12', 'neugeborene12']), { klinisch: ['abcde'] }),
@@ -321,6 +326,8 @@ const LISTE: MassnahmeDefinition[] = [
     ],
   }),
   m('essen-anreichen', 'Essen anreichen (aufrecht, kleine Bissen, Aspirationsprophylaxe)', 'versorgen', 300, ['I', 'V'], nw(['aspiration1', 'selbstversorgung1']), { spur: 'A', quellen: [Q.ernaehrung] }),
+  m('haendedesinfektion', 'Hände desinfizieren (vor und nach Kontakt, 30 Sekunden)', 'versorgen', 30, ['I', 'III'], nw(['hygiene1']), { quellen: [Q.haende, Q.who5, Q.krinko] }),
+  m('privatsphaere-wahren', 'Intimsphäre schützen (Tür zu, Sichtschutz, nur aufdecken, was nötig ist)', 'versorgen', 20, ['I', 'II'], nw(['intimsphaere1', 'selbstversorgung1'])),
   m('koerperpflege', 'Bei der Körperpflege unterstützen', 'versorgen', 600, ['I', 'II'], nw(['selbstversorgung1', 'hygiene1'])),
   m('mundpflege', 'Mundpflege', 'versorgen', 180, ['I'], nw(['selbstversorgung1'])),
   m('nase-absaugen', 'Nasensekret beim Säugling absaugen (vor dem Trinken, schonend)', 'versorgen', 90, ['I'], nw(['neugeborene12', 'inhalation3'], {
@@ -334,6 +341,8 @@ const LISTE: MassnahmeDefinition[] = [
   }),
   m('inkontinenz-versorgen', 'Bei Ausscheidung unterstützen, Inkontinenz versorgen', 'versorgen', 300, ['I', 'II'], nw(['selbstversorgung1', 'ernaehrung1']), { quellen: [Q.kontinenz] }),
   m('positionieren-druckentlastung', 'Positionieren zur Druckentlastung', 'versorgen', 180, ['I', 'V'], nw(['mobil1', 'standards1']), { quellen: [Q.dekubitus] }),
+  m('bettkante-sitzen', 'Erst an der Bettkante sitzen lassen, nach Schwindel fragen', 'versorgen', 60, ['I', 'V'], nw(['mobil1', 'standards1']), { quellen: [Q.sturz, Q.mobilitaet] }),
+  m('gehen-begleiten', 'Gehen mit Gehhilfe begleiten (auf der unsicheren Seite, Stuhl in Reichweite)', 'versorgen', 180, ['I', 'V'], nw(['mobil1', 'standards1']), { quellen: [Q.mobilitaet, Q.sturz] }),
   m('mobilisieren-transfer', 'Mobilisieren, Transfer Bett–Stuhl', 'versorgen', 300, ['I', 'V'], nw(['mobil1', 'standards1']), { quellen: [Q.mobilitaet] }),
   // P17b (CE04/CE07)
   m('positionieren-hemiplegie', 'Nach Schlaganfall positionieren (betroffene Seite einbeziehen, Schulter schützen)', 'versorgen', 240, ['I', 'V'], nw(['mobil1', 'rehaSelbst12'], { anmerkung: B_ANLEITUNG_DANN_SELBST }), {
@@ -460,6 +469,7 @@ const LISTE: MassnahmeDefinition[] = [
   m('pflegebericht', 'Pflegebericht schreiben', 'melden', 180, ['I', 'IV'], nw(['doku1'])),
   m('pdl-informieren', 'Pflegedienstleitung informieren', 'melden', 60, ['III'], nw(['abgrenzen1'])),
   m('pflegefachperson-informieren', 'Verantwortliche Pflegefachperson/Schichtleitung informieren', 'melden', 60, ['III'], nw(['abgrenzen1', 'aufsicht1']), { klinisch: ['team'] }),
+  m('reflexion-pa', 'Mit der Praxisanleitung reflektieren (Erleben, Gefühle, was ich mitnehme)', 'melden', 180, ['V'], nw(['reflexion1', 'teamkontakt1'])),
   m('uebergabe-schicht', 'Übergabe an die nächste Schicht (strukturiert)', 'melden', 180, ['II', 'III'], nw(['uebergabe12', 'sbar12']), { quellen: [Q.sbar] }),
   m('uebergabe-rettungsdienst', 'Übergabe an den Rettungsdienst', 'melden', 120, ['II', 'III'], nw(['sbarNotfall12', 'notruf12']), { spur: 'A', klinisch: ['team'] }),
   m('sturzprotokoll', 'Sturzereignis dokumentieren', 'melden', 180, ['I', 'IV'], nw(['doku1', 'standards1']), { spur: 'A', quellen: [Q.sturz] }),
