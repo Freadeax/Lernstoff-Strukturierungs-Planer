@@ -156,11 +156,12 @@ export const LEITLINIEN: QuellenEintrag[] = [
     kern: 'Antibiotika sofort, möglichst innerhalb 1 Stunde; Blutkulturen möglichst vorher. Zum Erkennen auf Station Frühwarnscores wie NEWS2 statt qSOFA als alleiniges Instrument. Ziel-MAP zunächst 65 mmHg.',
   },
   {
-    id: 'esc.hf', titel: 'ESC-Leitlinie Herzinsuffizienz', herausgeber: 'European Society of Cardiology', art: 'leitlinie', muster: /ESC Guidelines for heart failure/,
+    id: 'esc.hf', titel: 'ESC-Leitlinie Herzinsuffizienz', herausgeber: 'European Society of Cardiology', art: 'leitlinie', muster: /ESC Guidelines for (the diagnosis and treatment of acute and chronic )?heart failure/,
     aktuell: { stand: '2026', erschienen: '2026-08-29', fundstelle: 'https://www.acc.org/Latest-in-Cardiology/Articles/2026/08/29/08/48/mon-guidelines-esc-2026' },
     geprueftAm: HEUTE_GEPRUEFT, beobachten: 'https://www.escardio.org/Guidelines', intervallMonate: 12,
     kern: 'Neue Fassung 2026: Stadien von der Vorbeugung bis zur fortgeschrittenen Erkrankung, vereinfachte Einteilung nach Auswurfleistung, „dekompensierte“ statt „akute“ Herzinsuffizienz.',
     hinweis: 'Begriff „dekompensierte Herzinsuffizienz“ im Diagnostik-Fall seit 16.11.2026 übernommen. Die Fälle bleiben auf Stand 2021, bis NT-proBNP-Grenzen und die Selbstpflege-Regeln (Gewicht 2 kg in 3 Tagen, Trinkmenge) im Volltext 2026 nachgelesen sind.',
+    offen: 'Praxisfall Herzschwäche zu Hause (P17b) zitiert noch ESC 2021 mit Update 2023. Selbstpflege-Regeln (Gewicht, Trinkmenge) gegen die Fassung 2026 abgleichen.',
   },
   {
     id: 'esc.le', titel: 'ESC-Leitlinie akute Lungenembolie', herausgeber: 'European Society of Cardiology', art: 'leitlinie', muster: /ESC Guidelines (on|for the diagnosis and management of) acute pulmonary embolism/,
@@ -466,6 +467,40 @@ export const PRAXIS_LEITLINIEN: QuellenEintrag[] = [
   {
     id: 'mts', titel: 'Manchester-Triage-System (Ersteinschätzung in der Notaufnahme)', herausgeber: 'Manchester Triage Group', art: 'instrument', muster: /^Manchester-Triage-System/,
     aktuell: { stand: '3. Auflage 2014', fundstelle: 'https://www.triagenet.net/' }, beobachten: 'https://www.triagenet.net/', intervallMonate: 24,
+  },  // Praxisfälle P17a/P17b (CE02, CE04, CE07). Ohne geprueftAm: Fassungen aus den Fallquellen, noch nicht beim Herausgeber nachgesehen.
+  {
+    id: 'nvl.herzinsuffizienz', titel: 'Nationale VersorgungsLeitlinie Chronische Herzinsuffizienz', herausgeber: 'BÄK, KBV, AWMF', art: 'leitlinie', muster: /VersorgungsLeitlinie Chronische Herzinsuffizienz/,
+    aktuell: { stand: '4. Auflage 2023', fundstelle: 'https://www.leitlinien.de/themen/herzinsuffizienz' }, beobachten: 'https://www.leitlinien.de/themen/herzinsuffizienz', intervallMonate: 12,
+    hinweis: 'Praxisfall Herzschwäche zu Hause (P17b): Selbstmanagement, tägliches Wiegen, Trinkmenge.',
+  },
+  {
+    id: 'epuap.dekubitus', titel: 'EPUAP/NPIAP/PPPIA: Prevention and Treatment of Pressure Ulcers/Injuries (International Guideline)', herausgeber: 'EPUAP, NPIAP und PPPIA', art: 'leitlinie', muster: /^EPUAP\/NPIAP\/PPPIA/,
+    aktuell: { stand: '2019', fundstelle: 'https://internationalguideline.com/' }, beobachten: 'https://internationalguideline.com/', intervallMonate: 12,
+    hinweis: 'Praxisfall Dekubitusgefahr (P17a). Beim nächsten Abgleich nachsehen, ob eine neuere Auflage erschienen ist; der DNQP-Expertenstandard Dekubitusprophylaxe geht für Deutschland vor.',
+  },
+  {
+    id: 'ddg.praxisempfehlungen', titel: 'DDG Praxisempfehlungen (Diabetologie und Stoffwechsel, Supplement)', herausgeber: 'Deutsche Diabetes Gesellschaft', art: 'empfehlung', muster: /^DDG Praxisempfehlungen/,
+    aktuell: { stand: '2024', fundstelle: 'https://www.ddg.info/behandlung/leitlinien' }, beobachten: 'https://www.ddg.info/behandlung/leitlinien', intervallMonate: 12,
+    hinweis: 'Erscheinen jährlich neu. Praxisfall Unterzucker vor dem Abendinsulin (P17b).',
+  },
+  {
+    id: 'fit.injektion', titel: 'Forum Injektionstechnik: Empfehlungen zur Injektionstechnik', herausgeber: 'Forum Injektionstechnik (FIT) mit DDG', art: 'empfehlung', muster: /^Forum Injektionstechnik/,
+    aktuell: { stand: 'ohne Jahresangabe', fundstelle: 'https://www.ddg.info/' }, beobachten: 'https://www.ddg.info/', intervallMonate: 24,
+    hinweis: 'Spritzstellenwechsel und Lipohypertrophie im Praxisfall Unterzucker (P17b). Fassung beim nächsten Abgleich nachtragen.',
+  },
+  {
+    id: 'awmf.dysphagie', titel: 'S1-Leitlinie Neurogene Dysphagie (AWMF 030-111)', herausgeber: 'DGN über AWMF', art: 'leitlinie', muster: /Neurogene Dysphagie \(030-111\)|AWMF 030-111/,
+    aktuell: { stand: '2020', fundstelle: 'https://register.awmf.org/de/leitlinien/detail/030-111' }, beobachten: AWMF, intervallMonate: 12,
+    hinweis: 'Praxisfall Schlaganfall in der Reha (P17b): Schluckscreening, Kostanpassung.',
+  },
+  {
+    id: 'dgnr.remos', titel: 'S2e-Leitlinie Rehabilitation der Mobilität nach Schlaganfall (ReMoS)', herausgeber: 'DGNR über AWMF', art: 'leitlinie', muster: /\(ReMoS\)/,
+    aktuell: { stand: '2020', fundstelle: AWMF }, beobachten: AWMF, intervallMonate: 12,
+  },
+  {
+    id: 'iddsi', titel: 'IDDSI Framework (International Dysphagia Diet Standardisation Initiative)', herausgeber: 'IDDSI', art: 'empfehlung', muster: /^IDDSI Framework/,
+    aktuell: { stand: '2019', fundstelle: 'https://iddsi.org/framework' }, beobachten: 'https://iddsi.org/', intervallMonate: 24,
+    hinweis: 'Kostformstufen (z. B. Getränke leicht angedickt, Stufe 2) im Praxisfall Schlaganfall in der Reha (P17b).',
   },
 ];
 
