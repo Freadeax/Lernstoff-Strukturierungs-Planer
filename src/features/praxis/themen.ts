@@ -31,3 +31,19 @@ export const PRAXIS_THEMEN: Record<string, string[]> = {
 export function praxisZuThema<T extends Pick<Scenario, 'id'>>(topicId: string, faelle: T[]): T[] {
   return faelle.filter((f) => PRAXIS_THEMEN[f.id]?.includes(topicId));
 }
+
+/** Lernthemen der Fälle auf dem neuen Kern (Spiegel von `fall.lehrplan.themen`, Test `fallplan.test.ts`).
+ *  Eigene Liste, damit Lernpfad und Themenseite den Kern nicht laden müssen. */
+export const KERN_THEMEN: Record<string, string[]> = {
+  'amb-sturz-exsikkose': ['thema.pro.sturz', 'thema.pro.dehydratation', 'thema.kl.demenz', 'thema.beo.vitalzeichen', 'thema.pp.uebergabe'],
+  'kh-pneumonie-sepsis': ['thema.kl.atmung', 'thema.kl.infektion', 'thema.beo.vitalzeichen', 'thema.re.schweigepflicht', 'thema.pp.uebergabe'],
+  'lz-demenz-schmerz': ['thema.kl.demenz', 'thema.beo.bewusstsein', 'thema.ph.medikamente'],
+  'paed-fieberkrampf': ['thema.kl.neuro.epilepsie', 'thema.kl.paediatrie', 'thema.re.schweigepflicht'],
+  'psy-panik-suizidalitaet': ['thema.kl.psych', 'thema.re.schweigepflicht'],
+  'sr-septischer-schock': ['thema.kl.infektion', 'thema.beo.notfall', 'thema.pp.uebergabe'],
+};
+
+/** Kernfälle (IDs für ?neu=), die ein Thema üben. */
+export function kernZuThema(topicId: string): string[] {
+  return Object.keys(KERN_THEMEN).filter((id) => KERN_THEMEN[id]!.includes(topicId));
+}

@@ -7,7 +7,7 @@ import type { ID } from '../../core/types';
 import type { CatalogModule } from '../../modules/catalog-types';
 import { SZENARIEN } from '../fall/faelle';
 import { readArchive } from '../praxis/storage';
-import { PRAXIS_THEMEN, praxisZuThema } from '../praxis/themen';
+import { kernZuThema, PRAXIS_THEMEN, praxisZuThema } from '../praxis/themen';
 import { ladeKartenDaten } from '../karteikarten/store';
 import type { Karte, KartenStand } from '../karteikarten/typen';
 import { faelleZuThema } from '../krankheitsbilder/bewertung';
@@ -107,7 +107,7 @@ export function sammleFakten(themen: CeThema[], q: FaktenQuelle): ThemaFakten[] 
   return themen.map((e) => {
     const id = e.topic.id;
     const szen = szenarienZuThema(id, SZENARIEN);
-    const praxis = praxisZuThema(id, PRAXISFAELLE);
+    const praxis = [...praxisZuThema(id, PRAXISFAELLE), ...kernZuThema(id).map((k) => ({ id: k }))];
     const kf = faelleZuThema(id, KRANKHEITSFAELLE, modul);
     const p = q.progress[id];
     const alleUebungen = uebungenFuer(id, modul);
