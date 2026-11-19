@@ -13,6 +13,7 @@ import {
 import { NORMAL, type ModellKontext, type PhysiologieModell } from './modell';
 import { alarmFuer } from './physiologie/altersprofile';
 import { anzeigeEinschaetzungen } from './physiologie/einschaetzungen';
+import { LABOR_ABNAHME, laborProbe, type LaborProbe } from './labor-auftrag';
 import { wendeModulAn } from './spur-b/modul';
 import { SPUR_B_MODELL } from './spur-b/standard';
 import { beobachte, befinden, bildNach, istWichtig, verlaufTakt, type VerlaufStand } from './verlauf';
@@ -81,6 +82,8 @@ export interface SimZustand {
   ende?: { text: string; ausgang: string; t: number };
   /** P11: Gesprächsfäden, Rückaufträge, ausstehende Messenger-Antworten (kommunikation.ts) */
   komm: KommStand;
+  /** G8: Blutproben (Modellwerte zum Abnahmezeitpunkt); Ergebnisse nach Laufzeit über laborBefunde() */
+  laborProben?: LaborProbe[];
   abschluss?: Extract<SimEventEingabe, { art: 'abschluss' }>;
   /** Eingaben in Reihenfolge: Grundlage für Replay */
   eingaben: SimEventEingabe[];
@@ -334,7 +337,7 @@ function pruefeEnde(z: SimZustand): boolean {
 /* ─────────────────── Patientenakte (P13) ─────────────────── */
 
 /** Uhrzeit der Spielzeit (für Doku-Texte), „08:10“ + 95 s → „08:11“ */
-function uhrVon(z: SimZustand) {
+export function uhrVon(z: SimZustand) {
   const [h, m] = z.fall.startUhrzeit.split(':').map(Number);
   return (t: number) => {
     const s = ((((h || 0) * 3600 + (m || 0) * 60 + Math.floor(t)) % 86400) + 86400) % 86400;
@@ -444,7 +447,10 @@ function fuehreAus(z: SimZustand, m: MassnahmeDefinition, zusatzSek = 0) {
   modulEingriff(z, m.modul);
   befund(z, m.id);
   pruefeFehler(z);
+  const tAbnahme = z.t;
   lauf(z, m.zeitbedarfSekunden + zusatzSek);
+  // G8: Probe mit den Werten am Ende der Abnahme (Laborbestände sind dann sicher angelegt), Zeit = Beginn
+  if (LABOR_ABNAHME.has(m.id)) (z.laborProben ??= []).push(laborProbe(tAbnahme, anzeige(z)));
 }
 
 function massnahmeEingabe(z: SimZustand, id: string) {

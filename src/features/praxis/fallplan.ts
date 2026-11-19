@@ -29,8 +29,8 @@ export const FALLPLAN: readonly PlanEintrag[] = [
 
   { ce: 'ce.02', titel: 'Sturz und Exsikkose im Hausbesuch', art: 'vorhanden', abschnitt: ['ad12'], fall: 'amb-sturz-exsikkose' },
   { ce: 'ce.02', titel: 'Erster Weg zum Bad nach Hüft-TEP', art: 'migrieren', abschnitt: ['ad12'], paket: 'P17', alt: ['reha'], fall: 'kh-reha-erster-weg' },
-  { ce: 'ce.02', titel: 'Dekubitusgefahr bei Immobilität', art: 'neu', abschnitt: ['ad12'], paket: 'P17' },
-  { ce: 'ce.02', titel: 'Harnverhalt nach der OP, Inkontinenz', art: 'neu', abschnitt: ['ad12'], paket: 'P17' },
+  { ce: 'ce.02', titel: 'Dekubitusgefahr bei Immobilität', art: 'neu', abschnitt: ['ad12'], paket: 'P17', fall: 'lz-dekubitus-immobil' },
+  { ce: 'ce.02', titel: 'Harnverhalt nach der OP, Inkontinenz', art: 'neu', abschnitt: ['ad12'], paket: 'P17', fall: 'kh-harnverhalt-postop' },
 
   { ce: 'ce.03', titel: 'Bewohner lehnt die Körperpflege ab', art: 'neu', abschnitt: ['ad12'], paket: 'P17', fall: 'lz-koerperpflege-abgelehnt' },
 
@@ -61,15 +61,15 @@ export const FALLPLAN: readonly PlanEintrag[] = [
   { ce: 'ce.09', titel: 'Die Wohnung ist heute ungewohnt still', art: 'migrieren', abschnitt: ['ad12'], paket: 'P18', alt: ['hausbesuch'], fall: 'amb-hausbesuch-still' },
 
   { ce: 'ce.10', titel: 'Fieberkrampf beim Kleinkind', art: 'vorhanden', abschnitt: ['ad12', 'ad3'], fall: 'paed-fieberkrampf' },
-  { ce: 'ce.10', titel: 'Asthmaanfall beim Schulkind', art: 'migrieren', abschnitt: ['ad12', 'ad3'], paket: 'P19', alt: ['asthma'] },
-  { ce: 'ce.10', titel: 'Bronchiolitis beim Säugling', art: 'migrieren', abschnitt: ['ad12', 'ad3'], paket: 'P19', alt: ['bronchiolitis'] },
-  { ce: 'ce.10', titel: 'Gastroenteritis und Exsikkose beim Kind', art: 'migrieren', abschnitt: ['ad12'], paket: 'P19', alt: ['kind'] },
-  { ce: 'ce.10', titel: 'Jugendlicher nach der Party nicht wach', art: 'migrieren', abschnitt: ['ad3'], paket: 'P19', alt: ['rausch'] },
+  { ce: 'ce.10', titel: 'Asthmaanfall beim Schulkind', art: 'vorhanden', abschnitt: ['ad12', 'ad3'], fall: 'paed-asthma-schulkind', alt: ['asthma'] },
+  { ce: 'ce.10', titel: 'Bronchiolitis beim Säugling', art: 'vorhanden', abschnitt: ['ad12', 'ad3'], fall: 'paed-bronchiolitis-saeugling', alt: ['bronchiolitis'] },
+  { ce: 'ce.10', titel: 'Gastroenteritis und Exsikkose beim Kind', art: 'vorhanden', abschnitt: ['ad12', 'ad3'], fall: 'paed-gastroenteritis-kleinkind', alt: ['kind'] },
+  { ce: 'ce.10', titel: 'Jugendliche nach der Party nicht wach', art: 'vorhanden', abschnitt: ['ad12', 'ad3'], fall: 'paed-rausch-jugendliche', alt: ['rausch'] },
 
   { ce: 'ce.11', titel: 'Panik und Suizidalität', art: 'vorhanden', abschnitt: ['ad12', 'ad3'], fall: 'psy-panik-suizidalitaet' },
-  { ce: 'ce.11', titel: 'Delir in der Nacht', art: 'migrieren', abschnitt: ['ad12', 'ad3'], paket: 'P19', alt: ['delir'] },
-  { ce: 'ce.11', titel: 'Unruhe im Aufenthaltsraum, Deeskalation', art: 'migrieren', abschnitt: ['ad12', 'ad3'], paket: 'P19', alt: ['psychiatrie'] },
-  { ce: 'ce.11', titel: 'Alkoholentzug auf Station', art: 'neu', abschnitt: ['ad12', 'ad3'], paket: 'P19' },
+  { ce: 'ce.11', titel: 'Delir in der Nacht', art: 'vorhanden', abschnitt: ['ad12', 'ad3'], fall: 'kh-delir-nacht', alt: ['delir'] },
+  { ce: 'ce.11', titel: 'Unruhe im Aufenthaltsraum, Deeskalation', art: 'vorhanden', abschnitt: ['ad12', 'ad3'], fall: 'psy-unruhe-deeskalation', alt: ['psychiatrie'] },
+  { ce: 'ce.11', titel: 'Alkoholentzug auf Station', art: 'vorhanden', abschnitt: ['ad3'], fall: 'kh-alkoholentzug' },
 ];
 
 /** Wo noch kein Fall auf dem neuen Kern die Abdeckungsregel erfüllt (Stand main). Wird kleiner, sobald Fälle kommen;

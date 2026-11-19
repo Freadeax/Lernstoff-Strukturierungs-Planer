@@ -175,6 +175,9 @@ Code: `kommunikation.ts` (rein, vom Kern aufgerufen), Zustand in `SimZustand.kom
 - `kh-erster-tag` (CE 01): Händedesinfektion vor dem Kontakt (Fehler `f-haende-vergessen`, wenn eine patientennahe Handlung vorher kommt), Identität, Vorwerte vergleichen, Schwindel beim Aufsetzen (Entscheidung), Rückfrage Trinkmenge, Rückauftrag RR/Puls, Nachbarin am Telefon (keine Auskunft), Infusion im 1. Drittel durch Pflegefachfrau Jana (Gespräch mit Volumenwirkung), Ramipril- und Paracetamol-Fallen.
 - `lz-koerperpflege-abgelehnt` (CE 03): Körperpflege erst nach Grund (`grund-scham`) und Aushandeln (`einverstanden-pflege`), „trotzdem waschen“ und Druck der WBL als Grenzüberschreitung, neue Inkontinenz → Urinstix-Rückfrage, Dauerkatheter als fehlerhafte Anordnung, Reflexion mit der PA als Pflicht (KB V).
 - `kh-reha-erster-weg` (CE 02, aus Altfall „reha“): Mobilisation Tag 1 nach Hüft-TEP vorbereiten, Kollaps beim Gehen (Entscheidung), Rückfrage Hb, Novaminsulfon trotz Metamizol-Allergie remonstrieren, Physio/Ehefrau.
+- `lz-dekubitus-immobil` (CE 02, G3): Treiber `immobil` 55 mmHg, feucht, Start `druckLast` 12 → ohne Entlastung Kategorie 1 nach gut 25 min (Fehler `f-kategorie1`, Fingertest-Befund über `wert: dekubitusKat`). Braden neu, BESD (Wert-Baustein `wert:besd`), Rückfrage Trinkmenge, Paracetamol vor dem Lagern, Ankündigen vor dem Lagern, Franzbranntwein (Entscheidung), Bewegungsplan und Matratze.
+- `kh-harnverhalt-postop` (CE 02/05, G2): Treiber `harnverhalt`, Start `blaseMl` 610, Überlaufinkontinenz (Entscheidung „Vorlage“), Miktion erst nicht-invasiv, Blasenscan (`{blaseMl}`, Wert-Baustein `wert:blaseMl`), Rückfrage Scan, Einmalkatheter nach Anordnung: 1. Drittel assistiert (`katheter-assistieren`), selbst ab 2. Drittel mit PA; Katheter beendet den Harnverhalt und senkt Schmerz/Unruhe.
+- `kommunikation.ts`: Wert-Bausteine zusätzlich für `besd` und `blaseMl`.
 - Tests: `faelle/p17a.test.ts` (u. a. Musterweg im 1. Drittel ≥ 90 %), Browserprüfung Block P17A in `check-arbeitsplatz.mjs`.
 
 ## Fallwelle P16a: CE 05 (2./3. Drittel)
@@ -230,6 +233,24 @@ Alle Felder gehen als Platzhalter in Befundtexte (`{qsofa}`, `{schockindex}` mit
 - **Anzeige mit Schlaganfall**: `fast` (0–3), `nihss` (grob), `seitBeginnMin`, `lyseFensterMin` – für Befundtexte und Zeitdruck-Bedingungen.
 - Grundgrößen `neuroSeite`, `seitBeginnMin`, `wirkOpioid` schreibt das Modell; Fälle setzen sie nicht.
 
+## Fallwelle P19: Kinder und Psyche (CE 10/11)
+
+Sieben neue Fälle im Schema v2, alle mit `lehrplan`, Akte, mindestens zwei Gesprächspartnern, Rückfrage und Rückauftrag,
+Remonstrationspunkt, Entscheidungs- bzw. Komplikationsereignis und Weiterlernen-Eintrag. Fallbezogene Prüfungen in `faelle/p19.test.ts`.
+
+| Fall | CE | Kern | Remonstration | Modell |
+|---|---|---|---|---|
+| `paed-asthma-schulkind` | 10, 06 | Asthmaanfall 7 J., Spacer, Rückfrage SpO₂, Vater (Sorgerecht) | Diazepam bei Atemnot | `bronchospasmus`, Salbutamol beendet ihn |
+| `paed-bronchiolitis-saeugling` | 10 | RSV 4 Mon., Nase absaugen vor dem Trinken, Isolation | Xylometazolin 0,1 % → Kochsalz (`ersatz`) | Sekretstau-Ereignis, `nase-absaugen` |
+| `paed-gastroenteritis-kleinkind` | 10 | Exsikkose 3 J., orale Rehydratation, BZ, Kita (keine Auskunft) | Ondansetron 4 mg → 2 mg | `exsikkose_progressiv`, `hypoglykaemie` |
+| `paed-rausch-jugendliche` | 10, 06 | Alkoholintoxikation 15 J., Seitenlage, BZ/Temperatur, Mutter, Freundin | Traubenzucker-Gel bei Bewusstseinstrübung | `hypoglykaemie`, Glukose-Infusion beendet sie |
+| `kh-delir-nacht` | 11, 05 | Postoperatives Delir 84 J., 4AT, Harnverhalt, Brille/Hörgerät, Sohn (Vollmacht) | Lorazepam bei Hochbetagten | `delir_trigger` (Schmerz, Harnverhalt, Umgebung), Einmalkatheter beendet `harnverhalt` |
+| `psy-unruhe-deeskalation` | 11, 06 | Psychose, Deeskalation, Krisenplan, Mutter ohne Entbindung | Telefonische „Vorrats“-Fixierung → freiwilliges Lorazepam | `panik_eskaliert` als Näherung, Deeskalation beendet ihn |
+| `kh-alkoholentzug` | 11, 05 | Entzug nach OP, Score (CIWA-Ar/AESB), Ehefrau mit Einwilligung | Lorazepam starr stündlich → nach Score | Näherung `panik_eskaliert` + `delir_trigger`; eigener Entzugs-Treiber fehlt noch |
+
+- Psychiatrie: Foto Aufenthaltsraum fehlt, `psy-unruhe-deeskalation` nutzt vorläufig `11_pflegeheim_speiseraum` (Beispielbild).
+- `kh-alkoholentzug` ist nur für das 3. Drittel (`ad3`, Lehrplan sucht3).
+
 ## Grundsystem G6: Schlucken, Aspiration, Ernährung
 
 `physiologie/schlucken.ts` (Lernmodell; Logopädie und Schluckdiagnostik gehen vor).
@@ -250,6 +271,16 @@ Alle Felder gehen als Platzhalter in Befundtexte (`{qsofa}`, `{schockindex}` mit
 - **Delir**: Schlafdefizit und nächtliche Störung sind zusätzliche Delir-Auslöser; bei bestehendem Delir sinkt die Orientierung abends/nachts (Sundowning).
 - **Schutz**: „reizarm-gestalten“ setzt `schlafSchutz` (Wirkkurve, etwa 4 Stunden, in `OPTIONALE_WIRKGROESSEN`); senkt die Störung um 70 %.
 - **Anzeige `schlaf`**: „schläft“ / „wach“ / „wach, unruhig“ (Platzhalter `{schlaf}`).
+
+## Grundsystem G8: Labor aus dem Modell
+Datei `physiologie/labor.ts` (Werte) und `labor-auftrag.ts` (Abnahme, Laufzeit, Akte). Parameter, Einheiten, Referenzen, Laufzeiten und Bewertung kommen aus dem Labor-Modell der Diagnostik-Seite (`src/ui/sim/labor`), beide rechnen gleich.
+- **Bestände mit Verzögerung** (Grundgrößen, optional): `entzuendung`, `crp` (steigt mit ≈ 12 h, fällt mit 24 h), `leuko` (3 h), `pct` (Sepsis), `krea`/`harnstoff` (Niere aus Stundenurin je kg, G2; Harnstoff zusätzlich bei Exsikkose), `hbMasse` (sinkt bei Blutung). Startwert = Zielwert, weil die Krankheit vor Fallbeginn besteht.
+- **Entzündungsquellen**: Treiber `sepsis_verlauf`, `pneumonie`, Grundgrößen `aspirationsPneumonie` (G6) und `wundInfekt` (G9).
+- **Hb ist ein später Wert**: Hb = Ausgangs-Hb × `hbMasse` / Volumen. Bei akuter Blutung bleibt es zunächst, es fällt erst mit Auffüllung; Exsikkose konzentriert.
+- **Natrium** steigt bei Exsikkose, **Kalium** aus G2 plus Anstieg bei Nierenversagen, **Gerinnung grob**: Sepsis (Verbrauch) und Massivblutung (Verdünnung) senken Thrombozyten, verlängern INR/aPTT. eGFR nur bei Erwachsenen.
+- **Anzeige** (Platzhalter/Bedingungen): `hb`, `leuko`, `thrombo`, `crp`, `pct`, `natrium`, `kalium`, `krea`, `egfr`, `harnstoff`, `inr`, `aptt`.
+- **Blutentnahme**: Maßnahme `blutentnahme-venoes` (`LABOR_ABNAHME`) friert die Werte ein (`SimZustand.laborProben`). Ergebnisse je Parameter erst nach Sofort-Transport (15 min) plus Notfall-Laufzeit. `laborBefunde(z, uhr)` liefert Akte-Zeilen (neueste zuerst), ausstehende Proben und `kritisch`; die Akte zeigt sie unter Befunde vor den festen Laborwerten des Falls.
+- Fall braucht dafür nur `blutentnahme-venoes` in `massnahmen`.
 
 ## Fallwelle P17b (CE 04/CE 07, Runde 3)
 - `amb-herzschwaeche` (CE 04, migriert aus dem Altfall „herzschwaeche“): Gewicht/Protokoll, Dosett (Torasemid ausgelassen), Rückfrage „Gewicht und Sättigung?“, fehlerhafte Anordnung Kompression bei Dekompensation (Ersatz: weglassen), Rückauftrag SpO₂/AF per Messenger, Tochter mit Einwilligung, Patientenwille (Krankenhaus abgelehnt) als Entscheidung, Schulung Gewichtstagebuch. Torasemid über G1.

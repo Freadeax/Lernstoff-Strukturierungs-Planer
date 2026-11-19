@@ -4,7 +4,8 @@
 
 import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import { anzeige, type SimZustand } from '../kern/kern';
+import { anzeige, uhrVon, type SimZustand } from '../kern/kern';
+import { laborBefunde } from '../kern/labor-auftrag';
 import type { KurvenWert, SimEventEingabe } from '../kern/typen';
 import {
   AKTE_REITER, akte, allergieBekannt, alterText, anordnungsZeilen, bericht, bilanzText, dokuGruppen, eigeneBefunde, istMinimal,
@@ -244,14 +245,16 @@ function Bericht({ z, eingabe }: { z: SimZustand; eingabe: (e: SimEventEingabe) 
 /* ─────────────────────────── Befunde & Assessments ─────────────────────────── */
 
 function Befunde({ z }: { z: SimZustand }) {
-  const labor = akte(z).labor ?? [];
+  const neu = laborBefunde(z, uhrVon(z));   // G8: im Fall abgenommene Proben nach Laufzeit
+  const labor = [...neu.zeilen, ...(akte(z).labor ?? [])];
   const eigene = eigeneBefunde(z).filter((b) => !b.assessment);
   return <>
     <Abschnitt titel="Labor">
+      {neu.ausstehend.map((p) => <p key={p.abnahme} className="muted">Blutprobe von {p.abnahme} Uhr ist im Labor, Ergebnis gegen {p.fertig} Uhr.</p>)}
       {labor.length === 0 ? <p className="muted">Keine Laborwerte in der Akte.</p> : <div className="akte-tabelle-rahmen" tabIndex={0} role="region" aria-label="Laborwerte">
         <table className="akte-labor">
           <thead><tr><th scope="col">Wert</th><th scope="col">Ergebnis</th><th scope="col">Norm</th><th scope="col">Datum</th></tr></thead>
-          <tbody>{labor.map((l) => <tr key={l.name} className={l.auffaellig ? 'is-auffaellig' : ''}>
+          <tbody>{labor.map((l, i) => <tr key={`${l.name}-${l.datum}-${i}`} className={l.auffaellig ? 'is-auffaellig' : ''}>
             <th scope="row">{l.name}</th><td>{l.wert}{l.einheit ? ` ${l.einheit}` : ''}{l.auffaellig && <span className="visually-hidden"> auffällig</span>}{l.auffaellig && <span aria-hidden="true"> ↑</span>}</td>
             <td>{l.norm ?? ''}</td><td>{l.datum}</td></tr>)}</tbody>
         </table>

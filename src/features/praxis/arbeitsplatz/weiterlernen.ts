@@ -12,6 +12,16 @@ export interface WeiterlernenEintrag {
 }
 
 export const WEITERLERNEN_V2: Record<string, WeiterlernenEintrag> = {
+  'kh-harnverhalt-postop': {
+    themen: ['thema.ph.ausscheidung', 'thema.ph.periop', 'thema.ph.hygiene', 'thema.pro.delir'],
+    krankheiten: ['kh.hwi', 'kh.delir'],
+    extra: [{ label: 'Hygiene-Trainer', path: '/lernen/hygiene', warum: 'Aseptisches Arbeiten beim Katheterisieren üben.' }],
+  },
+  'lz-dekubitus-immobil': {
+    themen: ['thema.pro.dekubitus', 'thema.ph.mobilisation', 'thema.beo.haut', 'thema.pro.dehydratation'],
+    krankheiten: ['kh.dekubitus', 'kh.demenz'],
+    extra: [{ label: 'Expertenstandards nachschlagen', path: '/lernen/schnellsuche', warum: 'Dekubitusprophylaxe und Schmerzmanagement im Überblick.' }],
+  },
   'lz-koerperpflege-abgelehnt': {
     themen: ['thema.kom.gespraech', 'thema.ph.koerperpflege', 'thema.ph.ausscheidung', 'thema.pro.zystitis'],
     krankheiten: ['kh.hwi'],
@@ -72,6 +82,37 @@ export const WEITERLERNEN_V2: Record<string, WeiterlernenEintrag> = {
   'psy-panik-suizidalitaet': {
     themen: ['thema.fa.psychiatrie', 'thema.kl.psych', 'thema.kom.gespraech'],
     krankheiten: ['kh.angststoerung', 'kh.depression'],
+  },
+  // Fallwelle P19 (CE 10/11)
+  'paed-asthma-schulkind': {
+    themen: ['thema.kl.atmung', 'thema.kl.paediatrie', 'thema.kom.beratung'],
+    krankheiten: ['kh.asthma'],
+    extra: [{ label: 'Arzneimittel-Trainer', path: '/lernen/arzneimittel', warum: 'Salbutamol und Prednisolon: Wirkung, Nebenwirkung, Beobachtung.' }],
+  },
+  'paed-bronchiolitis-saeugling': {
+    themen: ['thema.kl.atmung', 'thema.fa.paediatrie', 'thema.ph.hygiene', 'thema.pro.dehydratation'],
+    krankheiten: ['kh.bronchiolitis'],
+  },
+  'paed-gastroenteritis-kleinkind': {
+    themen: ['thema.kl.verdauung', 'thema.pro.dehydratation', 'thema.ph.hygiene', 'thema.kl.paediatrie'],
+    krankheiten: ['kh.gastroenteritis', 'kh.exsikkose'],
+  },
+  'paed-rausch-jugendliche': {
+    themen: ['thema.kl.paediatrie', 'thema.beo.bewusstsein', 'thema.pro.aspiration', 'thema.re.schweigepflicht'],
+    krankheiten: ['kh.alkohol'],
+  },
+  'kh-delir-nacht': {
+    themen: ['thema.pro.delir', 'thema.pro.sturz', 'thema.re.fem', 'thema.ph.ausscheidung'],
+    krankheiten: ['kh.delir', 'kh.femurfraktur'],
+    extra: [{ label: 'Expertenstandards nachschlagen', path: '/lernen/schnellsuche', warum: 'Sturzprophylaxe und Schmerzmanagement im Überblick.' }],
+  },
+  'psy-unruhe-deeskalation': {
+    themen: ['thema.fa.psychiatrie', 'thema.kl.psych', 'thema.re.fem', 'thema.re.schweigepflicht'],
+    krankheiten: ['kh.schizophrenie'],
+  },
+  'kh-alkoholentzug': {
+    themen: ['thema.kl.psych', 'thema.ph.medikamente', 'thema.beo.vitalzeichen', 'thema.kom.gespraech'],
+    krankheiten: ['kh.alkohol', 'kh.delir'],
   },
   'lz-demenz-aspiration': {
     themen: ['thema.pro.aspiration', 'thema.kl.demenz', 'thema.re.betreuung', 'thema.pro.pneumonie'],
