@@ -12,6 +12,7 @@ import {
   SICHERHEIT_LABEL, speichereFehler, ueberblick, vorschau, wiederholt, type Fehler, type FehlerQuelle, type Wiederholung,
 } from './fehlerheft';
 import { SkriptStellen } from '../skript/SkriptStellen';
+import { neuerFall } from '../praxis/altfaelle';
 
 const SITZUNG_MAX = 10;
 const THEMEN = new Map(pflegeModule.topics.map((t) => [t.id, t.name]));
@@ -43,8 +44,11 @@ function trainerLink(f: Fehler): { label: string; path: string } | null {
   if (f.quelle === 'krankheitsbilder') return { label: 'Fall noch einmal bearbeiten', path: `/lernen/krankheitsbilder?fall=${encodeURIComponent(f.id.split(':')[1] ?? '')}` };
   // as:<vignettenId>:<itemId>
   if (f.quelle === 'assessment') return { label: 'Fall noch einmal einschätzen', path: `/lernen/assessment?modus=faelle&fall=${encodeURIComponent(f.id.split(':')[1] ?? '')}` };
-  // praxis:<fallId>:<ereignisId>
-  if (f.quelle === 'praxis') return { label: 'Fall im Praxissimulator wiederholen', path: `/lernen/praxis?fall=${encodeURIComponent(f.id.split(':')[1] ?? '')}` };
+  // praxis:<fallId>:<ereignisId>; alte Fall-IDs zeigen seit P10 auf den Nachfolger im neuen Arbeitsplatz.
+  if (f.quelle === 'praxis') {
+    const id = f.id.split(':')[1] ?? '';
+    return { label: 'Fall im Praxissimulator wiederholen', path: `/lernen/praxis?neu=${encodeURIComponent(neuerFall(id) ?? id)}` };
+  }
   if (QUIZ_QUELLEN.has(f.quelle)) {
     const u = f.topicIds.flatMap((t) => uebungenFuer(t)).find((x) => x.trainer === f.quelle);
     if (u) return { label: `Im ${u.label} üben`, path: u.path };

@@ -99,7 +99,7 @@ describe('Lernpfad-Fakten: Praxisfälle', async () => {
   });
 
   it('wertet einen abgeschlossenen Praxisfall als geübt', () => {
-    const [f] = sammleFakten(themen, { ...q, daten: { ...daten, praxisFertig: ['lungenembolie'] } });
+    const [f] = sammleFakten(themen, { ...q, daten: { ...daten, praxisFertig: ['kh-lungenembolie'] } });
     expect(f!.faelle.geuebt).toBe(true);
   });
 });

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { LEHRPLAN } from '../ce/lehrplan';
-import { SCENARIOS } from './catalog';
+import { ALTFALL_TITEL } from './altfaelle';
 import { ABDECKUNG_OFFEN, abdeckungsLuecken, FALLPLAN, fallauswahl, planZaehler } from './fallplan';
 import { FAELLE_V2 } from './kern/faelle';
 import { KERN_THEMEN, kernZuThema } from './themen';
@@ -20,7 +20,8 @@ describe('Fallplan nach CE (P15)', () => {
   it('jeder Altfall ist genau einmal einem Plan-Eintrag zugeordnet', () => {
     const alt = FALLPLAN.flatMap((p) => p.alt ?? []);
     expect(new Set(alt).size).toBe(alt.length);
-    expect([...alt].sort()).toEqual(SCENARIOS.map((s) => s.id).sort());
+    expect([...alt].sort()).toEqual(Object.keys(ALTFALL_TITEL).sort());
+    for (const p of FALLPLAN.filter((x) => x.alt?.length)) expect(p.fall, p.titel).toBeDefined();
   });
 
   it('Plan-Einträge: gültige CE, Abschnitt mit Stunden laut Lehrplan', () => {
@@ -43,33 +44,26 @@ describe('Fallplan nach CE (P15)', () => {
     for (const id of ['kh-pneumonie-sepsis', 'paed-fieberkrampf', 'psy-panik-suizidalitaet']) expect(kernZuThema('thema.re.schweigepflicht')).toContain(id);
   });
 
-  it('Fallauswahl: Kernfälle zuerst, dann alt, dann geplant; Drittel-Filter', () => {
-    const [ce05] = fallauswahl(['ce.05'], FAELLE_V2, SCENARIOS);
+  it('Fallauswahl: Kernfälle zuerst, dann geplant; Drittel-Filter', () => {
+    const [ce05] = fallauswahl(['ce.05'], FAELLE_V2);
     const arten = ce05!.eintraege.map((e) => e.art);
     expect(arten[0]).toBe('kern');
-    expect(arten.lastIndexOf('kern')).toBeLessThan(arten.indexOf('alt'));
-    // Reihenfolge alt vor geplant an jeder CE prüfen, die noch beides hat (Fallwellen schließen nach und nach Lücken)
-    for (const g of fallauswahl(CE, FAELLE_V2, SCENARIOS)) {
+    for (const g of fallauswahl(CE, FAELLE_V2)) {
       const a = g.eintraege.map((e) => e.art);
-      if (a.includes('alt') && a.includes('geplant')) expect(a.lastIndexOf('alt'), g.ce).toBeLessThan(a.indexOf('geplant'));
+      if (a.includes('geplant')) expect(a.lastIndexOf('kern'), g.ce).toBeLessThan(a.indexOf('geplant'));
     }
-    const sepsis = ce05!.eintraege.find((e) => e.art === 'alt' && e.id === 'sepsis');
-    expect(sepsis && sepsis.art === 'alt' && sepsis.abgeloestDurch).toBeTruthy();
     // Schockraum nur im 3. Drittel
-    const [ce06a] = fallauswahl(['ce.06'], FAELLE_V2, SCENARIOS, 'ad12');
+    const [ce06a] = fallauswahl(['ce.06'], FAELLE_V2, 'ad12');
     expect(ce06a!.eintraege.some((e) => e.art === 'kern' && e.id === 'sr-septischer-schock')).toBe(false);
-    const [ce06b] = fallauswahl(['ce.06'], FAELLE_V2, SCENARIOS, 'ad3');
+    const [ce06b] = fallauswahl(['ce.06'], FAELLE_V2, 'ad3');
     expect(ce06b!.eintraege.find((e) => e.art === 'kern')?.art === 'kern' && (ce06b!.eintraege[0] as { id: string }).id).toBe('sr-septischer-schock');
-    // alle 21 Altfälle bleiben in der Gesamtansicht erreichbar
-    const alle = fallauswahl(CE, FAELLE_V2, SCENARIOS).flatMap((g) => g.eintraege).filter((e) => e.art === 'alt');
-    expect(alle).toHaveLength(SCENARIOS.length);
   });
 
   it('Zähler je CE', () => {
     // Zählt mit, wenn Fallwellen Einträge erledigen: Summe bleibt die Zahl der Plan-Einträge.
     for (const ce of ['ce.01', 'ce.05']) {
       const z = planZaehler(ce);
-      expect(z.vorhanden + z.geplant + z.alt).toBeGreaterThanOrEqual(FALLPLAN.filter((e) => e.ce === ce).length);
+      expect(z.vorhanden + z.geplant).toBe(FALLPLAN.filter((e) => e.ce === ce).length);
       expect(z.vorhanden).toBeGreaterThanOrEqual(1);
     }
   });

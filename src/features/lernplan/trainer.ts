@@ -25,7 +25,7 @@ import { THEMEN as NORMWERT_THEMEN } from '../normwerte/aufgaben';
 import { THEMEN as LABOR_THEMEN } from '../labortrainer/aufgaben';
 import { NOTFALL_THEMA } from '../notfall/aufgaben';
 import { AM_THEMA } from '../arzneimittel/aufgaben';
-import { PRAXIS_THEMEN } from '../praxis/themen';
+import { KERN_THEMEN } from '../praxis/themen';
 import { BEREICH_ZU_THEMA as RECHT_BEREICH } from '../recht/aufgaben';
 import { BEREICH_ZU_THEMA as GRUNDLAGEN_BEREICH } from '../grundlagen/aufgaben';
 import { diagnostikFaelleZuThema } from '../diagnostik/themen';
@@ -160,7 +160,7 @@ export function uebungenFuer(topicId: string, modul: CatalogModule = pflegeModul
   // Praxissimulator (offline) zählt nicht als Abfrage im Lernplan (Debriefing ist kein Kompetenznachweis),
   // darum ganz hinten: wer nur die erste Übung nimmt, bekommt eine, die den Wissensstand belegt.
   // Fehlentscheidungen aus seinen Entscheidungsmomenten landen im Fehlerheft.
-  if (Object.values(PRAXIS_THEMEN).some((t) => t.includes(topicId))) {
+  if (Object.values(KERN_THEMEN).some((t) => t.includes(topicId))) {
     out.push({ trainer: 'praxis', label: 'Praxisfall (offline)', path: `/lernen/praxis?thema=${encodeURIComponent(topicId)}` });
   }
   return out;

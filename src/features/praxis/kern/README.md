@@ -1,7 +1,7 @@
 # Praxissimulator neu – Kern (Paket P0)
 
 Reiner, deterministischer Simulationskern für beide Spuren (A Pflege/Generalistik, B Akut/Notfall/Intensiv).
-Oberfläche: Arbeitsplatz Stufe 2 (`../arbeitsplatz`), Stufe 1 geführt (`../stufe1`, P21). Die alte Engine (`../engine.ts`) und die alten Leitfälle (`../gefuehrt`) laufen bis P10 weiter.
+Oberfläche: Arbeitsplatz Stufe 2 (`../arbeitsplatz`), Stufe 1 geführt (`../stufe1`, P21). Die alte Engine und die alten Leitfälle sind mit P10 entfernt (siehe Abschnitt „Ablösung des alten Simulators (P10)“).
 
 | Datei | Inhalt |
 |---|---|
@@ -301,7 +301,7 @@ Datei `physiologie/entzug.ts`. Treiber `{ art: 'alkoholentzug', schwere: 0..1, l
 
 ## Stufe 1 geführt auf dem Kern (P21)
 - Code: `../stufe1/ablauf.ts` (rein), `Stufe1.tsx`, Route `#/lernen/praxis?gefuehrt=<fall>` für alle Kernfälle („Geführt üben“ in der Fallauswahl).
-  Alte Leitfälle (`../gefuehrt`) laufen für Altfälle weiter, bis P10 sie entfernt.
+  Die alten Leitfälle sind mit P10 entfernt; `?gefuehrt=<altfall>` führt zur Stufe 1 des Nachfolgefalls.
 - Kein eigener Fallinhalt: Die Schritte kommen aus `pruefwege.muster` (warten/auflegen laufen automatisch, Pflegetasche gehört
   zur Messung, aufeinanderfolgende `rueckmelden` werden ein Schritt). Je Schritt 3–4 Möglichkeiten, genau eine richtig:
   - Handlung am Patienten: Kandidaten aus `massnahmen`/`gespraech`, im Kern **probeweise ausgeführt**: erzeugt sie einen
@@ -332,3 +332,13 @@ Datei `physiologie/wunde.ts`. Nur aktiv mit Treiber `wunde` oder `wundblutung`.
 - **Nachblutung**: Blut geht aus dem Kreislauf (Volumen, G8 Hb-Masse: Hb fällt erst später) und in den Verband. `blutung-stillen` (Druckverband, Wirkkurve `blutstillung`) senkt sie um 80 %, eine chirurgische Blutung braucht trotzdem die Ärztin. `verband-unkompliziert`/`verband-kompliziert` setzen den Verband zurück (Wirkkurve `verbandBlutMl` Faktor 0); Blut im Verband vorher dokumentieren.
 - **Anzeige**: `wundPhase`, `wundsekret` (keins/serös/blutig/eitrig), `wundInfektZeichen`, `verband` (trocken / leicht durchgeblutet < 15 ml / durchgeblutet < 60 ml / durchnässt), `verbandBlutMl`.
 - P16a (Nachblutung): `{ art: 'wundblutung', mlProMin: 1–3 }` ab einem Ereignis; Bedingung z. B. `{ wert: 'verbandBlutMl', vergleich: '>', grenze: 30 }`.
+
+## Ablösung des alten Simulators (P10)
+
+Am 19.11.2026 entfernt: `engine.ts`, `scenarios.json`, `catalog.ts`, `types.ts`, `storage.ts`, `gefuehrt/`, Schichtmodus, Fall-Editor, alte Weitergabe und `scripts/check-praxis.mjs`. Keine Datenbank-Migration, keine Daten gelöscht.
+- `../altfaelle.ts`: Titel der 21 alten Fälle, `ALT_ZU_NEU` (aus `FALLPLAN.alt`), `neuerFall`, `altesArchiv` (liest `lernstoff.praxis.archiv` nur noch), `altSitzung` für alte Weitergabe-Links.
+- Routen: `?fall=<alt|neu>` und alte IDs in `?neu=`/`?gefuehrt=` werden auf die Adresse des Nachfolgers ersetzt; `?kb=` nutzt `PRAXIS_KRANKHEITEN` (neue IDs), `?thema=` `KERN_THEMEN`.
+- Übergabe, Pflegebericht, Pflegeplanung: alte `sitzung=<id>` zeigen `AltPraxisHinweis` mit Link zum Nachfolgefall.
+- `../erledigt.ts`: abgeschlossene Fälle (`lernstoff.praxis.erledigt`, in der Datensicherung) für Bereit-Check, CE-Lernpfad und Fallauswahl; Arbeitsplatz und Stufe 1 schreiben dort beim Abschluss, alte Archiv-Abschlüsse zählen über den Nachfolger.
+- Fehlerheft-Einträge `praxis:<alt>:…` öffnen den Nachfolgefall. Einsatz-Arten nutzen die Settings der Kernfälle.
+- Browserprüfung `npm run test:praxis` (`scripts/check-praxis-weiterleitung.mjs`, in `check-alle`).

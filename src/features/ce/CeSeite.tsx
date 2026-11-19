@@ -246,14 +246,14 @@ function Detail({ ce, daten, ctx, status, minuten, setHaken }: {
 /** Praxissimulator: Fälle dieser CE aus dem Fallplan (P15), Sprung in die Fallauswahl mit ?ce=. */
 function PraxisAbschnitt({ ceId, code }: { ceId: string; code: string }) {
   const z = planZaehler(ceId);
-  const teile = [z.vorhanden && anzahl(z.vorhanden, 'Fall im neuen Arbeitsplatz', 'Fälle im neuen Arbeitsplatz'), z.alt && anzahl(z.alt, 'Altfall', 'Altfälle'), z.geplant && `${z.geplant} geplant`].filter(Boolean);
+  const teile = [z.vorhanden && anzahl(z.vorhanden, 'Fall im neuen Arbeitsplatz', 'Fälle im neuen Arbeitsplatz'), z.geplant && `${z.geplant} geplant`].filter(Boolean);
   return (
     <section className="ce__abschnitt">
       <div className="ce__kopfzeile">
         <h2>Praxisfälle</h2>
-        {z.vorhanden + z.alt > 0 && <button type="button" className="small" onClick={() => navigate(`/lernen/praxis?ce=${encodeURIComponent(ceId)}`)}>Fälle zu {code} üben</button>}
+        {z.vorhanden > 0 && <button type="button" className="small" onClick={() => navigate(`/lernen/praxis?ce=${encodeURIComponent(ceId)}`)}>Fälle zu {code} üben</button>}
       </div>
-      <p className="muted">{teile.length ? teile.join(' · ') : 'Noch kein Praxisfall geplant.'}{z.vorhanden + z.alt === 0 && z.geplant > 0 ? ' Noch kein spielbarer Fall.' : ''}</p>
+      <p className="muted">{teile.length ? teile.join(' · ') : 'Noch kein Praxisfall geplant.'}{z.vorhanden === 0 && z.geplant > 0 ? ' Noch kein spielbarer Fall.' : ''}</p>
     </section>
   );
 }

@@ -4,7 +4,7 @@ import { pflegeModule } from '../../modules/pflege';
 import { STATUS_GEWICHT } from '../examen/radar';
 import { RADAR_GEWICHT, radarAchsen, schwaechsteAchse } from '../fortschritt/radar';
 import { leafTopics } from '../lernplan/store';
-import { SCENARIOS } from '../praxis/catalog';
+import { FAELLE_V2 } from '../praxis/kern/faelle';
 import { TRAINER_NAME } from '../lernplan/store';
 import { flatNav, NAV, UNTERSEITEN } from '../../ui/shell/nav';
 import { EINSATZ_ARTEN, STICHWORTE } from './arten';
@@ -43,8 +43,8 @@ describe('Einsatzarten', () => {
     }
   });
   it('jede Art hat passende Praxisfälle im Simulator', () => {
-    const settings = new Set(SCENARIOS.map((s) => s.setting));
-    for (const a of EINSATZ_ARTEN) expect(a.praxisSettings.some((s) => settings.has(s as never)), a.id).toBe(true);
+    const settings = new Set<string>(FAELLE_V2.map((f) => f.setting));
+    for (const a of EINSATZ_ARTEN) expect(a.praxisSettings.some((s) => settings.has(s)), a.id).toBe(true);
   });
 });
 

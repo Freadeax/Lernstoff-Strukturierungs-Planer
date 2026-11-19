@@ -23,12 +23,12 @@ const liste: Person[] = [
   {
     id: 'mila', name: 'Mila', alter: 2, datei: 'praxis-kind', zustaende: ['stabil', 'angestrengt', 'kritisch'],
     beschreibung: 'Mila, ein Kleinkind mit braunem Bob und türkisfarbenem Schlafoberteil.',
-    faelle: ['praxis:kind'],
+    faelle: [], // war der alte Praxisfall „kind“ (entfernt mit P10)
   },
   {
     id: 'ben', name: 'Ben', alter: 7, datei: 'praxis-asthma', zustaende: ['stabil', 'angestrengt', 'kritisch'],
     beschreibung: 'Ben, ein Schulkind mit dunkelbraunem, gewelltem Haar und hellblauem Oberteil.',
-    faelle: ['praxis:asthma', 'fall:asthma-kind', 'fall:demo-asthma'],
+    faelle: ['fall:asthma-kind', 'fall:demo-asthma'],
   },
 ];
 

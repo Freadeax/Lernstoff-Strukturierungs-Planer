@@ -7,7 +7,7 @@ import { getApiKey } from '../../core/settings';
 import { pflegeModule } from '../../modules/pflege';
 import { navigate, useRoute } from '../../ui/shell/router';
 import { LernplanHinweis, useLernplanUebernahme } from '../lernplan/ui/LernplanHinweis';
-import { findeSitzung, planVorlage } from '../praxis/weitergabe';
+import { AltPraxisHinweis } from '../praxis/AltPraxisHinweis';
 import { findeNeu, planVorlageNeu } from '../praxis/arbeitsplatz/weitergabe';
 import { eigenerFall, FAELLE, SETTING_LABEL, type PlanFall, type ProblemArt } from './faelle';
 import {
@@ -437,10 +437,9 @@ export default function Pflegeplanung() {
   const [praxisStatus, setPraxisStatus] = useState<'' | 'uebernommen' | 'fehlt'>('');
   useEffect(() => {
     if (!praxisId) return;
-    const s = findeSitzung(praxisId);
-    const n = s ? null : findeNeu(praxisId);
-    if (!s && !n) { setPraxisStatus('fehlt'); return; }
-    const v = s ? planVorlage(s) : planVorlageNeu(n!);
+    const n = findeNeu(praxisId);
+    if (!n) { setPraxisStatus('fehlt'); return; }
+    const v = planVorlageNeu(n);
     const e = ladeEntwurf(EIGEN);
     const gleich = e?.eigenText === v.text;
     setFallId(EIGEN);
@@ -519,7 +518,7 @@ export default function Pflegeplanung() {
         <p className="muted">Plane einen Fall Schritt für Schritt nach dem Pflegeprozess. Die Checkliste prüft offline nach den Regeln des Pflege-Katalogs (PESR, SMART, Maßnahmen), Claude gibt auf Wunsch eine fachliche Rückmeldung.</p>
       </div>
       <AkteLeiste art="pflegeplanung" fallId={fallId} />
-      {praxisStatus === 'fehlt' && <p className="note warn">Der Praxisfall ist auf diesem Gerät nicht mehr gespeichert (nur die letzten zehn Fälle bleiben).</p>}
+      {praxisStatus === 'fehlt' && praxisId && <AltPraxisHinweis sitzung={praxisId} />}
       {praxisStatus === 'uebernommen' && istEigen && <p className="note">Fallbeschreibung und Verlauf stammen aus deinem <a href="#/lernen/praxis">Praxissimulator</a>. Du kannst sie ergänzen. Die Checkliste prüft beim eigenen Fall nur Aufbau und Formulierung.</p>}
 
       <div className="card pp__auswahl">

@@ -1,9 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import { formFehler, kurzfassung, sortierePunkte, zaehle, type SimAuswertung } from './auswertung';
-import { SCENARIOS } from '../../features/praxis/catalog';
-import { start } from '../../features/praxis/engine';
-import { dispatch } from '../../features/praxis/testhilfe';
-import { praxisAuswertung } from '../../features/praxis/auswertung';
 import { DEMO_SZENARIO, demoAbschluss, demoZug } from '../../features/fall/demo';
 import { neuerFall, type Fall } from '../../features/fall/simulator';
 import { fallAuswertung } from '../../features/fall/auswertung';
@@ -27,23 +23,6 @@ describe('Gemeinsame Auswertung', () => {
     expect(kurzfassung(beispiel)).toBe('Mit Lücken: 1 gut, 1 teilweise, 1 zu verbessern');
     expect(formFehler(beispiel)).toEqual([]);
     expect(formFehler({ ...beispiel, punkte: [{ id: 'x', titel: 'X', urteil: 'gut', warum: '', besser: 'y' }] })).toHaveLength(2);
-  });
-
-  it('Praxissimulator: jeder Fall liefert begründete Punkte; Fehlwahl und Fehlhandlung zählen als zu verbessern', () => {
-    for (const sc of SCENARIOS) {
-      let s = start(sc, 2);
-      s = dispatch(s, { type: 'action', id: 'assessment' });
-      s = dispatch(s, { type: 'advance', seconds: 900 });
-      const a = praxisAuswertung(s);
-      expect(formFehler(a), sc.id).toEqual([]);
-      expect(a.punkte.length, sc.id).toBeGreaterThanOrEqual(sc.criteria.length);
-    }
-    const asthma = SCENARIOS.find((x) => x.id === 'asthma')!;
-    let s = dispatch(start(asthma, 2), { type: 'action', id: 'flat' });
-    s = dispatch(s, { type: 'advance', seconds: 200 });
-    const a = praxisAuswertung(s);
-    expect(a.punkte.find((p) => p.id === 'fehl:flat')?.urteil).toBe('fehler');
-    expect(a.punkte.find((p) => p.id === 'wahl:mutter')?.urteil).toBe('gut');
   });
 
   it('Fallsimulator: Probefall mit Fehlwahl zeigt den besseren Weg', () => {

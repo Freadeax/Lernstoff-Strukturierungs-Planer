@@ -18,7 +18,7 @@
     "typecheck": "tsc -b --noEmit",
     "test:material": "node scripts/check-material.mjs",
     "test:wissen": "node scripts/check-wissensstand.mjs",
-    "test:praxis": "node scripts/check-praxis.mjs",
+    "test:praxis": "node scripts/check-praxis-weiterleitung.mjs",
     "test:arbeitsplatz": "node scripts/check-arbeitsplatz.mjs",
     "test:stufe1": "node scripts/check-stufe1.mjs",
     "test:geraete": "node scripts/check-geraete.mjs",

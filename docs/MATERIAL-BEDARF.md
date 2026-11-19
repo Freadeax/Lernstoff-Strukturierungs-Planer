@@ -451,7 +451,7 @@ Nicht nötig (macht die App besser selbst): Monitorpiep, Alarmmelodien, Telefon,
 
 ## Anhang A: Fälle, Personen und heutiger Raum
 
-### Praxissimulator (`src/features/praxis/scenarios.json`, Raumzuordnung `raumfotos.ts`)
+### Praxissimulator (alter Simulator, mit P10 entfernt; heute `src/features/praxis/kern/faelle`, Feld `medien.raum`)
 
 | Fall | Titel | Person, Alter | Umgebung laut Fall | Raum heute | Gewünscht |
 | --- | --- | --- | --- | --- | --- |

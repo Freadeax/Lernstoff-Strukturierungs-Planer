@@ -1,5 +1,7 @@
 # Praxissimulator: Architektur, Stand und Entwicklungsregister
 
+> **Abgelöst (P10, 19.11.2026).** Dieses Dokument beschreibt den alten Simulator (`engine.ts`, `scenarios.json`, geführte Leitfälle), der entfernt ist. Der Praxissimulator läuft vollständig auf dem neuen Kern: Aufbau und Regeln in `src/features/praxis/kern/README.md`, Fallplan nach CE in `src/features/praxis/fallplan.ts`. Alte Fall-IDs, alte Links und das alte Archiv übersetzt `src/features/praxis/altfaelle.ts` auf die Nachfolgefälle (Browserprüfung `npm run test:praxis`). Der Text unten bleibt als Entwicklungsgeschichte stehen.
+
 Stand: 26.10.2026. Dieses Dokument ist das zentrale Register für den neuen Praxissimulator und die Anforderungen des ergänzenden Master-Prompts. Es ersetzt keine medizinische Freigabe. Der bestehende Claude-Text-Fallsimulator und die schriftliche Prüfungssimulation bleiben eigenständige, unveränderte Module.
 
 ## Bestandsaufnahme und abgeschlossenes Arbeitspaket

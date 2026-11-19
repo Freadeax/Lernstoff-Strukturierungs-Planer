@@ -8,7 +8,7 @@
 
 import { FAELLE as DX_FAELLE } from '../diagnostik/faelle';
 import { FOTORAEUME, RAUM_FUER_FALL, RAUM_FUER_SETTING } from '../fall/fotoraeume';
-import { FALL_RAUM, RAUMFOTOS } from '../praxis/raumfotos';
+import { FAELLE_V2 } from '../praxis/kern/faelle';
 import { SUCHBILDER } from '../hygiene/suchbilder';
 import { HANDLUNGSVIDEOS, type HandlungsVideoId } from '../../ui/sim/handlungsvideos';
 import { PERSONEN, type PortraetZustand } from '../../ui/sim/personen';
@@ -40,7 +40,7 @@ const KI_PAKET = 'KI-generiert aus Philipps Materialpaket, Nutzung in der App';
 /** Wo die Notfall-Trainer einen Raum fest einbinden (src/features/notfall). */
 export const NOTFALL_RAEUME: Record<string, RaumId> = { reanimation: '18_notaufnahme_schockraum_nacht' };
 
-const PRAXIS_ZUSTAENDE: MonitorZustand[] = ['abwesend', 'standby', 'laeuft'];
+const istRaumId = (id: string): id is RaumId => id in RAEUME;
 const FALL_ZUSTAENDE: MonitorZustand[] = ['abwesend', 'laeuft'];
 const ALLE_ZUSTAENDE: MonitorZustand[] = ['abwesend', 'standby', 'laeuft', 'signalausfall'];
 
@@ -51,11 +51,10 @@ export function raumVerwendungen(): Map<RaumId, string[]> {
   const mitVarianten = (basis: RaumId, wo: string, zustaende: MonitorZustand[], nacht: boolean) => {
     for (const v of raumVarianten(basis, zustaende, nacht)) add(v, v === basis ? wo : `${wo} (Variante)`);
   };
-  for (const [fallId, key] of Object.entries(FALL_RAUM)) {
-    const rf = RAUMFOTOS[key]!;
-    // Praxis: Monitor abwesend/Standby/läuft, Nachtschicht wählt die Nachtvariante.
-    mitVarianten(rf.id, `praxis:${fallId}`, PRAXIS_ZUSTAENDE, true);
-    if (rf.waehrend) mitVarianten(rf.waehrend.id, `praxis:${fallId} (Maßnahme ${rf.waehrend.flag})`, PRAXIS_ZUSTAENDE, false);
+  for (const f of FAELLE_V2) {
+    // Praxis (neuer Arbeitsplatz): der Raum des Falls und seine Varianten nach Bedingung (keine Monitor-/Nachtregeln).
+    if (istRaumId(f.medien.raum)) add(f.medien.raum, `praxis:${f.id}`);
+    for (const v of f.medien.raumVarianten ?? []) if (istRaumId(v.raum)) add(v.raum, `praxis:${f.id} (Variante)`);
   }
   for (const [fallId, id] of Object.entries(RAUM_FUER_FALL)) mitVarianten(id, `fall:${fallId}`, FOTORAEUME[id].monitor ? FALL_ZUSTAENDE : [], false);
   for (const [setting, id] of Object.entries(RAUM_FUER_SETTING)) {
@@ -96,12 +95,10 @@ export function assetInventar(): AssetStatus[] {
     }
   }
 
-  const clips = (id: HandlungsVideoId) => Object.entries(FALL_RAUM)
-    .filter(([, key]) => RAUMFOTOS[key]!.details?.some((d) => d.id === id)).map(([fallId]) => `praxis:${fallId}`);
+  // Handlungsvideos liefen als Lernclips im alten Praxissimulator (entfernt mit P10); bis zum Einbau im neuen Arbeitsplatz ohne Verwendung.
   for (const id of Object.keys(HANDLUNGSVIDEOS) as HandlungsVideoId[]) {
-    const wo = [...clips(id), 'praxis:lernclips'];
-    eintrag({ datei: `sim-videos/${id}.mp4`, art: 'handlungsvideo', asset: id, zugeordnet: true, verwendung: wo, lizenz: KI_PAKET, offline: 'nach erstem Ansehen' });
-    for (let i = 1; i <= 4; i++) eintrag({ datei: `sim-videos/${id}-${i}.webp`, art: 'handlungsvideo', asset: `${id}:phase${i}`, zugeordnet: true, verwendung: wo, lizenz: KI_PAKET, offline: 'nach erstem Ansehen' });
+    eintrag({ datei: `sim-videos/${id}.mp4`, art: 'handlungsvideo', asset: id, zugeordnet: true, verwendung: [], lizenz: KI_PAKET, offline: 'nach erstem Ansehen' });
+    for (let i = 1; i <= 4; i++) eintrag({ datei: `sim-videos/${id}-${i}.webp`, art: 'handlungsvideo', asset: `${id}:phase${i}`, zugeordnet: true, verwendung: [], lizenz: KI_PAKET, offline: 'nach erstem Ansehen' });
   }
 
   for (const f of DX_FAELLE) {
@@ -204,7 +201,7 @@ export interface ZustandsLuecke { raum: RaumId; fehlt: string[] }
 
 export function zustandsLuecken(): ZustandsLuecke[] {
   const genutzt = new Set<RaumId>();
-  for (const key of Object.values(FALL_RAUM)) genutzt.add(RAUMFOTOS[key]!.id);
+  for (const f of FAELLE_V2) for (const r of [f.medien.raum, ...(f.medien.raumVarianten ?? []).map((v) => v.raum)]) if (istRaumId(r)) genutzt.add(r);
   for (const id of Object.values(RAUM_FUER_FALL)) genutzt.add(id);
   for (const f of DX_FAELLE) genutzt.add(f.raum);
   const luecken: ZustandsLuecke[] = [];

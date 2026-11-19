@@ -1,5 +1,5 @@
 import { storage } from '../../ui/lib/store';
-import { findeSitzung, uebergabeFall } from '../praxis/weitergabe';
+import { AltPraxisHinweis } from '../praxis/AltPraxisHinweis';
 import { findeNeu, uebergabeFallNeu } from '../praxis/arbeitsplatz/weitergabe';
 import { RAEUME, raumUrl } from '../../ui/sim/raeume/katalog';
 import { Vorlesen } from '../../ui/audio/Vorlesen';
@@ -138,7 +138,7 @@ export default function Uebergabetrainer() {
   const wunsch = route.params.get('fall') ?? '';
   // Fall aus dem Praxissimulator (Link aus dem Debriefing): wird vorne in die Auswahl gestellt
   const praxisId = route.params.get('aus') === 'praxis' ? route.params.get('sitzung') : null;
-  const praxisFall = useMemo(() => { const s = findeSitzung(praxisId); if (s) return uebergabeFall(s); const n = findeNeu(praxisId); return n ? uebergabeFallNeu(n) : null; }, [praxisId]);
+  const praxisFall = useMemo(() => { const n = findeNeu(praxisId); return n ? uebergabeFallNeu(n) : null; }, [praxisId]);
   const LISTE = useMemo(() => (praxisFall ? [praxisFall, ...FAELLE] : FAELLE), [praxisFall]);
   const [fallId, setFallId] = useState(() => (praxisFall?.id ?? (LISTE.some((f) => f.id === wunsch) ? wunsch : LISTE[0]!.id)));
   const [modus, setModus] = useState<Modus>('gefuehrt');
@@ -224,7 +224,7 @@ export default function Uebergabetrainer() {
         <p className="muted">Lies den Fall, dann übergib ihn: tippen oder diktieren. Die Checkliste prüft offline, ob Situation, Hintergrund, Einschätzung und Empfehlung vollständig sind.</p>
       </div>
       <AkteLeiste art="uebergabe" fallId={fallId} />
-      {praxisId && !praxisFall && <p className="note warn">Der Praxisfall ist auf diesem Gerät nicht mehr gespeichert (nur die letzten zehn Fälle bleiben). Wähle einen Übungsfall oder spiel den Fall erneut.</p>}
+      {praxisId && !praxisFall && <AltPraxisHinweis sitzung={praxisId} />}
       {praxisFall && fallId === praxisFall.id && <p className="note">Dieser Fall stammt aus deinem <a href="#/lernen/praxis">Praxissimulator</a>. Erwartet wird nur, was in deinem Spiel passiert ist. Er zählt nicht für die Bestwerte.</p>}
 
       <div className="card sbar__auswahl">
