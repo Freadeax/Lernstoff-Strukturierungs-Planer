@@ -187,3 +187,14 @@ Code: `kommunikation.ts` (rein, vom Kern aufgerufen), Zustand in `SimZustand.kom
 | `besd` | BESD | 0–10, ≥ 2 Schmerz möglich |
 
 Alle Felder gehen als Platzhalter in Befundtexte (`{qsofa}`, `{schockindex}` mit einer Nachkommastelle …) und als `wert` in Bedingungen. `einschaetzungen(a, g, treiber, k)` liefert zusätzlich **Braden** (6–23, Ernährung aus der Hydratation geschätzt, Immobilität aus G3) und das **Sturzrisiko** aus G3 (Sedierung aus G1, Harndrang aus G2) für Auswertung, Übergabe oder KI-Tutor. Die Einschätzung am Menschen ersetzen sie nicht: Fälle sollen die Maßnahme (z. B. „schmerz-besd“) weiter verlangen, das Modell liefert nur den passenden Wert.
+
+## Grundsystem G5: Neurologie
+
+`physiologie/neuro.ts` (Lernmodell; SOP der Stroke Unit gehen vor).
+
+- **Treiber `schlaganfall`** `{ seite, schwere, blutung?, beginnVorMin? }`: `seite` = betroffene Körperseite (rechts → linke Hirnhälfte → Aphasie). Das Defizit (`Grundgroessen.neuroDefizit`) baut sich in Minuten auf und wächst unbehandelt langsam weiter. `beginnVorMin` = Symptombeginn vor Fallstart.
+- **Treiber `lyse`** (ärztliche Anordnung): Nutzen bis 60 % weniger Defizit, je früher desto mehr, nach 270 min (4,5 h) keiner; bei `blutung` steigt der Hirndruck viermal so schnell (Bildgebung vor Lyse).
+- **Treiber `hirndruck`** `{ tempo, seite? }` (Hirnhälfte): `Grundgroessen.hirndruck` 0..1 steigt um 0,5 × tempo je Stunde. Folgen: Vigilanz und GCS fallen, Erbrechen, gleichseitige Pupille weit/träge (ab 0,5), lichtstarr (ab 0,8), beidseits weit (ab 0,95); Cushing ab 0,65 (RR ↑, Puls ↓, Atmung flacher).
+- **Anzeige für alle**: `pupilleRechtsMm`/`pupilleLinksMm`, `pupilleRechtsLicht`/`pupilleLinksLicht` (Opioide eng, schwere Hypoxie/Stillstand weit und lichtstarr), `gcsAugen`/`gcsVerbal`/`gcsMotorik` (Summe = `gcs`; ohne Neuro unverändert, Aphasie senkt nur den verbalen Wert).
+- **Anzeige mit Schlaganfall**: `fast` (0–3), `nihss` (grob), `seitBeginnMin`, `lyseFensterMin` – für Befundtexte und Zeitdruck-Bedingungen.
+- Grundgrößen `neuroSeite`, `seitBeginnMin`, `wirkOpioid` schreibt das Modell; Fälle setzen sie nicht.
