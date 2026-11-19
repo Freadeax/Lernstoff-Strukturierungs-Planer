@@ -246,11 +246,11 @@ Remonstrationspunkt, Entscheidungs- bzw. Komplikationsereignis und Weiterlernen-
 | `paed-rausch-jugendliche` | 10, 06 | Alkoholintoxikation 15 J., Seitenlage, BZ/Temperatur, Mutter, Freundin | Traubenzucker-Gel bei Bewusstseinstrübung | `hypoglykaemie`, Glukose-Infusion beendet sie |
 | `kh-delir-nacht` | 11, 05 | Postoperatives Delir 84 J., 4AT, Harnverhalt, Brille/Hörgerät, Sohn (Vollmacht) | Lorazepam bei Hochbetagten | `delir_trigger` (Schmerz, Harnverhalt, Umgebung), Einmalkatheter beendet `harnverhalt` |
 | `psy-unruhe-deeskalation` | 11, 06 | Psychose, Deeskalation, Krisenplan, Mutter ohne Entbindung | Telefonische „Vorrats“-Fixierung → freiwilliges Lorazepam | `panik_eskaliert` als Näherung, Deeskalation beendet ihn |
-| `kh-alkoholentzug` | 11, 05 | Entzug nach OP, Score (CIWA-Ar/AESB), Ehefrau mit Einwilligung | Lorazepam starr stündlich → nach Score | Näherung `panik_eskaliert` + `delir_trigger`; eigener Entzugs-Treiber fehlt noch |
+| `kh-alkoholentzug` | 11, 05 | Entzug nach OP, Score (CIWA-Ar/AESB), Ehefrau mit Einwilligung | Lorazepam starr stündlich → nach Score | Treiber `alkoholentzug` (schwere 0,65, 34 h): CIWA-Ar, Halluzinationen; Lorazepam (entzugsschutz), Thiamin |
 
 - Psychiatrie: Foto Aufenthaltsraum fehlt, `psy-unruhe-deeskalation` nutzt vorläufig `11_pflegeheim_speiseraum` (Beispielbild).
 - `kh-alkoholentzug` ist nur für das 3. Drittel (`ad3`, Lehrplan sucht3).
-- `paed-bronchiolitis-saeugling` v0.1.1: ohne Hilfe Sekretstau (HF um 195, AF um 75), ab Minute 25 Erschöpfung mit Atempausen und Bradykardie (Näherung über gedämpften Atemantrieb, `opioid_ueberhang` als Erschöpfungslast); Unterlassung: SpO₂ < 80 und HF < 100.
+- `paed-bronchiolitis-saeugling` v0.2.0: Treiber `atemerschoepfung` (tempo 6) von Anfang an; ohne Absaugen HF um 195, AF um 75, „droht“ nach etwa 15 min, Atempausen nach etwa 28 min, dann Bradykardie über die Hypoxie; Unterlassung: SpO₂ < 80 und HF < 120 bis 40 min.
 
 ## Grundsystem G6: Schlucken, Aspiration, Ernährung
 
@@ -296,3 +296,18 @@ Datei `physiologie/entzug.ts`. Treiber `{ art: 'alkoholentzug', schwere: 0..1, l
 - `amb-hypoglykaemie` (CE 04): BZ vor Insulin, Traubenzucker (30 g schnell), Gabe zurückstellen, fehlerhafte Anordnung „volle 14 IE“ (Ersatz: zurückstellen), Rückauftrag Nachmessen → 8 IE nach dem Essen, Lipohypertrophie, Schulung Klient und Ehefrau. Treiber `hypoglykaemie` endet mit der Mahlzeit.
 - `lz-schlaganfall-reha` (CE 07, Kurzzeitpflege): Schluckprüfung, Kost nach Logopädie, Positionieren bei Hemiparese, Anleiten statt Anreichen, Ehefrau anleiten, Therapieteam, fehlerhafte Anordnung „alle Tabletten mörsern“ (Pantoprazol), Entscheidung dünner Kaffee → Aspiration. G5 `neuroDefizit`/`neuroSeite` gesetzt, daraus über G6 eine leichte Dysphagie.
 - Tests `faelle/p17b.test.ts`, Browserprüfung Block P17B in `check-arbeitsplatz.mjs`. Ein Messenger-Kontakt zählt im Bericht als „Ärztin informiert“ (`arbeitsplatz/weitergabe.ts`).
+
+## Grundsystem: Atemerschöpfung
+Datei `physiologie/atemerschoepfung.ts`. Treiber `{ art: 'atemerschoepfung', tempo? }` (oder Startwert `erschoepfung` in den Grundgrößen); ohne beides bleibt alles wie bisher.
+- **Aufbau**: `erschoepfung` 0..1 wächst, solange die Atemarbeit über 1,6 liegt, je Stunde um Rate × tempo × Überschuss (Säugling 0,6, Kleinkind 0,4, Schulkind/Hochbetagte 0,25, sonst 0,15); darunter erholt sie sich um 0,3 je Stunde (Absaugen, High-Flow, Ruhe).
+- **Folgen ab 0,4**: Atemantrieb fällt (bis auf 20 %), die sichtbare Atemarbeit nimmt ab: Das Kind wird „ruhiger“ und atmet langsamer, CO₂ steigt, SpO₂ fällt, dann präfinale Bradykardie über die Hypoxie. Ab 0,6 bei Säuglingen und Kleinkindern Apnoen.
+- **Anzeige**: `atemerschoepfung` (keine / droht / dekompensiert), `apnoen`. Ersetzt den Notbehelf `opioid_ueberhang` in Bronchiolitis-Fällen.
+
+## Grundsystem G9: Wunde
+Datei `physiologie/wunde.ts`. Nur aktiv mit Treiber `wunde` oder `wundblutung`.
+- **Treiber** `{ art: 'wunde', ort, tagPostOp?, infektTempo? }` und `{ art: 'wundblutung', mlProMin }` (Nachblutung). Grundgrößen `wundTag`, `wundInfekt` (Startwert erlaubt), `verbandBlutMl`, `wundBlutungMlMin` (wirksam), `blutstillung`.
+- **Phase** aus dem Tag nach der OP: exsudativ bis Tag 3, proliferativ bis Tag 14, danach reparativ; ein Infekt (> 0,3) hält die Wunde exsudativ.
+- **Infekt**: `wundInfekt` wächst um `infektTempo` je Stunde. Zeichen Rötung, Überwärmung, Schwellung, Schmerz, Eiter (`wundInfektZeichen` 0–5), Fieber (Altersprofil), Wundschmerz, Entzündungslabor über G8 (CRP, Leukos).
+- **Nachblutung**: Blut geht aus dem Kreislauf (Volumen, G8 Hb-Masse: Hb fällt erst später) und in den Verband. `blutung-stillen` (Druckverband, Wirkkurve `blutstillung`) senkt sie um 80 %, eine chirurgische Blutung braucht trotzdem die Ärztin. `verband-unkompliziert`/`verband-kompliziert` setzen den Verband zurück (Wirkkurve `verbandBlutMl` Faktor 0); Blut im Verband vorher dokumentieren.
+- **Anzeige**: `wundPhase`, `wundsekret` (keins/serös/blutig/eitrig), `wundInfektZeichen`, `verband` (trocken / leicht durchgeblutet < 15 ml / durchgeblutet < 60 ml / durchnässt), `verbandBlutMl`.
+- P16a (Nachblutung): `{ art: 'wundblutung', mlProMin: 1–3 }` ab einem Ereignis; Bedingung z. B. `{ wert: 'verbandBlutMl', vergleich: '>', grenze: 30 }`.

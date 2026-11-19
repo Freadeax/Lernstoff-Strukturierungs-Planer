@@ -7,15 +7,16 @@ import type { Bedingung, FallV2, MassnahmeDefinition } from '../typen';
 const aus = (id: string, mehr: Partial<MassnahmeDefinition>): MassnahmeDefinition => ({ ...KATALOG[id]!, ...mehr });
 
 const BEHANDELT: Bedingung = { getan: 'lorazepam-geben' };
-const STARK: Bedingung = { wert: 'angst', vergleich: '>=', grenze: 0.45 };
+const STARK: Bedingung = { wert: 'ciwa', vergleich: '>=', grenze: 30 };   // mit Halluzinationen
+const GESUNKEN: Bedingung = { wert: 'ciwa', vergleich: '<', grenze: 25 };
 
-const ANTWORT = '„Klingt nach Entzug. Geben Sie ihm Lorazepam 2 mg, und dann jede Stunde wieder 2 mg, bis er schläft. Ich komme nachher und gebe Thiamin i. v. In einer halben Stunde will ich wissen, wie der Score ist.“';
-const R_ANORDNUNG = { id: 'r-anordnung', antwort: ANTWORT, anordnungen: ['an-lorazepam-starr'], kommtNachSek: 1200, setzt: ['arzt-informiert'], auftraege: ['af-score'] };
+const ANTWORT = '„Klingt nach Entzug. Geben Sie ihm Lorazepam 2 mg, und dann jede Stunde wieder 2 mg, bis er schläft. Und hängen Sie Thiamin 100 mg als Kurzinfusion an. In einer halben Stunde will ich wissen, wie der Score ist.“';
+const R_ANORDNUNG = { id: 'r-anordnung', antwort: ANTWORT, anordnungen: ['an-lorazepam-starr', 'an-thiamin'], kommtNachSek: 1200, setzt: ['arzt-informiert'], auftraege: ['af-score'] };
 
 export const KH_ALKOHOLENTZUG: FallV2 = {
   schema: 2,
   id: 'kh-alkoholentzug',
-  version: '0.1.0',
+  version: '0.2.0',
   spur: 'A',
   setting: 'krankenhaus',
   altersgruppe: 'erwachsen',
@@ -39,10 +40,10 @@ export const KH_ALKOHOLENTZUG: FallV2 = {
     status: 'entwurf',
     pruefpunkte: [
       'Entzugsbehandlung gegen S3-Leitlinie alkoholbezogene Störungen (AWMF 076-001, 2021) prüfen: symptomgesteuert nach Score, Benzodiazepine, Thiamin vor Glukose',
-      'Score: CIWA-Ar (Grenzwerte) bzw. AESB, welcher wird in den Einrichtungen in BW genutzt?',
+      'Score: CIWA-Ar aus dem Modell (unter 10 leicht, 10–15 mittel, über 15 schwer); AESB in BW-Einrichtungen?',
       'Remonstrationspunkt: starre stündliche Gabe „bis er schläft“ (Übersedierung, Atemdepression) gegenüber symptomgesteuerter Gabe',
       'Befugnis: Entzug einschätzen ab 3. Drittel selbst, Lorazepam oral nach Anordnung im 3. Drittel selbst (Lehrplan sucht3 S. 190)',
-      'Modell: kein eigener Entzugs-Treiber; Näherung über panik_eskaliert (Angst, Hyperventilation, Puls) und delir_trigger. Vorschlag an das Physiologie-Team: Treiber alkoholentzug (Tremor, Schwitzen, Tachykardie, Hypertonie, Krampfschwelle)',
+      'Modell: Treiber alkoholentzug (schwere 0,65, letzter Konsum vor 34 h): vegetatives Syndrom, Halluzinationen, Krampfbereitschaft bis 48 h; Lorazepam dämpft über entzugsschutz, Thiamin verhindert Wernicke. CIWA-Ar aus dem Modell',
     ],
   },
   quellen: [
@@ -68,10 +69,10 @@ export const KH_ALKOHOLENTZUG: FallV2 = {
   startUhrzeit: '06:40',
 
   start: {
-    // Näherung Alkoholentzug: Anspannung steigt (panik_eskaliert), leichte Delir-Last über fremde Umgebung.
+    // Alkoholentzug (Treiber, physiologie/entzug.ts): letzter Konsum vorgestern Abend vor dem Sturz, etwa 34 h vor Fallbeginn.
     grund: { angst: 0.5, unruhe: 0.55, delir: 0.15, orientierung: 0.85, schmerz: 3, temperatur: 37.7, hydratation: 0.9, blutzucker: 102 },
     treiber: [
-      { art: 'panik_eskaliert', tempo: 0.6 },
+      { art: 'alkoholentzug', schwere: 0.65, letzterKonsumVorStd: 34 },
       { art: 'delir_trigger', ausloeser: ['umgebung'] },
     ],
     bild: { haltung: 'unruhig', haut: 'gerötet-heiss', mimik: 'angst' },
@@ -89,12 +90,13 @@ export const KH_ALKOHOLENTZUG: FallV2 = {
     // Messen
     'rr-messen', 'puls-zaehlen', 'temperatur-ohr', 'af-zaehlen', 'pulsoxy-anlegen', 'bz-messen', 'kurve-lesen',
     // Versorgen
-    'lorazepam-geben', 'trinken-anbieten',
+    'lorazepam-geben', 'thiamin-geben', 'trinken-anbieten',
     // Melden
     'pflegefachperson-informieren', 'pflegebericht',
   ],
   massnahmenZusatz: [
-    aus('lorazepam-geben', { name: 'Lorazepam 1 mg als Tablette geben (nach Anordnung, symptomgesteuert)', beendet: ['panik_eskaliert'] }),
+    aus('lorazepam-geben', { name: 'Lorazepam 2 mg als Tablette geben (nach Anordnung, symptomgesteuert)', treiber: [{ art: 'wirkstoff', id: 'lorazepam', dosisMg: 2, weg: 'oral' }] }),
+    aus('thiamin-geben', { name: 'Thiamin 100 mg als Kurzinfusion über den liegenden Zugang (nach Anordnung, vor Glukose)' }),
   ],
 
   akte: {
@@ -144,8 +146,9 @@ export const KH_ALKOHOLENTZUG: FallV2 = {
       { text: '„Besser. Das Zittern lässt nach. Die Käfer sind weg.“' },
     ] },
     { massnahme: 'entzug-einschaetzen', varianten: [
-      { wenn: STARK, text: 'Grobes Zittern der Hände, Schweißperlen auf der Stirn, Übelkeit, Unruhe, optische Halluzinationen, Orientierung leicht gestört. Score deutlich erhöht: mittelschwerer Entzug.' },
-      { text: 'Zittern nur noch leicht, schwitzt kaum, keine Halluzinationen. Score deutlich niedriger.' },
+      { wenn: { wert: 'ciwa', vergleich: '>', grenze: 15 }, text: 'Tremor {tremor}, Schwitzen {schwitzen}, Halluzinationen: {halluzinationen}. Übelkeit, Unruhe, Orientierung leicht gestört. CIWA-Ar {ciwa}: schwerer Entzug.' },
+      { wenn: { wert: 'ciwa', vergleich: '>=', grenze: 10 }, text: 'Tremor {tremor}, Schwitzen {schwitzen}, Halluzinationen: {halluzinationen}. CIWA-Ar {ciwa}: mittelschwerer Entzug.' },
+      { text: 'Tremor {tremor}, Schwitzen {schwitzen}, Halluzinationen: {halluzinationen}. CIWA-Ar {ciwa}: leichter Entzug.' },
     ] },
     { massnahme: 'delir-screening-4at', varianten: [{ text: '4AT: wach, AMT4 ein Fehler, Monate rückwärts mit Mühe. Grenzwertig. Achtung: Übergang in ein Entzugsdelir möglich.' }] },
     { massnahme: 'haut-beobachten', varianten: [{ text: 'Schweißnass, gerötetes Gesicht, warm.' }] },
@@ -187,9 +190,9 @@ export const KH_ALKOHOLENTZUG: FallV2 = {
     { id: 's-entzug', teil: 'S', text: 'Rainer Krüger, 56, Zimmer 4, zweiter Tag nach Unterschenkel-OP: Zittern, Schwitzen, Unruhe und optische Halluzinationen.', art: 'kern' },
     { id: 'b-alkohol', teil: 'B', text: 'Trinkt täglich, letzter Konsum vor etwa 36 Stunden. GGT und MCV erhöht.', art: 'kern', bekanntWenn: { eine: [{ flag: 'alkohol-angegeben' }, { getan: 'kurve-lesen' }] } },
     { id: 'b-lkw', teil: 'B', text: 'Er ist Lkw-Fahrer.', art: 'ablenker' },
-    { id: 'a-score', teil: 'A', text: 'Entzugsscore deutlich erhöht, mittelschwerer Entzug, wach und ansprechbar.', art: 'kern', bekanntWenn: { getan: 'entzug-einschaetzen' } },
-    { id: 'a-score-besser', teil: 'A', text: 'Score nach Lorazepam deutlich gesunken, wach, Atmung ruhig, keine Halluzinationen mehr.', art: 'hilfreich',
-      bekanntWenn: { alle: [BEHANDELT, { getan: 'entzug-einschaetzen' }, { nicht: STARK }] } },
+    { id: 'a-score', teil: 'A', text: 'CIWA-Ar deutlich über 15: schwerer Entzug mit Halluzinationen, wach und ansprechbar.', art: 'kern', bekanntWenn: { getan: 'entzug-einschaetzen' } },
+    { id: 'a-score-besser', teil: 'A', text: 'CIWA-Ar nach Lorazepam deutlich gesunken, keine Halluzinationen mehr, wach, Atmung ruhig.', art: 'hilfreich',
+      bekanntWenn: { alle: [BEHANDELT, { getan: 'entzug-einschaetzen' }, GESUNKEN] } },
     { id: 'a-krampf', teil: 'A', text: 'Laut Ehefrau früher ein Krampfanfall im Entzug, trinkt etwa eine Flasche Schnaps am Tag.', art: 'hilfreich', bekanntWenn: { flag: 'fremdanamnese' } },
     { id: 'a-nervoes', teil: 'A', text: 'Er ist halt nervös wegen der OP.', art: 'falsch' },
     { id: 'r-anordnung', teil: 'R', text: 'Bitte um Anordnung zur Entzugsbehandlung nach Score und Thiamin.', art: 'kern' },
@@ -199,10 +202,11 @@ export const KH_ALKOHOLENTZUG: FallV2 = {
     { id: 'an-lorazepam-starr', massnahme: 'lorazepam-geben', text: 'Lorazepam 2 mg p. o., danach stündlich 2 mg bis zum Schlaf.',
       fehlerhaft: {
         warum: 'Eine starre stündliche Gabe „bis er schläft“ führt zur Anhäufung (lange Halbwertszeit) mit Übersedierung, Atemdepression und Sturzgefahr. Die Leitlinie empfiehlt eine symptomgesteuerte Gabe nach Score mit Kontrolle von Vigilanz und Atmung.',
-        korrektur: '„Sie haben recht, symptomgesteuert ist besser. Lorazepam 1 mg jetzt, dann nach Score, frühestens nach einer Stunde wieder, nicht wenn er schläfrig ist.“',
+        korrektur: '„Sie haben recht, symptomgesteuert ist besser. Lorazepam 2 mg jetzt, dann nach Score, frühestens nach einer Stunde wieder, nicht wenn er schläfrig ist.“',
         ersatz: 'an-lorazepam-score',
       } },
-    { id: 'an-lorazepam-score', massnahme: 'lorazepam-geben', text: 'Lorazepam 1 mg p. o. jetzt, danach nach Score (ab mittelschwer), frühestens nach 1 h, nicht bei Schläfrigkeit.' },
+    { id: 'an-thiamin', massnahme: 'thiamin-geben', text: 'Thiamin 100 mg als Kurzinfusion i. v., vor jeder Glukosegabe.' },
+    { id: 'an-lorazepam-score', massnahme: 'lorazepam-geben', text: 'Lorazepam 2 mg p. o. jetzt (CIWA-Ar über 15), danach nach Score (1 mg ab 10, 2 mg über 15), frühestens nach 1 h, nicht bei Schläfrigkeit.' },
   ],
 
   arzt: {
@@ -221,7 +225,7 @@ export const KH_ALKOHOLENTZUG: FallV2 = {
       { id: 'af-score', text: 'Nach der Gabe den Entzugsscore erneut erheben und melden', meldenBinnenSek: 2400,
         erledigt: { alle: [BEHANDELT, { getan: 'entzug-einschaetzen' }, { ab: 900 }] },
         meldung: ['a-score-besser'],
-        folge: [{ wenn: { ab: 0 }, antwort: '„Gut. Dann weiter nach Score. Ich gebe gleich Thiamin, und wir sprechen später mit ihm über eine qualifizierte Entzugsbehandlung.“', setzt: ['score-gemeldet'] }] },
+        folge: [{ wenn: { ab: 0 }, antwort: '„Gut. Dann weiter nach Score, in einer Stunde erneut erheben; über 15 noch einmal 2 mg. Thiamin weiter täglich, und wir sprechen später mit ihm über eine qualifizierte Entzugsbehandlung.“', setzt: ['score-gemeldet'] }] },
     ],
   },
 
@@ -234,11 +238,10 @@ export const KH_ALKOHOLENTZUG: FallV2 = {
       ] },
     { id: 'e-halluzination', art: 'komplikation', wann: { ab: 1300 }, verhindertDurch: BEHANDELT,
       text: 'Herr Krüger zittert am ganzen Körper, schlägt nach etwas an der Wand und reißt am Zugang. Er erkennt dich nicht mehr.',
-      treiber: [{ art: 'panik_eskaliert', tempo: 1.5 }],
       bild: { haltung: 'unruhig', haut: 'gerötet-heiss', mimik: 'verwirrt' } },
     { id: 'e-frau', art: 'angehoerige', wann: { ab: 900 }, text: 'Frau Krüger klopft an die Tür: „Wie geht es meinem Mann? Er hat gestern am Telefon so komisch geredet.“' },
     { id: 'e-arzt', art: 'visite', wann: { alle: [{ flag: 'arzt-informiert' }, { ab: 1800 }] },
-      text: 'Dr. Schulte gibt Thiamin i. v. und spricht mit Herrn Krüger über die Entzugsbehandlung.' },
+      text: 'Dr. Schulte schaut nach Herrn Krüger und spricht mit Herrn Krüger über die Entzugsbehandlung.' },
   ],
 
   pa: {
@@ -327,8 +330,10 @@ export const KH_ALKOHOLENTZUG: FallV2 = {
       { art: 'nachricht', an: 'aerztin', kanal: 'telefon', bausteine: ['s-entzug', 'b-alkohol', 'a-score', 'wert:hf', 'wert:rrSys', 'wert:temp', 'r-anordnung'] },
       { art: 'remonstrieren', anordnung: 'an-lorazepam-starr', grund: 'Starr jede Stunde bis zum Schlaf reichert sich an. Bitte symptomgesteuert nach Score.' },
       { art: 'rueckmelden', anordnung: 'an-lorazepam-score', rueckgelesen: true },
+      { art: 'rueckmelden', anordnung: 'an-thiamin', rueckgelesen: true },
       { art: 'auflegen', an: 'aerztin' },
       { art: 'massnahme', id: 'lorazepam-geben' },
+      { art: 'massnahme', id: 'thiamin-geben' },
       { art: 'massnahme', id: 'sturzprophylaxe-bett' },
       { art: 'massnahme', id: 'reizarm-gestalten' },
       { art: 'massnahme', id: 'trinken-anbieten' },

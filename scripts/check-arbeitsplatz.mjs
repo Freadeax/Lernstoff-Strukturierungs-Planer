@@ -200,7 +200,7 @@ try {
         sbar: [/Zimmer 3, Pneumonie rechts/, /Atemfrequenz deutlich erhöht/, /Seit Mittag neu verwirrt/], rueckfrage: /Wie ist der Blutdruck/,
         partner: [/Tochter Petra/, /IMC/, /Jonas/], med: /Ampicillin\/Sulbactam[\s\S]*Paracetamol/ },
       { id: 'sr-septischer-schock', person: /Herr Kranz/, arzt: /Dr\. Aydin/, rolle: /3\. Drittel/, tun: ['Überwachungsmonitor anlegen'],
-        sbar: [/RR um 90 systolisch/], rueckfrage: /qSOFA/, partner: [/Herr Wolf/, /Sohn Thomas/, /Intensivstation/], med: /Metformin[\s\S]*Paracetamol/ },
+        sbar: [/RR um 90 systolisch/], rueckfrage: /Frühwarnwert/, partner: [/Herr Wolf/, /Sohn Thomas/, /Intensivstation/], med: /Metformin[\s\S]*Paracetamol/ },
       { id: 'lz-demenz-schmerz', person: /Frau Brückner/, arzt: /Dr\. Kaiser/, tun: ['Schmerz bei Demenz einschätzen', 'Mundschleimhaut und Zunge'],
         sbar: [/BESD deutlich erhöht/, /Offene Druckstelle/], rueckfrage: /Hat sie Fieber/, partner: [/Betreuerin/, /Enkel Kevin/, /Sabine/], med: /Ramipril[\s\S]*Paracetamol/ },
     ];

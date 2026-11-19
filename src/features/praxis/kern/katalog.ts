@@ -30,40 +30,43 @@ const NUR_AERZTLICH = befugnis(X);
 /** Geräte, die im Heim und ambulant in der Pflegetasche stecken (E9). */
 /** G3: Lagewechsel/Mobilisation verlegt den Auflagedruck an eine neue Stelle (Druckbelastung dort beginnt bei 0). */
 const ENTLASTUNG = { groesse: 'druckLast', faktor: 0, beginnSek: 0, spitzeSek: 60, dauerSek: 'dauerhaft' } as const;
+/** G9: frischer Verband (Blut im Verband → 0), Druckverband (Nachblutung −80 %) */
+const VERBAND_NEU = { groesse: 'verbandBlutMl', faktor: 0, beginnSek: 0, spitzeSek: 30, dauerSek: 'dauerhaft' } as const;
+const DRUCKVERBAND = { groesse: 'blutstillung', delta: 1, beginnSek: 0, spitzeSek: 30, dauerSek: 'dauerhaft' } as const;
 
 export const PFLEGETASCHE = ['rr-geraet', 'pulsoxy', 'thermometer', 'bz-geraet', 'stethoskop', 'urinstix'] as const;
 
 /* ───────────────────────── Quellen ───────────────────────── */
 
 const Q = {
-  sturz: { id: 'dnqp-sturz', titel: 'DNQP Expertenstandard Sturzprophylaxe in der Pflege' },
-  dekubitus: { id: 'dnqp-dekubitus', titel: 'DNQP Expertenstandard Dekubitusprophylaxe in der Pflege' },
-  schmerz: { id: 'dnqp-schmerz', titel: 'DNQP Expertenstandard Schmerzmanagement in der Pflege' },
-  mobilitaet: { id: 'dnqp-mobilitaet', titel: 'DNQP Expertenstandard Erhaltung und Förderung der Mobilität' },
-  ernaehrung: { id: 'dnqp-ernaehrung', titel: 'DNQP Expertenstandard Ernährungsmanagement' },
-  kontinenz: { id: 'dnqp-kontinenz', titel: 'DNQP Expertenstandard Kontinenzförderung in der Pflege (2024)' },
-  wunden: { id: 'dnqp-wunden', titel: 'DNQP Expertenstandard Pflege von Menschen mit chronischen Wunden' },
-  demenz: { id: 'dnqp-demenz', titel: 'DNQP Expertenstandard Beziehungsgestaltung in der Pflege von Menschen mit Demenz' },
-  erc: { id: 'erc-2025', titel: 'ERC Leitlinien Reanimation 2025' },
-  krinko: { id: 'krinko', titel: 'KRINKO-Empfehlungen (RKI)' },
+  sturz: { id: 'dnqp-sturz', titel: 'DNQP Expertenstandard Sturzprophylaxe in der Pflege, 2. Aktualisierung 2022' },
+  dekubitus: { id: 'dnqp-dekubitus', titel: 'DNQP Expertenstandard Dekubitusprophylaxe in der Pflege, 2. Aktualisierung 2017' },
+  schmerz: { id: 'dnqp-schmerz', titel: 'DNQP Expertenstandard Schmerzmanagement in der Pflege, Aktualisierung 2020' },
+  mobilitaet: { id: 'dnqp-mobilitaet', titel: 'DNQP Expertenstandard Mobilität: Erhaltung und Förderung der Mobilität in der Pflege, Aktualisierung 2020 (nie in Kraft gesetzt, fachlicher Hintergrund)' },
+  ernaehrung: { id: 'dnqp-ernaehrung', titel: 'DNQP Expertenstandard Ernährungsmanagement, 1. Aktualisierung 2017' },
+  kontinenz: { id: 'dnqp-kontinenz', titel: 'DNQP Expertenstandard Kontinenzförderung in der Pflege, Aktualisierung 2024' },
+  wunden: { id: 'dnqp-wunden', titel: 'DNQP Expertenstandard Chronische Wunden: Pflege von Menschen mit chronischen Wunden, 2. Aktualisierung 2025' },
+  demenz: { id: 'dnqp-demenz', titel: 'DNQP Expertenstandard Beziehungsgestaltung bei Demenz, Fassung 2018/2019' },
+  erc: { id: 'erc-2025', titel: 'ERC Guidelines 2025: Basic Life Support' },
+  krinko: { id: 'krinko', titel: 'KRINKO-Empfehlungen (RKI), jeweils gültige Fassung, Stand 2026' },
   news2: { id: 'news2', titel: 'Royal College of Physicians: NEWS2 (2017)' },
-  at4: { id: '4at', titel: '4AT Delir-Screening (Originalquelle)' },
-  besd: { id: 'besd', titel: 'BESD – Beurteilung von Schmerzen bei Demenz' },
-  gcs: { id: 'gcs', titel: 'Glasgow Coma Scale' },
+  at4: { id: '4at', titel: '4AT Delir-Screening (Bellelli et al. 2014)' },
+  besd: { id: 'besd', titel: 'BESD – Beurteilung von Schmerzen bei Demenz (Basler et al. 2006)' },
+  gcs: { id: 'gcs', titel: 'Teasdale G, Jennett B: Glasgow Coma Scale (1974)' },
   pflbg: { id: 'pflbg', titel: 'Pflegeberufegesetz (PflBG) § 4 vorbehaltene Tätigkeiten' },
   bgb1831: { id: 'bgb-1831', titel: 'BGB § 1831 Freiheitsentziehende Unterbringung und Maßnahmen' },
-  mts: { id: 'mts', titel: 'Manchester-Triage-System' },
-  rass: { id: 'rass', titel: 'Richmond Agitation-Sedation Scale (RASS)' },
-  camicu: { id: 'cam-icu', titel: 'CAM-ICU' },
-  bps: { id: 'bps', titel: 'Behavioral Pain Scale (BPS)' },
-  haende: { id: 'krinko-haende', titel: 'KRINKO: Händehygiene in Einrichtungen des Gesundheitswesens (Bundesgesundheitsblatt 2016)' },
+  mts: { id: 'mts', titel: 'Manchester-Triage-System, 3. Auflage 2014' },
+  rass: { id: 'rass', titel: 'Richmond Agitation-Sedation Scale (RASS), Sessler et al. 2002' },
+  camicu: { id: 'cam-icu', titel: 'CAM-ICU (Ely et al. 2001)' },
+  bps: { id: 'bps', titel: 'Behavioral Pain Scale (BPS), Payen et al. 2001' },
+  haende: { id: 'krinko-haende', titel: 'KRINKO: Händehygiene in Einrichtungen des Gesundheitswesens, Änderung 2026 (Epid. Bull. 32/2026) der Fassung 2016' },
   who5: { id: 'who-5-momente', titel: 'WHO: Guidelines on Hand Hygiene in Health Care – „5 Momente der Händehygiene“ (2009)' },
-  identitaet: { id: 'aps-identifikation', titel: 'Aktionsbündnis Patientensicherheit: Handlungsempfehlung sichere Patientenidentifikation' },
-  sbar: { id: 'sbar', titel: 'SBAR-Kommunikation (WHO High 5s / Aktionsbündnis Patientensicherheit)' },
+  identitaet: { id: 'aps-identifikation', titel: 'Aktionsbündnis Patientensicherheit: Handlungsempfehlung sichere Patientenidentifikation (2018)' },
+  sbar: { id: 'sbar', titel: 'SBAR-Kommunikation: WHO High 5s (2007), Aktionsbündnis Patientensicherheit' },
   palliativ: { id: 's3-palliativ', titel: 'S3-Leitlinie Palliativmedizin für Patienten mit einer nicht-heilbaren Krebserkrankung (Leitlinienprogramm Onkologie, AWMF 128-001OL), Version 2.2, 2020' },
-  ipos: { id: 'ipos', titel: 'IPOS – Integrated Palliative care Outcome Scale, deutsche Fassung (Cicely Saunders Institute)' },
+  ipos: { id: 'ipos', titel: 'IPOS – Integrated Palliative care Outcome Scale, deutsche Fassung (Cicely Saunders Institute, 2019)' },
   alkohol: { id: 's3-alkohol', titel: 'S3-Leitlinie Screening, Diagnose und Behandlung alkoholbezogener Störungen (AWMF 076-001), 2021' },
-  gastro: { id: 'gpge-gastroenteritis', titel: 'S2k-Leitlinie Akute infektiöse Gastroenteritis im Säuglings-, Kindes- und Jugendalter (GPGE, AWMF 068-003)' },
+  gastro: { id: 'gpge-gastroenteritis', titel: 'S2k-Leitlinie Akute infektiöse Gastroenteritis im Säuglings-, Kindes- und Jugendalter (GPGE, AWMF 068-003), Update 2024' },
 } satisfies Record<string, Quelle>;
 
 /* ───────────────────────── Bausteine ───────────────────────── */
@@ -223,7 +226,7 @@ const LISTE: MassnahmeDefinition[] = [
     anordnungspflichtig: true, befugnis: befugnis(A, S), risikoBeiUeberschreitung: 'warnung-pa', setzt: ['o2-laeuft'], klinisch: ['abcde', 'medikamente'],
     wirkung: [{ groesse: 'sauerstoff', delta: 2, beginnSek: 0, spitzeSek: 30, dauerSek: 'dauerhaft' }],   // 2 l/min; Fall kann Menge überschreiben
   }),
-  m('blutung-stillen', 'Blutung stillen (Druck, Druckverband, hochlagern)', 'akut', 60, ['I'], nw(['ersteHilfe12', 'sofort12']), { setzt: ['blutung-gestillt'], klinisch: ['abcde'] }),
+  m('blutung-stillen', 'Blutung stillen (Druck, Druckverband, hochlagern)', 'akut', 60, ['I'], nw(['ersteHilfe12', 'sofort12']), { setzt: ['blutung-gestillt'], klinisch: ['abcde'], wirkung: [DRUCKVERBAND] }),
   m('krampf-schuetzen', 'Bei Krampfanfall schützen und Zeit messen', 'akut', 30, ['I'], nw(['ersteHilfe12', 'sofort12']), { setzt: ['krampf-geschuetzt'] }),
   m('glukose-oral', 'Bei Unterzucker schnell wirksame Kohlenhydrate geben (wach, kann schlucken)', 'akut', 60, ['I', 'V'], nw(['hypo3', 'ersteHilfe12'], {
     anmerkung: 'Hypoglykämie ausdrücklich erst im 3. Drittel (CE 10); Erste Hilfe ab 1./2. Drittel. Gilt als Sofortmaßnahme nach Standard ohne Einzelanordnung.',
@@ -396,10 +399,10 @@ const LISTE: MassnahmeDefinition[] = [
     spur: 'A', wirkung: [{ groesse: 'temperatur', delta: -0.5, beginnSek: 300, spitzeSek: 1200, dauerSek: 2400 }],
   }),
   m('verband-unkompliziert', 'Verbandwechsel bei unkomplizierter Wunde (aseptisch)', 'versorgen', 300, ['I', 'V'], nw(['wunde12', 'hygiene1'], { anmerkung: B_ANLEITUNG_DANN_SELBST }), {
-    anordnungspflichtig: true, befugnis: befugnis(A, S), quellen: [Q.krinko],
+    anordnungspflichtig: true, befugnis: befugnis(A, S), quellen: [Q.krinko], wirkung: [VERBAND_NEU],
   }),
   m('verband-kompliziert', 'Verbandwechsel bei komplizierter/chronischer Wunde', 'versorgen', 600, ['I', 'V'], nw(['wunde3'], { anmerkung: 'Komplizierte Wunden ausdrücklich erst im 3. Drittel.' }), {
-    spur: 'A', anordnungspflichtig: true, befugnis: befugnis(G, G, A, S), risikoBeiUeberschreitung: 'warnung-pa', quellen: [Q.wunden],
+    spur: 'A', anordnungspflichtig: true, befugnis: befugnis(G, G, A, S), risikoBeiUeberschreitung: 'warnung-pa', quellen: [Q.wunden], wirkung: [VERBAND_NEU],
   }),
   m('tabletten-wie-geplant-geben', 'Tabletten aus dem Dosett geben (wie geplant)', 'versorgen', 60, ['I', 'III'], nw(['medi12', 'aufsicht1', 'eigenstaendig3']), {
     anordnungspflichtig: true, befugnis: befugnis(A, A, S), risikoBeiUeberschreitung: 'warnung-pa',

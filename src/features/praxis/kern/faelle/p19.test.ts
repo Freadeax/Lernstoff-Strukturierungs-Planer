@@ -118,6 +118,16 @@ describe('P19 Unruhe und Deeskalation', () => {
 });
 
 describe('P19 Alkoholentzug', () => {
+  it('Treiber alkoholentzug: schwerer Entzug (CIWA-Ar über 15) mit Halluzinationen; Lorazepam 2 mg nach Anordnung senkt den Score', () => {
+    const ohne = bis(start(ENTZUG, 3, 2), 1500);
+    const a = anzeige(ohne) as unknown as { ciwa: number; halluzinationen: boolean };
+    expect(a.ciwa).toBeGreaterThan(15);
+    expect(a.halluzinationen).toBe(true);
+    const i = ENTZUG.pruefwege.muster.findIndex((e) => e.art === 'massnahme' && e.id === 'lorazepam-geben');
+    const mit = anzeige(bis(spiele(start(ENTZUG, 3, 2), ENTZUG.pruefwege.muster.slice(0, i + 1)), 1700)) as unknown as { ciwa: number; halluzinationen: boolean };
+    expect(mit.ciwa).toBeLessThan(25);
+    expect(mit.halluzinationen).toBe(false);
+  });
   it('ohne Puls und Temperatur fragt der Arzt zurück', () => {
     const z = spiele(start(ENTZUG, 3, 2), [m('entzug-einschaetzen'), tel(['s-entzug', 'a-score'])]);
     expect(letzteArzt(z)).toMatch(/Puls/);

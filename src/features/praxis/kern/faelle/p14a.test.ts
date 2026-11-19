@@ -73,9 +73,9 @@ describe('P14a Schockraum (Herr Kranz)', () => {
     expect(z.sichtbar).toEqual(['hf', 'spo2']);
     expect(spiele(z, [m('monitor-anlegen')]).sichtbar).toEqual(expect.arrayContaining(['rrSys', 'map', 'af']));
   });
-  it('nur „Blutdruck niedrig“: Ärztin fragt nach qSOFA; mit Sepsis-Verdacht nennt sie Anordnungen und den Laktat-Auftrag', () => {
+  it('nur „Blutdruck niedrig“: Ärztin fragt nach dem Frühwarnwert; mit Sepsis-Verdacht nennt sie Anordnungen und den Laktat-Auftrag', () => {
     let z = spiele(start(SR, 3, 2), [m('monitor-anlegen'), m('qsofa-erheben'), m('uebergabe-rd-annehmen'), { art: 'anruf', an: 'aerztin', sbar: ['a-hypotonie'] }]);
-    expect(letzteArzt(z)).toMatch(/qSOFA/);
+    expect(letzteArzt(z)).toMatch(/Frühwarnwert/);
     z = spiele(z, [nachrichtArzt('telefon', ['s-sepsis-verdacht', 'b-penicillin-allergie'])]);
     expect(z.angeboten).toEqual(expect.arrayContaining(['an-bk', 'an-ringer', 'an-meropenem']));
     expect(z.angeboten).not.toContain('an-piptaz');
