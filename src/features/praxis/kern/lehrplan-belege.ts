@@ -131,6 +131,13 @@ export const LP = {
   uebergabe12: s(192, '11', '1./2.', 'Handlungsmuster', 'Beobachtungen bei Übergaben und Fallbesprechungen weitergeben'),
   krise3: s(192, '11', '3.', 'Handlungsmuster', 'psychische Krisen erkennen, kurzfristige Hilfe, Deeskalation'),
   fem3: s(193, '11', '3.', 'Lern- und Arbeitsaufgaben', 'freiheitsentziehende Maßnahmen beobachten und reflektieren (nicht anwenden)'),
+  // P19 (Fallwelle Kinder/Psyche, geprüft am 19.11.2026 am hochgeladenen PDF)
+  hygieneKind12: s(163, '10', '1./2.', 'Kompetenz III.2.a', 'Anforderungen der Hygiene beachten, Grundregeln der Infektionsprävention anwenden', 'kompetenz'),
+  schutzKind12: s(170, '10', '1./2.', 'Handlungsmuster', 'physischen und psychischen Schutz und Sicherheit gewährleisten'),
+  fluessigkeitKind3: s(170, '10', '3.', 'Handlungsmuster', 'Sicherung von Flüssigkeitszufuhr und Entspannung'),
+  milieu12: s(192, '11', '1./2.', 'Handlungsmuster', 'Kommunikation bei psychischen und kognitiven Einschränkungen, Milieugestaltung'),
+  risikoPsych12: s(192, '11', '1./2.', 'Handlungsmuster', 'begünstigende Faktoren ermitteln, Risikofaktoren und Ausmaß der Beeinträchtigung einschätzen'),
+  sucht3: s(190, '11', '3.', 'Handlungsanlässe', 'Sucht und Verhaltensstörungen durch psychotrope Substanzen'),
 } as const satisfies Record<string, LehrplanStelle>;
 
 export type LpSchluessel = keyof typeof LP;
