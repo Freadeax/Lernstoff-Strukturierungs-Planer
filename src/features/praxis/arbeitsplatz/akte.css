@@ -55,18 +55,6 @@
 .akte-gabe.is-pause { font-weight: 700; }
 .akte-labor tr.is-auffaellig td:nth-child(2) { color: var(--color-danger); font-weight: 700; }
 
-/* Kurvenblatt-Grafik */
-.akte-grafik { margin: 0; max-width: 100%; overflow-x: auto; padding: var(--space-2); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); }
-.akte-grafik svg { display: block; }
-.akte-grafik__linie { stroke: var(--color-border); stroke-width: 1; }
-.akte-grafik__achse { fill: var(--color-text-muted); font-size: 11px; }
-.akte-grafik__rr { stroke: var(--color-text); stroke-width: 2.5; fill: none; }
-.akte-grafik .is-vorwert .akte-grafik__rr { stroke: var(--color-text-muted); }
-.akte-grafik__puls { stroke: var(--color-danger); stroke-width: 2; fill: none; }
-.akte-grafik__punkt { fill: var(--color-danger); }
-.akte-grafik figcaption { margin-top: 4px; font-size: var(--text-xs); }
-.akte-grafik__legende.is-puls { color: var(--color-danger); }
-
 /* Schreiben */
 .akte-schreiben { display: grid; gap: var(--space-2); padding: var(--space-3); border: 2px solid var(--color-outline); border-radius: var(--radius-lg); background: var(--color-surface); }
 .akte-schreiben p { margin: 0; }
