@@ -52,8 +52,8 @@ export const AMB_HERZSCHWAECHE: FallV2 = {
   quellen: [
     { id: 'nvl-hi', titel: 'Nationale VersorgungsLeitlinie Chronische Herzinsuffizienz, 4. Auflage 2023 (Version 1)', fundstelle: 'Kapitel Selbstmanagement, Gewichtskontrolle, Warnzeichen' },
     { id: 'esc-hi', titel: 'ESC Guidelines for the diagnosis and treatment of acute and chronic heart failure 2021, Focused Update 2023' },
-    { id: 'awmf-kompression', titel: 'AWMF S2k-Leitlinie Medizinische Kompressionstherapie der Extremitäten mit MKS und PKS (037-005)', fundstelle: 'Kontraindikationen: dekompensierte Herzinsuffizienz' },
-    { id: 'dnqp-mobilitaet', titel: 'DNQP: Expertenstandard Erhaltung und Förderung der Mobilität in der Pflege, Aktualisierung 2020' },
+    { id: 'awmf-kompression', titel: 'AWMF S2k-Leitlinie Kompressionstherapie der Extremitäten (037-005), Version 5.0, 2026', fundstelle: 'Kontraindikationen: dekompensierte Herzinsuffizienz' },
+    { id: 'dnqp-mobilitaet', titel: 'DNQP Expertenstandard Mobilität: Erhaltung und Förderung der Mobilität in der Pflege, Aktualisierung 2020 (nie in Kraft gesetzt, fachlicher Hintergrund)' },
   ],
 
   person: {

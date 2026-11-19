@@ -52,7 +52,7 @@ export const LZ_SCHLAGANFALL_REHA: FallV2 = {
   quellen: [
     { id: 'dgn-dysphagie', titel: 'DGN/DGG S1-Leitlinie Neurogene Dysphagie (030-111), Fassung 2020', fundstelle: 'Screening, Kostanpassung' },
     { id: 'dgnr-reha', titel: 'DGNR S2e-Leitlinie Rehabilitation der Mobilität nach Schlaganfall (ReMoS), 2020/2021' },
-    { id: 'dnqp-mobilitaet', titel: 'DNQP: Expertenstandard Erhaltung und Förderung der Mobilität in der Pflege, Aktualisierung 2020' },
+    { id: 'dnqp-mobilitaet', titel: 'DNQP Expertenstandard Mobilität: Erhaltung und Förderung der Mobilität in der Pflege, Aktualisierung 2020 (nie in Kraft gesetzt, fachlicher Hintergrund)' },
     { id: 'iddsi', titel: 'IDDSI Framework: International Dysphagia Diet Standardisation Initiative (2019)' },
     { id: 'adka-teilbar', titel: 'Fachinformation Pantoprazol (magensaftresistente Tablette, nicht zerkleinern)' },
   ],
