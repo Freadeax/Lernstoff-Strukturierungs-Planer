@@ -73,6 +73,9 @@ export interface Grundgroessen {
   wirkAngst?: number;            // Anteil, um den Anxiolytika die Angst gerade senken (≤ 0)
   wirkTonus?: number;            // Gefäßtonus-Anteil durch Arzneimittel (z. B. Metamizol i. v. < 0)
   wirkHf?: number;               // Pulsanstieg relativ durch Arzneimittel (z. B. Salbutamol)
+  wirkDiurese?: number;          // zusätzliche Diurese durch Arzneimittel ml/h (Furosemid …)
+  // G2 Ausscheidung (optional): Blasenfüllung in ml; Fall setzt sie, ein Harnverhalt legt sie an
+  blaseMl?: number;
 }
 
 /** Vom Kern abgeleitet, Ziele für den Monitor (Logik-Takt 5 s, Render interpoliert). */
@@ -91,7 +94,12 @@ export interface Anzeige {
   /** Arterielle Kurve gedämpft (Luft, Gerinnsel, abgeknickt): Systole zu niedrig, Diastole zu hoch */
   artGedaempft?: boolean;
   rass?: number;                 // −5 … +4
+  /** Stundenurin ml/h (Spur A immer aus dem Modell; Spur B mit Bilanzmodul über den Dauerkatheter) */
   urinMlH?: number;
+  /** Urinfarbe 1 (hell) bis 8 (dunkel) nach Urinfarbtafel (G2) */
+  urinFarbe?: number;
+  /** Blasenfüllung ml, nur wenn das Modell sie führt (G2; Ultraschall-Blasenscan) */
+  blaseMl?: number;
   bilanzMl?: number;             // Einfuhr − Ausfuhr seit Fallbeginn
   /** Beatmung: Spitzendruck in cmH₂O */
   ppeak?: number;
