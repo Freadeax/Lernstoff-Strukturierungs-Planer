@@ -8,6 +8,8 @@
 
 import { istMedFehler, medFehlerText } from './akte';
 import { anzeige, gilt, massnahme, sende, start, TAKT_SEK, type SimZustand } from './kern';
+import { geraetName } from './geraete';
+import { GEGENUEBER_NAME, kommFehler, ZUSAGE_ID, ZUSAGE_TEXT } from './kommunikation';
 import type { Bedingung, FallV2, KB, KlinischerBereich, SbarBaustein, SimEventEingabe } from './typen';
 
 export type Bereich = KB | KlinischerBereich;
@@ -148,7 +150,7 @@ export function eingabeText(fall: FallV2, e: SimEventEingabe): string {
   switch (e.art) {
     case 'massnahme': return massnahme(fall, e.id)?.name ?? e.id;
     case 'frage': return `Gespräch: ${fall.gespraech.find((g) => g.id === e.id)?.frage ?? e.id}`;
-    case 'pflegetasche': return `Aus der Pflegetasche geholt: ${e.geraet}`;
+    case 'pflegetasche': return `Aus der Pflegetasche geholt: ${geraetName(e.geraet)}`;
     case 'anruf': return `${fall.arzt.name} angerufen: ${e.sbar.map((id) => fall.sbar.find((s) => s.id === id)?.text ?? id).join(' · ') || 'ohne Inhalt'}`;
     case 'rueckmelden': return `Anordnung ${e.rueckgelesen ? 'rückgelesen' : 'ohne Rücklesen übernommen'}: ${fall.anordnungen.find((a) => a.id === e.anordnung)?.text ?? e.anordnung}`;
     case 'remonstrieren': return `Anordnung hinterfragt: ${fall.anordnungen.find((a) => a.id === e.anordnung)?.text ?? e.anordnung}`;
@@ -160,9 +162,14 @@ export function eingabeText(fall: FallV2, e: SimEventEingabe): string {
     }
     case 'warten': return `${e.sek} s gewartet`;
     case 'abschluss': return 'Fall abgeschlossen';
-    // Runde 2 (P11/P13): der Kern setzt sie um; Texte hier vorläufig, P11/P13 verfeinern
-    case 'nachricht': return `Nachricht an ${e.an}: ${e.bausteine.map((id) => fall.sbar.find((s) => s.id === id)?.text ?? id).join(' · ') || e.freitext || 'ohne Inhalt'}`;
-    case 'auflegen': return `Gespräch mit ${e.an} beendet`;
+    // Runde 2 (P11/P13)
+    case 'nachricht': {
+      const an = e.an === 'aerztin' ? fall.arzt.name : GEGENUEBER_NAME[e.an];
+      const wie = e.kanal === 'messenger' ? 'Nachricht an' : e.kanal === 'telefon' ? 'Telefonat mit' : 'Gesagt zu';
+      const inhalt = e.bausteine.map((id) => id === ZUSAGE_ID ? ZUSAGE_TEXT : id.startsWith('wert:') ? `Messwert ${id.slice(5)}` : fall.sbar.find((s) => s.id === id)?.text ?? id);
+      return `${wie} ${an}: ${[...inhalt, ...(e.freitext ? [`„${e.freitext}“`] : [])].join(' · ') || 'ohne Inhalt'}`;
+    }
+    case 'auflegen': return `Telefonat mit ${e.an === 'aerztin' ? fall.arzt.name : GEGENUEBER_NAME[e.an]} beendet`;
     case 'dokumentieren': return 'Im Pflegebericht dokumentiert';
   }
 }
@@ -211,7 +218,7 @@ function spieleNach(z: SimZustand): Replay {
       marken.push({ t: vorher.t, text: eingabeText(fall, e), art: e.art, ausgefuehrt });
     }
     for (const l of s.log.slice(vorher.log.length)) {
-      if (l.art === 'fehler') marken.push({ t: l.t, text: fall.bewertung.fehler.find((f) => f.id === l.id)?.text ?? medFehlerText(fall, l.id) ?? l.id, art: 'fehler', ausgefuehrt: true });
+      if (l.art === 'fehler') marken.push({ t: l.t, text: fall.bewertung.fehler.find((f) => f.id === l.id)?.text ?? kommFehler(z, l.id)?.text ?? medFehlerText(fall, l.id) ?? l.id, art: 'fehler', ausgefuehrt: true });
       else if (l.art === 'grenzueberschreitung') marken.push({ t: l.t, text: `Grenze überschritten: ${massnahme(fall, l.massnahmeId)?.name ?? l.massnahmeId}`, art: 'grenze', ausgefuehrt: true });
       else if (l.art === 'ereignis') marken.push({ t: l.t, text: fall.ereignisse.find((x) => x.id === l.id)?.text ?? l.id, art: 'ereignis', ausgefuehrt: true });
     }
@@ -362,8 +369,16 @@ export function bewerte(z: SimZustand): KernAuswertung {
   // Pflegefehler nach Schwere
   for (const id of z.fehlerAus) {
     const f = fall.bewertung.fehler.find((x) => x.id === id);
-    if (!f) continue;
     const t = z.log.find((e) => e.art === 'fehler' && e.id === id)?.t;
+    // P11: Kommunikationsfehler ohne Eintrag im Fall (Rückauftrag verspätet, Schweigepflicht)
+    const k = f ? undefined : kommFehler(z, id);
+    if (k) {
+      beitraege.push({
+        id: `fehler:${id}`, art: 'fehler', text: k.text, bereiche: k.kb, moeglich: 0, erreicht: 0, abzug: ABZUG_FEHLER[k.schwere],
+        urteil: 'fehler', warum: k.warum, deine: `Kommunikationsfehler (${k.schwere})`, ...(t !== undefined ? { t } : {}),
+      });
+    }
+    if (!f) continue;
     beitraege.push({
       id: `fehler:${f.id}`, art: 'fehler', text: f.text, bereiche: mitKlinisch(f.kompetenzbereiche, klinischAus(fall, f.wenn)),
       moeglich: 0, erreicht: 0, abzug: ABZUG_FEHLER[f.schwere], urteil: 'fehler', warum: f.warum,

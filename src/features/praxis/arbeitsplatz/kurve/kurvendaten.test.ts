@@ -83,7 +83,7 @@ describe('Verlaufsjournal (P12)', () => {
     const z = spiele(start(PILOT_AMBULANT, 2, 2), [tasche('rr-geraet'), m('rr-messen'), warte(400)]);
     const j = journal(z, kurvendaten(z));
     expect(j.every((e, i) => i === 0 || e.t >= j[i - 1]!.t)).toBe(true);
-    const i = j.findIndex((e) => e.art === 'handlung' && /Blutdruck/.test(e.text));
+    const i = j.findIndex((e) => e.art === 'handlung' && /^Blutdruck/.test(e.text));
     expect(j[i + 1]!.art).toBe('befund');
     expect(filtere(j, 'eigene').every((e) => e.gruppe === 'eigene')).toBe(true);
     expect(filtere(j, 'befunde').some((e) => /RR/.test(e.text))).toBe(true);

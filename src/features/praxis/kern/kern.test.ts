@@ -8,6 +8,9 @@ import type { FallV2, Grundgroessen, Rolle, SimEventEingabe, Stufe } from './typ
 
 const ROLLEN: Rolle[] = [1, 2, 3, 'pflegefachperson'];
 
+/** Blutzucker messen (Gerät aus der Pflegetasche), damit der Wert-Baustein wert:bz gemeldet werden kann */
+const mitBz = (z: SimZustand) => sende(sende(z, { art: 'pflegetasche', geraet: 'bz-geraet' }), { art: 'massnahme', id: 'bz-messen' });
+
 /** Rolle für Muster- und Unterlassungsweg: 2. Drittel, sonst die erste geeignete Rolle des Falls (Spur B: 3. Drittel). */
 const rolleFuer = (fall: FallV2): Rolle => (fall.geeignet.rollen.includes(2) ? 2 : fall.geeignet.rollen[0]);
 
@@ -144,11 +147,15 @@ describe('Kern: Pflegetasche, SBAR, Anordnungen, Remonstration', () => {
     const knapp = sende(start(FALL, 2, 2), { art: 'anruf', an: 'aerztin', sbar: ['s-nur-sturz'] });
     expect(knapp.angeboten).toEqual([]);
     expect(knapp.flags).toContain('arzt-beruhigt');
-    const voll = sende(start(FALL, 2, 2), { art: 'anruf', an: 'aerztin', sbar: ['s-sturz', 'b-herz-diuretikum', 'a-rr-niedrig', 'a-verwirrt-neu'] });
+    // Runde 2 (P11): ohne Blutzucker fragt die Ärztin nach (Rückfrage), erst mit dem Wert kommen Anordnungen
+    const ohneBz = sende(start(FALL, 2, 2), { art: 'anruf', an: 'aerztin', sbar: ['s-sturz', 'b-herz-diuretikum', 'a-rr-niedrig', 'a-verwirrt-neu'] });
+    expect(ohneBz.angeboten).toEqual([]);
+    expect(ohneBz.komm.faeden.aerztin?.rueckfrage?.erwartet).toEqual(['wert:bz']);
+    const voll = sende(mitBz(start(FALL, 2, 2)), { art: 'anruf', an: 'aerztin', sbar: ['s-sturz', 'b-herz-diuretikum', 'a-rr-niedrig', 'a-verwirrt-neu', 'wert:bz'] });
     expect(voll.angeboten).toEqual(['an-torasemid-pause', 'an-trinken']);
   });
   it('Anordnung schaltet erst nach Rückmeldung frei', () => {
-    let z = sende(start(FALL, 2, 2), { art: 'anruf', an: 'aerztin', sbar: ['s-sturz', 'b-herz-diuretikum', 'a-rr-niedrig', 'a-verwirrt-neu'] });
+    let z = sende(mitBz(start(FALL, 2, 2)), { art: 'anruf', an: 'aerztin', sbar: ['s-sturz', 'b-herz-diuretikum', 'a-rr-niedrig', 'a-verwirrt-neu', 'wert:bz'] });
     const m = massnahme(FALL, 'torasemid-zurueckhalten')!;
     expect(freigabe(z, m)).toBe('braucht-anordnung');
     z = sende(z, { art: 'rueckmelden', anordnung: 'an-torasemid-pause', rueckgelesen: true });

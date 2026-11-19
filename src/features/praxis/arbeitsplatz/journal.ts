@@ -59,6 +59,8 @@ export function journal(z: SimZustand, daten?: KurvenDaten): JournalEintrag[] {
   }
   // Meldungen des Kerns (Ergebnis, Antworten, Ereignisse, Zustand); Ereignis-Logeinträge sind darin enthalten
   for (const m of z.meldungen) {
+    // P11: eigene Nachrichten (richtung 'raus') stehen schon als Handlung aus dem Log im Journal
+    if (m.richtung === 'raus') continue;
     out.push({ t: m.t, gruppe: GRUPPE_VON[m.art], art: m.art, text: m.text, ...(m.wichtig ? { wichtig: true } : {}), n: n++ });
   }
   // stabil sortieren: Zeit, dann Handlung vor Meldungen, dann Entstehung

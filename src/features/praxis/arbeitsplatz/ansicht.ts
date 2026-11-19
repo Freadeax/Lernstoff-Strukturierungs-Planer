@@ -113,6 +113,12 @@ export const REITER: ReadonlyArray<{ id: Reiter; kurz: string; titel: string; sy
   { id: 'melden', kurz: 'Melden', titel: 'Melden & Übergabe', symbol: '📞' },
 ];
 
+/** Reiterleiste im Arbeitsplatz (P11): „Gespräch“ und „Melden“ sind ein Kommunikationsbereich, daher fünf Reiter. */
+export const REITER_LEISTE: ReadonlyArray<{ id: Reiter; kurz: string; titel: string; symbol: string }> = [
+  { id: 'gespraech', kurz: 'Sprechen', titel: 'Sprechen & Melden', symbol: '💬' },
+  ...REITER.filter((r) => r.id !== 'gespraech' && r.id !== 'melden'),
+];
+
 export const FREIGABE_TEXT: Record<Freigabe, { kurz: string; lang: string }> = {
   frei: { kurz: 'selbst', lang: 'Darfst du selbst' },
   'mit-pa': { kurz: 'mit PA', lang: 'Nur mit deiner Praxisanleitung' },
@@ -123,10 +129,8 @@ export const FREIGABE_TEXT: Record<Freigabe, { kurz: string; lang: string }> = {
 /** Settings, in denen Messgeräte erst aus der Pflegetasche kommen (E9, wie im Kern). */
 export const hatPflegetasche = (fall: FallV2) => fall.setting === 'ambulant' || fall.setting === 'langzeit';
 
-export const GERAET_NAME: Record<string, string> = {
-  pulsoxy: 'Pulsoxymeter', 'rr-geraet': 'Blutdruckgerät', thermometer: 'Ohrthermometer', 'bz-geraet': 'Blutzuckergerät',
-};
-export const geraetName = (id: string) => GERAET_NAME[id] ?? id;
+export { GERAET_NAME, geraetName } from '../kern/geraete';
+import { geraetName } from '../kern/geraete';
 
 export interface Handlung {
   art: 'massnahme' | 'frage';

@@ -51,8 +51,10 @@ describe('Medikamentengabe gegen den Plan', () => {
     expect(z.meldungen.some((m) => m.art === 'fehler' && m.text.includes('Doppelgabe: Ramipril'))).toBe(true);
   });
   it('pausierter Eintrag (Anordnung Torasemid-Pause) zählt nicht als Doppelgabe', () => {
-    const anruf: SimEventEingabe = { art: 'anruf', an: 'aerztin', sbar: ['s-sturz', 'b-herz-diuretikum', 'a-rr-niedrig', 'a-verwirrt-neu'] };
-    let z = spiel([{ art: 'pflegetasche', geraet: 'rr-geraet' }, { art: 'massnahme', id: 'rr-messen' }, anruf,
+    // P11: ohne Blutzucker fragt die Ärztin erst nach; deshalb vorher messen und wert:bz melden
+    const anruf: SimEventEingabe = { art: 'anruf', an: 'aerztin', sbar: ['s-sturz', 'b-herz-diuretikum', 'a-rr-niedrig', 'a-verwirrt-neu', 'wert:bz'] };
+    let z = spiel([{ art: 'pflegetasche', geraet: 'rr-geraet' }, { art: 'massnahme', id: 'rr-messen' },
+      { art: 'pflegetasche', geraet: 'bz-geraet' }, { art: 'massnahme', id: 'bz-messen' }, anruf,
       { art: 'rueckmelden', anordnung: 'an-torasemid-pause', rueckgelesen: true }, { art: 'massnahme', id: 'tabletten-wie-geplant-geben' }]);
     z = sende(z, { art: 'massnahme', id: 'tabletten-wie-geplant-geben' });
     expect(medFehler(z)).not.toContain('med-doppelt:mp-torasemid');

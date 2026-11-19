@@ -12,15 +12,17 @@ import type { MonitorGruppe } from '../../../ui/sim/monitor';
 import { RaumBuehne, type Hotspot } from '../../../ui/sim/raeume/RaumBuehne';
 import { RAEUME, raumUrl, type RaumId } from '../../../ui/sim/raeume/katalog';
 import { anzeige, type SimZustand } from '../kern/kern';
-import type { FallV2, Reiter, Rolle, SbarTeil, SimEventEingabe } from '../kern/typen';
+import type { FallV2, Gegenueber, Reiter, Rolle, SimEventEingabe } from '../kern/typen';
 import {
-  anordnungen, bettAnzeige, beginne, dauer, FREIGABE_TEXT, handlungen, hatPflegetasche, lageText, offeneEntscheidung,
-  pflegetasche, raumJetzt, REITER, rekonstruiere, ROLLE_TEXT, sbarBausteine, SBAR_TEILE, spule, STUFE_TEXT, suche, team,
+  bettAnzeige, beginne, dauer, FREIGABE_TEXT, handlungen, hatPflegetasche, lageText, offeneEntscheidung,
+  pflegetasche, raumJetzt, REITER, REITER_LEISTE, rekonstruiere, ROLLE_TEXT, spule, STUFE_TEXT, suche, team,
   uhrzeit, wende, werteleiste, type Arbeitsstand, type Handlung,
 } from './ansicht';
 import { Akte } from './Akte';
 import type { AkteReiter } from './akte-ansicht';
 import { Abschluss, Auswertung } from './Auswertung';
+import { partner } from './gespraeche';
+import { Kommunikation } from './Kommunikation';
 import { lies, schreibe } from './speicher';
 import { StreifenKurve } from './StreifenKurve';
 import { journal } from './journal';
@@ -119,6 +121,9 @@ function Platz({ stand, setStand, onZurueck, onNeu }: {
   const leisteRef = useRef<HTMLDivElement>(null);
   const rueckRef = useRef<HTMLElement>(null);
   const [zeigeRueck, setZeigeRueck] = useState(0);
+  /** P11: geöffneter Gesprächsfaden und je Faden gelesene Meldungen (Ungelesen-Punkt) */
+  const [gegenueber, setGegenueber] = useState<Gegenueber>('patient');
+  const [gelesen, setGelesen] = useState<Partial<Record<Gegenueber, number>>>({});
 
   const entscheidung = offeneEntscheidung(z);
   const laeuft = tempo > 0 && !z.ende && !entscheidung && !akteOffen && !verlaufOffen;
@@ -164,9 +169,13 @@ function Platz({ stand, setStand, onZurueck, onNeu }: {
 
   const alle = useMemo(() => handlungen(z), [z]);
   const kurzJournal = useMemo(() => journal(z), [z]);
-  const liste = suchtext.trim() ? suche(alle, suchtext) : alle.filter((h) => h.reiter === reiter);
+  // P11: Gespräch und Melden sind ein Kommunikationsbereich; Fragen stehen dort in den Fäden, hier nur weitere Handlungen.
+  const imGespraech = (h: Handlung) => h.art === 'massnahme' && (h.reiter === 'gespraech' || h.reiter === 'melden');
+  const liste = suchtext.trim() ? suche(alle, suchtext) : alle.filter((h) => (reiter === 'gespraech' ? imGespraech(h) : h.reiter === reiter));
+  const ungelesen = partner(z, gelesen).filter((p) => !(reiter === 'gespraech' && !suchtext && p.id === gegenueber)).reduce((n, p) => n + p.ungelesen, 0);
   const tasche = pflegetasche(z);
-  const neu = z.meldungen.slice(seit);
+  // Im Kommunikationsbereich stehen Antworten im Chat; oben nur, was keinem Faden gehört
+  const neu = z.meldungen.slice(seit).filter((m) => suchtext || reiter !== 'gespraech' || !m.faden);
   const raumId = raumJetzt(z);
   const raum = istRaum(raumId) ? raumId : istRaum(fall.medien.raum) ? fall.medien.raum : undefined;
 
@@ -195,10 +204,10 @@ function Platz({ stand, setStand, onZurueck, onNeu }: {
   }
 
   function tabTaste(e: KeyboardEvent<HTMLButtonElement>, i: number) {
-    const n = e.key === 'ArrowRight' ? i + 1 : e.key === 'ArrowLeft' ? i - 1 : e.key === 'Home' ? 0 : e.key === 'End' ? REITER.length - 1 : null;
+    const n = e.key === 'ArrowRight' ? i + 1 : e.key === 'ArrowLeft' ? i - 1 : e.key === 'Home' ? 0 : e.key === 'End' ? REITER_LEISTE.length - 1 : null;
     if (n === null) return;
     e.preventDefault();
-    const ziel = REITER[(n + REITER.length) % REITER.length]!;
+    const ziel = REITER_LEISTE[(n + REITER_LEISTE.length) % REITER_LEISTE.length]!;
     setSuchtext(''); setReiter(ziel.id);
     document.getElementById(`ap-tab-${ziel.id}`)?.focus();
   }
@@ -264,7 +273,7 @@ function Platz({ stand, setStand, onZurueck, onNeu }: {
           <span className="ap-team__kuerzel" aria-hidden="true">{p.kuerzel}</span>
           <div className="ap-team__text"><strong>{p.name}</strong>{p.text ? <p>{p.text}</p> : <p className="muted">{p.wer === 'pa' ? 'Ist in der Nähe.' : p.wer === 'aerztin' ? `Erreichbar: ${fall.arzt.erreichbar === 'hausarzt-praxis' ? 'Praxis per Telefon' : fall.arzt.erreichbar}` : 'Noch nichts.'}</p>}</div>
           {p.wer === 'pa' && z.stufe < 3 && <button type="button" className="small" onClick={() => eingabe({ art: 'pa-fragen' })}>PA fragen</button>}
-          {p.wer === 'aerztin' && <button type="button" className="small" onClick={() => zeigeReiter('melden')}>Anrufen</button>}
+          {p.wer === 'aerztin' && <button type="button" className="small" onClick={() => { setGegenueber('aerztin'); zeigeReiter('gespraech'); }}>Kontaktieren</button>}
         </li>)}
       </ul>
       <section className="ap-verlauf" aria-labelledby="ap-verlauf-titel">
@@ -278,10 +287,11 @@ function Platz({ stand, setStand, onZurueck, onNeu }: {
     </div>
 
     <div className="ap__handlung">
-      <div className="ap-reiter" role="tablist" aria-label="Was willst du tun?">
-        {REITER.map((r, i) => <button key={r.id} id={`ap-tab-${r.id}`} type="button" role="tab" aria-selected={!suchtext && reiter === r.id}
+      <div className="ap-reiter" role="tablist" aria-label="Was willst du tun?" style={{ gridTemplateColumns: `repeat(${REITER_LEISTE.length}, minmax(0, 1fr))` }}>
+        {REITER_LEISTE.map((r, i) => <button key={r.id} id={`ap-tab-${r.id}`} type="button" role="tab" aria-selected={!suchtext && reiter === r.id}
           aria-controls="ap-panel" tabIndex={reiter === r.id ? 0 : -1} onKeyDown={(e) => tabTaste(e, i)} onClick={() => zeigeReiter(r.id)}>
           <span aria-hidden="true">{r.symbol}</span>{r.kurz}
+          {r.id === 'gespraech' && ungelesen > 0 && <span className="ap-reiter__neu"><span aria-hidden="true">{ungelesen}</span><span className="visually-hidden">, {ungelesen} neue Nachricht{ungelesen === 1 ? '' : 'en'}</span></span>}
         </button>)}
       </div>
 
@@ -297,14 +307,19 @@ function Platz({ stand, setStand, onZurueck, onNeu }: {
           <li className="ap-badge is-frei">selbst</li><li className="ap-badge is-mit-pa">mit PA</li><li className="ap-badge is-braucht-anordnung">braucht Anordnung</li><li className="ap-badge is-grenze">ärztlich</li>
         </ul>
         <div id="ap-panel" ref={panelRef} role="tabpanel" tabIndex={-1} aria-labelledby={suchtext ? undefined : `ap-tab-${reiter}`} aria-label={suchtext ? 'Suchergebnisse' : undefined} className="ap-panel">
-          <h3 className="ap-panel__titel">{suchtext ? `Suche: ${liste.length} Treffer` : REITER.find((r) => r.id === reiter)!.titel}{!suchtext && reiter === 'messen' && hatPflegetasche(fall) ? ' · aus der Pflegetasche' : ''}</h3>
+          <h3 className="ap-panel__titel">{suchtext ? `Suche: ${liste.length} Treffer` : REITER_LEISTE.find((r) => r.id === reiter)!.titel}{!suchtext && reiter === 'messen' && hatPflegetasche(fall) ? ' · aus der Pflegetasche' : ''}</h3>
           {!suchtext && reiter === 'messen' && hatPflegetasche(fall) && <button type="button" className="small ap-tasche-knopf" aria-expanded={tascheOffen} onClick={() => setTascheOffen((o) => !o)}>🎒 Pflegetasche {tascheOffen ? 'schließen' : 'öffnen'}</button>}
-          {!suchtext && reiter === 'melden' && <Melden z={z} eingabe={eingabe} onAbschluss={() => setAbschluss(true)} />}
-          <ul className="ap-liste">
-            {liste.map((h) => <Zeile key={`${h.art}:${h.id}`} h={h} z={z} mitReiter={!!suchtext} eingabe={eingabe} onTasche={() => setTascheOffen(true)}
-              onBericht={h.id === 'pflegebericht' ? () => setAkteOffen('bericht') : undefined} />)}
-            {liste.length === 0 && <li className="muted">Dazu gibt es in diesem Fall nichts. Versuch ein anderes Wort.</li>}
-          </ul>
+          {!suchtext && reiter === 'gespraech'
+            ? <Kommunikation z={z} eingabe={eingabe} an={gegenueber} setAn={setGegenueber} gelesen={gelesen} setGelesen={setGelesen}
+              onAbschluss={() => setAbschluss(true)}
+              weitere={liste.length > 0 && <section aria-labelledby="ap-weitere"><h4 id="ap-weitere" className="ap-weitere">Weitere Handlungen: Gespräch, Melden, Dokumentieren</h4>
+                <ul className="ap-liste">{liste.map((h) => <Zeile key={`${h.art}:${h.id}`} h={h} z={z} mitReiter={false} eingabe={eingabe} onTasche={() => setTascheOffen(true)}
+                  onBericht={h.id === 'pflegebericht' ? () => setAkteOffen('bericht') : undefined} />)}</ul></section>} />
+            : <ul className="ap-liste">
+              {liste.map((h) => <Zeile key={`${h.art}:${h.id}`} h={h} z={z} mitReiter={!!suchtext} eingabe={eingabe} onTasche={() => setTascheOffen(true)}
+                onBericht={h.id === 'pflegebericht' ? () => setAkteOffen('bericht') : undefined} />)}
+              {liste.length === 0 && <li className="muted">Dazu gibt es in diesem Fall nichts. Versuch ein anderes Wort.</li>}
+            </ul>}
         </div>
       </>}
       <p className="visually-hidden" aria-live="polite">{neu.at(-1)?.text ?? ''}</p>
@@ -361,38 +376,4 @@ function Entscheidung({ z, onWahl }: { z: SimZustand; onWahl: (id: string) => vo
       {e.entscheidung!.map((o) => <button key={o.id} type="button" onClick={() => onWahl(o.id)}>{o.text}</button>)}
     </div>
   </section>;
-}
-
-function Melden({ z, eingabe, onAbschluss }: { z: SimZustand; eingabe: (e: SimEventEingabe) => void; onAbschluss: () => void }) {
-  const [wahl, setWahl] = useState<string[]>([]);
-  const bausteine = sbarBausteine(z);
-  const liste = anordnungen(z);
-  const umschalten = (id: string) => setWahl((w) => (w.includes(id) ? w.filter((x) => x !== id) : [...w, id]));
-  const anzahl = (t: SbarTeil) => bausteine[t].filter((b) => wahl.includes(b.id)).length;
-  return <div className="ap-melden">
-    <section className="ap-sbar" aria-labelledby="ap-sbar">
-      <h4 id="ap-sbar">Ärztin anrufen: SBAR zusammenstellen</h4>
-      <p className="muted">Wähle, was du sagst. Die Ärztin reagiert nur auf das, was du meldest. Werte erscheinen erst, wenn du sie erhoben hast.</p>
-      {SBAR_TEILE.map((t) => <fieldset key={t.id}>
-        <legend><b>{t.id}</b> {t.titel} <span className="muted">· {t.frage}{anzahl(t.id) ? ` · ${anzahl(t.id)} gewählt` : ''}</span></legend>
-        {bausteine[t.id].map((b) => <label key={b.id}><input type="checkbox" checked={wahl.includes(b.id)} onChange={() => umschalten(b.id)} /> {b.text}</label>)}
-      </fieldset>)}
-      <button type="button" className="primary" disabled={!wahl.length} onClick={() => { eingabe({ art: 'anruf', an: 'aerztin', sbar: wahl }); setWahl([]); }}>
-        📞 {z.fall.arzt.name} anrufen
-      </button>
-    </section>
-    {liste.length > 0 && <section className="ap-anordnungen" aria-labelledby="ap-anordnungen">
-      <h4 id="ap-anordnungen">Anordnungen</h4>
-      <ul>{liste.map((a) => <li key={a.id} className={`is-${a.stand}`}>
-        <p>{a.text}{a.plan && <span className="muted"> (Medikamentenplan)</span>}</p>
-        {a.stand === 'angeboten' ? <div className="ap-anordnungen__knoepfe">
-          <button type="button" className="small primary" onClick={() => eingabe({ art: 'rueckmelden', anordnung: a.id, rueckgelesen: true })}>Rücklesen und bestätigen</button>
-          <button type="button" className="small" onClick={() => eingabe({ art: 'rueckmelden', anordnung: a.id, rueckgelesen: false })}>Ohne Rücklesen übernehmen</button>
-          <button type="button" className="small" onClick={() => eingabe({ art: 'remonstrieren', anordnung: a.id })}>Hinterfragen (remonstrieren)</button>
-        </div> : <p className="ap-anordnungen__stand">{a.stand === 'rueckgelesen' ? '✓ rückgelesen' : a.stand === 'uebernommen' ? 'übernommen, nicht rückgelesen' : 'zurückgezogen'}
-          {!a.plan && a.stand !== 'zurueckgezogen' && <button type="button" className="small ghost" onClick={() => eingabe({ art: 'remonstrieren', anordnung: a.id })}>Hinterfragen</button>}</p>}
-      </li>)}</ul>
-    </section>}
-    <button type="button" className="ap-abschluss-knopf" onClick={onAbschluss}>Fall abschließen: Pflegebedarf und Übergabe</button>
-  </div>;
 }

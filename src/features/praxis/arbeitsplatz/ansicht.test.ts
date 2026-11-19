@@ -45,7 +45,8 @@ describe('Arbeitsplatz-Ansicht', () => {
     expect(sbarBausteine(s.z).A.map((b) => b.id)).not.toContain('a-rr-niedrig');
     s = tu(s, { art: 'pflegetasche', geraet: 'rr-geraet' }, { art: 'massnahme', id: 'rr-messen' });
     expect(sbarBausteine(s.z).A.map((b) => b.id)).toContain('a-rr-niedrig');
-    s = tu(s, { art: 'massnahme', id: 'sitzend-sichern' }, { art: 'anruf', an: 'aerztin', sbar: ['s-sturz', 'b-herz-diuretikum', 'a-rr-niedrig', 'a-verwirrt-neu', 'r-hausbesuch'] });
+    s = tu(s, { art: 'pflegetasche', geraet: 'bz-geraet' }, { art: 'massnahme', id: 'bz-messen' });
+    s = tu(s, { art: 'massnahme', id: 'sitzend-sichern' }, { art: 'anruf', an: 'aerztin', sbar: ['s-sturz', 'b-herz-diuretikum', 'a-rr-niedrig', 'a-verwirrt-neu', 'wert:bz', 'r-hausbesuch'] });
     expect(anordnungen(s.z).filter((a) => a.stand === 'angeboten').map((a) => a.id)).toEqual(['an-torasemid-pause', 'an-trinken']);
     expect(team(s.z).find((t) => t.wer === 'aerztin')!.text).toMatch(/Torasemid heute weglassen/);
     s = tu(s, { art: 'rueckmelden', anordnung: 'an-torasemid-pause', rueckgelesen: true });
