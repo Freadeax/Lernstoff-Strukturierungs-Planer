@@ -54,6 +54,8 @@ const Q = {
   camicu: { id: 'cam-icu', titel: 'CAM-ICU' },
   bps: { id: 'bps', titel: 'Behavioral Pain Scale (BPS)' },
   sbar: { id: 'sbar', titel: 'SBAR-Kommunikation (WHO High 5s / Aktionsbündnis Patientensicherheit)' },
+  alkohol: { id: 's3-alkohol', titel: 'S3-Leitlinie Screening, Diagnose und Behandlung alkoholbezogener Störungen (AWMF 076-001), 2021' },
+  gastro: { id: 'gpge-gastroenteritis', titel: 'S2k-Leitlinie Akute infektiöse Gastroenteritis im Säuglings-, Kindes- und Jugendalter (GPGE, AWMF 068-003)' },
 } satisfies Record<string, Quelle>;
 
 /* ───────────────────────── Bausteine ───────────────────────── */
@@ -103,6 +105,13 @@ const LISTE: MassnahmeDefinition[] = [
     wirkung: [{ groesse: 'angst', delta: -0.25, beginnSek: 30, spitzeSek: 240, dauerSek: 'dauerhaft' }],
   }),
   m('kommunikationshilfe', 'Kommunikationshilfe einsetzen (Hörgerät, Brille, einfache Sprache, Dolmetscher)', 'gespraech', 60, ['II'], nw(['barrieren1', 'hilfsmittel1'])),
+  m('reorientieren', 'Orientierung geben (Name, Ort, Uhrzeit, Licht, Brille/Hörgerät, Vertrautes)', 'gespraech', 90, ['I', 'II'], nw(['milieu12', 'validation12', 'hilfsmittel1']), {
+    spur: 'A', quellen: [Q.demenz],
+    wirkung: [
+      { groesse: 'angst', delta: -0.1, beginnSek: 30, spitzeSek: 180, dauerSek: 'dauerhaft' },
+      { groesse: 'orientierung', delta: 0.1, beginnSek: 60, spitzeSek: 600, dauerSek: 'dauerhaft' },
+    ],
+  }),
   m('trinken-beraten', 'Zum Trinken beraten und Trinkplan vereinbaren', 'gespraech', 90, ['II', 'V'], nw(['selbstpflege1', 'ernaehrung1']), { spur: 'A', quellen: [Q.ernaehrung] }),
   m('eltern-einbeziehen', 'Eltern/Bezugsperson beruhigen und einbeziehen', 'gespraech', 90, ['II'], nw(['psychErsteHilfe12', 'bezugspersonen3']), { spur: 'A' }),
   m('kommunikation-tubus', 'Mit intubierter Person kommunizieren (Ja/Nein, Buchstabentafel)', 'gespraech', 120, ['II'], NICHT_BELEGT(
@@ -133,6 +142,10 @@ const LISTE: MassnahmeDefinition[] = [
   m('oedeme-pruefen', 'Auf Ödeme prüfen (Knöchel, Schienbein)', 'beobachten', 20, ['I'], nw(['daten1', 'wasser12'])),
   m('urin-beobachten', 'Urin beobachten (Menge, Farbe)', 'beobachten', 30, ['I'], nw(['selbstversorgung1', 'wasser12'])),
   m('delir-screening-4at', 'Delir-Screening (4AT)', 'beobachten', 90, ['I', 'V'], nw(['daten1', 'validation12']), { quellen: [Q.at4] }),
+  m('entzug-einschaetzen', 'Alkoholentzug einschätzen (Zittern, Schwitzen, Unruhe, Halluzinationen; CIWA-Ar/AESB)', 'beobachten', 120, ['I', 'V'], nw(['risikoPsych12', 'sucht3'], {
+    anmerkung: 'Risikoeinschätzung bei psychischen Problemlagen schon 1./2. Drittel, Sucht als Handlungsanlass ausdrücklich im 3. Drittel. Strukturierter Bogen bis zum 2. Drittel mit Anleitung.',
+  }), { spur: 'A', befugnis: befugnis(A, A, S), quellen: [Q.alkohol] }),
+  m('ausscheidung-beobachten', 'Erbrechen und Stuhl beobachten (Menge, Häufigkeit, Aussehen), Windel wiegen', 'beobachten', 60, ['I'], nw(['selbstversorgung1', 'vital1', 'wasser12'])),
   m('sturzrisiko-einschaetzen', 'Sturzrisiko einschätzen', 'beobachten', 120, ['I', 'V'], nw(['mobil1', 'standards1']), { spur: 'A', quellen: [Q.sturz] }),
   m('dekubitusrisiko-einschaetzen', 'Dekubitusrisiko und Haut an Druckstellen einschätzen', 'beobachten', 120, ['I', 'V'], nw(['standards1', 'selbstversorgung1']), { spur: 'A', quellen: [Q.dekubitus] }),
   m('wunde-beurteilen', 'Wunde beurteilen (Größe, Exsudat, Rötung, Geruch)', 'beobachten', 60, ['I', 'V'], nw(['wunde12', 'wunde3']), { spur: 'A', quellen: [Q.wunden] }),
@@ -200,6 +213,13 @@ const LISTE: MassnahmeDefinition[] = [
   m('aed-anlegen', 'AED holen, anlegen und Anweisungen folgen', 'akut', 60, ['I'], nw(['rea12', 'sofort12']), { setzt: ['aed'], quellen: [Q.erc], klinisch: ['geraete', 'zeit'] }),
   m('sturzprophylaxe-bett', 'Bett tief stellen, Sturzmatte, Klingel in Reichweite', 'akut', 60, ['I', 'V'], nw(['umgebung1', 'standards1']), { spur: 'A', setzt: ['sturzmatte'], quellen: [Q.sturz] }),
   m('sitzwache', 'Sitzwache/Begleitung organisieren', 'akut', 60, ['I', 'III'], nw(['validation12', 'abgrenzen1']), { spur: 'A', setzt: ['begleitet'] }),
+  m('reizarm-gestalten', 'Reize verringern (Mitpatienten/Besuch hinausbitten, Licht, Lärm, eine Ansprechperson)', 'akut', 60, ['I', 'III'], nw(['milieu12', 'krise3']), {
+    spur: 'A', setzt: ['reizarm'],
+    wirkung: [
+      { groesse: 'unruhe', delta: -0.1, beginnSek: 30, spitzeSek: 300, dauerSek: 'dauerhaft' },
+      { groesse: 'angst', delta: -0.05, beginnSek: 30, spitzeSek: 300, dauerSek: 'dauerhaft' },
+    ],
+  }),
   m('gefaehrliche-gegenstaende-sichern', 'Gefährliche Gegenstände und gesammelte Tabletten gemeinsam sichern', 'akut', 120, ['I', 'IV'], nw(['suizid12', 'krise3'], {
     anmerkung: 'Selbstgefährdung als Handlungsanlass ab 1./2. Drittel, Krisenhilfe im 3. Drittel. Offen und mit Einverständnis, im 1./2. Drittel gemeinsam mit der PA.',
   }), { spur: 'A', befugnis: befugnis(A, A, S), setzt: ['gegenstaende-gesichert'] }),
@@ -285,9 +305,27 @@ const LISTE: MassnahmeDefinition[] = [
       { groesse: 'volumen', delta: 0.08, beginnSek: 120, spitzeSek: 1800, dauerSek: 'dauerhaft' },
     ],
   }),
+  m('orale-rehydratation', 'Orale Rehydratationslösung in kleinen Mengen geben (Löffel/Spritze, nach Plan)', 'versorgen', 300, ['I', 'V'], nw(['selbstversorgung1', 'wasser12', 'fluessigkeitKind3'], {
+    anmerkung: 'Flüssigkeitszufuhr sichern ist Grundpflege; beim Kind mit Erbrechen nach Plan der Ärztin oder des Stationsstandards. Im 1. Drittel mit Anleitung.',
+  }), {
+    spur: 'A', befugnis: befugnis(A, S), setzt: ['trinkprotokoll'], quellen: [Q.gastro],
+    wirkung: [
+      { groesse: 'hydratation', delta: 0.08, beginnSek: 300, spitzeSek: 2400, dauerSek: 'dauerhaft' },
+      { groesse: 'volumen', delta: 0.06, beginnSek: 300, spitzeSek: 2400, dauerSek: 'dauerhaft' },
+    ],
+  }),
   m('essen-anreichen', 'Essen anreichen (aufrecht, kleine Bissen, Aspirationsprophylaxe)', 'versorgen', 300, ['I', 'V'], nw(['aspiration1', 'selbstversorgung1']), { spur: 'A', quellen: [Q.ernaehrung] }),
   m('koerperpflege', 'Bei der Körperpflege unterstützen', 'versorgen', 600, ['I', 'II'], nw(['selbstversorgung1', 'hygiene1'])),
   m('mundpflege', 'Mundpflege', 'versorgen', 180, ['I'], nw(['selbstversorgung1'])),
+  m('nase-absaugen', 'Nasensekret beim Säugling absaugen (vor dem Trinken, schonend)', 'versorgen', 90, ['I'], nw(['neugeborene12', 'inhalation3'], {
+    anmerkung: 'Sicherung der Atemwege beim Neugeborenen 1./2. Drittel, atemunterstützende Maßnahmen beim Kind 3. Drittel. Bis zum 2. Drittel mit Anleitung.',
+  }), {
+    spur: 'A', befugnis: befugnis(A, A, S),
+    wirkung: [{ groesse: 'atemarbeit', delta: -0.3, beginnSek: 0, spitzeSek: 60, dauerSek: 1800 }],
+  }),
+  m('isolation-einrichten', 'Isolierung nach Hygieneplan (Einzelzimmer, Schutzkittel, Handschuhe, Händedesinfektion)', 'versorgen', 120, ['I', 'III'], nw(['hygiene1', 'hygieneKind12']), {
+    setzt: ['isoliert'], quellen: [Q.krinko],
+  }),
   m('inkontinenz-versorgen', 'Bei Ausscheidung unterstützen, Inkontinenz versorgen', 'versorgen', 300, ['I', 'II'], nw(['selbstversorgung1', 'ernaehrung1']), { quellen: [Q.kontinenz] }),
   m('positionieren-druckentlastung', 'Positionieren zur Druckentlastung', 'versorgen', 180, ['I', 'V'], nw(['mobil1', 'standards1']), { quellen: [Q.dekubitus] }),
   m('mobilisieren-transfer', 'Mobilisieren, Transfer Bett–Stuhl', 'versorgen', 300, ['I', 'V'], nw(['mobil1', 'standards1']), { quellen: [Q.mobilitaet] }),
