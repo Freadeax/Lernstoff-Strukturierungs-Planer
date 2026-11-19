@@ -50,7 +50,6 @@ export const PAED_RAUSCH_JUGENDLICHE: FallV2 = {
   },
   quellen: [
     { id: 'halt', titel: 'HaLT – Hart am Limit: Alkoholprävention bei Kindern und Jugendlichen (Bundesmodellprojekt, Villa Schöpflin), Handbuch klinischer Teil' },
-    { id: 'dgkj-alkohol', titel: 'DGKJ/GPA: Stellungnahme Alkoholintoxikation im Kindes- und Jugendalter (aktuelle Fassung prüfen)' },
     { id: 's3-alkohol', titel: 'S3-Leitlinie Screening, Diagnose und Behandlung alkoholbezogener Störungen (AWMF 076-001), 2021, Kapitel Kinder und Jugendliche' },
     { id: 'erc-kinder', titel: 'ERC Leitlinien 2025: Erste Hilfe und lebensrettende Maßnahmen bei Kindern (Seitenlage, Atemwege)' },
     { id: 'bgb-1626', titel: 'BGB § 1626 Elterliche Sorge; Schweigepflicht gegenüber Dritten (§ 203 StGB)' },
@@ -116,7 +115,11 @@ export const PAED_RAUSCH_JUGENDLICHE: FallV2 = {
       'Tetanus-Impfung aktuell.',
     ],
     diagnosen: [{ text: 'Akute Alkoholintoxikation', icd: 'F10.0', seit: 'heute' }],
-    medikation: [],
+    medikation: [
+      { id: 'mp-ondansetron', wirkstoff: 'Ondansetron', staerke: '4 mg', form: 'i. v.',
+        bedarf: { indikation: 'Übelkeit, erneutes Erbrechen', einzeldosis: '4 mg langsam i. v.', maxProTag: '8 mg', abstandH: 8 },
+        hinweis: 'Aus der Kindernotaufnahme, bisher nicht gegeben. Ersetzt nicht Seitenlage und Absaugbereitschaft.' },
+    ],
     vorwerte: [
       { zeit: 'Notaufnahme 23:15', vorH: 1, werte: { rrSys: 108, rrDia: 64, hf: 96, af: 14, spo2: 97, temp: 35.9, bz: 82 }, kuerzel: 'ZNA' },
     ],
@@ -330,8 +333,8 @@ export const PAED_RAUSCH_JUGENDLICHE: FallV2 = {
   },
 
   leitfaden: [
-    { titel: 'Gefahren der Alkoholvergiftung im Jugendalter', text: 'Bewusstseinstrübung mit Aspirationsgefahr, Atemdepression, Unterkühlung und Unterzuckerung (Alkohol hemmt die Zuckerneubildung). Kopfverletzungen und andere Substanzen ausschließen.', quellen: ['dgkj-alkohol', 's3-alkohol'] },
-    { titel: 'Überwachung', text: 'Seitenlage, Absaugbereitschaft, Pulsoxymetrie, Bewusstsein, Atmung, Temperatur und Blutzucker engmaschig. Wärmen. Nichts in den Mund, solange sie nicht sicher wach ist.', quellen: ['erc-kinder', 'dgkj-alkohol'] },
+    { titel: 'Gefahren der Alkoholvergiftung im Jugendalter', text: 'Bewusstseinstrübung mit Aspirationsgefahr, Atemdepression, Unterkühlung und Unterzuckerung (Alkohol hemmt die Zuckerneubildung). Kopfverletzungen und andere Substanzen ausschließen.', quellen: ['s3-alkohol'] },
+    { titel: 'Überwachung', text: 'Seitenlage, Absaugbereitschaft, Pulsoxymetrie, Bewusstsein, Atmung, Temperatur und Blutzucker engmaschig. Wärmen. Nichts in den Mund, solange sie nicht sicher wach ist.', quellen: ['erc-kinder'] },
     { titel: 'Anordnungen prüfen', text: 'Orale Glukose ist nur bei wachen, schluckfähigen Menschen erlaubt. Bei Bewusstseinstrübung Glukose i. v. nach ärztlicher Anordnung. Eine unpassende Anordnung hinterfragst du.', quellen: ['erc-kinder'] },
     { titel: 'Gespräch und Prävention', text: 'Respektvoll und ohne Vorwürfe mit der Jugendlichen sprechen. Die Sorgeberechtigten werden informiert. Am nächsten Tag ein Gespräch nach dem HaLT-Konzept anbieten.', quellen: ['halt'] },
     { titel: 'Schweigepflicht', text: 'Freundinnen sind wichtige Informationsquellen, bekommen aber keine Auskunft. Die Mutter als Sorgeberechtigte schon.', quellen: ['bgb-1626'] },

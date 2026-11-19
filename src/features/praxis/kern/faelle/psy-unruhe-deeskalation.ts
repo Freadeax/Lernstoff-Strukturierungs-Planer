@@ -48,7 +48,7 @@ export const PSY_UNRUHE_DEESKALATION: FallV2 = {
   },
   quellen: [
     { id: 's3-zwang', titel: 'S3-Leitlinie Verhinderung von Zwang: Prävention und Therapie aggressiven Verhaltens bei Erwachsenen (DGPPN, AWMF 038-022), 2018, Überarbeitung angekündigt' },
-    { id: 's3-schizo', titel: 'S3-Leitlinie Schizophrenie (DGPPN, AWMF 038-009), 2019, Update 2025' },
+    { id: 's3-schizo', titel: 'S3-Leitlinie Schizophrenie (DGPPN, AWMF 038-009), 2019' },
     { id: 'bverfg-fix', titel: 'BVerfG, Urteil vom 24.07.2018 – 2 BvR 309/15 und 2 BvR 502/16 (Fixierung)' },
     { id: 'psychkhg-bw', titel: 'Gesetz über Hilfen und Schutzmaßnahmen bei psychischen Krankheiten Baden-Württemberg (PsychKHG BW), § 25' },
     { id: 'stgb-203', titel: 'StGB § 203 Verletzung von Privatgeheimnissen (Schweigepflicht)' },

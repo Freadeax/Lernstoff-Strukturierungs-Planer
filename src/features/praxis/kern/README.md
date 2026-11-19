@@ -246,11 +246,11 @@ Remonstrationspunkt, Entscheidungs- bzw. Komplikationsereignis und Weiterlernen-
 | `paed-rausch-jugendliche` | 10, 06 | Alkoholintoxikation 15 J., Seitenlage, BZ/Temperatur, Mutter, Freundin | Traubenzucker-Gel bei Bewusstseinstrübung | `hypoglykaemie`, Glukose-Infusion beendet sie |
 | `kh-delir-nacht` | 11, 05 | Postoperatives Delir 84 J., 4AT, Harnverhalt, Brille/Hörgerät, Sohn (Vollmacht) | Lorazepam bei Hochbetagten | `delir_trigger` (Schmerz, Harnverhalt, Umgebung), Einmalkatheter beendet `harnverhalt` |
 | `psy-unruhe-deeskalation` | 11, 06 | Psychose, Deeskalation, Krisenplan, Mutter ohne Entbindung | Telefonische „Vorrats“-Fixierung → freiwilliges Lorazepam | `panik_eskaliert` als Näherung, Deeskalation beendet ihn |
-| `kh-alkoholentzug` | 11, 05 | Entzug nach OP, Score (CIWA-Ar/AESB), Ehefrau mit Einwilligung | Lorazepam starr stündlich → nach Score | Näherung `panik_eskaliert` + `delir_trigger`; eigener Entzugs-Treiber fehlt noch |
+| `kh-alkoholentzug` | 11, 05 | Entzug nach OP, Score (CIWA-Ar/AESB), Ehefrau mit Einwilligung | Lorazepam starr stündlich → nach Score | Treiber `alkoholentzug` (schwere 0,65, 34 h): CIWA-Ar, Halluzinationen; Lorazepam (entzugsschutz), Thiamin |
 
 - Psychiatrie: Foto Aufenthaltsraum fehlt, `psy-unruhe-deeskalation` nutzt vorläufig `11_pflegeheim_speiseraum` (Beispielbild).
 - `kh-alkoholentzug` ist nur für das 3. Drittel (`ad3`, Lehrplan sucht3).
-- `paed-bronchiolitis-saeugling` v0.1.1: ohne Hilfe Sekretstau (HF um 195, AF um 75), ab Minute 25 Erschöpfung mit Atempausen und Bradykardie (Näherung über gedämpften Atemantrieb, `opioid_ueberhang` als Erschöpfungslast); Unterlassung: SpO₂ < 80 und HF < 100.
+- `paed-bronchiolitis-saeugling` v0.2.0: Treiber `atemerschoepfung` (tempo 6) von Anfang an; ohne Absaugen HF um 195, AF um 75, „droht“ nach etwa 15 min, Atempausen nach etwa 28 min, dann Bradykardie über die Hypoxie; Unterlassung: SpO₂ < 80 und HF < 120 bis 40 min.
 
 ## Grundsystem G6: Schlucken, Aspiration, Ernährung
 

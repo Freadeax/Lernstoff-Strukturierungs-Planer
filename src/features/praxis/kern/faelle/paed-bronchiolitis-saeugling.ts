@@ -15,7 +15,7 @@ const R_KOMMT = { id: 'r-kommt', antwort: KOMMT, anordnungen: ['an-o2', 'an-xylo
 export const PAED_BRONCHIOLITIS_SAEUGLING: FallV2 = {
   schema: 2,
   id: 'paed-bronchiolitis-saeugling',
-  version: '0.1.1',
+  version: '0.2.0',
   spur: 'A',
   setting: 'paediatrie',
   altersgruppe: 'saeugling',
@@ -39,7 +39,7 @@ export const PAED_BRONCHIOLITIS_SAEUGLING: FallV2 = {
   freigabe: {
     status: 'entwurf',
     pruefpunkte: [
-      'Vorgehen gegen AWMF-Leitlinie Bronchiolitis (S2k, GPP/DGPI, aktuelle Fassung) und NICE NG9 (2015, aktualisiert 2021) prüfen: supportiv, keine Bronchodilatatoren routinemäßig',
+      'Vorgehen gegen AWMF-Leitlinie Bronchiolitis (S2k, GPP/DGPI, aktuelle Fassung) und NICE NG9 (Fassung 2021, erstmals 2015) prüfen: supportiv, keine Bronchodilatatoren routinemäßig',
       'O₂-Grenze: NICE NG9 SpO₂ unter 92 % (ab 6 Wochen); Stationsstandard abgleichen',
       'Remonstrationspunkt: Xylometazolin 0,1 % (Erwachsenenstärke) beim Säugling kontraindiziert; NaCl 0,9 % als Ersatz plausibel?',
       'Trinkmenge: unter 50–75 % der üblichen Menge als Aufnahme-/Eskalationskriterium (NICE) prüfen',
@@ -49,9 +49,8 @@ export const PAED_BRONCHIOLITIS_SAEUGLING: FallV2 = {
     ],
   },
   quellen: [
-    { id: 'nice-ng9', titel: 'NICE NG9: Bronchiolitis in children – diagnosis and management (2015, aktualisiert 2021)' },
-    { id: 'awmf-bronchiolitis', titel: 'AWMF S2k-Leitlinie Akute Bronchiolitis im Säuglingsalter (GPP/DGPI), aktuelle Fassung prüfen' },
-    { id: 'krinko-rsv', titel: 'KRINKO: Infektionsprävention im Rahmen der Pflege und Behandlung von Patienten mit übertragbaren Krankheiten (2015) und RKI-Ratgeber RSV' },
+    { id: 'nice-ng9', titel: 'NICE NG9: Bronchiolitis in children – diagnosis and management (Fassung 2021, erstmals 2015)' },
+    { id: 'krinko-rsv', titel: 'RKI-Ratgeber RSV-Infektionen; KRINKO: Infektionsprävention im Rahmen der Pflege und Behandlung von Patienten mit übertragbaren Krankheiten (2015)' },
     { id: 'fi-xylometazolin', titel: 'Fachinformation Xylometazolin-Nasentropfen 0,1 % (Erwachsene, Schulkinder) und 0,025 % (Säuglinge)' },
     { id: 'stiko-rsv', titel: 'STIKO-Empfehlung zur RSV-Prophylaxe mit Nirsevimab für Neugeborene und Säuglinge (2024)' },
   ],
@@ -78,7 +77,7 @@ export const PAED_BRONCHIOLITIS_SAEUGLING: FallV2 = {
   start: {
     // Säugling: Obstruktion (bronchospasmus als Modell für Schleimhautschwellung/Sekret) + leicht gestörter Gasaustausch, Fieber, Trinkschwäche.
     grund: { gasaustausch: 0.84, temperatur: 38.3, hydratation: 0.9, volumen: 0.96, angst: 0.2, unruhe: 0.25 },
-    treiber: [{ art: 'bronchospasmus', staerke: 0.5 }, { art: 'exsikkose_progressiv', verlustProStunde: 0.04 }],
+    treiber: [{ art: 'bronchospasmus', staerke: 0.5 }, { art: 'exsikkose_progressiv', verlustProStunde: 0.04 }, { art: 'atemerschoepfung', tempo: 6 }],
     bild: { haltung: 'liegt', haut: 'blass', mimik: 'schmerz' },
     sichtbar: [],
   },
@@ -269,11 +268,9 @@ export const PAED_BRONCHIOLITIS_SAEUGLING: FallV2 = {
         { id: 'w-absaugen', text: 'Klingeln, Nase absaugen, Kopfteil hoch, Sättigung prüfen und die Ärztin sofort rufen', wertung: 'gut', warum: 'Säuglinge atmen vor allem durch die Nase. Freie Nase und Hilfe zuerst.' },
         { id: 'w-flasche', text: 'Flasche geben, damit sie sich beruhigt', wertung: 'gefaehrlich', warum: 'Mit verlegter Nase und Atemnot kann sie nicht trinken und atmen zugleich: Aspiration und Erschöpfung.' },
       ] },
-    // Spätzeichen ohne Hilfe: Erschöpfung mit Atempausen, dann Bradykardie. Näherung im Modell über gedämpften Atemantrieb
-    // (opioid_ueberhang als „Erschöpfungs“-Last, kein Medikament); ein eigener Erschöpfungs-Treiber fehlt noch.
-    { id: 'e-erschoepfung', art: 'komplikation', wann: { ab: 1500 }, verhindertDurch: ABGESAUGT,
+    // Spätzeichen ohne Hilfe (Treiber atemerschoepfung): Erschöpfung mit Atempausen, dann Bradykardie über die Hypoxie.
+    { id: 'e-erschoepfung', art: 'komplikation', wann: { wert: 'erschoepfung', vergleich: '>=', grenze: 0.5 },
       text: 'Mila wird plötzlich still und schlapp. Sie macht Atempausen von mehreren Sekunden, die Haut ist grau-marmoriert. Die Mutter ruft: „Sie atmet nicht richtig!“',
-      treiber: [{ art: 'opioid_ueberhang', spiegel: 1.2, halbwertMin: 240 }],
       bild: { haltung: 'liegt', haut: 'zyanotisch', mimik: 'schlaefrig' } },
     { id: 'e-alarm', art: 'geraet', wann: { alle: [{ getan: 'pulsoxy-anlegen' }, { wert: 'spo2', vergleich: '<', grenze: 92 }] },
       text: 'Der Monitor piept: Sättigung unter 92 %. Die Mutter schreckt hoch.' },
@@ -353,7 +350,7 @@ export const PAED_BRONCHIOLITIS_SAEUGLING: FallV2 = {
   },
 
   leitfaden: [
-    { titel: 'Bronchiolitis erkennen', text: 'Meist RSV, Säuglinge bis zwölf Monate, Gipfel um Tag drei bis fünf. Zeichen: Schnupfen, Husten, schnelle Atmung, Einziehungen, Nasenflügeln, Knistern und Giemen, Trinkschwäche. Junge Säuglinge können Atempausen haben.', quellen: ['nice-ng9', 'awmf-bronchiolitis'] },
+    { titel: 'Bronchiolitis erkennen', text: 'Meist RSV, Säuglinge bis zwölf Monate, Gipfel um Tag drei bis fünf. Zeichen: Schnupfen, Husten, schnelle Atmung, Einziehungen, Nasenflügeln, Knistern und Giemen, Trinkschwäche. Junge Säuglinge können Atempausen haben.', quellen: ['nice-ng9'] },
     { titel: 'Pflege ist die Therapie', text: 'Nase vor dem Trinken absaugen (Kochsalztropfen), kleine häufige Mahlzeiten, Kopfteil leicht hoch, Sauerstoff nach Anordnung bei SpO₂ unter 92 %, Trinkprotokoll und Windeln. Bronchodilatatoren, Kortison und Antibiotika helfen bei Bronchiolitis nicht routinemäßig.', quellen: ['nice-ng9'] },
     { titel: 'Wann eskalieren?', text: 'Trinkmenge unter 50–75 %, trockene Windeln, Atempausen, SpO₂ dauerhaft unter 92 %, Erschöpfung oder schnell steigende Atemfrequenz: Ärztin sofort informieren.', quellen: ['nice-ng9'] },
     { titel: 'Arzneimittel beim Säugling', text: 'Abschwellende Nasentropfen in Erwachsenenstärke sind für Säuglinge gefährlich (Bradykardie, Apnoe). Stärke und Dosis immer zum Alter und Gewicht prüfen und im Zweifel nachfragen.', quellen: ['fi-xylometazolin'] },
@@ -389,7 +386,7 @@ export const PAED_BRONCHIOLITIS_SAEUGLING: FallV2 = {
       { art: 'abschluss', probleme: ['pb-atmung', 'pb-fluessigkeit', 'pb-infektion', 'pb-mutter'], ziele: ['z-atmung', 'z-trinken', 'z-hygiene'],
         sbar: ['s-atemnot', 'b-rsv', 'a-atemnot', 'a-trinkmenge', 'a-trinkt-besser'] },
     ],
-    unterlassung: { bisSek: 1900, erwartet: { alle: [{ wert: 'spo2', vergleich: '<', grenze: 80 }, { wert: 'hf', vergleich: '<', grenze: 100 }] } },
+    unterlassung: { bisSek: 2400, erwartet: { alle: [{ wert: 'spo2', vergleich: '<', grenze: 80 }, { wert: 'hf', vergleich: '<', grenze: 120 }] } },
     grenze: { rolle: 2, events: [{ art: 'massnahme', id: 'o2-geben' }], erwartet: 'pa-eingriff' },
   },
 };

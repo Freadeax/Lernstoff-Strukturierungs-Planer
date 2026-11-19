@@ -117,6 +117,16 @@ export const GESETZE: QuellenEintrag[] = [
     id: 'gesetz.ifsg', titel: 'Infektionsschutzgesetz (IfSG)', herausgeber: 'Bundesgesetzgeber', art: 'gesetz', muster: /Infektionsschutzgesetz|IfSG/,
     aktuell: { stand: 'Fassung laut gesetze-im-internet.de', fundstelle: GII('ifsg') }, beobachten: GII('ifsg'), intervallMonate: 6,
   },
+  {
+    id: 'bverfg.fixierung', titel: 'BVerfG, Urteil vom 24.07.2018 – 2 BvR 309/15, 2 BvR 502/16 (Fixierung)', herausgeber: 'Bundesverfassungsgericht', art: 'gesetz', muster: /^BVerfG, Urteil vom 24\.07\.2018/,
+    aktuell: { stand: '2018', erschienen: '2018-07-24', fundstelle: 'https://www.bundesverfassungsgericht.de/SharedDocs/Entscheidungen/DE/2018/07/rs20180724_2bvr030915.html' },
+    beobachten: 'https://www.bundesverfassungsgericht.de/', intervallMonate: 24,
+    hinweis: '5-Punkt- und 7-Punkt-Fixierung über eine halbe Stunde brauchen eine richterliche Genehmigung, 1:1-Betreuung und ärztliche Anordnung.',
+  },
+  {
+    id: 'gesetz.psychkhg-bw', titel: 'Gesetz über Hilfen und Schutzmaßnahmen bei psychischen Krankheiten Baden-Württemberg (PsychKHG BW)', herausgeber: 'Landesgesetzgeber Baden-Württemberg', art: 'gesetz', muster: /PsychKHG BW/,
+    aktuell: { stand: 'Fassung laut landesrecht-bw.de', fundstelle: 'https://www.landesrecht-bw.de/' }, beobachten: 'https://www.landesrecht-bw.de/', intervallMonate: 12,
+  },
 ];
 
 // ---------------------------------------------------------------- Leitlinien und Empfehlungen
@@ -188,6 +198,7 @@ export const LEITLINIEN: QuellenEintrag[] = [
     geprueftAm: HEUTE_GEPRUEFT, beobachten: 'https://ginasthma.org/reports/', intervallMonate: 12,
     kern: 'Jährliche Neufassung. Bericht 2026 mit überarbeiteten Kapiteln zum akuten Asthma bei Erwachsenen und Kindern.',
     hinweis: 'Der Kinder-Asthma-Fall steht auf GINA 2024. Der Bericht 2026 war am 16.11.2026 nicht frei lesbar; Abgleich bleibt offen, bis die Kapitel zum akuten Asthma beim Kind vorliegen.',
+    offen: 'Praxisfall Asthma Schulkind (P19) steht auf GINA 2024. Gegen die Kapitel zum akuten Asthma beim Kind im Bericht 2026 abgleichen, sobald sie frei lesbar sind.',
   },
   {
     id: 'nice.ng9', titel: 'NICE NG9: Bronchiolitis in children', herausgeber: 'NICE', art: 'leitlinie', muster: /^NICE NG9/,
@@ -417,6 +428,30 @@ export const PRAXIS_LEITLINIEN: QuellenEintrag[] = [
     aktuell: { stand: '2018', fundstelle: 'https://www.ddg.info/' }, beobachten: 'https://www.ddg.info/', intervallMonate: 12,
   },
   {
+    id: 'awmf.schizophrenie', titel: 'S3-Leitlinie Schizophrenie (AWMF 038-009)', herausgeber: 'DGPPN über AWMF', art: 'leitlinie', muster: /AWMF 038-009/,
+    aktuell: { stand: '2019', fundstelle: 'https://register.awmf.org/de/leitlinien/detail/038-009' }, beobachten: AWMF, intervallMonate: 12,
+    hinweis: 'Praxisfall Unruhe und Deeskalation (P19). Eine Überarbeitung ist angekündigt; beim nächsten Abgleich im AWMF-Register nachsehen.',
+  },
+  {
+    id: 'stiko.rsv', titel: 'STIKO-Empfehlung RSV-Prophylaxe mit Nirsevimab für Neugeborene und Säuglinge', herausgeber: 'Ständige Impfkommission am RKI', art: 'empfehlung', muster: /^STIKO-Empfehlung zur RSV-Prophylaxe/,
+    aktuell: { stand: '2024', fundstelle: 'https://www.rki.de/DE/Themen/Infektionskrankheiten/Impfen/Staendige-Impfkommission/Empfehlungen-der-STIKO/empfehlungen-der-stiko-node.html' },
+    beobachten: 'https://www.rki.de/DE/Themen/Infektionskrankheiten/Impfen/Staendige-Impfkommission/Empfehlungen-der-STIKO/empfehlungen-der-stiko-node.html', intervallMonate: 12,
+  },
+  {
+    id: 'rki.ratgeber', titel: 'RKI-Ratgeber für Ärztinnen und Ärzte (u. a. Norovirus, RSV)', herausgeber: 'Robert Koch-Institut', art: 'empfehlung', muster: /^RKI-Ratgeber/,
+    aktuell: { stand: 'laufend', fundstelle: 'https://www.rki.de/DE/Aktuelles/Publikationen/RKI-Ratgeber/ratgeber-node.html' },
+    beobachten: 'https://www.rki.de/DE/Aktuelles/Publikationen/RKI-Ratgeber/ratgeber-node.html', intervallMonate: 12,
+    hinweis: 'Ratgeber werden einzeln aktualisiert. Hygienemaßnahmen der Kinderfälle (P19) beim nächsten Abgleich gegen den jeweiligen Ratgeber prüfen.',
+  },
+  {
+    id: 'asthmaschulung', titel: 'Arbeitsgemeinschaft Asthmaschulung im Kindes- und Jugendalter: Qualitätsmanagement Asthmaschulung', herausgeber: 'AG Asthmaschulung im Kindes- und Jugendalter e. V.', art: 'empfehlung', muster: /^Arbeitsgemeinschaft Asthmaschulung/,
+    aktuell: { stand: 'laufend', fundstelle: 'https://www.asthmaschulung.de/' }, beobachten: 'https://www.asthmaschulung.de/', intervallMonate: 24,
+  },
+  {
+    id: 'halt', titel: 'HaLT – Hart am Limit: Alkoholprävention bei Kindern und Jugendlichen', herausgeber: 'Villa Schöpflin, Zentrum für Suchtprävention', art: 'empfehlung', muster: /^HaLT/,
+    aktuell: { stand: 'laufend', fundstelle: 'https://www.halt.de/' }, beobachten: 'https://www.halt.de/', intervallMonate: 24,
+  },
+  {
     id: 'dgai.awr', titel: 'DGAI/BDA: Empfehlung zur Überwachung nach Anästhesieverfahren (Aufwachraum)', herausgeber: 'DGAI und BDA', art: 'empfehlung', muster: /^DGAI\/BDA: Empfehlung zur Überwachung nach Anästhesie/,
     aktuell: { stand: '2009, Revision 2021', fundstelle: 'https://www.dgai.de/' }, beobachten: 'https://www.dgai.de/', intervallMonate: 24,
   },
@@ -457,6 +492,8 @@ export const INSTRUMENTE: QuellenEintrag[] = [
   fest('as.ipos', 'IPOS (Integrated Palliative care Outcome Scale)', /^IPOS/, '2019', 'https://pos-pal.org/'),
   fest('as.aldrete', 'Aldrete-Score (Aufwachraum)', /^Aldrete/, '1995', 'https://pubmed.ncbi.nlm.nih.gov/7742155/'),
   fest('as.befast', 'BE-FAST', /^BE-FAST/, '2017', 'https://pubmed.ncbi.nlm.nih.gov/?term=Aroor+BE-FAST+stroke'),
+  fest('as.ciwa', 'CIWA-Ar (Alkoholentzug)', /^CIWA-Ar/, '1989', 'https://pubmed.ncbi.nlm.nih.gov/?term=Sullivan+assessment+of+alcohol+withdrawal+revised+CIWA-Ar'),
+  fest('as.aesb', 'AESB – Alkoholentzugssyndrom-Skala nach Banger', /^AESB/, '1997', 'https://pubmed.ncbi.nlm.nih.gov/?term=Wetterling+Alcohol+Withdrawal+Syndrome+Scale+AWS'),
   fest('sepsis-3', 'Sepsis-3: Third International Consensus Definitions for Sepsis and Septic Shock', /Sepsis-3/, '2016', 'https://pubmed.ncbi.nlm.nih.gov/26903338/'),
 ];
 
