@@ -40,6 +40,8 @@ import { herz, HERZ_START, klemme, lunge, wirkAnteil, ZUCKER_FAUSTWERTE, type Be
 import { pharmaEffekte, type PharmaEffekte } from './wirkstoffe';
 import { hautSchritt } from './haut-mobilitaet';
 import { guss, schluckSchritt } from './schlucken';
+import { laborSchritt, laborWerte } from './labor';
+import { laktatZiel } from './niere';
 import { schlafDelirLast, schlafSchritt, schlafZustand, sundowning } from './schlaf';
 import { cushing, cushingDruck, gcsTeile, neuroNachlast, neuroSchritt, neuroVigilanz, pupillen, schlaganfallZeichen } from './neuro';
 import { blaseNaechste, kaliumNachDiurese, stundenurin, urinFarbe } from './niere';
@@ -419,6 +421,9 @@ function naechster(alt: Grundgroessen, treiber: readonly Treiber[], dt: number, 
   // G7 Schlaf/Tageszeit
   const sl = schlafSchritt(alt, treiber, dt, k);
   if (sl) Object.assign(g, sl);
+  // G8 Labor: Entzündung, CRP/Leukos/PCT, Niere, Erythrozytenmasse (verzögert)
+  const blutungMlMin = treiber.reduce((x, t) => (t.art === 'blutung' ? x + t.mlProMin : x), 0);
+  Object.assign(g, laborSchritt(alt, treiber, dt, k, kr.stillstand ? 0 : kr.map, gewicht(k, p), blutungMlMin, blutvolumenMl));
   const last = delirLast(alt, treiber, a, opioid) + pe.delirRisiko * (k.altersgruppe === 'hochbetagt' ? 0.8 : 0.2)
     + schlafDelirLast(alt, treiber, k);
   g.delir += last > 0 ? 0.006 * last * p.delirAnfaellig * min : -0.003 * min;
@@ -514,6 +519,19 @@ function anzeige(g: Grundgroessen, k: ModellKontext): Anzeige {
     avpu: avpuAus(g.vigilanz), gcs: gcsAus(g.vigilanz, g.orientierung),
     ...ausscheidung(g, k, p, kr),
     ...neuroAnzeige(g, k, a.saO2, kr.stillstand),
+    ...laborAnzeige(g, k, kr, still ? 0 : a.spo2),
+  };
+}
+
+/** G8: Laborwerte des Modells als Anzeige (Platzhalter/Bedingungen); Kalium und Laktat nur, wenn nicht schon gesetzt. */
+function laborAnzeige(g: Grundgroessen, k: ModellKontext, kr: KreislaufDetail, spo2: number): Partial<Anzeige> {
+  const laktat = g.laktat ?? laktatZiel(kr.map, kr.perfusion, spo2, g.sepsisGrad ?? 0);
+  const w = laborWerte(g, k, laktat);
+  const r1 = (x: number | undefined, n = 1) => (x === undefined ? undefined : Math.round(x * 10 ** n) / 10 ** n);
+  return {
+    hb: r1(w.hb), leuko: r1(w.leuko), thrombo: r1(w.thrombo, 0), crp: r1(w.crp, 0), pct: r1(w.pct, 2), natrium: r1(w.na, 0),
+    krea: r1(w.krea, 2), egfr: r1(w.egfr, 0), harnstoff: r1(w.harnstoff, 0), inr: r1(w.inr, 2), aptt: r1(w.aptt, 0),
+    ...(g.kalium === undefined ? { kalium: r1(w.k) } : {}), laktat: r1(laktat),
   };
 }
 
