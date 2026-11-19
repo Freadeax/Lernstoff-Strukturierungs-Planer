@@ -140,6 +140,12 @@ Code: `kommunikation.ts` (rein, vom Kern aufgerufen), Zustand in `SimZustand.kom
 - `psy-panik-suizidalitaet` v0.2.0: Ärztin fragt ohne körperliche Einschätzung nach dem Puls (`af-puls`), Rückauftrag „Schwester einbeziehen?“ (`af-schwester`), Schwester ruft an (keine Schweigepflichtentbindung), Kollege Deniz plant die 1:1-Begleitung, Akte (Zopiclon abgesetzt), Doku-Pflicht `{ dokumentiert: 'a-plan' }`.
 - Gespräche mit Anrufenden hängen per `nurWenn` an derselben Bedingung wie das Anruf-Ereignis.
 
+## Fallwelle P16b: CE06 Akutsituationen (Tests `faelle/p16b.test.ts`)
+- `kh-reanimation-bls` (Spur A, Station nachts ohne Monitor, Rolle 2/3): `start.module.rhythmus: 'kammerflimmern'`, Kreislauf erst nach Herzdruckmassage + AED-Schock + Weiterdrücken (`bls-weiter` → `rhythmus: null`). Entscheidungen AED-Analyse („Alle weg“) und Bettnachbar „Er wollte das nicht“ (ohne Verfügung weiter reanimieren). Doku-Pflicht Befunde BLS/AED + ROSC.
+- `na-acs-brustschmerz` (Spur B, Notaufnahme, Rolle 3/PFP): Triage → Monitor → 12-Kanal-EKG in 10 Min. Nitrat ist als fehlerhafte Anordnung angelegt (Sildenafil gestern Abend, nur über die Frage `g-medikamente` bekannt) → Ersatz Morphin i. v. (Wirkstoff G1). Rückauftrag RR/Schmerz nach Morphin, VT-Salve als Entscheidung, Unterlassung Kammerflimmern ohne Monitor.
+- `lz-schlaganfall-akut` (Spur A, Pflegeheim, Hochbetagter, Rolle 2/3): G5-Treiber `schlaganfall` (rechts, Aphasie; `grund.neuroDefizit` gesetzt, damit FAST ab Beginn positiv ist), Beginn 35 Min. vor Fallstart. Notruf 112 vor der Hausärztin (Regel greift nur nach dem Notruf, sonst „Rufen Sie die 112“ + Fehler), Rückfrage Blutzucker, fehlerhafte Anordnung „Morgentabletten geben“ (Schluckstörung, Apixaban) zum Hinterfragen.
+- `its-beatmung-alarm` (Spur B, Intensiv, Rolle 3/PFP): Diskonnektion bei Fallbeginn als gestaffeltes Leck (VT 220 → 160 → 130 → ganz ab), DOPES, Sekretverlegung, leere Propofol-Spritze. Start-Flags `beatmet`, `arterie-liegt`, `perfusor-laeuft`, `zugang-liegt`, `zvk-liegt` (Katalog-Voraussetzungen). Ziel RASS 0/−1 (Propofol 4 ml/h = 1 mg/kg/h, Sufentanil 5 ml/h, seit #274 kalibriert); „Propofol auf vierzig“ ist fehlerhaft → Ersatz Sufentanil 7 ml/h (Analgesie zuerst).
+
 ## Grundsystem G1: Wirkstoffe (physiologie/wirkstoffe.ts)
 
 - Register `WIRKSTOFFE` (16 Wirkstoffe: Morphin, Piritramid, Lorazepam, Midazolam, Flumazenil, Naloxon, Haloperidol, Paracetamol,
@@ -173,6 +179,23 @@ Code: `kommunikation.ts` (rein, vom Kern aufgerufen), Zustand in `SimZustand.kom
 - `kh-harnverhalt-postop` (CE 02/05, G2): Treiber `harnverhalt`, Start `blaseMl` 610, Überlaufinkontinenz (Entscheidung „Vorlage“), Miktion erst nicht-invasiv, Blasenscan (`{blaseMl}`, Wert-Baustein `wert:blaseMl`), Rückfrage Scan, Einmalkatheter nach Anordnung: 1. Drittel assistiert (`katheter-assistieren`), selbst ab 2. Drittel mit PA; Katheter beendet den Harnverhalt und senkt Schmerz/Unruhe.
 - `kommunikation.ts`: Wert-Bausteine zusätzlich für `besd` und `blaseMl`.
 - Tests: `faelle/p17a.test.ts` (u. a. Musterweg im 1. Drittel ≥ 90 %), Browserprüfung Block P17A in `check-arbeitsplatz.mjs`.
+
+## Fallwelle P16a: CE 05 (2./3. Drittel)
+- Neue Treiber (additiv): `anaphylaxie {staerke}` (Gefäßtonus und Kapillarleck, Bronchospasmus 0,7·s, Adrenalin aus G1 bremst) und `lungenembolie {staerke}` (Gasaustausch −0,8·s, Atemantrieb +0,5·s, Pumpleistung sofort 1 − 0,4·s, ab s > 0,7 Kreislaufdekompensation). Nachschub = zweiter, stärkerer Treiber per Ereignis.
+- `kh-nachblutung`: Druckverband ersetzt den Blutungstreiber (`beendet` vor `treiber`), Enoxaparin trotz Nachblutung als fehlerhafte Anordnung, Rückauftrag RR/Puls nach der Infusion, Ehefrau am Telefon, Übergabe an die OP-/Anästhesiepflege.
+- `awr-opioid-atemdepression` (Spur B, etCO₂): O₂ verdeckt die Hypoventilation, Naloxon gibt die Ärztin per Ereignis (`NALOXON_DA` = Bedingung des Ereignisses, weil Ereignisse keine Flags setzen), Station will das Bett (Entscheidung), Piritramid nach Naloxon als fehlerhafte Anordnung.
+- `kh-anaphylaxie-infusion`: Infusion stoppen ohne Anordnung, Lagerung nach Leitsymptom, Adrenalin i. m. durch die Ärztin, Rückauftrag Werte nach 5 Min., „Cefuroxim langsam wieder anhängen“ remonstrieren, Allergie kennzeichnen, Schwester nur mit Einwilligung.
+- `kh-lungenembolie`: Mobilisation stoppen (Entscheidung + Sichern verhindert den Nachschub), ausgelassenes Enoxaparin in der Akte (Rückfrage), Rückauftrag Beine vergleichen, „allein mit dem Transportdienst ins CT“ remonstrieren, Sohn nur mit Einwilligung.
+- `kh-medikationsverwechslung`: Meier/Maier im Zweibettzimmer, Glimepirid als Lernmodell über `hypoglykaemie`, Kollegin bittet ums Schweigen (Entscheidung), CIRS-Meldung, Rückauftrag BZ/Puls, Doppelgabe Metoprolol remonstrieren.
+- Muster-Wege enthalten keine `entscheidung`-Schritte (die Testhelfer wählen „gut“ selbst; doppelt führt zu doppelten Auswertungs-IDs).
+## Fallwelle P18: Lebenswelt und Lebensende (CE 08/09)
+- `lz-demenz-aspiration` (CE 09/08, aus „demenz“): Herr Kühn isst nicht → Aspirationspneumonie, Mund/Andicken/aufrecht, Patientenverfügung und Betreuer (Sohn will 112), Antibiotika-Tablette bei Schluckstörung remonstrieren (Ersatz Saft), Rückauftrag Temperatur/AF.
+- `lz-unterzucker-mittag` (CE 09/04, aus „pflegeheim“): Unruhe vor dem Essen = Unterzucker, BZ, langsame Kohlenhydrate nach Lebenswelt (Frühstücksgewohnheit), Insulin zum Mittag zurückstellen und Anordnung hinterfragen, Kollegin will spritzen, Mitbewohnerin (Schweigepflicht).
+- `amb-hausbesuch-still` (CE 09/02, aus „hausbesuch“): Witwe, Trauer und Rückzug, volles Dosett, Orthostase prüfen (Pflegetasche RR), Todesgedanken offen nachfragen, „vergessene Tabletten nachholen“ remonstrieren, Einwilligung vor Tochter/Nachbarin, Versorgung absprechen.
+- `lz-palliativ-gespraech` (CE 08/09, aus „palliativ“): Atemnot und Tumorschmerz, IPOS, Atemnot ohne Medikament lindern (beendet `panik_eskaliert`), Tochter will den Notarzt, Morphin 10 mg bei Opioidnaivität remonstrieren (Ersatz 2,5 mg oral, G1), Rückauftrag Wirkung, SAPV.
+- `kh-sterbephase-nacht` (CE 08, 3. Drittel, neu, Herr Hartwig): Sterbephase, Bedarfsplan liegt als `start.anordnungen` vor (Morphin s. c., Lorazepam s. l., G1), Rasselatmung lagern statt absaugen, Monitoring/Rea-Team-Anordnung gegen das Therapieziel remonstrieren, Ehefrau und Bettnachbar, Grenzweg Butylscopolamin ohne Rücksprache.
+- Hinweis: Bedingungen in `auftraege[].erledigt` gelten relativ zur Auftragszeit (`ab` zählt ab Auftrag).
+- Browserprüfung Block P18 in `check-arbeitsplatz.mjs`, Screenshots im Projektordner `praxissimulator-neu/runde2/P18/`.
 
 ## Grundsystem G3: Haut, Mobilität, Sturz
 
@@ -209,3 +232,24 @@ Alle Felder gehen als Platzhalter in Befundtexte (`{qsofa}`, `{schockindex}` mit
 - **Anzeige für alle**: `pupilleRechtsMm`/`pupilleLinksMm`, `pupilleRechtsLicht`/`pupilleLinksLicht` (Opioide eng, schwere Hypoxie/Stillstand weit und lichtstarr), `gcsAugen`/`gcsVerbal`/`gcsMotorik` (Summe = `gcs`; ohne Neuro unverändert, Aphasie senkt nur den verbalen Wert).
 - **Anzeige mit Schlaganfall**: `fast` (0–3), `nihss` (grob), `seitBeginnMin`, `lyseFensterMin` – für Befundtexte und Zeitdruck-Bedingungen.
 - Grundgrößen `neuroSeite`, `seitBeginnMin`, `wirkOpioid` schreibt das Modell; Fälle setzen sie nicht.
+
+## Grundsystem G6: Schlucken, Aspiration, Ernährung
+
+`physiologie/schlucken.ts` (Lernmodell; Logopädie und Schluckdiagnostik gehen vor).
+
+- **Dysphagie** (`Grundgroessen.dysphagie`, vom Modell): Treiber `schluckstoerung { schwere }`, Schlaganfall (0,8 × `neuroDefizit`) oder Eintrübung (Vigilanz < 0,55). Ohne Schluckthema (kein Treiber, kein Schlaganfall, keine Mahlzeit) führt das Modell nichts davon.
+- **Treiber `nahrung { form: 'essen' | 'trinken' }`**: wirkt 15 Minuten. Katalog: „essen-anreichen“ und „trinken-anbieten“ setzen ihn. Dünne Flüssigkeit aspiriert mehr als Essen, Eintrübung mehr als wach; „kost-anpassen“ (Wirkkurve `kostAngepasst` 0→1, in `OPTIONALE_WIRKGROESSEN`) senkt die Aspiration um 65 %.
+- **Akut** (`aspirationAkut`): Husten, schnelle Atmung, SpO₂ fällt, klingt in etwa 20 Minuten ab.
+- **Folge** (`aspirationsPneumonie`): Schwere nach aspirierter Menge, entwickelt sich über Stunden; wirkt wie Treiber `pneumonie` (Fieber, Rasselgeräusche im Befinden, Gasaustausch). Beatmete Personen (Spur B mit Beatmung) aspirieren im Modell nicht.
+- **Anzeige `guss`** (Gugging Swallowing Screen 0–20; ≤ 14 Aspirationsgefahr, eingetrübt ≤ 4) als Platzhalter für den Befund von „schlucken-pruefen“.
+- Ernährungszustand (Gewicht, MNA) ändert sich in Fallzeit nicht; er gehört in die Falldaten, Braden schätzt die Ernährung aus der Hydratation.
+
+## Grundsystem G7: Schlaf und Tageszeit
+
+`physiologie/schlaf.ts` (Lernmodell). Nur aktiv, wenn der Fall Schlaf führt: Treiber `schlafstoerung { staerke }` oder `start.grund.schlafdefizit` (z. B. 0.2). Sonst ändert die Uhrzeit nichts (Test).
+
+- **Uhrzeit**: `ModellKontext.uhrzeitMin` setzt der Kern aus `fall.startUhrzeit`; das Modell zählt die Spielzeit dazu. Nacht 22–6 Uhr, Sundowning ab 18 Uhr.
+- **Nachts**: Störung = Treiber-Stärke (× Schutz) + Schmerz ≥ 5 + Angst + volle Blase/Harndrang (G2). Wer nachts wach liegt, baut `schlafdefizit` auf, ungestörter Schlaf baut es ab.
+- **Delir**: Schlafdefizit und nächtliche Störung sind zusätzliche Delir-Auslöser; bei bestehendem Delir sinkt die Orientierung abends/nachts (Sundowning).
+- **Schutz**: „reizarm-gestalten“ setzt `schlafSchutz` (Wirkkurve, etwa 4 Stunden, in `OPTIONALE_WIRKGROESSEN`); senkt die Störung um 70 %.
+- **Anzeige `schlaf`**: „schläft“ / „wach“ / „wach, unruhig“ (Platzhalter `{schlaf}`).

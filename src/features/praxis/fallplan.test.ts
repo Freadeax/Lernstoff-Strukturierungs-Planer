@@ -48,7 +48,10 @@ describe('Fallplan nach CE (P15)', () => {
     const arten = ce05!.eintraege.map((e) => e.art);
     expect(arten[0]).toBe('kern');
     expect(arten.lastIndexOf('kern')).toBeLessThan(arten.indexOf('alt'));
-    expect(arten.lastIndexOf('alt')).toBeLessThan(arten.indexOf('geplant'));
+    // CE05 ist seit P16a vollständig; die Reihenfolge alt vor geplant an CE11 prüfen
+    const ce11 = fallauswahl(['ce.11'], FAELLE_V2, SCENARIOS)[0]!.eintraege.map((e) => e.art);
+    expect(ce11).toContain('geplant');
+    expect(ce11.lastIndexOf('alt')).toBeLessThan(ce11.indexOf('geplant'));
     const sepsis = ce05!.eintraege.find((e) => e.art === 'alt' && e.id === 'sepsis');
     expect(sepsis && sepsis.art === 'alt' && sepsis.abgeloestDurch).toBeTruthy();
     // Schockraum nur im 3. Drittel

@@ -28,6 +28,9 @@
 // - panik_eskaliert {tempo}: Angst steigt, Hyperventilation (CO₂ sinkt).
 // - anaphylaxie {staerke 0..1} (P16a): Gefäßtonus sinkt (−0,9·s je Stunde), Kapillarleck (Volumen −0,15·s je Stunde),
 //   Bronchospasmus 0,7·s. Adrenalin (G1) bremst die Mediatorwirkung, solange es wirkt; danach geht es weiter (Zweitgabe).
+// - lungenembolie {staerke 0..1} (P16a): Gasaustausch −0,8·s (Shunt), Atemantrieb +0,5·s (Totraum, Reizung), Pumpleistung sofort auf 1 − 0,4·s
+//   (akute Rechtsherzbelastung), danach −0,3·s je Stunde, nicht unter 1 − 0,7·s.
+//   Massive Embolie (s > 0,7): Kreislauf dekompensiert (Gefäßtonus fällt, Lernmodell). Mehrere Treiber: der stärkste zählt (Nachschub = neuer Treiber).
 // - fieberkrampf_kind {temperaturSchwelle}: Fieber steigt über die Schwelle → ein Anfall (krampf 1 → 3 Min. → postiktal).
 
 import type { Altersgruppe, Anzeige, AktiverTreiber, Grundgroessen, Rhythmus, Treiber } from '../typen';
@@ -36,6 +39,8 @@ import { profil, type Altersprofil } from './altersprofile';
 import { herz, HERZ_START, klemme, lunge, wirkAnteil, ZUCKER_FAUSTWERTE, type Befund, type Lage } from './organe';
 import { pharmaEffekte, type PharmaEffekte } from './wirkstoffe';
 import { hautSchritt } from './haut-mobilitaet';
+import { guss, schluckSchritt } from './schlucken';
+import { schlafDelirLast, schlafSchritt, schlafZustand, sundowning } from './schlaf';
 import { cushing, cushingDruck, gcsTeile, neuroNachlast, neuroSchritt, neuroVigilanz, pupillen, schlaganfallZeichen } from './neuro';
 import { blaseNaechste, kaliumNachDiurese, stundenurin, urinFarbe } from './niere';
 
@@ -104,7 +109,7 @@ function anteilAnwenden(bestand: number, alterAnteil: number, neuerAnteil: numbe
 }
 
 const hat = (treiber: readonly Treiber[], art: Treiber['art']) => treiber.some((t) => t.art === art);
-const staerke = (treiber: readonly Treiber[], art: 'bronchospasmus' | 'pneumonie' | 'anaphylaxie') =>
+const staerke = (treiber: readonly Treiber[], art: 'bronchospasmus' | 'pneumonie' | 'anaphylaxie' | 'lungenembolie') =>
   treiber.reduce((s, t) => (t.art === art ? Math.max(s, t.staerke) : s), 0);
 /** Bronchospasmus gesamt: eigener Treiber oder Anteil einer Anaphylaxie (P16a) */
 const spasmus = (treiber: readonly Treiber[]) => Math.max(staerke(treiber, 'bronchospasmus'), 0.7 * staerke(treiber, 'anaphylaxie'));
@@ -354,6 +359,15 @@ function naechster(alt: Grundgroessen, treiber: readonly Treiber[], dt: number, 
         g.volumen -= 0.15 * tr.staerke * std * bremse;
         break;
       }
+      case 'lungenembolie':
+        if (tr.staerke >= staerke(treiber, 'lungenembolie')) {
+          // akute Rechtsherzbelastung sofort, danach langsame Erschöpfung bis zur Untergrenze
+          const akut = Math.min(g.pumpleistung, 1 - 0.4 * tr.staerke);
+          g.pumpleistung = Math.max(Math.min(akut, 1 - 0.7 * tr.staerke), akut - 0.3 * tr.staerke * std);
+          // massive Embolie (s > 0,7): das Herz dekompensiert, der Kreislauf bricht ein (Lernmodell über den Gefäßtonus)
+          if (tr.staerke > 0.7) g.gefaesstonus = Math.max(0.4, g.gefaesstonus - 1.5 * ((tr.staerke - 0.7) / 0.3) * std);
+        }
+        break;
       case 'pneumonie': fieberZiel = Math.max(fieberZiel, 37 + 1.8 * tr.staerke * p.fieberAntwort); break;
       case 'fieberkrampf_kind': fieberZiel = Math.max(fieberZiel, tr.temperaturSchwelle + 0.4); break;
       case 'panik_eskaliert': g.angst += 0.02 * tr.tempo * min; break;
@@ -392,11 +406,21 @@ function naechster(alt: Grundgroessen, treiber: readonly Treiber[], dt: number, 
   const ns = neuroSchritt(alt, treiber, dt, (tr) => seitMin(tr, k));
   if (ns) Object.assign(g, ns);
   if (pe.opioid > 0.001 || alt.wirkOpioid !== undefined) g.wirkOpioid = Math.round(pe.opioid * 1000) / 1000;
+  // G6 Schlucken: Dysphagie, Aspiration bei Mahlzeiten, Folge-Pneumonie (beatmet mit Cuff: keine)
+  const sw = k.module?.beatmung ? undefined : schluckSchritt(alt, treiber, dt, (tr) => seitMin(tr, k));
+  if (sw) {
+    Object.assign(g, sw);
+    if (sw.aspirationsPneumonie! > 0.05) fieberZiel = Math.max(fieberZiel, 37 + 1.8 * Math.min(1, sw.aspirationsPneumonie!) * p.fieberAntwort);
+  }
   if (pe.bzProStunde) g.blutzucker += pe.bzProStunde * std;
 
   // Delir: steigt mit Auslösern (Altersprofil), klingt sonst langsam ab
   // Benzodiazepine/anticholinerge Wirkstoffe lösen bei Hochbetagten auch ohne angelegten Auslöser ein Delir aus (S3-LL Delir)
-  const last = delirLast(alt, treiber, a, opioid) + pe.delirRisiko * (k.altersgruppe === 'hochbetagt' ? 0.8 : 0.2);
+  // G7 Schlaf/Tageszeit
+  const sl = schlafSchritt(alt, treiber, dt, k);
+  if (sl) Object.assign(g, sl);
+  const last = delirLast(alt, treiber, a, opioid) + pe.delirRisiko * (k.altersgruppe === 'hochbetagt' ? 0.8 : 0.2)
+    + schlafDelirLast(alt, treiber, k);
   g.delir += last > 0 ? 0.006 * last * p.delirAnfaellig * min : -0.003 * min;
 
   // Angst: Atemnot und starker Schmerz steigern, sonst langsames Abklingen
@@ -422,14 +446,16 @@ function naechster(alt: Grundgroessen, treiber: readonly Treiber[], dt: number, 
 
   // ── Abgeleitete Größen: Ziel = Basis + Treiber-Effekt + Wirkkurven
   const bs = spasmus(treiber) * (1 - pe.bronchodilatation);
-  const pn = staerke(treiber, 'pneumonie');
+  const pn = staerke(treiber, 'pneumonie') + (g.aspirationsPneumonie ?? 0);
+  const akut = g.aspirationAkut ?? 0;      // G6: frische Aspiration (Husten, Atemnot)
+  const le = staerke(treiber, 'lungenembolie');
   const sep = sepsisTempo(treiber);
-  const atemarbeitZiel = b.atemarbeit + 2 * bs + 0.6 * pn + off(k, 'atemarbeit');
-  const gasZiel = b.gasaustausch - 0.3 * bs - PNEUMONIE_VERLUST * pn - (sep > 0 ? 0.1 * (1 - g.gefaesstonus) : 0) + off(k, 'gasaustausch');
+  const atemarbeitZiel = b.atemarbeit + 2 * bs + 0.6 * pn + 1.2 * akut + off(k, 'atemarbeit');
+  const gasZiel = b.gasaustausch - 0.3 * bs - PNEUMONIE_VERLUST * pn - 0.6 * akut - 0.8 * le - (sep > 0 ? 0.1 * (1 - g.gefaesstonus) : 0) + off(k, 'gasaustausch');
   g.atemarbeit = hin(alt.atemarbeit, atemarbeitZiel, bs > 0 ? 120 : 300, dt);
   g.gasaustausch = hin(alt.gasaustausch, gasZiel, pn > 0 && bs === 0 ? 900 : 180, dt);
 
-  const antriebZiel = b.atemantrieb * (1 - 0.75 * hill(pe.atemdepression, 0.7)) * (1 - 0.5 * cushing(g)) + off(k, 'atemantrieb');
+  const antriebZiel = b.atemantrieb * (1 - 0.75 * hill(pe.atemdepression, 0.7)) * (1 - 0.5 * cushing(g)) + 0.5 * le + off(k, 'atemantrieb');
   g.atemantrieb = hin(alt.atemantrieb, antriebZiel, 60, dt);
 
   const tempZiel = Math.max(b.temperatur, fieberZiel - pe.fiebersenkung) + off(k, 'temperatur');
@@ -439,7 +465,7 @@ function naechster(alt: Grundgroessen, treiber: readonly Treiber[], dt: number, 
   g.vigilanz = hin(alt.vigilanz, b.vigilanz * vf * neuroVigilanz(g) + off(k, 'vigilanz'), 60, dt);
 
   const orientZiel = b.orientierung - 0.9 * Math.max(0, g.delir - b.delir) - 0.8 * Math.max(0, b.vigilanz - g.vigilanz)
-    - (g.blutzucker < 60 ? 0.3 : 0) + off(k, 'orientierung');
+    - (g.blutzucker < 60 ? 0.3 : 0) - sundowning(g, treiber, k) + off(k, 'orientierung');
   g.orientierung = hin(alt.orientierung, orientZiel, 60, dt);
 
   const unruheZiel = (b.unruhe + 0.8 * Math.max(0, g.delir - b.delir) + 0.5 * Math.max(0, g.angst - b.angst)
@@ -499,6 +525,8 @@ function neuroAnzeige(g: Grundgroessen, k: ModellKontext, saO2: number, stillsta
     ...pupillen(g, kind, saO2, stillstand, g.wirkOpioid ?? 0),
     gcsAugen: t.augen, gcsVerbal: t.verbal, gcsMotorik: t.motorik, gcs: t.augen + t.verbal + t.motorik,
     ...schlaganfallZeichen(g),
+    ...(g.dysphagie !== undefined ? { guss: guss(g) } : {}),
+    ...(g.schlafdefizit !== undefined ? { schlaf: schlafZustand(g, k) } : {}),
   };
 }
 
@@ -547,7 +575,7 @@ export function befinden(g: Grundgroessen, treiber: readonly Treiber[], k: Model
   const a = atmung(g, k);
   const kr = kreislauf(g, k, a.saO2);
   const bs = spasmus(treiber);
-  const pn = staerke(treiber, 'pneumonie');
+  const pn = staerke(treiber, 'pneumonie') + (g.aspirationsPneumonie ?? 0);
   const atemgeraeusch: Atemgeraeusch =
     bs >= 0.8 && g.atemarbeit > 2.5 ? 'abgeschwaecht'          // „stille Lunge“
       : bs > 0.1 ? 'atem-giemen'

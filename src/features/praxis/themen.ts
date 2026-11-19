@@ -46,6 +46,20 @@ export const KERN_THEMEN: Record<string, string[]> = {
   'kh-harnverhalt-postop': ['thema.ph.ausscheidung', 'thema.ph.periop', 'thema.ph.hygiene', 'thema.beo.vitalzeichen', 'thema.pro.delir'],
   'lz-dekubitus-immobil': ['thema.pro.dekubitus', 'thema.ph.mobilisation', 'thema.beo.haut', 'thema.pro.dehydratation', 'thema.kl.demenz'],
   'lz-koerperpflege-abgelehnt': ['thema.kom.gespraech', 'thema.kom.grundlagen', 'thema.ph.koerperpflege', 'thema.kom.ethik', 'thema.ph.ausscheidung', 'thema.pro.zystitis'],
+  'kh-nachblutung': ['thema.ph.periop', 'thema.ph.wunde', 'thema.beo.vitalzeichen', 'thema.beo.notfall', 'thema.pro.thrombose', 'thema.pp.uebergabe'],
+  'awr-opioid-atemdepression': ['thema.ph.periop', 'thema.ph.medikamente', 'thema.kl.atmung', 'thema.beo.bewusstsein', 'thema.beo.vitalzeichen', 'thema.pp.uebergabe'],
+  'kh-anaphylaxie-infusion': ['thema.ph.medikamente', 'thema.beo.notfall', 'thema.beo.haut', 'thema.beo.vitalzeichen', 'thema.kl.infektion', 'thema.re.schweigepflicht'],
+  'kh-lungenembolie': ['thema.ph.periop', 'thema.pro.thrombose', 'thema.ph.mobilisation', 'thema.beo.notfall', 'thema.beo.vitalzeichen', 'thema.kl.atmung'],
+  'kh-medikationsverwechslung': ['thema.ph.medikamente', 'thema.kl.diabetes', 'thema.qw.qm', 'thema.re.haftung', 'thema.kom.ethik', 'thema.beo.vitalzeichen'],
+  'lz-demenz-aspiration': ['thema.kl.demenz', 'thema.pro.aspiration', 'thema.kl.atmung', 'thema.re.betreuung', 'thema.pro.pneumonie'],
+  'lz-unterzucker-mittag': ['thema.kl.diabetes', 'thema.ph.medikamente', 'thema.beo.bewusstsein', 'thema.ph.ernaehrung'],
+  'amb-hausbesuch-still': ['thema.fa.ambulant', 'thema.pro.dehydratation', 'thema.pro.sturz', 'thema.ph.medikamente', 'thema.re.versorgung'],
+  'lz-palliativ-gespraech': ['thema.ph.palliativ', 'thema.kl.atmung', 'thema.ph.medikamente', 'thema.re.betreuung'],
+  'kh-sterbephase-nacht': ['thema.ph.palliativ', 'thema.kl.atmung', 'thema.ph.medikamente', 'thema.re.betreuung'],
+  'kh-reanimation-bls': ['thema.beo.notfall', 'thema.beo.bewusstsein', 'thema.kl.herz.khk', 'thema.pp.uebergabe', 'thema.kom.ethik'],
+  'na-acs-brustschmerz': ['thema.kl.herz.khk', 'thema.beo.notfall', 'thema.beo.vitalzeichen', 'thema.ph.medikamente', 'thema.pp.uebergabe'],
+  'lz-schlaganfall-akut': ['thema.kl.neuro.schlaganfall', 'thema.beo.notfall', 'thema.beo.bewusstsein', 'thema.fa.langzeit', 'thema.pp.uebergabe'],
+  'its-beatmung-alarm': ['thema.beo.notfall', 'thema.kl.atmung', 'thema.ph.medikamente', 'thema.pp.uebergabe', 'thema.re.schweigepflicht'],
 };
 
 /** Kernfälle (IDs für ?neu=), die ein Thema üben. */

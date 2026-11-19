@@ -59,8 +59,69 @@ export const WEITERLERNEN_V2: Record<string, WeiterlernenEintrag> = {
     themen: ['thema.fa.paediatrie', 'thema.kl.paediatrie', 'thema.beo.notfall', 'thema.kom.beratung'],
     krankheiten: ['kh.fieberkrampf'],
   },
+  'kh-nachblutung': {
+    themen: ['thema.ph.periop', 'thema.ph.wunde', 'thema.beo.vitalzeichen', 'thema.pro.thrombose'],
+    krankheiten: [],
+  },
+  'kh-medikationsverwechslung': {
+    themen: ['thema.ph.medikamente', 'thema.qw.qm', 'thema.kl.diabetes', 'thema.re.haftung'],
+    krankheiten: [],
+  },
+  'kh-lungenembolie': {
+    themen: ['thema.pro.thrombose', 'thema.ph.mobilisation', 'thema.ph.periop', 'thema.beo.notfall'],
+    krankheiten: [],
+  },
+  'kh-anaphylaxie-infusion': {
+    themen: ['thema.ph.medikamente', 'thema.beo.notfall', 'thema.beo.haut', 'thema.beo.vitalzeichen'],
+    krankheiten: [],
+  },
+  'awr-opioid-atemdepression': {
+    themen: ['thema.ph.periop', 'thema.ph.medikamente', 'thema.kl.atmung', 'thema.beo.bewusstsein'],
+    krankheiten: [],
+  },
   'psy-panik-suizidalitaet': {
     themen: ['thema.fa.psychiatrie', 'thema.kl.psych', 'thema.kom.gespraech'],
     krankheiten: ['kh.angststoerung', 'kh.depression'],
+  },
+  'lz-demenz-aspiration': {
+    themen: ['thema.pro.aspiration', 'thema.kl.demenz', 'thema.re.betreuung', 'thema.pro.pneumonie'],
+    krankheiten: ['kh.demenz', 'kh.pneumonie'],
+    extra: [{ label: 'Expertenstandards nachschlagen', path: '/lernen/schnellsuche', warum: 'Ernährungsmanagement und Beziehungsgestaltung bei Demenz im Überblick.' }],
+  },
+  'lz-unterzucker-mittag': {
+    themen: ['thema.kl.diabetes', 'thema.ph.medikamente', 'thema.ph.ernaehrung'],
+    krankheiten: ['kh.diabetes-typ2'],
+    extra: [{ label: 'Rechentrainer: Insulin', path: '/lernen/rechnen', warum: 'Einheiten und Insulindosen sicher rechnen.' }],
+  },
+  'amb-hausbesuch-still': {
+    themen: ['thema.fa.ambulant', 'thema.pro.dehydratation', 'thema.pro.sturz', 'thema.ph.medikamente'],
+    krankheiten: [],
+  },
+  'lz-palliativ-gespraech': {
+    themen: ['thema.ph.palliativ', 'thema.kl.atmung', 'thema.ph.medikamente', 'thema.re.betreuung'],
+    krankheiten: [],
+  },
+  'kh-sterbephase-nacht': {
+    themen: ['thema.ph.palliativ', 'thema.kl.atmung', 'thema.ph.medikamente'],
+    krankheiten: [],
+  },
+  'kh-reanimation-bls': {
+    themen: ['thema.beo.notfall', 'thema.beo.bewusstsein', 'thema.kl.herz.khk'],
+    krankheiten: ['kh.herzinfarkt'],
+    extra: [{ label: 'Reanimation üben', path: '/lernen/notfall?modus=rea', warum: 'Herzdruckmassage, AED und Rhythmus im Notfall-Trainer wiederholen.' }],
+  },
+  'na-acs-brustschmerz': {
+    themen: ['thema.kl.herz.khk', 'thema.beo.notfall', 'thema.ph.medikamente'],
+    krankheiten: ['kh.herzinfarkt'],
+    extra: [{ label: 'Arzneimittel-Trainer', path: '/lernen/arzneimittel', warum: 'Nitrat, ASS, Heparin und Morphin: Wirkung, Gegenanzeigen, Beobachtung.' }],
+  },
+  'lz-schlaganfall-akut': {
+    themen: ['thema.kl.neuro.schlaganfall', 'thema.beo.notfall', 'thema.fa.langzeit'],
+    krankheiten: ['kh.schlaganfall'],
+  },
+  'its-beatmung-alarm': {
+    themen: ['thema.kl.atmung', 'thema.beo.notfall', 'thema.ph.medikamente'],
+    krankheiten: ['kh.pneumonie'],
+    extra: [{ label: 'Rechentrainer: Perfusor und Laufrate', path: '/lernen/rechnen?typen=perfusor,laufrate', warum: 'Laufraten in Dosis umrechnen (Propofol, Sufentanil, Noradrenalin).' }],
   },
 };

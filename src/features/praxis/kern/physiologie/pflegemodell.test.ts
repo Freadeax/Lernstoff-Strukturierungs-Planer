@@ -151,6 +151,23 @@ describe('Pflege-Physiologiemodell: Treiber fachlich plausibel', () => {
       expect(r.a.pupilleLinksMm!).toBeGreaterThan(r.a.pupilleRechtsMm!);
       expect(r.a.avpu).not.toBe('A');
     },
+    schluckstoerung: () => {
+      const r = lauf('hochbetagt', 30, [{ art: 'schluckstoerung', schwere: 0.6 }, { art: 'nahrung', form: 'trinken' }]);
+      expect(r.g.aspiration!).toBeGreaterThan(0);
+      expect(r.a.guss!).toBeLessThan(15);
+    },
+    nahrung: () => {
+      const r = lauf('erwachsen', 30, [{ art: 'nahrung', form: 'essen' }]);
+      expect(r.g.aspiration ?? 0).toBe(0);                     // ohne Dysphagie folgenlos
+    },
+    schlafstoerung: () => {
+      const k0 = { altersgruppe: 'hochbetagt' as const, uhrzeitMin: 23 * 60, basis: NORMAL };
+      let g: Grundgroessen = { ...NORMAL, schlafdefizit: 0.2 };
+      const tr = [{ art: 'schlafstoerung' as const, staerke: 0.8, seit: 0 }];
+      for (let t = 0; t < 4 * 3600; t += 5) g = PFLEGE_MODELL.naechster(g, tr, 5, { ...k0, t });
+      expect(g.schlafdefizit!).toBeGreaterThan(0.3);
+      expect(g.delir).toBeGreaterThan(0.1);
+    },
     immobil: () => {
       const r = lauf('hochbetagt', 240, [{ art: 'immobil', druckMmHg: 70, feucht: true }]);
       expect(r.g.dekubitusKat).toBeGreaterThanOrEqual(1);
@@ -182,6 +199,17 @@ describe('Pflege-Physiologiemodell: Treiber fachlich plausibel', () => {
       const mit = lauf('erwachsen', 20, [{ art: 'anaphylaxie', staerke: 0.8 }, { art: 'wirkstoff', id: 'adrenalin', dosisMg: 0.5, weg: 'im' }], { gefaesstonus: 0.75 });
       expect(mit.a.rrSys).toBeGreaterThan(ohne.a.rrSys + 10);
       expect(mit.a.spo2).toBeGreaterThanOrEqual(ohne.a.spo2);
+    },
+    lungenembolie: () => {
+      // P16a: plötzliche Luftnot, SpO₂ fällt, Puls steigt; Sauerstoff hebt die Sättigung, die Belastung des Herzens bleibt
+      const r = lauf('erwachsen', 0);
+      const le = lauf('erwachsen', 20, [{ art: 'lungenembolie', staerke: 0.6 }]);
+      expect(le.a.spo2).toBeLessThanOrEqual(93);
+      expect(le.a.hf).toBeGreaterThan(r.a.hf + 15);
+      expect(le.a.af).toBeGreaterThan(22);
+      expect(le.g.pumpleistung).toBeLessThan(1);
+      const o2 = lauf('erwachsen', 20, [{ art: 'lungenembolie', staerke: 0.6 }], { sauerstoff: 6 });
+      expect(o2.a.spo2).toBeGreaterThan(le.a.spo2 + 2);
     },
     fieberkrampf_kind: () => {
       const tr: Treiber[] = [{ art: 'fieberkrampf_kind', temperaturSchwelle: 39.5 }];
