@@ -217,3 +217,13 @@ Alle Felder gehen als Platzhalter in Befundtexte (`{qsofa}`, `{schockindex}` mit
 - **Folge** (`aspirationsPneumonie`): Schwere nach aspirierter Menge, entwickelt sich über Stunden; wirkt wie Treiber `pneumonie` (Fieber, Rasselgeräusche im Befinden, Gasaustausch). Beatmete Personen (Spur B mit Beatmung) aspirieren im Modell nicht.
 - **Anzeige `guss`** (Gugging Swallowing Screen 0–20; ≤ 14 Aspirationsgefahr, eingetrübt ≤ 4) als Platzhalter für den Befund von „schlucken-pruefen“.
 - Ernährungszustand (Gewicht, MNA) ändert sich in Fallzeit nicht; er gehört in die Falldaten, Braden schätzt die Ernährung aus der Hydratation.
+
+## Grundsystem G7: Schlaf und Tageszeit
+
+`physiologie/schlaf.ts` (Lernmodell). Nur aktiv, wenn der Fall Schlaf führt: Treiber `schlafstoerung { staerke }` oder `start.grund.schlafdefizit` (z. B. 0.2). Sonst ändert die Uhrzeit nichts (Test).
+
+- **Uhrzeit**: `ModellKontext.uhrzeitMin` setzt der Kern aus `fall.startUhrzeit`; das Modell zählt die Spielzeit dazu. Nacht 22–6 Uhr, Sundowning ab 18 Uhr.
+- **Nachts**: Störung = Treiber-Stärke (× Schutz) + Schmerz ≥ 5 + Angst + volle Blase/Harndrang (G2). Wer nachts wach liegt, baut `schlafdefizit` auf, ungestörter Schlaf baut es ab.
+- **Delir**: Schlafdefizit und nächtliche Störung sind zusätzliche Delir-Auslöser; bei bestehendem Delir sinkt die Orientierung abends/nachts (Sundowning).
+- **Schutz**: „reizarm-gestalten“ setzt `schlafSchutz` (Wirkkurve, etwa 4 Stunden, in `OPTIONALE_WIRKGROESSEN`); senkt die Störung um 70 %.
+- **Anzeige `schlaf`**: „schläft“ / „wach“ / „wach, unruhig“ (Platzhalter `{schlaf}`).

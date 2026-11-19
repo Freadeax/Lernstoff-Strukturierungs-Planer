@@ -93,6 +93,11 @@ export interface Grundgroessen {
   aspirationAkut?: number;
   aspirationsPneumonie?: number;
   kostAngepasst?: number;
+  // G7 Schlaf (optional): Schlafdefizit 0..1 (Fall setzt es zum Aktivieren), nachts wach 0/1 (vom Modell),
+  // schlafSchutz 0..1 setzt „reizarm-gestalten“ (Wirkkurve)
+  schlafdefizit?: number;
+  nachtWach?: number;
+  schlafSchutz?: number;
 }
 
 /** Vom Kern abgeleitet, Ziele für den Monitor (Logik-Takt 5 s, Render interpoliert). */
@@ -131,6 +136,8 @@ export interface Anzeige {
   seitBeginnMin?: number; lyseFensterMin?: number;
   /** G6: Gugging Swallowing Screen 0–20 (20 unauffällig, ≤ 14 Aspirationsgefahr), nur wenn das Modell Schlucken führt */
   guss?: number;
+  /** G7: Schlafzustand, nur wenn der Fall Schlaf führt */
+  schlaf?: 'schläft' | 'wach' | 'wach, unruhig';
   // G4 Einschätzungen aus dem Modell (Kern ergänzt sie in anzeige(z); vereinfacht, physiologie/einschaetzungen.ts)
   /** Puls / RR systolisch */
   schockindex?: number;
@@ -183,6 +190,8 @@ export type Treiber =
   | { art: 'schluckstoerung'; schwere: number }
   /** G6: Mahlzeit oder Getränk (wirkt 15 Minuten); ohne Dysphagie folgenlos */
   | { art: 'nahrung'; form: 'essen' | 'trinken' }
+  /** G7: nächtliche Störung (Lärm, Licht, Pflegehandlungen, Mehrbettzimmer) 0..1 */
+  | { art: 'schlafstoerung'; staerke: number }
   /** G5: Raumforderung im Kopf (Blutung, Schädel-Hirn-Trauma); seite = Hirnhälfte */
   | { art: 'hirndruck'; tempo: number; seite?: 'links' | 'rechts' }
   /** G3: liegt/sitzt ohne Eigenbewegung; Auflagedruck in mmHg (Weichlagerung ≈ 30, Standardmatratze ≈ 60–80) */
