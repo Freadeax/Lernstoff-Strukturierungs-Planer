@@ -179,7 +179,9 @@ function MedZeileView({ m, z }: { m: ReturnType<typeof medikation>[number]; z: S
       {m.geaendert && <span className="akte-tag is-geaendert">geändert {m.geaendert.uhr}</span>}
       {m.eintrag.hinweis && <small className="akte-med__hinweis">{m.eintrag.hinweis}</small>}
       {m.geaendert && <small className="akte-med__hinweis">Anordnung: {m.geaendert.text}</small>}</th>
-    {m.schema.map((s, i) => <td key={i} className="akte-med__schema">{s}</td>)}
+    {m.schemaText
+      ? <td colSpan={4} className="akte-med__schema akte-med__schema--text">{m.schemaText}</td>
+      : m.schema.map((s, i) => <td key={i} className="akte-med__schema">{s}</td>)}
     <td><GabenText m={m} z={z} /></td>
   </tr>;
 }
