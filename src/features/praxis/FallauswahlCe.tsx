@@ -53,7 +53,7 @@ export function FallauswahlCe({ ces, kern, alt, nurCe, renderAlt }: {
             <span className="praxis-fall__ohnebild" aria-hidden="true" />
             <div className="praxis-fall__text"><h4>{e.titel}</h4><p>{e.kurz}</p>
               <p className="praxis-fall__marken"><span className="praxis-marke praxis-marke--neu">Neu</span><span>{drittelText(e.abschnitt)}</span>{e.auchIn.length > 0 && <span>auch {e.auchIn.map((x) => name(x)?.code ?? x).join(', ')}</span>}</p></div>
-            <div className="praxis-fall__knoepfe"><button className="primary" onClick={() => navigate(`/lernen/praxis?neu=${e.id}`)}>Neu üben</button></div>
+            <div className="praxis-fall__knoepfe"><button className="primary" onClick={() => navigate(`/lernen/praxis?neu=${e.id}`)}>Neu üben</button><button onClick={() => navigate(`/lernen/praxis?gefuehrt=${e.id}`)}>Geführt üben</button></div>
           </li>)}
           {altE.map((e) => e.art === 'alt' && renderAlt(e.id, <p className="praxis-fall__marken"><span className="praxis-marke">alt</span><span>{drittelText(e.abschnitt)}</span>
             <span>{e.abgeloestDurch ? `abgelöst durch „${e.abgeloestDurch.replace(/[„“]/g, '')}“` : `wird neu geschrieben${e.paket ? ` (${e.paket})` : ''}`}</span></p>))}

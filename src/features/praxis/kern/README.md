@@ -1,7 +1,7 @@
 # Praxissimulator neu – Kern (Paket P0)
 
 Reiner, deterministischer Simulationskern für beide Spuren (A Pflege/Generalistik, B Akut/Notfall/Intensiv).
-Noch nicht in der Oberfläche eingebunden; die alte Engine (`../engine.ts`) und Stufe 1 (`../gefuehrt`) laufen unverändert.
+Oberfläche: Arbeitsplatz Stufe 2 (`../arbeitsplatz`), Stufe 1 geführt (`../stufe1`, P21). Die alte Engine (`../engine.ts`) und die alten Leitfälle (`../gefuehrt`) laufen bis P10 weiter.
 
 | Datei | Inhalt |
 |---|---|
@@ -298,6 +298,25 @@ Datei `physiologie/entzug.ts`. Treiber `{ art: 'alkoholentzug', schwere: 0..1, l
 - `amb-hypoglykaemie` (CE 04): BZ vor Insulin, Traubenzucker (30 g schnell), Gabe zurückstellen, fehlerhafte Anordnung „volle 14 IE“ (Ersatz: zurückstellen), Rückauftrag Nachmessen → 8 IE nach dem Essen, Lipohypertrophie, Schulung Klient und Ehefrau. Treiber `hypoglykaemie` endet mit der Mahlzeit.
 - `lz-schlaganfall-reha` (CE 07, Kurzzeitpflege): Schluckprüfung, Kost nach Logopädie, Positionieren bei Hemiparese, Anleiten statt Anreichen, Ehefrau anleiten, Therapieteam, fehlerhafte Anordnung „alle Tabletten mörsern“ (Pantoprazol), Entscheidung dünner Kaffee → Aspiration. G5 `neuroDefizit`/`neuroSeite` gesetzt, daraus über G6 eine leichte Dysphagie.
 - Tests `faelle/p17b.test.ts`, Browserprüfung Block P17B in `check-arbeitsplatz.mjs`. Ein Messenger-Kontakt zählt im Bericht als „Ärztin informiert“ (`arbeitsplatz/weitergabe.ts`).
+
+## Stufe 1 geführt auf dem Kern (P21)
+- Code: `../stufe1/ablauf.ts` (rein), `Stufe1.tsx`, Route `#/lernen/praxis?gefuehrt=<fall>` für alle Kernfälle („Geführt üben“ in der Fallauswahl).
+  Alte Leitfälle (`../gefuehrt`) laufen für Altfälle weiter, bis P10 sie entfernt.
+- Kein eigener Fallinhalt: Die Schritte kommen aus `pruefwege.muster` (warten/auflegen laufen automatisch, Pflegetasche gehört
+  zur Messung, aufeinanderfolgende `rueckmelden` werden ein Schritt). Je Schritt 3–4 Möglichkeiten, genau eine richtig:
+  - Handlung am Patienten: Kandidaten aus `massnahmen`/`gespraech`, im Kern **probeweise ausgeführt**: erzeugt sie einen
+    Pflegefehler → falsch/gefährlich (Begründung = `fehler.warum`), stoppt die PA sie (Anordnung, ärztlich, gesperrt) → Befugnis;
+    sonst „später im Musterweg“ → vertretbar, sonst Ablenker (Einschätzen/Gespräch vertretbar, Eingreifen falsch). Oft gezeigte Ablenker rücken nach hinten.
+  - Begründung der richtigen Wahl = spezifischste Pflichthandlung (`pflicht.warum`), sonst Standardsatz je Reiter.
+    **Gute `warum`-Texte in den Pflichthandlungen machen Stufe 1 besser.**
+  - Melden: Musternachricht vs. ohne Einschätzung, mit `falsch`-Baustein, mit `ablenker`-Baustein (SBAR-Arten des Falls).
+  - Anordnung: zurücklesen / „Okay“ / aus dem Gedächtnis; fehlerhafte Anordnung: remonstrieren / umsetzen / ignorieren.
+  - Abschluss: Verdacht (Spur B) aus `verdacht`, Pflegebedarf aus `pflegebedarf.probleme` (Vorrang = erstes Problem im Musterweg).
+- Falsche Handlungen gehen an den Kern (Zeit, Verlauf, Fehler, PA-Stopp); falsche Kommunikation wird nur erklärt, nicht gesendet.
+  Weiter erst nach der richtigen Wahl. Ereignisse mit Entscheidung erscheinen als Entscheidungsmoment.
+- Tests `../stufe1/ablauf.test.ts` für jeden Fall: immer richtig = Musterweg im Kern (gleiche Eingaben, KB ≥ 90 %), Irrweg läuft durch und ist nachspielbar.
+  Übersicht aller erzeugten Schritte zur fachlichen Prüfung: `STUFE1_DUMP=<pfad>.md npx vitest run src/features/praxis/stufe1/dump`.
+- Browserprüfung: `npm run test:stufe1` (390/820/1180 px, axe).
 
 ## Grundsystem: Atemerschöpfung
 Datei `physiologie/atemerschoepfung.ts`. Treiber `{ art: 'atemerschoepfung', tempo? }` (oder Startwert `erschoepfung` in den Grundgrößen); ohne beides bleibt alles wie bisher.

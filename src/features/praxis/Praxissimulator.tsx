@@ -47,6 +47,7 @@ import './praxis.css';
 import { Gefuehrt } from './gefuehrt/Gefuehrt';
 import { leitfallFuer } from './gefuehrt/leitfaelle';
 import { Arbeitsplatz as NeuerArbeitsplatz } from './arbeitsplatz/Arbeitsplatz';
+import { Stufe1 } from './stufe1/Stufe1';
 import { FAELLE_V2 } from './kern/faelle';
 
 /** Fachmodul mit Katalog (Steckbriefe); die Registry liefert den allgemeinen Modultyp. */
@@ -422,6 +423,11 @@ export default function Praxissimulator() {
   if (neuFall) return <section className="page praxis praxis--arbeitsplatz">
     <NeuerArbeitsplatz key={neuFall.id} fall={neuFall} onZurueck={() => navigate('/lernen/praxis')} />
   </section>;
+  // ?gefuehrt=<fall>: Stufe 1 auf dem neuen Kern (P21) für Kernfälle; alte Leitfälle laufen bis zur Ablösung (P10) weiter.
+  const gefuehrtFall = FAELLE_V2.find((f) => f.id === params.get('gefuehrt'));
+  if (gefuehrtFall) return <section className="page praxis praxis--gefuehrt praxis--stufe1">
+    <Stufe1 key={gefuehrtFall.id} fall={gefuehrtFall} onZurueck={() => navigate('/lernen/praxis')} onFrei={() => navigate(`/lernen/praxis?neu=${gefuehrtFall.id}`)} />
+  </section>;
   const gefuehrt = params.get('gefuehrt') ?? '';
   if (gefuehrt && leitfallFuer(gefuehrt)) return <section className="page praxis praxis--gefuehrt">
     <Gefuehrt key={gefuehrt} fall={gefuehrt} onZurueck={() => navigate('/lernen/praxis')}
@@ -460,7 +466,7 @@ export default function Praxissimulator() {
       {kernZumThema.length > 0 && <ul className="praxis-fallliste">{kernZumThema.map((f) => <li className="praxis-fall praxis-fall--kern" key={f.id}>
         <span className="praxis-fall__ohnebild" aria-hidden="true" />
         <div className="praxis-fall__text"><h3>{f.titel}</h3><p>{f.person.name}, {f.person.alter.jahre ?? `${f.person.alter.monate} Monate`} · {f.kurz}</p><p className="praxis-fall__marken"><span className="praxis-marke praxis-marke--neu">Neu</span></p></div>
-        <div className="praxis-fall__knoepfe"><button className="primary" onClick={() => navigate(`/lernen/praxis?neu=${f.id}`)}>Neu üben</button></div>
+        <div className="praxis-fall__knoepfe"><button className="primary" onClick={() => navigate(`/lernen/praxis?neu=${f.id}`)}>Neu üben</button><button onClick={() => navigate(`/lernen/praxis?gefuehrt=${f.id}`)}>Geführt üben</button></div>
       </li>)}</ul>}
       {(zumThema.length || !kernZumThema.length) && <ul className="praxis-fallliste">{sichtbar.filter(x => setting === 'alle' || (setting === 'gefuehrt' ? !!leitfallFuer(x.id) : x.setting === setting)).sort((a, b) => Number(!!leitfallFuer(b.id)) - Number(!!leitfallFuer(a.id))).map(scenario => altZeile(scenario, kernZumThema.length ? <p className="praxis-fall__marken"><span className="praxis-marke">alt</span></p> : null, 'h3'))}</ul>}
       </>}

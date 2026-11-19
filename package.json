@@ -20,6 +20,7 @@
     "test:wissen": "node scripts/check-wissensstand.mjs",
     "test:praxis": "node scripts/check-praxis.mjs",
     "test:arbeitsplatz": "node scripts/check-arbeitsplatz.mjs",
+    "test:stufe1": "node scripts/check-stufe1.mjs",
     "test:geraete": "node scripts/check-geraete.mjs",
     "test:lernalltag": "node scripts/check-lernalltag.mjs",
     "test:struktur": "node scripts/check-struktur.mjs",
