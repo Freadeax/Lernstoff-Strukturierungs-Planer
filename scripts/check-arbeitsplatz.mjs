@@ -1,7 +1,7 @@
 // Neuer Arbeitsplatz des Praxissimulators (Paket P2, #/lernen/praxis?neu=<fall>): Pilotfall einmal durchspielen
 // bei 390 (iPhone), 820 (iPad hoch, „Bewegung reduzieren“) und 1180 px (iPad quer), axe WCAG 2.2 AA je Zustand.
 // Prüft: Briefing mit Rolle, Pflegetasche (Gerät holen kostet Zeit, Werte erst nach dem Messen), Befugnis-Abzeichen,
-// SBAR → Anordnung → Rücklesen, Abschluss (Pflegebedarf priorisieren, Übergabe) und Auswertung (P5) inkl. Weitergabe
+// Kommunikationsbereich (P11: Rückfrage, Rückauftrag, Messenger) → Anordnung → Rücklesen, Abschluss (Pflegebedarf priorisieren, Übergabe) und Auswertung (P5) inkl. Weitergabe
 // in den Übergabetrainer; bei 1180 px zusätzlich Spur B (Verdacht, klinische Bereiche).
 import { chromium } from 'playwright';
 import AxeBuilder from '@axe-core/playwright';
@@ -19,9 +19,12 @@ try {
     const ctx = await browser.newContext({ viewport: { width: w, height: h }, locale: 'de-DE', colorScheme: 'light', reducedMotion: w === 820 ? 'reduce' : 'no-preference' });
     const p = await ctx.newPage();
     p.on('pageerror', (e) => fehler.push(`${w}: ${e.message}`));
-    const axe = async (name) => {
+    const axe = async (name, { faden = false } = {}) => {
+      // Kommunikationsbereich: Prüfung ohne halb verdeckte Ziele unter den mitlaufenden Leisten, Bild mit dem Chatverlauf
+      if (faden) await p.evaluate(() => window.scrollTo(0, 0));
       const a = await new AxeBuilder({ page: p }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze();
       for (const v of a.violations) fehler.push(`${w} ${name}: ${v.id} (${v.nodes.length}×) ${v.nodes[0]?.html.slice(0, 120)}`);
+      if (faden) await p.locator(name === 'auftrag' ? '.kom-auftraege' : '.kom-faden').evaluate((el) => el.scrollIntoView({ block: 'start' }));
       await p.screenshot({ path: path.join(output, `${w}-${name}.png`), fullPage: name.startsWith('auswertung') });
     };
     const suche = p.getByRole('searchbox', { name: 'Was willst du tun?' });
@@ -37,7 +40,7 @@ try {
     await axe('briefing');
     await p.getByRole('button', { name: 'Fall beginnen' }).click();
     await p.getByRole('button', { name: 'Pause' }).click();
-    assert.equal(await p.getByRole('tab').count(), 6, 'sechs Reiter');
+    assert.equal(await p.getByRole('tab').count(), 5, 'fünf Reiter (Sprechen & Melden zusammen)');
     assert.match(await p.locator('.ap-wert').first().innerText(), /—/, 'ambulant: zu Beginn nichts gemessen');
     assert.equal(await p.locator('.passt-dazu').isVisible(), false, '„Passt dazu“ im laufenden Fall ausgeblendet');
     if (w < 768) assert.equal(await p.locator('.shell__tabbar').isVisible(), false, 'iPhone: nur die Reiterleiste unten');
@@ -62,15 +65,49 @@ try {
     assert.match(await p.locator('.ap-bett').innerText(), /SpO₂ \d+ · P \d+/, 'Pulsoxy-Anzeige am Bett');
     assert.doesNotMatch(await p.locator('.ap-wert').nth(2).innerText(), /—/, 'RR nach dem Messen sichtbar');
 
-    await p.getByRole('tab', { name: /Melden/ }).click();
+    await tu('Trinken anbieten');
+    // P11: Kommunikationsbereich. Anruf ohne Blutzucker → Rückfrage der Ärztin, Zusage „melde mich“ → Rückauftrag
+    const vorspulen = () => p.getByRole('button', { name: /5 Min\./ }).click();
+    const entscheide = async () => { if (await p.getByText('Entscheidungsmoment').count()) { await axe('entscheidung'); await p.getByRole('button', { name: /Ruhig auf sie eingehen/ }).click(); } };
+    const sprechen = async () => { if (await p.getByRole('tab', { name: /Sprechen/ }).getAttribute('aria-selected') !== 'true') await p.getByRole('tab', { name: /Sprechen/ }).click(); };
+    await sprechen();
+    await p.getByRole('navigation', { name: 'Gesprächspartner' }).getByRole('button', { name: /Dr\. Sommer/ }).click();
     for (const t of [/am Boden sitzend/, /Herzinsuffizienz, nimmt/, /RR deutlich unter/, /Zeitlich und örtlich/, /Bitte kommen Sie/]) await p.getByRole('checkbox', { name: t }).check();
     await p.getByRole('button', { name: /anrufen$/ }).click();
+    await p.getByText('Rückfrage:').waitFor();
+    assert.match(await p.locator('.kom-chat').innerText(), /Wie hoch ist der Zucker/, 'Ärztin fragt nach dem Blutzucker');
+    await axe('rueckfrage', { faden: true });
+    await p.getByRole('checkbox', { name: /melde mich wieder/ }).check();
+    await p.getByRole('button', { name: /Sagen$/ }).click();
+    await p.getByRole('button', { name: 'Auflegen' }).click();
+    assert.match(await p.locator('.kom-auftraege').innerText(), /Blutzucker messen.*noch \d+ Min\./s, 'Rückauftrag mit Frist');
+    // Blutzucker messen: Gerät aus der Pflegetasche
+    await suche.fill('Blutzucker messen');
+    await p.getByRole('button', { name: /Blutzucker messen.*erst aus der Pflegetasche/ }).click();
+    await tasche.waitFor();
+    await tasche.locator('li', { hasText: 'Blutzuckergerät' }).getByRole('button', { name: 'Herausholen' }).click();
+    await tasche.getByRole('button', { name: 'Schließen' }).click();
+    await suche.fill('');
+    await tu('Blutzucker messen');
+    await sprechen();
+    await axe('auftrag', { faden: true });
+    await p.locator('.kom-auftraege').getByRole('button', { name: /Melden/ }).click();
+    assert.match(await p.locator('.kom-chat').innerText(), /BZ \d+ mg\/dl/, 'Messwert im Messenger gemeldet');
+    assert.match(await p.locator('.kom-chat').innerText(), /antwortet/, 'Messenger: Antwort kommt verzögert');
+    await axe('messenger', { faden: true });
+    for (let i = 0; i < 4 && !(await p.getByRole('button', { name: 'Rücklesen und bestätigen' }).count()); i++) { await entscheide(); await vorspulen(); }
     await p.getByRole('button', { name: 'Rücklesen und bestätigen' }).first().waitFor();
     await axe('anordnung');
     while (await p.getByRole('button', { name: 'Rücklesen und bestätigen' }).count()) await p.getByRole('button', { name: 'Rücklesen und bestätigen' }).first().click();
-    if (await p.getByText('Entscheidungsmoment').count()) { await axe('entscheidung'); await p.getByRole('button', { name: /Ruhig auf sie eingehen/ }).click(); }
-    await tu('Trinken anbieten');
+    await entscheide();
     await tu('Pflegebericht');
+    // Rückauftrag RR-Kontrolle: nach einer Viertelstunde nachmessen und melden
+    for (let i = 0; i < 3; i++) { await entscheide(); await vorspulen(); }
+    await entscheide();
+    await tu('Blutdruck messen');
+    await sprechen();
+    await p.locator('.kom-auftraege').getByRole('button', { name: /Melden/ }).click();
+    for (let i = 0; i < 3 && !(await p.getByRole('heading', { name: 'Fall abschließen' }).count()); i++) await vorspulen();
 
     await p.getByRole('heading', { name: 'Fall abschließen' }).waitFor();
     for (const t of [/Erhöhtes Sturzrisiko/, /Flüssigkeitsdefizit/, /Akute Verwirrtheit/]) await p.getByRole('checkbox', { name: t }).check();
@@ -99,7 +136,7 @@ try {
       await p.goto(base + '#/lernen/praxis?neu=sr-septischer-schock', { waitUntil: 'networkidle' });
       await p.getByRole('button', { name: /Neu beginnen|Fall beginnen/ }).click();
       await p.getByRole('button', { name: 'Pause' }).click();
-      await p.getByRole('tab', { name: /Melden/ }).click();
+      await p.getByRole('tab', { name: /Sprechen/ }).click();
       await p.getByRole('button', { name: /Fall abschließen/ }).click();
       await p.getByRole('radio', { name: /Septischer Schock/ }).check();
       await p.getByRole('checkbox', { name: /trüber Urin/ }).check();
@@ -116,7 +153,7 @@ try {
       await p.getByRole('button', { name: 'Fall beginnen' }).click();
       await p.getByRole('button', { name: 'Pause' }).click();
       assert.match(await p.locator('.ap-team').innerText(), kollegin, `${w} ${id}: Kollegin in der Team-Leiste`);
-      assert.equal(await p.getByRole('tab').count(), 6, `${w} ${id}: sechs Reiter`);
+      assert.equal(await p.getByRole('tab').count(), 5, `${w} ${id}: fünf Reiter`);
       await axe(`start-${id}`);
     }
     await ctx.close();

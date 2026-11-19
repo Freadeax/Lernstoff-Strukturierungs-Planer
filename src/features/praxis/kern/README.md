@@ -81,3 +81,17 @@ Browserprüfung: `npm run test:arbeitsplatz` (390/820/1180 px, axe).
 - Test je Fall: Musterweg ≥ 90 % in allen Bereichen, Unterlassung deutlich schlechter, Grenzweg KB III schlechter.
   Ein neuer Fall braucht im Musterweg einen `abschluss` mit `sbar` und einen Eintrag in `../arbeitsplatz/weiterlernen.ts`.
 - Darstellung: `../arbeitsplatz/Auswertung.tsx` (Adapter `auswertung-karte.ts`, Weitergabe `weitergabe.ts` mit `sitzung=neu:<fall>`, KI-Tutor `tutor.ts`).
+
+## Kommunikation und Arzt-Messenger (Paket P11)
+
+Code: `kommunikation.ts` (rein, vom Kern aufgerufen), Zustand in `SimZustand.komm`. Oberfläche: `../arbeitsplatz/gespraeche.ts` (Ansichtslogik) und `Kommunikation.tsx` (Reiter „Sprechen“, ersetzt Gespräch + Melden).
+
+- **Fäden je `Gegenueber`.** `anruf` öffnet den Arzt-Faden neu (wie bisher, bestehende Fälle unverändert). `nachricht` hängt Bausteine an den Faden; `gemeldet` prüft alle Bausteine des Fadens (`letzterAnruf` = Faden). Telefon bleibt offen bis `auflegen` oder bis eine Maßnahme/Frage am Patienten kommt (Kern legt dann auf).
+- **Regelwahl.** Erste passende Regel; Regeln mit `id` antworten nur einmal im Fall. Im laufenden Faden geht es nur „nach oben“: nach Regel k kommen nur noch Regeln vor k in Frage. Reihenfolge im Fall daher: genau → allgemein.
+- **Messenger.** Kanäle aus `fall.arzt.kanaele`; fehlt das Feld: Telefon, nach dem ersten Kontakt zusätzlich Messenger. Antwort nach `antwortNachSek` (Standard Messenger 90 s, Telefon 0); der Kern stempelt `faellig = t + Wartezeit` und stellt im Takt zu (Replay identisch). Wirkungen (Anordnungen, Flags, Aufträge) erst bei Zustellung.
+- **Wert-Bausteine** `wert:<Anzeige-Schlüssel>` entstehen aus `Meldung.werte` der Befunde (Wert zum Messzeitpunkt, nicht der aktuelle Modellwert). Nicht gemessene Werte filtert der Kern aus Nachrichten heraus.
+- **Rückfrage** (`ArztRegel.rueckfrage`): Faden bleibt offen. Nächste Nachricht mit allen `erwartet` → Regeln erneut. Zusage-Baustein `zusage:melde-mich` → Rückauftrag `rueckfrage.auftrag`.
+- **Rückaufträge.** `erledigt` wird relativ zur Auftragszeit geprüft (nur Handlungen danach zählen, `ab` = Sekunden nach dem Auftrag). Melden = Nachricht mit allen `meldung`-Bausteinen (optional `auftrag` in der Eingabe) → erste passende `folge`-Regel. Frist `meldenBinnenSek` überschritten → Status verspätet, PA-Impuls (Stufe 1/2), Fehler `auftrag-verspaetet:<id>` (Auswertung KB II, leicht). Bedingung `{ auftrag, status }`: 'erledigt' gilt auch nach dem Melden, 'verspaetet' bleibt.
+- **Alle Beteiligten.** Fragen (`gespraech`) laufen im Faden ihres `an`; `nurWenn`, `antwort.setzt`, `schweigepflicht` (ohne `erlaubtWenn` → Fehler `schweigepflicht:<id>` mit `fehlerText`, Auswertung KB II+IV, mittel). Nachrichten mit Bausteinen an Rettungsdienst/Station/Kollegin/PA werden quittiert und als `gesagt` gemerkt (Bedingung `{ gesagt, an }`, z. B. für Übergabe-Pflichten).
+- **Freitext** ordnet die Oberfläche offline über Stichwörter Bausteinen zu („verstanden als …“, `verstehe()`); der Freitext selbst geht mit ins Log. KI-Zuordnung folgt später.
+- Muster: Frau Lindner (v0.2.0): Rückfrage „Wie hoch ist der Zucker?“, Rückauftrag RR-Kontrolle nach einer Viertelstunde, Tochter mit Einwilligung. Tests: `kommunikation.test.ts`, `../arbeitsplatz/gespraeche.test.ts`.

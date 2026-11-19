@@ -113,6 +113,12 @@ export const REITER: ReadonlyArray<{ id: Reiter; kurz: string; titel: string; sy
   { id: 'melden', kurz: 'Melden', titel: 'Melden & Übergabe', symbol: '📞' },
 ];
 
+/** Reiterleiste im Arbeitsplatz (P11): „Gespräch“ und „Melden“ sind ein Kommunikationsbereich, daher fünf Reiter. */
+export const REITER_LEISTE: ReadonlyArray<{ id: Reiter; kurz: string; titel: string; symbol: string }> = [
+  { id: 'gespraech', kurz: 'Sprechen', titel: 'Sprechen & Melden', symbol: '💬' },
+  ...REITER.filter((r) => r.id !== 'gespraech' && r.id !== 'melden'),
+];
+
 export const FREIGABE_TEXT: Record<Freigabe, { kurz: string; lang: string }> = {
   frei: { kurz: 'selbst', lang: 'Darfst du selbst' },
   'mit-pa': { kurz: 'mit PA', lang: 'Nur mit deiner Praxisanleitung' },
