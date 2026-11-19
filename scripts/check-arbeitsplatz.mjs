@@ -252,8 +252,32 @@ try {
       await axe(`p17a-${f.id}-akte`);
       await akte.getByRole('button', { name: 'Schließen' }).click();
     }
+
+    // P16b: CE06 Akutsituationen – Reanimation im Zimmer, ACS in der Notaufnahme, Schlaganfall im Heim, Beatmungsalarm auf Intensiv
+    const P16B = [
+      { id: 'kh-reanimation-bls', person: /Herr/, rolle: /2\. Drittel/, tun: ['Atmung beobachten', 'Herzdruckmassage beginnen'], befund: /Reanimationsbrett/, med: /Kaliumchlorid/ },
+      { id: 'na-acs-brustschmerz', person: /Herr Brandt/, rolle: /3\. Drittel/, tun: ['Ersteinschätzung', '12-Kanal-EKG'], befund: /Leitsymptom Brustschmerz/, med: /Amlodipin/ },
+      { id: 'lz-schlaganfall-akut', person: /Herr Albers/, rolle: /2\. Drittel/, tun: ['Schlaganfallzeichen prüfen'], befund: /Mundwin/, med: /Apixaban/ },
+      { id: 'its-beatmung-alarm', person: /Herr Fuchs/, rolle: /3\. Drittel/, tun: ['Beatmung beobachten'], befund: /Brustkorb hebt sich nur wenig/, med: /Propofol[\s\S]*Sufentanil/ },
+    ];
+    for (const f of P16B) {
+      await p.goto(base + `#/lernen/praxis?neu=${f.id}`, { waitUntil: 'networkidle' });
+      await p.getByRole('radio', { name: f.rolle }).check();
+      await p.getByRole('button', { name: 'Fall beginnen' }).click();
+      await p.getByRole('button', { name: 'Pause' }).click();
+      for (const t of f.tun) await tu(t);
+      await p.getByText(f.befund).first().waitFor();
+      await p.evaluate(() => window.scrollTo(0, 0));
+      await axe(`p16b-${f.id}`);
+      await p.getByRole('button', { name: 'Patientenakte', exact: true }).or(p.getByRole('button', { name: 'Patientenakte öffnen' })).first().click();
+      const akte = p.getByRole('dialog', { name: f.person });
+      await akte.waitFor();
+      await akte.getByRole('tab', { name: 'Medikation' }).click();
+      assert.match(await akte.innerText(), f.med, `${w} ${f.id}: Medikationsplan`);
+      await akte.getByRole('button', { name: 'Schließen' }).click();
+    }
     await ctx.close();
   }
 } finally { await browser.close(); }
 assert.deepEqual(fehler, [], 'Arbeitsplatz');
-console.log('Arbeitsplatz: Pilotfall bei 390, 820 und 1180 px durchgespielt, Pilotstaffel Spur A gestartet, P14a-Fälle (Rückfrage, Gesprächspartner, Akte) und P17a-Einstiegsfälle geprüft, axe WCAG 2.2 AA ohne Befund (inkl. Abschluss, Auswertung, Spur B).');
+console.log('Arbeitsplatz: Pilotfall bei 390, 820 und 1180 px durchgespielt, Pilotstaffel Spur A gestartet, P14a-Fälle (Rückfrage, Gesprächspartner, Akte) P17a-Einstiegsfälle und P16b-Fälle (CE06) geprüft, axe WCAG 2.2 AA ohne Befund (inkl. Abschluss, Auswertung, Spur B).');

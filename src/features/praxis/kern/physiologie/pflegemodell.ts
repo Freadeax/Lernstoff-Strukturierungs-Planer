@@ -36,6 +36,8 @@ import { profil, type Altersprofil } from './altersprofile';
 import { herz, HERZ_START, klemme, lunge, wirkAnteil, ZUCKER_FAUSTWERTE, type Befund, type Lage } from './organe';
 import { pharmaEffekte, type PharmaEffekte } from './wirkstoffe';
 import { hautSchritt } from './haut-mobilitaet';
+import { guss, schluckSchritt } from './schlucken';
+import { schlafDelirLast, schlafSchritt, schlafZustand, sundowning } from './schlaf';
 import { cushing, cushingDruck, gcsTeile, neuroNachlast, neuroSchritt, neuroVigilanz, pupillen, schlaganfallZeichen } from './neuro';
 import { blaseNaechste, kaliumNachDiurese, stundenurin, urinFarbe } from './niere';
 
@@ -392,11 +394,21 @@ function naechster(alt: Grundgroessen, treiber: readonly Treiber[], dt: number, 
   const ns = neuroSchritt(alt, treiber, dt, (tr) => seitMin(tr, k));
   if (ns) Object.assign(g, ns);
   if (pe.opioid > 0.001 || alt.wirkOpioid !== undefined) g.wirkOpioid = Math.round(pe.opioid * 1000) / 1000;
+  // G6 Schlucken: Dysphagie, Aspiration bei Mahlzeiten, Folge-Pneumonie (beatmet mit Cuff: keine)
+  const sw = k.module?.beatmung ? undefined : schluckSchritt(alt, treiber, dt, (tr) => seitMin(tr, k));
+  if (sw) {
+    Object.assign(g, sw);
+    if (sw.aspirationsPneumonie! > 0.05) fieberZiel = Math.max(fieberZiel, 37 + 1.8 * Math.min(1, sw.aspirationsPneumonie!) * p.fieberAntwort);
+  }
   if (pe.bzProStunde) g.blutzucker += pe.bzProStunde * std;
 
   // Delir: steigt mit Auslösern (Altersprofil), klingt sonst langsam ab
   // Benzodiazepine/anticholinerge Wirkstoffe lösen bei Hochbetagten auch ohne angelegten Auslöser ein Delir aus (S3-LL Delir)
-  const last = delirLast(alt, treiber, a, opioid) + pe.delirRisiko * (k.altersgruppe === 'hochbetagt' ? 0.8 : 0.2);
+  // G7 Schlaf/Tageszeit
+  const sl = schlafSchritt(alt, treiber, dt, k);
+  if (sl) Object.assign(g, sl);
+  const last = delirLast(alt, treiber, a, opioid) + pe.delirRisiko * (k.altersgruppe === 'hochbetagt' ? 0.8 : 0.2)
+    + schlafDelirLast(alt, treiber, k);
   g.delir += last > 0 ? 0.006 * last * p.delirAnfaellig * min : -0.003 * min;
 
   // Angst: Atemnot und starker Schmerz steigern, sonst langsames Abklingen
@@ -422,10 +434,11 @@ function naechster(alt: Grundgroessen, treiber: readonly Treiber[], dt: number, 
 
   // ── Abgeleitete Größen: Ziel = Basis + Treiber-Effekt + Wirkkurven
   const bs = spasmus(treiber) * (1 - pe.bronchodilatation);
-  const pn = staerke(treiber, 'pneumonie');
+  const pn = staerke(treiber, 'pneumonie') + (g.aspirationsPneumonie ?? 0);
+  const akut = g.aspirationAkut ?? 0;      // G6: frische Aspiration (Husten, Atemnot)
   const sep = sepsisTempo(treiber);
-  const atemarbeitZiel = b.atemarbeit + 2 * bs + 0.6 * pn + off(k, 'atemarbeit');
-  const gasZiel = b.gasaustausch - 0.3 * bs - PNEUMONIE_VERLUST * pn - (sep > 0 ? 0.1 * (1 - g.gefaesstonus) : 0) + off(k, 'gasaustausch');
+  const atemarbeitZiel = b.atemarbeit + 2 * bs + 0.6 * pn + 1.2 * akut + off(k, 'atemarbeit');
+  const gasZiel = b.gasaustausch - 0.3 * bs - PNEUMONIE_VERLUST * pn - 0.6 * akut - (sep > 0 ? 0.1 * (1 - g.gefaesstonus) : 0) + off(k, 'gasaustausch');
   g.atemarbeit = hin(alt.atemarbeit, atemarbeitZiel, bs > 0 ? 120 : 300, dt);
   g.gasaustausch = hin(alt.gasaustausch, gasZiel, pn > 0 && bs === 0 ? 900 : 180, dt);
 
@@ -439,7 +452,7 @@ function naechster(alt: Grundgroessen, treiber: readonly Treiber[], dt: number, 
   g.vigilanz = hin(alt.vigilanz, b.vigilanz * vf * neuroVigilanz(g) + off(k, 'vigilanz'), 60, dt);
 
   const orientZiel = b.orientierung - 0.9 * Math.max(0, g.delir - b.delir) - 0.8 * Math.max(0, b.vigilanz - g.vigilanz)
-    - (g.blutzucker < 60 ? 0.3 : 0) + off(k, 'orientierung');
+    - (g.blutzucker < 60 ? 0.3 : 0) - sundowning(g, treiber, k) + off(k, 'orientierung');
   g.orientierung = hin(alt.orientierung, orientZiel, 60, dt);
 
   const unruheZiel = (b.unruhe + 0.8 * Math.max(0, g.delir - b.delir) + 0.5 * Math.max(0, g.angst - b.angst)
@@ -499,6 +512,8 @@ function neuroAnzeige(g: Grundgroessen, k: ModellKontext, saO2: number, stillsta
     ...pupillen(g, kind, saO2, stillstand, g.wirkOpioid ?? 0),
     gcsAugen: t.augen, gcsVerbal: t.verbal, gcsMotorik: t.motorik, gcs: t.augen + t.verbal + t.motorik,
     ...schlaganfallZeichen(g),
+    ...(g.dysphagie !== undefined ? { guss: guss(g) } : {}),
+    ...(g.schlafdefizit !== undefined ? { schlaf: schlafZustand(g, k) } : {}),
   };
 }
 
@@ -547,7 +562,7 @@ export function befinden(g: Grundgroessen, treiber: readonly Treiber[], k: Model
   const a = atmung(g, k);
   const kr = kreislauf(g, k, a.saO2);
   const bs = spasmus(treiber);
-  const pn = staerke(treiber, 'pneumonie');
+  const pn = staerke(treiber, 'pneumonie') + (g.aspirationsPneumonie ?? 0);
   const atemgeraeusch: Atemgeraeusch =
     bs >= 0.8 && g.atemarbeit > 2.5 ? 'abgeschwaecht'          // „stille Lunge“
       : bs > 0.1 ? 'atem-giemen'

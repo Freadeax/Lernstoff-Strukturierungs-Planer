@@ -16,8 +16,14 @@ import { PSY_UNRUHE_DEESKALATION } from './psy-unruhe-deeskalation';
 import { KH_ALKOHOLENTZUG } from './kh-alkoholentzug';
 import { PSY_PANIK_SUIZIDALITAET } from './psy-panik-suizidalitaet';
 import { SR_SEPTISCHER_SCHOCK } from './sr-septischer-schock';
+import { KH_REANIMATION_BLS } from './kh-reanimation-bls';
+import { NA_ACS_BRUSTSCHMERZ } from './na-acs-brustschmerz';
+import { LZ_SCHLAGANFALL_AKUT } from './lz-schlaganfall-akut';
+import { ITS_BEATMUNG_ALARM } from './its-beatmung-alarm';
 
 export const FAELLE_V2: readonly FallV2[] = [PILOT_AMBULANT, KH_PNEUMONIE_SEPSIS, LZ_DEMENZ_SCHMERZ, PAED_FIEBERKRAMPF, PSY_PANIK_SUIZIDALITAET, SR_SEPTISCHER_SCHOCK, KH_ERSTER_TAG, LZ_KOERPERPFLEGE_ABGELEHNT, KH_REHA_ERSTER_WEG,
+  // Fallwelle P16b (CE06 Akutsituationen)
+  KH_REANIMATION_BLS, NA_ACS_BRUSTSCHMERZ, LZ_SCHLAGANFALL_AKUT, ITS_BEATMUNG_ALARM,
   // Fallwelle P19 (CE 10/11)
   PAED_ASTHMA_SCHULKIND, PAED_BRONCHIOLITIS_SAEUGLING, PAED_GASTROENTERITIS_KLEINKIND, PAED_RAUSCH_JUGENDLICHE,
   KH_DELIR_NACHT, PSY_UNRUHE_DEESKALATION, KH_ALKOHOLENTZUG,

@@ -16,6 +16,8 @@ export interface ModellKontext {
   wirkung?: Partial<Record<keyof Grundgroessen, number>>;
   /** Körpergewicht in kg (sonst Altersprofil) */
   gewichtKg?: number;
+  /** Uhrzeit bei Fallstart in Minuten seit Mitternacht (G7 Schlaf/Tageszeit; vom Kern aus fall.startUhrzeit) */
+  uhrzeitMin?: number;
 }
 
 export interface PhysiologieModell {
@@ -26,7 +28,7 @@ export interface PhysiologieModell {
 }
 
 /** Optionale Grundgrößen, auf die Wirkkurven zeigen dürfen (fehlen in NORMAL; ohne Wert bleibt die Wirkkurve wirkungslos). */
-export const OPTIONALE_WIRKGROESSEN: ReadonlyArray<keyof Grundgroessen> = ['druckLast', 'blaseMl'];
+export const OPTIONALE_WIRKGROESSEN: ReadonlyArray<keyof Grundgroessen> = ['druckLast', 'blaseMl', 'kostAngepasst', 'schlafSchutz'];
 
 export const NORMAL: Grundgroessen = {
   volumen: 1, pumpleistung: 1, gefaesstonus: 1,

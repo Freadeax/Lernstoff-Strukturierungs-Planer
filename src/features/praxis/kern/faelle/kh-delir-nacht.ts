@@ -73,11 +73,12 @@ export const KH_DELIR_NACHT: FallV2 = {
   startUhrzeit: '02:05',
 
   start: {
-    // Akutes Delir: Auslöser Schmerz, Harnverhalt nach Katheterentfernung, fremde Umgebung (Brille, Hörgerät fehlen).
-    grund: { schmerz: 5, delir: 0.35, orientierung: 0.4, unruhe: 0.5, angst: 0.45, vigilanz: 0.9, hydratation: 0.87, volumen: 0.92, temperatur: 37.2, blutzucker: 118 },
+    // Akutes Delir: Auslöser Schmerz, Harnverhalt nach Katheterentfernung, fremde Umgebung (Brille, Hörgerät fehlen), gestörter Nachtschlaf (G7).
+    grund: { schmerz: 5, schlafdefizit: 0.2, delir: 0.35, orientierung: 0.4, unruhe: 0.5, angst: 0.45, vigilanz: 0.9, hydratation: 0.87, volumen: 0.92, temperatur: 37.2, blutzucker: 118 },
     treiber: [
       { art: 'delir_trigger', ausloeser: ['schmerz', 'harnverhalt', 'umgebung'] },
       { art: 'harnverhalt' },
+      { art: 'schlafstoerung', staerke: 0.4 },   // G7: Mehrbettzimmer, Klingel, Harndrang
     ],
     bild: { haltung: 'sitzt', haut: 'rosig', mimik: 'verwirrt' },
     sichtbar: [],
