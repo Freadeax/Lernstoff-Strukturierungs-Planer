@@ -160,6 +160,14 @@ describe('Pflege-Physiologiemodell: Treiber fachlich plausibel', () => {
       const r = lauf('erwachsen', 30, [{ art: 'nahrung', form: 'essen' }]);
       expect(r.g.aspiration ?? 0).toBe(0);                     // ohne Dysphagie folgenlos
     },
+    schlafstoerung: () => {
+      const k0 = { altersgruppe: 'hochbetagt' as const, uhrzeitMin: 23 * 60, basis: NORMAL };
+      let g: Grundgroessen = { ...NORMAL, schlafdefizit: 0.2 };
+      const tr = [{ art: 'schlafstoerung' as const, staerke: 0.8, seit: 0 }];
+      for (let t = 0; t < 4 * 3600; t += 5) g = PFLEGE_MODELL.naechster(g, tr, 5, { ...k0, t });
+      expect(g.schlafdefizit!).toBeGreaterThan(0.3);
+      expect(g.delir).toBeGreaterThan(0.1);
+    },
     immobil: () => {
       const r = lauf('hochbetagt', 240, [{ art: 'immobil', druckMmHg: 70, feucht: true }]);
       expect(r.g.dekubitusKat).toBeGreaterThanOrEqual(1);

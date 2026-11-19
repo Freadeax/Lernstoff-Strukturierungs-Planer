@@ -108,8 +108,14 @@ export function laufendeWirkung(z: SimZustand): Partial<Record<keyof Grundgroess
 
 export const kontextModell = (z: SimZustand): ModellKontext => ({
   altersgruppe: z.fall.altersgruppe, module: z.module, t: z.t, basis: basisGrund(z.fall),
-  wirkung: laufendeWirkung(z), gewichtKg: z.fall.person.gewichtKg,
+  wirkung: laufendeWirkung(z), gewichtKg: z.fall.person.gewichtKg, uhrzeitMin: uhrzeitMin(z.fall.startUhrzeit),
 });
+
+/** „08:15“ → 495 (G7 Tageszeit) */
+function uhrzeitMin(text: string | undefined): number | undefined {
+  const m = /^(\d{1,2}):(\d{2})$/.exec(text ?? '');
+  return m ? Number(m[1]) * 60 + Number(m[2]) : undefined;
+}
 
 /** Treiber mit Zeitstempel hinzufügen */
 function neueTreiber(z: SimZustand, liste: readonly Treiber[] | undefined) {
