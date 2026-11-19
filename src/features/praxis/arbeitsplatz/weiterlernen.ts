@@ -53,4 +53,23 @@ export const WEITERLERNEN_V2: Record<string, WeiterlernenEintrag> = {
     themen: ['thema.fa.psychiatrie', 'thema.kl.psych', 'thema.kom.gespraech'],
     krankheiten: ['kh.angststoerung', 'kh.depression'],
   },
+  'kh-reanimation-bls': {
+    themen: ['thema.beo.notfall', 'thema.beo.bewusstsein', 'thema.kl.herz.khk'],
+    krankheiten: ['kh.herzinfarkt'],
+    extra: [{ label: 'Reanimation üben', path: '/lernen/notfall?modus=rea', warum: 'Herzdruckmassage, AED und Rhythmus im Notfall-Trainer wiederholen.' }],
+  },
+  'na-acs-brustschmerz': {
+    themen: ['thema.kl.herz.khk', 'thema.beo.notfall', 'thema.ph.medikamente'],
+    krankheiten: ['kh.herzinfarkt'],
+    extra: [{ label: 'Arzneimittel-Trainer', path: '/lernen/arzneimittel', warum: 'Nitrat, ASS, Heparin und Morphin: Wirkung, Gegenanzeigen, Beobachtung.' }],
+  },
+  'lz-schlaganfall-akut': {
+    themen: ['thema.kl.neuro.schlaganfall', 'thema.beo.notfall', 'thema.fa.langzeit'],
+    krankheiten: ['kh.schlaganfall'],
+  },
+  'its-beatmung-alarm': {
+    themen: ['thema.kl.atmung', 'thema.beo.notfall', 'thema.ph.medikamente'],
+    krankheiten: ['kh.pneumonie'],
+    extra: [{ label: 'Rechentrainer: Perfusor und Laufrate', path: '/lernen/rechnen?typen=perfusor,laufrate', warum: 'Laufraten in Dosis umrechnen (Propofol, Sufentanil, Noradrenalin).' }],
+  },
 };
