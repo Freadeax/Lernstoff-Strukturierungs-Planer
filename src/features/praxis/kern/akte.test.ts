@@ -24,8 +24,9 @@ describe('Akte: Zeiten und Plan lesen', () => {
     expect(hoechstGaben({ ...e, bedarf: { indikation: '', einzeldosis: '500 mg', maxProTag: '3×' } })).toBe(3);
   });
   it('Minimal-Akte aus person, wenn fall.akte fehlt', () => {
-    const ohne = FAELLE_V2.find((f) => !f.akte)!;
-    const a = akteVon(ohne);
+    // Seit P14 haben alle Fälle eine Akte: Fall ohne Akte nachbauen
+    const { akte: _ohne, ...ohne } = FAELLE_V2.find((f) => f.id === 'kh-pneumonie-sepsis')!;
+    const a = akteVon(ohne as typeof FALL);
     expect(a.medikation).toHaveLength(ohne.person.medikamentePlan.length);
     expect(a.diagnosen?.map((d) => d.text)).toEqual(ohne.person.diagnosenBekannt);
     const { akte: _weg, ...rest } = FALL;
