@@ -44,6 +44,10 @@ export const KERN_THEMEN: Record<string, string[]> = {
   'kh-erster-tag': ['thema.ph.hygiene', 'thema.beo.vitalzeichen', 'thema.re.schweigepflicht', 'thema.re.berufsrecht', 'thema.pro.sturz', 'thema.kom.selbstpflege'],
   'kh-reha-erster-weg': ['thema.ph.mobilisation', 'thema.pro.sturz', 'thema.ph.periop', 'thema.pro.thrombose', 'thema.beo.vitalzeichen'],
   'lz-koerperpflege-abgelehnt': ['thema.kom.gespraech', 'thema.kom.grundlagen', 'thema.ph.koerperpflege', 'thema.kom.ethik', 'thema.ph.ausscheidung', 'thema.pro.zystitis'],
+  'kh-reanimation-bls': ['thema.beo.notfall', 'thema.beo.bewusstsein', 'thema.kl.herz.khk', 'thema.pp.uebergabe', 'thema.kom.ethik'],
+  'na-acs-brustschmerz': ['thema.kl.herz.khk', 'thema.beo.notfall', 'thema.beo.vitalzeichen', 'thema.ph.medikamente', 'thema.pp.uebergabe'],
+  'lz-schlaganfall-akut': ['thema.kl.neuro.schlaganfall', 'thema.beo.notfall', 'thema.beo.bewusstsein', 'thema.fa.langzeit', 'thema.pp.uebergabe'],
+  'its-beatmung-alarm': ['thema.beo.notfall', 'thema.kl.atmung', 'thema.ph.medikamente', 'thema.pp.uebergabe', 'thema.re.schweigepflicht'],
 };
 
 /** Kernfälle (IDs für ?neu=), die ein Thema üben. */
