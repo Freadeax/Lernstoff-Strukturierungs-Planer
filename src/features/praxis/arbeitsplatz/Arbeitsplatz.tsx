@@ -23,6 +23,8 @@ import type { AkteReiter } from './akte-ansicht';
 import { Abschluss, Auswertung } from './Auswertung';
 import { lies, schreibe } from './speicher';
 import { StreifenKurve } from './StreifenKurve';
+import { journal } from './journal';
+import { Journal, VerlaufBlatt } from './Verlauf';
 import './arbeitsplatz.css';
 
 type Tempo = 0 | 1 | 2 | 4;
@@ -107,6 +109,7 @@ function Platz({ stand, setStand, onZurueck, onNeu }: {
   const [abschluss, setAbschluss] = useState(false);
   /** P13: Patientenakte offen (Reiter); die Uhr steht, solange sie offen ist */
   const [akteOffen, setAkteOffen] = useState<AkteReiter | null>(null);
+  const [verlaufOffen, setVerlaufOffen] = useState(false);
   /** Meldungen seit der letzten eigenen Eingabe */
   const [seit, setSeit] = useState(z.meldungen.length);
   const [fotoWeg, setFotoWeg] = useState(false);
@@ -118,7 +121,7 @@ function Platz({ stand, setStand, onZurueck, onNeu }: {
   const [zeigeRueck, setZeigeRueck] = useState(0);
 
   const entscheidung = offeneEntscheidung(z);
-  const laeuft = tempo > 0 && !z.ende && !entscheidung && !akteOffen;
+  const laeuft = tempo > 0 && !z.ende && !entscheidung && !akteOffen && !verlaufOffen;
 
   // Uhr: alle TAKT/tempo Sekunden einen Logik-Schritt. Im Hintergrund-Tab nichts tun.
   useEffect(() => {
@@ -160,6 +163,7 @@ function Platz({ stand, setStand, onZurueck, onNeu }: {
   }
 
   const alle = useMemo(() => handlungen(z), [z]);
+  const kurzJournal = useMemo(() => journal(z), [z]);
   const liste = suchtext.trim() ? suche(alle, suchtext) : alle.filter((h) => h.reiter === reiter);
   const tasche = pflegetasche(z);
   const neu = z.meldungen.slice(seit);
@@ -239,7 +243,7 @@ function Platz({ stand, setStand, onZurueck, onNeu }: {
           {raum && <img src={raumUrl(raum)} alt="" width={64} height={36} />}
         </button>
         {fotoWeg && (klinikMonitor || stand.messungen.spo2?.live) && <StreifenKurve art={klinikMonitor ? 'ekg' : 'pleth'} puls={a.hf} aktiv={laeuft} />}
-        <dl className="ap-werte" aria-label="Werte">
+        <dl className="ap-werte" aria-label="Werte" onClick={() => setVerlaufOffen(true)} title="Verlauf öffnen">
           {werte.map((w) => <div key={w.id} className={`ap-wert is-${w.stand} is-${w.alarm}`}>
             <dt>{w.label}</dt>
             <dd>{w.text}<span className="visually-hidden"> {w.stand === 'offen' ? 'noch nicht gemessen' : `${w.einheit}${w.zeit ? `, gemessen ${w.zeit}` : ', laufend'}${w.alarm !== 'ok' ? `, Alarm ${w.alarm}` : ''}`}</span></dd>
@@ -247,10 +251,11 @@ function Platz({ stand, setStand, onZurueck, onNeu }: {
         </dl>
         <div className="ap-uhr" role="group" aria-label="Uhr">
           <span className="ap-uhr__zeit" aria-label={`Uhrzeit ${zeit}${laeuft ? ', Uhr läuft' : ', Uhr steht'}`}>{zeit}</span>
+          <button type="button" className="ap-uhr__verlauf" aria-haspopup="dialog" onClick={() => setVerlaufOffen(true)} aria-label="Verlauf: Kurve und was passiert ist"><span aria-hidden="true">📈</span><span className="ap-uhr__verlauf-text" aria-hidden="true"> Verlauf</span></button>
           <button type="button" aria-pressed={tempo === 0} onClick={() => setTempo(0)} aria-label="Pause">❚❚</button>
           {([1, 2, 4] as const).map((t) => <button key={t} type="button" aria-pressed={tempo === t} onClick={() => setTempo(t)} aria-label={`Tempo ${t}-fach`}>{t}×</button>)}
           <button type="button" disabled={!!z.ende || !!entscheidung} onClick={() => { setSeit(z.meldungen.length); setStand((s) => spule(s)); }}
-            title="Stoppt bei Ereignis, Alarm oder Rückfrage"><span aria-hidden="true">⏩ </span>5 Min.</button>
+            title="Stoppt bei Ereignis, Alarm oder Rückfrage"><span className="ap-uhr__spulen" aria-hidden="true">⏩ </span>5 Min.</button>
         </div>
       </div>
 
@@ -262,10 +267,14 @@ function Platz({ stand, setStand, onZurueck, onNeu }: {
           {p.wer === 'aerztin' && <button type="button" className="small" onClick={() => zeigeReiter('melden')}>Anrufen</button>}
         </li>)}
       </ul>
-      <details className="ap-verlauf">
-        <summary>Verlauf ({z.meldungen.length})</summary>
-        <ol>{[...z.meldungen].reverse().map((m, i) => <li key={z.meldungen.length - i}><time>{uhrzeit(fall.startUhrzeit, m.t)}</time> {m.text}</li>)}</ol>
-      </details>
+      <section className="ap-verlauf" aria-labelledby="ap-verlauf-titel">
+        <div className="ap-verlauf__kopf">
+          <h3 id="ap-verlauf-titel">Verlauf</h3>
+          <button type="button" className="small" aria-haspopup="dialog" onClick={() => setVerlaufOffen(true)}>Kurve und alles anzeigen ({kurzJournal.length})</button>
+        </div>
+        <Journal eintraege={kurzJournal.slice(-4).reverse()} start={fall.startUhrzeit} kompakt />
+      </section>
+      {verlaufOffen && <VerlaufBlatt z={z} onSchliessen={() => setVerlaufOffen(false)} />}
     </div>
 
     <div className="ap__handlung">

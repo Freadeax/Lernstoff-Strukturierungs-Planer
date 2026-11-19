@@ -98,3 +98,18 @@ Browserprüfung: `npm run test:arbeitsplatz` (390/820/1180 px, axe).
   – wenn der Fall sie anbietet – die Maßnahme `pflegebericht`. Kostet 60 s + 15 s je Baustein (+30 s Freitext, max. 240 s).
 - Oberfläche: `../arbeitsplatz/Akte.tsx` (Dialog, Uhr steht) mit `akte-ansicht.ts`; Knopf in der Kopfzeile und Hotspot im Foto,
   „Pflegebericht schreiben“ öffnet den Bericht.
+
+## Verlauf sichtbar machen (P12, Runde 2)
+
+- `verlauf.ts`: aus `befinden()` und `anzeige()` wird pro Takt abgeleitet, was man sehen oder hören kann
+  (Bewusstsein AVPU, Atemnot, Atemtempo, Haut, Schmerz, Unruhe, Angst, neue Verwirrtheit, Krampf, Übelkeit).
+  Eine Änderung wird gemeldet, wenn sie `ENTPRELL_SEK` (20 s) besteht, je Merkmal höchstens alle `MIN_ABSTAND_SEK` (60 s);
+  Krampf sofort. Meldung `art: 'verlauf'`, `quelle: 'verlauf:<merkmal>'`, `wichtig` bei Verschlechterung von Bewusstsein,
+  Atmung, Haut, Krampf. Texte ohne Zahlen. Ein Fallereignis im selben Takt hat Vorrang (keine Doppelbeschreibung).
+  Bei Bewusstsein P/U werden Orientierung, Angst, Unruhe, Schmerz, Übelkeit still nachgeführt.
+- `SimZustand.verlaufStand` (optional) hält den Stand; `start()` legt ihn aus der Ausgangslage an. `z.bild` (Haut, Mimik,
+  Haltung „unruhig“) folgt den gemeldeten Beobachtungen. Vorspulen stoppt NICHT an Verlauf-Meldungen.
+- Darstellung: `arbeitsplatz/kurve/kurvendaten.ts` (rein: Messpunkte aus `Meldung.werte`, Monitorlinie nur für Größen an
+  einem laufenden Gerät, Marken aus Log und Meldungen, Vorwerte der Akte mit `t = −vorH·3600`, `vorherNachher()`),
+  `arbeitsplatz/kurve/Kurvenblatt.tsx` (gemeinsam mit der Akte P13; Achse `zeit` oder `blatt`),
+  `arbeitsplatz/journal.ts` + `Verlauf.tsx` (Blatt „Verlauf“ aus der Werteleiste, Journal mit Filter).

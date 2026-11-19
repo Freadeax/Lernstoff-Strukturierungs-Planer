@@ -57,8 +57,6 @@
 .ap-team__text { flex: 1; min-width: 0; }
 .ap-team__text p { margin: 2px 0 0; font-size: var(--text-sm); }
 .ap-team__zeile button { flex: 0 0 auto; min-height: 44px; }
-.ap-verlauf summary { cursor: pointer; font-weight: 600; min-height: 44px; display: flex; align-items: center; }
-.ap-verlauf ol { margin: 0; padding-left: 1.2em; display: grid; gap: 4px; font-size: var(--text-sm); }
 .ap-verlauf time, .ap-rueckmeldung time { font-family: var(--font-mono); color: var(--color-text-muted); margin-right: 4px; }
 
 /* Reiter */
@@ -232,4 +230,50 @@
 @container content (max-width: 520px) {
   .ap-zl__reihe { grid-template-columns: 6.5rem minmax(0, 1fr); }
   .ap-zl__achse { margin-left: calc(6.5rem + var(--space-2)) !important; }
+}
+
+/* ── Verlauf sichtbar machen (P12): Kurzjournal, Blatt mit Kurve und Journal ── */
+.ap-werte { cursor: pointer; }
+.ap-uhr__verlauf { font-weight: 700; }
+.ap-verlauf { display: grid; gap: var(--space-2); padding: var(--space-2) var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-surface); }
+.ap-verlauf__kopf { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+.ap-verlauf__kopf h3 { margin: 0; font-size: var(--text-base); }
+.ap-verlauf__kopf button { min-height: 44px; }
+.ap-rueckmeldung .is-verlauf { font-style: italic; }
+.ap-rueckmeldung .is-verlauf::before { content: '👁 '; font-style: normal; }
+.vl-journal { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; font-size: var(--text-sm); }
+.vl-journal li { display: grid; grid-template-columns: 3.2rem 1.4rem minmax(0, 1fr); gap: 4px; align-items: start; padding: 4px 6px; border-radius: var(--radius-sm, 6px); }
+.vl-journal time { font-family: var(--font-mono); color: var(--color-text-muted); font-variant-numeric: tabular-nums; }
+.vl-journal li.is-handlung { background: var(--color-surface-sunken); font-weight: 600; }
+.vl-journal li.is-verlauf .vl-journal__text { font-style: italic; }
+.vl-journal li.is-pa .vl-journal__text { color: var(--color-info); }
+.vl-journal li.is-wichtig, .vl-journal li.is-fehler { background: var(--color-danger-soft); box-shadow: inset 3px 0 0 var(--color-danger); }
+.vl-journal li.is-alarm { background: var(--color-warning-soft); }
+.vl-journal.is-kompakt li { grid-template-columns: 3rem 1.3rem minmax(0, 1fr); }
+.vl-vergleich { margin: 4px 0 0; font-weight: 400; font-variant-numeric: tabular-nums; }
+.vl-vergleich__titel { color: var(--color-text-muted); }
+.vl-blatt { width: min(64rem, calc(100vw - 2 * var(--space-3))); max-height: calc(100dvh - 2 * var(--space-3)); padding: var(--space-4); border: 2px solid var(--color-outline); border-radius: var(--radius-lg); background: var(--color-background); color: var(--color-text); box-shadow: var(--shadow-hard); overscroll-behavior: contain; }
+.vl-blatt::backdrop { background: rgb(10 12 20 / .55); }
+.vl-blatt > section { display: grid; gap: var(--space-2); margin-top: var(--space-4); }
+.vl-blatt h3 { margin: 0; font-size: var(--text-lg); }
+.vl-blatt__kopf { position: sticky; top: calc(-1 * var(--space-4)); z-index: 1; display: flex; align-items: center; gap: var(--space-3); margin: calc(-1 * var(--space-4)) calc(-1 * var(--space-4)) 0; padding: var(--space-3) var(--space-4); background: var(--color-surface); border-bottom: 1px solid var(--color-border); }
+.vl-blatt__kopf h2 { flex: 1; min-width: 0; margin: 0; font-size: var(--text-xl); }
+.vl-blatt__kopf button { min-height: 44px; }
+.vl-blatt__zeit { font-family: var(--font-mono); font-weight: 700; font-variant-numeric: tabular-nums; }
+.vl-blatt__hinweis { margin: var(--space-2) 0 0; font-size: var(--text-sm); }
+.vl-journal__kopf { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); }
+.vl-journal__kopf button { min-height: 44px; }
+.vl-filter { display: flex; flex-wrap: wrap; gap: 6px; }
+.vl-filter button { min-height: 44px; }
+.vl-filter button[aria-pressed='true'] { background: var(--color-primary); color: var(--color-on-primary); border-color: var(--color-primary); }
+.vl-filter__zahl { font-variant-numeric: tabular-nums; opacity: 0.8; }
+@media (max-width: 767px) {
+  .vl-blatt { width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh; margin: 0; border: 0; border-radius: 0; padding: var(--space-3) var(--space-3) calc(var(--space-4) + env(safe-area-inset-bottom)); }
+  .vl-blatt__kopf { top: calc(-1 * var(--space-3)); margin: calc(-1 * var(--space-3)) calc(-1 * var(--space-3)) 0; padding: calc(var(--space-2) + env(safe-area-inset-top)) var(--space-3) var(--space-2); }
+  .vl-blatt__kopf h2 { font-size: var(--text-lg); }
+  .ap-uhr__verlauf-text { display: none; }
+  .ap-uhr__spulen { display: none; }
+  /* geschrumpfte Leiste mit Mini-Foto und Kurve: Werte etwas kleiner, damit „Temp“ nicht abgeschnitten wird */
+  .ap.is-foto-weg .ap-wert dd { font-size: clamp(0.8rem, 3.6vw, 1.25rem); }
+  .ap-uhr button { white-space: nowrap; }
 }
