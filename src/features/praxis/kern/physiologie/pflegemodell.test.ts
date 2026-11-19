@@ -168,6 +168,11 @@ describe('Pflege-Physiologiemodell: Treiber fachlich plausibel', () => {
       expect(g.schlafdefizit!).toBeGreaterThan(0.3);
       expect(g.delir).toBeGreaterThan(0.1);
     },
+    alkoholentzug: () => {
+      const r = lauf('erwachsen', 60, [{ art: 'alkoholentzug', schwere: 0.7, letzterKonsumVorStd: 20 }]);
+      expect(r.g.entzug!).toBeGreaterThan(0.4);
+      expect(r.a.tremor).not.toBe('kein');
+    },
     immobil: () => {
       const r = lauf('hochbetagt', 240, [{ art: 'immobil', druckMmHg: 70, feucht: true }]);
       expect(r.g.dekubitusKat).toBeGreaterThanOrEqual(1);

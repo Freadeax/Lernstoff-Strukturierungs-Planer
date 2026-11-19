@@ -47,6 +47,8 @@ export interface Wirkprofil {
   antagonist?: 'opioid' | 'sedativ';
   /** zählt als Delir-Auslöser „medikamente“ (anticholinerg, Benzodiazepin im Alter) */
   delirRisiko?: boolean;
+  /** dämpft den Alkoholentzug (GABA-erg, Kreuztoleranz) um diesen Anteil */
+  entzugsschutz?: number;
 }
 
 export interface Wirkstoff {
@@ -84,13 +86,21 @@ const LISTE: Wirkstoff[] = [
     wirkung: { opioid: 0.3, analgesieNrs: 4 },
     beobachten: ['Atemfrequenz, SpO₂ und Vigilanz im Aufwachraum', 'Schmerz nach 15 min neu einschätzen'], quelle: fi('Piritramid') },
   { id: 'lorazepam', name: 'Lorazepam', klasse: 'Benzodiazepin', standardMg: 1, wege: { oral: 1, sublingual: 1, iv: 1 }, hwzMin: 720, zentral: true,
-    wirkung: { sedativ: 0.35, anxiolyse: 0.55, unruheMinus: 0.3, delirRisiko: true },
+    wirkung: { sedativ: 0.35, anxiolyse: 0.55, unruheMinus: 0.3, delirRisiko: true, entzugsschutz: 0.6 },
     beobachten: ['Vigilanz und Atmung, besonders zusammen mit Opioiden', 'Sturzgefahr (Muskelentspannung, Schläfrigkeit)', 'bei Hochbetagten paradoxe Unruhe, Delir'],
     quelle: fi('Lorazepam') },
   { id: 'midazolam', name: 'Midazolam', klasse: 'Benzodiazepin', standardMg: 5, wege: { bukkal: 1, iv: 1, im: 1 }, hwzMin: 120, zentral: true,
-    wirkung: { sedativ: 0.7, anxiolyse: 0.5, krampfStoppAb: 0.35 },
+    wirkung: { sedativ: 0.7, anxiolyse: 0.5, krampfStoppAb: 0.35, entzugsschutz: 0.5 },
     beobachten: ['Krampfdauer und -ende dokumentieren', 'Atmung und SpO₂ nach Gabe', 'Seitenlage, nicht allein lassen'],
     quelle: fi('Midazolam (bukkal)', 'Abschnitte 4.2, 4.4, 4.8; DGN/GNP S2k Status epilepticus') },
+  { id: 'diazepam', name: 'Diazepam', klasse: 'Benzodiazepin', standardMg: 10, wege: { oral: 1, iv: 1, rektal: 0.8 }, hwzMin: 2400, zentral: true,
+    wirkung: { sedativ: 0.4, anxiolyse: 0.55, unruheMinus: 0.35, krampfStoppAb: 0.5, delirRisiko: true, entzugsschutz: 0.7 },
+    beobachten: ['Vigilanz und Atmung (lange Wirkdauer, aktive Metaboliten: Kumulation)', 'Sturzgefahr', 'Entzugszeichen (CIWA-Ar) vor jeder weiteren Gabe'],
+    quelle: fi('Diazepam', 'Abschnitte 4.2, 4.4, 5.2; S3-LL Alkohol AWMF 076-001, Kap. Entzug') },
+  { id: 'thiamin', name: 'Thiamin (Vitamin B1)', klasse: 'Vitamin', standardMg: 100, wege: { iv: 1, oral: 0.3, im: 1 }, hwzMin: 600,
+    wirkung: {},
+    beobachten: ['vor Glukosegabe geben (Wernicke-Enzephalopathie)', 'Verwirrtheit, Gangunsicherheit, Augenbewegungsstörung beobachten'],
+    quelle: fi('Thiamin', 'Abschnitte 4.1, 4.2; S3-LL Alkohol AWMF 076-001, Kap. Entzug') },
   { id: 'flumazenil', name: 'Flumazenil', klasse: 'Benzodiazepin-Antagonist', standardMg: 0.5, wege: { iv: 1 }, hwzMin: 50,
     wirkung: { antagonist: 'sedativ' },
     beobachten: ['Resedierung nach etwa 1 h möglich: weiter überwachen'], quelle: fi('Flumazenil') },
@@ -191,13 +201,15 @@ export interface PharmaEffekte {
   bzProStunde: number;
   krampfStopp: boolean;
   delirRisiko: number;
+  /** Dämpfung des Alkoholentzugs 0..0,95 */
+  entzugsschutz: number;
   /** Spiegel je laufendem Wirkstoff (für Anzeige, Akte, Leitfaden) */
   spiegel: Record<string, number>;
 }
 
 export const KEINE_EFFEKTE: PharmaEffekte = {
   opioid: 0, sedativ: 0, atemdepression: 0, analgesieNrs: 0, fiebersenkung: 0, anxiolyse: 0, unruheMinus: 0, antiemese: 0,
-  bronchodilatation: 0, hfRel: 0, tonus: 0, diureseMlH: 0, bzProStunde: 0, krampfStopp: false, delirRisiko: 0, spiegel: {},
+  bronchodilatation: 0, hfRel: 0, tonus: 0, diureseMlH: 0, bzProStunde: 0, krampfStopp: false, delirRisiko: 0, entzugsschutz: 0, spiegel: {},
 };
 
 /**
@@ -233,6 +245,7 @@ export function pharmaEffekte(treiber: readonly Treiber[], k: ModellKontext, gew
     e.bzProStunde += (p.bzProStunde ?? 0) * l;
     if (p.krampfStoppAb !== undefined && l >= p.krampfStoppAb) e.krampfStopp = true;
     if (p.delirRisiko) e.delirRisiko += Math.min(1, l);
+    e.entzugsschutz += (p.entzugsschutz ?? 0) * el;
     if (p.antagonist === 'opioid') blockOpioid = Math.max(blockOpioid, 0.95 * Math.min(1, l));
     if (p.antagonist === 'sedativ') blockSedativ = Math.max(blockSedativ, 0.95 * Math.min(1, l));
   }
@@ -245,5 +258,6 @@ export function pharmaEffekte(treiber: readonly Treiber[], k: ModellKontext, gew
   e.unruheMinus = Math.min(0.9, e.unruheMinus);
   e.antiemese = Math.min(0.9, e.antiemese);
   e.fiebersenkung = Math.min(2, e.fiebersenkung);
+  e.entzugsschutz = Math.min(0.95, e.entzugsschutz * (1 - blockSedativ));
   return e;
 }
