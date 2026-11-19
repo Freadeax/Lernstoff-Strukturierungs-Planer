@@ -212,15 +212,24 @@ function kreislaufRoh(g: Grundgroessen, k: ModellKontext, saO2 = 0.97): Kreislau
   const fieber = Math.max(0, g.temperatur - 37);
   const opioid = hill(1 - g.atemantrieb, 0.5); // gedämpfter Antrieb ≈ Sedierung
   const stress = 0.12 * fieber + (0.25 * g.angst + 0.45 * panik(g)) * klemme(g.vigilanz * 1.2, 0, 1) + 0.015 * g.schmerz + 0.1 * g.unruhe
-    + 2.5 * Math.max(0, 0.92 - saO2) + (g.blutzucker < 60 ? 0.2 : 0) + (g.krampf > 0 ? 0.15 : 0);
+    + (g.blutzucker < 60 ? 0.2 : 0) + (g.krampf > 0 ? 0.15 : 0);
   const daempfung = 0.15 * opioid - (g.wirkHf ?? 0) + (g.temperatur < 35 ? (35 - g.temperatur) * 0.08 : 0);
   let rel = 1 + p.baroGain * (2.6 * defizit + 6 * defizit * defizit) + stress + 0.35 * dyspnoeKreislauf(g) - daempfung;
+  // Antriebe addieren sich nicht linear bis zur Höchstfrequenz: Sinustachykardie sättigt (Fieber, Schmerz und
+  // Schock zusammen ergeben bei Erwachsenen eher 130–150/min, über 150 spricht für eine Rhythmusstörung).
+  // Bis etwa +40 % linear, darüber flacht der Anstieg zur Höchstfrequenz hin ab.
+  const knie = 1.4;
+  const reserve = p.maxPuls / p.ruhePuls - knie;
+  if (rel > knie) rel = knie + reserve * (1 - Math.exp(-(rel - knie) / reserve));
+  // Hypoxie treibt den Puls zusätzlich (bis zur präfinalen Bradykardie unten)
+  const hypoxTrieb = 2.5 * Math.max(0, 0.92 - saO2);
+  rel += hypoxTrieb;
   // Schwere Hypoxie: präfinale Bradykardie (besonders bei Kindern)
   if (saO2 < 0.6) rel *= klemme((saO2 - 0.35) / 0.25, 0.25, 1);
   const hfRef = klemme(70 * rel, 25, (70 * p.maxPuls) / p.ruhePuls);
   const h = herz({ ...HERZ_START, hf: hfRef, vorlast, nachlast, kraft });
   // Der Reflex hebt den Druck höchstens bis zum Sollwert zurück; Stress (Fieber, Angst, Schmerz) darf ihn darüber heben.
-  const nurStress = herz({ ...HERZ_START, hf: klemme(70 * (1 + stress - daempfung), 25, 200), vorlast, nachlast, kraft }).map;
+  const nurStress = herz({ ...HERZ_START, hf: klemme(70 * (1 + stress + hypoxTrieb - daempfung), 25, 200), vorlast, nachlast, kraft }).map;
   // Hochbetagte: Der Reflex gleicht nur einen Teil des Defizits aus (orthostatische Hypotonie, steife Gefäße).
   const ausgleich = Math.min(1, p.baroGain);
   const mapGrenze = defizit > 0 ? Math.max(nurStress, m0 + ausgleich * (REF.map - m0)) : Infinity;
@@ -362,8 +371,13 @@ function naechster(alt: Grundgroessen, treiber: readonly Treiber[], dt: number, 
   g.delir += last > 0 ? 0.006 * last * p.delirAnfaellig * min : -0.003 * min;
 
   // Angst: Atemnot und starker Schmerz steigern, sonst langsames Abklingen
-  const angstTrieb = (0.03 * a.dyspnoe + (alt.schmerz >= 7 ? 0.01 : 0)) * klemme(alt.vigilanz * 1.2, 0, 1);
-  g.angst += angstTrieb > 0.002 ? angstTrieb * min : -0.004 * min;
+  // Die Angst steigt nur bis zu einer Decke, die zur Stärke der Auslöser passt (sonst schaukelt sie sich über Puls und
+  // Unruhe allein hoch); eine Panik entsteht über den Treiber panik_eskaliert.
+  const wach = klemme(alt.vigilanz * 1.2, 0, 1);
+  const angstTrieb = (0.03 * a.dyspnoe + (alt.schmerz >= 7 ? 0.01 : 0)) * wach;
+  const angstDecke = Math.max(b.angst, (0.15 + 0.4 * a.dyspnoe + (alt.schmerz >= 7 ? 0.15 : 0)) * wach);
+  if (angstTrieb > 0.002 && alt.angst < angstDecke) g.angst = Math.min(angstDecke, g.angst + angstTrieb * min);
+  else if (!hat(treiber, 'panik_eskaliert')) g.angst -= Math.min(0.004 * min, Math.max(0, g.angst - Math.max(b.angst, angstDecke)));
 
   // Pumpleistung: anhaltende schwere Hypoxie oder Minderperfusion schädigen das Herz
   if (a.saO2 < 0.7) g.pumpleistung -= 0.03 * ((0.7 - a.saO2) / 0.2) * min;

@@ -272,3 +272,31 @@ describe('Pflege-Physiologiemodell: Wirkkurven, Determinismus, Lernseite', () =>
     expect(lagerungsWirkung('pneumonie-rechts', 'seite-rechts')).toBeLessThan(0);
   });
 });
+
+describe('Pflege-Physiologiemodell: Plausibilität des Pulses', () => {
+  it('Hochbetagte mit Fieber 39–40 °C (Pneumonie): HF ≤ 135 auch nach einer Stunde', () => {
+    for (const temperatur of [39, 39.5, 40]) {
+      const r = lauf('hochbetagt', 60, [{ art: 'pneumonie', staerke: 1 }], { temperatur });
+      expect(r.a.hf, `${temperatur} °C`).toBeLessThanOrEqual(135);
+      expect(r.a.hf, `${temperatur} °C`).toBeGreaterThan(ruheAnzeige('hochbetagt').hf + 15);
+    }
+  });
+  it('Sepsis mit Schock bei Erwachsenen: Sinustachykardie sättigt (HF ≤ 160 bei MAP um 55)', () => {
+    const r = lauf('erwachsen', 60, [{ art: 'sepsis_verlauf', tempo: 1.4 }],
+      { gasaustausch: 0.5, atemarbeit: 1.3, gefaesstonus: 0.72, volumen: 0.9, temperatur: 38.8, angst: 0.25 });
+    expect(r.a.map!).toBeLessThan(65);
+    expect(r.a.hf).toBeGreaterThan(130);
+    expect(r.a.hf).toBeLessThanOrEqual(160);
+  });
+  it('Atemnot allein steigert die Angst bis zu einer Decke, nicht bis zur Panik', () => {
+    const r = lauf('erwachsen', 90, [{ art: 'pneumonie', staerke: 1.4 }]);
+    expect(r.g.angst).toBeGreaterThan(0.2);
+    expect(r.g.angst).toBeLessThan(0.6);
+  });
+  it('der Puls folgt der Angst (auch unterhalb der Panikschwelle)', () => {
+    const hf = (angst: number) => PFLEGE_MODELL.anzeige({ ...NORMAL, angst }, { altersgruppe: 'erwachsen' }).hf;
+    expect(hf(0.4)).toBeGreaterThan(hf(0));
+    expect(hf(0.58)).toBeGreaterThan(hf(0.4));
+    expect(hf(0.9)).toBeGreaterThan(hf(0.58) + 15);
+  });
+});
