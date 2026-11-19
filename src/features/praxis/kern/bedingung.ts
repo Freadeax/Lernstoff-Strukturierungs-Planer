@@ -29,6 +29,8 @@ export function pruefe(b: Bedingung, k: BedingungsKontext): boolean {
   }
   if ('ab' in b) return k.t >= b.ab;
   if ('flag' in b) return k.flags.includes(b.flag);
+  // P13: Baustein steht im Pflegebericht (der Kern markiert `doku:<baustein>`)
+  if ('dokumentiert' in b) return (k.getan[`doku:${b.dokumentiert}`]?.length ?? 0) > 0;
   if ('gemeldet' in b) return b.gemeldet.every((id) => k.letzterAnruf.includes(id));
   if ('anordnung' in b) {
     const a = k.anordnungen[b.anordnung];

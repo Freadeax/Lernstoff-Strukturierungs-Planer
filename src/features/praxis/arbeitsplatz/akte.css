@@ -1,0 +1,86 @@
+/* Praxissimulator neu – Patientenakte (P13). iPhone: Vollbild-Blatt; ab Tablet: Blatt rechts, max. 960 px. */
+
+.akte-hintergrund { position: fixed; inset: 0; z-index: var(--z-dialog); display: flex; justify-content: flex-end; background: rgb(0 0 0 / 0.45); }
+.akte { display: flex; flex-direction: column; width: min(960px, 100%); height: 100%; background: var(--color-background); color: var(--color-text); box-shadow: var(--shadow-hard);
+  padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+.akte__kopf { display: flex; align-items: flex-start; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border); background: var(--color-surface); }
+.akte__kopf > div { flex: 1; min-width: 0; }
+.akte__kopf .eyebrow { margin: 0; }
+.akte__kopf h2 { margin: 2px 0 0; font-family: var(--font-display); font-weight: 400; font-size: clamp(1.25rem, 3vw, 1.7rem); line-height: 1.15; }
+.akte__kurz { margin: 4px 0 0; font-size: var(--text-sm); }
+.akte__zu { min-height: 44px; flex: 0 0 auto; }
+.akte__reiter { display: flex; gap: 4px; overflow-x: auto; padding: var(--space-2) var(--space-4) 0; border-bottom: 1px solid var(--color-border); background: var(--color-surface); scrollbar-width: thin; }
+.akte__reiter button { flex: 0 0 auto; min-height: 44px; padding: 0 14px; border: 0; border-bottom: 3px solid transparent; border-radius: 0; background: transparent; color: var(--color-text); font-weight: 600; white-space: nowrap; }
+.akte__reiter button[aria-selected='true'] { border-bottom-color: var(--color-primary); color: var(--color-text); background: var(--color-primary-soft); }
+.akte__inhalt { flex: 1; overflow-y: auto; overscroll-behavior: contain; padding: var(--space-3) var(--space-4) var(--space-5); display: grid; gap: var(--space-3); align-content: start; }
+.akte__fuss { margin: 0; padding: var(--space-2) var(--space-4); font-size: var(--text-xs); border-top: 1px solid var(--color-border); }
+
+.akte-abschnitt h3, .akte-schreiben h3 { margin: 0 0 var(--space-2); font-size: var(--text-lg); }
+.akte-abschnitt p { margin: 0 0 4px; }
+.akte-liste { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.akte-liste > li:not(.akte-karte) { padding-left: 1em; text-indent: -1em; }
+.akte-liste > li:not(.akte-karte)::before { content: '· '; font-weight: 700; }
+.akte-karte { padding: var(--space-2) var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); }
+.akte-karte p { margin: 0 0 4px; }
+.akte-karte p:last-child { margin-bottom: 0; }
+.akte-karte ul { margin: 4px 0 0; padding-left: 1.2em; }
+.akte-karte.is-eigen { border-left: 4px solid var(--color-primary); }
+.akte-karte.is-offen { border-left: 4px solid var(--color-warning); }
+.akte-karte.is-muendlich, .akte-karte.is-neu { border-left: 4px solid var(--color-info); }
+.akte-karte.is-zurueckgezogen, .akte-karte.is-zurueck { opacity: 0.85; border-style: dashed; }
+.akte-tag { display: inline-block; margin: 0 4px; padding: 1px 8px; border-radius: 8px; font-size: var(--text-xs); font-weight: 700; background: var(--color-surface-sunken); border: 1px solid var(--color-border-strong); color: var(--color-text); vertical-align: middle; }
+.akte-tag.is-warn { background: var(--color-danger-soft); border-color: var(--color-danger); }
+.akte-tag.is-geaendert { background: var(--color-warning-soft); border-color: var(--color-warning); }
+.akte-warn { color: var(--color-danger); font-weight: 700; }
+
+.akte-stamm { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: var(--space-2); margin: 0; }
+.akte-stamm div { padding: var(--space-2); border-radius: var(--radius-md); background: var(--color-surface); border: 1px solid var(--color-border); }
+.akte-stamm dt { font-size: var(--text-xs); color: var(--color-text-muted); }
+.akte-stamm dd { margin: 0; font-weight: 600; }
+
+/* Tabellen: eigener Scrollbereich, nie die Seite breiter machen */
+.akte-tabelle-rahmen { max-width: 100%; overflow-x: auto; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); }
+.akte-tabelle-rahmen table { border-collapse: collapse; width: 100%; font-size: var(--text-sm); }
+.akte-tabelle-rahmen th, .akte-tabelle-rahmen td { padding: 6px 8px; border-bottom: 1px solid var(--color-border); text-align: left; vertical-align: top; }
+.akte-tabelle-rahmen thead th { background: var(--color-surface-sunken); font-weight: 700; white-space: nowrap; }
+.akte-kurve td, .akte-kurve thead th { text-align: center; font-variant-numeric: tabular-nums; min-width: 4.5rem; }
+.akte-kurve tbody th { white-space: nowrap; position: sticky; left: 0; background: var(--color-surface); }
+.akte-kurve .is-vorwert { color: var(--color-text-muted); background: var(--color-surface-sunken); }
+.akte-kurve thead th small { display: block; font-weight: 400; }
+.akte-med__schema { text-align: center !important; width: 2.5rem; font-variant-numeric: tabular-nums; }
+.akte-med__hinweis { display: block; color: var(--color-text-muted); font-weight: 400; margin-top: 2px; }
+.akte-med tr.is-geaendert th, .akte-med tr.is-geaendert td { background: var(--color-warning-soft); }
+.akte-gaben p { margin: 0 0 2px; }
+.akte-gabe { color: var(--color-text); }
+.akte-gabe.is-pause { font-weight: 700; }
+.akte-labor tr.is-auffaellig td:nth-child(2) { color: var(--color-danger); font-weight: 700; }
+
+/* Kurvenblatt-Grafik */
+.akte-grafik { margin: 0; max-width: 100%; overflow-x: auto; padding: var(--space-2); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); }
+.akte-grafik svg { display: block; }
+.akte-grafik__linie { stroke: var(--color-border); stroke-width: 1; }
+.akte-grafik__achse { fill: var(--color-text-muted); font-size: 11px; }
+.akte-grafik__rr { stroke: var(--color-text); stroke-width: 2.5; fill: none; }
+.akte-grafik .is-vorwert .akte-grafik__rr { stroke: var(--color-text-muted); }
+.akte-grafik__puls { stroke: var(--color-danger); stroke-width: 2; fill: none; }
+.akte-grafik__punkt { fill: var(--color-danger); }
+.akte-grafik figcaption { margin-top: 4px; font-size: var(--text-xs); }
+.akte-grafik__legende.is-puls { color: var(--color-danger); }
+
+/* Schreiben */
+.akte-schreiben { display: grid; gap: var(--space-2); padding: var(--space-3); border: 2px solid var(--color-outline); border-radius: var(--radius-lg); background: var(--color-surface); }
+.akte-schreiben p { margin: 0; }
+.akte-schreiben fieldset { margin: 0; padding: var(--space-2); border: 1px solid var(--color-border); border-radius: var(--radius-md); display: grid; gap: 4px; }
+.akte-schreiben legend { font-weight: 700; padding: 0 4px; }
+.akte-schreiben fieldset label { display: flex; gap: 8px; align-items: flex-start; min-height: 44px; padding: 6px 0; }
+.akte-schreiben input[type='checkbox'] { margin-top: 3px; flex: 0 0 auto; width: 20px; height: 20px; }
+.akte-frei { display: grid; gap: 4px; font-weight: 600; }
+.akte-frei textarea { width: 100%; box-sizing: border-box; font: inherit; }
+.akte-schreiben button.primary { justify-self: start; min-height: 44px; }
+
+@media (min-width: 760px) {
+  .akte { border-left: 2px solid var(--color-outline); }
+}
+
+/* Kopfzeile Arbeitsplatz: Akte-Knopf */
+.ap-kopf__akte { min-height: 44px; }
