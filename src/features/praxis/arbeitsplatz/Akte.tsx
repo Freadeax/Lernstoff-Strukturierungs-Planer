@@ -5,13 +5,18 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { anzeige, type SimZustand } from '../kern/kern';
-import type { SimEventEingabe } from '../kern/typen';
+import type { KurvenWert, SimEventEingabe } from '../kern/typen';
 import {
   AKTE_REITER, akte, allergieBekannt, alterText, anordnungsZeilen, bericht, bilanzText, dokuGruppen, eigeneBefunde, istMinimal,
-  kurvenSpalten, kurvenZeilen, medikation, neuAngeordnet, zellText, zuletztText, type AkteReiter, type KurvenSpalte,
+  kurvenSpalten, kurvenZeilen, medikation, neuAngeordnet, zellText, zuletztText, type AkteReiter,
 } from './akte-ansicht';
+import { Kurvenblatt, type SpurId } from './kurve/Kurvenblatt';
+import { kurvendaten } from './kurve/kurvendaten';
 import './akte.css';
 
+/** Spuren im Kurvenblatt der Akte (nur die mit Werten): Kreislauf, Temperatur, BZ, Schmerz */
+const AKTE_SPUREN = ['kreislauf', 'temp', 'bz', 'schmerz'] as const satisfies readonly SpurId[];
+const SPUR_WERTE: Record<(typeof AKTE_SPUREN)[number], KurvenWert[]> = { kreislauf: ['rrSys', 'hf'], temp: ['temp'], bz: ['bz'], schmerz: ['schmerz'] };
 const SCHEMA_KOPF = ['mo', 'mi', 'ab', 'na'] as const;
 
 export function Akte({ z, start = 'ueberblick', onSchliessen, eingabe }: {
@@ -116,10 +121,12 @@ function Kurve({ z }: { z: SimZustand }) {
   const spalten = kurvenSpalten(z);
   const zeilen = kurvenZeilen(spalten);
   const bilanz = bilanzText(z, anzeige(z).bilanzMl);
+  const daten = kurvendaten(z, { vorwerte: akte(z).vorwerte, monitor: false });
   return <>
     <p className="muted">Kurvenblatt: Vorwerte aus der Akte (grau) und deine Messungen im Fall. Werte, die du nicht gemessen hast, stehen hier nicht.</p>
     {spalten.length === 0 ? <p className="muted">Noch keine Werte. Miss oder dokumentiere Vitalzeichen, dann erscheinen sie hier.</p> : <>
-      <RrPuls spalten={spalten} />
+      <Kurvenblatt daten={daten} startUhrzeit={z.fall.startUhrzeit} achse="blatt" ohneMarken titel="Kurvenblatt"
+        spuren={AKTE_SPUREN.filter((s) => daten.punkte.some((p) => SPUR_WERTE[s].some((k) => p.werte[k] !== undefined)))} />
       <div className="akte-tabelle-rahmen" tabIndex={0} role="region" aria-label="Kurvenblatt als Tabelle">
         <table className="akte-kurve">
           <caption className="visually-hidden">Kurvenblatt</caption>
@@ -131,35 +138,6 @@ function Kurve({ z }: { z: SimZustand }) {
     </>}
     {bilanz.length > 0 && <Abschnitt titel="Bilanz">{bilanz.map((b) => <p key={b}>{b}</p>)}</Abschnitt>}
   </>;
-}
-
-/** Kleines Kurvenblatt: RR als Pfeile (V systolisch, Λ diastolisch) und Puls als Linie, gleich breite Spalten wie auf Papier. */
-function RrPuls({ spalten }: { spalten: KurvenSpalte[] }) {
-  const mit = spalten.filter((s) => s.werte.rrSys !== undefined || s.werte.hf !== undefined);
-  if (mit.length === 0) return null;
-  const B = 56, H = 180, oben = 10, links = 34;
-  const min = 40, max = 180;
-  const y = (v: number) => oben + (1 - (Math.min(max, Math.max(min, v)) - min) / (max - min)) * (H - oben - 20);
-  const breite = links + mit.length * B + 8;
-  const puls = mit.map((s, i) => (s.werte.hf !== undefined ? `${links + i * B + B / 2},${y(s.werte.hf)}` : '')).filter(Boolean);
-  return <figure className="akte-grafik">
-    <svg viewBox={`0 0 ${breite} ${H}`} width={breite} height={H} role="img" aria-label="Verlauf von Blutdruck und Puls, Details in der Tabelle darunter">
-      {[60, 100, 140, 180].map((v) => <g key={v}><line x1={links} x2={breite} y1={y(v)} y2={y(v)} className="akte-grafik__linie" /><text x={2} y={y(v) + 4} className="akte-grafik__achse">{v}</text></g>)}
-      {mit.map((s, i) => {
-        const x = links + i * B + B / 2;
-        const sys = s.werte.rrSys, dia = s.werte.rrDia;
-        return <g key={i} className={s.quelle === 'vorwert' ? 'is-vorwert' : ''}>
-          {sys !== undefined && dia !== undefined && <line x1={x} x2={x} y1={y(sys)} y2={y(dia)} className="akte-grafik__rr" />}
-          {sys !== undefined && <path d={`M${x - 6},${y(sys) - 7} L${x},${y(sys)} L${x + 6},${y(sys) - 7}`} className="akte-grafik__rr" />}
-          {dia !== undefined && <path d={`M${x - 6},${y(dia) + 7} L${x},${y(dia)} L${x + 6},${y(dia) + 7}`} className="akte-grafik__rr" />}
-          <text x={x} y={H - 4} textAnchor="middle" className="akte-grafik__achse">{s.label.replace(/^vor /, '−').slice(0, 8)}</text>
-        </g>;
-      })}
-      {puls.length > 1 && <polyline points={puls.join(' ')} className="akte-grafik__puls" />}
-      {mit.map((s, i) => s.werte.hf !== undefined && <circle key={i} cx={links + i * B + B / 2} cy={y(s.werte.hf)} r={4} className="akte-grafik__punkt" />)}
-    </svg>
-    <figcaption className="muted"><span className="akte-grafik__legende is-rr">RR ↕</span> <span className="akte-grafik__legende is-puls">● Puls</span></figcaption>
-  </figure>;
 }
 
 /* ─────────────────────────── Medikation ─────────────────────────── */
