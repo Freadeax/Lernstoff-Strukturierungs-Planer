@@ -52,11 +52,11 @@ export const LZ_KOERPERPFLEGE_ABGELEHNT: FallV2 = {
     ],
   },
   quellen: [
-    { id: 'dnqp-kontinenz', titel: 'DNQP: Expertenstandard Kontinenzförderung in der Pflege (2024)' },
-    { id: 'dnqp-demenz', titel: 'DNQP: Expertenstandard Beziehungsgestaltung in der Pflege von Menschen mit Demenz (2019)' },
+    { id: 'dnqp-kontinenz', titel: 'DNQP Expertenstandard Kontinenzförderung in der Pflege, Aktualisierung 2024' },
+    { id: 'dnqp-demenz', titel: 'DNQP Expertenstandard Beziehungsgestaltung bei Demenz, Fassung 2018/2019' },
     { id: 'krinko-cauti', titel: 'KRINKO: Prävention und Kontrolle katheterassoziierter Harnwegsinfektionen (Bundesgesundheitsblatt 2015)' },
-    { id: 'charta', titel: 'Charta der Rechte hilfe- und pflegebedürftiger Menschen (BMFSFJ/BMG), Artikel 1–3' },
-    { id: 'lehrplan-ce03', titel: 'Landeslehrplan BW 3BFP, CE 03 Erste Pflegeerfahrungen reflektieren (S. 22–25)' },
+    { id: 'charta', titel: 'Charta der Rechte hilfe- und pflegebedürftiger Menschen (BMFSFJ/BMG, 2005), Artikel 1–3' },
+    { id: 'lehrplan-ce03', titel: 'Landeslehrplan BW 3BFP (2020), CE 03 Erste Pflegeerfahrungen reflektieren (S. 22–25)' },
   ],
 
   person: {

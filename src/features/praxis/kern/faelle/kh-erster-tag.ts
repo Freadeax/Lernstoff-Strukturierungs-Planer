@@ -52,11 +52,11 @@ export const KH_ERSTER_TAG: FallV2 = {
     ],
   },
   quellen: [
-    { id: 'krinko-haende', titel: 'KRINKO: Händehygiene in Einrichtungen des Gesundheitswesens (Bundesgesundheitsblatt 2016)' },
+    { id: 'krinko-haende', titel: 'KRINKO: Händehygiene in Einrichtungen des Gesundheitswesens, Änderung 2026 (Epid. Bull. 32/2026) der Fassung 2016' },
     { id: 'who-5-momente', titel: 'WHO: Guidelines on Hand Hygiene in Health Care, 5 Momente der Händehygiene (2009)' },
-    { id: 'aps-identifikation', titel: 'Aktionsbündnis Patientensicherheit: Handlungsempfehlung sichere Patientenidentifikation' },
-    { id: 'dnqp-sturz', titel: 'DNQP: Expertenstandard Sturzprophylaxe in der Pflege, 2. Aktualisierung 2022' },
-    { id: 'stgb-203', titel: '§ 203 StGB Verletzung von Privatgeheimnissen; Berufsordnung Pflege' },
+    { id: 'aps-identifikation', titel: 'Aktionsbündnis Patientensicherheit: Handlungsempfehlung sichere Patientenidentifikation (2018)' },
+    { id: 'dnqp-sturz', titel: 'DNQP Expertenstandard Sturzprophylaxe in der Pflege, 2. Aktualisierung 2022' },
+    { id: 'stgb-203', titel: 'StGB § 203 Verletzung von Privatgeheimnissen; Berufsordnung Pflege' },
     { id: 'pflbg', titel: 'Pflegeberufegesetz (PflBG): Ausbildungsziel, Aufsicht durch Pflegefachpersonen' },
   ],
 

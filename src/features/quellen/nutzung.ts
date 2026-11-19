@@ -15,6 +15,8 @@ import { SZENARIEN } from '../fall/faelle';
 import { PROBEFAELLE } from '../fall/demo';
 import { freigabeFuerFall } from '../fall/freigaben';
 import { STECKBRIEFE } from '../assessment/steckbriefe';
+import { KATALOG_LISTE } from '../praxis/kern/katalog';
+import { FAELLE_V2 } from '../praxis/kern/faelle';
 
 /** Ein Inhalt der App, der sich auf eine Quelle stützt. */
 export interface Nutzung {
@@ -36,6 +38,11 @@ function aus(bereich: string, inhalt: string, pfad: string, f: Freigabe | undefi
 
 let cache: Nutzung[] | null = null;
 
+/** Quellenangabe des Kerns (nur Titel) → Titel + Stand (erste Jahreszahl im Titel). */
+export function kernQuelle(titel: string): Quelle {
+  return { titel, stand: titel.match(/(?:19|20)\d{2}/)?.[0] ?? 'ohne Jahresangabe' };
+}
+
 /** Alle Quellenangaben der App mit dem Inhalt, der sie nutzt. */
 export function alleNutzungen(): Nutzung[] {
   if (cache) return cache;
@@ -47,6 +54,9 @@ export function alleNutzungen(): Nutzung[] {
   for (const f of DIAGNOSTIK_FAELLE) out.push(...aus('Diagnostik', `Diagnostik ${f.titel}`, '/lernen/diagnostik', diagnostikFreigabe(f)));
   for (const s of [...SZENARIEN, ...PROBEFAELLE.map((p) => p.szenario)]) out.push(...aus('Fallsimulator', `Fall ${s.titel}`, '/lernen/fall', freigabeFuerFall(s)));
   for (const v of Object.values(HANDLUNGSVIDEOS)) out.push(...aus('Handlungsvideos', `Video ${v.titel}`, '/lernen/praxis', v.freigabe));
+  // Praxissimulator neu (Kern): Fälle und Handlungskatalog. Stand = erste Jahreszahl der Quellenangabe (Audit P20).
+  for (const f of FAELLE_V2) for (const q of f.quellen) out.push({ inhalt: `Praxisfall (neu) ${f.titel.replace(/[„“]/g, '')}`, bereich: 'Praxissimulator (neu)', pfad: `/lernen/praxis?neu=${f.id}`, quelle: kernQuelle(q.titel), risiko: f.spur === 'B' });
+  for (const m of KATALOG_LISTE) for (const q of m.quellen ?? []) out.push({ inhalt: `Maßnahme ${m.name}`, bereich: 'Praxissimulator (neu)', pfad: '/lernen/praxis', quelle: kernQuelle(q.titel), risiko: !!m.anordnungspflichtig });
   for (const [id, s] of Object.entries(STECKBRIEFE)) out.push({ inhalt: `Assessment ${id}`, bereich: 'Assessment-Trainer', pfad: '/lernen/assessment', quelle: s.original, risiko: false });
   cache = out;
   return out;
