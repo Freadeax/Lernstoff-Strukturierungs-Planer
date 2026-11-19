@@ -12,6 +12,7 @@ import {
 } from './kommunikation';
 import { NORMAL, type ModellKontext, type PhysiologieModell } from './modell';
 import { alarmFuer } from './physiologie/altersprofile';
+import { anzeigeEinschaetzungen } from './physiologie/einschaetzungen';
 import { wendeModulAn } from './spur-b/modul';
 import { SPUR_B_MODELL } from './spur-b/standard';
 import { beobachte, befinden, bildNach, istWichtig, verlaufTakt, type VerlaufStand } from './verlauf';
@@ -120,7 +121,10 @@ function modulEingriff(z: SimZustand, e: ModulEingriff | undefined) {
 }
 
 export function anzeige(z: SimZustand): Anzeige {
-  return modell.anzeige(z.grund, kontextModell(z));
+  const k = kontextModell(z);
+  const a = modell.anzeige(z.grund, k);
+  // G4: Einschätzungen aus den angezeigten Werten (gleich für Spur A und B; Platzhalter, Bedingungen)
+  return Object.assign(a, anzeigeEinschaetzungen(a, z.grund, k));
 }
 
 export function kontext(z: SimZustand): BedingungsKontext {
@@ -397,7 +401,7 @@ function fuelle(text: string, z: SimZustand): string {
   return text.replace(/\{(\w+)\}/g, (alles, k: string) => {
     const w = a[k];
     if (typeof w !== 'number') return typeof w === 'string' ? w : alles;
-    const stellen = k === 'ph' ? 2 : k === 'laktat' || k === 'kalium' || k === 'temp' || k === 'hco3' || k === 'be' || k === 'rekapSek' ? 1 : 0;
+    const stellen = k === 'ph' ? 2 : k === 'laktat' || k === 'kalium' || k === 'temp' || k === 'hco3' || k === 'be' || k === 'rekapSek' || k === 'schockindex' ? 1 : 0;
     return w.toLocaleString('de-DE', { minimumFractionDigits: stellen, maximumFractionDigits: stellen });
   });
 }

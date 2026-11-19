@@ -168,3 +168,27 @@ Code: `kommunikation.ts` (rein, vom Kern aufgerufen), Zustand in `SimZustand.kom
 - `lz-koerperpflege-abgelehnt` (CE 03): Körperpflege erst nach Grund (`grund-scham`) und Aushandeln (`einverstanden-pflege`), „trotzdem waschen“ und Druck der WBL als Grenzüberschreitung, neue Inkontinenz → Urinstix-Rückfrage, Dauerkatheter als fehlerhafte Anordnung, Reflexion mit der PA als Pflicht (KB V).
 - `kh-reha-erster-weg` (CE 02, aus Altfall „reha“): Mobilisation Tag 1 nach Hüft-TEP vorbereiten, Kollaps beim Gehen (Entscheidung), Rückfrage Hb, Novaminsulfon trotz Metamizol-Allergie remonstrieren, Physio/Ehefrau.
 - Tests: `faelle/p17a.test.ts` (u. a. Musterweg im 1. Drittel ≥ 90 %), Browserprüfung Block P17A in `check-arbeitsplatz.mjs`.
+## Grundsystem G3: Haut, Mobilität, Sturz
+
+`physiologie/haut-mobilitaet.ts` (Lernmodell). Das Druck-mal-Zeit-Modell `haut()` der Lernseite liegt jetzt in `physiologie/organe.ts` (Lernseite re-exportiert, gleiche Funktion).
+
+- **Treiber `immobil`** `{ druckMmHg, scherkraefte?, feucht? }`: Auflagedruck an der belasteten Stelle (Weichlagerung ≈ 30, Standardmatratze 60–80 mmHg).
+- **`Grundgroessen.druckLast`** (mmHg·h über Kapillardruck 32): steigt unter Druck; Scherkräfte ×1,5, Feuchte ×1,3, MAP < 65 bis ×1,6, Exsikkose ×1,2. Ohne Druck erholt sich das Gewebe (−40 je Stunde).
+- **`Grundgroessen.dekubitusKat`** / `Anzeige.dekubitusKat` 0–4: höchste erreichte Kategorie (gleiche Schwellen wie die Lernseite), geht im Fall nicht zurück.
+- **Entlastung**: Katalog „positionieren-druckentlastung“ und „mobilisieren-transfer“ tragen die Wirkkurve `druckLast` faktor 0 (neue Auflagestelle). Wirkkurven dürfen auf die optionalen Größen in `OPTIONALE_WIRKGROESSEN` (modell.ts) zeigen.
+- **Sturzrisiko** `sturzrisiko(g, eingabe)`: Gründe aus dem Zustand (Alter, Delir/Verwirrtheit, Unruhe, Bewusstsein, Kreislauf/Schwindel, Sedierung aus G1, Harndrang aus G2, Unterzucker, Schmerz, Fieber, Immobilität) und Stufe gering/erhöht/hoch; G4 stellt es als Einschätzung bereit.
+
+## Grundsystem G4: Einschätzungen aus dem Modell
+
+`physiologie/einschaetzungen.ts` (vereinfacht nachgebildet, Lernmodell). Der Kern ergänzt in `anzeige(z)` für Spur A und B:
+
+| Feld | Instrument | Bedeutung |
+|---|---|---|
+| `schockindex` | Puls / RR sys | > 1 Schockverdacht (Erwachsene) |
+| `qsofa` | qSOFA (Sepsis-3) | 0–3, ≥ 2 Sepsisverdacht |
+| `news2` | NEWS2 (nur Erwachsenenprofil, „C“ = neu verwirrt gegenüber Ausgangslage) | Punkte |
+| `pews` | PEWS vereinfacht nach Brighton (nur Kinder) | 0–9 |
+| `nuDesc` | Nu-DESC | 0–10, ≥ 2 Delir wahrscheinlich |
+| `besd` | BESD | 0–10, ≥ 2 Schmerz möglich |
+
+Alle Felder gehen als Platzhalter in Befundtexte (`{qsofa}`, `{schockindex}` mit einer Nachkommastelle …) und als `wert` in Bedingungen. `einschaetzungen(a, g, treiber, k)` liefert zusätzlich **Braden** (6–23, Ernährung aus der Hydratation geschätzt, Immobilität aus G3) und das **Sturzrisiko** aus G3 (Sedierung aus G1, Harndrang aus G2) für Auswertung, Übergabe oder KI-Tutor. Die Einschätzung am Menschen ersetzen sie nicht: Fälle sollen die Maßnahme (z. B. „schmerz-besd“) weiter verlangen, das Modell liefert nur den passenden Wert.
