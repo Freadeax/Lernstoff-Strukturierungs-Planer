@@ -1,6 +1,8 @@
 // Pilotfall Spur A · Psychiatrie/akute Krise: Panikattacke, danach Suizidgedanken mit Plan
 // Entwurf, fachlich UNGEPRÜFT. Inhalte fiktiv/didaktisch. Muster: amb-sturz-exsikkose.ts (Paket P6).
 // Foto fehlt (Psychiatrie-Zimmer bestellt, MATERIAL-BEDARF.md); bis dahin Beispielbild Raum 30a.
+// Runde 2 (P14b): Rückfrage der Ärztin nach dem Puls, Rückauftrag „Schwester einbeziehen?“, Schwester am Telefon mit
+// Schweigepflicht, Kollege Deniz (Begleitung planen), vollständige Akte, Dokumentationspflicht mit wörtlichen Aussagen.
 
 import { KATALOG } from '../katalog';
 import type { Bedingung, FallV2, MassnahmeDefinition } from '../typen';
@@ -11,11 +13,20 @@ const RUHIGER: Bedingung = { getan: 'atemanleitung-ruhig' };
 /** Sie kann erst antworten, wenn die Panik nachgelassen hat. */
 const PLAN_BEKANNT: Bedingung = { alle: [{ getan: 'suizidalitaet-ansprechen' }, RUHIGER] };
 const BEGLEITET: Bedingung = { eine: [{ getan: 'sitzwache' }, { getan: 'hilfe-holen' }] };
+/** Die Schwester ruft an (Ereignis e-schwester); erst dann gibt es das Gespräch mit ihr. */
+const SCHWESTER_RUFT: Bedingung = { alle: [PLAN_BEKANNT, { ab: 840 }] };
+
+/** Hauptantwort der Ärztin (direkt oder nach der Rückfrage); id: antwortet nur einmal im Fall */
+const R_ANORDNUNG = {
+  id: 'r-anordnung',
+  antwort: '„Danke für die klare Meldung. Geben Sie ihr Lorazepam 1 mg, dann soll sie schlafen. Stündliche Sichtkontrolle reicht, ich sehe sie morgen in der Visite. Und fragen Sie sie bitte, ob wir ihre Schwester einbeziehen dürfen. Schreiben Sie mir, was sie sagt.“',
+  anordnungen: ['an-lorazepam', 'an-stuendlich'], setzt: ['arzt-informiert'], auftraege: ['af-schwester'],
+};
 
 export const PSY_PANIK_SUIZIDALITAET: FallV2 = {
   schema: 2,
   id: 'psy-panik-suizidalitaet',
-  version: '0.1.0',
+  version: '0.2.0',
   spur: 'A',
   setting: 'psychiatrie',
   altersgruppe: 'erwachsen',
@@ -40,6 +51,8 @@ export const PSY_PANIK_SUIZIDALITAET: FallV2 = {
       'Befugnis Suizidalität ansprechen und Gegenstände sichern (1./2. Drittel mit Anleitung) gegen BW-Lehrplan CE 06/CE 11 bestätigen',
       'Lorazepam 1 mg bei akuter Angst und Suizidalität als ärztliche Bedarfsanordnung plausibel?',
       'Foto Psychiatrie-Zimmer fehlt: Raum 30a ist nur Beispielbild',
+      'Runde 2: Auskunft an die Schwester nur mit Einwilligung (keine Schweigepflichtentbindung in der Akte); bei Lebensgefahr und fehlender Einwilligungsfähigkeit wäre § 34 StGB zu prüfen – hier ist sie ansprechbar und begleitet',
+      'Akte: Zopiclon bei Aufnahme abgesetzt, Restbestand nicht abgegeben – Aufnahmeroutine (Taschenkontrolle mit Einverständnis) fachlich prüfen',
     ],
   },
   quellen: [
@@ -96,6 +109,59 @@ export const PSY_PANIK_SUIZIDALITAET: FallV2 = {
     aus('sitzwache', { id: 'kontrolle-stuendlich', name: 'Stündliche Sichtkontrolle einplanen und sie allein lassen', setzt: ['nur-stuendlich'] }),
   ],
 
+  akte: {
+    aufnahmegrund: 'Freiwillige Aufnahme vor drei Tagen über die Institutsambulanz: schwere depressive Episode mit Antriebslosigkeit, Schlafstörung und sozialem Rückzug nach Trennung; zunehmende Panikattacken.',
+    anamnese: [
+      'Panikstörung seit dem 20. Lebensjahr, frühere ambulante Verhaltenstherapie mit gutem Erfolg.',
+      'Seit der Trennung vor drei Monaten schläft sie schlecht, isst wenig (minus 4 kg), seit zwei Monaten krankgeschrieben.',
+      'Kein früherer Suizidversuch bekannt. Kein Alkohol- oder Drogenkonsum laut Aufnahmegespräch.',
+      'Der Hausarzt hatte Zopiclon 7,5 mg zum Schlafen verordnet; bei Aufnahme abgesetzt (Abhängigkeitsrisiko, gefährlich in Überdosis). Restbestand laut Patientin „zu Hause aufgebraucht“.',
+      'Wichtige Bezugspersonen: Schwester Julia (wohnt in der Nähe), Kater Mio.',
+    ],
+    diagnosen: [
+      { text: 'Schwere depressive Episode ohne psychotische Symptome', icd: 'F32.2', seit: '09/2026' },
+      { text: 'Panikstörung', icd: 'F41.0', seit: '2012' },
+    ],
+    medikation: [
+      { id: 'mp-sertralin', wirkstoff: 'Sertralin', staerke: '50 mg', form: 'Tbl.', schema: '1-0-0-0', zuletzt: '08:00',
+        hinweis: 'Seit zwei Wochen (vom Hausarzt begonnen). In den ersten Wochen auf innere Unruhe und Suizidgedanken achten.' },
+    ],
+    vorwerte: [
+      { zeit: 'Aufnahme vor 3 Tagen', vorH: 75, werte: { rrSys: 118, rrDia: 76, hf: 78, af: 14, spo2: 99, temp: 36.6, gewicht: 64 }, kuerzel: 'MB' },
+      { zeit: 'gestern 08:00', vorH: 37, werte: { rrSys: 112, rrDia: 72, hf: 74 }, kuerzel: 'MB' },
+      { zeit: 'heute 08:00', vorH: 13, werte: { rrSys: 116, rrDia: 74, hf: 80 }, kuerzel: 'DA' },
+    ],
+    pflegebericht: [
+      { zeit: 'gestern 14:00', wer: 'MB (Bezugspflege)', text: 'Bezugspflegegespräch: Frau Keller spricht leise, wenig Blickkontakt, schildert Grübeln über die Trennung. Suizidgedanken auf Nachfrage verneint, „das würde ich meiner Schwester nie antun“. Absprachefähig. Nimmt an der Ergotherapie teil.' },
+      { zeit: 'gestern 21:30', wer: 'DA', text: 'Schläft schlecht ein, fragt nach etwas zum Schlafen. Ärztlich nichts angeordnet, Entspannungsübung angeboten, angenommen.' },
+      { zeit: 'heute 15:30', wer: 'DA', text: 'Telefonat mit dem Ex-Partner auf dem Flur, danach still, zieht sich ins Zimmer zurück. Abendessen nicht gegessen. Im Kontakt einsilbig.' },
+    ],
+    aerztlicheAnordnungen: [
+      { zeit: 'vor 3 Tagen', wer: 'Dr. Lange', text: 'Sertralin 50 mg morgens weiter. Zopiclon abgesetzt. Bedarfsmedikation nach Rücksprache.' },
+      { zeit: 'vor 3 Tagen', wer: 'Dr. Lange', text: 'Offene Station, Ausgang nach Absprache. Suizidalität täglich einschätzen und dokumentieren.' },
+    ],
+    assessments: [
+      { name: 'PHQ-9 (Depression)', wert: '22 von 27 (schwer)', datum: 'vor 3 Tagen' },
+      { name: 'Einschätzung Suizidalität', wert: 'distanziert, absprachefähig', datum: 'vor 3 Tagen (Aufnahme)', hinweis: 'Seitdem nicht erneut ärztlich eingeschätzt; gestern Gespräch mit der Bezugspflege.' },
+      { name: 'Aufnahme-EKG', wert: 'Sinusrhythmus 76/min, unauffällig', datum: 'vor 3 Tagen' },
+    ],
+    labor: [
+      { name: 'TSH', wert: '1,8', einheit: 'mU/l', norm: '0,4–4,0', datum: 'vor 3 Tagen' },
+      { name: 'Hämoglobin', wert: '13,1', einheit: 'g/dl', norm: '12–16', datum: 'vor 3 Tagen' },
+      { name: 'Natrium', wert: '139', einheit: 'mmol/l', norm: '135–145', datum: 'vor 3 Tagen' },
+    ],
+    pflegeplanung: [
+      { problem: 'Hoffnungslosigkeit und sozialer Rückzug bei schwerer Depression', ziel: 'Frau Keller nimmt täglich an mindestens einem Gruppenangebot teil', massnahmen: ['Tagesstruktur gemeinsam planen', 'tägliches Bezugspflegegespräch', 'Suizidalität täglich ansprechen und dokumentieren'] },
+      { problem: 'Panikattacken mit Hyperventilation', ziel: 'Frau Keller wendet bei Panik die Atemübung an', massnahmen: ['Atemübung (lang ausatmen) einüben', 'bei Panik da bleiben, ruhig sprechen'] },
+      { problem: 'Ein- und Durchschlafstörung', ziel: 'Schläft mindestens 5 Stunden', massnahmen: ['Schlafhygiene besprechen', 'Entspannungsübung am Abend'] },
+    ],
+    rechtliches: [
+      'Freiwillige Behandlung (Behandlungsvertrag unterschrieben). Keine Unterbringung.',
+      'Keine Schweigepflichtentbindung erteilt: Auskunft an Angehörige nur nach Rücksprache mit Frau Keller.',
+      'Keine gesetzliche Betreuung, keine Vorsorgevollmacht.',
+    ],
+  },
+
   befunde: [
     { massnahme: 'vorstellen-einverstaendnis', varianten: [{ text: 'Frau Keller sitzt auf der Bettkante, presst die Hand auf die Brust und atmet hektisch. „Gut, dass Sie da sind.“' }] },
     { massnahme: 'beschwerden-erfragen', varianten: [
@@ -132,6 +198,31 @@ export const PSY_PANIK_SUIZIDALITAET: FallV2 = {
     { id: 'g-halt', frage: 'Nach dem fragen, was sie im Leben hält', an: 'patient', kompetenzbereiche: ['II'],
       antwort: [{ wenn: RUHIGER, text: '„Meine Schwester … und Mio, mein Kater.“ Sie lächelt kurz.' }, { text: 'Sie kann gerade nicht antworten.' }],
       wirkung: [{ groesse: 'angst', delta: -0.05, beginnSek: 0, spitzeSek: 60, dauerSek: 'dauerhaft' }], fakten: ['Schwester', 'Kater'] },
+    // Runde 2 (P14b): Schwester (Schweigepflicht), Kollege Deniz
+    { id: 'g-einwilligung-schwester', frage: 'Fragen, ob ihre Schwester informiert und einbezogen werden darf', an: 'patient', kompetenzbereiche: ['II', 'IV'],
+      antwort: [
+        { wenn: RUHIGER, text: '„Julia? … Ja. Sie soll wissen, wie es mir geht. Aber sie soll nicht in Panik geraten.“', setzt: ['einwilligung-schwester'] },
+        { text: 'Sie kann gerade nicht antworten und ringt nach Luft.' },
+      ],
+      fakten: ['Schwester heißt Julia', 'Frau Keller ist einverstanden'] },
+    { id: 'g-schwester-lage', frage: 'Schwester am Telefon: Lage schildern (Krise, Suizidgedanken, Begleitung)', an: 'angehoerige', kanal: 'telefon', kompetenzbereiche: ['II', 'IV'],
+      nurWenn: SCHWESTER_RUFT,
+      schweigepflicht: { erlaubtWenn: { flag: 'einwilligung-schwester' },
+        fehlerText: 'Du hast der Schwester Auskunft gegeben, ohne Frau Keller zu fragen. Es gibt keine Schweigepflichtentbindung. Frau Keller ist ansprechbar und in Sicherheit (Begleitung); frag sie zuerst. Ohne Einwilligung bietest du nur an, dass sie zurückruft.' },
+      antwort: [
+        { wenn: { flag: 'arzt-informiert' }, text: '„Gott sei Dank ist jemand bei ihr. Danke, dass Sie mir das sagen. Ich kann morgen früh kommen, wenn das hilft.“', setzt: ['schwester-informiert'] },
+        { text: '„Oh nein … Ist jemand bei ihr? Was passiert jetzt?“', setzt: ['schwester-informiert'] },
+      ],
+      fakten: ['Schwester wohnt in der Nähe', 'Schwester kann morgen kommen'] },
+    { id: 'g-schwester-rueckruf', frage: 'Schwester am Telefon: ohne Einwilligung keine Auskunft, Rückruf anbieten', an: 'angehoerige', kanal: 'telefon', kompetenzbereiche: ['II', 'IV'],
+      nurWenn: SCHWESTER_RUFT,
+      antwort: [{ text: '„Okay … ich verstehe. Sagen Sie ihr bitte, dass ich an sie denke und dass sie mich anrufen soll.“', setzt: ['schwester-rueckruf'] }] },
+    { id: 'g-deniz-nacht', frage: 'Mit Deniz die ständige Begleitung für die Nacht planen', an: 'kollegin', kompetenzbereiche: ['III'],
+      nurWenn: { getan: 'hilfe-holen' },
+      antwort: [
+        { wenn: { anordnung: 'an-1zu1' }, text: '„Ich bleibe bis 23 Uhr bei ihr, dann übernimmt Lea aus dem Nachtdienst. Ich trage es in die Übergabe ein. Die Ärztin kommt gleich.“', setzt: ['begleitung-geplant'] },
+        { text: '„Ich bleibe erst mal bei ihr. Was sagt die Ärztin? Für die Nacht brauchen wir eine klare Anordnung.“' },
+      ] },
   ],
 
   sbar: [
@@ -145,6 +236,8 @@ export const PSY_PANIK_SUIZIDALITAET: FallV2 = {
     { id: 'a-theatralisch', teil: 'A', text: 'Ich glaube, sie will nur Aufmerksamkeit.', art: 'falsch' },
     { id: 'r-kommen', teil: 'R', text: 'Bitte kommen Sie und schätzen Sie die Suizidalität persönlich ein. Bis dahin bleibt jemand ständig bei ihr.', art: 'kern' },
     { id: 'r-bedarf', teil: 'R', text: 'Brauchen wir eine Bedarfsmedikation gegen die Angst?', art: 'hilfreich' },
+    // Runde 2: Rückmeldung zum Rückauftrag „Schwester einbeziehen?“
+    { id: 'a-schwester-ja', teil: 'A', text: 'Frau Keller ist einverstanden, dass ihre Schwester Julia einbezogen wird.', art: 'hilfreich', bekanntWenn: { flag: 'einwilligung-schwester' } },
   ],
 
   anordnungen: [
@@ -161,14 +254,24 @@ export const PSY_PANIK_SUIZIDALITAET: FallV2 = {
   arzt: {
     name: 'Dienstärztin Dr. Lange',
     erreichbar: 'telefon',
+    // Runde 2 (P14b): Regeln von genau nach allgemein. Ohne körperliche Einschätzung fragt die Ärztin nach dem Puls zurück.
+    // Rückauftrag: Einwilligung für die Schwester erfragen und per Messenger melden. Messenger nach dem ersten Kontakt.
     regeln: [
-      { wenn: { gemeldet: ['a-plan'] },
-        antwort: '„Danke für die klare Meldung. Geben Sie ihr Lorazepam 1 mg, dann soll sie schlafen. Stündliche Sichtkontrolle reicht, ich sehe sie morgen in der Visite.“',
-        anordnungen: ['an-lorazepam', 'an-stuendlich'], setzt: ['arzt-informiert'] },
+      { ...R_ANORDNUNG, wenn: { alle: [{ gemeldet: ['a-plan'] }, { eine: [{ gemeldet: ['a-vital'] }, { gemeldet: ['wert:hf'] }] }] } },
+      { id: 'r-puls-frage', wenn: { gemeldet: ['a-plan'] },
+        antwort: '„Das nehme ich sehr ernst. Sie hatte ja auch eine Panikattacke – ich muss wissen, ob körperlich etwas dahintersteckt.“',
+        rueckfrage: { text: '„Wie ist der Puls jetzt?“', erwartet: ['wert:hf'], auftrag: 'af-puls' } },
       { wenn: { gemeldet: ['a-theatralisch'] },
         antwort: '„Hm. Dann beruhigen Sie sie, ich bin gerade in der Notaufnahme gebunden.“', setzt: ['arzt-abgewimmelt'] },
       { wenn: { gemeldet: ['s-panik'] },
         antwort: '„Die Panikattacken kennt sie. Bleiben Sie bei ihr, bei starker Angst Lorazepam 1 mg. Hat sie sonst etwas gesagt?“', anordnungen: ['an-lorazepam'] },
+    ],
+    auftraege: [
+      { id: 'af-puls', text: 'Puls zählen und der Dienstärztin melden', erledigt: { getan: 'puls-zaehlen' }, meldung: ['wert:hf'], meldenBinnenSek: 300,
+        folge: [{ ...R_ANORDNUNG, wenn: { gemeldet: ['a-plan'] } }] },
+      { id: 'af-schwester', text: 'Frau Keller fragen, ob die Schwester einbezogen werden darf, und der Ärztin schreiben', meldenBinnenSek: 900,
+        erledigt: { flag: 'einwilligung-schwester' }, meldung: ['a-schwester-ja'],
+        folge: [{ wenn: { ab: 0 }, antwort: '„Danke. Dann rufe ich die Schwester morgen früh an und lade sie zum Gespräch ein.“', setzt: ['schwester-gemeldet'] }] },
     ],
   },
 
@@ -185,6 +288,8 @@ export const PSY_PANIK_SUIZIDALITAET: FallV2 = {
       ] },
     { id: 'e-kollege', art: 'team', wann: { getan: 'hilfe-holen' },
       text: 'Pflegefachmann Deniz kommt dazu: „Ich bleibe bei ihr, ruf du die Dienstärztin an.“' },
+    { id: 'e-schwester', art: 'telefon', wann: SCHWESTER_RUFT,
+      text: 'Das Stationstelefon klingelt. Frau Kellers Schwester Julia: „Meine Schwester hat mir vorhin geschrieben, es tue ihr alles leid. Was ist los bei ihr?“' },
     { id: 'e-aerztin-da', art: 'visite', wann: { alle: [{ flag: 'remonstriert:an-stuendlich' }, { ab: 1500 }] },
       text: 'Dr. Lange ist da und spricht lange mit Frau Keller. Sie bleibt heute Nacht mit ständiger Begleitung, morgen wird das weitere Vorgehen mit ihr besprochen.' },
   ],
@@ -196,10 +301,12 @@ export const PSY_PANIK_SUIZIDALITAET: FallV2 = {
       { wenn: { nicht: { getan: 'suizidalitaet-ansprechen' } }, impuls: 'Sie sagt, es wäre besser, wenn sie nicht mehr da wäre. Was hörst du da heraus?', tipp: 'Frag direkt nach Suizidgedanken, nach Plan und Mitteln. Die Frage löst keine Suizidgedanken aus.' },
       { wenn: { nicht: BEGLEITET }, impuls: 'Darf sie jetzt allein bleiben, während du telefonierst?', tipp: 'Hol Unterstützung, damit immer jemand bei ihr ist.' },
       { wenn: { nicht: { flag: 'remonstriert:an-stuendlich' } }, impuls: 'Passt die Anordnung zu dem, was du weißt?', tipp: 'Konkreter Plan und gesammelte Tabletten: Reicht eine Kontrolle pro Stunde?' },
+      { wenn: { auftrag: 'af-puls', status: 'offen' }, impuls: 'Was wollte die Ärztin noch wissen?', tipp: 'Puls zählen und ihr den Wert schicken.' },
+      { wenn: { alle: [{ auftrag: 'af-schwester', status: 'offen' }, { nicht: { auftrag: 'af-schwester', status: 'gemeldet' } }] }, impuls: 'Um was hat dich die Ärztin noch gebeten?', tipp: 'Frau Keller fragen, ob ihre Schwester einbezogen werden darf, und der Ärztin die Antwort schreiben.' },
       { impuls: 'Wer muss das noch wissen, und was schreibst du auf?', tipp: 'Schichtleitung informieren und wörtliche Aussagen im Pflegebericht festhalten.' },
     ],
   },
-  team: { kollegin: 'Pflegefachmann Deniz (Schichtleitung)' },
+  team: { kollegin: 'Pflegefachmann Deniz (Schichtleitung)', weitere: { angehoerige: 'Schwester Julia (Telefon)' } },
 
   bewertung: {
     pflicht: [
@@ -221,10 +328,16 @@ export const PSY_PANIK_SUIZIDALITAET: FallV2 = {
         warum: 'Akute Suizidalität braucht eine ärztliche Einschätzung noch heute.' },
       { id: 'p-remonstration', text: 'Anordnung „stündliche Kontrolle reicht“ hinterfragt', gewicht: 3, kompetenzbereiche: ['III', 'IV'], erfuellt: { flag: 'remonstriert:an-stuendlich' },
         warum: 'Bei konkretem Plan ist eine stündliche Kontrolle zu wenig. Du kennst die Lage am besten und musst das sagen.' },
-      { id: 'p-team', text: 'Schichtleitung informiert', gewicht: 1, kompetenzbereiche: ['III'], erfuellt: { eine: [{ getan: 'pflegefachperson-informieren' }, { getan: 'hilfe-holen' }] },
-        warum: 'Die Schichtleitung plant die Begleitung für die Nacht.' },
-      { id: 'p-doku', text: 'Pflegebericht mit wörtlichen Aussagen', gewicht: 1, kompetenzbereiche: ['I', 'IV'], erfuellt: { getan: 'pflegebericht' },
-        warum: 'Wörtliche Aussagen, Plan, Mittel, Maßnahmen und Absprachen müssen nachvollziehbar sein.' },
+      { id: 'p-team', text: 'Schichtleitung informiert und Begleitung für die Nacht geplant', gewicht: 1, kompetenzbereiche: ['III'],
+        erfuellt: { eine: [{ flag: 'begleitung-geplant' }, { getan: 'pflegefachperson-informieren' }] },
+        warum: 'Die Schichtleitung plant die ständige Begleitung für die Nacht.' },
+      { id: 'p-doku', text: 'Pflegebericht mit Suizidgedanken, Plan und Mitteln', gewicht: 2, kompetenzbereiche: ['I', 'IV'], erfuellt: { dokumentiert: 'a-plan' },
+        warum: 'Wörtliche Aussagen, Plan, Mittel, Maßnahmen und Absprachen müssen nachvollziehbar sein, auch für den Nachtdienst.' },
+      { id: 'p-rueckauftrag', text: 'Einwilligung für die Schwester erfragt und der Ärztin gemeldet', gewicht: 2, kompetenzbereiche: ['II', 'III'],
+        erfuellt: { auftrag: 'af-schwester', status: 'gemeldet' }, warum: 'Die Ärztin plant das Angehörigengespräch auf deine Rückmeldung (Closed Loop).' },
+      { id: 'p-schwester', text: 'Schwester nur mit Einwilligung informiert', gewicht: 1, kompetenzbereiche: ['II', 'IV'],
+        erfuellt: { eine: [{ alle: [{ getan: 'frage:g-schwester-lage' }, { flag: 'einwilligung-schwester' }] }, { getan: 'frage:g-schwester-rueckruf' }] },
+        warum: 'Angehörige sind wichtige Schutzfaktoren, aber ohne Einwilligung gibt es keine Auskunft (Schweigepflicht).' },
     ],
     fehler: [
       { id: 'f-tuete', text: 'Tütenatmung angeleitet', schwere: 'mittel', kompetenzbereiche: ['I', 'V'], wenn: { getan: 'tuete-atmen' },
@@ -246,7 +359,7 @@ export const PSY_PANIK_SUIZIDALITAET: FallV2 = {
     ende: [
       { wenn: { alle: [{ flag: 'remonstriert:an-stuendlich' }, { ab: 1500 }, BEGLEITET, { getan: 'pflegebericht' }] },
         text: 'Dr. Lange hat Frau Keller eingeschätzt. Sie bleibt heute Nacht mit ständiger Begleitung, die Tabletten sind gesichert, morgen gibt es ein Gespräch mit ihr und ihrer Schwester.', ausgang: 'stabil' },
-      { wenn: { ab: 2400 }, text: 'Die Nacht beginnt, ohne dass die Gefährdung ärztlich eingeschätzt ist.', ausgang: 'verschlechtert' },
+      { wenn: { ab: 2700 }, text: 'Die Nacht beginnt, ohne dass die Gefährdung ärztlich eingeschätzt ist.', ausgang: 'verschlechtert' },
     ],
   },
 
@@ -286,13 +399,18 @@ export const PSY_PANIK_SUIZIDALITAET: FallV2 = {
       { art: 'frage', id: 'g-halt' },
       { art: 'massnahme', id: 'hilfe-holen' },
       { art: 'massnahme', id: 'gefaehrliche-gegenstaende-sichern' },
-      { art: 'anruf', an: 'aerztin', sbar: ['s-suizid', 'b-depression', 'a-vital', 'a-plan', 'a-gesichert', 'r-kommen'] },
+      { art: 'nachricht', an: 'aerztin', kanal: 'telefon', bausteine: ['s-suizid', 'b-depression', 'a-vital', 'wert:hf', 'a-plan', 'a-gesichert', 'r-kommen'] },
       { art: 'rueckmelden', anordnung: 'an-lorazepam', rueckgelesen: true },
       { art: 'remonstrieren', anordnung: 'an-stuendlich', grund: 'Sie hat einen konkreten Plan und hatte Tabletten gesammelt. Stündlich reicht nicht.' },
       { art: 'rueckmelden', anordnung: 'an-1zu1', rueckgelesen: true },
+      { art: 'auflegen', an: 'aerztin' },
       { art: 'massnahme', id: 'sitzwache' },
-      { art: 'massnahme', id: 'pflegefachperson-informieren' },
-      { art: 'massnahme', id: 'pflegebericht' },
+      { art: 'frage', id: 'g-deniz-nacht' },
+      { art: 'frage', id: 'g-einwilligung-schwester' },
+      { art: 'nachricht', an: 'aerztin', kanal: 'messenger', bausteine: ['a-schwester-ja'] },
+      { art: 'frage', id: 'g-schwester-lage' },
+      { art: 'dokumentieren', bausteine: ['a-plan', 'a-gesichert', 'anordnung:an-1zu1'], freitext: 'Wörtlich: „Heute nach dem Telefonat war es ganz nah.“' },
+      { art: 'warten', sek: 120 },
       { art: 'abschluss', probleme: ['pb-suizid', 'pb-angst', 'pb-hoffnung'], ziele: ['z-sicher', 'z-atem', 'z-hilfe'],
         sbar: ['s-suizid', 'b-depression', 'a-vital', 'a-plan', 'a-gesichert'] },
     ],

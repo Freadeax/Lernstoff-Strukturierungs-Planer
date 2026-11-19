@@ -127,3 +127,8 @@ Code: `kommunikation.ts` (rein, vom Kern aufgerufen), Zustand in `SimZustand.kom
 - **Alle Beteiligten.** Fragen (`gespraech`) laufen im Faden ihres `an`; `nurWenn`, `antwort.setzt`, `schweigepflicht` (ohne `erlaubtWenn` → Fehler `schweigepflicht:<id>` mit `fehlerText`, Auswertung KB II+IV, mittel). Nachrichten mit Bausteinen an Rettungsdienst/Station/Kollegin/PA werden quittiert und als `gesagt` gemerkt (Bedingung `{ gesagt, an }`, z. B. für Übergabe-Pflichten).
 - **Freitext** ordnet die Oberfläche offline über Stichwörter Bausteinen zu („verstanden als …“, `verstehe()`); der Freitext selbst geht mit ins Log. KI-Zuordnung folgt später.
 - Muster: Frau Lindner (v0.2.0): Rückfrage „Wie hoch ist der Zucker?“, Rückauftrag RR-Kontrolle nach einer Viertelstunde, Tochter mit Einwilligung. Tests: `kommunikation.test.ts`, `../arbeitsplatz/gespraeche.test.ts`.
+
+## Fälle auf Runde 2 (P14b)
+- `paed-fieberkrampf` v0.2.0: Ärztin fragt ohne SpO₂/BZ zurück (`af-werte`), Rückauftrag „in 10 Min. Temperatur und Bewusstsein, per Messenger“ (`af-kontrolle`, Ende stabil erst danach), Großmutter ruft an (Auskunft nur mit Einverständnis der Mutter), Kollege Tim (Notfallmedikament bereitlegen), Akte, Doku-Pflicht `{ dokumentiert: 'a-krampf-dauer' }`.
+- `psy-panik-suizidalitaet` v0.2.0: Ärztin fragt ohne körperliche Einschätzung nach dem Puls (`af-puls`), Rückauftrag „Schwester einbeziehen?“ (`af-schwester`), Schwester ruft an (keine Schweigepflichtentbindung), Kollege Deniz plant die 1:1-Begleitung, Akte (Zopiclon abgesetzt), Doku-Pflicht `{ dokumentiert: 'a-plan' }`.
+- Gespräche mit Anrufenden hängen per `nurWenn` an derselben Bedingung wie das Anruf-Ereignis.

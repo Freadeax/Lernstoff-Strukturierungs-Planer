@@ -156,7 +156,7 @@ describe('Pilot Psychiatrie: Panik und Suizidalität', () => {
     expect(z.fehlerAus).toContain('f-allein');
   });
   it('stündliche Kontrolle ohne Remonstration: schwerer Fehler; Remonstration bringt 1:1-Begleitung', () => {
-    const vorher: SimEventEingabe[] = [m('atemanleitung-ruhig'), m('suizidalitaet-ansprechen'), m('hilfe-holen'), { art: 'anruf', an: 'aerztin', sbar: ['s-suizid', 'a-plan'] }];
+    const vorher: SimEventEingabe[] = [m('atemanleitung-ruhig'), m('puls-zaehlen'), m('suizidalitaet-ansprechen'), m('hilfe-holen'), { art: 'anruf', an: 'aerztin', sbar: ['s-suizid', 'a-plan', 'a-vital'] }];
     const blind = spiele(start(PSY, 3, 2), [...vorher, { art: 'rueckmelden', anordnung: 'an-stuendlich', rueckgelesen: true }, m('kontrolle-stuendlich')]);
     expect(blind.fehlerAus).toContain('f-stuendlich');
     const rem = spiele(start(PSY, 3, 2), [...vorher, { art: 'remonstrieren', anordnung: 'an-stuendlich' }]);
@@ -168,5 +168,103 @@ describe('Pilot Psychiatrie: Panik und Suizidalität', () => {
     expect(z.offeneEntscheidung).toBe('e-versprechen');
     z = sende(z, { art: 'entscheidung', ereignis: 'e-versprechen', wahl: 'w-versprechen' });
     expect(z.fehlerAus).toContain('f-versprechen');
+  });
+});
+
+/* ───────────── Runde 2 (P14b): Messenger, Rückfragen, Rückaufträge, Gesprächspartner, Akte ───────────── */
+
+const letzteArzt = (z: SimZustand) => z.meldungen.filter((x) => x.faden === 'aerztin' && x.richtung === 'rein').at(-1)?.text ?? '';
+const auftrag = (z: SimZustand, id: string) => z.log.filter((e) => e.art === 'auftrag' && e.id === id).map((e) => (e as { status: string }).status);
+
+describe('Runde 2 · Pädiatrie: Fieberkrampf', () => {
+  /** bis kurz nach dem Anfall, Seitenlage, Kollege bleibt */
+  const nachAnfall = (z = start(PAED, 2, 2)) => spiele(bis(z, 720), [m('temperatur-ohr'), m('stabile-seitenlage')]);
+
+  it('Anfall ohne SpO₂/BZ gemeldet: Ärztin fragt zurück, Zusage → Rückauftrag, Werte per Messenger → sie kommt', () => {
+    let z = spiele(nachAnfall(), [{ art: 'nachricht', an: 'aerztin', kanal: 'telefon', bausteine: ['s-krampf', 'a-krampf-dauer'] }]);
+    expect(letzteArzt(z)).toMatch(/Sättigung.*Blutzucker/);
+    expect(z.flags).not.toContain('arzt-kommt');
+    z = spiele(z, [{ art: 'nachricht', an: 'aerztin', kanal: 'telefon', bausteine: ['zusage:melde-mich'] }, { art: 'auflegen', an: 'aerztin' }]);
+    expect(auftrag(z, 'af-werte')).toEqual(['offen']);
+    z = spiele(z, [m('pulsoxy-anlegen'), m('bz-messen'), { art: 'nachricht', an: 'aerztin', kanal: 'messenger', bausteine: ['wert:spo2', 'wert:bz'] }, warte(120)]);
+    expect(auftrag(z, 'af-werte')).toContain('gemeldet');
+    expect(z.flags).toContain('arzt-kommt');
+    expect(z.angeboten).toContain('an-para-500');
+    expect(auftrag(z, 'af-kontrolle')).toEqual(['offen']);
+  });
+
+  it('Rückauftrag Kontrolle: zu früh gemessen zählt nicht, nach 10 Minuten melden beendet den Fall stabil', () => {
+    const anruf: SimEventEingabe = { art: 'nachricht', an: 'aerztin', kanal: 'telefon', bausteine: ['s-krampf', 'a-krampf-dauer', 'a-postiktal', 'r-kommen'] };
+    let z = spiele(nachAnfall(), [m('pulsoxy-anlegen'), m('bz-messen'), anruf, { art: 'auflegen', an: 'aerztin' }, m('temperatur-ohr'), m('bewusstsein-avpu')]);
+    expect(auftrag(z, 'af-kontrolle')).toEqual(['offen']);
+    z = spiele(z, [warte(480), m('temperatur-ohr'), m('bewusstsein-avpu')]);
+    expect(auftrag(z, 'af-kontrolle')).toContain('erledigt');
+    z = spiele(z, [{ art: 'dokumentieren', bausteine: ['a-krampf-dauer'] }, { art: 'nachricht', an: 'aerztin', kanal: 'messenger', bausteine: ['wert:temp'] }, warte(120)]);
+    expect(z.flags).toContain('kontrolle-gemeldet');
+    expect(z.ende?.ausgang).toBe('stabil');
+  });
+
+  it('Kontrolle nicht gemeldet: verspätet (Fehler KB II)', () => {
+    const z = spiele(nachAnfall(), [m('pulsoxy-anlegen'), m('bz-messen'),
+      { art: 'nachricht', an: 'aerztin', kanal: 'telefon', bausteine: ['a-krampf-dauer', 'a-postiktal'] }, warte(960)]);
+    expect(z.fehlerAus).toContain('auftrag-verspaetet:af-kontrolle');
+  });
+
+  it('Großmutter: erst nach ihrem Anruf; ohne Einverständnis der Mutter Schweigepflicht-Fehler, mit nicht', () => {
+    expect(spiele(nachAnfall(), [{ art: 'frage', id: 'g-oma-lage' }]).meldungen.at(-1)!.text).toMatch(/passt gerade nicht/);
+    const ohne = spiele(bis(nachAnfall(), 900), [{ art: 'frage', id: 'g-oma-lage' }]);
+    expect(ohne.fehlerAus).toContain('schweigepflicht:g-oma-lage');
+    const mit = spiele(bis(nachAnfall(), 900), [{ art: 'frage', id: 'g-einwilligung-oma' }, { art: 'frage', id: 'g-oma-lage' }]);
+    expect(mit.fehlerAus).not.toContain('schweigepflicht:g-oma-lage');
+    expect(mit.flags).toContain('oma-informiert');
+  });
+
+  it('Akte: Medikationsplan, Vorwerte, Pflegebericht, Labor, Sorgerecht', () => {
+    const a = PAED.akte!;
+    expect(a.medikation.map((e) => e.wirkstoff)).toContain('Amoxicillin');
+    expect(a.vorwerte!.length).toBeGreaterThanOrEqual(2);
+    expect(a.pflegebericht!.length).toBeGreaterThanOrEqual(2);
+    expect(a.labor!.some((l) => l.name === 'CRP')).toBe(true);
+    expect(a.rechtliches!.join(' ')).toMatch(/Sorgeberechtigt/);
+  });
+});
+
+describe('Runde 2 · Psychiatrie: Panik und Suizidalität', () => {
+  const ruhigMitPlan = (z = start(PSY, 3, 2)) => spiele(z, [m('atemanleitung-ruhig'), m('suizidalitaet-ansprechen'), m('hilfe-holen')]);
+
+  it('Plan ohne körperliche Einschätzung: Ärztin fragt nach dem Puls, nach der Meldung kommen die Anordnungen', () => {
+    let z = spiele(ruhigMitPlan(), [{ art: 'nachricht', an: 'aerztin', kanal: 'telefon', bausteine: ['s-suizid', 'a-plan'] }]);
+    expect(letzteArzt(z)).toMatch(/Puls/);
+    expect(z.angeboten).not.toContain('an-stuendlich');
+    z = spiele(z, [m('puls-zaehlen'), { art: 'nachricht', an: 'aerztin', kanal: 'telefon', bausteine: ['wert:hf'] }]);
+    expect(z.angeboten).toEqual(expect.arrayContaining(['an-lorazepam', 'an-stuendlich']));
+    expect(auftrag(z, 'af-schwester')).toEqual(['offen']);
+  });
+
+  it('Rückauftrag Schwester: Einwilligung erfragen und per Messenger melden', () => {
+    let z = spiele(ruhigMitPlan(), [m('puls-zaehlen'), { art: 'nachricht', an: 'aerztin', kanal: 'telefon', bausteine: ['a-plan', 'a-vital'] }, { art: 'auflegen', an: 'aerztin' }]);
+    z = spiele(z, [{ art: 'frage', id: 'g-einwilligung-schwester' }, { art: 'nachricht', an: 'aerztin', kanal: 'messenger', bausteine: ['a-schwester-ja'] }, warte(120)]);
+    expect(auftrag(z, 'af-schwester')).toEqual(expect.arrayContaining(['erledigt', 'gemeldet']));
+    expect(z.flags).toContain('schwester-gemeldet');
+  });
+
+  it('Schwester am Telefon ohne Einwilligung: Schweigepflicht-Fehler; Rückruf anbieten ist in Ordnung', () => {
+    const ohne = spiele(bis(ruhigMitPlan(), 900), [{ art: 'frage', id: 'g-schwester-lage' }]);
+    expect(ohne.fehlerAus).toContain('schweigepflicht:g-schwester-lage');
+    const rueckruf = spiele(bis(ruhigMitPlan(), 900), [{ art: 'frage', id: 'g-schwester-rueckruf' }]);
+    expect(rueckruf.fehlerAus.filter((f) => f.startsWith('schweigepflicht'))).toEqual([]);
+    expect(rueckruf.flags).toContain('schwester-rueckruf');
+  });
+
+  it('Dokumentationspflicht: erst mit Plan im Pflegebericht erfüllt', () => {
+    const p = PSY.bewertung.pflicht.find((x) => x.id === 'p-doku')!;
+    expect(p.erfuellt).toEqual({ dokumentiert: 'a-plan' });
+  });
+
+  it('Akte: Zopiclon abgesetzt, keine Schweigepflichtentbindung', () => {
+    const a = PSY.akte!;
+    expect(a.medikation.some((e) => e.wirkstoff === 'Zopiclon')).toBe(false);
+    expect(a.aerztlicheAnordnungen!.map((e) => e.text).join(' ')).toMatch(/Zopiclon abgesetzt/);
+    expect(a.rechtliches!.join(' ')).toMatch(/Keine Schweigepflichtentbindung/);
   });
 });
