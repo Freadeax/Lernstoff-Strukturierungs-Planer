@@ -132,3 +132,8 @@ Code: `kommunikation.ts` (rein, vom Kern aufgerufen), Zustand in `SimZustand.kom
   - Herr Kranz (Schockraum): `start.sichtbar` HF/SpO₂ (Transport-Pulsoxy), Rückfrage qSOFA, Rückaufträge Laktat und MAP nach Nullabgleich, Rettungsdienst (Nachfragen), Sohn mit Vorsorgevollmacht (Auskunft erst nach RD-Übergabe), Übergabe an die Intensiv mit Allergie, Doku Zeitpunkte Blutkulturen/Antibiotikum.
   - Frau Brückner (Heim): Rückfrage „Hat sie Fieber?“, Rückauftrag BESD nach dem Schmerzmittel, Betreuerin (`betreuer`), Wohnbereichsleitung, Enkel am Telefon (keine Auskunft), Doku BESD + hinterfragte Bettgitter-Anordnung.
 - Wert-Baustein Schmerz heißt „Schmerz (0–10)“ (auch BESD), in der Akte „x/10“.
+
+## Fälle auf Runde 2 (P14b)
+- `paed-fieberkrampf` v0.2.0: Ärztin fragt ohne SpO₂/BZ zurück (`af-werte`), Rückauftrag „in 10 Min. Temperatur und Bewusstsein, per Messenger“ (`af-kontrolle`, Ende stabil erst danach), Großmutter ruft an (Auskunft nur mit Einverständnis der Mutter), Kollege Tim (Notfallmedikament bereitlegen), Akte, Doku-Pflicht `{ dokumentiert: 'a-krampf-dauer' }`.
+- `psy-panik-suizidalitaet` v0.2.0: Ärztin fragt ohne körperliche Einschätzung nach dem Puls (`af-puls`), Rückauftrag „Schwester einbeziehen?“ (`af-schwester`), Schwester ruft an (keine Schweigepflichtentbindung), Kollege Deniz plant die 1:1-Begleitung, Akte (Zopiclon abgesetzt), Doku-Pflicht `{ dokumentiert: 'a-plan' }`.
+- Gespräche mit Anrufenden hängen per `nurWenn` an derselben Bedingung wie das Anruf-Ereignis.

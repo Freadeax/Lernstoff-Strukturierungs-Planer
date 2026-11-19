@@ -1,5 +1,7 @@
 // Pilotfall Spur A · Pädiatrie: Fieberkrampf beim Kleinkind mit Elterngespräch
 // Entwurf, fachlich UNGEPRÜFT. Inhalte fiktiv/didaktisch. Muster: amb-sturz-exsikkose.ts (Paket P6).
+// Runde 2 (P14b): Rückfrage der Ärztin nach SpO₂/BZ, Rückauftrag Kontrolle per Messenger, Großmutter mit Schweigepflicht,
+// Kollege Tim, vollständige Akte, Dokumentationspflicht.
 
 import { KATALOG } from '../katalog';
 import type { Bedingung, FallV2, MassnahmeDefinition } from '../typen';
@@ -10,11 +12,17 @@ const KRAMPFT: Bedingung = { wert: 'krampf', vergleich: '>', grenze: 0 };
 /** krampf < 0: nach dem Anfall (postiktal), nähert sich 0, erreicht es im Modell nie */
 const NACH_ANFALL: Bedingung = { wert: 'krampf', vergleich: '<', grenze: 0 };
 const ANFALL_ERLEBT: Bedingung = { eine: [KRAMPFT, NACH_ANFALL] };
+/** Die Großmutter ruft an (Ereignis e-oma); erst dann gibt es das Gespräch mit ihr. */
+const OMA_RUFT: Bedingung = { alle: [NACH_ANFALL, { ab: 900 }] };
+
+const KOMMT = '„Danke, das klingt nach einem Fieberkrampf. Ich bin noch in der Notaufnahme und in etwa einer Viertelstunde bei Ihnen. Seitenlage lassen, Sättigung beobachten, bei unter 94 Prozent Sauerstoff vorhalten. Wenn er wieder krampft, sofort Notruf und Uhr. Gegen das Fieber ein Paracetamol-Zäpfchen 500 mg. In zehn Minuten messen Sie bitte noch einmal Temperatur und Bewusstsein und schreiben mir, wie es ihm geht.“';
+/** Hauptantwort der Ärztin (Telefon oder nach der Rückfrage); id: antwortet nur einmal im Fall */
+const R_KOMMT = { id: 'r-kommt', antwort: KOMMT, anordnungen: ['an-o2', 'an-para-500'], kommtNachSek: 900, setzt: ['arzt-kommt'], auftraege: ['af-kontrolle'] };
 
 export const PAED_FIEBERKRAMPF: FallV2 = {
   schema: 2,
   id: 'paed-fieberkrampf',
-  version: '0.1.0',
+  version: '0.2.0',
   spur: 'A',
   setting: 'paediatrie',
   altersgruppe: 'kleinkind',
@@ -38,6 +46,9 @@ export const PAED_FIEBERKRAMPF: FallV2 = {
       'Paracetamol-Dosis 15 mg/kg (11 kg → 125-mg-Zäpfchen), Höchstdosis pro Tag und Remonstrationspunkt 500 mg prüfen',
       'Befugnis Zäpfchen geben (1./2. Drittel mit Anleitung) und O₂-Gabe beim Kind gegen BW-Lehrplan (CE 10) belegen',
       'Kinder-Physiologie: Krampf 3 Minuten, danach Schläfrigkeit über 10–20 Minuten plausibel?',
+      'Runde 2: Auskunft an die Großmutter nur mit Einverständnis der sorgeberechtigten Mutter; Rückauftrag Kontrolle nach 10 Minuten per Klinik-Messenger plausibel?',
+      'Kein Monitor ab Beginn: Aufnahme zur Beobachtung wegen Trinkschwäche, Pulsoxymeter erst nach dem Anfall (Pflichthandlung). Mit Stationsstandard abgleichen.',
+      'Akte: Amoxicillin-Saft 3× täglich nach Gewicht (ca. 50 mg/kg/Tag) und Laborwerte fiktiv, fachlich prüfen',
     ],
   },
   quellen: [
@@ -109,6 +120,59 @@ export const PAED_FIEBERKRAMPF: FallV2 = {
     }),
   ],
 
+  akte: {
+    aufnahmegrund: 'Stationäre Aufnahme heute 12:00 über die Kinderarztpraxis: akute Mittelohrentzündung rechts, Fieber seit dem Morgen, trinkt seit gestern Abend schlecht. Zur Beobachtung und Flüssigkeitsgabe nach Bedarf.',
+    anamnese: [
+      'Termingeboren, bisher gesund. Vorsorgeuntersuchungen bis U6 unauffällig, geimpft nach STIKO.',
+      'Besucht seit zwei Monaten die Krippe, seitdem häufig Infekte.',
+      'Mutter hat heute um 07:30 zu Hause Paracetamol-Saft gegeben (Menge unklar, „ein Messlöffel“).',
+      'Keine Krampfanfälle bekannt. Familienanamnese: Onkel mütterlicherseits als Kind Fieberkrämpfe (laut Mutter, unsicher).',
+      'Trinkt sonst gut aus der eigenen Flasche (Tee, Wasser), heute laut Mutter etwa 150 ml.',
+    ],
+    diagnosen: [
+      { text: 'Akute Otitis media rechts', icd: 'H66.9', seit: 'heute' },
+      { text: 'Fieber', icd: 'R50.9', seit: 'heute' },
+      { text: 'Verminderte Trinkmenge', icd: 'R63.1', seit: 'gestern' },
+    ],
+    medikation: [
+      { id: 'mp-amoxicillin', wirkstoff: 'Amoxicillin', staerke: '250 mg/5 ml', form: 'Saft', schema: '1-1-1-0', zuletzt: '12:30',
+        hinweis: 'Je 3,5 ml (ca. 175 mg) nach Gewicht, nächste Gabe 18:00. Saft im Kühlschrank.' },
+      { id: 'mp-nasentropfen', wirkstoff: 'Xylometazolin 0,025 %', staerke: '1 Hub', form: 'Nasenspray (Kleinkind)', schema: '1-0-1-0', zuletzt: '12:30',
+        hinweis: 'Höchstens 5 Tage.' },
+    ],
+    vorwerte: [
+      { zeit: 'Aufnahme 12:00', vorH: 3.7, werte: { temp: 38.9, hf: 152, af: 34, spo2: 98, gewicht: 11 }, kuerzel: 'TS' },
+      { zeit: '14:00', vorH: 1.7, werte: { temp: 39.1, hf: 158, af: 36 }, kuerzel: 'TS' },
+    ],
+    pflegebericht: [
+      { zeit: '12:15', wer: 'TS', text: 'Aufnahme mit Mutter. Leon quengelig, greift ans rechte Ohr, Schleimhäute feucht, Windel heute zweimal nass. Gewicht 11,0 kg. Mutter bleibt als Begleitperson, Bett im Zimmer gerichtet.' },
+      { zeit: '14:00', wer: 'TS', text: 'Hat 60 ml Tee getrunken, Rest verweigert. Schläft unruhig auf dem Arm der Mutter. Temp. 39,1 °C. Ärztin informiert, sie kommt nach den Aufnahmen. Trinkprotokoll begonnen.' },
+    ],
+    aerztlicheAnordnungen: [
+      { zeit: '12:30', wer: 'Dr. Nowak', text: 'Amoxicillin-Saft 250 mg/5 ml, 3 × 3,5 ml. Nasenspray für Kleinkinder 2 × täglich.' },
+      { zeit: '12:30', wer: 'Dr. Nowak', text: 'Vitalzeichen und Temperatur 4-stündlich, Trinkprotokoll. Bedarfsmedikation gegen Fieber nach Untersuchung (noch offen).' },
+    ],
+    assessments: [
+      { name: 'KUSS-Skala (Schmerz Kleinkind)', wert: '4 von 10', datum: 'heute 12:15', hinweis: 'Weint, greift ans Ohr.' },
+      { name: 'Trinkprotokoll', wert: '60 ml seit Aufnahme', datum: 'heute 14:00', hinweis: 'Bedarf bei 11 kg etwa 1100 ml am Tag.' },
+      { name: 'Paediatric Early Warning Score (PEWS)', wert: '2 Punkte', datum: 'heute 14:00', hinweis: 'Herzfrequenz und Temperatur erhöht.' },
+    ],
+    labor: [
+      { name: 'CRP', wert: '18', einheit: 'mg/l', norm: 'unter 5', datum: 'heute 12:20', auffaellig: true },
+      { name: 'Leukozyten', wert: '13,8', einheit: '/nl', norm: '6–17,5 (Kleinkind)', datum: 'heute 12:20' },
+      { name: 'Natrium', wert: '138', einheit: 'mmol/l', norm: '135–145', datum: 'heute 12:20' },
+      { name: 'Blutzucker (Kapillar)', wert: '92', einheit: 'mg/dl', norm: '60–100', datum: 'heute 12:20' },
+    ],
+    pflegeplanung: [
+      { problem: 'Gefahr eines Flüssigkeitsdefizits bei Fieber und Trinkschwäche', ziel: 'Trinkt bis morgen früh mindestens 800 ml, Windel mindestens 4-mal nass', massnahmen: ['Lieblingsgetränk in der eigenen Flasche anbieten, kleine Mengen häufig', 'Trinkprotokoll mit der Mutter führen', 'Windeln wiegen'] },
+      { problem: 'Schmerzen rechtes Ohr', ziel: 'Leon wirkt entspannt, KUSS unter 4', massnahmen: ['KUSS-Skala 4-stündlich und bei Bedarf', 'Nähe der Mutter ermöglichen, Kuscheltier'] },
+    ],
+    rechtliches: [
+      'Sorgeberechtigt: beide Eltern (verheiratet). Mutter, Frau Berger, ist als Begleitperson aufgenommen.',
+      'Auskunft an weitere Angehörige (z. B. Großeltern) nur mit Einverständnis der Eltern.',
+    ],
+  },
+
   befunde: [
     { massnahme: 'vorstellen-einverstaendnis', varianten: [{ text: 'Du stellst dich der Mutter vor und gehst in die Hocke. Leon sitzt auf ihrem Schoß, quengelt und drückt das Gesicht an ihre Schulter.' }] },
     { massnahme: 'ersteindruck-abcde', varianten: [
@@ -159,7 +223,7 @@ export const PAED_FIEBERKRAMPF: FallV2 = {
       antwort: [
         { wenn: ANFALL_ERLEBT, text: '„Er ist plötzlich ganz steif geworden, dann hat er gezuckt, bestimmt fünf Minuten! Ich dachte, er stirbt.“' },
         { text: '„Seit heute früh ist er so heiß und will nichts trinken. Er greift dauernd an sein Ohr.“' },
-      ], fakten: ['Fieber seit dem Morgen', 'trinkt wenig'] },
+      ], fakten: ['Fieber seit dem Morgen', 'trinkt wenig', 'Paracetamol-Saft um 07:30 zu Hause'] },
     { id: 'g-familie', frage: 'Fragen, ob es in der Familie Krampfanfälle gab', an: 'eltern', kompetenzbereiche: ['I'],
       antwort: [{ text: '„Mein Bruder hatte als Kind auch Fieberkrämpfe, glaube ich.“' }], fakten: ['Familienanamnese Fieberkrampf'] },
     { id: 'g-erklaeren', frage: 'Mutter erklären, was ein Fieberkrampf ist und was jetzt passiert', an: 'eltern', kompetenzbereiche: ['II'],
@@ -167,6 +231,29 @@ export const PAED_FIEBERKRAMPF: FallV2 = {
         { wenn: ANFALL_ERLEBT, text: 'Sie hört zu, weint und nickt: „Also ist das nicht gefährlich für sein Gehirn?“ Sie bleibt bei Leon und hält seine Hand.' },
         { text: '„Kann das gefährlich werden mit dem Fieber?“' },
       ] },
+    // Runde 2 (P14b): Großmutter mit Schweigepflicht, Kollege Tim
+    { id: 'g-einwilligung-oma', frage: 'Mutter fragen, ob du der Großmutter Auskunft geben darfst', an: 'eltern', kompetenzbereiche: ['II', 'IV'],
+      nurWenn: ANFALL_ERLEBT,
+      antwort: [{ text: '„Das ist meine Mutter. Ja, sagen Sie ihr bitte, was passiert ist. Ich schaffe das gerade nicht.“', setzt: ['einwilligung-oma'] }],
+      fakten: ['Großmutter ist die Mutter von Frau Berger', 'Frau Berger ist einverstanden'] },
+    { id: 'g-oma-lage', frage: 'Großmutter am Telefon: Anfall und jetzigen Zustand schildern', an: 'angehoerige', kanal: 'telefon', kompetenzbereiche: ['II', 'IV'],
+      nurWenn: OMA_RUFT,
+      schweigepflicht: { erlaubtWenn: { flag: 'einwilligung-oma' },
+        fehlerText: 'Du hast der Großmutter Auskunft über Leon gegeben, ohne die Mutter zu fragen. Großeltern sind nicht sorgeberechtigt; Auskunft geben nur die Eltern oder du mit ihrem Einverständnis. Die Mutter sitzt neben dir und kann gefragt werden.' },
+      antwort: [
+        { wenn: { flag: 'arzt-kommt' }, text: '„Oh Gott, der arme Kleine. Gut, dass die Ärztin gleich kommt. Ich rufe meinen Schwiegersohn an, damit er sich beeilt.“', setzt: ['oma-informiert'] },
+        { text: '„Oh Gott! Und was sagt die Ärztin? Ich rufe meinen Schwiegersohn an.“', setzt: ['oma-informiert'] },
+      ],
+      fakten: ['Großmutter wohnt in der Nähe', 'Vater ist auf dem Weg'] },
+    { id: 'g-oma-rueckruf', frage: 'Großmutter am Telefon: keine Auskunft ohne Einverständnis, Rückruf der Mutter anbieten', an: 'angehoerige', kanal: 'telefon', kompetenzbereiche: ['II', 'IV'],
+      nurWenn: OMA_RUFT,
+      antwort: [{ text: '„Ach so, ja … natürlich. Dann soll sie mich bitte zurückrufen, wenn sie kann.“', setzt: ['oma-rueckruf'] }] },
+    { id: 'g-tim-notfall', frage: 'Tim bitten, Notfallmedikament und Absaugung für einen erneuten Anfall bereitzulegen', an: 'kollegin', kompetenzbereiche: ['I', 'III'],
+      nurWenn: ANFALL_ERLEBT,
+      antwort: [{ text: '„Mach ich. Midazolam für die Wangentasche nach Gewicht liegt im Notfallwagen, ich lege es mit der Absaugung ins Zimmer. Gegeben wird es nur auf ärztliche Anordnung.“', setzt: ['notfall-bereit'] }],
+      fakten: ['Notfallmedikament nur nach ärztlicher Anordnung'] },
+    { id: 'g-tim-bleiben', frage: 'Tim bitten, kurz bei Leon zu bleiben', an: 'kollegin', kompetenzbereiche: ['III'],
+      antwort: [{ text: '„Klar, ich bin hier. Sag Bescheid, wenn du fertig bist.“' }] },
   ],
 
   sbar: [
@@ -179,6 +266,9 @@ export const PAED_FIEBERKRAMPF: FallV2 = {
     { id: 'a-fieber', teil: 'A', text: 'Hohes Fieber, über 39 °C.', art: 'kern', bekanntWenn: { getan: 'temperatur-ohr' } },
     { id: 'a-epilepsie', teil: 'A', text: 'Ich glaube, er hat Epilepsie.', art: 'falsch' },
     { id: 'r-kommen', teil: 'R', text: 'Bitte kommen Sie und schauen Sie ihn an. Was sollen wir gegen das Fieber geben, und was tun wir, wenn er wieder krampft?', art: 'kern' },
+    // Runde 2: Rückmeldung zur Kontrolle (Rückauftrag) – nur, was man sieht
+    { id: 'a-wird-wacher', teil: 'A', text: 'Er wird wacher, öffnet die Augen auf Ansprache und sucht seine Mutter, atmet frei.', art: 'hilfreich',
+      bekanntWenn: { alle: [{ getan: 'bewusstsein-avpu' }, { wert: 'vigilanz', vergleich: '>=', grenze: 0.6 }] } },
   ],
 
   anordnungen: [
@@ -195,16 +285,29 @@ export const PAED_FIEBERKRAMPF: FallV2 = {
   arzt: {
     name: 'Stationsärztin Dr. Nowak',
     erreichbar: 'telefon',
+    // Runde 2 (P14b): Regeln von genau nach allgemein. Ohne SpO₂/BZ fragt die Ärztin zurück; danach Rückauftrag
+    // „in 10 Minuten Temperatur und Bewusstsein, per Messenger melden“. Messenger nach dem ersten Kontakt.
     regeln: [
-      { wenn: { gemeldet: ['a-krampf-dauer', 'a-postiktal'] },
-        antwort: '„Danke, ich komme sofort. Seitenlage lassen, Sättigung beobachten, bei unter 94 Prozent Sauerstoff vorhalten. Wenn er wieder krampft, sofort Notruf und Uhr. Gegen das Fieber ein Paracetamol-Zäpfchen 500 mg.“',
-        anordnungen: ['an-o2', 'an-para-500'], kommtNachSek: 180, setzt: ['arzt-kommt'] },
-      { wenn: { gemeldet: ['a-krampf-dauer'] },
-        antwort: '„Wie geht es ihm jetzt? Wie ist die Sättigung, der Blutzucker? Messen Sie das bitte und rufen Sie gleich wieder an.“' },
+      { ...R_KOMMT, wenn: { alle: [{ gemeldet: ['a-krampf-dauer'] }, { eine: [{ gemeldet: ['a-postiktal'] }, { gemeldet: ['wert:spo2', 'wert:bz'] }] }] } },
+      { id: 'r-werte-frage', wenn: { gemeldet: ['a-krampf-dauer'] },
+        antwort: '„Ein Krampfanfall von etwa drei Minuten, verstanden. Ist er jetzt in Seitenlage?“',
+        rueckfrage: { text: '„Wie ist die Sättigung, und wie hoch ist der Blutzucker?“', erwartet: ['wert:spo2', 'wert:bz'], auftrag: 'af-werte' } },
       { wenn: { gemeldet: ['a-epilepsie'] },
         antwort: '„Woran machen Sie das fest? Beschreiben Sie mir bitte, was Sie gesehen haben.“' },
       { wenn: { gemeldet: ['a-fieber'] },
         antwort: '„Geben Sie ein Paracetamol-Zäpfchen 500 mg, ich schaue nach der Aufnahme vorbei.“', anordnungen: ['an-para-500'], setzt: ['arzt-fieber'] },
+    ],
+    auftraege: [
+      { id: 'af-werte', text: 'Sättigung und Blutzucker messen und der Ärztin melden', erledigt: { alle: [{ getan: 'bz-messen' }] },
+        meldung: ['wert:spo2', 'wert:bz'], meldenBinnenSek: 300,
+        folge: [{ ...R_KOMMT, wenn: { gemeldet: ['a-krampf-dauer'] } }] },
+      { id: 'af-kontrolle', text: 'In 10 Minuten Temperatur und Bewusstsein kontrollieren und der Ärztin schreiben', meldenBinnenSek: 900,
+        erledigt: { alle: [{ ab: 480 }, { getan: 'temperatur-ohr' }, { getan: 'bewusstsein-avpu' }] },
+        meldung: ['wert:temp'],
+        folge: [
+          { wenn: { gemeldet: ['a-wird-wacher'] }, antwort: '„Danke, das ist der erwartete Verlauf. Trinken erst, wenn er richtig wach ist. Ich bin gleich bei Ihnen.“', setzt: ['kontrolle-gemeldet'] },
+          { wenn: { ab: 0 }, antwort: '„Danke für den Wert. Wie wach ist er? Bleibt er so schläfrig oder krampft er wieder, rufen Sie sofort an. Ich bin gleich da.“', setzt: ['kontrolle-gemeldet'] },
+        ] },
     ],
   },
 
@@ -220,7 +323,11 @@ export const PAED_FIEBERKRAMPF: FallV2 = {
     { id: 'e-postiktal', art: 'patient', wann: NACH_ANFALL,
       text: 'Die Zuckungen hören auf. Leon ist schlaff und schläft tief, er atmet schnarchend, Speichel läuft aus dem Mundwinkel.',
       bild: { haltung: 'liegt', haut: 'rosig', mimik: 'schlaefrig' } },
-    { id: 'e-aerztin-da', art: 'visite', wann: { alle: [{ flag: 'arzt-kommt' }, { ab: 1080 }] },
+    { id: 'e-tim', art: 'team', wann: { getan: 'hilfe-holen' },
+      text: 'Tim kommt ins Zimmer: „Ich bin da. Was brauchst du?“' },
+    { id: 'e-oma', art: 'telefon', wann: OMA_RUFT,
+      text: 'Das Stationstelefon klingelt. Die Großmutter: „Meine Tochter hat mir geschrieben, Leon hatte einen Anfall? Was ist denn mit ihm?“' },
+    { id: 'e-aerztin-da', art: 'visite', wann: { alle: [{ flag: 'arzt-kommt' }, { eine: [{ flag: 'kontrolle-gemeldet' }, { ab: 2100 }] }] },
       text: 'Dr. Nowak untersucht Leon. Er wird langsam wacher und sucht seine Mutter. „Ein einfacher Fieberkrampf. Wir beobachten ihn heute Nacht mit Pulsoxymeter.“' },
   ],
 
@@ -230,10 +337,12 @@ export const PAED_FIEBERKRAMPF: FallV2 = {
       { wenn: KRAMPFT, impuls: 'Was ist im Anfall wichtiger: ihn ruhig halten oder ihn schützen?', tipp: 'Uhr ansehen, Kopf schützen, nicht festhalten, nichts in den Mund, Hilfe klingeln.' },
       { wenn: { alle: [NACH_ANFALL, { nicht: { getan: 'stabile-seitenlage' } }] }, impuls: 'Er schläft tief und schnarcht. Worauf musst du jetzt achten?', tipp: 'Seitenlage für freie Atemwege, dann Sättigung und Blutzucker messen.' },
       { wenn: { alle: [{ eine: [{ flag: 'arzt-kommt' }, { flag: 'arzt-fieber' }] }, { nicht: { flag: 'remonstriert:an-para-500' } }] }, impuls: 'Rechne mal mit: Wie viel Paracetamol bekommt ein Kind pro Kilogramm?', tipp: 'Etwa 15 mg/kg, bei 11 kg also rund 165 mg. Passt die Anordnung dazu?' },
+      { wenn: { auftrag: 'af-werte', status: 'offen' }, impuls: 'Was wollte die Ärztin noch von dir wissen?', tipp: 'Sättigung und Blutzucker messen und ihr die Werte schicken.' },
+      { wenn: { alle: [{ auftrag: 'af-kontrolle', status: 'offen' }, { nicht: { auftrag: 'af-kontrolle', status: 'gemeldet' } }] }, impuls: 'Was hat dir die Ärztin für die nächsten Minuten aufgetragen?', tipp: 'Nach zehn Minuten Temperatur und Bewusstsein prüfen und ihr im Messenger schreiben.' },
       { impuls: 'Wie geht es der Mutter gerade?', tipp: 'Erkläre ihr in einfachen Worten, was passiert ist, und bezieh sie ein.' },
     ],
   },
-  team: { kollegin: 'Kinderkrankenpfleger Tim (Schichtleitung)' },
+  team: { kollegin: 'Kinderkrankenpfleger Tim (Schichtleitung)', weitere: { eltern: 'Mutter Frau Berger', angehoerige: 'Großmutter (Telefon)' } },
 
   bewertung: {
     pflicht: [
@@ -253,8 +362,15 @@ export const PAED_FIEBERKRAMPF: FallV2 = {
         warum: 'Kinderdosen nach Gewicht kontrollieren ist Teil deiner Durchführungsverantwortung.' },
       { id: 'p-eltern', text: 'Mutter einbezogen und informiert', gewicht: 2, kompetenzbereiche: ['II'],
         erfuellt: { eine: [{ getan: 'eltern-einbeziehen' }, { getan: 'frage:g-erklaeren' }] }, warum: 'Eltern erleben einen Fieberkrampf oft als Todesangst. Information und Beteiligung entlasten.' },
-      { id: 'p-doku', text: 'Anfall dokumentiert (Beginn, Dauer, Ablauf)', gewicht: 1, kompetenzbereiche: ['I', 'IV'], erfuellt: { getan: 'pflegebericht' },
-        warum: 'Die Beschreibung ist für die ärztliche Einordnung und spätere Anfälle wichtig.' },
+      { id: 'p-doku', text: 'Anfall im Pflegebericht dokumentiert (Ablauf und Dauer)', gewicht: 2, kompetenzbereiche: ['I', 'IV'], erfuellt: { dokumentiert: 'a-krampf-dauer' },
+        warum: 'Die Beschreibung ist für die ärztliche Einordnung und spätere Anfälle wichtig. Eine Dokumentation ohne Dauer und Ablauf hilft niemandem.' },
+      { id: 'p-rueckauftrag', text: 'Kontrolle nach 10 Minuten gemacht und der Ärztin gemeldet', gewicht: 2, kompetenzbereiche: ['II', 'III'],
+        erfuellt: { auftrag: 'af-kontrolle', status: 'gemeldet' }, warum: 'Die Ärztin ist noch gebunden und entscheidet nach deiner Rückmeldung (Closed Loop).' },
+      { id: 'p-auskunft', text: 'Großmutter nur mit Einverständnis der Mutter informiert', gewicht: 1, kompetenzbereiche: ['II', 'IV'],
+        erfuellt: { eine: [{ alle: [{ getan: 'frage:g-oma-lage' }, { flag: 'einwilligung-oma' }] }, { getan: 'frage:g-oma-rueckruf' }] },
+        warum: 'Großeltern sind nicht sorgeberechtigt. Auskunft nur mit Einverständnis der Eltern (Schweigepflicht).' },
+      { id: 'p-vorbereitet', text: 'Für einen erneuten Anfall vorbereitet (Notfallmedikament, Absaugung)', gewicht: 1, kompetenzbereiche: ['I', 'III'],
+        erfuellt: { flag: 'notfall-bereit' }, warum: 'Ein zweiter Anfall in den ersten 24 Stunden ist möglich; dann zählt jede Minute.' },
     ],
     fehler: [
       { id: 'f-festhalten', text: 'Kind im Anfall festgehalten', schwere: 'schwer', kompetenzbereiche: ['I', 'V'],
@@ -273,9 +389,9 @@ export const PAED_FIEBERKRAMPF: FallV2 = {
         warum: 'Nach dem Anfall sind die Schutzreflexe vermindert: Aspirationsgefahr. Erst trinken, wenn er richtig wach ist.' },
     ],
     ende: [
-      { wenn: { alle: [{ flag: 'arzt-kommt' }, { ab: 1080 }, { getan: 'stabile-seitenlage' }, { getan: 'pflegebericht' }] },
+      { wenn: { alle: [{ flag: 'arzt-kommt' }, { flag: 'kontrolle-gemeldet' }, { getan: 'stabile-seitenlage' }, { getan: 'pflegebericht' }] },
         text: 'Leon wird wacher und kuschelt sich an seine Mutter. Die Ärztin hat ihn untersucht: einfacher Fieberkrampf. Er bleibt über Nacht mit Pulsoxymeter.', ausgang: 'stabil' },
-      { wenn: { ab: 2400 }, text: 'Die Ärztin kommt erst jetzt. Niemand weiß genau, wie lange der Anfall gedauert hat.', ausgang: 'verschlechtert' },
+      { wenn: { ab: 2700 }, text: 'Die Ärztin kommt erst jetzt. Niemand weiß genau, wie lange der Anfall gedauert hat.', ausgang: 'verschlechtert' },
     ],
   },
 
@@ -318,14 +434,23 @@ export const PAED_FIEBERKRAMPF: FallV2 = {
       { art: 'massnahme', id: 'stabile-seitenlage' },
       { art: 'massnahme', id: 'pulsoxy-anlegen' },
       { art: 'massnahme', id: 'bz-messen' },
-      { art: 'anruf', an: 'aerztin', sbar: ['s-krampf', 'b-otitis', 'a-krampf-dauer', 'a-postiktal', 'a-fieber', 'r-kommen'] },
+      { art: 'frage', id: 'g-tim-bleiben' },
+      { art: 'nachricht', an: 'aerztin', kanal: 'telefon', bausteine: ['s-krampf', 'b-otitis', 'a-krampf-dauer', 'a-postiktal', 'wert:spo2', 'wert:bz', 'a-fieber', 'r-kommen'] },
       { art: 'rueckmelden', anordnung: 'an-o2', rueckgelesen: true },
       { art: 'remonstrieren', anordnung: 'an-para-500', grund: '11 kg mal 15 mg/kg sind etwa 165 mg, nicht 500 mg.' },
       { art: 'rueckmelden', anordnung: 'an-para-125', rueckgelesen: true },
+      { art: 'auflegen', an: 'aerztin' },
       { art: 'massnahme', id: 'paracetamol-supp' },
+      { art: 'frage', id: 'g-tim-notfall' },
       { art: 'frage', id: 'g-erklaeren' },
       { art: 'massnahme', id: 'eltern-einbeziehen' },
-      { art: 'massnahme', id: 'pflegebericht' },
+      { art: 'frage', id: 'g-einwilligung-oma' },
+      { art: 'frage', id: 'g-oma-lage' },
+      { art: 'dokumentieren', bausteine: ['a-krampf-dauer', 'a-postiktal', 'wert:spo2', 'wert:bz', 'anordnung:an-para-125'] },
+      { art: 'massnahme', id: 'temperatur-ohr' },
+      { art: 'massnahme', id: 'bewusstsein-avpu' },
+      { art: 'nachricht', an: 'aerztin', kanal: 'messenger', bausteine: ['wert:temp', 'a-wird-wacher'] },
+      { art: 'warten', sek: 120 },
       { art: 'abschluss', probleme: ['pb-atemweg', 'pb-krampf', 'pb-eltern', 'pb-fluessigkeit'], ziele: ['z-atemweg', 'z-eltern', 'z-trinken'],
         sbar: ['s-krampf', 'b-otitis', 'a-krampf-dauer', 'a-postiktal', 'a-fieber'] },
     ],
