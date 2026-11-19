@@ -24,7 +24,7 @@ const warte = (sek: number): SimEventEingabe => ({ art: 'warten', sek });
 const letzteArzt = (z: SimZustand) => z.meldungen.filter((x) => x.art === 'arzt').at(-1)?.text ?? '';
 const anArzt = (kanal: 'telefon' | 'messenger', bausteine: string[]): SimEventEingabe => ({ art: 'nachricht', an: 'aerztin', kanal, bausteine });
 
-describe('P17b Herzschwäche zu Hause (Herr Albers)', () => {
+describe('P17b Herzschwäche zu Hause (Herr Petersen)', () => {
   it('Ausgangslage passt zu den Texten: Sättigung knapp, Atemfrequenz erhöht', () => {
     const a = anzeige(start(HI, 2, 2));
     expect(a.spo2).toBeGreaterThanOrEqual(90);

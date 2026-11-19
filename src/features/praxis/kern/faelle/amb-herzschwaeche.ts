@@ -24,7 +24,7 @@ export const AMB_HERZSCHWAECHE: FallV2 = {
   altersgruppe: 'hochbetagt',
   titel: '„Die Schuhe passen nicht mehr“',
   kurz: 'Hausbesuch: 81-Jähriger mit Herzschwäche hat im Sessel geschlafen, Beine dick, Atemnot beim Sprechen.',
-  rahmen: 'Montagmorgen, ambulanter Pflegedienst. Du kommst mit deiner Praxisanleitung zu Herrn Albers (Kompressionsstrümpfe, Wochendosett richten).',
+  rahmen: 'Montagmorgen, ambulanter Pflegedienst. Du kommst mit deiner Praxisanleitung zu Herrn Petersen (Kompressionsstrümpfe, Wochendosett richten).',
   lernziele: [
     'Zeichen einer Verschlechterung bei Herzinsuffizienz erkennen (Gewicht, Ödeme, Atemnot im Liegen).',
     'Gewicht mit dem Gewichtsprotokoll vergleichen und die Ursache (ausgelassenes Diuretikum) erfragen.',
@@ -57,7 +57,7 @@ export const AMB_HERZSCHWAECHE: FallV2 = {
   ],
 
   person: {
-    name: 'Herr Albers',
+    name: 'Herr Petersen',
     alter: { jahre: 81 },
     geschlecht: 'm',
     biografie: ['lebt allein im 2. Stock, Tochter wohnt 40 km entfernt', 'früher Busfahrer', 'war am Wochenende auf dem 18. Geburtstag seiner Enkelin'],
@@ -71,7 +71,7 @@ export const AMB_HERZSCHWAECHE: FallV2 = {
     raum: '09_ambulant_kueche_diabetes',   // Beispielbild Küche; eigenes Foto „Küche, älterer Mann mit Atemnot, dicke Beine“ bestellt
     raumVarianten: [],
   },
-  uebernahme: 'Herr Albers, 81, Herzinsuffizienz und Vorhofflimmern. Wir kommen Montag, Mittwoch und Freitag: Kompressionsstrümpfe, Dosett für die Woche richten. Am Wochenende nimmt er seine Tabletten selbst. Gewichtsprotokoll liegt auf dem Küchentisch.',
+  uebernahme: 'Herr Petersen, 81, Herzinsuffizienz und Vorhofflimmern. Wir kommen Montag, Mittwoch und Freitag: Kompressionsstrümpfe, Dosett für die Woche richten. Am Wochenende nimmt er seine Tabletten selbst. Gewichtsprotokoll liegt auf dem Küchentisch.',
   startUhrzeit: '07:45',
 
   start: {
@@ -202,7 +202,7 @@ export const AMB_HERZSCHWAECHE: FallV2 = {
     { id: 'g-tochter-lage', frage: 'Tochter: Lage und weiteres Vorgehen mitteilen', an: 'angehoerige', kanal: 'telefon', kompetenzbereiche: ['II', 'IV'],
       nurWenn: { ab: 300 },
       schweigepflicht: { erlaubtWenn: { flag: 'einwilligung-tochter' },
-        fehlerText: 'Du hast der Tochter Auskunft gegeben, ohne Herrn Albers zu fragen. Er ist einwilligungsfähig und sitzt neben dir. Verwandtschaft allein erlaubt keine Auskunft.' },
+        fehlerText: 'Du hast der Tochter Auskunft gegeben, ohne Herrn Petersen zu fragen. Er ist einwilligungsfähig und sitzt neben dir. Verwandtschaft allein erlaubt keine Auskunft.' },
       antwort: [
         { wenn: { flag: 'arzt-informiert' }, text: '„Gut, dass die Ärztin kommt. Ich rufe ihn heute Abend an und frage nach dem Gewicht.“', setzt: ['tochter-unterstuetzt'] },
         { text: '„Muss er ins Krankenhaus? Was sagt denn die Ärztin?“' },
@@ -211,7 +211,7 @@ export const AMB_HERZSCHWAECHE: FallV2 = {
   ],
 
   sbar: [
-    { id: 's-atemnot', teil: 'S', text: 'Herr Albers, 81, Herzinsuffizienz: Atemnot seit dem Wochenende, hat heute Nacht im Sessel geschlafen.', art: 'kern' },
+    { id: 's-atemnot', teil: 'S', text: 'Herr Petersen, 81, Herzinsuffizienz: Atemnot seit dem Wochenende, hat heute Nacht im Sessel geschlafen.', art: 'kern' },
     { id: 'b-herz', teil: 'B', text: 'Herzinsuffizienz (EF 35 %) und Vorhofflimmern; Torasemid, Bisoprolol, Ramipril, Apixaban.', art: 'kern' },
     { id: 'b-torasemid-weg', teil: 'B', text: 'Hat das Torasemid von Freitag bis Sonntag nicht genommen und am Wochenende viel getrunken.', art: 'kern', bekanntWenn: { getan: 'dosett-pruefen' } },
     { id: 'b-busfahrer', teil: 'B', text: 'Er war früher Busfahrer.', art: 'ablenker' },
@@ -265,7 +265,7 @@ export const AMB_HERZSCHWAECHE: FallV2 = {
     { id: 'e-tochter', art: 'telefon', wann: { ab: 300 },
       text: 'Das Diensthandy klingelt. Die Tochter: „Der Nachbar sagt, Papa geht es schlecht. Was hat er denn?“' },
     { id: 'e-wille', art: 'patient', wann: { alle: [{ ab: 900 }, { flag: 'arzt-informiert' }] },
-      text: 'Herr Albers wird energisch: „Ins Krankenhaus geh ich nicht. Da war ich im Dezember drei Wochen.“',
+      text: 'Herr Petersen wird energisch: „Ins Krankenhaus geh ich nicht. Da war ich im Dezember drei Wochen.“',
       entscheidung: [
         { id: 'w-aufklaeren', text: 'Gründe erfragen, Warnzeichen erklären und mit ihm vereinbaren, wann der Notruf nötig ist', wertung: 'gut', setzt: ['notfallplan'],
           warum: 'Ein einwilligungsfähiger Mensch darf eine Krankenhausaufnahme ablehnen. Aufgabe der Pflege: aufklären, die Ärztin einbinden und einen sicheren Plan vereinbaren.' },
@@ -275,7 +275,7 @@ export const AMB_HERZSCHWAECHE: FallV2 = {
           warum: 'Selbstbestimmung heißt nicht allein lassen: Ohne Aufklärung und Notfallplan bleibt die Gefahr unbehandelt.' },
       ] },
     { id: 'e-brodeln', art: 'komplikation', wann: { alle: [{ ab: 1320 }, { nicht: { flag: 'arzt-informiert' } }] },
-      text: 'Herr Albers hustet schaumigen Auswurf, die Atmung brodelt hörbar. Er ist kaltschweißig und unruhig.',
+      text: 'Herr Petersen hustet schaumigen Auswurf, die Atmung brodelt hörbar. Er ist kaltschweißig und unruhig.',
       bild: { haltung: 'sitzt-ringt', haut: 'blass-kaltschweissig', mimik: 'angst' } },
   ],
 
@@ -286,7 +286,7 @@ export const AMB_HERZSCHWAECHE: FallV2 = {
       { wenn: { nicht: { getan: 'gewicht-messen' } }, impuls: 'Was sagen dir die Hausschuhe und das Protokoll auf dem Tisch?', tipp: 'Wiegen und mit dem Gewichtsprotokoll vergleichen.' },
       { wenn: { nicht: { getan: 'dosett-pruefen' } }, impuls: 'Warum könnte es gerade jetzt schlechter sein?', tipp: 'Schau ins Dosett: Hat er alles genommen?' },
       { wenn: { auftrag: 'af-kontrolle', status: 'offen' }, impuls: 'Was wollte die Hausärztin noch von dir?', tipp: 'Sättigung und Atemfrequenz kontrollieren und ihr schicken.' },
-      { impuls: 'Woran merkt Herr Albers selbst, dass sich Wasser einlagert?', tipp: 'Gewichtstagebuch und Warnzeichen mit ihm besprechen.' },
+      { impuls: 'Woran merkt Herr Petersen selbst, dass sich Wasser einlagert?', tipp: 'Gewichtstagebuch und Warnzeichen mit ihm besprechen.' },
     ],
   },
 
@@ -319,13 +319,13 @@ export const AMB_HERZSCHWAECHE: FallV2 = {
     fehler: [
       { id: 'f-kompression', text: 'Kompressionsstrümpfe trotz Dekompensation angezogen', schwere: 'mittel', kompetenzbereiche: ['I', 'III'],
         wenn: { getan: 'kompression-anziehen' },
-        folge: { text: 'Kurz danach ringt Herr Albers stärker nach Luft und hustet.', wirkung: [{ groesse: 'gasaustausch', delta: -0.05, beginnSek: 60, spitzeSek: 600, dauerSek: 'dauerhaft' }] },
+        folge: { text: 'Kurz danach ringt Herr Petersen stärker nach Luft und hustet.', wirkung: [{ groesse: 'gasaustausch', delta: -0.05, beginnSek: 60, spitzeSek: 600, dauerSek: 'dauerhaft' }] },
         warum: 'Mehr Rückstrom zum geschwächten Herzen verstärkt die Stauung in der Lunge.' },
       { id: 'f-trinken', text: 'Zum vielen Trinken aufgefordert', schwere: 'mittel', kompetenzbereiche: ['I', 'V'],
         wenn: { getan: 'viel-trinken' }, warum: 'Bei Wassereinlagerung verschlechtert zusätzliche Flüssigkeit die Lage. Trinkmenge nur nach ärztlicher Vorgabe.' },
       { id: 'f-flach', text: 'Flach gelagert mit Beinen hoch', schwere: 'mittel', kompetenzbereiche: ['I'],
         wenn: { getan: 'flachlagern-beine-hoch' },
-        folge: { text: 'Herr Albers bekommt im Liegen kaum Luft und richtet sich panisch auf.', wirkung: [{ groesse: 'gasaustausch', delta: -0.06, beginnSek: 0, spitzeSek: 60, dauerSek: 300 }, { groesse: 'angst', delta: 0.3, beginnSek: 0, spitzeSek: 30, dauerSek: 600 }] },
+        folge: { text: 'Herr Petersen bekommt im Liegen kaum Luft und richtet sich panisch auf.', wirkung: [{ groesse: 'gasaustausch', delta: -0.06, beginnSek: 0, spitzeSek: 60, dauerSek: 300 }, { groesse: 'angst', delta: 0.3, beginnSek: 0, spitzeSek: 30, dauerSek: 600 }] },
         warum: 'Beine hoch bringt noch mehr Volumen zum Herzen: bei Herzinsuffizienz falsch.' },
       { id: 'f-nicht-gemeldet', text: 'Verschlechterung 20 Minuten lang nicht ärztlich gemeldet', schwere: 'schwer', kompetenzbereiche: ['I', 'III'],
         wenn: { alle: [{ ab: 1200 }, { nicht: { flag: 'arzt-informiert' } }] },
@@ -334,7 +334,7 @@ export const AMB_HERZSCHWAECHE: FallV2 = {
     ],
     ende: [
       { wenn: { alle: [{ flag: 'arzt-informiert' }, { flag: 'kontrolle-gemeldet' }, { flag: 'notfallplan' }, { getan: 'pflegebericht' }] },
-        text: 'Herr Albers sitzt in Herzbettlage, die Tabletten sind genommen, die Hausärztin kommt um 12 Uhr. Er weiß, wann er 112 rufen soll.', ausgang: 'stabil' },
+        text: 'Herr Petersen sitzt in Herzbettlage, die Tabletten sind genommen, die Hausärztin kommt um 12 Uhr. Er weiß, wann er 112 rufen soll.', ausgang: 'stabil' },
       { wenn: { ab: 2700 }, text: 'Die Tour muss weiter. Die Lage ist nicht geklärt.', ausgang: 'verschlechtert' },
     ],
   },
@@ -348,10 +348,10 @@ export const AMB_HERZSCHWAECHE: FallV2 = {
       { id: 'pb-infekt', text: 'Atemwegsinfekt', richtig: false, warum: 'Kein Fieber, keine Infektzeichen. Die Atemnot kommt von der Stauung.' },
     ],
     ziele: [
-      { id: 'z-wiegen', text: 'Herr Albers wiegt sich täglich und meldet eine Zunahme über 2 kg in 3 Tagen.', passtZu: ['pb-selbstmanagement'], richtig: true },
-      { id: 'z-atem', text: 'Herr Albers kann bis morgen wieder im Bett mit erhöhtem Oberkörper schlafen.', passtZu: ['pb-atemnot'], richtig: true },
+      { id: 'z-wiegen', text: 'Herr Petersen wiegt sich täglich und meldet eine Zunahme über 2 kg in 3 Tagen.', passtZu: ['pb-selbstmanagement'], richtig: true },
+      { id: 'z-atem', text: 'Herr Petersen kann bis morgen wieder im Bett mit erhöhtem Oberkörper schlafen.', passtZu: ['pb-atemnot'], richtig: true },
       { id: 'z-haut', text: 'Die Haut der Unterschenkel bleibt intakt.', passtZu: ['pb-oedeme'], richtig: true },
-      { id: 'z-trinken', text: 'Herr Albers trinkt mindestens 3 Liter am Tag.', passtZu: ['pb-atemnot'], richtig: false },
+      { id: 'z-trinken', text: 'Herr Petersen trinkt mindestens 3 Liter am Tag.', passtZu: ['pb-atemnot'], richtig: false },
     ],
   },
 

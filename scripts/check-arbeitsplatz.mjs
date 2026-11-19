@@ -252,9 +252,57 @@ try {
       await axe(`p17a-${f.id}-akte`);
       await akte.getByRole('button', { name: 'Schließen' }).click();
     }
+
+    // P16b: CE06 Akutsituationen – Reanimation im Zimmer, ACS in der Notaufnahme, Schlaganfall im Heim, Beatmungsalarm auf Intensiv
+    const P16B = [
+      { id: 'kh-reanimation-bls', person: /Herr/, rolle: /2\. Drittel/, tun: ['Atmung beobachten', 'Herzdruckmassage beginnen'], befund: /Reanimationsbrett/, med: /Kaliumchlorid/ },
+      { id: 'na-acs-brustschmerz', person: /Herr Brandt/, rolle: /3\. Drittel/, tun: ['Ersteinschätzung', '12-Kanal-EKG'], befund: /Leitsymptom Brustschmerz/, med: /Amlodipin/ },
+      { id: 'lz-schlaganfall-akut', person: /Herr Albers/, rolle: /2\. Drittel/, tun: ['Schlaganfallzeichen prüfen'], befund: /Mundwin/, med: /Apixaban/ },
+      { id: 'its-beatmung-alarm', person: /Herr Fuchs/, rolle: /3\. Drittel/, tun: ['Beatmung beobachten'], befund: /Brustkorb hebt sich nur wenig/, med: /Propofol[\s\S]*Sufentanil/ },
+    ];
+    for (const f of P16B) {
+      await p.goto(base + `#/lernen/praxis?neu=${f.id}`, { waitUntil: 'networkidle' });
+      await p.getByRole('radio', { name: f.rolle }).check();
+      await p.getByRole('button', { name: 'Fall beginnen' }).click();
+      await p.getByRole('button', { name: 'Pause' }).click();
+      for (const t of f.tun) await tu(t);
+      await p.getByText(f.befund).first().waitFor();
+      await p.evaluate(() => window.scrollTo(0, 0));
+      await axe(`p16b-${f.id}`);
+      await p.getByRole('button', { name: 'Patientenakte', exact: true }).or(p.getByRole('button', { name: 'Patientenakte öffnen' })).first().click();
+      const akte = p.getByRole('dialog', { name: f.person });
+      await akte.waitFor();
+      await akte.getByRole('tab', { name: 'Medikation' }).click();
+      assert.match(await akte.innerText(), f.med, `${w} ${f.id}: Medikationsplan`);
+      await akte.getByRole('button', { name: 'Schließen' }).click();
+    }
+    // P18 Fallwelle Lebenswelt/Lebensende (CE08/CE09): Gesprächspartner und Medikationsplan je Fall
+    const P18 = [
+      { id: 'lz-demenz-aspiration', person: /Herr Kühn/, partner: [/Thomas/, /Dr\. Sander/], med: /Bisoprolol/ },
+      { id: 'lz-unterzucker-mittag', person: /Frau Winter/, partner: [/Karin|Tochter/, /Dr\. Okafor/], med: /insulin/i },
+      { id: 'amb-hausbesuch-still', person: /Frau Sommer/, partner: [/Sabine|Tochter/, /Dr\. Brenner/], med: /Ramipril[\s\S]*Hydrochlorothiazid/ },
+      { id: 'lz-palliativ-gespraech', person: /Frau Roth/, partner: [/Petra|Tochter/, /Dr\. Feld/], med: /Metamizol/ },
+      { id: 'kh-sterbephase-nacht', person: /Herr Hartwig/, partner: [/Ingrid|Ehefrau/, /Dr\. Weiß/], med: /Morphin[\s\S]*Lorazepam/ },
+    ];
+    for (const f of P18) {
+      await p.goto(base + `#/lernen/praxis?neu=${f.id}`, { waitUntil: 'networkidle' });
+      await p.getByRole('button', { name: 'Fall beginnen' }).click();
+      await p.getByRole('button', { name: 'Pause' }).click();
+      await p.getByRole('tab', { name: /Sprechen/ }).click();
+      const leiste = p.getByRole('navigation', { name: 'Gesprächspartner' });
+      for (const t of f.partner) assert.match(await leiste.innerText(), t, `${w} ${f.id}: Gesprächspartner ${t}`);
+      await axe(`p18-${f.id}-sprechen`);
+      await p.getByRole('button', { name: 'Patientenakte', exact: true }).or(p.getByRole('button', { name: 'Patientenakte öffnen' })).first().click();
+      const akte = p.getByRole('dialog', { name: f.person });
+      await akte.waitFor();
+      await akte.getByRole('tab', { name: 'Medikation' }).click();
+      assert.match(await akte.innerText(), f.med, `${w} ${f.id}: Medikationsplan`);
+      await axe(`p18-${f.id}-akte`);
+      await akte.getByRole('button', { name: 'Schließen' }).click();
+    }
     // P17b (CE 04/CE 07): Herzschwäche, Unterzucker, Schlaganfall-Reha – Antwort der Ärztin, Gesprächspartner, Akte
     const P17B = [
-      { id: 'amb-herzschwaeche', person: /Herr Albers/, arzt: /Dr\. Keller/, tun: ['Beschwerden, Beginn', 'Auf Ödeme prüfen'],
+      { id: 'amb-herzschwaeche', person: /Herr Petersen/, arzt: /Dr\. Keller/, tun: ['Beschwerden, Beginn', 'Auf Ödeme prüfen'],
         sbar: [/Atemnot schon beim Sprechen/, /eindrückbare Ödeme/], antwort: /Wie viel wiegt er/, partner: [/Tochter Frau Berg/], med: /Torasemid[\s\S]*Apixaban/ },
       { id: 'amb-hypoglykaemie', person: /Herr Becker/, arzt: /Dr\. Lang/, tun: ['Haut ansehen'],
         sbar: [/Unterzucker vor der Abendgabe/], antwort: /Wie hoch ist der Zucker/, partner: [/Ehefrau Frau Becker/], med: /Mischinsulin[\s\S]*Metformin/ },
@@ -286,4 +334,4 @@ try {
   }
 } finally { await browser.close(); }
 assert.deepEqual(fehler, [], 'Arbeitsplatz');
-console.log('Arbeitsplatz: Pilotfall bei 390, 820 und 1180 px durchgespielt, Pilotstaffel Spur A gestartet, P14a- und P17b-Fälle (Rückfrage, Gesprächspartner, Akte) und P17a-Einstiegsfälle geprüft, axe WCAG 2.2 AA ohne Befund (inkl. Abschluss, Auswertung, Spur B).');
+console.log('Arbeitsplatz: Pilotfall bei 390, 820 und 1180 px durchgespielt, Pilotstaffel Spur A gestartet, P14a-Fälle (Rückfrage, Gesprächspartner, Akte), P17a-Einstiegsfälle, P16b-Fälle (CE06), P18-Fälle (Lebenswelt/Lebensende) und P17b-Fälle (CE04/CE07) geprüft, axe WCAG 2.2 AA ohne Befund (inkl. Abschluss, Auswertung, Spur B).');
