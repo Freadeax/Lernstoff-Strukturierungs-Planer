@@ -200,7 +200,7 @@ try {
         sbar: [/Zimmer 3, Pneumonie rechts/, /Atemfrequenz deutlich erhöht/, /Seit Mittag neu verwirrt/], rueckfrage: /Wie ist der Blutdruck/,
         partner: [/Tochter Petra/, /IMC/, /Jonas/], med: /Ampicillin\/Sulbactam[\s\S]*Paracetamol/ },
       { id: 'sr-septischer-schock', person: /Herr Kranz/, arzt: /Dr\. Aydin/, rolle: /3\. Drittel/, tun: ['Überwachungsmonitor anlegen'],
-        sbar: [/RR um 90 systolisch/], rueckfrage: /qSOFA/, partner: [/Herr Wolf/, /Sohn Thomas/, /Intensivstation/], med: /Metformin[\s\S]*Paracetamol/ },
+        sbar: [/RR um 90 systolisch/], rueckfrage: /Frühwarnwert/, partner: [/Herr Wolf/, /Sohn Thomas/, /Intensivstation/], med: /Metformin[\s\S]*Paracetamol/ },
       { id: 'lz-demenz-schmerz', person: /Frau Brückner/, arzt: /Dr\. Kaiser/, tun: ['Schmerz bei Demenz einschätzen', 'Mundschleimhaut und Zunge'],
         sbar: [/BESD deutlich erhöht/, /Offene Druckstelle/], rueckfrage: /Hat sie Fieber/, partner: [/Betreuerin/, /Enkel Kevin/, /Sabine/], med: /Ramipril[\s\S]*Paracetamol/ },
     ];
@@ -339,8 +339,38 @@ try {
       await axe(`p19-${f.id}-akte`);
       await akte.getByRole('button', { name: 'Schließen' }).click();
     }
+    // P17b (CE 04/CE 07): Herzschwäche, Unterzucker, Schlaganfall-Reha – Antwort der Ärztin, Gesprächspartner, Akte
+    const P17B = [
+      { id: 'amb-herzschwaeche', person: /Herr Petersen/, arzt: /Dr\. Keller/, tun: ['Beschwerden, Beginn', 'Auf Ödeme prüfen'],
+        sbar: [/Atemnot schon beim Sprechen/, /eindrückbare Ödeme/], antwort: /Wie viel wiegt er/, partner: [/Tochter Frau Berg/], med: /Torasemid[\s\S]*Apixaban/ },
+      { id: 'amb-hypoglykaemie', person: /Herr Becker/, arzt: /Dr\. Lang/, tun: ['Haut ansehen'],
+        sbar: [/Unterzucker vor der Abendgabe/], antwort: /Wie hoch ist der Zucker/, partner: [/Ehefrau Frau Becker/], med: /Mischinsulin[\s\S]*Metformin/ },
+      { id: 'lz-schlaganfall-reha', person: /Herr Wagner/, arzt: /Dr\. Roth/, tun: ['Kurve, Vorbefunde'],
+        sbar: [/hustet beim Trinken und bei Tabletten/], antwort: /Was genau ist beim Schlucken/, partner: [/Ehefrau Frau Wagner/, /Aylin/], med: /Pantoprazol/ },
+    ];
+    for (const f of P17B) {
+      await p.goto(base + `#/lernen/praxis?neu=${f.id}`, { waitUntil: 'networkidle' });
+      await p.getByRole('button', { name: 'Fall beginnen' }).click();
+      await p.getByRole('button', { name: 'Pause' }).click();
+      for (const t of f.tun) await tu(t);
+      await p.getByRole('tab', { name: /Sprechen/ }).click();
+      const leiste = p.getByRole('navigation', { name: 'Gesprächspartner' });
+      for (const t of f.partner) assert.match(await leiste.innerText(), t, `${w} ${f.id}: Gesprächspartner ${t}`);
+      await leiste.getByRole('button', { name: f.arzt }).click();
+      for (const t of f.sbar) await p.getByRole('checkbox', { name: t }).first().check();
+      await p.getByRole('button', { name: /anrufen$/ }).click();
+      await p.locator('.kom-chat').getByText(f.antwort).first().waitFor();
+      await axe(`p17b-${f.id}-sprechen`, { faden: true });
+      await p.getByRole('button', { name: 'Patientenakte', exact: true }).or(p.getByRole('button', { name: 'Patientenakte öffnen' })).first().click();
+      const akte = p.getByRole('dialog', { name: f.person });
+      await akte.waitFor();
+      await akte.getByRole('tab', { name: 'Medikation' }).click();
+      assert.match(await akte.innerText(), f.med, `${w} ${f.id}: Medikationsplan`);
+      await axe(`p17b-${f.id}-akte`);
+      await akte.getByRole('button', { name: 'Schließen' }).click();
+    }
     await ctx.close();
   }
 } finally { await browser.close(); }
 assert.deepEqual(fehler, [], 'Arbeitsplatz');
-console.log('Arbeitsplatz: Pilotfall bei 390, 820 und 1180 px durchgespielt, Pilotstaffel Spur A gestartet, P14a-Fälle (Rückfrage, Gesprächspartner, Akte) P17a-Einstiegsfälle und P16b-Fälle (CE06) geprüft, P18-Fälle (Lebenswelt/Lebensende) und P19-Fälle (Kinder, Psyche) geprüft, axe WCAG 2.2 AA ohne Befund (inkl. Abschluss, Auswertung, Spur B).');
+console.log('Arbeitsplatz: Pilotfall bei 390, 820 und 1180 px durchgespielt, Pilotstaffel Spur A gestartet, P14a-Fälle (Rückfrage, Gesprächspartner, Akte) P17a-Einstiegsfälle und P16b-Fälle (CE06) geprüft, P18-Fälle (Lebenswelt/Lebensende) und P19-Fälle (Kinder, Psyche) und P17b-Fälle (CE04/CE07) geprüft, axe WCAG 2.2 AA ohne Befund (inkl. Abschluss, Auswertung, Spur B).');

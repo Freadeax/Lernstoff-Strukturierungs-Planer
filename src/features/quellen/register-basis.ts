@@ -123,7 +123,7 @@ export const GESETZE: QuellenEintrag[] = [
 
 export const LEITLINIEN: QuellenEintrag[] = [
   {
-    id: 'erc', titel: 'ERC-Leitlinien Reanimation (BLS, ALS, Kinder, Neugeborene)', herausgeber: 'European Resuscitation Council', art: 'leitlinie', muster: /^ERC Guidelines/,
+    id: 'erc', titel: 'ERC-Leitlinien Reanimation (BLS, ALS, Kinder, Neugeborene)', herausgeber: 'European Resuscitation Council', art: 'leitlinie', muster: /^(ERC (Guidelines|Leitlinien)|European Resuscitation Council)/,
     aktuell: { stand: '2025', erschienen: '2025-10-27', fundstelle: 'https://www.resus.org.uk/professional-library/2025-resuscitation-guidelines/adult-basic-life-support-guidelines' },
     geprueftAm: HEUTE_GEPRUEFT, beobachten: 'https://cprguidelines.eu/', intervallMonate: 12,
     kern: 'Bei fehlender Reaktion sofort Hilfe rufen und die Atmung während des Notrufs prüfen; im Zweifel mit der Reanimation beginnen. Frequenz 100–120/min, Tiefe 5–6 cm und 30:2 bleiben. Eigene Kapitel 2025 für Kinder und Neugeborene.',
@@ -153,7 +153,7 @@ export const LEITLINIEN: QuellenEintrag[] = [
     hinweis: 'Begriff „dekompensierte Herzinsuffizienz“ im Diagnostik-Fall seit 16.11.2026 übernommen. Die Fälle bleiben auf Stand 2021, bis NT-proBNP-Grenzen und die Selbstpflege-Regeln (Gewicht 2 kg in 3 Tagen, Trinkmenge) im Volltext 2026 nachgelesen sind.',
   },
   {
-    id: 'esc.le', titel: 'ESC-Leitlinie akute Lungenembolie', herausgeber: 'European Society of Cardiology', art: 'leitlinie', muster: /ESC Guidelines on acute pulmonary embolism/,
+    id: 'esc.le', titel: 'ESC-Leitlinie akute Lungenembolie', herausgeber: 'European Society of Cardiology', art: 'leitlinie', muster: /ESC Guidelines (on|for the diagnosis and management of) acute pulmonary embolism/,
     aktuell: { stand: '2019', fundstelle: 'https://www.escardio.org/Guidelines' },
     geprueftAm: HEUTE_GEPRUEFT, beobachten: 'https://www.escardio.org/Guidelines', intervallMonate: 12,
     hinweis: 'Bei ESC weiterhin Fassung 2019. In den USA ist 2026 eine neue Leitlinie von AHA/ACC erschienen; für Europa gilt sie nicht.',
@@ -219,18 +219,22 @@ export const LEITLINIEN: QuellenEintrag[] = [
     aktuell: { stand: '2021', fundstelle: 'https://pubmed.ncbi.nlm.nih.gov/?term=ESGE+nonvariceal+upper+gastrointestinal+hemorrhage+2021' }, beobachten: 'https://www.esge.com/', intervallMonate: 12,
   },
   {
-    id: 'krinko', titel: 'KRINKO-Empfehlungen (RKI), u. a. Händehygiene', herausgeber: 'Kommission für Krankenhaushygiene und Infektionsprävention am RKI', art: 'empfehlung', muster: /^KRINKO/,
+    id: 'krinko', titel: 'KRINKO-Empfehlungen (RKI), u. a. Händehygiene', herausgeber: 'Kommission für Krankenhaushygiene und Infektionsprävention am RKI', art: 'empfehlung', muster: /^KRINKO(?!: Prävention)/,
     aktuell: { stand: '2026 (Änderung der Fassung 2016)', erschienen: '2026-08-06', fundstelle: 'https://www.ptaheute.de/aktuelles/2026/09/09/medizinisches-haendewaschen-kaltes-wasser-genuegt' },
     geprueftAm: HEUTE_GEPRUEFT, beobachten: 'https://www.rki.de/', intervallMonate: 6,
     kern: 'Aktualisierung der Händehygiene-Empfehlung (Epidemiologisches Bulletin 32/2026): Warmwasser an medizinischen Handwaschplätzen ist nicht mehr verpflichtend. Händedesinfektion bleibt unverändert die wichtigste Maßnahme.',
     hinweis: 'Die Änderung betrifft laut Fachpresse nur die Ausstattung medizinischer Handwaschplätze. Der Hygiene-Trainer enthält dazu keine Aussage (am 16.11.2026 durchgesehen). Den Originaltext beim RKI bei der nächsten Prüfung lesen.',
   },
   {
-    id: 'who.haendehygiene', titel: 'WHO: 5 Moments for Hand Hygiene', herausgeber: 'WHO', art: 'empfehlung', muster: /^WHO: 5 Moments/,
+    id: 'who.haendehygiene', titel: 'WHO: 5 Moments for Hand Hygiene', herausgeber: 'WHO', art: 'empfehlung', muster: /^WHO: (5 Moments|Guidelines on Hand Hygiene)/,
     aktuell: { stand: '2009', fundstelle: 'https://www.who.int/publications/i/item/9789241597906' }, beobachten: 'https://www.who.int/', intervallMonate: 24,
   },
   {
-    id: 'news2', titel: 'NEWS2 (National Early Warning Score 2)', herausgeber: 'Royal College of Physicians', art: 'empfehlung', muster: /NEWS2/,
+    id: 'krinko.cauti', titel: 'KRINKO: Prävention und Kontrolle katheterassoziierter Harnwegsinfektionen', herausgeber: 'Kommission für Krankenhaushygiene und Infektionsprävention am RKI', art: 'empfehlung', muster: /^KRINKO: Prävention und Kontrolle katheterassoziierter/,
+    aktuell: { stand: '2015', fundstelle: 'https://www.rki.de/' }, beobachten: 'https://www.rki.de/', intervallMonate: 12,
+  },
+  {
+    id: 'news2', titel: 'NEWS2 (National Early Warning Score 2)', herausgeber: 'Royal College of Physicians', art: 'empfehlung', muster: /NEWS\)? ?2/,
     aktuell: { stand: '2017', fundstelle: 'https://www.rcp.ac.uk/' },
     beobachten: 'https://www.rcp.ac.uk/', intervallMonate: 12,
     hinweis: 'Gilt nur für Erwachsene ab 16 Jahren, nicht in der Schwangerschaft. Die Surviving Sepsis Campaign 2026 empfiehlt solche Frühwarnscores zum Sepsis-Screening.',
@@ -250,6 +254,186 @@ export const LEITLINIEN: QuellenEintrag[] = [
   },
 ];
 
+
+// ---------------------------------------------------------------- Praxissimulator (neuer Kern), Audit P20 am 19.11.2026
+// Stand je Leitlinie im AWMF-Register bzw. beim Herausgeber nachgesehen (geprueftAm), wo nicht anders vermerkt.
+
+const P20 = '2026-11-19';
+const AWMF_PDF = (datei: string) => `https://register.awmf.org/assets/guidelines/${datei}`;
+
+export const PRAXIS_LEITLINIEN: QuellenEintrag[] = [
+  {
+    id: 'awmf.sepsis', titel: 'S3-Leitlinie Sepsis – Prävention, Diagnose, Therapie und Nachsorge (AWMF 079-001)', herausgeber: 'DSG und DIVI über AWMF', art: 'leitlinie', muster: /AWMF 079-001/,
+    aktuell: { stand: '2025', erschienen: '2025-07-01', fundstelle: AWMF_PDF('079-001l_S3_Sepsis-Praevention-Diagnose-Therapie-Nachsorge_2025-07.pdf') },
+    geprueftAm: P20, beobachten: AWMF, intervallMonate: 12,
+    kern: 'Update 2025 der Fassung 2018; übernimmt die Surviving Sepsis Campaign und ergänzt Nachsorge. Für die Pflege bleibt: früh erkennen (Frühwarnscore), Blutkulturen vor dem Antibiotikum, Antibiotikum innerhalb einer Stunde, Laktat, Volumen.',
+    offen: 'Beide Sepsis-Praxisfälle nennen noch die Fassung 2018. Pflegeinhalte decken sich mit der Surviving Sepsis Campaign 2026; Volltext-Abgleich des Updates 2025 (u. a. Nachsorge) steht aus.',
+  },
+  {
+    id: 'awmf.sauerstoff', titel: 'S3-Leitlinie Sauerstoff in der Akuttherapie beim Erwachsenen (AWMF 020-021)', herausgeber: 'DGP über AWMF', art: 'leitlinie', muster: /AWMF 020-021/,
+    aktuell: { stand: '2021', erschienen: '2021-06-01', fundstelle: AWMF_PDF('020-021l_S3_Sauerstoff-in-der-Akuttherapie-beim-Erwachsenen_2021-06-abgelaufen.pdf') },
+    geprueftAm: P20, beobachten: AWMF, intervallMonate: 12,
+    hinweis: 'Gültigkeit im AWMF-Register abgelaufen, eine Neufassung ist noch nicht veröffentlicht. Zielbereich SpO₂ 92–96 % (bei Hyperkapnie-Risiko 88–92 %) weiter als Lehrstand.',
+  },
+  {
+    id: 'awmf.cap', titel: 'S3-Leitlinie ambulant erworbene Pneumonie beim Erwachsenen (AWMF 020-020)', herausgeber: 'DGP über AWMF', art: 'leitlinie', muster: /AWMF 020-020/,
+    aktuell: { stand: '2021', erschienen: '2021-05-01', fundstelle: AWMF_PDF('020-020l_S3_Behandlung-von-erwachsenen-Patienten-mit-ambulant-erworbener-Pneumonie__2021-05.pdf') },
+    geprueftAm: P20, beobachten: AWMF, intervallMonate: 12,
+  },
+  {
+    id: 'awmf.palliativ', titel: 'S3-Leitlinie Palliativmedizin für Patienten mit einer nicht-heilbaren Krebserkrankung (AWMF 128-001OL)', herausgeber: 'Leitlinienprogramm Onkologie über AWMF', art: 'leitlinie', muster: /AWMF 128-001OL|^S3-Leitlinie Palliativmedizin/,
+    aktuell: { stand: '2025', erschienen: '2025-02-01', fundstelle: AWMF_PDF('128-001OLp1_S3_Palliativmedizin_2025-02.pdf') },
+    geprueftAm: P20, beobachten: 'https://www.leitlinienprogramm-onkologie.de/leitlinien/palliativmedizin/', intervallMonate: 12,
+    hinweis: 'Im AWMF-Register liegen eine Patientenleitlinie 02/2025 und eine Kurzversion 07/2026. Die Versionsnummer der Langfassung beim Abgleich nachsehen.',
+    offen: 'Praxis-Katalog (Symptome erfassen, Atemnot lindern, Mundpflege) nennt noch Version 2.2 (2020). Gegen die erweiterte Fassung abgleichen, bevor die Palliativ-Fälle (P18) freigegeben werden.',
+  },
+  {
+    id: 'awmf.angst', titel: 'S3-Leitlinie Behandlung von Angststörungen (AWMF 051-028)', herausgeber: 'DGPM und DGPPN über AWMF', art: 'leitlinie', muster: /AWMF 051-028/,
+    aktuell: { stand: '2025', erschienen: '2025-03-01', fundstelle: 'https://register.awmf.org/assets/guidelines/051_D-Ges_Psychosom_Med_u_aerztliche_Psychotherapie/051-028ki2_S3_Behandlung-von-Angststoerungen_2025-03.pdf' },
+    geprueftAm: P20, beobachten: AWMF, intervallMonate: 12,
+    offen: 'Psychiatriefall Panik/Suizidalität steht auf Version 2 (2021). Akutmaßnahmen (Beruhigen, Atmung anleiten, Benzodiazepin nur kurzzeitig nach Anordnung) gegen die Fassung 2025 prüfen.',
+  },
+  {
+    id: 'awmf.zwang', titel: 'S3-Leitlinie Verhinderung von Zwang: Prävention und Therapie aggressiven Verhaltens bei Erwachsenen (AWMF 038-022)', herausgeber: 'DGPPN über AWMF', art: 'leitlinie', muster: /AWMF 038-022/,
+    aktuell: { stand: '2026', fundstelle: 'https://www.aerzteblatt.de/news/s3-leitlinie-zu-pravention-und-therapie-gegen-aggression-und-zwang-aktualisiert-5d962394-adb9-4601-89a5-a0ad0bbe89e3' },
+    geprueftAm: P20, beobachten: AWMF, intervallMonate: 12,
+    hinweis: 'Aktualisierung 2026 (Konsultationsfassung 01/2026, gültig bis 06/2036) laut Fachpresse und Fachgesellschaft; Fassung 2018 abgelaufen.',
+    offen: 'Psychiatriefall und Deeskalations-Maßnahmen nennen noch 2018. Deeskalation, Nachbesprechung und 1:1-Begleitung gegen die Fassung 2026 prüfen.',
+  },
+  {
+    id: 'nvl.depression', titel: 'Nationale VersorgungsLeitlinie Unipolare Depression', herausgeber: 'BÄK, KBV, AWMF', art: 'leitlinie', muster: /VersorgungsLeitlinie Unipolare Depression/,
+    aktuell: { stand: '2022 (Version 3.2)', fundstelle: 'https://www.leitlinien.de/themen/depression' }, beobachten: 'https://www.leitlinien.de/themen/depression', intervallMonate: 12,
+    hinweis: 'Im AWMF-Register liegen Begleitdokumente mit Stand 01/2025. Ob damit eine neue Version gilt, beim nächsten Abgleich nachsehen.',
+  },
+  {
+    id: 'awmf.alkohol', titel: 'S3-Leitlinie Screening, Diagnose und Behandlung alkoholbezogener Störungen (AWMF 076-001)', herausgeber: 'DG-Sucht und DGPPN über AWMF', art: 'leitlinie', muster: /AWMF 076-001/,
+    aktuell: { stand: '2021', erschienen: '2021-01-01', fundstelle: AWMF_PDF('076-001m_S3-Screening-Diagnose-Behandlung-alkoholbezogene-Stoerungen_2025-01-verlaengert.pdf') },
+    geprueftAm: P20, beobachten: AWMF, intervallMonate: 12, hinweis: 'Fassung 2021, Gültigkeit verlängert.',
+  },
+  {
+    id: 'awmf.gastroenteritis-kind', titel: 'S2k-Leitlinie Akute infektiöse Gastroenteritis im Säuglings-, Kindes- und Jugendalter (AWMF 068-003)', herausgeber: 'GPGE über AWMF', art: 'leitlinie', muster: /AWMF 068-003/,
+    aktuell: { stand: '2024', erschienen: '2024-07-01', fundstelle: AWMF_PDF('068-003l_S2k_AGE-Akute-infektioese-Gastroenteritis-Saeuglinge-Kinder-Jugendliche-2024-07.pdf') },
+    geprueftAm: P20, beobachten: AWMF, intervallMonate: 12,
+  },
+  {
+    id: 'nice.ng143', titel: 'NICE NG143: Fever in under 5s', herausgeber: 'NICE', art: 'leitlinie', muster: /^NICE NG143/,
+    aktuell: { stand: '2019, aktualisiert 2021', fundstelle: 'https://www.nice.org.uk/guidance/ng143' }, beobachten: 'https://www.nice.org.uk/guidance/ng143', intervallMonate: 12,
+  },
+  {
+    id: 'nice.ng225', titel: 'NICE NG225: Self-harm', herausgeber: 'NICE', art: 'leitlinie', muster: /^NICE NG225/,
+    aktuell: { stand: '2022', fundstelle: 'https://www.nice.org.uk/guidance/ng225' }, beobachten: 'https://www.nice.org.uk/guidance/ng225', intervallMonate: 12,
+  },
+  {
+    id: 'nice.cg103', titel: 'NICE CG103: Delirium', herausgeber: 'NICE', art: 'leitlinie', muster: /^NICE CG103/,
+    aktuell: { stand: '2023', fundstelle: 'https://www.nice.org.uk/guidance/cg103' }, beobachten: 'https://www.nice.org.uk/guidance/cg103', intervallMonate: 12,
+  },
+  {
+    id: 'aap.fieberkrampf', titel: 'American Academy of Pediatrics: Febrile Seizures', herausgeber: 'American Academy of Pediatrics', art: 'leitlinie', muster: /^American Academy of Pediatrics: Febrile Seizures/,
+    aktuell: { stand: '2008 und 2011', fundstelle: 'https://publications.aap.org/pediatrics' }, beobachten: 'https://publications.aap.org/pediatrics', intervallMonate: 24,
+  },
+  {
+    id: 'gnp.fieberkrampf', titel: 'Gesellschaft für Neuropädiatrie: Elterninformation Fieberkrampf', herausgeber: 'Gesellschaft für Neuropädiatrie', art: 'empfehlung', muster: /^Gesellschaft für Neuropädiatrie/,
+    aktuell: { stand: 'Elterninformation ohne Jahresangabe', fundstelle: 'https://gesellschaft-fuer-neuropaediatrie.org/' }, beobachten: 'https://gesellschaft-fuer-neuropaediatrie.org/', intervallMonate: 24,
+  },
+  {
+    id: 'priscus', titel: 'PRISCUS 2.0 – potenziell inadäquate Medikation für ältere Menschen', herausgeber: 'Universität Witten/Herdecke', art: 'empfehlung', muster: /^PRISCUS/,
+    aktuell: { stand: '2023', fundstelle: 'https://www.uni-wh.de/' }, beobachten: 'https://www.uni-wh.de/', intervallMonate: 24,
+  },
+  {
+    id: 'leitlinie.fem', titel: 'Leitlinie FEM – Vermeidung von freiheitseinschränkenden Maßnahmen in der beruflichen Altenpflege', herausgeber: 'Universität Hamburg, Köpke et al.', art: 'leitlinie', muster: /^Leitlinie FEM/,
+    aktuell: { stand: '2015', fundstelle: 'https://www.gesundheit.uni-hamburg.de/projekte/fem.html' }, geprueftAm: P20, beobachten: 'https://www.gesundheit.uni-hamburg.de/projekte/fem.html', intervallMonate: 24,
+  },
+  {
+    id: 'aps', titel: 'Aktionsbündnis Patientensicherheit: Handlungsempfehlungen (u. a. Patientenidentifikation, AMTS, mündliche Anordnungen, Transport, Kommunikation nach Zwischenfall)', herausgeber: 'Aktionsbündnis Patientensicherheit', art: 'empfehlung', muster: /^Aktionsbündnis Patientensicherheit/,
+    aktuell: { stand: 'je Handlungsempfehlung', fundstelle: 'https://www.aps-ev.de/' }, beobachten: 'https://www.aps-ev.de/', intervallMonate: 24,
+    hinweis: 'Jede Handlungsempfehlung hat ein eigenes Erscheinungsjahr; die Inhalte nennen es in der Quellenangabe.',
+  },
+  {
+    id: 'who.high5s', titel: 'WHO High 5s: Communication during patient hand-overs (SBAR)', herausgeber: 'WHO', art: 'empfehlung', muster: /WHO High 5s/,
+    aktuell: { stand: '2007', fundstelle: 'https://www.who.int/' }, beobachten: 'https://www.who.int/', intervallMonate: 24,
+  },
+  {
+    id: 'charta.pflege', titel: 'Charta der Rechte hilfe- und pflegebedürftiger Menschen', herausgeber: 'BMFSFJ und BMG', art: 'empfehlung', muster: /^Charta der Rechte hilfe- und pflegebedürftiger/,
+    aktuell: { stand: '2005 (Neuauflagen ohne inhaltliche Änderung)', fundstelle: 'https://www.pflege-charta.de/' }, beobachten: 'https://www.pflege-charta.de/', intervallMonate: 24,
+  },
+  {
+    id: 'lehrplan.bw', titel: 'Landeslehrplan Baden-Württemberg, Berufsfachschule für Pflege (3BFP)', herausgeber: 'Ministerium für Kultus, Jugend und Sport Baden-Württemberg', art: 'gesetz', muster: /^Landeslehrplan BW/,
+    aktuell: { stand: '2020', erschienen: '2020-08-05', fundstelle: 'https://www.bildungsplaene-bw.de/' }, beobachten: 'https://www.bildungsplaene-bw.de/', intervallMonate: 12,
+  },
+  {
+    id: 'krinko.vap', titel: 'KRINKO: Prävention der nosokomialen beatmungsassoziierten Pneumonie', herausgeber: 'Kommission für Krankenhaushygiene und Infektionsprävention am RKI', art: 'empfehlung', muster: /^KRINKO: Prävention der nosokomialen beatmungsassoziierten/,
+    aktuell: { stand: '2013', fundstelle: 'https://www.rki.de/' }, beobachten: 'https://www.rki.de/', intervallMonate: 12,
+  },
+  {
+    id: 'esc.acs', titel: 'ESC-Leitlinie akutes Koronarsyndrom (mit DGK-Pocket-Leitlinie)', herausgeber: 'European Society of Cardiology, DGK', art: 'leitlinie', muster: /ESC Guidelines for the management of acute coronary syndromes|DGK Pocket-Leitlinie Akutes Koronarsyndrom/,
+    aktuell: { stand: '2023', fundstelle: 'https://www.escardio.org/Guidelines' }, beobachten: 'https://www.escardio.org/Guidelines', intervallMonate: 12,
+  },
+  {
+    id: 'awmf.schlaganfall', titel: 'S2e-Leitlinie Akuttherapie des ischämischen Schlaganfalls (AWMF 030-046)', herausgeber: 'DGN über AWMF', art: 'leitlinie', muster: /AWMF 030-046/,
+    aktuell: { stand: '2022', fundstelle: AWMF }, beobachten: AWMF, intervallMonate: 12,
+  },
+  {
+    id: 'dsg.strokeunit', titel: 'Deutsche Schlaganfall-Gesellschaft: Stroke-Unit-Zertifizierung und Zeitfenster', herausgeber: 'Deutsche Schlaganfall-Gesellschaft', art: 'empfehlung', muster: /^Deutsche Schlaganfall-Gesellschaft/,
+    aktuell: { stand: 'laufend', fundstelle: 'https://www.dsg-info.de/' }, beobachten: 'https://www.dsg-info.de/', intervallMonate: 24,
+  },
+  {
+    id: 'awmf.polytrauma', titel: 'S3-Leitlinie Polytrauma/Schwerverletzten-Behandlung (AWMF 187-023)', herausgeber: 'DGU über AWMF', art: 'leitlinie', muster: /AWMF 187-023/,
+    aktuell: { stand: '2022', fundstelle: AWMF }, beobachten: AWMF, intervallMonate: 12,
+  },
+  {
+    id: 'awmf.vte', titel: 'S3-Leitlinie Prophylaxe der venösen Thromboembolie (AWMF 003-001)', herausgeber: 'AWMF', art: 'leitlinie', muster: /AWMF 003-001/,
+    aktuell: { stand: '2015', fundstelle: AWMF }, beobachten: AWMF, intervallMonate: 12, hinweis: 'Aktualisierung angemeldet; Fassung 2015 weiter Lehrstand.',
+  },
+  {
+    id: 'awmf.vte-therapie', titel: 'S2k-Leitlinie Diagnostik und Therapie der Venenthrombose und Lungenembolie (AWMF 065-002)', herausgeber: 'DGA über AWMF', art: 'leitlinie', muster: /AWMF 065-002/,
+    aktuell: { stand: '2023', fundstelle: AWMF }, beobachten: AWMF, intervallMonate: 12,
+  },
+  {
+    id: 'awmf.das', titel: 'S3-Leitlinie Analgesie, Sedierung und Delirmanagement in der Intensivmedizin (DAS, AWMF 001-012)', herausgeber: 'DGAI und DIVI über AWMF', art: 'leitlinie', muster: /AWMF 001-012/,
+    aktuell: { stand: '2020', fundstelle: AWMF }, beobachten: AWMF, intervallMonate: 12,
+  },
+  {
+    id: 'awmf.beatmung', titel: 'S3-Leitlinie Invasive Beatmung bei akuter respiratorischer Insuffizienz (AWMF 001-021)', herausgeber: 'DGAI über AWMF', art: 'leitlinie', muster: /AWMF 001-021/,
+    aktuell: { stand: '2017', fundstelle: AWMF }, beobachten: AWMF, intervallMonate: 12,
+  },
+  {
+    id: 'awmf.schlaf', titel: 'S3-Leitlinie Nicht erholsamer Schlaf/Schlafstörungen (AWMF 063-001)', herausgeber: 'DGSM über AWMF', art: 'leitlinie', muster: /AWMF 063-001/,
+    aktuell: { stand: '2017', fundstelle: AWMF }, beobachten: AWMF, intervallMonate: 12, hinweis: 'Kapitel Schlafbezogene Atmungsstörungen 2020 aktualisiert.',
+  },
+  {
+    id: 'awmf.demenz', titel: 'S3-Leitlinie Demenzen (AWMF 038-013)', herausgeber: 'DGN und DGPPN über AWMF', art: 'leitlinie', muster: /AWMF 038-013/,
+    aktuell: { stand: '2023', fundstelle: AWMF }, beobachten: AWMF, intervallMonate: 12,
+  },
+  {
+    id: 'awmf.anaphylaxie', titel: 'S2k-Leitlinie Akuttherapie und Management der Anaphylaxie (AWMF 061-025)', herausgeber: 'DGAKI über AWMF', art: 'leitlinie', muster: /AWMF 061-025/,
+    aktuell: { stand: '2021', fundstelle: AWMF }, beobachten: AWMF, intervallMonate: 12,
+  },
+  {
+    id: 'nvl.diabetes2', titel: 'Nationale VersorgungsLeitlinie Typ-2-Diabetes', herausgeber: 'BÄK, KBV, AWMF', art: 'leitlinie', muster: /VersorgungsLeitlinie Typ-2-Diabetes/,
+    aktuell: { stand: '2023 (Version 3.0)', fundstelle: 'https://www.leitlinien.de/themen/diabetes' }, beobachten: 'https://www.leitlinien.de/themen/diabetes', intervallMonate: 12,
+  },
+  {
+    id: 'ddg.alter', titel: 'S2k-Leitlinie Diabetes mellitus im Alter (DDG)', herausgeber: 'DDG', art: 'leitlinie', muster: /Diabetes mellitus im Alter/,
+    aktuell: { stand: '2018', fundstelle: 'https://www.ddg.info/' }, beobachten: 'https://www.ddg.info/', intervallMonate: 12,
+  },
+  {
+    id: 'dgai.awr', titel: 'DGAI/BDA: Empfehlung zur Überwachung nach Anästhesieverfahren (Aufwachraum)', herausgeber: 'DGAI und BDA', art: 'empfehlung', muster: /^DGAI\/BDA: Empfehlung zur Überwachung nach Anästhesie/,
+    aktuell: { stand: '2009, Revision 2021', fundstelle: 'https://www.dgai.de/' }, beobachten: 'https://www.dgai.de/', intervallMonate: 24,
+  },
+  {
+    id: 'grc', titel: 'German Resuscitation Council: Eckpunktepapier innerklinische Notfallversorgung', herausgeber: 'German Resuscitation Council', art: 'empfehlung', muster: /^German Resuscitation Council/,
+    aktuell: { stand: 'laufend', fundstelle: 'https://www.grc-org.de/' }, beobachten: 'https://www.grc-org.de/', intervallMonate: 24,
+  },
+  {
+    id: 'cirs', titel: 'CIRS-Berichtssysteme (CIRSmedical.de, KH-CIRS-Netz Deutschland)', herausgeber: 'ÄZQ und Partner', art: 'empfehlung', muster: /^CIRS-Berichtssystem/,
+    aktuell: { stand: 'laufend', fundstelle: 'https://www.cirsmedical.de/' }, beobachten: 'https://www.cirsmedical.de/', intervallMonate: 24,
+  },
+  {
+    id: 'mts', titel: 'Manchester-Triage-System (Ersteinschätzung in der Notaufnahme)', herausgeber: 'Manchester Triage Group', art: 'instrument', muster: /^Manchester-Triage-System/,
+    aktuell: { stand: '3. Auflage 2014', fundstelle: 'https://www.triagenet.net/' }, beobachten: 'https://www.triagenet.net/', intervallMonate: 24,
+  },
+];
+
 // ---------------------------------------------------------------- Originalquellen der Instrumente
 
 const fest = (id: string, titel: string, muster: RegExp, stand: string, fundstelle: string): QuellenEintrag => ({
@@ -266,9 +450,17 @@ export const INSTRUMENTE: QuellenEintrag[] = [
   fest('as.tug', 'Timed Up and Go', /timed Up & Go/, '1991', 'https://pubmed.ncbi.nlm.nih.gov/?term=Podsiadlo+Richardson+timed+up+and+go'),
   fest('as.tinetti', 'Tinetti-Test', /^Tinetti/, '1986', 'https://pubmed.ncbi.nlm.nih.gov/?term=Tinetti+performance-oriented+assessment+mobility+problems'),
   fest('as.nrs', 'Numerische Rating-Skala', /Downie et al/, '1978', 'https://pubmed.ncbi.nlm.nih.gov/?term=Downie+studies+with+pain+rating+scales'),
+  fest('as.4at', '4AT Delir-Screening', /^4AT/, '2014', 'https://www.the4at.com/'),
+  fest('as.rass', 'Richmond Agitation-Sedation Scale', /^Richmond Agitation-Sedation Scale/, '2002', 'https://pubmed.ncbi.nlm.nih.gov/?term=Sessler+Richmond+Agitation-Sedation+Scale'),
+  fest('as.camicu', 'CAM-ICU', /^CAM-ICU/, '2001', 'https://pubmed.ncbi.nlm.nih.gov/?term=Ely+CAM-ICU+delirium+mechanically+ventilated'),
+  fest('as.bps', 'Behavioral Pain Scale', /^Behavioral Pain Scale/, '2001', 'https://pubmed.ncbi.nlm.nih.gov/?term=Payen+Behavioral+Pain+Scale+sedated+ventilated'),
+  fest('as.ipos', 'IPOS (Integrated Palliative care Outcome Scale)', /^IPOS/, '2019', 'https://pos-pal.org/'),
+  fest('as.aldrete', 'Aldrete-Score (Aufwachraum)', /^Aldrete/, '1995', 'https://pubmed.ncbi.nlm.nih.gov/7742155/'),
+  fest('as.befast', 'BE-FAST', /^BE-FAST/, '2017', 'https://pubmed.ncbi.nlm.nih.gov/?term=Aroor+BE-FAST+stroke'),
+  fest('sepsis-3', 'Sepsis-3: Third International Consensus Definitions for Sepsis and Septic Shock', /Sepsis-3/, '2016', 'https://pubmed.ncbi.nlm.nih.gov/26903338/'),
 ];
 
-export const QUELLEN_BASIS: QuellenEintrag[] = [...GESETZE, ...LEITLINIEN, ...INSTRUMENTE];
+export const QUELLEN_BASIS: QuellenEintrag[] = [...GESETZE, ...LEITLINIEN, ...PRAXIS_LEITLINIEN, ...INSTRUMENTE];
 
 const jahrAus = (s: string) => s.match(/\d{4}/)?.[0] ?? '';
 export const jahr = (stand: string): number => Number(jahrAus(stand) || NaN);
