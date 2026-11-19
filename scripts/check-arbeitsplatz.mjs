@@ -282,7 +282,7 @@ try {
       { id: 'lz-unterzucker-mittag', person: /Frau Winter/, partner: [/Karin|Tochter/, /Dr\. Okafor/], med: /insulin/i },
       { id: 'amb-hausbesuch-still', person: /Frau Sommer/, partner: [/Sabine|Tochter/, /Dr\. Brenner/], med: /Ramipril[\s\S]*Hydrochlorothiazid/ },
       { id: 'lz-palliativ-gespraech', person: /Frau Roth/, partner: [/Petra|Tochter/, /Dr\. Feld/], med: /Metamizol/ },
-      { id: 'kh-sterbephase-nacht', person: /Herr Albrecht/, partner: [/Ingrid|Ehefrau/, /Dr\. Weiß/], med: /Morphin[\s\S]*Lorazepam/ },
+      { id: 'kh-sterbephase-nacht', person: /Herr Hartwig/, partner: [/Ingrid|Ehefrau/, /Dr\. Weiß/], med: /Morphin[\s\S]*Lorazepam/ },
     ];
     for (const f of P18) {
       await p.goto(base + `#/lernen/praxis?neu=${f.id}`, { waitUntil: 'networkidle' });
