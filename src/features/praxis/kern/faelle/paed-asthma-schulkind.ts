@@ -51,8 +51,8 @@ export const PAED_ASTHMA_SCHULKIND: FallV2 = {
   },
   quellen: [
     { id: 'nvl-asthma', titel: 'Nationale VersorgungsLeitlinie Asthma, 5. Auflage (2024), Kapitel Asthmaanfall bei Kindern und Jugendlichen', url: 'https://www.leitlinien.de/themen/asthma' },
-    { id: 'gina-2024', titel: 'Global Initiative for Asthma (GINA): Global Strategy for Asthma Management and Prevention, 2024 (Kinder 6–11 Jahre)' },
-    { id: 'gpp-schulung', titel: 'Arbeitsgemeinschaft Asthmaschulung im Kindes- und Jugendalter: Qualitätsmanagement Asthmaschulung (aktuelle Fassung prüfen)' },
+    { id: 'gina-2024', titel: 'GINA (Global Initiative for Asthma): Global Strategy for Asthma Management and Prevention, 2024 (Kinder 6–11 Jahre)' },
+    { id: 'gpp-schulung', titel: 'Arbeitsgemeinschaft Asthmaschulung im Kindes- und Jugendalter: Qualitätsmanagement Asthmaschulung' },
     { id: 'fi-salbutamol', titel: 'Fachinformation Salbutamol Dosieraerosol 100 µg (Kinder)' },
     { id: 'bgb-1687', titel: 'BGB § 1687 Gemeinsame elterliche Sorge bei Getrenntleben (Auskunft an sorgeberechtigte Eltern)' },
   ],

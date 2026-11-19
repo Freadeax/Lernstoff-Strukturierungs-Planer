@@ -49,9 +49,9 @@ export const PAED_GASTROENTERITIS_KLEINKIND: FallV2 = {
     ],
   },
   quellen: [
-    { id: 'gpge-gastro', titel: 'S2k-Leitlinie Akute infektiöse Gastroenteritis im Säuglings-, Kindes- und Jugendalter (GPGE, AWMF 068-003), aktuelle Fassung prüfen' },
+    { id: 'gpge-gastro', titel: 'S2k-Leitlinie Akute infektiöse Gastroenteritis im Säuglings-, Kindes- und Jugendalter (GPGE, AWMF 068-003), Fassung 2024' },
     { id: 'espghan-2014', titel: 'ESPGHAN/ESPID: Evidence-based Guidelines for the Management of Acute Gastroenteritis in Children in Europe (2014)' },
-    { id: 'krinko-noro', titel: 'RKI-Ratgeber Norovirus-Gastroenteritis und KRINKO-Empfehlung Infektionsprävention bei übertragbaren Krankheiten' },
+    { id: 'krinko-noro', titel: 'RKI-Ratgeber Norovirus-Gastroenteritis; KRINKO-Empfehlung Infektionsprävention bei übertragbaren Krankheiten' },
     { id: 'fi-ondansetron', titel: 'Fachinformation Ondansetron Schmelztabletten (Kinder: Dosierung nach Körpergewicht)' },
     { id: 'ifsg', titel: 'Infektionsschutzgesetz (IfSG) §§ 6–9 Meldepflicht, § 34 Gemeinschaftseinrichtungen' },
   ],
@@ -113,7 +113,11 @@ export const PAED_GASTROENTERITIS_KLEINKIND: FallV2 = {
       'Gewicht bei der U7a vor zwei Wochen 14,0 kg.',
     ],
     diagnosen: [{ text: 'Akute Gastroenteritis, vermutlich viral', icd: 'A08.4', seit: 'gestern' }, { text: 'Dehydratation', icd: 'E86', seit: 'heute' }],
-    medikation: [],
+    medikation: [
+      { id: 'mp-paracetamol', wirkstoff: 'Paracetamol', staerke: '250 mg', form: 'Supp.',
+        bedarf: { indikation: 'Fieber über 38,5 °C oder Schmerzen', einzeldosis: '1 Supp. (250 mg)', maxProTag: '3 Supp. (750 mg)', abstandH: 6 },
+        hinweis: 'Für 14 kg nachgerechnet (etwa 15 mg/kg je Gabe, höchstens 60 mg/kg am Tag). Bei Durchfall wirkt ein Zäpfchen unsicher.' },
+    ],
     vorwerte: [
       { zeit: 'U7a vor 2 Wochen', vorH: 336, werte: { gewicht: 14 }, kuerzel: 'Praxis' },
       { zeit: 'Notaufnahme 08:30', vorH: 0.8, werte: { hf: 138, af: 28, temp: 38.2 }, kuerzel: 'ZNA' },
