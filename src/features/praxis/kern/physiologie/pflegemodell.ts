@@ -36,6 +36,7 @@ import { profil, type Altersprofil } from './altersprofile';
 import { herz, HERZ_START, klemme, lunge, wirkAnteil, ZUCKER_FAUSTWERTE, type Befund, type Lage } from './organe';
 import { pharmaEffekte, type PharmaEffekte } from './wirkstoffe';
 import { hautSchritt } from './haut-mobilitaet';
+import { cushing, cushingDruck, gcsTeile, neuroNachlast, neuroSchritt, neuroVigilanz, pupillen, schlaganfallZeichen } from './neuro';
 import { blaseNaechste, kaliumNachDiurese, stundenurin, urinFarbe } from './niere';
 
 /* ───────────────────────── Hilfen ───────────────────────── */
@@ -211,7 +212,7 @@ function kreislaufRoh(g: Grundgroessen, k: ModellKontext, saO2 = 0.97): Kreislau
   const p = profil(k.altersgruppe);
   // Hochbetagte sind stark vorlastabhängig (steifer Ventrikel): Volumenmangel senkt den Druck deutlicher
   const vorlast = 50 * Math.max(0.05, g.volumen) ** p.vorlastExponent;
-  const nachlast = 50 * Math.max(0.1, g.gefaesstonus);
+  const nachlast = 50 * Math.max(0.1, g.gefaesstonus) * neuroNachlast(g);   // G5: Erfordernishochdruck, Cushing
   const kraft = 50 * Math.max(0.05, g.pumpleistung);
   const m0 = herz({ ...HERZ_START, hf: 70, vorlast, nachlast, kraft }).map;
   const defizit = Math.max(0, (REF.map - m0) / REF.map);
@@ -219,7 +220,7 @@ function kreislaufRoh(g: Grundgroessen, k: ModellKontext, saO2 = 0.97): Kreislau
   const opioid = hill(1 - g.atemantrieb, 0.5); // gedämpfter Antrieb ≈ Sedierung
   const stress = 0.12 * fieber + (0.25 * g.angst + 0.45 * panik(g)) * klemme(g.vigilanz * 1.2, 0, 1) + 0.015 * g.schmerz + 0.1 * g.unruhe
     + (g.blutzucker < 60 ? 0.2 : 0) + (g.krampf > 0 ? 0.15 : 0);
-  const daempfung = 0.15 * opioid - (g.wirkHf ?? 0) + (g.temperatur < 35 ? (35 - g.temperatur) * 0.08 : 0);
+  const daempfung = 0.15 * opioid + 0.35 * cushing(g) - (g.wirkHf ?? 0) + (g.temperatur < 35 ? (35 - g.temperatur) * 0.08 : 0);
   let rel = 1 + p.baroGain * (2.6 * defizit + 6 * defizit * defizit) + stress + 0.35 * dyspnoeKreislauf(g) - daempfung;
   // Antriebe addieren sich nicht linear bis zur Höchstfrequenz: Sinustachykardie sättigt (Fieber, Schmerz und
   // Schock zusammen ergeben bei Erwachsenen eher 130–150/min, über 150 spricht für eine Rhythmusstörung).
@@ -242,10 +243,11 @@ function kreislaufRoh(g: Grundgroessen, k: ModellKontext, saO2 = 0.97): Kreislau
   const druckFaktor = h.map > mapGrenze ? mapGrenze / h.map : 1;
   const stillstand = g.pumpleistung < 0.1 || h.map < 20;
   const perfusion = stillstand ? 0 : h.hzv / REF.hzv;
-  const sys = stillstand ? 0 : (h.sys * druckFaktor * p.rrSys) / REF.sys;
+  const [cuSys, cuDia] = cushingDruck(g);
+  const sys = stillstand ? 0 : (h.sys * druckFaktor * p.rrSys) / REF.sys + cuSys;
   // Weitgestellte Gefäße (Sepsis, Vasodilatation): Diastole fällt stärker als die Systole (große Druckamplitude)
   const diaFaktor = 1 - 0.5 * (1 - klemme(g.gefaesstonus, 0.2, 1));
-  const dia = stillstand ? 0 : (h.dia * druckFaktor * diaFaktor * p.rrDia) / REF.dia;
+  const dia = stillstand ? 0 : (h.dia * druckFaktor * diaFaktor * p.rrDia) / REF.dia + cuDia;
   // Zentralisation: Der Barorezeptor-Reflex verengt die Hautgefäße, die Rekapillarisierung wird lang, bevor der Druck fällt
   const rekap = stillstand ? 8 : klemme(2 / Math.max(0.2, perfusion) ** 0.8 + 12 * defizit + 3 * Math.max(0, 0.9 - g.hydratation) + (g.temperatur < 35.5 ? 1 : 0), 1, 8);
   return {
@@ -386,6 +388,10 @@ function naechster(alt: Grundgroessen, treiber: readonly Treiber[], dt: number, 
   // G3 Haut: Druckbelastung und Dekubitus-Kategorie (nur mit Treiber immobil oder vorgegebener Druckbelastung)
   const hs = hautSchritt(alt, treiber, dt, kr.stillstand ? 0 : kr.map);
   if (hs) Object.assign(g, hs);
+  // G5 Neuro: Schlaganfall, Lyse, Hirndruck
+  const ns = neuroSchritt(alt, treiber, dt, (tr) => seitMin(tr, k));
+  if (ns) Object.assign(g, ns);
+  if (pe.opioid > 0.001 || alt.wirkOpioid !== undefined) g.wirkOpioid = Math.round(pe.opioid * 1000) / 1000;
   if (pe.bzProStunde) g.blutzucker += pe.bzProStunde * std;
 
   // Delir: steigt mit Auslösern (Altersprofil), klingt sonst langsam ab
@@ -423,14 +429,14 @@ function naechster(alt: Grundgroessen, treiber: readonly Treiber[], dt: number, 
   g.atemarbeit = hin(alt.atemarbeit, atemarbeitZiel, bs > 0 ? 120 : 300, dt);
   g.gasaustausch = hin(alt.gasaustausch, gasZiel, pn > 0 && bs === 0 ? 900 : 180, dt);
 
-  const antriebZiel = b.atemantrieb * (1 - 0.75 * hill(pe.atemdepression, 0.7)) + off(k, 'atemantrieb');
+  const antriebZiel = b.atemantrieb * (1 - 0.75 * hill(pe.atemdepression, 0.7)) * (1 - 0.5 * cushing(g)) + off(k, 'atemantrieb');
   g.atemantrieb = hin(alt.atemantrieb, antriebZiel, 60, dt);
 
   const tempZiel = Math.max(b.temperatur, fieberZiel - pe.fiebersenkung) + off(k, 'temperatur');
   g.temperatur = hin(alt.temperatur, tempZiel, 1800, dt);
 
   const vf = vigilanzFaktor(alt, a, kr, opioid + pe.sedativ);
-  g.vigilanz = hin(alt.vigilanz, b.vigilanz * vf + off(k, 'vigilanz'), 60, dt);
+  g.vigilanz = hin(alt.vigilanz, b.vigilanz * vf * neuroVigilanz(g) + off(k, 'vigilanz'), 60, dt);
 
   const orientZiel = b.orientierung - 0.9 * Math.max(0, g.delir - b.delir) - 0.8 * Math.max(0, b.vigilanz - g.vigilanz)
     - (g.blutzucker < 60 ? 0.3 : 0) + off(k, 'orientierung');
@@ -441,7 +447,7 @@ function naechster(alt: Grundgroessen, treiber: readonly Treiber[], dt: number, 
     + (hat(treiber, 'harnverhalt') ? 0.3 : 0)) * klemme(g.vigilanz * 1.2, 0, 1) * (1 - pe.unruheMinus) + off(k, 'unruhe');
   g.unruhe = hin(alt.unruhe, unruheZiel, 60, dt);
 
-  const uebelZiel = (b.uebelkeit + 0.5 * hill(opioid, 0.5) + (g.blutzucker < 60 ? 0.3 : 0)) * (1 - pe.antiemese) + off(k, 'uebelkeit');
+  const uebelZiel = (b.uebelkeit + 0.5 * hill(opioid, 0.5) + 0.6 * hill(g.hirndruck ?? 0, 0.4) + (g.blutzucker < 60 ? 0.3 : 0)) * (1 - pe.antiemese) + off(k, 'uebelkeit');
   g.uebelkeit = hin(alt.uebelkeit, uebelZiel, 120, dt);
 
   return begrenzen(g);
@@ -481,6 +487,18 @@ function anzeige(g: Grundgroessen, k: ModellKontext): Anzeige {
     rhythmus: rhythmusAus(g, p, kr, k),
     avpu: avpuAus(g.vigilanz), gcs: gcsAus(g.vigilanz, g.orientierung),
     ...ausscheidung(g, k, p, kr),
+    ...neuroAnzeige(g, k, a.saO2, kr.stillstand),
+  };
+}
+
+/** G5: Pupillen, GCS-Teilwerte (Summe = GCS), Schlaganfallzeichen ({pupilleRechtsMm}, {gcsVerbal}, {fast}, {lyseFensterMin} …). */
+function neuroAnzeige(g: Grundgroessen, k: ModellKontext, saO2: number, stillstand: boolean): Partial<Anzeige> {
+  const kind = k.altersgruppe === 'saeugling' || k.altersgruppe === 'kleinkind' || k.altersgruppe === 'schulkind';
+  const t = gcsTeile(g.vigilanz, g.orientierung, g);
+  return {
+    ...pupillen(g, kind, saO2, stillstand, g.wirkOpioid ?? 0),
+    gcsAugen: t.augen, gcsVerbal: t.verbal, gcsMotorik: t.motorik, gcs: t.augen + t.verbal + t.motorik,
+    ...schlaganfallZeichen(g),
   };
 }
 

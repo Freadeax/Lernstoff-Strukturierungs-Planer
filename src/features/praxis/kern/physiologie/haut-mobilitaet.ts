@@ -30,7 +30,7 @@ export function hautSchritt(alt: Grundgroessen, treiber: readonly Treiber[], dt:
   const rate = immobil ? druckRate(immobil.druckMmHg, immobil.scherkraefte, immobil.feucht, map, alt.hydratation) : 0;
   const druckLast = rate > 0 ? last0 + rate * std : Math.max(0, last0 - HAUT_ERHOLUNG_PRO_STUNDE * std);
   const dekubitusKat = Math.max(alt.dekubitusKat ?? 0, dekubitusKategorie(druckLast)) as Kategorie;
-  return { druckLast: Math.round(druckLast * 100) / 100, dekubitusKat };
+  return { druckLast, dekubitusKat };
 }
 
 export type SturzStufe = 'gering' | 'erhöht' | 'hoch';

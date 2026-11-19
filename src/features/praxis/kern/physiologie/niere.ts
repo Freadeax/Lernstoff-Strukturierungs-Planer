@@ -61,7 +61,7 @@ export const BLASE_SCHMERZ_ML = 500;
 export function blaseNaechste(blaseMl: number, mlH: number, dt: number, harnverhalt: boolean): number {
   const voll = blaseMl + (mlH * dt) / 3600;
   if (!harnverhalt && voll >= BLASE_ENTLEERUNG_ML) return 30;
-  return Math.min(1500, Math.round(voll * 10) / 10);
+  return Math.min(1500, voll);
 }
 
 /** Kalium nach Schleifendiuretika: etwa −0,35 mmol/l je Liter zusätzlicher Diurese (Lernmodell). */
