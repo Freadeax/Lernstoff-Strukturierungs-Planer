@@ -31,6 +31,8 @@ export interface Meldung {
   /** P11: zu welchem Gesprächsfaden die Meldung gehört; `richtung` aus Sicht der Lernenden */
   faden?: Gegenueber;
   richtung?: 'raus' | 'rein';
+  /** P13: Messwerte zum Messzeitpunkt (Befund mit `zeigt`, Schmerzeinschätzung, Doku). Eine Quelle für Kurve, Wert-Bausteine und Verlauf. */
+  werte?: Partial<Record<keyof Anzeige | 'schmerz', number>>;
 }
 
 interface AktiveWirkung { kurve: Wirkkurve; t0: number; delta: number }
@@ -321,11 +323,24 @@ function fuelle(text: string, z: SimZustand): string {
   });
 }
 
+/** Schmerzeinschätzungen: Ergebnis (NRS 0–10 aus der Grundgröße) geht als `werte.schmerz` in die Meldung (P13). */
+export const SCHMERZ_MESSUNG: ReadonlySet<string> = new Set(['schmerz-nrs', 'schmerz-besd', 'schmerz-kinderskala', 'schmerz-bps']);
+
+/** Momentaufnahme der gezeigten Werte (P13): was in diesem Augenblick gemessen wurde, nicht der spätere Modellwert. */
+function messwerte(z: SimZustand, id: string, zeigt: ReadonlyArray<keyof Anzeige> | undefined): Meldung['werte'] {
+  const a = anzeige(z);
+  const w: NonNullable<Meldung['werte']> = {};
+  for (const k of zeigt ?? []) { const x = a[k]; if (typeof x === 'number') w[k] = x; }
+  if (SCHMERZ_MESSUNG.has(id)) w.schmerz = Math.round(z.grund.schmerz);
+  return Object.keys(w).length ? w : undefined;
+}
+
 function befund(z: SimZustand, id: string) {
   const b = z.fall.befunde.find((x) => x.massnahme === id);
   const v = b?.varianten.find((x) => !x.wenn || gilt(z, x.wenn));
   if (v) {
-    z.meldungen.push({ t: z.t, art: 'befund', text: fuelle(v.text, z), quelle: id, ...(v.zeigt?.length ? { zeigt: v.zeigt } : {}) });
+    const werte = messwerte(z, id, v.zeigt);
+    z.meldungen.push({ t: z.t, art: 'befund', text: fuelle(v.text, z), quelle: id, ...(v.zeigt?.length ? { zeigt: v.zeigt } : {}), ...(werte ? { werte } : {}) });
     for (const k of v.zeigt ?? []) if (!z.sichtbar.includes(k)) z.sichtbar.push(k);
   }
 }
