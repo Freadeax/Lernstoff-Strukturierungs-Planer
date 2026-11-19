@@ -68,6 +68,11 @@ export interface Grundgroessen {
   kalium?: number;               // mmol/l
   einfuhrMl?: number;            // Bilanz: kumulierte Einfuhr seit Fallbeginn (Infusion = Wirkkurve)
   ausfuhrMl?: number;            // Bilanz: kumulierte Urinmenge seit Fallbeginn
+  // G1 Wirkstoffe: vom Modell geschrieben (angewandter Arzneimittelanteil), in Fällen nicht setzen
+  wirkSchmerz?: number;          // NRS-Anteil, um den Analgetika den Schmerz gerade senken (≤ 0)
+  wirkAngst?: number;            // Anteil, um den Anxiolytika die Angst gerade senken (≤ 0)
+  wirkTonus?: number;            // Gefäßtonus-Anteil durch Arzneimittel (z. B. Metamizol i. v. < 0)
+  wirkHf?: number;               // Pulsanstieg relativ durch Arzneimittel (z. B. Salbutamol)
 }
 
 /** Vom Kern abgeleitet, Ziele für den Monitor (Logik-Takt 5 s, Render interpoliert). */
@@ -115,7 +120,11 @@ export type Treiber =
   /** Opioid-Antagonist: wirkt kürzer als viele Opioide (Renarkotisierung) */
   | { art: 'naloxon'; halbwertMin: number }
   /** volle Blase / Harnverhalt: Schmerz, Unruhe, Delir-Auslöser; endet über MassnahmeDefinition.beendet */
-  | { art: 'harnverhalt' };
+  | { art: 'harnverhalt' }
+  // G1 Wirkstoffe (Register physiologie/wirkstoffe.ts): Kinetik nach Weg, Halbwertszeit, Alter und Gewicht
+  | { art: 'wirkstoff'; id: string; dosisMg: number; weg?: ArzneiWeg };
+
+export type ArzneiWeg = 'iv' | 'sc' | 'im' | 'oral' | 'sublingual' | 'bukkal' | 'rektal' | 'inhalativ';
 
 /** Treiber im Zustand: seit = Spielzeit, zu der er hinzukam (vom Kern gestempelt, nur aus z.t). */
 export type AktiverTreiber = Treiber & { seit?: Sek };

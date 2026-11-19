@@ -163,6 +163,12 @@ describe('Pflege-Physiologiemodell: Treiber fachlich plausibel', () => {
       expect(verlauf[4].g.krampf).toBeLessThan(0);            // nur ein Anfall, danach postiktal
       expect(verlauf[4].a.avpu).toBe('A');
     },
+    wirkstoff: () => {
+      // Ausführlich in wirkstoffe.test.ts; hier: übliche Dosis Morphin s. c. lindert Schmerz ohne Atemdepression
+      const r = lauf('erwachsen', 45, [{ art: 'wirkstoff', id: 'morphin', dosisMg: 10, weg: 'sc' }], { schmerz: 7 });
+      expect(r.g.schmerz).toBeLessThan(4);
+      expect(r.a.af).toBeGreaterThanOrEqual(10);
+    },
     pneumonie: () => {
       const r = lauf('erwachsen', 120, [{ art: 'pneumonie', staerke: 1 }]);
       expect(r.a.spo2).toBeLessThanOrEqual(93);                  // NEWS2: mindestens 2 Punkte

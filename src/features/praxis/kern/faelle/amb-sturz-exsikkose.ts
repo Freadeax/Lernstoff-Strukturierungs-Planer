@@ -328,7 +328,8 @@ export const PILOT_AMBULANT: FallV2 = {
         warum: 'Ein Diuretikum bei Exsikkose und niedrigem Blutdruck verschlimmert beides. Vorher Rücksprache halten.' },
       { id: 'f-lorazepam', text: 'Lorazepam ohne Nachfrage gegeben', schwere: 'schwer', kompetenzbereiche: ['III', 'IV', 'V'],
         wenn: { getan: 'lorazepam-geben' },
-        folge: { text: 'Frau Lindner wird schläfrig, später noch verwirrter.', wirkung: [{ groesse: 'vigilanz', delta: -0.3, beginnSek: 600, spitzeSek: 1800, dauerSek: 14400 }, { groesse: 'delir', delta: 0.3, beginnSek: 1800, spitzeSek: 3600, dauerSek: 'dauerhaft' }] },
+        // Schläfrigkeit und Delir-Anstieg kommen aus dem Wirkstoffmodell (G1: Lorazepam bei Hochbetagten)
+        folge: { text: 'Frau Lindner wird schläfrig, später noch verwirrter.' },
         warum: 'Remonstrieren wäre richtig gewesen: Benzodiazepine sind bei Delir im Alter potenziell gefährlich, und das Medikament ist nicht verordnet.' },
       { id: 'f-allein', text: 'Patientin am Boden allein gelassen (z. B. zum Telefonieren in den Flur)', schwere: 'mittel', kompetenzbereiche: ['I'],
         wenn: { alle: [{ getan: 'anruf-aerztin' }, { nicht: { eine: [{ getan: 'sitzend-sichern' }, { flag: 'sitzt-im-sessel' }] } }] },

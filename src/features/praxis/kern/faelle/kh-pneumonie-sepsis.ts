@@ -116,7 +116,7 @@ export const KH_PNEUMONIE_SEPSIS: FallV2 = {
     aus('iv-medikament-geben', { id: 'abx-iv-vorziehen', name: 'Antibiotikum i. v. vorziehen (Ampicillin/Sulbactam)', setzt: ['antibiotikum-vorgezogen'] }),
     aus('bedarfsmedikation-oral', {
       id: 'paracetamol-geben', name: 'Paracetamol 1 g oral bei Fieber (Bedarfsplan)',
-      wirkung: [{ groesse: 'temperatur', delta: -0.8, beginnSek: 900, spitzeSek: 2700, dauerSek: 14400 }, { groesse: 'schmerz', delta: -2, beginnSek: 600, spitzeSek: 1800, dauerSek: 14400 }],
+      treiber: [{ art: 'wirkstoff', id: 'paracetamol', dosisMg: 1000, weg: 'oral' }],   // G1
     }),
   ],
 
