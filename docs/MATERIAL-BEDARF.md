@@ -194,6 +194,22 @@ Nummerierung schließt an das Komplettpaket an (07–19).
 | `30_station_zimmer_frau` | Internistisches Einzelzimmer, Tag, Infusionsständer mit laufender Kurzinfusion | Frau ca. 34 im Bett, kratzt sich am Arm | Patientin, Infusion/Zugang, Monitorwagen, Rufanlage, Notfallwagen-Hinweis an der Tür | `30a` ohne Monitor, `30b` ältere Frau ca. 81 im Bett, verwirrt (Sepsis) | Praxis `anaphylaxie` (Selin, 34), `sepsis` (Gertrud, 81), Fall `anaphylaxie`, `sepsis` |
 | `42_station_bewusstlos` | Stationszimmer (Normalstation), Bett flach gestellt, Kopfteil abnehmbar, Tag | Erwachsene Person ca. 70 Jahre bewusstlos in Rückenlage im Bett, Augen geschlossen, Arme neben dem Körper, keine Pflegekraft im Bild | Person (Brustkorb frei zugänglich), Rufanlage/Notrufknopf, Bettbedienung (Flachstellung), Reanimationsbrett am Bett oder an der Wand, Monitorwagen | `42a` mit Monitorwagen am Bett, `42n` Nacht, `42b` mit Reanimationsbrett unter dem Oberkörper | Notfall-Trainer „Reanimation üben“ (läuft heute im Schockraum 18) |
 
+### 2.3 Runde 3: Bestellung aus dem neuen Praxissimulator (19.11.2026)
+
+Alle P1. `34_aufwachraum` (vorher P3, Abschnitt 2.2), `15a_…_alarm` und `10b_…_sterbend` (vorher P2, Abschnitt 3) sind damit vorgezogen. Prompts und Referenzbilder: Projektordner `material-bedarf/gpt-bilderpaket-runde3/`. Einbindung nur über diese IDs in `src/ui/sim/raeume/katalog.ts`.
+
+| ID | Bild | Grundlage | Für Fall |
+| --- | --- | --- | --- |
+| `10b_pflegeheim_nacht_sterbend` | Pflegeheim · Sterbezimmer bei Nacht | Bearbeitung von `10_pflegeheim_nacht` | kh-sterbephase-nacht |
+| `22z_psychiatrie_zimmer` | Psychiatrie · Patientenzimmer | neues Foto | psy-panik-suizidalitaet |
+| `22f_psychiatrie_flur` | Psychiatrie · Stationsflur | neues Foto | psy-unruhe-deeskalation |
+| `09h_ambulant_kueche_herzschwaeche` | Ambulant · Küche bei Herzschwäche | Bearbeitung von `09_ambulant_kueche_diabetes` | amb-herzschwaeche |
+| `07s_ambulant_wohnzimmer_sturz` | Ambulant · Wohnzimmer nach Sturz | Bearbeitung von `07_ambulant_wohnzimmer_kompression` | amb-sturz-exsikkose |
+| `34_aufwachraum` | Aufwachraum | neues Foto | awr-opioid-atemdepression |
+| `15a_intensiv_beatmung_alarm` | Intensiv · Beatmung mit Alarm | Bearbeitung von `15_intensiv_beatmung` | its-beatmung-alarm |
+| `27r_station_zweibett_nacht_reanimation` | Zweibettzimmer · Reanimation | Bearbeitung von `27_station_zweibett_nacht_ohne_monitor` | kh-reanimation-bls |
+| `na_pflegetasche_offen` | Nahansicht · Pflegetasche geöffnet | neues Foto | amb-sturz-exsikkose, amb-hausbesuch-still, amb-herzschwaeche |
+
 ### 2.2 P3: Räume für geplante Einsatzbereiche
 
 Aus `docs/PRAXISSIMULATOR.md` (Einsatzgebiete, P2 „Versorgungsverlauf“). Gleiche Vorgaben wie oben.
