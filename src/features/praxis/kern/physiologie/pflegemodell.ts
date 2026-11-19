@@ -33,6 +33,7 @@ import { NORMAL, type ModellKontext, type PhysiologieModell } from '../modell';
 import { profil, type Altersprofil } from './altersprofile';
 import { herz, HERZ_START, klemme, lunge, wirkAnteil, ZUCKER_FAUSTWERTE, type Befund, type Lage } from './organe';
 import { pharmaEffekte, type PharmaEffekte } from './wirkstoffe';
+import { blaseNaechste, kaliumNachDiurese, stundenurin, urinFarbe } from './niere';
 
 /* ───────────────────────── Hilfen ───────────────────────── */
 
@@ -361,7 +362,14 @@ function naechster(alt: Grundgroessen, treiber: readonly Treiber[], dt: number, 
     const ml = pe.diureseMlH * std;
     g.volumen -= ml / (blutvolumenMl * 2.5);            // Diurese zieht aus dem ganzen Extrazellulärraum
     g.hydratation -= ml / (gewicht(k, p) * 200);
-    g.kalium = (alt.kalium ?? 4.2) - (0.35 * ml) / 1000;  // Schleifendiuretika: Kaliumverlust
+    g.kalium = kaliumNachDiurese(alt.kalium, ml);         // Schleifendiuretika: Kaliumverlust
+  }
+  if (mitPharma || alt.wirkDiurese !== undefined) g.wirkDiurese = pe.diureseMlH;
+  // G2 Blase: nur, wenn der Fall eine Füllung vorgibt oder ein Harnverhalt läuft
+  const harnverhalt = hat(treiber, 'harnverhalt');
+  if (alt.blaseMl !== undefined || harnverhalt) {
+    const mlH = kr.stillstand ? 0 : stundenurin(kr.map, alt.volumen, alt.hydratation, gewicht(k, p), pe.diureseMlH);
+    g.blaseMl = blaseNaechste(alt.blaseMl ?? 150, mlH, dt, harnverhalt);
   }
   if (pe.bzProStunde) g.blutzucker += pe.bzProStunde * std;
 
@@ -457,7 +465,18 @@ function anzeige(g: Grundgroessen, k: ModellKontext): Anzeige {
     temp: Math.round(g.temperatur * 10) / 10, bz: Math.round(g.blutzucker),
     rhythmus: rhythmusAus(g, p, kr, k),
     avpu: avpuAus(g.vigilanz), gcs: gcsAus(g.vigilanz, g.orientierung),
+    ...ausscheidung(g, k, p, kr),
   };
+}
+
+/** G2: Stundenurin, Urinfarbe, Blasenfüllung und Kalium für Befundtexte ({urinMlH}, {urinFarbe}, {blaseMl}, {kalium}). */
+function ausscheidung(g: Grundgroessen, k: ModellKontext, p: Altersprofil, kr: KreislaufDetail): Partial<Anzeige> {
+  const kg = gewicht(k, p);
+  const mlH = kr.stillstand ? 0 : stundenurin(kr.map, g.volumen, g.hydratation, kg, g.wirkDiurese ?? 0);
+  const a: Partial<Anzeige> = { urinMlH: Math.round(mlH), urinFarbe: urinFarbe(g.hydratation, mlH, kg) };
+  if (g.blaseMl !== undefined) a.blaseMl = Math.round(g.blaseMl);
+  if (g.kalium !== undefined) a.kalium = Math.round(g.kalium * 10) / 10;
+  return a;
 }
 
 /** Das gekoppelte Pflege-Physiologiemodell (Standard im Kern). */

@@ -13,6 +13,7 @@ import type { ModellKontext, PhysiologieModell } from '../modell';
 import type { Anzeige, GeraeteStoerung, Grundgroessen, ModellModule, ModulEingriff, Rhythmus } from '../typen';
 import { bgaAusModell, po2AusSpo2 } from './bga';
 import { perfusorEffekt } from './perfusor';
+import { laktatZiel, urinMlH } from '../physiologie/niere';
 
 /** Was die Hülle vom Basismodell zusätzlich braucht. P1 liefert es über atmung()/kreislauf(). */
 export interface BasisDetails {
@@ -130,21 +131,8 @@ function schaetze(a: Anzeige): BasisDetails {
   return { map, perfusion: begrenze(map / 90, 0, 1.3), paco2: 40, pao2: po2AusSpo2(a.spo2) };
 }
 
-/** Urinproduktion ml/h: etwa 1 ml/kg/h bei MAP ≥ 75, unter MAP 65 deutlich weniger, unter 50 kaum noch. */
-export function urinMlH(map: number, volumen: number, kg: number): number {
-  const druck = begrenze((map - 50) / 25, 0, 1.2);
-  const fuellung = begrenze((volumen - 0.6) / 0.4, 0, 1.2);
-  return Math.round(kg * druck * fuellung * 10) / 10;
-}
-
-/**
- * Laktat-Ziel: Minderperfusion (MAP < 65, niedriges HZV) und Hypoxämie treiben es hoch.
- * Bei Sepsis kommt eine gestörte Mikrozirkulation dazu, die mit steigendem Druck abnimmt.
- */
-export function laktatZiel(map: number, perfusion: number, spo2: number, sepsis = 0): number {
-  const mikro = 1.2 * Math.min(1.5, sepsis) * begrenze((75 - map) / 15, 0, 1.5);
-  return 1 + 0.12 * Math.max(0, 65 - map) + 4 * Math.max(0, 0.85 - perfusion) + 0.15 * Math.max(0, 88 - spo2) + mikro;
-}
+// Laktat und Stundenurin rechnet das Grundsystem Niere/Ausscheidung (G2); hier unverändert weiterverwendet.
+export { laktatZiel, urinMlH } from '../physiologie/niere';
 
 /* ───────────────────────── Die Hülle ───────────────────────── */
 

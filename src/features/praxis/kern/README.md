@@ -152,3 +152,13 @@ Code: `kommunikation.ts` (rein, vom Kern aufgerufen), Zustand in `SimZustand.kom
   zurückgegeben wird; `wirkHf` hebt den Puls. Ohne Wirkstoff-Treiber bleiben diese Felder leer (bisherige Kalibrierung unverändert).
 - Antipyretika verhindern einen Fieberkrampf nicht (Schwelle gilt für den Fieberverlauf ohne Senkung).
 - Doppelgabe, Abstand und Höchstmenge prüft weiter `akte.ts`; G1 liefert nur die Wirkung.
+
+## Grundsystem G2: Niere und Ausscheidung
+
+`physiologie/niere.ts` (Lernmodell). Spur B nutzt `urinMlH` und `laktatZiel` von dort (Re-Export in `spur-b/modul.ts`, Test auf exakt gleiche Werte).
+
+- **Stundenurin** (`Anzeige.urinMlH`, jetzt auch in Spur A): Nierendurchblutung (MAP, Füllung) × Antidiurese bei Flüssigkeitsmangel (ADH) + Diuretika (`Grundgroessen.wirkDiurese`, vom Modell aus G1 geschrieben). Ruhe ≈ 1 ml/kg/h, Schock < 0,5 ml/kg/h.
+- **Urinfarbe** (`Anzeige.urinFarbe`, 1–8 nach Urinfarbtafel): wird bei Exsikkose dunkel, nach Diuretika hell.
+- **Blase** (`Grundgroessen.blaseMl`, optional): nur wenn der Fall eine Füllung vorgibt oder ein Treiber `harnverhalt` läuft. Ohne Abflusshindernis Entleerung ab 350 ml (Restharn 30 ml), bei Harnverhalt füllt sie sich weiter; „blasenkatheter-legen“ beendet den Harnverhalt. `Anzeige.blaseMl` passt zu einem Blasenscan-Befund.
+- **Kalium**: Ausgangswert 4,2 mmol/l, Schleifendiuretika senken es; `Anzeige.kalium` erscheint in Spur A, sobald der Fall oder ein Wirkstoff es führt.
+- Befundtexte können `{urinMlH}`, `{urinFarbe}`, `{blaseMl}`, `{kalium}` als Platzhalter nutzen.
