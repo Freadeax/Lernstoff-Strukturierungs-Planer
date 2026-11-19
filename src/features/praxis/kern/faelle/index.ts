@@ -1,10 +1,13 @@
 // Fälle auf dem neuen Kern (Fallschema v2). Pilotstaffel E6: 5 Settings, je 1 Fall (Spur A), dazu Spur B.
 import type { FallV2 } from '../typen';
 import { PILOT_AMBULANT } from './amb-sturz-exsikkose';
+import { KH_ERSTER_TAG } from './kh-erster-tag';
+import { KH_REHA_ERSTER_WEG } from './kh-reha-erster-weg';
 import { KH_PNEUMONIE_SEPSIS } from './kh-pneumonie-sepsis';
+import { LZ_KOERPERPFLEGE_ABGELEHNT } from './lz-koerperpflege-abgelehnt';
 import { LZ_DEMENZ_SCHMERZ } from './lz-demenz-schmerz';
 import { PAED_FIEBERKRAMPF } from './paed-fieberkrampf';
 import { PSY_PANIK_SUIZIDALITAET } from './psy-panik-suizidalitaet';
 import { SR_SEPTISCHER_SCHOCK } from './sr-septischer-schock';
 
-export const FAELLE_V2: readonly FallV2[] = [PILOT_AMBULANT, KH_PNEUMONIE_SEPSIS, LZ_DEMENZ_SCHMERZ, PAED_FIEBERKRAMPF, PSY_PANIK_SUIZIDALITAET, SR_SEPTISCHER_SCHOCK];
+export const FAELLE_V2: readonly FallV2[] = [PILOT_AMBULANT, KH_PNEUMONIE_SEPSIS, LZ_DEMENZ_SCHMERZ, PAED_FIEBERKRAMPF, PSY_PANIK_SUIZIDALITAET, SR_SEPTISCHER_SCHOCK, KH_ERSTER_TAG, LZ_KOERPERPFLEGE_ABGELEHNT, KH_REHA_ERSTER_WEG];

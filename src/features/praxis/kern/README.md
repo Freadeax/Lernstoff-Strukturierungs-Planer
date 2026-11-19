@@ -26,7 +26,9 @@ Regeln
 - Wartezeiten nie zusammenfassen (Takt-Grenzen ändern sonst das Ergebnis).
 - Freigabe: `nur-aerztlich` und `gesperrt` → Grenze (gesperrt = in diesem Drittel nicht, keine ärztliche Aufgabe); anordnungspflichtig ohne Anordnung → braucht Anordnung; `mit-anleitung` → mit PA.
   Stufe 2: PA unterstützt bzw. warnt und führt nicht aus. Stufe 3: Knopf bleibt klickbar, `grenzueberschreitung` im Log.
-- Neuer Fall: Datei in `faelle/`, in `faelle/index.ts` eintragen, `lehrplan` (CE, Abschnitt, Themen) setzen (Test `faelle/lehrplan.test.ts`, Fallplan im Projektordner `FALLPLAN-CE.md`). Messwerte in Befunden nur als Platzhalter (`{rrSys}`, `{hf}` …), SBAR beschreibend ohne Zahlen.
+- Neuer Fall: Datei in `faelle/`, in `faelle/index.ts` eintragen, `lehrplan` (CE, Abschnitt, Themen) setzen (Test `faelle/lehrplan.test.ts`, Fallplan im Projektordner `FALLPLAN-CE.md`).
+  Danach in `../fallplan.ts` beim Plan-Eintrag `fall: '<id>'` setzen (löst den Altfall ab), `KERN_THEMEN` in `../themen.ts` ergänzen und
+  erledigte Lücken aus `ABDECKUNG_OFFEN` streichen (Test `../fallplan.test.ts`). Die Fallauswahl `#/lernen/praxis` gruppiert nach CE und Drittel (`?ce=ce.05`). Messwerte in Befunden nur als Platzhalter (`{rrSys}`, `{hf}` …), SBAR beschreibend ohne Zahlen.
   Katalog-Maßnahme mit fallspezifischem Namen/Wirkung: `aus(id, { … })` (Befugnis und Nachweis bleiben). Optional `team.kollegin` (Team-Leiste) und `medien.raumVarianten` (Foto je Zustand). `kern.test.ts` prüft Verweise, Musterweg (keine Fehler,
   alle Pflichthandlungen), Unterlassungsweg, Grenzweg und Replay automatisch.
 - Konzept: Projektordner `praxissimulator-neu/KONZEPT.md`.
@@ -162,6 +164,12 @@ Code: `kommunikation.ts` (rein, vom Kern aufgerufen), Zustand in `SimZustand.kom
 - **Blase** (`Grundgroessen.blaseMl`, optional): nur wenn der Fall eine Füllung vorgibt oder ein Treiber `harnverhalt` läuft. Ohne Abflusshindernis Entleerung ab 350 ml (Restharn 30 ml), bei Harnverhalt füllt sie sich weiter; „blasenkatheter-legen“ beendet den Harnverhalt. `Anzeige.blaseMl` passt zu einem Blasenscan-Befund.
 - **Kalium**: Ausgangswert 4,2 mmol/l, Schleifendiuretika senken es; `Anzeige.kalium` erscheint in Spur A, sobald der Fall oder ein Wirkstoff es führt.
 - Befundtexte können `{urinMlH}`, `{urinFarbe}`, `{blaseMl}`, `{kalium}` als Platzhalter nutzen.
+
+## Fallwelle P17a: Einstiegsfälle CE 01–03 (1. Drittel)
+- `kh-erster-tag` (CE 01): Händedesinfektion vor dem Kontakt (Fehler `f-haende-vergessen`, wenn eine patientennahe Handlung vorher kommt), Identität, Vorwerte vergleichen, Schwindel beim Aufsetzen (Entscheidung), Rückfrage Trinkmenge, Rückauftrag RR/Puls, Nachbarin am Telefon (keine Auskunft), Infusion im 1. Drittel durch Pflegefachfrau Jana (Gespräch mit Volumenwirkung), Ramipril- und Paracetamol-Fallen.
+- `lz-koerperpflege-abgelehnt` (CE 03): Körperpflege erst nach Grund (`grund-scham`) und Aushandeln (`einverstanden-pflege`), „trotzdem waschen“ und Druck der WBL als Grenzüberschreitung, neue Inkontinenz → Urinstix-Rückfrage, Dauerkatheter als fehlerhafte Anordnung, Reflexion mit der PA als Pflicht (KB V).
+- `kh-reha-erster-weg` (CE 02, aus Altfall „reha“): Mobilisation Tag 1 nach Hüft-TEP vorbereiten, Kollaps beim Gehen (Entscheidung), Rückfrage Hb, Novaminsulfon trotz Metamizol-Allergie remonstrieren, Physio/Ehefrau.
+- Tests: `faelle/p17a.test.ts` (u. a. Musterweg im 1. Drittel ≥ 90 %), Browserprüfung Block P17A in `check-arbeitsplatz.mjs`.
 
 ## Grundsystem G3: Haut, Mobilität, Sturz
 
