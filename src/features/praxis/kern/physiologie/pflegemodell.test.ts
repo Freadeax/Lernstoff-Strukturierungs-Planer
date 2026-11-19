@@ -200,6 +200,17 @@ describe('Pflege-Physiologiemodell: Treiber fachlich plausibel', () => {
       expect(mit.a.rrSys).toBeGreaterThan(ohne.a.rrSys + 10);
       expect(mit.a.spo2).toBeGreaterThanOrEqual(ohne.a.spo2);
     },
+    lungenembolie: () => {
+      // P16a: plötzliche Luftnot, SpO₂ fällt, Puls steigt; Sauerstoff hebt die Sättigung, die Belastung des Herzens bleibt
+      const r = lauf('erwachsen', 0);
+      const le = lauf('erwachsen', 20, [{ art: 'lungenembolie', staerke: 0.6 }]);
+      expect(le.a.spo2).toBeLessThanOrEqual(93);
+      expect(le.a.hf).toBeGreaterThan(r.a.hf + 15);
+      expect(le.a.af).toBeGreaterThan(22);
+      expect(le.g.pumpleistung).toBeLessThan(1);
+      const o2 = lauf('erwachsen', 20, [{ art: 'lungenembolie', staerke: 0.6 }], { sauerstoff: 6 });
+      expect(o2.a.spo2).toBeGreaterThan(le.a.spo2 + 2);
+    },
     fieberkrampf_kind: () => {
       const tr: Treiber[] = [{ art: 'fieberkrampf_kind', temperaturSchwelle: 39.5 }];
       const verlauf = [20, 38, 42, 60, 180].map((m) => lauf('kleinkind', m, tr, { temperatur: 38.6 }));
