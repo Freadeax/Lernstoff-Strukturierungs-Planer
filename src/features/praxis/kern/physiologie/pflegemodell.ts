@@ -43,6 +43,7 @@ import { guss, schluckSchritt } from './schlucken';
 import { laborSchritt, laborWerte } from './labor';
 import { laktatZiel } from './niere';
 import { schlafDelirLast, schlafSchritt, schlafZustand, sundowning } from './schlaf';
+import { entzugSchritt, tremorAus } from './entzug';
 import { cushing, cushingDruck, gcsTeile, neuroNachlast, neuroSchritt, neuroVigilanz, pupillen, schlaganfallZeichen } from './neuro';
 import { blaseNaechste, kaliumNachDiurese, stundenurin, urinFarbe } from './niere';
 
@@ -219,14 +220,14 @@ function kreislaufRoh(g: Grundgroessen, k: ModellKontext, saO2 = 0.97): Kreislau
   const p = profil(k.altersgruppe);
   // Hochbetagte sind stark vorlastabhängig (steifer Ventrikel): Volumenmangel senkt den Druck deutlicher
   const vorlast = 50 * Math.max(0.05, g.volumen) ** p.vorlastExponent;
-  const nachlast = 50 * Math.max(0.1, g.gefaesstonus) * neuroNachlast(g);   // G5: Erfordernishochdruck, Cushing
+  const nachlast = 50 * Math.max(0.1, g.gefaesstonus) * neuroNachlast(g) * (1 + 0.35 * (g.entzug ?? 0));   // Entzug: Hypertonie   // G5: Erfordernishochdruck, Cushing
   const kraft = 50 * Math.max(0.05, g.pumpleistung);
   const m0 = herz({ ...HERZ_START, hf: 70, vorlast, nachlast, kraft }).map;
   const defizit = Math.max(0, (REF.map - m0) / REF.map);
   const fieber = Math.max(0, g.temperatur - 37);
   const opioid = hill(1 - g.atemantrieb, 0.5); // gedämpfter Antrieb ≈ Sedierung
   const stress = 0.12 * fieber + (0.25 * g.angst + 0.45 * panik(g)) * klemme(g.vigilanz * 1.2, 0, 1) + 0.015 * g.schmerz + 0.1 * g.unruhe
-    + (g.blutzucker < 60 ? 0.2 : 0) + (g.krampf > 0 ? 0.15 : 0);
+    + (g.blutzucker < 60 ? 0.2 : 0) + (g.krampf > 0 ? 0.15 : 0) + 0.45 * (g.entzug ?? 0);   // Entzug: Sympathikus
   const daempfung = 0.15 * opioid + 0.35 * cushing(g) - (g.wirkHf ?? 0) + (g.temperatur < 35 ? (35 - g.temperatur) * 0.08 : 0);
   let rel = 1 + p.baroGain * (2.6 * defizit + 6 * defizit * defizit) + stress + 0.35 * dyspnoeKreislauf(g) - daempfung;
   // Antriebe addieren sich nicht linear bis zur Höchstfrequenz: Sinustachykardie sättigt (Fieber, Schmerz und
@@ -424,8 +425,21 @@ function naechster(alt: Grundgroessen, treiber: readonly Treiber[], dt: number, 
   // G8 Labor: Entzündung, CRP/Leukos/PCT, Niere, Erythrozytenmasse (verzögert)
   const blutungMlMin = treiber.reduce((x, t) => (t.art === 'blutung' ? x + t.mlProMin : x), 0);
   Object.assign(g, laborSchritt(alt, treiber, dt, k, kr.stillstand ? 0 : kr.map, gewicht(k, p), blutungMlMin, blutvolumenMl));
+  // Alkoholentzug: Tremor, Schwitzen, Halluzinationen, Entzugskrampf, Delirium tremens; Benzodiazepine dämpfen
+  const ae = treiber.find((t): t is Extract<Treiber, { art: 'alkoholentzug' }> => t.art === 'alkoholentzug');
+  let entzugDelir = 0;
+  if (ae) {
+    const es = entzugSchritt(alt, ae, seitMin(ae, k) / 60, dt, pe.entzugsschutz, (pe.spiegel['thiamin'] ?? 0) > 0);
+    const { krampfJetzt, delirLast: dl, ...rest } = es;
+    Object.assign(g, rest);
+    if (krampfJetzt) g.krampf = 1;
+    entzugDelir = dl;
+    g.hydratation -= 0.03 * es.entzug! * std;            // Schwitzen
+    g.volumen -= 0.024 * es.entzug! * std;
+    fieberZiel = Math.max(fieberZiel, 37 + 1.5 * Math.max(0, es.entzug! - 0.3));
+  }
   const last = delirLast(alt, treiber, a, opioid) + pe.delirRisiko * (k.altersgruppe === 'hochbetagt' ? 0.8 : 0.2)
-    + schlafDelirLast(alt, treiber, k);
+    + schlafDelirLast(alt, treiber, k) + entzugDelir;
   g.delir += last > 0 ? 0.006 * last * p.delirAnfaellig * min : -0.003 * min;
 
   // Angst: Atemnot und starker Schmerz steigern, sonst langsames Abklingen
@@ -436,6 +450,7 @@ function naechster(alt: Grundgroessen, treiber: readonly Treiber[], dt: number, 
   const angstDecke = Math.max(b.angst, (0.15 + 0.4 * a.dyspnoe + (alt.schmerz >= 7 ? 0.15 : 0)) * wach);
   if (angstTrieb > 0.002 && alt.angst < angstDecke) g.angst = Math.min(angstDecke, g.angst + angstTrieb * min);
   else if (!hat(treiber, 'panik_eskaliert')) g.angst -= Math.min(0.004 * min, Math.max(0, g.angst - Math.max(b.angst, angstDecke)));
+  if (g.entzug !== undefined) g.angst = Math.max(g.angst, hin(alt.angst, b.angst + 0.75 * g.entzug, 300, dt));
 
   // Pumpleistung: anhaltende schwere Hypoxie oder Minderperfusion schädigen das Herz
   if (a.saO2 < 0.7) g.pumpleistung -= 0.03 * ((0.7 - a.saO2) / 0.2) * min;
@@ -443,8 +458,10 @@ function naechster(alt: Grundgroessen, treiber: readonly Treiber[], dt: number, 
 
   // Fieberkrampf: ein Anfall je Fall (krampf 1 → 0 in 3 Min., dann postiktal −1 → nähert sich 0, erreicht es nie)
   const fk = treiber.find((t) => t.art === 'fieberkrampf_kind');
+  const entzugKrampfJetzt = g.krampf === 1 && alt.krampf === 0;
   // Antipyretika verhindern Fieberkrämpfe nicht (Cochrane-Review Offringa 2021): Die Schwelle gilt für den Fieberverlauf ohne Senkung.
   if (fk && fk.art === 'fieberkrampf_kind' && alt.krampf === 0 && alt.temperatur + pe.fiebersenkung >= fk.temperaturSchwelle) g.krampf = 1;
+  else if (entzugKrampfJetzt) g.krampf = 1;
   else if (alt.krampf > 0) g.krampf = alt.krampf - dt / 180 <= 0 ? -1 : alt.krampf - dt / 180;
   else if (alt.krampf < 0) g.krampf = Math.min(-0.001, hin(alt.krampf, 0, 600, dt));
   if (alt.krampf > 0 && pe.krampfStopp) g.krampf = -1;   // z. B. Midazolam bukkal beendet den Anfall
@@ -470,15 +487,15 @@ function naechster(alt: Grundgroessen, treiber: readonly Treiber[], dt: number, 
   g.vigilanz = hin(alt.vigilanz, b.vigilanz * vf * neuroVigilanz(g) + off(k, 'vigilanz'), 60, dt);
 
   const orientZiel = b.orientierung - 0.9 * Math.max(0, g.delir - b.delir) - 0.8 * Math.max(0, b.vigilanz - g.vigilanz)
-    - (g.blutzucker < 60 ? 0.3 : 0) - sundowning(g, treiber, k) + off(k, 'orientierung');
+    - (g.blutzucker < 60 ? 0.3 : 0) - sundowning(g, treiber, k) - 0.5 * (g.wernicke ?? 0) + off(k, 'orientierung');
   g.orientierung = hin(alt.orientierung, orientZiel, 60, dt);
 
   const unruheZiel = (b.unruhe + 0.8 * Math.max(0, g.delir - b.delir) + 0.5 * Math.max(0, g.angst - b.angst)
     + 0.03 * Math.max(0, g.schmerz - b.schmerz) + (g.blutzucker < 60 ? 0.4 : 0) + (a.saO2 < 0.88 ? 0.4 : 0)
-    + (hat(treiber, 'harnverhalt') ? 0.3 : 0)) * klemme(g.vigilanz * 1.2, 0, 1) * (1 - pe.unruheMinus) + off(k, 'unruhe');
+    + (hat(treiber, 'harnverhalt') ? 0.3 : 0) + 0.7 * (g.entzug ?? 0) + 0.3 * (g.halluzination ?? 0)) * klemme(g.vigilanz * 1.2, 0, 1) * (1 - pe.unruheMinus) + off(k, 'unruhe');
   g.unruhe = hin(alt.unruhe, unruheZiel, 60, dt);
 
-  const uebelZiel = (b.uebelkeit + 0.5 * hill(opioid, 0.5) + 0.6 * hill(g.hirndruck ?? 0, 0.4) + (g.blutzucker < 60 ? 0.3 : 0)) * (1 - pe.antiemese) + off(k, 'uebelkeit');
+  const uebelZiel = (b.uebelkeit + 0.4 * (g.entzug ?? 0) + 0.5 * hill(opioid, 0.5) + 0.6 * hill(g.hirndruck ?? 0, 0.4) + (g.blutzucker < 60 ? 0.3 : 0)) * (1 - pe.antiemese) + off(k, 'uebelkeit');
   g.uebelkeit = hin(alt.uebelkeit, uebelZiel, 120, dt);
 
   return begrenzen(g);
@@ -545,6 +562,10 @@ function neuroAnzeige(g: Grundgroessen, k: ModellKontext, saO2: number, stillsta
     ...schlaganfallZeichen(g),
     ...(g.dysphagie !== undefined ? { guss: guss(g) } : {}),
     ...(g.schlafdefizit !== undefined ? { schlaf: schlafZustand(g, k) } : {}),
+    ...(g.entzug !== undefined ? {
+      tremor: tremorAus(g.entzug), schwitzen: g.entzug > 0.3, halluzinationen: (g.halluzination ?? 0) > 0.3,
+      entzugStd: Math.round(g.entzugStd ?? 0),
+    } : {}),
   };
 }
 

@@ -278,3 +278,11 @@ Datei `physiologie/labor.ts` (Werte) und `labor-auftrag.ts` (Abnahme, Laufzeit, 
 - **Anzeige** (Platzhalter/Bedingungen): `hb`, `leuko`, `thrombo`, `crp`, `pct`, `natrium`, `kalium`, `krea`, `egfr`, `harnstoff`, `inr`, `aptt`.
 - **Blutentnahme**: Maßnahme `blutentnahme-venoes` (`LABOR_ABNAHME`) friert die Werte ein (`SimZustand.laborProben`). Ergebnisse je Parameter erst nach Sofort-Transport (15 min) plus Notfall-Laufzeit. `laborBefunde(z, uhr)` liefert Akte-Zeilen (neueste zuerst), ausstehende Proben und `kritisch`; die Akte zeigt sie unter Befunde vor den festen Laborwerten des Falls.
 - Fall braucht dafür nur `blutentnahme-venoes` in `massnahmen`.
+
+## Grundsystem: Alkoholentzug
+Datei `physiologie/entzug.ts`. Treiber `{ art: 'alkoholentzug', schwere: 0..1, letzterKonsumVorStd }`; die Stunden seit dem letzten Konsum laufen mit der Spielzeit (`entzugStd`).
+- **Verlauf ohne Behandlung**: vegetativ ab etwa 6 h, Gipfel 24–72 h, Abklingen bis etwa 5 Tage. Tremor, Schwitzen (Flüssigkeitsverlust), Tachykardie, Hypertonie, Unruhe und Angst, Übelkeit, leichtes Fieber.
+- **Halluzinationen** ab 12 h bei ausgeprägtem Entzug. **Krampfanfall** im Fenster 12–48 h: Die Krampfbereitschaft `entzugKrampf` wächst, solange der wirksame Entzug über 0,55 liegt, bei 1 ein Anfall (nur einmal; Midazolam/Diazepam beenden ihn). **Delirium tremens** ab 48 h bei `schwere ≥ 0,6` und unbehandelt (Delir-Last).
+- **Benzodiazepine** (G1-Kanal `entzugsschutz`: Lorazepam 0,6, Diazepam 0,7, Midazolam 0,5) dämpfen den wirksamen Entzug, solange sie wirken; der zugrunde liegende Entzug läuft weiter (symptomgesteuerte Gabe). Flumazenil hebt den Schutz auf.
+- **Thiamin** (G1, `thiamin-geben`): Ohne Thiamin baut sich langsam eine Wernicke-Verwirrtheit auf (`wernicke`, senkt die Orientierung), mit Thiamin nicht.
+- **Anzeige**: `tremor` (kein/leicht/deutlich/grob), `schwitzen`, `halluzinationen`, `entzugStd`; **G4** `ciwa` (CIWA-Ar 0–67, `ciwaAr(g)` mit den 10 Bereichen; unter 10 leicht, 10–15 mittel, über 15 schwer). Katalog: `entzug-einschaetzen`, `lorazepam-geben`, `diazepam-geben`, `thiamin-geben`.

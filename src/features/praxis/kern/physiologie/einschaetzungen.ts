@@ -11,6 +11,7 @@
 // - Braden (Bergstrom 1987): sechs Bereiche → 6–23, ≤ 18 Dekubitusrisiko (Ernährung aus der Hydratation geschätzt)
 // - Sturzrisiko aus G3 (Gründe statt Punktwert, DNQP Sturzprophylaxe)
 
+import { ciwaAr } from './entzug';
 import type { ModellKontext } from '../modell';
 import type { Anzeige, Grundgroessen, Treiber } from '../typen';
 import { fruehwarnung, monitorGruppe, profil } from './altersprofile';
@@ -79,6 +80,7 @@ export function anzeigeEinschaetzungen(a: Anzeige, g: Grundgroessen, k: ModellKo
   if (fw.punkte !== undefined) r.news2 = fw.punkte;
   const pw = pews(a, g, k);
   if (pw !== undefined) r.pews = pw;
+  if (g.entzug !== undefined) r.ciwa = ciwaAr(g).punkte;
   return r;
 }
 
