@@ -12,7 +12,7 @@ const SYMPTOME: Bedingung = { getan: 'symptome-erfassen-palliativ' };
 const MORPHIN: Bedingung = { flag: 'morphin-gegeben' };
 const RASSELN: Bedingung = { ab: 900 };
 
-const ANTWORT = 'Okay, danke. Ich kenne Herrn Albrecht nicht. Legen Sie ihm ein Pulsoxymeter an, bei einer Sättigung unter 90 % Sauerstoff 4 Liter und rufen Sie das Reanimationsteam. Die Bedarfsmedikation können Sie wie angeordnet geben. Melden Sie sich bitte eine halbe Stunde nach dem Morphin, wie es ihm geht.';
+const ANTWORT = 'Okay, danke. Ich kenne Herrn Hartwig nicht. Legen Sie ihm ein Pulsoxymeter an, bei einer Sättigung unter 90 % Sauerstoff 4 Liter und rufen Sie das Reanimationsteam. Die Bedarfsmedikation können Sie wie angeordnet geben. Melden Sie sich bitte eine halbe Stunde nach dem Morphin, wie es ihm geht.';
 const REGEL_VOLL: ArztRegel = {
   id: 'r-voll', wenn: { gemeldet: ['a-atemnot', 'a-unruhe', 'b-therapieziel', 'wert:af'] },
   antwort: `„${ANTWORT}“`, anordnungen: ['an-monitoring'], setzt: ['arzt-informiert'], auftraege: ['af-wirkung'],
@@ -60,7 +60,7 @@ export const KH_STERBEPHASE_NACHT: FallV2 = {
   ],
 
   person: {
-    name: 'Herr Albrecht',
+    name: 'Herr Hartwig',
     alter: { jahre: 76 },
     geschlecht: 'm',
     biografie: ['war Busfahrer, 50 Jahre verheiratet mit Ingrid', 'zwei Söhne, einer lebt in Kanada', 'Hobbygärtner, Rosen', 'hat vor einer Woche gesagt: „Ich will keine Maschinen mehr.“'],
@@ -74,7 +74,7 @@ export const KH_STERBEPHASE_NACHT: FallV2 = {
     raum: '27_station_zweibett_nacht_ohne_monitor',   // Beispielbild: Zweibettzimmer nachts, Monitor aus
     raumVarianten: [],
   },
-  uebernahme: 'Herr Albrecht, 76, Lungenkrebs mit Metastasen, seit drei Tagen Therapieziel Linderung, alles Kurative ist abgesetzt, kein Monitoring, nicht reanimieren. Seit dem Abend schläft er viel, atmet unregelmäßig, die Hände sind kühl. Morphin hatte er zuletzt gestern früh, bisher kaum gebraucht. Seine Frau ist seit 22 Uhr da und will bleiben. Der Bettnachbar, Herr Schulz, wird morgen entlassen.',
+  uebernahme: 'Herr Hartwig, 76, Lungenkrebs mit Metastasen, seit drei Tagen Therapieziel Linderung, alles Kurative ist abgesetzt, kein Monitoring, nicht reanimieren. Seit dem Abend schläft er viel, atmet unregelmäßig, die Hände sind kühl. Morphin hatte er zuletzt gestern früh, bisher kaum gebraucht. Seine Frau ist seit 22 Uhr da und will bleiben. Der Bettnachbar, Herr Schulz, wird morgen entlassen.',
   startUhrzeit: '02:10',
 
   start: {
@@ -155,11 +155,11 @@ export const KH_STERBEPHASE_NACHT: FallV2 = {
       { name: 'IPOS (Pflegeeinschätzung)', wert: 'Atemnot 2, Angst 2, Mund 3', datum: 'gestern 20:00' },
     ],
     pflegeplanung: [
-      { problem: 'Sterbephase: Atemnot, Unruhe, Mundtrockenheit', ziel: 'Herr Albrecht wirkt entspannt, Ehefrau fühlt sich begleitet', massnahmen: ['Mund befeuchten', 'Lagerung nach Wohlbefinden', 'Bedarfsmedikation nach Plan'] },
+      { problem: 'Sterbephase: Atemnot, Unruhe, Mundtrockenheit', ziel: 'Herr Hartwig wirkt entspannt, Ehefrau fühlt sich begleitet', massnahmen: ['Mund befeuchten', 'Lagerung nach Wohlbefinden', 'Bedarfsmedikation nach Plan'] },
     ],
     rechtliches: [
       'Patientenverfügung (2024): keine Wiederbelebung, keine Intensivtherapie, Linderung von Atemnot, Schmerz und Angst.',
-      'Ehefrau Ingrid Albrecht: Vorsorgevollmacht Gesundheit.',
+      'Ehefrau Ingrid Hartwig: Vorsorgevollmacht Gesundheit.',
     ],
   },
 
@@ -204,7 +204,7 @@ export const KH_STERBEPHASE_NACHT: FallV2 = {
   ],
 
   sbar: [
-    { id: 's-albrecht', teil: 'S', text: 'Herr Albrecht, 76, Zimmer 12: in der Sterbephase, seit einer halben Stunde zunehmend unruhig und atemnötig.', art: 'kern' },
+    { id: 's-albrecht', teil: 'S', text: 'Herr Hartwig, 76, Zimmer 12: in der Sterbephase, seit einer halben Stunde zunehmend unruhig und atemnötig.', art: 'kern' },
     { id: 's-schlaf', teil: 'S', text: 'Er schläft schlecht.', art: 'ablenker' },
     { id: 'b-therapieziel', teil: 'B', text: 'Bronchialkarzinom mit Metastasen, Therapieziel Linderung seit 3 Tagen, DNR/DNI, kein Monitoring. Bedarf Morphin 2,5 mg s. c., Lorazepam 1 mg s. l.', art: 'kern' },
     { id: 'b-busfahrer', teil: 'B', text: 'Er war Busfahrer.', art: 'ablenker' },
@@ -221,7 +221,7 @@ export const KH_STERBEPHASE_NACHT: FallV2 = {
     { id: 'an-bedarf', massnahme: 'morphin-sc-geben', auchFuer: ['lorazepam-geben'], text: 'Bedarfsplan (OA Dr. Krämer): Morphin 2,5 mg s. c. bei Atemnot oder Schmerz, frühestens alle 4 h; Lorazepam 1 mg s. l. bei Angst oder Unruhe, frühestens alle 6 h.' },
     { id: 'an-monitoring', massnahme: 'pulsoxy-anlegen', text: 'Pulsoxymeter anlegen, bei SpO₂ < 90 % Sauerstoff 4 l/min und Reanimationsteam rufen.',
       fehlerhaft: {
-        warum: 'Das passt nicht zum dokumentierten Therapieziel: Linderung, DNR/DNI, kein Monitoring. Herr Albrecht hat gesagt, er wolle keine Maschinen. Eine niedrige Sättigung gehört zum Sterben und ist kein Grund für ein Notfallteam.',
+        warum: 'Das passt nicht zum dokumentierten Therapieziel: Linderung, DNR/DNI, kein Monitoring. Herr Hartwig hat gesagt, er wolle keine Maschinen. Eine niedrige Sättigung gehört zum Sterben und ist kein Grund für ein Notfallteam.',
         korrektur: 'Sie haben recht, das habe ich in der Kurve übersehen. Kein Monitoring, kein Reanimationsteam. Bedarfsmedikation nach Plan, Lagerung und Mundpflege, und wenn das Brodeln stört, Butylscopolamin nach Rücksprache.',
         ersatz: 'an-komfort',
       } },
@@ -263,7 +263,7 @@ export const KH_STERBEPHASE_NACHT: FallV2 = {
         { id: 'w-absaugen', text: 'Sofort tief absaugen', wertung: 'falsch', warum: 'Tiefes Absaugen ist belastend und vermehrt die Sekretbildung. Erst lagern und erklären.' },
       ] },
     { id: 'e-panik', art: 'komplikation', wann: { ab: 1200 }, verhindertDurch: { eine: [{ flag: 'atemnot-gelindert' }, MORPHIN] },
-      text: 'Herr Albrecht reißt die Augen auf, ringt nach Luft und versucht, sich im Bett hochzuziehen. Ingrid weint.',
+      text: 'Herr Hartwig reißt die Augen auf, ringt nach Luft und versucht, sich im Bett hochzuziehen. Ingrid weint.',
       treiber: [{ art: 'panik_eskaliert', tempo: 0.5 }], bild: { haltung: 'liegt', mimik: 'angst' } },
   ],
 
@@ -278,7 +278,7 @@ export const KH_STERBEPHASE_NACHT: FallV2 = {
       { impuls: 'Was braucht Ingrid jetzt?', tipp: 'Erklären, was passiert, eine Aufgabe geben (Mund befeuchten), Abschied ermöglichen.' },
     ],
   },
-  team: { kollegin: 'Examinierte Kollegin Frau Brandt (Nachtdienst)', weitere: { angehoerige: 'Ehefrau Ingrid Albrecht (Vorsorgebevollmächtigte)' } },
+  team: { kollegin: 'Examinierte Kollegin Frau Brandt (Nachtdienst)', weitere: { angehoerige: 'Ehefrau Ingrid Hartwig (Vorsorgebevollmächtigte)' } },
 
   bewertung: {
     pflicht: [
@@ -317,14 +317,14 @@ export const KH_STERBEPHASE_NACHT: FallV2 = {
         folge: { text: 'Er würgt und wird unruhiger.', wirkung: [{ groesse: 'angst', delta: 0.1, beginnSek: 0, spitzeSek: 60, dauerSek: 600 }] },
         warum: 'Tiefes Absaugen reizt und belastet; Rasselatmung erst durch Lagerung lindern.' },
       { id: 'f-rea', text: 'Reanimationsteam gegen das Therapieziel gerufen', schwere: 'schwer', kompetenzbereiche: ['II', 'IV'], wenn: { flag: 'rea-gerufen' },
-        warum: 'Herr Albrecht wollte keine Maschinen. Ein Notfallteam stört das Sterben und widerspricht der Verfügung.' },
+        warum: 'Herr Hartwig wollte keine Maschinen. Ein Notfallteam stört das Sterben und widerspricht der Verfügung.' },
       { id: 'f-messen', text: 'Belastende Messungen trotz Therapieziel Linderung', schwere: 'leicht', kompetenzbereiche: ['I'], wenn: { eine: [{ getan: 'rr-messen' }, { getan: 'pulsoxy-anlegen' }] },
         warum: 'Kein Monitoring heißt auch: keine Routinemessungen, die ihn stören.' },
     ],
     ende: [
       { wenn: { alle: [MORPHIN, { flag: 'wirkung-gemeldet' }, { getan: 'pflegebericht' }, { flag: 'angehoerige-begleitet' }] },
-        text: 'Herr Albrecht atmet ruhig und langsam, die Hände in Ingrids Händen. Das Zimmer ist still, nur der Ventilator summt. Gegen halb fünf hört er auf zu atmen. Ingrid war bei ihm.', ausgang: 'stabil' },
-      { wenn: { ab: 3300 }, text: 'Herr Albrecht ringt weiter nach Luft und ist unruhig. Ingrid sitzt hilflos am Bett.', ausgang: 'verschlechtert' },
+        text: 'Herr Hartwig atmet ruhig und langsam, die Hände in Ingrids Händen. Das Zimmer ist still, nur der Ventilator summt. Gegen halb fünf hört er auf zu atmen. Ingrid war bei ihm.', ausgang: 'stabil' },
+      { wenn: { ab: 3300 }, text: 'Herr Hartwig ringt weiter nach Luft und ist unruhig. Ingrid sitzt hilflos am Bett.', ausgang: 'verschlechtert' },
     ],
   },
 
@@ -337,7 +337,7 @@ export const KH_STERBEPHASE_NACHT: FallV2 = {
       { id: 'pb-fluessigkeit', text: 'Flüssigkeitsdefizit, Infusion nötig', richtig: false, warum: 'Am Lebensende lindert Mundpflege den Durst; Infusionen können Rasseln und Ödeme verstärken.' },
     ],
     ziele: [
-      { id: 'z-ruhig', text: 'Herr Albrecht wirkt entspannt und atmet ruhig (IPOS Atemnot höchstens 1).', passtZu: ['pb-atemnot'], richtig: true },
+      { id: 'z-ruhig', text: 'Herr Hartwig wirkt entspannt und atmet ruhig (IPOS Atemnot höchstens 1).', passtZu: ['pb-atemnot'], richtig: true },
       { id: 'z-mund', text: 'Mund und Lippen sind feucht.', passtZu: ['pb-mund'], richtig: true },
       { id: 'z-ingrid', text: 'Ingrid versteht die Veränderungen und kann bei ihm sein.', passtZu: ['pb-ingrid', 'pb-rasseln'], richtig: true },
       { id: 'z-spo2', text: 'SpO₂ über 90 %.', passtZu: ['pb-atemnot'], richtig: false },
