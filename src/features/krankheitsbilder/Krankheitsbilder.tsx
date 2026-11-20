@@ -1,3 +1,4 @@
+import { kurzfallPfad } from '../praxis/pfad';
 import { useMemo, useState } from 'react';
 import { notiereFehler } from '../fehlerheft/fehlerheft';
 import { ausKrankheitsbild } from '../fehlerheft/quellen';
@@ -173,7 +174,7 @@ function Verknuepfungen({ p }: { p: DiseaseProfile }) {
           <h3>In der Simulation erleben</h3>
           <div className="stack-1">
             {praxis.length > 0 && <button type="button" className="small" onClick={() => navigate(`/lernen/praxis?kb=${encodeURIComponent(p.id)}`)}>Praxissimulator (offline) · {praxis.length} {praxis.length === 1 ? 'Fall' : 'Fälle'}</button>}
-            {ki.length > 0 && <button type="button" className="small ghost" onClick={() => navigate(`/lernen/fall?kb=${encodeURIComponent(p.id)}`)}>KI-Fallsimulator · {ki.length} {ki.length === 1 ? 'Fall' : 'Fälle'}</button>}
+            {ki.length > 0 && <button type="button" className="small ghost" onClick={() => navigate(kurzfallPfad({ kb: p.id }))}>Kurzfälle · {ki.length} {ki.length === 1 ? 'Fall' : 'Fälle'}</button>}
           </div>
         </section>
       )}

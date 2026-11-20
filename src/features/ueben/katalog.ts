@@ -39,7 +39,7 @@ export const UEBUNG_INFO: Record<string, UebungsInfo> = {
   rechnen: { ...RUNDE, minuten: 10, lernstand: 'Nur die Prüfungsrunde zählt, je Rechenthema.', fehlerheft: 'Falsche Rechnungen mit Rechenweg.' },
   duell: { ...RUNDE, minuten: 3, stufe: 'einstieg', lernstand: 'Treffer je Thema nach der Runde.', fehlerheft: 'Verwechselte Fachbegriffe.' },
   mindmap: { minuten: 15, offline: 'ja', stufe: 'beide', lernstand: 'Im Prüfen-Modus: Ergebnis je Thema.' },
-  praxis: { minuten: 15, offline: 'ja', stufe: 'beide', fehlerheft: 'Fehlentscheidungen der Schicht mit Begründung.' },
+  praxis: { minuten: 15, offline: 'teils', stufe: 'beide', fehlerheft: 'Fehlentscheidungen der Schicht mit Begründung.' },
   fall: { minuten: 20, offline: 'nein', stufe: 'fortgeschritten', lernstand: 'Bewertung des Falls je Thema (braucht KI-Zugang).' },
   diagnostik: { minuten: 12, offline: 'ja', stufe: 'beide', lernstand: 'Ergebnis je Fall und Thema, ein Versuch zählt einmal.', fehlerheft: 'Verpasste Kriterien mit Beleg.' },
   dokumentation: { ...SCHREIBEN, minuten: 15, lernstand: 'Ergebnis je Schritt und Thema (SIS, Assessment, Pflegeplanung, Bericht, Übergabe), erster Versuch des Tages.', fehlerheft: 'Falsch eingeschätzte Assessment-Fälle.' },

@@ -32,11 +32,19 @@ Für dauerhafte Offline-Nutzung ohne laufenden Rechner muss die App über HTTPS 
 
 ## Oberfläche
 
-Modulare Oberfläche mit Seitenleiste (Handy: untere Leiste), Suche (Strg/Cmd+K) und Modulen für Lernfortschritt, Aktivität, Themen-Tabelle, Lernstand-Board und Import-Assistent. Aufbau, Zustände und Design-Tokens: `docs/UI-DESIGNSYSTEM.md`, live unter **System → Designsystem**.
+Modulare Oberfläche mit Seitenleiste (Handy: untere Leiste), Suche (Strg/Cmd+K) und Modulen für Lernfortschritt, Aktivität, Themen-Tabelle, Lernstand-Board und Import-Assistent. Aufbau, Zustände und Design-Tokens: `docs/UI-DESIGNSYSTEM.md`, live unter **Mehr → System → Designsystem** (erscheint, wenn in den Einstellungen „Entwicklerseiten im Menü zeigen“ an ist).
 
-## Neuer Praxissimulator
+### Menü
 
-Unter **Üben & anwenden → Praxissimulator** gibt es eine eigenständige technische Lernvorschau ohne KI-Anbindung. Sie enthält einen regelbasierten Einzelpatienten-Verlauf, Simulationszeit, verzögerte Aufträge, eine Medikations-Rechenprüfung, Dokumentation, SBAR, Debriefing, lokale Speicherung und Replay. Der bisherige Text-Fallsimulator bleibt erhalten. Alle neuen Szenarien sind **fachlich ungeprüft**.
+Das Grundmenü hat acht Einträge: **Heute**, **Lernplan**, **Lernen** (Themen, Skript, Karteikarten, Expertenstandards), **Üben** (alle Übungen, Wissenstrainer, Krankheitsbilder, Fertigkeiten- und Dokumentations-Trainer), **Praxis** (Praxissimulator, Labor und Bildgebung, Gesprächssimulator, Praxiseinsatz), **Prüfung** (Prüfungssimulation, Examen, Fehlerheft), **Material** und **Mehr** (Wegweiser, Fortschritt, Schnellsucher, Physiologie, Klassenmodus, Lehren, System). Themen-Liste, CE, Landkarte, Themenboard, Fächer und Mindmaps sind Ansichten der Themen und oben auf jeder Ansicht umschaltbar. Auf dem Handy gibt es unten Heute, Lernplan, Material, Üben und „Mehr“ für das ganze Menü. Alte Adressen leiten weiter.
+
+## Praxissimulator
+
+Unter **Praxis → Praxissimulator** gibt es zwei Fallarten:
+- **Praxisfälle** ohne KI: regelbasierter Patientenverlauf am Arbeitsplatz mit Uhr, Aufträgen, Akte, Medikationsprüfung, SBAR und Auswertung; jeder Fall geführt (Stufe 1) oder frei (Stufe 2).
+- **Kurzfälle** (früher eigener „Fallsimulator“, `#/lernen/fall` leitet nach `#/lernen/praxis?art=kurz` weiter): kurze Entscheidungsfälle, als Probefälle offline oder frei gespielt mit Claude (API-Schlüssel nötig). Begonnene und abgeschlossene Kurzfälle bleiben erhalten.
+
+Alle Fälle sind **fachlich ungeprüft**, bis eine Pflegefachperson sie freigibt.
 
 Architektur, vollständiges Anforderungsregister, tatsächlicher Funktionsumfang, Freigabegrenzen und nächste Arbeitspakete: [Praxissimulator](docs/PRAXISSIMULATOR.md). Aufbau des neuen Kerns: `src/features/praxis/kern/README.md`. Browserprüfungen: `npm run test:arbeitsplatz`, `npm run test:stufe1` und `npm run test:praxis` (Weiterleitung alter Links) mit laufendem Server (standardmäßig Port 5187, alternativ `UI_BASE_URL`).
 

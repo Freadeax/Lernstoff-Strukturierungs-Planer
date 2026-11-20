@@ -13,7 +13,7 @@ beforeEach(() => {
 
 describe('Testaufträge', () => {
   it('verweisen alle auf vorhandene Seiten', () => {
-    const pfade = new Set(flatNav(NAV).map((n) => n.path));
+    const pfade = new Set([...flatNav(NAV), ...UNTERSEITEN].map((n) => n.path));
     for (const a of AUFTRAEGE) expect(pfade.has(a.pfad.split('?')[0]), a.id).toBe(true);
   });
   it('merken Erledigtes in fester Reihenfolge', () => {
