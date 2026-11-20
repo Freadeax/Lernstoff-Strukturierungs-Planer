@@ -15,7 +15,7 @@ export function UebenAnsicht() {
   const [nr, setNr] = useState(0);
   const [laeuft, setLaeuft] = useState(false);
   const pool = useMemo(() => trainingsAufgaben(STANDARDS, { standardId: standardId || undefined, typen }), [standardId, typen]);
-  const aufgaben = useMemo(() => runde(pool, anzahl), [pool, anzahl, nr]);
+  const aufgaben = useMemo(() => runde(pool, anzahl), [pool, anzahl, nr]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: Auslöser für Neuberechnung (neue Runde, Seitenwechsel)
 
   if (laeuft && aufgaben.length) {
     return <Runde key={nr} aufgaben={aufgaben} quelle="expertenstandards" trainer="expertenstandards"

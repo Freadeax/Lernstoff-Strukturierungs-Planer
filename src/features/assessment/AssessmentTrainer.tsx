@@ -411,7 +411,7 @@ export default function AssessmentTrainer() {
   return (
     <section className="page as">
       <div className="page__head">
-        <h2>Assessment-Rechner</h2>
+        <h1>Assessment-Rechner</h1>
         <p className="muted">Braden, Norton, Barthel, NRS, BESD, MNA-SF, Glasgow Coma Scale, Tinetti und Timed Up and Go ausrechnen oder an Fallvignetten üben. Funktioniert offline. Fallvignetten zählen im Lernplan als Abfrage, der freie Rechner nicht. Übungswerkzeug, kein Ersatz für das Formular deiner Einrichtung.</p>
       </div>
       {fall && <AkteLeiste art="assessment" fallId={fall.id} />}

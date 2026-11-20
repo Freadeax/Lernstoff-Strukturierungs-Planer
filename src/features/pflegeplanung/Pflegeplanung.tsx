@@ -447,7 +447,6 @@ export default function Pflegeplanung() {
     setPlan(gleich ? e!.plan : leererPlan());
     setSchritt(gleich ? e!.schritt : 'info');
     setPraxisStatus('uebernommen');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [praxisId]);
 
   const istEigen = fallId === EIGEN;
@@ -514,7 +513,7 @@ export default function Pflegeplanung() {
   return (
     <section className="page pp">
       <div className="page__head">
-        <h2>Pflegeplanung</h2>
+        <h1>Pflegeplanung</h1>
         <p className="muted">Plane einen Fall Schritt für Schritt nach dem Pflegeprozess. Die Checkliste prüft offline nach den Regeln des Pflege-Katalogs (PESR, SMART, Maßnahmen), Claude gibt auf Wunsch eine fachliche Rückmeldung.</p>
       </div>
       <AkteLeiste art="pflegeplanung" fallId={fallId} />

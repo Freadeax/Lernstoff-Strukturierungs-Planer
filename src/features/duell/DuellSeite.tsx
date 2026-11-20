@@ -222,7 +222,7 @@ function Arena({ e, fragen, onEnde, onRevanche }: {
       title: `Fachbegriff-Duell: ${name(e, 0)} ${a} : ${b} ${name(e, 1)}`,
       detail: `${spiel.zuege.length} Begriffe, ${nacharbeiten(spiel.zuege).length} zum Nacharbeiten`,
     });
-  }, [spiel.phase]);
+  }, [spiel.phase]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: läuft bewusst nur, wenn sich die genannten Werte ändern (Ereignis)
 
   const [a, b] = stand(spiel.zuege);
   const abbrechen = () => {
@@ -276,7 +276,7 @@ export default function Duell() {
   const fachAusAdresse = params.get('fach');
   useEffect(() => {
     if (fachAusAdresse && modul.subjects.some((f) => f.id === fachAusAdresse)) setze({ faecher: [fachAusAdresse] });
-  }, [fachAusAdresse]);
+  }, [fachAusAdresse]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: läuft bewusst nur, wenn sich die genannten Werte ändern (Ereignis)
 
   const faecher = useMemo(
     () => modul.subjects.filter((f) => alle.some((k) => k.faecher.includes(f.id) && e.arten.some((a) => passt(k, a)))),
@@ -299,7 +299,7 @@ export default function Duell() {
   return (
     <section className="page duell">
       <div className="page__head">
-        <h2>Fachbegriff-Duell</h2>
+        <h1>Fachbegriff-Duell</h1>
         <p className="muted">Zwei Personen, ein Gerät: iPad flach zwischen euch legen, jede Hälfte zeigt zu einer Person. Fragen kommen aus dem Glossar des Fachmoduls, funktioniert offline.</p>
       </div>
 

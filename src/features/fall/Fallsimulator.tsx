@@ -87,7 +87,7 @@ function Start({ onStart, apiKey }: { onStart: (s: Szenario, stufe: Stufe) => vo
   const kbName = modul.diseaseProfiles?.find((p) => p.id === kb)?.name ?? kb;
   const [themaId, setThemaId] = useState(themen.some((t) => t.id === wunsch) ? wunsch : themen[0]?.id ?? '');
   const passt = (s: Szenario) => Number(kbFaelle.includes(s.id)) * 2 + Number(s.topicIds.includes(wunsch));
-  const szenarien = useMemo(() => [...SZENARIEN].sort((a, b) => passt(b) - passt(a)), [wunsch, kbFaelle]);
+  const szenarien = useMemo(() => [...SZENARIEN].sort((a, b) => passt(b) - passt(a)), [wunsch, kbFaelle]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: übrige Werte leiten sich aus den genannten ab
   const [setting, setSetting] = useState<Setting>('krankenhaus');
   const [archiv] = useState(ladeArchiv);
   const [offen, setOffen] = useState<Fall | null>(null);
@@ -600,7 +600,7 @@ export default function Fallsimulator() {
   return (
     <section className="page fall">
       <div className="page__head">
-        <h2>Fallbeispiel-Simulator</h2>
+        <h1>Fallbeispiel-Simulator</h1>
         <p className="muted">Claude spielt Patientin, Angehörige und Station. Du entscheidest, was du tust, und der Verlauf hängt davon ab. Am Ende gibt es eine Auswertung entlang des Pflegeprozesses. Alle Fälle sind erfunden.</p>
         <DatenHinweis art="ki" detail="Gesendet werden der erfundene Fall und deine Eingaben." />
       </div>

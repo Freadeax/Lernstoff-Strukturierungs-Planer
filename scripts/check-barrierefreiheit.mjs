@@ -28,6 +28,9 @@ try {
     await page.waitForTimeout(200);
     const audit = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).disableRules(AUSNAHMEN[r] ?? []).analyze();
     for (const v of audit.violations) fehler.push(`${r}: ${v.id} (${v.nodes.length}×) ${v.nodes[0]?.html.slice(0, 120)}`);
+    // Genau eine Hauptüberschrift je Seite: Screenreader springen per Überschrift zum Seitentitel (Audit A-1).
+    const h1 = await page.locator('h1').count();
+    if (h1 !== 1) fehler.push(`${r}: ${h1} Hauptüberschriften (h1) statt genau einer`);
 
     const grafik = await page.evaluate(() => [...document.querySelectorAll('main svg, main canvas')].filter((s) =>
       !s.closest('button, a, [role=img][aria-label], [aria-hidden=true]') && s.getAttribute('aria-hidden') !== 'true'
@@ -49,6 +52,64 @@ try {
     }
   }
   assert.deepEqual(pageErrors, []);
+
+  // Übungsabläufe: nicht nur der Startzustand, auch Frage, Antwort und Rückmeldung (Audit A-4).
+  const ablauf = async (name) => {
+    const a = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze();
+    for (const v of a.violations) fehler.push(`Ablauf ${name}: ${v.id} (${v.nodes.length}×) ${v.nodes[0]?.html.slice(0, 120)}`);
+  };
+  await page.goto(base + '#/lernen/karten', { waitUntil: 'networkidle' });
+  await page.locator('main button.primary').first().click();
+  await page.getByRole('button', { name: 'Antwort zeigen' }).waitFor();
+  await ablauf('Karteikarten, Frage');
+  await page.getByRole('button', { name: 'Antwort zeigen' }).click();
+  await page.waitForTimeout(200);
+  await ablauf('Karteikarten, Antwort');
+  await page.goto(base + '#/lernen/wissen', { waitUntil: 'networkidle' });
+  await page.locator('main input[type=checkbox]').first().check();
+  await page.getByRole('button', { name: /Runde starten/ }).click();
+  await page.getByRole('button', { name: 'Prüfen' }).waitFor();
+  await ablauf('Wissenstrainer, Frage');
+  // Irgendeine Antwort geben, je nach Aufgabenart (Auswahl, Zuordnen, Freitext), dann Sicherheit wählen und prüfen.
+  if (await page.locator('main .qz__option').count()) await page.locator('main .qz__option').first().click();
+  for (const sel of await page.locator('main select').all()) await sel.selectOption({ index: 1 }).catch(() => undefined);
+  for (const t of await page.locator('main textarea, main input[type=text]').all()) await t.fill('Test').catch(() => undefined);
+  await page.getByRole('button', { name: 'Sicher' }).click().catch(() => undefined);
+  const pruefen = page.getByRole('button', { name: 'Prüfen' });
+  assert.ok(await pruefen.isEnabled(), 'Wissenstrainer: Prüfen bleibt nach einer Antwort gesperrt');
+  await pruefen.click();
+  await page.waitForTimeout(300);
+  await ablauf('Wissenstrainer, Rückmeldung');
+  await page.goto(base + '#/lernen/diagnostik', { waitUntil: 'networkidle' });
+  await page.locator('main button.primary').first().click();
+  await page.getByRole('button', { name: 'Fall starten' }).click();
+  await page.waitForTimeout(500);
+  await ablauf('Labor und Bildgebung, Fall');
+
+  // Dunkler Modus: axe auf allen Seiten (Kontraste kippen sonst unbemerkt).
+  const dunkel = await browser.newContext({ viewport: { width: 390, height: 844 }, colorScheme: 'dark', locale: 'de-DE', timezoneId: 'Europe/Berlin' });
+  await dunkel.addInitScript(() => localStorage.setItem('lernstoff.shell', JSON.stringify({ theme: 'dunkel' })));
+  const dp = await dunkel.newPage();
+  for (const r of routes) {
+    await dp.goto(base + '#' + r, { waitUntil: 'networkidle' });
+    await dp.locator('main').waitFor();
+    await dp.waitForTimeout(150);
+    const audit = await new AxeBuilder({ page: dp }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).disableRules(AUSNAHMEN[r] ?? []).analyze();
+    for (const v of audit.violations) fehler.push(`dunkel ${r}: ${v.id} (${v.nodes.length}×) ${v.nodes[0]?.html.slice(0, 120)}`);
+  }
+  await dunkel.close();
+
+  // Umbruch bei 320 px (entspricht 400 % Zoom, WCAG 1.4.10): keine Seite darf seitlich überstehen.
+  const schmal = await browser.newContext({ viewport: { width: 320, height: 640 }, locale: 'de-DE', timezoneId: 'Europe/Berlin', reducedMotion: 'reduce' });
+  const sp = await schmal.newPage();
+  for (const r of routes) {
+    await sp.goto(base + '#' + r, { waitUntil: 'networkidle' });
+    await sp.locator('main').waitFor();
+    await sp.waitForTimeout(150);
+    const w = await sp.evaluate(() => ({ s: document.documentElement.scrollWidth, c: document.documentElement.clientWidth }));
+    if (w.s > w.c + 1) fehler.push(`320 px ${r}: Seite ${w.s} px breit, steht seitlich über`);
+  }
+  await schmal.close();
 } finally { await browser.close(); }
 assert.deepEqual([...new Set(fehler)], [], 'Barrierefreiheit');
-console.log(`Barrierefreiheit: ${routes.length} Seiten bei sehr großer Schrift, axe WCAG 2.2 AA, Tastaturfokus (${TABS} Schritte) und Grafik-Alternativen bestanden.`);
+console.log(`Barrierefreiheit: ${routes.length} Seiten bei sehr großer Schrift, axe WCAG 2.2 AA hell und dunkel, genau eine h1, Umbruch bei 320 px, Tastaturfokus (${TABS} Schritte) und Grafik-Alternativen bestanden.`);

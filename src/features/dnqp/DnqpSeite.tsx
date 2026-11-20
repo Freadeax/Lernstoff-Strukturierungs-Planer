@@ -312,7 +312,7 @@ export default function DnqpSeite() {
   return (
     <section className="page dnqp">
       <div className="page__head">
-        <h2>DNQP-Expertenstandards</h2>
+        <h1>DNQP-Expertenstandards</h1>
         <p className="muted">Alle nationalen Expertenstandards in der Pflege: Aufbau, aktuelle Fassungen, Zielsetzung und jede Ebene mit Struktur-, Prozess- und Ergebniskriterien, dazu häufige Fehler und ein Prüfwerkzeug für eigene Texte. Funktioniert offline.</p>
       </div>
       <SeitenHilfe path="/lernen/dnqp" />

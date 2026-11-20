@@ -68,7 +68,7 @@ export function Omnibar() {
   // Begriffe des Glossars kommen nach dem Start nach; danach den Index einmal neu bauen.
   const [glossarDa, setGlossarDa] = useState(false);
   useEffect(() => { let an = true; fachmodulBereit().then(() => { if (an) setGlossarDa(true); }, () => undefined); return () => { an = false; }; }, []);
-  const index = useMemo(() => buildIndex(moduleId, roles, quellen), [moduleId, roles, quellen, glossarDa]);
+  const index = useMemo(() => buildIndex(moduleId, roles, quellen), [moduleId, roles, quellen, glossarDa]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: Auslöser für Neuberechnung (neue Runde, Seitenwechsel)
   const debounced = useDebounced(query, 250);
   const merk = useStore(merkliste, (m) => m);
   // Leeres Feld: Favoriten und zuletzt genutzte Seiten statt einer leeren Liste.

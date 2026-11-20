@@ -23,7 +23,9 @@ function schritt(name, befehl, args, env = {}) {
   const start = Date.now();
   const r = spawnSync(befehl, args, { stdio: 'inherit', env: { ...process.env, ...env }, shell: process.platform === 'win32' });
   const ok = r.status === 0;
-  ergebnisse.push({ name, ok, s: ((Date.now() - start) / 1000).toFixed(0) });
+  // Exit 3: Prüfung konnte nicht laufen (z. B. Safari-Engine fehlt). Kein Fehler, aber auch kein ✓.
+  const uebersprungen = r.status === 3;
+  ergebnisse.push({ name, ok: ok || uebersprungen, uebersprungen, s: ((Date.now() - start) / 1000).toFixed(0) });
   return ok;
 }
 
@@ -50,6 +52,7 @@ async function wartenAuf(url, ms = 20000) {
 }
 
 schritt('Typprüfung', npx, ['tsc', '-b', '--noEmit']);
+schritt('Lint (React-Hooks)', npx, ['eslint', 'src']);
 schritt('Unit-Tests', npx, ['vitest', 'run']);
 
 const py = python();
@@ -78,7 +81,8 @@ if (!schnell && gebaut) {
 }
 
 console.log('\nÜbersicht');
-for (const e of ergebnisse) console.log(`  ${e.ok ? '✓' : '✗'} ${e.name} (${e.s} s)`);
+for (const e of ergebnisse) console.log(`  ${e.uebersprungen ? '–' : e.ok ? '✓' : '✗'} ${e.name}${e.uebersprungen ? ' ÜBERSPRUNGEN' : ''} (${e.s} s)`);
 const fehler = ergebnisse.filter((e) => !e.ok).length;
-console.log(fehler ? `\n${fehler} Prüfung(en) fehlgeschlagen.` : '\nAlles grün.');
+const weg = ergebnisse.filter((e) => e.uebersprungen).map((e) => e.name);
+console.log(fehler ? `\n${fehler} Prüfung(en) fehlgeschlagen.` : weg.length ? `\nGrün, aber nicht vollständig: ${weg.join(', ')} übersprungen (Safari/Firefox mit „npx playwright install webkit firefox“ holen).` : '\nAlles grün.');
 process.exit(fehler ? 1 : 0);

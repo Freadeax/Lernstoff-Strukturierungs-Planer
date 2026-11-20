@@ -17,7 +17,7 @@ import { leererFall, VORLAGE_GRUPPEN, VORLAGEN } from './vorlagen';
 function Seite({ titel, intro, children }: { titel: string; intro?: string; children: React.ReactNode }) {
   return (
     <section className="page klasse">
-      <div className="page__head"><h2>{titel}</h2>{intro && <p className="muted">{intro}</p>}</div>
+      <div className="page__head"><h1>{titel}</h1>{intro && <p className="muted">{intro}</p>}</div>
       {children}
     </section>
   );

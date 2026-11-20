@@ -50,7 +50,7 @@ export function TrainerSeite({ titel, intro, hinweis, pfad, quelle, bereiche, au
   const [stand, setStand] = useState<Stand>(() => storage.read<Stand>(key, {}));
   const bereichParam = params.get('bereich') ?? '';
   const alle = useMemo(() => Object.values(aufgaben).flat(), [aufgaben]);
-  const offeneIds = useMemo(() => ladeFehler().filter((f) => istOffen(f) && f.quelle === quelle).map((f) => f.id), [quelle, params]);
+  const offeneIds = useMemo(() => ladeFehler().filter((f) => istOffen(f) && f.quelle === quelle).map((f) => f.id), [quelle, params]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: Auslöser für Neuberechnung (neue Runde, Seitenwechsel)
   const schwach = useMemo(() => schwachstellen(alle, quelle, offeneIds), [alle, quelle, offeneIds]);
   const bereich = bereichParam === MIX || (bereichParam === SCHWACH && schwach.length > 0) || bereiche.some((b) => b.id === bereichParam) ? bereichParam : bereiche[0]!.id;
   const stufeParam = Number(params.get('stufe'));
@@ -67,7 +67,7 @@ export function TrainerSeite({ titel, intro, hinweis, pfad, quelle, bereiche, au
   const pool = useMemo(() => (stufe ? roh.filter((a) => stufeVon(a) === stufe) : roh), [roh, stufe]);
   const anzahl = bereich === MIX ? proRunde + 2 : proRunde;
   // Neue Runde bei jedem Start (nr) und Bereichswechsel
-  const liste = useMemo(() => runde(pool, anzahl), [pool, nr, anzahl]);
+  const liste = useMemo(() => runde(pool, anzahl), [pool, nr, anzahl]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: Auslöser für Neuberechnung (neue Runde, Seitenwechsel)
   const info = bereiche.find((b) => b.id === bereich);
   const label = info?.label ?? (bereich === SCHWACH ? 'Meine Schwachstellen' : 'Gemischte Runde');
 
@@ -106,7 +106,7 @@ export function TrainerSeite({ titel, intro, hinweis, pfad, quelle, bereiche, au
     <section className="page qz-seite">
       {oben}
       <div className="page__head">
-        <h2>{titel}</h2>
+        <h1>{titel}</h1>
         <p className="muted">{intro}</p>
       </div>
       {unterKopf}

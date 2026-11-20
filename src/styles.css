@@ -209,3 +209,9 @@ mark { background: var(--color-highlight); color: inherit; }
 .quellenangabe { margin: var(--space-1) 0; }
 .claim.freigegeben { box-shadow: inset 0 -2px 0 var(--color-success, green); }
 .claim.abgelehnt { text-decoration: line-through; text-decoration-color: var(--color-danger, red); }
+
+/* Lange deutsche Wörter in Überschriften umbrechen statt seitlich überstehen (WCAG 1.4.10, Audit A-2). */
+h1, h2, h3, h4 { overflow-wrap: break-word; hyphens: auto; }
+/* Belegmatrix: Aussage als Schaltfläche, sieht aus wie Text in der Zelle */
+.vergleich__beleg { all: unset; cursor: pointer; display: block; text-align: start; border-radius: var(--radius-xs); }
+.vergleich__beleg:focus-visible { outline: 3px solid var(--color-focus, currentColor); outline-offset: 2px; }

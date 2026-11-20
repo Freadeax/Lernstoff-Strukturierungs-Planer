@@ -32,8 +32,12 @@ export function VergleichsAnsicht({ ergebnis, chunkMap, titles }: { ergebnis: Ve
               <tr key={i} className={`art-${z.art}`}>
                 <td><strong>{z.unterthema}</strong><div className={`art-label ${z.art}`}>{ART[z.art]}</div>{z.erlaeuterung && <div className="muted">{z.erlaeuterung}</div>}</td>
                 {z.jeQuelle.map((q) => (
-                  <td key={q.documentId} className={q.aussage ? 'claim belegt' : 'leer'} onClick={() => q.aussage && setOffen(offen?.zeile === i && offen.doc === q.documentId && offen.wo === 'matrix' ? null : { zeile: i, doc: q.documentId, wo: 'matrix' })}>
-                    {q.aussage ?? <span className="muted">keine Angabe</span>}
+                  <td key={q.documentId} className={q.aussage ? 'claim belegt' : 'leer'}>
+                    {/* Als Schaltfläche: auch per Tastatur und Screenreader bedienbar (Audit A-3) */}
+                    {q.aussage
+                      ? <button type="button" className="link vergleich__beleg" aria-expanded={offen?.zeile === i && offen.doc === q.documentId && offen.wo === 'matrix'}
+                          onClick={() => setOffen(offen?.zeile === i && offen.doc === q.documentId && offen.wo === 'matrix' ? null : { zeile: i, doc: q.documentId, wo: 'matrix' })}>{q.aussage}</button>
+                      : <span className="muted">keine Angabe</span>}
                   </td>
                 ))}
               </tr>

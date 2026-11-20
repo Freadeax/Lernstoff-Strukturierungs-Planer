@@ -123,7 +123,7 @@ export default function Designsystem() {
   return (
     <section className="page">
       <div className="page__head">
-        <h2>Designsystem</h2>
+        <h1>Designsystem</h1>
         <p className="muted">Tokens, Bausteine, alle sechs Zustände jedes Moduls und fünf Systemzustände mit Beispieldaten. Nichts hier verändert deine Daten.</p>
       </div>
 

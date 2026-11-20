@@ -207,7 +207,7 @@ export default function Berichttrainer() {
   return (
     <section className="page bericht">
       <div className="page__head">
-        <h2>Pflegebericht-Trainer</h2>
+        <h1>Pflegebericht-Trainer</h1>
         <p className="muted">Schreib Berichtseinträge sachlich: was du gesehen, gehört und getan hast, ohne Wertung. Die Checkliste prüft offline und markiert wertende, ungenaue und vermutende Wörter.</p>
       </div>
       <AkteLeiste art="bericht" fallId={fallId} />

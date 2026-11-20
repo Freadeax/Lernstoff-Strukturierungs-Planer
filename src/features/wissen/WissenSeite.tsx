@@ -89,9 +89,9 @@ function GemischteRunde() {
     return z && z.bereich === schluessel ? z : null;
   });
   const [nachuebung, setNachuebung] = useState<Aufgabe[] | null>(null);
-  const { pool, titel } = useMemo(() => poolFuer(params), [schluessel]);
+  const { pool, titel } = useMemo(() => poolFuer(params), [schluessel]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: übrige Werte leiten sich aus den genannten ab
   const anzahl = Math.max(5, Math.min(30, Number(params.get('anzahl')) || 15));
-  const liste = useMemo(() => zieheRunde(pool, anzahl), [pool, anzahl, nr]);
+  const liste = useMemo(() => zieheRunde(pool, anzahl), [pool, anzahl, nr]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: Auslöser für Neuberechnung (neue Runde, Seitenwechsel)
   const fachVon = (a: Aufgabe) => FACH_VON_AUFGABE.get(a.id) ?? 'grundlagen';
 
   function fertig(e: RundenErgebnis) {
@@ -111,7 +111,7 @@ function GemischteRunde() {
   return (
     <section className="page qz-seite">
       <FachLeiste />
-      <div className="page__head"><h2>{titel}</h2><p className="muted">Aufgaben aus mehreren Fachgebieten. Fehler landen im Fehlerheft beim jeweiligen Fachgebiet.</p></div>
+      <div className="page__head"><h1>{titel}</h1><p className="muted">Aufgaben aus mehreren Fachgebieten. Fehler landen im Fehlerheft beim jeweiligen Fachgebiet.</p></div>
       <Runde
         key={`${schluessel}-${nr}${fortsetzen ? `-f${fortsetzen.rundeId}` : ''}${nachuebung ? '-n' : ''}`}
         aufgaben={nachuebung ?? liste} quelle="grundlagen" trainer="grundlagen" kennung={KENNUNG}
@@ -215,14 +215,13 @@ function Uebersicht() {
             const ganz = wahl.has(f.id);
             return (
               <li key={f.id}>
+                {/* Ankreuzfeld neben, nicht in der Aufklappzeile: keine verschachtelten Bedienelemente (WCAG 4.1.2) */}
+                <label className="check wissen__fach">
+                  <input type="checkbox" checked={ganz} onChange={() => umschalten(f.id)} />
+                  <span>{f.label}</span>
+                </label>
                 <details>
-                  <summary>
-                    <label className="check" onClick={(e) => e.stopPropagation()}>
-                      <input type="checkbox" checked={ganz} onChange={() => umschalten(f.id)} />
-                      <span>{f.label}</span>
-                    </label>
-                    <span className="muted">{f.bereiche.filter((b) => wahl.has(`${f.id}.${b.id}`)).length || ''}</span>
-                  </summary>
+                  <summary>Einzelne Bereiche{(() => { const n = f.bereiche.filter((b) => wahl.has(`${f.id}.${b.id}`)).length; return n ? ` (${n} gewählt)` : ''; })()}<span className="visually-hidden"> für {f.label}</span></summary>
                   <div className="wissen__bereiche">
                     {f.bereiche.map((b) => (
                       <label key={b.id} className="check">

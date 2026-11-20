@@ -109,7 +109,7 @@ export function Selbsttest({ ce, themen, daten, status, nurThema }: {
           <span className="muted">Frage {antworten.length + 1} von {fragen.length}</span>
           <button type="button" className="small ghost" onClick={() => setFragen(null)}>Abbrechen</button>
         </div>
-        <div className="ce-pfad__balken" role="progressbar" aria-valuemin={0} aria-valuemax={fragen.length} aria-valuenow={antworten.length}>
+        <div className="ce-pfad__balken" role="progressbar" aria-label="Fortschritt" aria-valuemin={0} aria-valuemax={fragen.length} aria-valuenow={antworten.length}>
           <span style={{ width: `${(antworten.length / fragen.length) * 100}%` }} />
         </div>
         <article className={`card karte${offen ? ' is-offen' : ''}`} aria-live="polite">

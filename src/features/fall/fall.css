@@ -345,3 +345,5 @@ a.pill { display: inline-flex; align-items: center; text-decoration: none; color
 .fall__wege-situation { font-style: italic; }
 .fall__probe-gruppe h4 { margin: var(--space-3) 0 var(--space-1); font-size: .95rem; }
 .fall__probe-stand { font-size: .85rem; }
+/* 320 px: lange Wörter in der Szenario-Karte umbrechen (WCAG 1.4.10) */
+.fall__szenario { min-width: 0; white-space: normal; overflow-wrap: anywhere; }

@@ -115,7 +115,7 @@ export function Zusammenfassen() {
     let aktiv = true;
     topicKnowledge(topic).then((p) => { if (aktiv) { setWissen(p.status); setWissenAusPlan(true); } }).catch(() => {});
     return () => { aktiv = false; };
-  }, [topic?.id, modus]);
+  }, [topic?.id, modus]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: läuft bewusst nur, wenn sich die genannten Werte ändern (Ereignis)
 
   function toggle(id: string) {
     const next = new Set(selected);

@@ -33,7 +33,7 @@ function Fest({ d, neu }: { d: Dialog; neu: () => void }) {
       versuchId: `gespraech:${d.id}:${seed}`, herkunft: { modul: 'gespraech', ref: d.id }, status: 'abgeschlossen', aussagekraft: 'anwendung',
       ergebnisse: d.topicIds.map((topicId) => ({ topicId, scorePercent: e.prozent, anzahl: Math.max(1, e.schritte.length) })),
     }).then((b) => setBuchung(buchungsText(b)), () => setBuchung('Lernplan gerade nicht erreichbar.'));
-  }, [ende]);
+  }, [ende]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: läuft bewusst nur, wenn sich die genannten Werte ändern (Ereignis)
 
   if (ende && !letzte) {
     return (

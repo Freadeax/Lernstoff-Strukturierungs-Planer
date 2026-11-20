@@ -42,7 +42,7 @@ function Leiste({ aktiv }: { aktiv?: UebungId }) {
 function Rahmen({ titel, text, children }: { titel: string; text: string; children: ReactNode }) {
   return (
     <section className="page notfall">
-      <div className="page__head"><h2>{titel}</h2><p className="muted">{text}</p></div>
+      <div className="page__head"><h1>{titel}</h1><p className="muted">{text}</p></div>
       {children}
     </section>
   );

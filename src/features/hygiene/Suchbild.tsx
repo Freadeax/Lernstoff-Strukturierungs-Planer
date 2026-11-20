@@ -20,7 +20,7 @@ export function Suchbilder() {
   return (
     <section className="page hygiene-suchbild" aria-labelledby="hygiene-suchbild-titel">
       <div className="page__head">
-        <h2 id="hygiene-suchbild-titel">Suchbilder</h2>
+        <h1 id="hygiene-suchbild-titel">Suchbilder</h1>
         <p className="muted">Hygiene im Raum erkennen: Stellen im Foto antippen. KI-generierte Szene, fachlich ungeprüftes Lernmodell, es gilt der Hygieneplan deiner Einrichtung.</p>
       </div>
       <div className="pills" role="radiogroup" aria-label="Suchbild wählen">

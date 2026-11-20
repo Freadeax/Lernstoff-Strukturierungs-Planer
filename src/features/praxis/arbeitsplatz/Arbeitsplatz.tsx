@@ -148,7 +148,7 @@ function Platz({ stand, setStand, onZurueck, onNeu }: {
     const io = new IntersectionObserver(([e]) => setFotoWeg(!!e && !e.isIntersecting && e.boundingClientRect.top < 0), { threshold: 0, rootMargin: '-160px 0px 0px 0px' });
     io.observe(el);
     return () => io.disconnect();
-  }, [!!z.ende, abschluss]);
+  }, [!!z.ende, abschluss]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: Ausdruck ist bewusst so gewählt (nur bei dessen Änderung)
 
   // Höhe der mitlaufenden Werteleiste, damit die Reiter darunter kleben (schmale Ansicht).
   useEffect(() => {

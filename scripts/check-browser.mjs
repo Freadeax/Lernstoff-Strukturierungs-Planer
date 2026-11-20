@@ -20,6 +20,7 @@ const groessen = [
 ];
 const fehler = [];
 let gelaufen = 0;
+const uebersprungen = [];
 
 for (const name of engines) {
   let browser;
@@ -29,6 +30,7 @@ for (const name of engines) {
       ...(name === 'chromium' && process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH } : {}),
     });
   } catch (e) {
+    uebersprungen.push(name);
     console.log(`(${name} ist nicht installiert: übersprungen. Holen mit „npx playwright install ${name}“.)`);
     if (process.env.BROWSER_PFLICHT) fehler.push(`${name}: startet nicht (${String(e.message).split('\n')[0]})`);
     continue;
@@ -77,3 +79,5 @@ if (fehler.length) {
   process.exit(1);
 }
 console.log(gelaufen ? 'Andere Browser-Engines: alles in Ordnung.' : 'Keine weitere Browser-Engine installiert: nichts geprüft.');
+// Übersprungene Engines nicht als „bestanden“ melden (Audit T-1): Exit 3 = übersprungen, check-alle zeigt das sichtbar an.
+if (uebersprungen.length) process.exit(3);

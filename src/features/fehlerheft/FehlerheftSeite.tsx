@@ -195,7 +195,7 @@ function Wiederholen({ aufgaben, onAntwort, onEnde }: {
         <span className="badge badge--demo">{a.fehler.titel}</span>
         <span className="muted">Aufgabe {i + 1} von {aufgaben.length} · {richtig} richtig</span>
       </div>
-      <div className="rechnen__fortschritt" role="progressbar" aria-valuemin={0} aria-valuemax={aufgaben.length} aria-valuenow={i}>
+      <div className="rechnen__fortschritt" role="progressbar" aria-label="Fortschritt" aria-valuemin={0} aria-valuemax={aufgaben.length} aria-valuenow={i}>
         <span style={{ width: `${(i / aufgaben.length) * 100}%` }} />
       </div>
       {a.art === 'rechnen' ? (
@@ -308,7 +308,7 @@ export default function FehlerheftSeite() {
   return (
     <section className="page fehlerheft">
       <div className="page__head">
-        <h2>Fehlerheft</h2>
+        <h1>Fehlerheft</h1>
         <p className="muted">
           Falsche Antworten aus Rechentrainer, Fachbegriff-Duell, Prüfungssimulation, Krankheitsbildern, Assessments, Praxissimulator und allen Übungstrainern landen automatisch hier.
           Dieselbe Aufgabe bleibt ein Eintrag; ein Versuch zählt auch nach Neuladen nur einmal.

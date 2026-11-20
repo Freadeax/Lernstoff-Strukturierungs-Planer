@@ -21,7 +21,7 @@ export function OfflinePaket({ bedarf, kompakt = false, onlineGrund = 'Dieser Fa
     let aktiv = true;
     void offlineStatus(bedarf).then((s) => { if (aktiv) setStatus(s); });
     return () => { aktiv = false; };
-  }, [schluessel]);
+  }, [schluessel]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: läuft bewusst nur, wenn sich die genannten Werte ändern (Ereignis)
   if (!status) return null;
 
   async function laden() {

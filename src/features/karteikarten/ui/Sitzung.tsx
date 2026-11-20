@@ -100,7 +100,7 @@ export function Sitzung({ karten, staende: start, retention, heute, topics, titl
     if (!karte) return;
     if (karte.eingabe) inputRef.current?.focus();
     else aufdeckenRef.current?.focus({ preventScroll: true });
-  }, [karte?.id, queue.length]);
+  }, [karte?.id, queue.length]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: läuft bewusst nur, wenn sich die genannten Werte ändern (Ereignis)
 
   // Verlassen ohne Abschluss (Menü, Zurück, anderer Tab): Ergebnis trotzdem an den Lernplan
   useEffect(() => () => {
@@ -108,7 +108,7 @@ export function Sitzung({ karten, staende: start, retention, heute, topics, titl
     schliesseOffeneSitzungAb(topics)
       .then((e) => { if (e?.length) notify('info', 'Karteikarten-Sitzung beendet', `${e.length} ${e.length === 1 ? 'Thema' : 'Themen'} an den Lernplan gemeldet.`); })
       .catch((e) => notify('warning', 'Ergebnis noch nicht im Lernplan', `Wird beim nächsten Öffnen der Karteikarten nachgeholt. ${e instanceof Error ? e.message : ''}`));
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: läuft bewusst nur, wenn sich die genannten Werte ändern (Ereignis)
 
   async function beende(liste = antworten) {
     if (ergebnis || abgeschlossen.current) return;
@@ -234,7 +234,7 @@ export function Sitzung({ karten, staende: start, retention, heute, topics, titl
         {serie >= 3 && <span key={serie} className="badge karten__serie m-pop" aria-label={`${serie} Karten in Folge gewusst`}>{serie}× in Folge</span>}
         <button type="button" className="small ghost" disabled={busy} onClick={() => (antworten.length ? beende() : onEnde())}>Beenden</button>
       </div>
-      <div className="rechnen__fortschritt" role="progressbar" aria-valuemin={0} aria-valuemax={gesamt} aria-valuenow={fertigeKarten}>
+      <div className="rechnen__fortschritt" role="progressbar" aria-label="Fortschritt" aria-valuemin={0} aria-valuemax={gesamt} aria-valuenow={fertigeKarten}>
         <span style={{ width: `${(fertigeKarten / Math.max(1, gesamt)) * 100}%` }} />
       </div>
 

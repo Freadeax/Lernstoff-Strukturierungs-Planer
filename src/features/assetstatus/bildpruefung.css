@@ -26,3 +26,7 @@
 }
 .bildpruefung__prompt summary { cursor: pointer; font-weight: 600; }
 .bildpruefung__prompt p { margin-top: var(--space-1); white-space: pre-wrap; }
+/* 320 px: Karten dürfen nicht breiter als der Bildschirm werden (WCAG 1.4.10) */
+.bildpruefung__karte, .bildpruefung__karte > * { min-width: 0; max-width: 100%; }
+.bildpruefung__karte img { max-width: 100%; height: auto; }
+.bildpruefung__karte h3 { overflow-wrap: anywhere; }

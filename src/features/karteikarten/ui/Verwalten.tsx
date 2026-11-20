@@ -92,7 +92,7 @@ export function Stapel({ ctx }: { ctx: KartenCtx }) {
     const m = new Map<ID, number>();
     for (const k of alle) for (const s of k.subjectIds) m.set(s, (m.get(s) ?? 0) + 1);
     return m;
-  }, [config.richtungen, config.katalog, config.arzneimittel, config.krankheitsbilder]);
+  }, [config.richtungen, config.katalog, config.arzneimittel, config.krankheitsbilder]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: übrige Werte leiten sich aus den genannten ab
   const setze = (patch: Partial<Omit<KartenConfig, 'id'>>) => sicher(() => speichereConfig(patch), 'Stapel gespeichert', ctx);
   const toggleFach = (id: ID) => {
     const aktiv = config.faecher.length ? config.faecher : [];

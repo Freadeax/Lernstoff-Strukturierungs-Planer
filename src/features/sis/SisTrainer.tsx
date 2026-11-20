@@ -154,7 +154,7 @@ function Ergebnis({ e, fall }: { e: SisErgebnis; fall: SisFall }) {
         <h3>Checkliste: {e.prozent} %</h3>
         <span className="muted">Texte {e.textProzent} % · Risikomatrix {e.matrixProzent} %</span>
       </div>
-      <div className={`sis__balken sis__balken--${stufe}`} role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={e.prozent}>
+      <div className={`sis__balken sis__balken--${stufe}`} role="progressbar" aria-label="Fortschritt" aria-valuemin={0} aria-valuemax={100} aria-valuenow={e.prozent}>
         <span style={{ width: `${e.prozent}%` }} />
       </div>
       {e.hinweise.map((h) => <div key={h} className="note warn">{h}</div>)}
@@ -302,7 +302,7 @@ export default function SisTrainer() {
   return (
     <section className="page sis">
       <div className="page__head">
-        <h2>SIS-Trainer</h2>
+        <h1>SIS-Trainer</h1>
         <p className="muted">Strukturierte Informationssammlung nach dem Strukturmodell: Lies das Erstgespräch, dann fülle Feld B, die sechs Themenfelder und die Risikomatrix aus. Die Checkliste prüft offline, eine ausführliche Rückmeldung gibt es optional von Claude.</p>
       </div>
       <AkteLeiste art="sis" fallId={fallId} />

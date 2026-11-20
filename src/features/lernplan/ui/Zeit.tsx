@@ -201,7 +201,7 @@ function Ausnahmen({ ctx }: { ctx: PlanCtx }) {
   const [bis, setBis] = useState(today);
   const [min, setMin] = useState('0');
   const [notiz, setNotiz] = useState('');
-  const ex = cfg.availability.exceptions ?? {};
+  const ex = cfg.availability.exceptions ?? {}; // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: Neuberechnung je Darstellung ist hier gewollt und billig
   const notes = cfg.exceptionNotes ?? {};
   const kommend = Object.keys(ex).filter((d) => d >= today).sort();
   const n = Math.max(0, Math.round(Number(min) || 0));

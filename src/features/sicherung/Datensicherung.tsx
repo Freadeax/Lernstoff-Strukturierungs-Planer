@@ -315,7 +315,7 @@ export default function Datensicherung() {
   return (
     <section className="page sicherung">
       <div className="page__head">
-        <h2>Datensicherung</h2>
+        <h1>Datensicherung</h1>
         <p className="muted">Lernstand sichern und auf ein anderes Gerät übertragen.</p>
       </div>
       <Speicherstatus />
