@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useFremdeAenderung } from '../../ui/lib/store';
 import { navigate, useRoute } from '../../ui/shell/router';
 import { abgabenZu, eigeneFaelle } from '../klasse/speicher';
 import { dateiname, fristText, speichereDatei } from '../klasse/teilen';
@@ -78,6 +79,8 @@ function Bearbeiten({ start, neu, fertig }: { start: Klasse; neu: boolean; ferti
 
 function Detail({ id }: { id: string }) {
   const [stand, setStand] = useState(0);
+  // Änderungen aus einem anderen Fenster sofort zeigen (Audit C-4).
+  useFremdeAenderung(null, () => setStand((x) => x + 1));
   const klasse = useMemo(() => { void stand; return klasseMitId(id); }, [id, stand]);
   if (!klasse) return <Seite titel="Klasse"><div className="card"><div className="note warn" role="alert">Diese Klasse gibt es auf diesem Gerät nicht.</div></div></Seite>;
   return <DetailAnsicht klasse={klasse} neuLaden={() => setStand((n) => n + 1)} />;

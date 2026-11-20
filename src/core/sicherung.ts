@@ -6,6 +6,10 @@ import { db, type LernstoffDB } from './db';
 import { ENTPACKT_MAX, verschluessele } from './sicherung-krypto';
 import { BUILD_ID } from './build';
 import { heuteTag } from '../ui/lib/time';
+import { geraet, GERAETESTAND_TABELLE } from './geraetestand';
+
+/** Tabellen mit eigenen Daten. Der Gerätestand (DB v8) erscheint in der Sicherung wie bisher unter `local`. */
+const datenTabellen = (database: LernstoffDB) => database.tables.filter((t) => t.name !== GERAETESTAND_TABELLE);
 
 export const SICHERUNG_FORMAT = 1;
 
@@ -26,6 +30,9 @@ export const SICHERUNG_GRENZEN = {
   /** Geräteeinträge (Trainer, Mindmaps, …): Anzahl und Länge je Eintrag. */
   lokalEintraege: 500,
   lokalZeichen: 20 * MB,
+  /** Ab dieser Größe (entpackt) vor dem Einspielen warnen: ältere iPhones können am Arbeitsspeicher scheitern (Audit L-4).
+   *  Bewusst keine harte Grenze, damit sich eine große, echte Sicherung immer noch einspielen lässt. */
+  warnBytes: 100 * MB,
 } as const;
 
 export class SicherungZuGross extends Error {
@@ -143,9 +150,8 @@ export const istLehrerEintrag = (k: string) => k.startsWith('lernstoff.lehrer.')
 /** Liegen auf diesem Gerät Lehrerdaten mit Namen von Lernenden? */
 export function hatLehrerdaten(): boolean {
   try {
-    for (let i = 0; i < localStorage.length; i++) {
-      const k = localStorage.key(i);
-      const v = k && istLehrerEintrag(k) ? localStorage.getItem(k) : null;
+    for (const k of geraet.schluessel()) {
+      const v = istLehrerEintrag(k) ? geraet.getItem(k) : null;
       if (v && v !== '[]' && v !== '{}' && v !== 'null') return true;
     }
   } catch { /* privater Modus */ }
@@ -155,9 +161,8 @@ export function hatLehrerdaten(): boolean {
 function lokaleEintraege(ohneLehrerdaten = false): Record<string, string> {
   const out: Record<string, string> = {};
   try {
-    for (let i = 0; i < localStorage.length; i++) {
-      const k = localStorage.key(i);
-      if (k && gehoertInSicherung(k) && !(ohneLehrerdaten && istLehrerEintrag(k))) out[k] = localStorage.getItem(k) ?? '';
+    for (const k of geraet.schluessel()) {
+      if (gehoertInSicherung(k) && !(ohneLehrerdaten && istLehrerEintrag(k))) out[k] = geraet.getItem(k) ?? '';
     }
   } catch { /* privater Modus */ }
   return out;
@@ -166,7 +171,7 @@ function lokaleEintraege(ohneLehrerdaten = false): Record<string, string> {
 /** Komplette Sicherung: alle Tabellen und die Trainer-Einträge aus localStorage. */
 export async function erstelleSicherung(database: LernstoffDB = db, meta: { fachmodul?: string; ohneLehrerdaten?: boolean } = {}): Promise<Sicherung> {
   const data: Record<string, unknown[]> = {};
-  for (const table of database.tables) data[table.name] = kodiere(await table.toArray()) as unknown[];
+  for (const table of datenTabellen(database)) data[table.name] = kodiere(await table.toArray()) as unknown[];
   return {
     app: 'lernstoff-planer', format: SICHERUNG_FORMAT, schema: database.verno,
     exportedAt: new Date().toISOString(), geraet: geraetName(), build: BUILD_ID, ...(meta.fachmodul ? { fachmodul: meta.fachmodul } : {}),
@@ -233,7 +238,7 @@ export function lesePruefe(text: string, database: LernstoffDB = db): { sicherun
   if (s.schema > database.verno) throw new Error('Die Sicherung stammt aus einer neueren App-Version. Bitte die App neu laden (aktualisieren) und dann noch einmal einspielen.');
   if (s.format !== undefined && (!ganzzahl(s.format) || s.format < 0)) throw new Error('Das Sicherungsformat ist ungültig.');
   if ((s.format ?? 0) > SICHERUNG_FORMAT) throw new Error('Das Sicherungsformat ist neuer als diese App. Bitte die App aktualisieren.');
-  const tabellen = new Map(database.tables.map((t) => [t.name, t]));
+  const tabellen = new Map(datenTabellen(database).map((t) => [t.name, t]));
   const unbekannteTabellen: string[] = [];
   for (const [name, rows] of Object.entries(s.data)) {
     const t = tabellen.get(name);
@@ -302,7 +307,7 @@ export interface Vergleich {
 }
 
 function leseLokal(k: string): string | null {
-  try { return localStorage.getItem(k); } catch { return null; }
+  try { return geraet.getItem(k); } catch { return null; }
 }
 
 /** Was passiert mit welchem Bereich? Gleiche Regeln wie beim Einspielen (neuerer gewinnt, Sitzungen werden nicht gemischt). */
@@ -322,7 +327,7 @@ export function vergleicheLokal(lokal: string | null, fremd: string | undefined)
 
 export async function vergleiche(s: Sicherung, database: LernstoffDB = db): Promise<Vergleich> {
   const zeilen: VergleichZeile[] = [];
-  for (const t of database.tables) {
+  for (const t of datenTabellen(database)) {
     const fremd = Array.isArray(s.data[t.name]) ? dekodiere(s.data[t.name]) as Record<string, unknown>[] : [];
     const hierAnzahl = await t.count();
     if (!fremd.length && !hierAnzahl) continue;
@@ -505,7 +510,7 @@ async function fuehreTabelleZusammen(table: Table, rows: Record<string, unknown>
  * Vorher wird immer eine Rückfallsicherung angelegt (beim Wiederherstellen einer Rückfallsicherung wird der jetzige Stand zur neuen).
  */
 export async function spieleEin(s: Sicherung, modus: Modus, database: LernstoffDB = db): Promise<Ergebnis> {
-  const tabellen = database.tables.filter((t) => Array.isArray(s.data[t.name]));
+  const tabellen = datenTabellen(database).filter((t) => Array.isArray(s.data[t.name]));
   let neu = 0, aktualisiert = 0;
   // Ohne Rückfallsicherung wird nichts eingespielt: lieber abbrechen als Daten unwiederbringlich verlieren.
   let rueckfall: string | undefined;
@@ -521,11 +526,13 @@ export async function spieleEin(s: Sicherung, modus: Modus, database: LernstoffD
     throw e;
   }
   const { fehler: lokalFehler, geaendert } = spieleLokalEin(s.local ?? {}, modus);
+  // Lernstände im Gerätestand (DB v8) schreiben im Hintergrund: fertig sein, bevor die Seite neu lädt.
+  await geraet.gespeichert();
   const lokalUebernommen = [...new Set(geaendert.map(lokalLabel))];
   return { neu, aktualisiert, tabellen: tabellen.length, lokalFehler, rueckfall, lokalUebernommen };
 
-  async function schreibeTabellen() { await database.transaction('rw', database.tables, async () => {
-    if (modus === 'ersetzen') await Promise.all(database.tables.map((t) => t.clear()));
+  async function schreibeTabellen() { await database.transaction('rw', datenTabellen(database), async () => {
+    if (modus === 'ersetzen') await Promise.all(datenTabellen(database).map((t) => t.clear()));
     for (const t of tabellen) {
       const rows = dekodiere(s.data[t.name]) as Record<string, unknown>[];
       if (!rows.length) continue;
@@ -546,13 +553,13 @@ function spieleLokalEin(local: Record<string, string>, modus: Modus): { fehler: 
   for (const [k, v] of Object.entries(local)) {
     if (!gehoertInSicherung(k)) continue;
     try {
-      const alt = localStorage.getItem(k);
-      if (modus === 'ersetzen' || alt === null) { localStorage.setItem(k, v); if (alt !== v) geaendert.push(k); continue; }
+      const alt = geraet.getItem(k);
+      if (modus === 'ersetzen' || alt === null) { geraet.setItem(k, v); if (alt !== v) geaendert.push(k); continue; }
       let zusammen: string;
       try { zusammen = JSON.stringify(fuehreWertZusammen(JSON.parse(alt), JSON.parse(v))); }
       catch { continue; /* kein JSON: vorhandenen Wert behalten, das ist kein Fehler */ }
       if (zusammen === alt) continue;
-      localStorage.setItem(k, zusammen);
+      geraet.setItem(k, zusammen);
       if (signatur(JSON.parse(zusammen)) !== signatur(JSON.parse(alt))) geaendert.push(k);
     } catch { fehler.push(k); }
   }
@@ -566,8 +573,8 @@ export const lokalLabel = (k: string) => LOKAL_LABEL[k] ?? LAUFEND_LABEL[k] ?? k
 export function loescheLokaleEintraege() {
   try {
     const weg: string[] = [];
-    for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && gehoertInSicherung(k)) weg.push(k); }
-    weg.forEach((k) => localStorage.removeItem(k));
+    for (const k of geraet.schluessel()) if (gehoertInSicherung(k)) weg.push(k);
+    weg.forEach((k) => geraet.removeItem(k));
   } catch { /* privater Modus */ }
 }
 

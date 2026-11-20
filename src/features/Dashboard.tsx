@@ -1,3 +1,4 @@
+import { geraet } from '../core/geraetestand';
 import { WidgetGrid } from '../ui/widget/Dashboard';
 import { FilterBar } from '../widgets/filter/FilterBar';
 import { WIDGETS } from '../widgets/registry';
@@ -22,7 +23,7 @@ const UEBEN: Array<{ title: string; text: string; icon: IconName; tag: string; g
 
 /** Läuft im Praxissimulator noch ein Fall (Arbeitsplatz oder Stufe 1)? Nur der Schlüssel wird geprüft, der Simulator selbst bleibt ungeladen. */
 function fallLaeuft(): boolean {
-  try { return !!(localStorage.getItem('lernstoff.praxis.arbeitsplatz') || localStorage.getItem('lernstoff.praxis.stufe1')); } catch { return false; }
+  try { return !!(geraet.getItem('lernstoff.praxis.arbeitsplatz') || geraet.getItem('lernstoff.praxis.stufe1')); } catch { return false; }
 }
 
 /** Die häufigsten Wege, jeder mit einem Tipp erreichbar. Der letzte erklärt Neuen, wie die Lernseiten zusammenhängen. */

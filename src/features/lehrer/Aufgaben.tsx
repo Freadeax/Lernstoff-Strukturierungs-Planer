@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useFremdeAenderung } from '../../ui/lib/store';
 import { navigate, useRoute } from '../../ui/shell/router';
 import { abgabenZu, eigeneFaelle, speichereEigenen } from '../klasse/speicher';
 import { fristText } from '../klasse/teilen';
@@ -41,6 +42,8 @@ function VorlageWahl() {
 export default function Aufgaben() {
   const { params } = useRoute();
   const [stand, setStand] = useState(0);
+  // Änderungen aus einem anderen Fenster sofort zeigen (Audit C-4).
+  useFremdeAenderung(null, () => setStand((x) => x + 1));
   const [filter, setFilter] = useState(params.get('klasse') ?? '');
   const ks = useMemo(() => { void stand; return klassen(); }, [stand]);
   const liste = useMemo(() => {

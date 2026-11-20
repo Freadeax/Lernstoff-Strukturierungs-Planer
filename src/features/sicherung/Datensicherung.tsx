@@ -3,7 +3,7 @@ import { notify } from '../../ui/shell/notifications';
 import { relativeTime } from '../../ui/lib/time';
 import {
   bitteUmDauerhaftenSpeicher, hatLehrerdaten, kannTeilen, ladeRueckfall, lesePruefe, leseMerker, leseSicherungsDatei, lokalLabel, setzeMerker, sichereUndGibWeiter, spieleEin, teileSicherungsDatei,
-  stelleRueckfallWiederHer, vergleiche, type Ergebnis, type Modus, type Sicherung, type Uebersicht, type Vergleich,
+  SICHERUNG_GRENZEN, stelleRueckfallWiederHer, vergleiche, type Ergebnis, type Modus, type Sicherung, type Uebersicht, type Vergleich,
 } from '../../core/sicherung';
 import { entschluessele, istVerschluesselt, passwortProblem } from '../../core/sicherung-krypto';
 import { BUILD_ID } from '../../core/build';
@@ -151,7 +151,7 @@ function Ergebnisbericht({ fertig }: { fertig: Ergebnis & { modus: Modus } }) {
 }
 
 function Einspielen({ onFertig }: { onFertig: () => void }) {
-  const [datei, setDatei] = useState<{ name: string; sicherung: Sicherung; uebersicht: Uebersicht } | null>(null);
+  const [datei, setDatei] = useState<{ name: string; sicherung: Sicherung; uebersicht: Uebersicht; groesse: number } | null>(null);
   const [vergleich, setVergleich] = useState<Vergleich | null>(null);
   const [fehler, setFehler] = useState<string | null>(null);
   const [modus, setModus] = useState<Modus>('zusammenfuehren');
@@ -161,7 +161,7 @@ function Einspielen({ onFertig }: { onFertig: () => void }) {
   const [pw, setPw] = useState('');
 
   async function oeffne(name: string, text: string) {
-    const d = { name, ...lesePruefe(text) };
+    const d = { name, groesse: text.length, ...lesePruefe(text) };
     setDatei(d); setVergleich(null);
     try { setVergleich(await vergleiche(d.sicherung)); } catch { /* Vorschau ist Komfort: Einspielen bleibt möglich */ }
   }
@@ -230,6 +230,9 @@ function Einspielen({ onFertig }: { onFertig: () => void }) {
           {u.zeilen.length
             ? <ul className="sicherung__liste">{u.zeilen.map((z) => <li key={z.label}><span>{z.label}</span><strong>{z.anzahl}</strong></li>)}</ul>
             : <p className="muted">Die Sicherung enthält kaum Daten (nur Einstellungen).</p>}
+          {datei.groesse > SICHERUNG_GRENZEN.warnBytes && (
+            <p className="note warn">Diese Sicherung ist rund {Math.round(datei.groesse / 1024 / 1024)} MB groß. Auf älteren iPhones und iPads kann das Einspielen am Arbeitsspeicher scheitern; dein Stand bleibt dann, wie er ist. Sicherer geht es an einem Rechner oder neueren Gerät, oder schließe vorher andere Apps.</p>
+          )}
           {(u.unbekannteTabellen.length > 0 || u.lokalUngueltig.length > 0) && (
             <p className="note warn">Wird nicht übernommen: {[
               ...u.unbekannteTabellen.map((t) => `${t} (unbekannt)`),
