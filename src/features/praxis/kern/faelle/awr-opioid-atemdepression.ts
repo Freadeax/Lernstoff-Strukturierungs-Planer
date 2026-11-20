@@ -54,11 +54,11 @@ export const AWR_OPIOID_ATEMDEPRESSION: FallV2 = {
     ],
   },
   quellen: [
-    { id: 'dgai-awr', titel: 'DGAI/BDA: Empfehlung zur Überwachung nach Anästhesieverfahren (Aufwachraum), 2009/Revision 2021', fundstelle: 'Verlegungskriterien, Überwachung' },
+    { id: 'dgai-awr', titel: 'DGAI/BDA: Empfehlung zur Überwachung nach Anästhesieverfahren (Aufwachraum), 2009', fundstelle: 'Verlegungskriterien, Überwachung' },
     { id: 'aldrete', titel: 'Aldrete JA: The post-anesthesia recovery score revisited. J Clin Anesth 1995;7:89–91' },
     { id: 'fi-naloxon', titel: 'Fachinformation Naloxon', fundstelle: 'Abschnitt 4.2 (Titration), 4.4 (Wirkdauer kürzer als Opioid)' },
     { id: 'fi-piritramid', titel: 'Fachinformation Piritramid (Dipidolor)', fundstelle: 'Abschnitte 4.4, 4.8 (Atemdepression)' },
-    { id: 's3-osa', titel: 'S3-Leitlinie Nicht erholsamer Schlaf/Schlafstörungen, Kapitel Schlafbezogene Atmungsstörungen (AWMF 063-001), 2017/2020', fundstelle: 'Perioperatives Vorgehen bei OSA, eigenes CPAP-Gerät' },
+    { id: 's3-osa', titel: 'S3-Leitlinie Nicht erholsamer Schlaf/Schlafstörungen, Kapitel Schlafbezogene Atmungsstörungen (AWMF 063-001), Teilaktualisierung 2023 (Fassung 2017, Kapitel 2020)', fundstelle: 'Perioperatives Vorgehen bei OSA, eigenes CPAP-Gerät' },
   ],
 
   person: {

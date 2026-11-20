@@ -116,7 +116,7 @@ function SoSichertDieApp() {
         <li>Inhalte anpassen, Quellenangabe erhöhen und im Änderungsverlauf vermerken.</li>
         <li>„Heute nachgesehen“ tippen und den Vermerk weitergeben, damit das Datum dauerhaft ins Register kommt.</li>
       </ol>
-      <p className="muted">Mehr dazu: <a href="#/system/qualitaet">Inhaltsqualität</a> (Überarbeitungsliste, fachliche Prüfung je Trainer) · <a href="#/lernen/schnellsuche?ansicht=pruefen">Text gegen Expertenstandards prüfen</a> · Belegprüfung je Aussage unter <a href="#/material/zusammenfassen">Zusammenfassen</a>.</p>
+      <p className="muted">Mehr dazu: <a href="#/system/freigabe">Fachliche Freigabe mit Prüfbogen</a> · <a href="#/system/qualitaet">Inhaltsqualität</a> (Überarbeitungsliste, fachliche Prüfung je Trainer) · <a href="#/lernen/schnellsuche?ansicht=pruefen">Text gegen Expertenstandards prüfen</a> · Belegprüfung je Aussage unter <a href="#/material/zusammenfassen">Zusammenfassen</a>.</p>
     </section>
   );
 }

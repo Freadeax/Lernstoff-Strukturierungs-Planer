@@ -63,7 +63,7 @@ const Q = {
   who5: { id: 'who-5-momente', titel: 'WHO: Guidelines on Hand Hygiene in Health Care – „5 Momente der Händehygiene“ (2009)' },
   identitaet: { id: 'aps-identifikation', titel: 'Aktionsbündnis Patientensicherheit: Handlungsempfehlung sichere Patientenidentifikation (2018)' },
   sbar: { id: 'sbar', titel: 'SBAR-Kommunikation: WHO High 5s (2007), Aktionsbündnis Patientensicherheit' },
-  palliativ: { id: 's3-palliativ', titel: 'S3-Leitlinie Palliativmedizin für Patienten mit einer nicht-heilbaren Krebserkrankung (Leitlinienprogramm Onkologie, AWMF 128-001OL), Version 2.2, 2020' },
+  palliativ: { id: 's3-palliativ', titel: 'S3-Leitlinie Palliativmedizin für Patienten mit einer nicht-heilbaren Krebserkrankung (Leitlinienprogramm Onkologie, AWMF 128-001OL), aktualisierte Fassung 2026' },
   ipos: { id: 'ipos', titel: 'IPOS – Integrated Palliative care Outcome Scale, deutsche Fassung (Cicely Saunders Institute, 2019)' },
   alkohol: { id: 's3-alkohol', titel: 'S3-Leitlinie Screening, Diagnose und Behandlung alkoholbezogener Störungen (AWMF 076-001), 2021' },
   gastro: { id: 'gpge-gastroenteritis', titel: 'S2k-Leitlinie Akute infektiöse Gastroenteritis im Säuglings-, Kindes- und Jugendalter (GPGE, AWMF 068-003), Update 2024' },

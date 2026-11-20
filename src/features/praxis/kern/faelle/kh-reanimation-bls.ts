@@ -102,7 +102,7 @@ export const KH_REANIMATION_BLS: FallV2 = {
 
   akte: {
     aufnahmegrund: 'Gestern 16 Uhr über die Notaufnahme: Brustschmerz in Ruhe, Troponin grenzwertig, EKG ohne Hebungen. Instabile Angina pectoris, Koronarangiografie für heute 9 Uhr geplant.',
-    anamnese: ['KHK, Stent RIVA 2022', 'Herzinsuffizienz mit leicht reduzierter Pumpfunktion (LVEF 40 %)', 'Raucher bis 2022'],
+    anamnese: ['KHK, Stent RIVA 2022', 'Herzinsuffizienz mit reduzierter Pumpfunktion (HFrEF, LVEF 40 %)', 'Raucher bis 2022'],
     diagnosen: [
       { text: 'Instabile Angina pectoris', icd: 'I20.0', seit: 'gestern' },
       { text: 'Koronare Dreigefäßerkrankung, Stent RIVA', icd: 'I25.13', seit: '2022' },

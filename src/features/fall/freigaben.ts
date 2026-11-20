@@ -6,10 +6,11 @@
 
 import type { Freigabe, Risiko, Zielgruppe } from '../../ui/sim/freigabe';
 import { monitorGruppe, type MonitorGruppe } from '../../ui/sim/monitor';
+import { freigabeKern, inhaltsFingerabdruck, mitErteilung } from '../../ui/sim/freigabe-erteilt';
 import type { Szenario } from './faelle';
 
 const ROLLE = 'Pflegefachperson mit Praxisanleitung; bei Medikamenten- und Notfallinhalten zusätzlich ärztliche Durchsicht';
-const ABCDE = { titel: 'Resuscitation Council UK: The ABCDE approach', stand: '2021' };
+const ABCDE = { titel: 'Resuscitation Council UK: The ABCDE approach', stand: '2024 (erstmals 2015)' };
 const SBAR = { titel: 'AHRQ TeamSTEPPS (SBAR)', stand: '2023' };
 const NEWS2 = { titel: 'Royal College of Physicians: NEWS2', stand: '2017' };
 const VERLAUF_KI = [{ datum: '2026-10-25', text: 'Ausgangslage angelegt' }, { datum: '2026-11-11', text: 'Freigabefelder ergänzt, Prüfung ausstehend' }];
@@ -117,12 +118,16 @@ export function freigabeFuerFall(s: Pick<Szenario, 'id' | 'titel' | 'setting' | 
     geltung: `Freier KI-Fall zum Thema „${s.titel}“`, risiken: zielgruppe === 'erwachsene' ? [] : ['kinder'],
     lernziele: [`Den Pflegeprozess zum Thema „${s.titel}“ einmal durchlaufen`, 'Verschlechterung rechtzeitig erkennen und eskalieren'],
   };
-  return {
+  const f: Freigabe = {
     status: 'ungeprueft', lernziele: e.lernziele, geltung: e.geltung, zielgruppe,
     quellen: [ABCDE, SBAR, ...(zielgruppe === 'erwachsene' ? [NEWS2] : []), ...(e.quellen ?? [])],
     prueferrolle: ROLLE, aenderungen: probe ? VERLAUF_PROBE : VERLAUF_KI, risiken: e.risiken,
     pruefpunkte: [...(e.pruefpunkte ?? []), ...(probe ? [] : [KI_PUNKT])],
   };
+  return mitErteilung(`fall:${s.id}`, fallFingerabdruck(s, f), f);
 }
+
+/** Fingerabdruck für die Freigabe (Audit F-1): Freigabe-Kern plus Ausgangslage des Falls. */
+export const fallFingerabdruck = (s: Pick<Szenario, 'id' | 'titel' | 'setting' | 'kurz'>, f: Freigabe) => inhaltsFingerabdruck([freigabeKern(f), s.id, s.titel, s.setting, s.kurz]);
 
 export const FREIGABE_FAELLE = Object.keys(FAELLE);

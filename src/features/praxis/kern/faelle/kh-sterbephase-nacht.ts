@@ -45,14 +45,14 @@ export const KH_STERBEPHASE_NACHT: FallV2 = {
   freigabe: {
     status: 'entwurf',
     pruefpunkte: [
-      'Bedarfsmedikation Sterbephase (Morphin 2,5 mg s. c. bei Opioidnaivität, Lorazepam 1 mg s. l.) mit S3 Palliativmedizin 2.2 abgleichen',
+      'Bedarfsmedikation Sterbephase (Morphin 2,5 mg s. c. bei Opioidnaivität, Lorazepam 1 mg s. l.) mit S3 Palliativmedizin, aktualisierte Fassung 2026 (Kapitel Atemnot-Medikation überarbeitet) abgleichen',
       'Rasselatmung: Lagerung vor Anticholinergika, kein tiefes Absaugen; Formulierung prüfen',
       'Ablauf DNR/Therapiezieländerung und Remonstration gegen Reanimationsteam-Anordnung prüfen',
       'Lernmodell: Unruhe/Atemnot und Wirkung Morphin/Lorazepam plausibel?',
     ],
   },
   quellen: [
-    { id: 's3-palliativ', titel: 'S3-Leitlinie Palliativmedizin für Patienten mit einer nicht-heilbaren Krebserkrankung, Version 2.2, 2020 (Kapitel Sterbephase, Atemnot, Angst)' },
+    { id: 's3-palliativ', titel: 'S3-Leitlinie Palliativmedizin für Patienten mit einer nicht-heilbaren Krebserkrankung (AWMF 128-001OL), aktualisierte Fassung 2026 (Kapitel Sterbephase, Atemnot, Angst)' },
     { id: 'ipos', titel: 'IPOS – Integrated Palliative care Outcome Scale, deutsche Fassung (Cicely Saunders Institute / DGP)' },
     { id: 'bgb-1827', titel: 'BGB § 1827 Patientenverfügung (seit 1.1.2023)' },
     { id: 'fi-morphin', titel: 'Fachinformation Morphin-Injektionslösung (Rote Liste / Fachinfo-Service)' },

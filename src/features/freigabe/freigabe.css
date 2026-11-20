@@ -1,0 +1,32 @@
+/* Fachliche Freigabe (#/system/freigabe): Übersicht, Prüfbogen zum Ausfüllen und Drucken */
+.freigabe-zeile h3 a { text-decoration: none; }
+.freigabe-bogen h2 { margin: 0; font-size: 1.25rem; overflow-wrap: anywhere; }
+.freigabe-bogen h3 { margin: var(--space-3) 0 var(--space-1); font-size: 1rem; }
+.freigabe-bogen code { overflow-wrap: anywhere; }
+.freigabe-form { display: flex; flex-direction: column; gap: var(--space-3); margin-top: var(--space-3); }
+.freigabe-form fieldset { border: 1px solid var(--color-border); border-radius: 8px; margin: 0; padding: var(--space-2) var(--space-3); min-width: 0; }
+.freigabe-form legend { font-weight: 700; padding: 0 var(--space-1); }
+.freigabe-punkte { margin: 0; padding-left: 1.5rem; display: flex; flex-direction: column; gap: var(--space-2); }
+.freigabe-punkte li { overflow-wrap: anywhere; }
+.freigabe-punkte li.is-allgemein { color: var(--color-text-muted); }
+.freigabe-punkte p { margin: 0 0 var(--space-1); color: var(--color-text); }
+.freigabe-wahl { display: flex; flex-wrap: wrap; gap: 0 var(--space-3); }
+.freigabe-wahl .check { min-height: 44px; align-items: center; margin: 0; }
+.freigabe-notiz, .freigabe-pruefer label { display: flex; flex-direction: column; gap: 2px; font-size: 0.8125rem; font-weight: 600; margin-top: var(--space-1); }
+.freigabe-pruefer { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr)); gap: var(--space-2); }
+.freigabe-pruefer legend { grid-column: 1 / -1; }
+.freigabe-pruefer p { grid-column: 1 / -1; margin: 0; }
+.freigabe-linie, .freigabe-unterschrift { display: none; }
+
+@media print {
+  .shell__header, .shell__sidebar, .shell__tabbar, .skip-link, .shell__aktualisierung { display: none !important; }
+  .shell:has(.freigabe-bogen) { display: block !important; }
+  .shell:has(.freigabe-bogen) .shell__main, .shell:has(.freigabe-bogen) .content { margin: 0 !important; padding: 0 !important; max-width: none !important; }
+  .freigabe-seite:has(.freigabe-bogen) > .page-heading, .freigabe-nicht-drucken { display: none !important; }
+  .freigabe-bogen { box-shadow: none; border: 0; }
+  .freigabe-punkte li { break-inside: avoid; }
+  .freigabe-notiz input, .freigabe-notiz textarea { border: 0; border-bottom: 1px solid #000; }
+  .freigabe-linie { display: block; border-bottom: 1px solid #000; height: 1.75rem; }
+  .freigabe-unterschrift { display: block; margin-top: var(--space-4); }
+  .freigabe-unterschrift .freigabe-linie { width: 60%; }
+}

@@ -3,10 +3,11 @@
 // Rolle und Datum einträgt. Neue Fälle: Eintrag ergänzen (Test prüft Vollständigkeit).
 
 import type { Freigabe, Quelle, Risiko } from '../../ui/sim/freigabe';
+import { freigabeKern, inhaltsFingerabdruck, mitErteilung } from '../../ui/sim/freigabe-erteilt';
 import type { DiagnostikFall } from './typen';
 
 const ROLLE = 'Pflegefachperson mit Praxisanleitung; Labor- und Bildbefunde zusätzlich ärztliche Durchsicht';
-const PRAEANALYTIK: Quelle = { titel: 'CLSI GP41: Collection of Diagnostic Venous Blood Specimens', stand: '2017' };
+const PRAEANALYTIK: Quelle = { titel: 'CLSI PRE02: Collection of Diagnostic Venous Blood Specimens', stand: '2025' };
 const SBAR: Quelle = { titel: 'AHRQ TeamSTEPPS (SBAR)', stand: '2023' };
 const NEWS2: Quelle = { titel: 'Royal College of Physicians: NEWS2', stand: '2017' };
 const VERLAUF = [{ datum: '2026-11-10', text: 'Fall angelegt' }, { datum: '2026-11-11', text: 'Freigabefelder ergänzt, Prüfung ausstehend' }];
@@ -21,7 +22,8 @@ const FAELLE: Record<string, Eintrag> = {
     quellen: [{ titel: 'ESC Guidelines on acute pulmonary embolism', stand: '2019' }],
     lernziele: ['Plötzliche Atemnot nach OP als mögliche Lungenembolie einordnen', 'CT mit Kontrastmittel vorbereiten (Nierenwerte, Allergie, Zugang)', 'Füllungsdefekt im CT-Fenster finden'] },
   herzinsuffizienz: { geltung: 'Erwachsene, Notaufnahme, ab 2. Ausbildungsjahr', risiken: ['medikament'], pruefpunkte: ['NT-proBNP-Grenzen, Stauungszeichen im Röntgen'],
-    quellen: [{ titel: 'ESC Guidelines for heart failure', stand: '2021' }],
+    quellen: [{ titel: 'ESC Guidelines for heart failure', stand: '2026' }],
+    aenderungen: [{ datum: '2026-11-20', text: 'Auf ESC-Leitlinie Herzinsuffizienz 2026 gehoben: Begriff „dekompensiert“ statt „akut“, Inhalte sonst unverändert' }],
     lernziele: ['Stauungszeichen im Röntgen-Thorax erkennen', 'NT-proBNP einordnen und die Kalium-Falle durch Hämolyse erkennen', 'Atemerleichternd lagern und Bilanz begründen'] },
   pneumothorax: { geltung: 'Erwachsene, Notaufnahme, ab 2. Ausbildungsjahr', risiken: ['notfall'], pruefpunkte: ['Pleuralinie im echten Vergleichsbild'],
     quellen: [{ titel: 'BTS Guideline for pleural disease', stand: '2023' }],
@@ -30,7 +32,8 @@ const FAELLE: Record<string, Eintrag> = {
     quellen: [{ titel: 'JBDS-IP: Management of diabetic ketoacidosis in adults', stand: '2023' }],
     lernziele: ['Metabolische Azidose in der BGA erkennen und Kompensation einordnen', 'Kalium und BZ unter Insulin engmaschig verfolgen', 'Abnahme nie am Infusionsarm'] },
   'asthma-kind': { geltung: 'Kinder (8 Jahre), Kinderstation, ab 2. Ausbildungsjahr', risiken: ['kinder', 'notfall', 'medikament'], pruefpunkte: ['Kinderprofil für Puls, Atemfrequenz, Blutdruck', 'Kapilläre BGA, Kalium unter Salbutamol'],
-    quellen: [{ titel: 'GINA Global Strategy for Asthma Management and Prevention', stand: '2024' }],
+    quellen: [{ titel: 'GINA Global Strategy for Asthma Management and Prevention', stand: '2026' }],
+    aenderungen: [{ datum: '2026-11-20', text: 'An GINA 2026 angepasst: Sauerstoff erst unter SpO₂ 92 %, Obergrenze 95 %' }],
     lernziele: ['Schweren Asthmaanfall beim Schulkind erkennen', 'Steigendes pCO₂ als Warnzeichen der Erschöpfung deuten', 'Werte mit dem Kinderprofil statt mit Erwachsenengrenzen lesen'] },
   'gastroenteritis-kind': { geltung: 'Kinder (2 Jahre), Kinderstation, ab 2. Ausbildungsjahr', risiken: ['kinder'], pruefpunkte: ['Kinder-Referenzbereiche Kreatinin/Harnstoff', 'Hypoglykämie und Ketose beim Kleinkind'],
     quellen: [{ titel: 'ESPGHAN/ESPID Guidelines for acute gastroenteritis in children in Europe', stand: '2014' }],
@@ -52,11 +55,15 @@ export function freigabeFuer(fall: Pick<DiagnostikFall, 'id' | 'patient'>): Frei
   if (!e) return undefined;
   const alter = fall.patient.alter;
   const zielgruppe = alter < 1 ? 'neugeborene' : alter < 18 ? 'kinder' : 'erwachsene';
-  return {
+  const f: Freigabe = {
     status: 'ungeprueft', lernziele: e.lernziele, geltung: e.geltung, zielgruppe,
     quellen: [PRAEANALYTIK, SBAR, ...(zielgruppe === 'erwachsene' ? [NEWS2] : []), ...(e.quellen ?? [])],
     prueferrolle: ROLLE, aenderungen: [...VERLAUF, ...(e.aenderungen ?? [])], risiken: e.risiken, pruefpunkte: e.pruefpunkte ?? [],
   };
+  return mitErteilung(`diagnostik:${fall.id}`, diagnostikFingerabdruck(fall, f), f);
 }
+
+/** Fingerabdruck für die Freigabe (Audit F-1): Freigabe-Kern plus der ganze Fall, soweit übergeben. */
+export const diagnostikFingerabdruck = (fall: unknown, f: Freigabe) => inhaltsFingerabdruck([freigabeKern(f), fall]);
 
 export const FREIGABE_FAELLE = Object.keys(FAELLE);

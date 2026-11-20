@@ -60,7 +60,7 @@ export const PSY_PANIK_SUIZIDALITAET: FallV2 = {
     { id: 'nvl-depression', titel: 'Nationale VersorgungsLeitlinie Unipolare Depression, Version 3.2 (2022), Kapitel Suizidalität' },
     { id: 'nice-ng225', titel: 'NICE NG225: Self-harm – assessment, management and preventing recurrence (2022)' },
     { id: 's3-angst', titel: 'S3-Leitlinie Behandlung von Angststörungen (AWMF 051-028), Version 2, 2021' },
-    { id: 's3-zwang', titel: 'S3-Leitlinie Verhinderung von Zwang: Prävention und Therapie aggressiven Verhaltens bei Erwachsenen (AWMF 038-022), 2018' },
+    { id: 's3-zwang', titel: 'S3-Leitlinie Verhinderung von Zwang: Prävention und Therapie aggressiven Verhaltens bei Erwachsenen (AWMF 038-022), Aktualisierung 2026' },
   ],
 
   person: {

@@ -4,6 +4,7 @@
 // Entscheidungsort.
 
 import type { Freigabe, Quelle } from '../../ui/sim/freigabe';
+import { freigabeKern, inhaltsFingerabdruck, mitErteilung } from '../../ui/sim/freigabe-erteilt';
 import type { ProfilId } from './rea';
 
 const ROLLE = 'Reanimationstrainer:in (z. B. ERC-Instruktor:in) und Pflegefachperson mit Praxisanleitung; Medikamente zusätzlich ärztliche Durchsicht';
@@ -17,7 +18,7 @@ export const LEITLINIEN: Record<ProfilId, Quelle[]> = {
   neugeborene: [{ titel: 'ERC Guidelines: Newborn Resuscitation and Support of Transition of Infants at Birth', stand: '2025' }],
 };
 
-export const PROFIL_FREIGABE: Record<ProfilId, Freigabe> = {
+const PROFIL_BASIS: Record<ProfilId, Freigabe> = {
   erwachsene: {
     status: 'ungeprueft', zielgruppe: 'erwachsene', geltung: 'Erwachsene, innerklinischer Kreislaufstillstand, ab 1. Ausbildungsjahr', prueferrolle: ROLLE,
     lernziele: ['Kreislaufstillstand in unter 10 Sekunden erkennen und Hilfe holen', 'Thoraxkompressionen 30:2 mit 100–120/min und kurzen Pausen', 'Schockbare und nicht schockbare Rhythmen unterscheiden'],
@@ -39,14 +40,14 @@ export const PROFIL_FREIGABE: Record<ProfilId, Freigabe> = {
 };
 
 /** ABCDE-Notfallübung: Freigabe je Notfall (Erwachsene). */
-const ABCDE_QUELLE: Quelle = { titel: 'Resuscitation Council UK: The ABCDE approach', stand: '2021' };
+const ABCDE_QUELLE: Quelle = { titel: 'Resuscitation Council UK: The ABCDE approach', stand: '2024 (erstmals 2015)' };
 const ABCDE_VERLAUF = [{ datum: '2026-11-11', text: 'ABCDE-Übung angelegt, Freigabe ausstehend' }];
 const abcde = (geltung: string, lernziele: string[], quellen: Quelle[], pruefpunkte: string[], risiken: Freigabe['risiken'] = ['notfall', 'medikament']): Freigabe => ({
   status: 'ungeprueft', zielgruppe: 'erwachsene', geltung, prueferrolle: 'Pflegefachperson mit Praxisanleitung und ärztliche Durchsicht (Notfallmedizin)',
   lernziele, quellen: [ABCDE_QUELLE, ...quellen], aenderungen: ABCDE_VERLAUF, risiken, pruefpunkte: ['Werteverlauf ist ein didaktisches Modell, keine validierte Physiologie', ...pruefpunkte],
 });
 
-export const NOTFALL_FREIGABE: Record<string, Freigabe> = {
+const NOTFALL_BASIS: Record<string, Freigabe> = {
   anaphylaxie: abcde('Erwachsene, Normalstation, ab 2. Ausbildungsjahr',
     ['Anaphylaxie an A-, B- oder C-Problem plus Hautzeichen erkennen', 'Auslöser stoppen, Hilfe holen, Adrenalin i.m. als erste Wahl', 'Lagerung nach Atemnot und Kreislauf wählen'],
     [{ titel: 'Resuscitation Council UK: Emergency treatment of anaphylaxis', stand: '2021' }], ['Adrenalin 0,5 mg i.m. und Wiederholung nach 5 Minuten', 'Lagerung bei Atemnot vs. Schock']),
@@ -57,3 +58,13 @@ export const NOTFALL_FREIGABE: Record<string, Freigabe> = {
     ['Sepsis an Fieber, Atemfrequenz, Blutdruck und neuer Verwirrtheit erkennen', 'Sofort eskalieren, Blutkulturen vor Antibiose', 'Volumen und Antibiose in der ersten Stunde'],
     [{ titel: 'Surviving Sepsis Campaign: International Guidelines', stand: '2026' }], ['Erkennen mit Frühwarnscore (NEWS2), qSOFA nicht als alleiniger Suchtest (SSC 2026)', 'Volumenmenge nach Anordnung (SSC 2026: bei Minderdurchblutung mindestens 30 ml/kg Vollelektrolytlösung in den ersten 3 Stunden)', 'Antibiotikum sofort, möglichst innerhalb 1 Stunde, Blutkulturen möglichst vorher']),
 };
+
+/** Fingerabdruck einer Notfall-Freigabe (Audit F-1). */
+export const notfallFingerabdruck = (f: Freigabe) => inhaltsFingerabdruck(freigabeKern(f));
+const erteilt = <K extends string>(praefix: string, basis: Record<K, Freigabe>) =>
+  Object.fromEntries(Object.entries<Freigabe>(basis).map(([id, f]) => [id, mitErteilung(`${praefix}:${id}`, notfallFingerabdruck(f), f)])) as Record<K, Freigabe>;
+
+/** Freigabe je Reanimationsprofil, mit übernommenen Prüfungen. */
+export const PROFIL_FREIGABE: Record<ProfilId, Freigabe> = erteilt('rea', PROFIL_BASIS);
+/** Freigabe je ABCDE-Notfall, mit übernommenen Prüfungen. */
+export const NOTFALL_FREIGABE: Record<string, Freigabe> = erteilt('abcde', NOTFALL_BASIS);

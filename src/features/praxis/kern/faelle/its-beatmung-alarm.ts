@@ -48,7 +48,7 @@ export const ITS_BEATMUNG_ALARM: FallV2 = {
   freigabe: {
     status: 'entwurf',
     pruefpunkte: [
-      'DOPES-Vorgehen und Handbeatmung mit Beutel bei unklarer Ursache gegen S3-Leitlinie Invasive Beatmung (AWMF 001-021, 2017) und Hausstandard prüfen',
+      'DOPES-Vorgehen und Handbeatmung mit Beutel bei unklarer Ursache gegen S3-Leitlinie Invasive Beatmung (AWMF 001-021, 2025) und Hausstandard prüfen',
       'Geschlossenes Absaugen durch Auszubildende im 3. Drittel mit Anleitung (Katalog P3) bestätigen',
       'Propofol-Dosis (2 %, 80 kg, 4 ml/h = 1 mg/kg/h; Höchstdosis 4 mg/kg/h) und die Remonstration bei 40 ml/h prüfen',
       'Sedierungsziel RASS 0 bis −1 und Analgesie zuerst (S3-Leitlinie DAS 2020) im Text korrekt?',
@@ -56,7 +56,7 @@ export const ITS_BEATMUNG_ALARM: FallV2 = {
     ],
   },
   quellen: [
-    { id: 's3-beatmung', titel: 'S3-Leitlinie Invasive Beatmung und Einsatz extrakorporaler Verfahren bei akuter respiratorischer Insuffizienz (AWMF 001-021), 2017', fundstelle: 'Aktualisierung in Arbeit, Fassung prüfen' },
+    { id: 's3-beatmung', titel: 'S3-Leitlinie Invasive Beatmung und Einsatz extrakorporaler Verfahren bei akuter respiratorischer Insuffizienz (AWMF 001-021), 2025', fundstelle: 'Überarbeitete Fassung 2025; Alarmvorgehen (DOPES) ist Lehrbuch- und Hausstandard' },
     { id: 's3-das', titel: 'S3-Leitlinie Analgesie, Sedierung und Delirmanagement in der Intensivmedizin (DAS-Leitlinie 2020, AWMF 001-012)', fundstelle: 'Zielsedierung RASS 0/−1, Analgesie vor Sedierung' },
     { id: 'krinko-vap', titel: 'KRINKO: Prävention der nosokomialen beatmungsassoziierten Pneumonie (2013)', fundstelle: 'Geschlossenes Absaugen, Oberkörperhochlagerung' },
     { id: 'fi-propofol', titel: 'Fachinformation Propofol 2 %', fundstelle: 'Sedierung beatmeter Patienten: bis 4 mg/kg/h' },

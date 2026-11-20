@@ -44,14 +44,14 @@ export const LZ_PALLIATIV_GESPRAECH: FallV2 = {
   freigabe: {
     status: 'entwurf',
     pruefpunkte: [
-      'Morphin-Startdosis bei opioidnaiver Hochbetagter (S3 Palliativmedizin 2.2: niedrig beginnen, z. B. 2,5 mg oral) und Formulierung der Remonstration prüfen',
+      'Morphin-Startdosis bei opioidnaiver Hochbetagter (S3 Palliativmedizin 2026: niedrig beginnen, z. B. 2,5 mg oral) und Formulierung der Remonstration prüfen',
       'Rolle der Vorsorgebevollmächtigten und Ablauf Notarzt/Einweisung gegen Patientenverfügung (§ 1827 BGB) prüfen',
       'IPOS-Auszug und nichtmedikamentöse Atemnotlinderung (Handventilator) mit S3-Leitlinie abgleichen',
       'SAPV-Zugang im Pflegeheim (§ 37b SGB V) aktuell?',
     ],
   },
   quellen: [
-    { id: 's3-palliativ', titel: 'S3-Leitlinie Palliativmedizin für Patienten mit einer nicht-heilbaren Krebserkrankung, Version 2.2, 2020 (Kapitel Atemnot, Tumorschmerz, Sterbephase)' },
+    { id: 's3-palliativ', titel: 'S3-Leitlinie Palliativmedizin für Patienten mit einer nicht-heilbaren Krebserkrankung (AWMF 128-001OL), aktualisierte Fassung 2026 (Kapitel Atemnot, Tumorschmerz, Sterbephase, neu: Angehörige)' },
     { id: 'ipos', titel: 'IPOS – Integrated Palliative care Outcome Scale, deutsche Fassung (Cicely Saunders Institute / DGP)' },
     { id: 'bgb-1827', titel: 'BGB § 1827 Patientenverfügung, § 1828 Gespräch zur Feststellung des Patientenwillens (seit 1.1.2023)' },
     { id: 'sgb-v-37b', titel: 'SGB V § 37b Spezialisierte ambulante Palliativversorgung (auch im Pflegeheim)' },

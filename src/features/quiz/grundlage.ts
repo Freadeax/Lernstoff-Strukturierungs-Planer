@@ -209,7 +209,7 @@ const PRAEANALYTIK = /Röhrchen|Stauschlauch|Abnahme|Hämolyse|Entnahme|Präanal
 export const laborGrundlage: Grundlage = (a) => {
   const t = texteVon(a);
   if (PRAEANALYTIK.test(t)) return [
-    { label: 'Quelle', text: 'Präanalytik nach Lehrbuch und den Empfehlungen zur Abnahmereihenfolge (CLSI GP41), wie sie Röhrchenhersteller übernehmen.' },
+    { label: 'Quelle', text: 'Präanalytik nach Lehrbuch und den Empfehlungen zur Abnahmereihenfolge (CLSI PRE02, früher GP41), wie sie Röhrchenhersteller übernehmen.' },
     { label: 'Geltung', text: 'Farben und Reihenfolge der Röhrchen hängen vom System ab (Sarstedt, BD …). Maßgeblich ist der Laborleitfaden deiner Einrichtung.' },
     { label: 'Stand', text: `Inhaltsstand ${INHALTSSTAND}.` },
   ];

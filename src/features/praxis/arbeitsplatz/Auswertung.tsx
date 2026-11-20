@@ -20,6 +20,7 @@ import { SBAR_TEILE, uhrzeit } from './ansicht';
 import { simAuswertungNeu } from './auswertung-karte';
 import { frageTutor, tutorKontext, type TutorNachricht } from './tutor';
 import { weiterLinkNeu } from './weitergabe';
+import { praxisStandText } from '../kern/freigabe';
 import { WEITERLERNEN_V2 } from './weiterlernen';
 
 /* ─────────────────────────── Abschluss ─────────────────────────── */
@@ -179,7 +180,7 @@ export function Auswertung({ z, onZurueck, onNeu }: { z: SimZustand; onZurueck: 
 
     <Tutor z={z} a={a} />
 
-    <p className="ap-hinweis">Lernmodell: Werte und Verlauf sind vereinfacht. Fall fachlich {fall.freigabe.status === 'geprueft' ? 'geprüft' : 'noch nicht geprüft'}.</p>
+    <p className="ap-hinweis">Lernmodell: Werte und Verlauf sind vereinfacht. Fall {praxisStandText(fall)}.</p>
     <div className="ap-briefing__knoepfe">
       <button type="button" className="primary" onClick={onNeu}>Noch einmal</button>
       <button type="button" onClick={onZurueck}>Zur Fallauswahl</button>

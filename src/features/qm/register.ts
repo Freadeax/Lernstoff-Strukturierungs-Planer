@@ -59,7 +59,7 @@ export const TRAINER_REGISTER: TrainerEintrag[] = [
   eintrag('notfall', 'Notfall', '/lernen/wissen?fach=notfall', notfallGrundlage, {
     geltung: 'Erwachsene, innerklinisch und Langzeitpflege; Kinderfragen getrennt markiert', prueferrolle: 'Reanimationstrainer:in (z. B. ERC-Instruktor:in) und Pflegefachperson mit Praxisanleitung',
     lernziele: ['Kreislaufstillstand erkennen und Basismaßnahmen in richtiger Reihenfolge', 'Akute Notfälle nach ABCDE einschätzen und melden'],
-    quellen: [q('ERC Guidelines: Basic Life Support', '2025'), q('ERC Guidelines: Paediatric Life Support', '2025'), q('Resuscitation Council UK: The ABCDE approach', '2021')],
+    quellen: [q('ERC Guidelines: Basic Life Support', '2025'), q('ERC Guidelines: Paediatric Life Support', '2025'), q('Resuscitation Council UK: The ABCDE approach', '2024 (erstmals 2015)')],
     risiken: ['notfall', 'kinder', 'medikament'], pruefpunkte: ['Kernangaben (Ablauf, Frequenz, Tiefe, 30:2, 15:2, 5 Beatmungen beim Kind) am 16.11.2026 gegen ERC 2025 abgeglichen', 'Fremdkörperaspiration bei Kindern gegen ERC 2025 lesen', 'Notfallablauf der Schule und der Einsatzorte'],
     aenderungen: [
       { datum: '2026-11-13', text: 'Ins Inhaltsregister aufgenommen, fachliche Prüfung ausstehend' },
@@ -82,7 +82,7 @@ export const TRAINER_REGISTER: TrainerEintrag[] = [
   eintrag('labor', 'Labor', '/lernen/wissen?fach=labor', laborGrundlage, {
     geltung: 'Erwachsene; Kinderbereich getrennt', prueferrolle: `${PA}; Befunddeutung zusätzlich ärztliche Durchsicht`,
     lernziele: ['Blutentnahme fehlerfrei vorbereiten (Präanalytik)', 'Blutgasanalyse und Befunde einordnen'],
-    quellen: [q('CLSI GP41: Collection of Diagnostic Venous Blood Specimens', '2017'), q('Lehrbuch-Referenzbereiche', 'Lehrbuchstand')],
+    quellen: [q('CLSI PRE02: Collection of Diagnostic Venous Blood Specimens', '2025'), q('Lehrbuch-Referenzbereiche', 'Lehrbuchstand')],
     risiken: ['kinder'], pruefpunkte: ['Röhrchensystem und Reihenfolge des Ausbildungshauses', 'Kinder-Referenzbereiche'],
   }),
   eintrag('grundlagen', 'Grundlagen', '/lernen/wissen?fach=grundlagen', grundlagenGrundlage, {

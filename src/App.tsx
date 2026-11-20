@@ -49,6 +49,7 @@ const PasstDazu = lazy(() => import('./features/ueben/PasstDazuLeiste'));
 const Testphase = lazy(() => import('./features/testphase/TestphaseSeite'));
 const Qualitaet = lazy(() => import('./features/qm/QualitaetSeite'));
 const Quellen = lazy(() => import('./features/quellen/QuellenSeite'));
+const Freigabe = lazy(() => import('./features/freigabe/FreigabeSeite'));
 const ThemaSeite = lazy(() => import('./features/thema/ThemaSeite'));
 const PhysiologieSeite = lazy(() => import('./features/physiologie/PhysiologieSeite'));
 const MikroSeite = lazy(() => import('./features/mikro/MikroSeite'));
@@ -121,6 +122,7 @@ function View() {
     case '/system/test': return <Testphase />;
     case '/system/qualitaet': return <Qualitaet />;
     case '/system/quellen': return <Quellen />;
+    case '/system/freigabe': return <Freigabe />;
     default:
       return (
         <Page title="Seite nicht gefunden">

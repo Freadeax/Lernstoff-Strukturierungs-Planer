@@ -346,7 +346,7 @@ function Regeln() {
       </section>
       <section className="card">
         <h2>Neue Fassungen von Quellen</h2>
-        <p className="muted">Alle Quellen mit Stand, letzter Prüfung und Erinnerung stehen unter <a href="#/system/quellen">Quellen und Aktualität</a>.</p>
+        <p className="muted">Alle Quellen mit Stand, letzter Prüfung und Erinnerung stehen unter <a href="#/system/quellen">Quellen und Aktualität</a>. Prüfbögen für Fälle und Trainer: <a href="#/system/freigabe">Fachliche Freigabe</a>.</p>
         <ul className="qm-liste qm-liste--klein">
           {NEUERE_FASSUNGEN.map((n) => <li key={n.titel}><strong>{n.titel} {n.stand}</strong>, erschienen {datum(n.erschienen)}: {n.kern} <a href={n.fundstelle} target="_blank" rel="noreferrer">Fundstelle</a></li>)}
         </ul>

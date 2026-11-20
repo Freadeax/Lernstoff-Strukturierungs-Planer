@@ -106,6 +106,8 @@ export const NAV: NavItem[] = [
 export const UNTERSEITEN: NavItem[] = [
   { id: 'thema', label: 'Thema', path: '/lernen/thema', icon: 'book' },
   { id: 'design', label: 'Designsystem', path: '/system/design', icon: 'palette' },
+  // Prüfbogen und Freigabe-Code (Audit F-1), erreichbar über Quellen und Inhaltsqualität
+  { id: 'freigabe', label: 'Fachliche Freigabe', path: '/system/freigabe', icon: 'check' },
   // Spielmodus des Wissenstrainers, erreichbar von dort
   { id: 'duell', label: 'Fachbegriff-Duell', path: '/lernen/duell', icon: 'duell' },
 ];
