@@ -20,8 +20,8 @@ import { ALT_ZU_NEU, ALTFALL_TITEL, altesArchiv, dauerText, neuerFall } from './
 import { Arbeitsplatz } from './arbeitsplatz/Arbeitsplatz';
 import { erledigteFaelle } from './erledigt';
 import { FallauswahlCe } from './FallauswahlCe';
-import { FAELLE_V2 } from './kern/faelle';
-import type { FallV2 } from './kern/typen';
+import { FALL_KOEPFE, type FallKopf } from './kern/faelle/katalog';
+import { useFall } from './kern/faelle/laden';
 import { Stufe1 } from './stufe1/Stufe1';
 import { kernZuThema } from './themen';
 import { FALLART_NAME, fallArtVon, kurzfallPfad, PRAXIS_PFAD, type FallArt } from './pfad';
@@ -29,7 +29,7 @@ import './praxis.css';
 
 const Kurzfaelle = lazy(() => import('../fall/Fallsimulator'));
 
-const KERN_IDS = FAELLE_V2.map((f) => f.id);
+const KERN_IDS = FALL_KOEPFE.map((f) => f.id);
 
 const BESCHREIBUNG: Record<FallArt, string> = {
   praxis: 'Beobachten. Entscheiden. Handeln. Ein eigener Übungsraum mit regelbasiertem Patientenverlauf – ohne KI und ohne API-Schlüssel.',
@@ -53,11 +53,11 @@ function offenerKurzfall(): string | undefined {
   const titel = f && istObjekt(f.szenario) ? f.szenario.titel : undefined;
   return f ? (typeof titel === 'string' ? titel.replace(/^Probefall: /, '') : 'Kurzfall') : undefined;
 }
-const finde = (id: string | undefined) => (id ? FAELLE_V2.find((f) => f.id === id) : undefined);
-const alterText = (f: FallV2) => (f.person.alter.jahre !== undefined ? `${f.person.alter.jahre} Jahre` : `${f.person.alter.monate ?? 0} Monate`);
+const finde = (id: string | undefined) => (id ? FALL_KOEPFE.find((f) => f.id === id) : undefined);
+const alterText = (f: FallKopf) => (f.person.alter.jahre !== undefined ? `${f.person.alter.jahre} Jahre` : `${f.person.alter.monate ?? 0} Monate`);
 
 /** Fallzeile für Sprünge (Thema, Krankheitsbild): Titel, Person, beide Stufen. */
-function FallZeile({ f, erledigt }: { f: FallV2; erledigt: boolean }) {
+function FallZeile({ f, erledigt }: { f: FallKopf; erledigt: boolean }) {
   return <li className="praxis-fall praxis-fall--kern">
     <span className="praxis-fall__ohnebild" aria-hidden="true" />
     <div className="praxis-fall__text"><h3>{f.titel}</h3><p>{f.person.name}, {alterText(f)} · {f.kurz}</p>
@@ -78,6 +78,22 @@ function AltesArchiv() {
         {neu && <button type="button" className="link" onClick={() => navigate(`/lernen/praxis?neu=${neu.id}`)}>Nachfolger: {neu.titel.replace(/[„“]/g, '')}</button>}</li>;
     })}</ul>
   </details>;
+}
+
+/** Einen Fall öffnen: Nur dieser Fall wird geladen, nicht alle (Audit L-3). */
+function FallOeffnen({ id, stufe }: { id: string; stufe: 'neu' | 'gefuehrt' }) {
+  const ladung = useFall(id);
+  const zurueck = () => navigate('/lernen/praxis');
+  if (ladung.status === 'fehler') return <section className="page praxis">
+    <p className="note warn" role="alert">Der Fall ließ sich nicht laden. Ohne Netz geht das nur, wenn die App schon einmal vollständig geladen war. <button type="button" className="link" onClick={() => location.reload()}>Neu laden</button></p>
+  </section>;
+  if (ladung.status !== 'da') return <p className="muted" role="status">Fall wird geöffnet …</p>;
+  const fall = ladung.fall;
+  return stufe === 'neu'
+    ? <section className="page praxis praxis--arbeitsplatz"><Arbeitsplatz key={fall.id} fall={fall} onZurueck={zurueck} /></section>
+    : <section className="page praxis praxis--gefuehrt praxis--stufe1">
+      <Stufe1 key={fall.id} fall={fall} onZurueck={zurueck} onFrei={() => navigate(`/lernen/praxis?neu=${fall.id}`)} />
+    </section>;
 }
 
 export default function Praxissimulator() {
@@ -105,21 +121,17 @@ export default function Praxissimulator() {
   if (umleitung && !umleitung.endsWith('=')) return <p className="muted" role="status">Fall wird geöffnet …</p>;
 
   const neuFall = finde(neuRoh);
-  if (neuFall) return <section className="page praxis praxis--arbeitsplatz">
-    <Arbeitsplatz key={neuFall.id} fall={neuFall} onZurueck={() => navigate('/lernen/praxis')} />
-  </section>;
+  if (neuFall) return <FallOeffnen key={`neu:${neuFall.id}`} id={neuFall.id} stufe="neu" />;
   const gefuehrtFall = finde(gefuehrtRoh);
-  if (gefuehrtFall) return <section className="page praxis praxis--gefuehrt praxis--stufe1">
-    <Stufe1 key={gefuehrtFall.id} fall={gefuehrtFall} onZurueck={() => navigate('/lernen/praxis')} onFrei={() => navigate(`/lernen/praxis?neu=${gefuehrtFall.id}`)} />
-  </section>;
+  if (gefuehrtFall) return <FallOeffnen key={`gefuehrt:${gefuehrtFall.id}`} id={gefuehrtFall.id} stufe="gefuehrt" />;
 
   const thema = params.get('thema') ?? '';
   const kb = params.get('kb') ?? '';
   const ceParam = params.get('ce') ?? '';
   const erledigt = erledigteFaelle();
-  const zumKb = kb ? faelleZuKrankheit(PRAXIS_KRANKHEITEN, kb).map(finde).filter((f): f is FallV2 => !!f) : [];
+  const zumKb = kb ? faelleZuKrankheit(PRAXIS_KRANKHEITEN, kb).map(finde).filter((f): f is FallKopf => !!f) : [];
   const kbName = kb ? modul?.diseaseProfiles?.find((p) => p.id === kb)?.name ?? kb : '';
-  const zumThema = thema && !kb ? kernZuThema(thema).map(finde).filter((f): f is FallV2 => !!f) : [];
+  const zumThema = thema && !kb ? kernZuThema(thema).map(finde).filter((f): f is FallKopf => !!f) : [];
   const themaName = thema ? modul?.topics.find((t) => t.id === thema)?.name ?? thema : '';
   const sprung = kb ? zumKb : thema ? zumThema : null;
   const alleZeigen = <button type="button" className="link" onClick={() => navigate('/lernen/praxis')}>Alle Fälle zeigen</button>;
@@ -139,7 +151,7 @@ export default function Praxissimulator() {
         ? (sprung.length ? <>Fälle zum Krankheitsbild <strong>{kbName}</strong>. </> : <>Zum Krankheitsbild <strong>{kbName}</strong> gibt es noch keinen Praxisfall. </>)
         : (sprung.length ? <>Fälle zum Thema <strong>{themaName}</strong>. </> : <>Zum Thema <strong>{themaName}</strong> gibt es noch keinen Praxisfall. </>)}{alleZeigen}</p>
       {sprung.length > 0 && <ul className="praxis-fallliste">{sprung.map((f) => <FallZeile key={f.id} f={f} erledigt={erledigt.has(f.id)} />)}</ul>}
-    </> : <FallauswahlCe ces={modul ? ceListe(modul) : []} kern={FAELLE_V2} nurCe={ceParam || undefined} erledigt={erledigt} />}
+    </> : <FallauswahlCe ces={modul ? ceListe(modul) : []} kern={FALL_KOEPFE} nurCe={ceParam || undefined} erledigt={erledigt} />}
     <p className="praxis-disclaimer">Fiktive Fälle mit vereinfachtem Verlauf, fachlich noch nicht freigegeben. Speicherung nur auf diesem Gerät.</p>
     <AltesArchiv />
   </section>;

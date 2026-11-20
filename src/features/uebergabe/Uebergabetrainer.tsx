@@ -1,6 +1,7 @@
 import { storage } from '../../ui/lib/store';
 import { AltPraxisHinweis } from '../praxis/AltPraxisHinweis';
-import { findeNeu, uebergabeFallNeu } from '../praxis/arbeitsplatz/weitergabe';
+import { uebergabeFallNeu, useNeu } from '../praxis/arbeitsplatz/weitergabe';
+import type { SimZustand } from '../praxis/kern/kern';
 import { RAEUME, raumUrl } from '../../ui/sim/raeume/katalog';
 import { Vorlesen } from '../../ui/audio/Vorlesen';
 import { raumFuer, vorlesetext } from './raum';
@@ -135,10 +136,18 @@ function KiErgebnis({ r }: { r: KiRueckmeldung }) {
 
 export default function Uebergabetrainer() {
   const route = useRoute();
-  const wunsch = route.params.get('fall') ?? '';
-  // Fall aus dem Praxissimulator (Link aus dem Debriefing): wird vorne in die Auswahl gestellt
+  // Fall aus dem Praxissimulator (Link aus dem Debriefing): wird vorne in die Auswahl gestellt.
+  // Nur dieser eine Fall wird geladen (Audit L-3); bis dahin kurz „lädt“.
   const praxisId = route.params.get('aus') === 'praxis' ? route.params.get('sitzung') : null;
-  const praxisFall = useMemo(() => { const n = findeNeu(praxisId); return n ? uebergabeFallNeu(n) : null; }, [praxisId]);
+  const neu = useNeu(praxisId);
+  if (neu === undefined) return <p className="muted" role="status">Fall aus dem Praxissimulator wird geladen …</p>;
+  return <UebergabetrainerInhalt key={praxisId ?? ''} neu={neu} praxisId={praxisId} />;
+}
+
+function UebergabetrainerInhalt({ neu, praxisId }: { neu: SimZustand | null; praxisId: string | null }) {
+  const route = useRoute();
+  const wunsch = route.params.get('fall') ?? '';
+  const praxisFall = useMemo(() => (neu ? uebergabeFallNeu(neu) : null), [neu]);
   const LISTE = useMemo(() => (praxisFall ? [praxisFall, ...FAELLE] : FAELLE), [praxisFall]);
   const [fallId, setFallId] = useState(() => (praxisFall?.id ?? (LISTE.some((f) => f.id === wunsch) ? wunsch : LISTE[0]!.id)));
   const [modus, setModus] = useState<Modus>('gefuehrt');

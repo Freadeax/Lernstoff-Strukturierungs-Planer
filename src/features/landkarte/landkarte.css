@@ -70,6 +70,8 @@ button.karte__node {
   border: 1px solid var(--color-border-strong); border-left-width: var(--space-1); border-radius: var(--radius-sm);
   background: var(--color-surface-raised); color: var(--color-text); box-shadow: var(--elevation-1);
   transition: opacity var(--dur-fast), box-shadow var(--dur-fast);
+  /* Audit L-3: Themen außerhalb des sichtbaren Ausschnitts nicht zeichnen (Größe steht fest im style-Attribut). */
+  content-visibility: auto;
 }
 @media (hover: hover) { button.karte__node:hover:not(:disabled) { box-shadow: var(--elevation-2); } }
 button.karte__node:active:not(:disabled) { transform: none; }
