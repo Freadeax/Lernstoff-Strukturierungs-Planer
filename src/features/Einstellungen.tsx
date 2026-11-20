@@ -7,6 +7,7 @@ import { BUILD_ID } from '../core/build';
 import { pruefeAufNeueVersion, type Pruefergebnis } from '../ui/shell/aktualisierung';
 import { adressText, NEUE_ADRESSE } from '../core/hosting';
 import { apiKeyDauerhaft, apiKeyOrt, getApiKey, setApiKey } from '../core/settings';
+import { dollarText, kiKosten } from '../core/ki/claude';
 import { tokenOrt, vergissToken } from './ablage/ablage';
 import { Field, useFormFeedback } from '../ui/form/Field';
 import { PageHeading } from '../ui/PageHeading';
@@ -163,6 +164,7 @@ export function Einstellungen() {
       {saveError && <p className="field-error" role="alert">{saveError}</p>}
     </form>
     <Zugaenge onVergessen={() => { setKey(''); setMerken(false); setSaved(false); }} />
+    <KiKostenListe />
     <Suspense fallback={null}><Klangeinstellungen /></Suspense>
     <FokusEinstellung />
     <Zeitzone />
@@ -225,5 +227,17 @@ function Entwicklerseiten() {
     <label className="check"><input type="checkbox" checked={an} onChange={(e) => setzeEntwickler(e.target.checked)} />
       <span><strong>Entwicklerseiten im Menü zeigen</strong><br />Bildprüfung, Inhaltsqualität und Designsystem erscheinen dann unter „Mehr · System“ und in der Suche. Zum Lernen brauchst du sie nicht.</span></label>
     {an && <p className="muted"><a href="#/system/design">Designsystem ansehen</a> · <a href="#/system/bilder">Bildprüfung</a> · <a href="#/system/qualitaet">Inhaltsqualität</a></p>}
+  </section>;
+}
+
+/** Letzte Claude-Anfragen mit geschätzten Kosten (nur dieses Gerät, Audit C-1). */
+function KiKostenListe() {
+  const liste = kiKosten();
+  if (!liste.length) return null;
+  const summe = liste.reduce((s, e) => s + e.dollar, 0);
+  return <section className="card form-card" aria-labelledby="ki-kosten-title">
+    <h2 id="ki-kosten-title">Kosten deiner letzten KI-Anfragen</h2>
+    <p className="muted">Mit deinem Claude-Schlüssel, geschätzt aus der Antwort der API in US-Dollar. Zusammen {dollarText(summe)} für die letzten {liste.length} Anfragen.</p>
+    <ul>{liste.slice(0, 10).map((e) => <li key={e.zeit + e.modul}>{new Date(e.zeit).toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' })}, {e.modul}: {dollarText(e.dollar)}</li>)}</ul>
   </section>;
 }

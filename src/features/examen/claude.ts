@@ -2,7 +2,7 @@
 // Datenschutz: Es verlassen nur der (erfundene) Übungsfall, die Impulse mit ihren Stichpunkten und
 // die festgehaltenen Antworten das Gerät, keine Aufnahme und keine Lernstände.
 // Die Rückmeldung ist ein Vorschlag für den Selbstcheck. Sie zählt wie dieser nicht im Lernplan.
-import Anthropic from '@anthropic-ai/sdk';
+import { frageClaude, noteAus, textAus } from '../../core/ki/claude';
 import type { Impuls, MuendlicherFall } from './muendlich';
 
 export interface KiImpuls {
@@ -77,19 +77,13 @@ Gib deine Rückmeldung als JSON.`;
 }
 
 export async function bewerteMuendlich(opts: { apiKey: string; fall: MuendlicherFall; impulse: Impuls[]; antworten: Record<string, string>; model?: string }): Promise<KiMuendlich> {
-  const client = new Anthropic({ apiKey: opts.apiKey, dangerouslyAllowBrowser: true });
-  const response = await client.beta.messages.create({
-    model: opts.model ?? 'claude-opus-5-5',
-    max_tokens: 8000,
-    betas: ['server-side-fallback-2026-07-01'],
-    fallbacks: 'default',
-    output_config: { effort: 'low', format: { type: 'json_schema', schema: SCHEMA } },
+  const response = await frageClaude({
+    apiKey: opts.apiKey, modul: 'examen', model: opts.model,
+    maxTokens: 8000, effort: 'low', schema: SCHEMA,
     system: systemPrompt(),
     messages: [{ role: 'user', content: anfrageText(opts.fall, opts.impulse, opts.antworten) }],
-  } as unknown as Anthropic.Beta.MessageCreateParamsNonStreaming);
-  if (response.stop_reason === 'refusal') throw new Error('Die KI hat die Anfrage abgelehnt.');
-  if (response.stop_reason === 'max_tokens') throw new Error('Die Antwort wurde abgeschnitten. Bitte noch einmal versuchen.');
-  const text = response.content.flatMap((b) => (b.type === 'text' ? [b.text] : [])).join('');
+  });
+  const text = textAus(response);
   return leseMuendlich(text, opts.impulse, opts.antworten);
 }
 
@@ -118,7 +112,7 @@ export function leseMuendlich(text: string, impulse: Impuls[], antworten: Record
     };
   });
   return {
-    note: Math.min(6, Math.max(1, Math.round(Number(roh.note) || 6))),
+    note: noteAus(roh.note),
     impulse: ergebnis, staerken: liste(roh.staerken, 3), tipps: liste(roh.tipps, 3),
   };
 }
