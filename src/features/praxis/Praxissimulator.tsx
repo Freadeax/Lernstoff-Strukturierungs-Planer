@@ -113,7 +113,7 @@ export default function Praxissimulator() {
     if (!umleitung || art === 'kurz') return;
     const ziel = umleitung.endsWith('=') ? '#/lernen/praxis' : `#/lernen/praxis?${umleitung}`;
     try { location.replace(ziel); } catch { navigate(ziel.slice(1)); }
-  }, [umleitung]);
+  }, [umleitung, art]);
   if (art === 'kurz') return <section className="page praxis praxis--kurz">
     <PraxisKopf art="kurz" />
     <Suspense fallback={<p className="muted" role="status">Kurzfälle werden geladen …</p>}><Kurzfaelle eingebettet /></Suspense>

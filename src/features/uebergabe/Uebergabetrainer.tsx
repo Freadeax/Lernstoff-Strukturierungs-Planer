@@ -229,7 +229,7 @@ function UebergabetrainerInhalt({ neu, praxisId }: { neu: SimZustand | null; pra
   return (
     <section className="page sbar">
       <div className="page__head">
-        <h2>Übergabe-Trainer (SBAR)</h2>
+        <h1>Übergabe-Trainer (SBAR)</h1>
         <p className="muted">Lies den Fall, dann übergib ihn: tippen oder diktieren. Die Checkliste prüft offline, ob Situation, Hintergrund, Einschätzung und Empfehlung vollständig sind.</p>
       </div>
       <AkteLeiste art="uebergabe" fallId={fallId} />

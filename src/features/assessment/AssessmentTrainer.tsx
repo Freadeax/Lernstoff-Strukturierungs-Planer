@@ -15,6 +15,7 @@ import { bewerteVignette, type VignettenErgebnis } from './bewertung';
 import { notiereFehler } from '../fehlerheft/fehlerheft';
 import { ausAssessment } from '../fehlerheft/quellen';
 import { AkteLeiste } from '../fallakte/AkteLeiste';
+import { heuteTag } from '../../ui/lib/time';
 
 type Modus = 'rechner' | 'faelle';
 /** Ab so vielen bewerteten Punkten (Items + Einstufung + ggf. Instrument) zählt ein Fall im Lernplan. */
@@ -396,7 +397,7 @@ export default function AssessmentTrainer() {
 
   function fertig(v: Vignette, e: VignettenErgebnis) {
     const prozent = Math.round((e.punkte / e.max) * 100);
-    const next = { ...erledigt, [v.id]: { datum: new Date().toISOString().slice(0, 10), prozent } };
+    const next = { ...erledigt, [v.id]: { datum: heuteTag(), prozent } };
     setErledigt(next); speichereErledigt(next);
     void logActivity({
       kind: 'uebung', severity: prozent >= 85 ? 'info' : 'warning',
@@ -410,7 +411,7 @@ export default function AssessmentTrainer() {
   return (
     <section className="page as">
       <div className="page__head">
-        <h2>Assessment-Rechner</h2>
+        <h1>Assessment-Rechner</h1>
         <p className="muted">Braden, Norton, Barthel, NRS, BESD, MNA-SF, Glasgow Coma Scale, Tinetti und Timed Up and Go ausrechnen oder an Fallvignetten üben. Funktioniert offline. Fallvignetten zählen im Lernplan als Abfrage, der freie Rechner nicht. Übungswerkzeug, kein Ersatz für das Formular deiner Einrichtung.</p>
       </div>
       {fall && <AkteLeiste art="assessment" fallId={fall.id} />}

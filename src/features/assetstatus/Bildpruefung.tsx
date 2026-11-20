@@ -163,7 +163,7 @@ export default function Bildpruefung() {
   return (
     <section className="page bildpruefung">
       <div className="page__head">
-        <h2>Bildprüfung</h2>
+        <h1>Bildprüfung</h1>
         <p className="muted">Bilder, Videos und Bildserien der Simulatoren fachlich prüfen und die nächste Lieferung bestellen. Prüfergebnisse bleiben auf diesem Gerät, bis du sie exportierst.</p>
       </div>
       <div className="pills" role="radiogroup" aria-label="Ansicht">

@@ -6,7 +6,7 @@ import { logActivity } from '../../core/activity';
 import { moveTopics, type BoardEntry } from '../../core/board';
 import type { Exam, Topic } from '../../core/types';
 import type { SchichtId } from './alltag';
-import { dayKey } from '../../ui/lib/time';
+import { dayKey, heuteTag } from '../../ui/lib/time';
 import { computeProgress } from './progress';
 import { evidenceRating } from './fsrs';
 import { availableMinutes } from './scheduler';
@@ -73,8 +73,8 @@ export const TRAINER_NAME: Record<string, string> = {
 
 export const RATING_LABEL: Record<Rating, string> = { 1: 'Vergessen', 2: 'Schwer', 3: 'Gut', 4: 'Leicht' };
 
-/** Heutiger Kalendertag in deutscher Zeit. */
-export const heute = () => dayKey(new Date());
+/** Heutiger Kalendertag in der eingestellten Zeitzone. */
+export const heute = () => heuteTag();
 
 /** Themen ohne Unterthemen: nur diese werden erarbeitet und abgefragt. */
 export function leafTopics(topics: Topic[]): Topic[] {

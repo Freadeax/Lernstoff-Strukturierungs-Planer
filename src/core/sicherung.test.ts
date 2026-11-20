@@ -191,3 +191,31 @@ describe('Erinnerung an die Sicherung', () => {
     expect(brauchtErinnerung({ zuletzt: '2026-10-01T12:00:00Z', erinnertAm: '2026-10-10T12:00:00Z' }, 10, jetzt)).toBe(true);
   });
 });
+
+describe('Sicherungs-Merker (Audit R-1)', () => {
+  it('ein beschädigter Merker (null, Zahl, Liste) ergibt einen leeren Merker statt eines Absturzes', async () => {
+    const { leseMerker } = await import('./sicherung');
+    for (const roh of ['null', '42', '[1,2]', '{"a":']) {
+      localStorage.setItem('lernstoff.sicherung', roh);
+      expect(leseMerker()).toEqual({});
+    }
+    localStorage.removeItem('lernstoff.sicherung');
+  });
+});
+
+describe('Lehrerdaten in der Sicherung (Audit D-2)', () => {
+  it('lässt Lehrerdaten auf Wunsch weg und erkennt, ob es welche gibt', async () => {
+    const { erstelleSicherung, hatLehrerdaten } = await import('./sicherung');
+    const d = new LernstoffDB(`lehrer-${Math.random()}`);
+    localStorage.setItem('lernstoff.lehrer.klassen', '[{"id":"k","name":"A","lernende":["Mia"],"faelle":[]}]');
+    localStorage.setItem('lernstoff.mindmaps', '[]');
+    expect(hatLehrerdaten()).toBe(true);
+    expect(Object.keys((await erstelleSicherung(d)).local ?? {})).toContain('lernstoff.lehrer.klassen');
+    const ohne = await erstelleSicherung(d, { ohneLehrerdaten: true });
+    expect(Object.keys(ohne.local ?? {})).not.toContain('lernstoff.lehrer.klassen');
+    expect(Object.keys(ohne.local ?? {})).toContain('lernstoff.mindmaps');
+    localStorage.removeItem('lernstoff.lehrer.klassen'); localStorage.removeItem('lernstoff.mindmaps');
+    expect(hatLehrerdaten()).toBe(false);
+    d.close();
+  });
+});

@@ -40,7 +40,7 @@ function Durchfuehren({ a, seed, neu }: { a: Ablauf; seed: number; neu: () => vo
     if (!ende) return;
     const e = auswerten(a, stand);
     void buche(a, 'durchfuehren', seed, e.prozent, e.max, a.schritte.map((s, i) => ({ id: s.id, label: s.text, erfuellt: !stand.fehlgriffe.some((f) => f.position === i) }))).then(setBuchung);
-  }, [ende]);
+  }, [ende]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: läuft bewusst nur, wenn sich die genannten Werte ändern (Ereignis)
 
   const klick = (o: Option) => {
     const r = waehle(a, stand, o);

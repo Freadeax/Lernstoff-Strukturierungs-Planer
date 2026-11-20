@@ -473,7 +473,7 @@ function Leser({ skript, aId, nr, q, staende, onNeu, setStaende }: {
   const [gesamtSek, setGesamtSek] = useState(0);
   const sek = useLesezeit(`${skript.id}:${a?.id}`);
   const oben = useRef<HTMLDivElement>(null);
-  useEffect(() => { if (a) setStaende(merkeZuletzt(skript.id, a.id)); setBeleg(null); oben.current?.scrollIntoView({ block: 'start' }); }, [skript.id, a?.id]);
+  useEffect(() => { if (a) setStaende(merkeZuletzt(skript.id, a.id)); setBeleg(null); oben.current?.scrollIntoView({ block: 'start' }); }, [skript.id, a?.id]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: läuft bewusst nur, wenn sich die genannten Werte ändern (Ereignis)
   useEffect(() => { setGesamtSek(0); }, [skript.id]);
   useEffect(() => { if (sek) setGesamtSek((g) => g + 5); }, [sek]);
 

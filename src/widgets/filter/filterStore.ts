@@ -1,5 +1,5 @@
 import { createStore, istObjekt, storage } from '../../ui/lib/store';
-import { addDays, dayKey, daysBetween, DEFAULT_TZ } from '../../ui/lib/time';
+import { addDays, dayKey, daysBetween, DEFAULT_TZ, setzeTagesZone } from '../../ui/lib/time';
 
 // Globale Filter (Zeitraum, Zeitzone, Fach). Module, die davon abhängen, abonnieren nur
 // die Felder, die sie brauchen. „Dauerhaft“ speichert im Gerät, sonst nur für diese Sitzung.
@@ -33,10 +33,14 @@ function initial(): GlobalFilter {
 }
 
 export const filterStore = createStore<GlobalFilter>(initial(), (f) => {
+  setzeTagesZone(f.timeZone);
   const { previous: _, ...rest } = f;
   if (f.persist) { storage.write(KEY, rest); storage.remove(KEY, 'session'); }
   else { storage.write(KEY, rest, 'session'); storage.remove(KEY); }
 });
+
+// „heute“ in der ganzen App folgt der eingestellten Zeitzone (ui/lib/time.ts heuteTag).
+setzeTagesZone(filterStore.get().timeZone);
 
 export function presetRange(days: number, f = filterStore.get()): Pick<GlobalFilter, 'from' | 'to'> {
   const to = dayKey(new Date(), f.timeZone);

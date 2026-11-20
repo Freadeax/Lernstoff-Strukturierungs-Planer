@@ -119,3 +119,18 @@ describe('Was ist neu', () => {
     expect(ungesehen('2026-11-01', liste).map((n) => n.titel)).toEqual(['b']);
   });
 });
+
+describe('Beschädigte Speicherstände (Audit R-2)', () => {
+  it('Zahl, Objekt oder null statt Liste lassen die Testphase nicht abstürzen', async () => {
+    const t = await import('./testphase');
+    for (const roh of ['42', '{"x":1}', 'null', '[1,null,{"id":5}]', '{"a":']) {
+      for (const k of ['lernstoff.testphase.erledigt', 'lernstoff.testphase.gesendet', 'lernstoff.testphase.gesammelt', 'lernstoff.testphase.stand', 'lernstoff.testphase.name']) localStorage.setItem(k, roh);
+      expect(t.erledigte()).toEqual([]);
+      expect(Array.isArray(t.gesendete())).toBe(true);
+      expect(Array.isArray(t.gesammelte())).toBe(true);
+      expect(typeof t.bearbeitungen()).toBe('object');
+      expect(typeof t.gemerkterName()).toBe('string');
+    }
+    for (const k of ['lernstoff.testphase.erledigt', 'lernstoff.testphase.gesendet', 'lernstoff.testphase.gesammelt', 'lernstoff.testphase.stand', 'lernstoff.testphase.name']) localStorage.removeItem(k);
+  });
+});

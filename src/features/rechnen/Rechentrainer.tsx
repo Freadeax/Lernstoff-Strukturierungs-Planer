@@ -119,14 +119,14 @@ export default function Rechentrainer() {
     });
     // Nur die Prüfungsrunde zählt als Abfrage, Training mit Tipp und Lösungsweg nicht
     lernplan.uebernimm(proThema(runde.map((e) => ({ topicIds: [THEMA[e.aufgabe.typ]], punkte: ok(e.bewertung) ? 1 : 0, max: 1 })), MIN_PRO_THEMA));
-  }, [fertig]);
+  }, [fertig]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: läuft bewusst nur, wenn sich die genannten Werte ändern (Ereignis)
 
   const richtigInRunde = runde.filter((e) => ok(e.bewertung)).length;
 
   return (
     <section className="page rechnen">
       <div className="page__head">
-        <h2>Rechentrainer</h2>
+        <h1>Rechentrainer</h1>
         <p className="muted">Pflegerisches Rechnen mit unendlich vielen Aufgaben und Lösungsweg. Funktioniert offline. Prüfungsrunden zählen im Lernplan als Abfrage. Die Werte sind fiktive Übungswerte, keine Dosierungsempfehlung.</p>
       </div>
 
@@ -196,7 +196,7 @@ export default function Rechentrainer() {
                 : <span className="muted" aria-live="polite">Serie {serie}{beste > 1 ? ` · Bestwert ${beste}` : ''} · {richtigInRunde}/{runde.length} richtig</span>}
             </div>
             {modus === 'pruefung' && (
-              <div className="rechnen__fortschritt" role="progressbar" aria-valuemin={0} aria-valuemax={PRUEFUNG_LAENGE} aria-valuenow={runde.length}>
+              <div className="rechnen__fortschritt" role="progressbar" aria-label="Fortschritt" aria-valuemin={0} aria-valuemax={PRUEFUNG_LAENGE} aria-valuenow={runde.length}>
                 <span style={{ width: `${(runde.length / PRUEFUNG_LAENGE) * 100}%` }} />
               </div>
             )}

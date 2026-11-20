@@ -40,7 +40,7 @@ export default function MikroSeite() {
   useEffect(() => { if (topic) merkeThema(id, topic.name); }, [id, topic]);
 
   const wissen = useMemo(() => kurzWissen(modul, id), [modul, id]);
-  const fragen = useMemo(() => (pools ? waehleFragen(pools, id) : null), [pools, id, nr]);
+  const fragen = useMemo(() => (pools ? waehleFragen(pools, id) : null), [pools, id, nr]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: Auslöser für Neuberechnung (neue Runde, Seitenwechsel)
   const karte = useMemo(() => karteZumThema(modul, id, wissen.begriffe.map((b) => b.term), heute()), [modul, id, wissen]);
 
   if (!topic) {

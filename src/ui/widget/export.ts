@@ -1,5 +1,6 @@
 // Export der Widget-Daten als CSV (Excel-kompatibel, Semikolon, UTF-8 mit BOM) oder JSON.
 
+import { heuteTag } from '../lib/time';
 export function toCsv(rows: Array<Record<string, unknown>>): string {
   if (!rows.length) return '';
   const cols = [...new Set(rows.flatMap((r) => Object.keys(r)))];
@@ -23,7 +24,7 @@ export function download(name: string, content: string, type: string) {
 }
 
 export function exportRows(id: string, rows: Array<Record<string, unknown>>, format: 'csv' | 'json') {
-  const date = new Date().toISOString().slice(0, 10);
+  const date = heuteTag();
   if (format === 'csv') download(`${id}-${date}.csv`, toCsv(rows), 'text/csv;charset=utf-8');
   else download(`${id}-${date}.json`, JSON.stringify(rows, null, 2), 'application/json');
 }

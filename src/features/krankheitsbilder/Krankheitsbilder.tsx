@@ -19,6 +19,7 @@ import {
   ABSCHNITTE, ASSESSMENT_GRUPPE, belegeFuer, ROLLE_LABEL, warnzeichen, type Rolle, belegQuote, bewerteFall, faelleZuThema, MIN_PRO_THEMA, mischung, passtZurSuche, vollstaendig,
   type Antworten, type FallErgebnis,
 } from './bewertung';
+import { heuteTag } from '../../ui/lib/time';
 
 const ERLEDIGT_KEY = 'lernstoff.krankheitsbilder.erledigt';
 
@@ -412,7 +413,7 @@ function Detektiv() {
   const [anzahl, setAnzahl] = useState(9);
   const [nr, setNr] = useState(0);
   const [laeuft, setLaeuft] = useState(false);
-  const aufgaben = useMemo(() => runde(detektivRunde(PROFILE, anzahl), anzahl), [anzahl, nr]);
+  const aufgaben = useMemo(() => runde(detektivRunde(PROFILE, anzahl), anzahl), [anzahl, nr]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: Auslöser für Neuberechnung (neue Runde, Seitenwechsel)
   if (laeuft && aufgaben.length) {
     return (
       <Runde key={nr} aufgaben={aufgaben} quelle="krankheitsbilder" trainer="krankheitsbilder"
@@ -547,7 +548,7 @@ export default function Krankheitsbilder() {
 
   function fertig(f: Fallaufgabe, e: FallErgebnis) {
     const prozent = e.max ? Math.round((e.punkte / e.max) * 100) : 0;
-    const next = { ...erledigt, [f.id]: { datum: new Date().toISOString().slice(0, 10), prozent } };
+    const next = { ...erledigt, [f.id]: { datum: heuteTag(), prozent } };
     setErledigt(next); speichereErledigt(next);
     void logActivity({
       kind: 'uebung', severity: prozent >= 85 ? 'info' : 'warning',
@@ -562,7 +563,7 @@ export default function Krankheitsbilder() {
   return (
     <section className="page kb">
       <div className="page__head">
-        <h2>Krankheitsbilder</h2>
+        <h1>Krankheitsbilder</h1>
         <p className="muted">Steckbriefe zu häufigen Krankheitsbildern mit Ursachen, Symptomen, Pflegeschwerpunkten und Prophylaxen, verknüpft mit Medikamenten, Assessments und Katalogthemen. Dazu Fallaufgaben, die offline funktionieren und im Lernplan als Abfrage zählen.</p>
       </div>
       <div className="note warn">

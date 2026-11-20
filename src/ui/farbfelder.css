@@ -88,13 +88,13 @@ select:focus-visible, input:not([type='checkbox']):not([type='radio']):not([type
 .eyebrow { display: block; width: fit-content; max-width: 100%; padding: 4px 10px; border-radius: 7px; background: var(--area); color: var(--color-on-accent); font-size: 0.6875rem; font-weight: 700; letter-spacing: 1.2px; }
 .page-heading__description { font-size: 0.9375rem; line-height: 1.65; }
 .section-heading h2 { font-family: var(--font-display); font-size: 1.75rem; font-weight: 500; letter-spacing: -0.5px; margin-top: 8px; }
-.page__head > h2, .page > h2 { letter-spacing: -0.03em; }
+.page__head > h1, .page__head > h2, .page > h2 { letter-spacing: -0.03em; }
 /* Seiten ohne eigene Marke bekommen ihren Platz im Menü als Marke (App.tsx setzt --kopf-marke), damit alle Seitenköpfe gleich aufgebaut sind. */
 .page__head { position: relative; padding-top: 2.375rem; margin-bottom: 14px; row-gap: 12px; }
 .page__head::before, .page-heading:not(:has(.eyebrow)) > div:first-child::before { content: var(--kopf-marke, none); width: fit-content; max-width: 100%; padding: 4px 10px; border-radius: 7px; background: var(--area); color: var(--color-on-accent); font-size: 0.6875rem; font-weight: 700; letter-spacing: 1.2px; line-height: 1.5; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .page__head::before { position: absolute; top: 0; left: 0; }
 .page-heading:not(:has(.eyebrow)) > div:first-child::before { display: block; }
-.page__head > h2 { font-size: clamp(1.875rem, 3.6vw, 3.25rem); line-height: 1.05; overflow-wrap: break-word; hyphens: auto; }
+.page__head > h1, .page__head > h2 { font-size: clamp(1.875rem, 3.6vw, 3.25rem); line-height: 1.05; overflow-wrap: break-word; hyphens: auto; }
 .page__head > p { box-sizing: border-box; padding-right: max(0px, 100% - 68ch); font-size: 0.9375rem; line-height: 1.65; }
 
 /* ---------- Karten, Module ---------- */
@@ -286,6 +286,6 @@ dialog { border: 2px solid var(--color-outline); }
 
 /* Umschalter der Themen-Ansichten (Liste, CE, Landkarte, Board, Fächer, Mindmaps): eine Zeile, auf dem Handy waagerecht wischbar. */
 .themen-ansichten { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 6px; margin: 0 0 var(--space-3); scrollbar-width: thin; }
-.themen-ansichten__link { display: inline-flex; align-items: center; gap: 6px; flex: none; min-height: 40px; padding: 6px 14px; border: 1.5px solid var(--color-outline); border-radius: 12px; background: var(--color-surface); color: var(--color-ink); font-weight: 600; text-decoration: none; }
+.themen-ansichten__link { display: inline-flex; align-items: center; gap: 6px; flex: none; min-height: 40px; padding: 6px 14px; border: 1.5px solid var(--color-outline); border-radius: 12px; background: var(--color-surface); color: var(--color-text); font-weight: 600; text-decoration: none; }
 .themen-ansichten__link:hover { background: var(--color-surface-raised, var(--color-surface)); }
 .themen-ansichten__link.is-aktiv { background: var(--color-coral); color: var(--color-on-accent); box-shadow: var(--shadow-hard-sm); }

@@ -24,6 +24,7 @@ import {
 } from './radar';
 import { ladeTermine, speichereTermine, type Termine } from './speicher';
 import { tageBis } from './praktisch';
+import { heuteTag } from '../../ui/lib/time';
 
 const REIHE: MasteryStatus[] = ['sicher', 'unsicher', 'bearbeitet', 'offen'];
 
@@ -160,7 +161,7 @@ function Ueberblick({ termine, aendere }: { termine: Termine; aendere: (p: Parti
   const bereiche = useMemo(() => (fakten ? proBereich(K, fakten) : []), [K, fakten]);
   const teile = useMemo(() => (fakten ? proTeil(K, TEILE, fakten) : []), [K, TEILE, fakten]);
   const baustellen = useMemo(() => (fakten ? schwachstellen(K, fakten) : []), [K, fakten]);
-  const heute = ctx?.data.today ?? new Date().toISOString().slice(0, 10);
+  const heute = ctx?.data.today ?? heuteTag();
   const name = (id: string) => ctx?.topics.get(id)?.name ?? K.topics.get(id)?.name ?? id;
   const schwaechster = [...bereiche].filter((b) => b.themen).sort((a, b) => a.staerke - b.staerke)[0];
 
@@ -294,7 +295,7 @@ function FahrplanAnsicht({ termine, aendere }: { termine: Termine; aendere: (p: 
     db.skripte.toArray().then((l) => { if (aktiv) setSkripte(l.map(({ id, gruppe, titel, topicIds }) => ({ id, gruppe, titel, topicIds }))); }).catch(() => {});
     return () => { aktiv = false; };
   }, []);
-  const heute = ctx?.data.today ?? new Date().toISOString().slice(0, 10);
+  const heute = ctx?.data.today ?? heuteTag();
   const tage = tageBis(termine.schriftlich, heute);
   const ces = useMemo(() => {
     const liste = ceListe(modul);

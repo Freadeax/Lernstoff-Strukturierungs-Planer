@@ -18,6 +18,7 @@ import {
   ablesen, ABLASS_MMHG_PRO_S, ohneNamen, druckNach, genauigkeit, HOER_GRUPPEN, HOER_KEY, hoerKlaenge, hoerRunde, korotkow, neuerBlutdruckFall,
   type BlutdruckFall, type Genauigkeit, type HoerFrage, type HoerStand,
 } from './hoeren';
+import { heuteTag } from '../../ui/lib/time';
 
 type Reiter = 'beispiele' | 'quiz' | 'blutdruck';
 const REITER: Array<[Reiter, string]> = [['beispiele', 'Hörbeispiele'], ['quiz', 'Was hörst du?'], ['blutdruck', 'Blutdruck nach Gehör']];
@@ -341,7 +342,7 @@ export default function HoerTrainer() {
   const { params } = useRoute();
   const reiter = (REITER.find(([r]) => r === params.get('teil'))?.[0] ?? 'beispiele') as Reiter;
   const [stand, setStand] = useState<HoerStand>(() => storage.read<HoerStand>(HOER_KEY, {}));
-  const heute = () => new Date().toISOString().slice(0, 10);
+  const heute = () => heuteTag();
   const speichere = (s: HoerStand) => { setStand(s); storage.write(HOER_KEY, s); };
 
   return (

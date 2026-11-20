@@ -54,7 +54,7 @@ export function Steckbriefe({ ctx }: { ctx: KartenCtx }) {
   // ?q= kommt z. B. aus einem Krankheitsbild-Steckbrief, der auf einen Wirkstoff verlinkt
   const { params } = useRoute();
   const [suche, setSuche] = useState(params.get('q') ?? '');
-  const profile = modul.drugProfiles ?? [];
+  const profile = modul.drugProfiles ?? []; // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: Neuberechnung je Darstellung ist hier gewollt und billig
   const stand = useMemo(() => {
     const m = new Map<string, { karten: number; gelernt: number }>();
     for (const k of ctx.daten.modul) {

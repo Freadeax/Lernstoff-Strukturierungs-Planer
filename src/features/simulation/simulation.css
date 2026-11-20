@@ -1,6 +1,6 @@
 /* Prüfungssimulation. Nur Tokens aus src/ui/tokens.css. */
 .sim { display: flex; flex-direction: column; gap: var(--space-3); }
-.sim--laeuft .page__head h2 { font-size: var(--text-lg); }
+.sim--laeuft .page__head h1 { font-size: var(--text-lg); }
 
 .sim__einstellungen { display: flex; flex-direction: column; gap: var(--space-2); }
 .sim__zeile { display: grid; grid-template-columns: 7rem minmax(0, 1fr); gap: var(--space-2); align-items: center; }

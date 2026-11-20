@@ -71,7 +71,7 @@ export function Omnibar() {
   useEffect(() => { let an = true; fachmodulBereit().then(() => { if (an) setGlossarDa(true); }, () => undefined); return () => { an = false; }; }, []);
   // Suchindex erst beim ersten Suchwort bauen, nicht bei jedem Start (kostete auf älteren iPhones rund 0,3 s).
   const index = useMemo(() => { let t: Trie<Hit> | undefined; return () => (t ??= buildIndex(moduleId, roles, quellen)); },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- bewusst: glossarDa löst den Neubau aus
     [moduleId, roles, quellen, glossarDa]);
   const debounced = useDebounced(query, 250);
   const merk = useStore(merkliste, (m) => m);

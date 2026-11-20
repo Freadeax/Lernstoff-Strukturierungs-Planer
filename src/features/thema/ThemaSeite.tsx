@@ -86,7 +86,7 @@ export default function ThemaSeite() {
     window.addEventListener('fehlerheft', neu);
     return () => window.removeEventListener('fehlerheft', neu);
   }, []);
-  const fehler = useMemo(() => ladeFehler().filter((f) => istOffen(f) && f.topicIds.includes(id)), [id, fehlerStand]);
+  const fehler = useMemo(() => ladeFehler().filter((f) => istOffen(f) && f.topicIds.includes(id)), [id, fehlerStand]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: Auslöser für Neuberechnung (neue Runde, Seitenwechsel)
 
   const eigen = useEigenesThema(id);
   const topic = (modul.topics.find((t) => t.id === id) ?? eigen?.topic ?? (istEigenesThema(id) ? undefined : ctx?.topics.get(id))) as CatalogTopic | undefined;

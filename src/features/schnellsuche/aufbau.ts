@@ -24,6 +24,7 @@ import {
 import { ausNormen, REGELWERKE } from './regelwerke';
 import { baueIndex, type Index, type SuchDok } from './suchkern';
 import { SYNONYME } from './synonyme';
+import { heuteTag } from '../../ui/lib/time';
 
 export interface Suchbestand { index: Index; standards: StandardInfo[] }
 
@@ -44,7 +45,7 @@ export function baueBestand(modul: CatalogModule, dnqp: DnqpStandard[] = DNQP_ST
   const themen = themaZuStandards(modul);
   const mitDnqp = new Set(dnqp.map((s) => s.id));
   const nutzungen = alleNutzungen();
-  const heute = new Date().toISOString().slice(0, 10);
+  const heute = heuteTag();
   const doks: SuchDok[] = [
     ...mitStand(ausDnqp(dnqp), QUELLEN, nutzungen, heute),
     ...ausKatalogStandards(modul, mitDnqp),

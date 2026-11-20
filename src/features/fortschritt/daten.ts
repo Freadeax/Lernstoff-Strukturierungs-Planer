@@ -66,7 +66,7 @@ export function useFortschritt(zielStand = 0) {
   const moduleId = useStore(session, (s) => s.moduleId);
   const { state, retry } = useWidgetData({ deps: [moduleId], load: () => lade(moduleId) });
   const daten = state.status === 'ideal' || state.status === 'partial' ? state.data : undefined;
-  const ziele = useMemo(() => zieleAufloesen(ladeEigeneZiele(), daten?.fakten.availability), [daten, zielStand]);
+  const ziele = useMemo(() => zieleAufloesen(ladeEigeneZiele(), daten?.fakten.availability), [daten, zielStand]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: Auslöser für Neuberechnung (neue Runde, Seitenwechsel)
   return { daten, ziele, error: state.status === 'error' ? state.error : undefined, retry };
 }
 

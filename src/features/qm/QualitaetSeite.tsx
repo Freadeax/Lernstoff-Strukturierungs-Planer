@@ -21,9 +21,10 @@ import { laengenQuote, pruefeAlle, REGELN, zaehleRegeln, type RegelId } from './
 import { NEUERE_FASSUNGEN } from './aktualitaet';
 import { veralteteSaetze, verwurfQuote, type Fragensatz, type VeralteterSatz } from './ki';
 import { ART_LABEL, PRIO_LABEL, ueberarbeitungsliste, type Art, type Eintrag } from './ueberarbeitung';
+import { heuteTag } from '../../ui/lib/time';
 
 const modul = modules[0] as CatalogModule;
-const heute = () => new Date().toISOString().slice(0, 10);
+const heute = () => heuteTag();
 const datum = (iso?: string) => (iso ? iso.slice(0, 10).split('-').reverse().join('.') : '');
 
 const POOLS: Pool[] = TRAINER_POOLS.map((p) => ({ ...p, pfad: TRAINER_REGISTER.find((r) => r.quelle === p.quelle)?.pfad ?? '/lernen/ueben' }));

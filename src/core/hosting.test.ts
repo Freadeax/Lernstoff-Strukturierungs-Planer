@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { adressArt, mussUmziehen } from './hosting';
+import { adressArt, darfZugangMerken, mussUmziehen } from './hosting';
 
 describe('Umzugshinweis', () => {
   it('erscheint nur auf der alten Adresse und nur, wenn eine neue eingetragen ist', () => {
@@ -19,5 +19,13 @@ describe('Umzugshinweis', () => {
     expect(adressArt('freadeax.github.io', 'https://lernstoff.pages.dev/')).toBe('alt');
     expect(adressArt('127.0.0.1', 'https://lernstoff.pages.dev/')).toBe('andere');
     expect(adressArt('127.0.0.1', '')).toBe('andere');
+  });
+});
+
+describe('Zugangsdaten merken (Audit D-1)', () => {
+  it('ist auf GitHub Pages gesperrt, weil sich dort alle Projektseiten einen Speicher teilen', () => {
+    expect(darfZugangMerken('freadeax.github.io')).toBe(false);
+    expect(darfZugangMerken('lernstoff-planer.pages.dev')).toBe(true);
+    expect(darfZugangMerken('localhost')).toBe(true);
   });
 });

@@ -441,7 +441,6 @@ export default function Pflegeplanung() {
     // Nur den einen Fall laden (Audit L-3).
     void ladeNeu(praxisId).then((n) => { if (an) uebernimm(n); });
     return () => { an = false; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [praxisId]);
   function uebernimm(n: Awaited<ReturnType<typeof ladeNeu>>) {
     if (!n) { setPraxisStatus('fehlt'); return; }
@@ -519,7 +518,7 @@ export default function Pflegeplanung() {
   return (
     <section className="page pp">
       <div className="page__head">
-        <h2>Pflegeplanung</h2>
+        <h1>Pflegeplanung</h1>
         <p className="muted">Plane einen Fall Schritt für Schritt nach dem Pflegeprozess. Die Checkliste prüft offline nach den Regeln des Pflege-Katalogs (PESR, SMART, Maßnahmen), Claude gibt auf Wunsch eine fachliche Rückmeldung.</p>
       </div>
       <AkteLeiste art="pflegeplanung" fallId={fallId} />

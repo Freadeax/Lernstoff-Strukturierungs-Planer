@@ -378,7 +378,6 @@ export default function Landkarte() {
     const n = m?.nodes.find((x) => x.id === id);
     const schmal = (viewport.current?.clientWidth ?? 1000) < 700;
     if (n && (schmal || !z.isVisible(n))) z.centerOn(n, 0.6, anchor());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const onFocusNode = useCallback((n: MapNode) => {
     const z = latest.current.pz;
@@ -391,7 +390,7 @@ export default function Landkarte() {
     if (n) { setSelected(n.id); pz.centerOn(n, 0.9, anchor()); }
   };
 
-  if (!mod) return <section className="page"><h2>Themen-Landkarte</h2><p>Kein Fachmodul gewählt.</p></section>;
+  if (!mod) return <section className="page"><h1>Themen-Landkarte</h1><p>Kein Fachmodul gewählt.</p></section>;
 
   const erarbeitet = map?.nodes.filter((n) => stand(n.id) === 'erarbeitet').length ?? 0;
   const gesamt = map?.nodes.length ?? 0;
@@ -399,7 +398,7 @@ export default function Landkarte() {
   return (
     <section className="page karte">
       <div className="page__head">
-        <h2>Themen-Landkarte</h2>
+        <h1>Themen-Landkarte</h1>
         <p className="muted">
           <span className="karte__intro">Pfeile zeigen, was worauf aufbaut, die Farbe deinen Arbeitsstand. Thema antippen zeigt den Lernpfad. </span><span className="karte__stand" aria-live="polite"><strong>{erarbeitet}</strong> von {gesamt} erarbeitet, <strong>{ready.size}</strong> bereit.</span>
         </p>

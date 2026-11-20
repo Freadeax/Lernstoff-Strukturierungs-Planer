@@ -28,7 +28,7 @@ export function Faecher() {
   return (
     <section className="page faecher">
       <div className="page__head">
-        <h2>Fächer</h2>
+        <h1>Fächer</h1>
         <p className="muted">Wissensstand je Fach. Sicher wird ein Thema erst nach erfolgreichen Abfragen, zum Beispiel aus einem Trainer oder einer Prüfungssimulation.</p>
       </div>
       <SeitenHilfe path="/lernen/faecher" />

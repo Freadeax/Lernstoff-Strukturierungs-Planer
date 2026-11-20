@@ -15,8 +15,9 @@ import {
   alleStaende, entferneQuellenVermerk, ladeQuellenVermerke, quellenVermerkText, setzeQuellenVermerk, STATUS_LABEL, STATUS_TON, zaehle,
   type QuellenStand, type QuellenStatus,
 } from './status';
+import { heuteTag } from '../../ui/lib/time';
 
-const heute = () => new Date().toISOString().slice(0, 10);
+const heute = () => heuteTag();
 const datum = (iso?: string) => (iso ? iso.slice(0, 10).split('-').reverse().join('.') : '');
 
 type Filter = 'alle' | 'tun' | QuellenArt;

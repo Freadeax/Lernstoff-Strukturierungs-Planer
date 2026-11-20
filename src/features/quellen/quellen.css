@@ -1,11 +1,11 @@
 /* Quellen und Aktualität (#/system/quellen) */
 .quellen-seite { display: flex; flex-direction: column; gap: var(--space-3); max-width: 56rem; }
 .quellen-filter { display: flex; flex-wrap: wrap; gap: var(--space-2); }
-.quellen-eintrag--abgleich { border-left: 4px solid var(--color-critical, #c53030); }
+.quellen-eintrag--abgleich { border-left: 4px solid var(--color-danger); }
 .quellen-eintrag--faellig, .quellen-eintrag--nie-geprueft { border-left: 4px solid var(--color-warning, #b7791f); }
 .quellen-eintrag.is-hervor { outline: 2px solid var(--color-primary); outline-offset: 2px; scroll-margin-top: 5rem; }
 .quellen-offen { background: var(--color-surface-sunken); border-radius: 6px; padding: var(--space-2); }
-.quellen-alt { color: var(--color-critical, #c53030); font-weight: 600; }
+.quellen-alt { color: var(--color-danger); font-weight: 600; }
 .quellen-nutzung summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; }
 .quellen-nutzung ul { margin: var(--space-1) 0; padding-left: 1.2rem; display: flex; flex-direction: column; gap: var(--space-1); overflow-wrap: anywhere; }
 .quellen-knoepfe { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-2); }
@@ -13,4 +13,4 @@
 .quellen-regeln ol { padding-left: 1.2rem; display: flex; flex-direction: column; gap: var(--space-1); }
 .quellen-regeln h3 { font-size: 1rem; margin: var(--space-3) 0 var(--space-1); }
 .quellen-stand { font-size: 0.8125rem; color: var(--color-text-muted); overflow-wrap: anywhere; margin: var(--space-2) 0; }
-.quellen-stand--offen { color: var(--color-text); background: var(--color-surface-sunken); border-left: 4px solid var(--color-critical, #c53030); border-radius: 6px; padding: var(--space-2); }
+.quellen-stand--offen { color: var(--color-text); background: var(--color-surface-sunken); border-left: 4px solid var(--color-danger); border-radius: 6px; padding: var(--space-2); }

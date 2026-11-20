@@ -5,6 +5,7 @@ import Dexie, { type Table } from 'dexie';
 import { db, type LernstoffDB } from './db';
 import { ENTPACKT_MAX, verschluessele } from './sicherung-krypto';
 import { BUILD_ID } from './build';
+import { heuteTag } from '../ui/lib/time';
 
 export const SICHERUNG_FORMAT = 1;
 
@@ -133,29 +134,47 @@ function geraetName() {
   return undefined;
 }
 
-function lokaleEintraege(): Record<string, string> {
+/**
+ * Daten anderer Personen (Lehrermodus: Namen, Noten, Klassen-Radar mit Namen). Sie sind personenbezogene Daten
+ * Dritter und kommen in eine unverschlüsselte Sicherung nur, wenn das bewusst gewählt ist (Audit D-2).
+ */
+export const istLehrerEintrag = (k: string) => k.startsWith('lernstoff.lehrer.');
+
+/** Liegen auf diesem Gerät Lehrerdaten mit Namen von Lernenden? */
+export function hatLehrerdaten(): boolean {
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      const v = k && istLehrerEintrag(k) ? localStorage.getItem(k) : null;
+      if (v && v !== '[]' && v !== '{}' && v !== 'null') return true;
+    }
+  } catch { /* privater Modus */ }
+  return false;
+}
+
+function lokaleEintraege(ohneLehrerdaten = false): Record<string, string> {
   const out: Record<string, string> = {};
   try {
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i);
-      if (k && gehoertInSicherung(k)) out[k] = localStorage.getItem(k) ?? '';
+      if (k && gehoertInSicherung(k) && !(ohneLehrerdaten && istLehrerEintrag(k))) out[k] = localStorage.getItem(k) ?? '';
     }
   } catch { /* privater Modus */ }
   return out;
 }
 
 /** Komplette Sicherung: alle Tabellen und die Trainer-Einträge aus localStorage. */
-export async function erstelleSicherung(database: LernstoffDB = db, meta: { fachmodul?: string } = {}): Promise<Sicherung> {
+export async function erstelleSicherung(database: LernstoffDB = db, meta: { fachmodul?: string; ohneLehrerdaten?: boolean } = {}): Promise<Sicherung> {
   const data: Record<string, unknown[]> = {};
   for (const table of database.tables) data[table.name] = kodiere(await table.toArray()) as unknown[];
   return {
     app: 'lernstoff-planer', format: SICHERUNG_FORMAT, schema: database.verno,
     exportedAt: new Date().toISOString(), geraet: geraetName(), build: BUILD_ID, ...(meta.fachmodul ? { fachmodul: meta.fachmodul } : {}),
-    data, local: lokaleEintraege(),
+    data, local: lokaleEintraege(!!meta.ohneLehrerdaten),
   };
 }
 
-export const dateiName = (d = new Date(), verschluesselt = false) => `lernstoff-sicherung-${d.toISOString().slice(0, 10)}${verschluesselt ? '-verschluesselt' : ''}.json`;
+export const dateiName = (d = new Date(), verschluesselt = false) => `lernstoff-sicherung-${heuteTag(d)}${verschluesselt ? '-verschluesselt' : ''}.json`;
 
 // ---------------------------------------------------------------- Prüfen
 
@@ -558,7 +577,8 @@ export interface SicherungsMerker { zuletzt?: string; hinweisGesehen?: boolean; 
 const MERKER = 'lernstoff.sicherung';
 
 export function leseMerker(): SicherungsMerker {
-  try { return JSON.parse(localStorage.getItem(MERKER) ?? '{}') as SicherungsMerker; } catch { return {}; }
+  // Form prüfen: ein beschädigter Eintrag (null, Zahl, Liste) darf die Startseite nicht abstürzen lassen (Audit R-1).
+  try { const v: unknown = JSON.parse(localStorage.getItem(MERKER) ?? '{}'); return istObjekt(v) ? v as SicherungsMerker : {}; } catch { return {}; }
 }
 export function setzeMerker(m: Partial<SicherungsMerker>) {
   try { localStorage.setItem(MERKER, JSON.stringify({ ...leseMerker(), ...m })); } catch { /* privater Modus */ }
@@ -588,7 +608,7 @@ function alsDownload(blob: Blob, name: string) {
 }
 
 /** Sicherung erstellen und weitergeben: Teilen-Menü (AirDrop, „In Dateien sichern“) oder Download. */
-export async function sichereUndGibWeiter(art: 'teilen' | 'datei' = 'datei', passwort?: string, meta: { fachmodul?: string } = {}): Promise<SicherungsErgebnis> {
+export async function sichereUndGibWeiter(art: 'teilen' | 'datei' = 'datei', passwort?: string, meta: { fachmodul?: string; ohneLehrerdaten?: boolean } = {}): Promise<SicherungsErgebnis> {
   const klar = JSON.stringify(await erstelleSicherung(db, meta));
   const text = passwort ? await verschluessele(klar, passwort) : klar;
   const name = dateiName(new Date(), !!passwort);

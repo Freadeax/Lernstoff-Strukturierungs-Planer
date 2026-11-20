@@ -80,7 +80,7 @@ function Einrichten({ onStart, saetze, exams, pools, verlauf }: { onStart: (l: L
   // ?themen=a,b: Nachprüfung zu den schwachen Themen einer vorigen Simulation
   const nachThemen = (params.get('themen') ?? '').split(',').filter((id) => K.topics.has(id));
   const auswahl = { ...e, seed, satzIds, topicIds: pruefung?.topicIds ?? nachThemen };
-  const z = useMemo(() => stelleZusammen(K, auswahl, saetze, pools), [JSON.stringify(auswahl), saetze, pools]);
+  const z = useMemo(() => stelleZusammen(K, auswahl, saetze, pools), [JSON.stringify(auswahl), saetze, pools]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: übrige Werte leiten sich aus den genannten ab
   const minuten = e.minuten ?? z.minuten;
 
   const start = () => {
@@ -270,10 +270,10 @@ function Pruefung({ lauf, setLauf, onAbgabe }: { lauf: Lauf; setLauf: (l: Lauf) 
     document.addEventListener('visibilitychange', sichtbar);
     window.addEventListener('pagehide', pause);
     return () => { document.removeEventListener('visibilitychange', sichtbar); window.removeEventListener('pagehide', pause); };
-  }, [lernen]);
+  }, [lernen]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: läuft bewusst nur, wenn sich die genannten Werte ändern (Ereignis)
   const pausiert = lernen && !!lauf.pausiertSeit;
   const rest = restzeit(lauf.deadline, uhrzeit(lauf, jetzt));
-  useEffect(() => { if (rest <= 0) onAbgabe(true); }, [rest <= 0]);
+  useEffect(() => { if (rest <= 0) onAbgabe(true); }, [rest <= 0]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: läuft bewusst nur, wenn sich die genannten Werte ändern (Ereignis)
   const f = lauf.fragen[lauf.i]!;
   const beantwortet = lauf.fragen.filter((x) => istBeantwortet(x, lauf.antworten[x.id])).length;
   const gesamt = lauf.deadline - lauf.start;
@@ -441,7 +441,7 @@ function Nacharbeiten({ schwach, onNeu }: { schwach: string[]; onNeu: () => void
 
 function Ergebnis({ lauf, setLauf, onNeu }: { lauf: Lauf; setLauf: (l: Lauf) => void; onNeu: () => void }) {
   const w = lauf.wertungen ?? {};
-  const a: Auswertung = useMemo(() => auswerten(K, lauf.fragen, w), [lauf]);
+  const a: Auswertung = useMemo(() => auswerten(K, lauf.fragen, w), [lauf]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: übrige Werte leiten sich aus den genannten ab
   const [ki, setKi] = useState<{ fertig: number; gesamt: number } | null>(null);
   const [verschieben, setVerschieben] = useState(true);
   const [nurFalsche, setNurFalsche] = useState(true);
@@ -615,14 +615,14 @@ export default function Simulation() {
     const a = auswerten(K, lauf.fragen, lauf.wertungen);
     const alt = verlauf.find((v) => v.id === lauf.id);
     if (alt && (alt.punkte !== a.punkte || alt.max !== a.max)) setVerlauf(ergaenzeVerlauf({ ...alt, punkte: a.punkte, max: a.max, prozent: Math.round(a.prozent), schwach: a.schwach }));
-  }, [lauf?.wertungen]);
+  }, [lauf?.wertungen]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: läuft bewusst nur, wenn sich die genannten Werte ändern (Ereignis)
 
   const laeuft = lauf && !lauf.abgegeben;
 
   return (
     <section className={`page sim ${laeuft ? 'sim--laeuft' : ''}`}>
       <div className="page__head">
-        <h2>Prüfungssimulation</h2>
+        <h1>Prüfungssimulation</h1>
         {!laeuft && <p className="muted">Schriftliche Probeprüfung mit Zeitlimit aus Fachbegriffen, Rechenaufgaben, Aufgaben und Fällen der Übungstrainer und Fragen aus deinem Material, gefiltert nach Kompetenzbereichen und Anforderungsbereichen. Das Ergebnis geht je Thema an den Lernplan.</p>}
       </div>
       {!laeuft && <SeitenHilfe path="/lernen/simulation" />}

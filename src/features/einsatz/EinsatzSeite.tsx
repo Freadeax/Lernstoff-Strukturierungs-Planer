@@ -108,7 +108,7 @@ function Einsaetze({ ctx, aendere, bearbeiten, neu }: { ctx: SeitenCtx; aendere:
   const zuBearbeiten = bearbeiten ? liste.find((e) => e.id === bearbeiten) : undefined;
   const [formOffen, setFormOffen] = useState(neu || !!zuBearbeiten || !liste.length);
   const [loeschen, setLoeschen] = useState<string | null>(null);
-  useEffect(() => { setFormOffen(neu || !!zuBearbeiten || !liste.length); }, [neu, bearbeiten]);
+  useEffect(() => { setFormOffen(neu || !!zuBearbeiten || !liste.length); }, [neu, bearbeiten]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: läuft bewusst nur, wenn sich die genannten Werte ändern (Ereignis)
 
   const speichere = (e: Einsatz) => {
     aendere(sortiert([...liste.filter((x) => x.id !== e.id), e]));
@@ -210,7 +210,7 @@ function BereitCheck({ ctx, einsatz }: { ctx: SeitenCtx; einsatz: Einsatz }) {
       faelle: faelle.filter(passt).map((f) => ({ id: f.id, titel: f.titel, erledigt: erledigt.has(f.id) })),
       ergebnisse: plan.data.reviewLogs,
     });
-  }, [plan, faelle, einsatz, ctx.heute]);
+  }, [plan, faelle, einsatz, ctx.heute]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: übrige Werte leiten sich aus den genannten ab
   if (error) return <p className="note warn">Lernstand konnte nicht geladen werden: {error.message}</p>;
   if (!stationen) return <p className="muted" role="status">Bereit-Check wird berechnet …</p>;
   return (

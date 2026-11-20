@@ -12,13 +12,14 @@ import { kopiere } from '../klasse/teilen';
 import { freigabeDatum, RISIKO_TEXT, ZIELGRUPPE_TEXT, type PruefArt } from '../../ui/sim/freigabe';
 import { erteilungFuer, URTEIL_TEXT, type Urteil } from '../../ui/sim/freigabe-erteilt';
 import { neuereFassungFuer } from '../quellen/register-basis';
+import { heuteTag } from '../../ui/lib/time';
 import { alleInhalte, BEREICHE, FREIGABE_STATUS_TEXT, freigabeStatus, risikoGewicht, type FreigabeStatus, type PruefInhalt } from './inhalte';
 import {
   ALLGEMEINE_PUNKTE, alsErteilung, entferneBogen, freigabeCode, ladeBoegen, leseCode, PUNKT_TEXT, ROLLEN, speichereBogen, uebernimmBoegen,
   type Pruefbogen, type PunktErgebnis,
 } from './ablauf';
 
-const heute = () => new Date().toISOString().slice(0, 10);
+const heute = () => heuteTag();
 const TON: Record<FreigabeStatus, string> = { offen: 'tag--warning', geaendert: 'tag--critical', nachbessern: 'tag--critical', abgeglichen: '', geprueft: 'tag--wissen-sicher' };
 
 type Filter = 'tun' | 'alle' | 'erfasst';

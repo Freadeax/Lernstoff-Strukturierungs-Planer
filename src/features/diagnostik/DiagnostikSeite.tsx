@@ -61,7 +61,7 @@ export default function DiagnostikSeite() {
   return (
     <section className="page dx-seite">
       <div className="page__head">
-        <h2>Diagnostik: Labor und Bildgebung</h2>
+        <h1>Diagnostik: Labor und Bildgebung</h1>
         <p className="muted">Blut richtig abnehmen, Befunde lesen, kritische Werte weitergeben. Röntgen und CT mit Schichten, Fenster und Lupe. Synthetische Übungsbilder offline, dazu echte Bilder mit freier Lizenz.</p>
       </div>
       <div className="pills" role="tablist" aria-label="Bereich">

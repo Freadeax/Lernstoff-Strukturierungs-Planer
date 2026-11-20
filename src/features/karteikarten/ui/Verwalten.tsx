@@ -3,7 +3,7 @@ import { db } from '../../../core/db';
 import type { ID, SourceChunk, Summary } from '../../../core/types';
 import { notify } from '../../../ui/shell/notifications';
 import { navigate } from '../../../ui/shell/router';
-import { formatDay } from '../../../ui/lib/time';
+import { formatDay, heuteTag, addDays } from '../../../ui/lib/time';
 import { kartenHinweise, luecken, lueckenOhneMarken, modulKarten, vorschlaege, type KartenHinweis } from '../erzeugen';
 import { abruf, istGefestigt, prognose, trefferquote } from '../planung';
 import { loescheKarte, setzeAus, speichereConfig, speichereKarte, uebernehme } from '../store';
@@ -92,7 +92,7 @@ export function Stapel({ ctx }: { ctx: KartenCtx }) {
     const m = new Map<ID, number>();
     for (const k of alle) for (const s of k.subjectIds) m.set(s, (m.get(s) ?? 0) + 1);
     return m;
-  }, [config.richtungen, config.katalog, config.arzneimittel, config.krankheitsbilder]);
+  }, [config.richtungen, config.katalog, config.arzneimittel, config.krankheitsbilder]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: übrige Werte leiten sich aus den genannten ab
   const setze = (patch: Partial<Omit<KartenConfig, 'id'>>) => sicher(() => speichereConfig(patch), 'Stapel gespeichert', ctx);
   const toggleFach = (id: ID) => {
     const aktiv = config.faecher.length ? config.faecher : [];
@@ -331,7 +331,7 @@ export function Statistik({ ctx }: { ctx: KartenCtx }) {
   const gelernt = staende.filter((s) => s.reps > 0 && !s.ausgesetzt);
   const gefestigt = gelernt.filter(istGefestigt);
   const ausgesetzt = staende.filter((s) => s.ausgesetzt);
-  const seit30 = new Date(Date.now() - 30 * 864e5).toISOString().slice(0, 10);
+  const seit30 = addDays(heuteTag(), -30);
   const quote = trefferquote(daten.logs.filter((l) => l.date >= seit30));
   const woche = prognose(gelernt, heute, 7);
   const maxWoche = Math.max(1, ...woche.map((x) => x.anzahl));

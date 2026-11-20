@@ -2,6 +2,16 @@
 
 export const DEFAULT_TZ = 'Europe/Berlin';
 
+/** Zeitzone für „heute“ in der ganzen App. Setzt der globale Filter beim Start und in den Einstellungen. */
+let tagesZone = DEFAULT_TZ;
+export function setzeTagesZone(zone: string) { tagesZone = zone || DEFAULT_TZ; }
+
+/**
+ * Heutiger Kalendertag (YYYY-MM-DD) in der eingestellten Zeitzone, nicht in UTC.
+ * Sonst zählt eine Runde zwischen 0 und 1 Uhr (Sommerzeit 0 und 2 Uhr) zum Vortag (Audit R-4).
+ */
+export function heuteTag(jetzt: Date = new Date()): string { return dayKey(jetzt, tagesZone); }
+
 /** Kalendertag (YYYY-MM-DD) eines Zeitpunkts in einer Zeitzone. */
 export function dayKey(instant: string | Date, timeZone = DEFAULT_TZ): string {
   const d = typeof instant === 'string' ? new Date(instant) : instant;

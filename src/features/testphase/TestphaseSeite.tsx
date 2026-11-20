@@ -16,6 +16,7 @@ import {
 } from './testphase';
 import { GRUND_LABEL, ladeMeldungen, type Grund } from '../qm/meldungen';
 import { alsGesehenMerken, NEUIGKEITEN, ungesehen, zuletztGesehen } from './neuigkeiten';
+import { heuteTag } from '../../ui/lib/time';
 
 type Ansicht = 'start' | 'neu' | 'auftraege' | 'rueckmeldung' | 'auswerten';
 const ANSICHTEN: Array<{ id: Ansicht; label: string }> = [
@@ -317,8 +318,8 @@ function Auswerten() {
               {ue.jeSeite.slice(0, 8).map((s) => <li key={s.seite}>{s.seite ? <a href={`#${s.seite}`}>{name(s.seite)}</a> : 'Allgemein'}: {s.anzahl}{s.fehler ? `, davon ${s.fehler} Fehler` : ''}</li>)}
             </ul>
             <div className="row">
-              <button type="button" onClick={() => speichereDatei(`rueckmeldungen-${new Date().toISOString().slice(0, 10)}.csv`, alsCsv(liste, (p) => seitenName(p), stand), 'text/csv;charset=utf-8')}>Als CSV speichern</button>
-              <button type="button" onClick={() => speichereDatei(`rueckmeldungen-${new Date().toISOString().slice(0, 10)}.json`, sammelDatei(), 'application/json')}>Sammel-Datei speichern</button>
+              <button type="button" onClick={() => speichereDatei(`rueckmeldungen-${heuteTag()}.csv`, alsCsv(liste, (p) => seitenName(p), stand), 'text/csv;charset=utf-8')}>Als CSV speichern</button>
+              <button type="button" onClick={() => speichereDatei(`rueckmeldungen-${heuteTag()}.json`, sammelDatei(), 'application/json')}>Sammel-Datei speichern</button>
               <button type="button" className="ghost" onClick={() => { if (confirm('Alle gesammelten Rückmeldungen auf diesem Gerät löschen?')) { setListe(entferneGesammelt()); setStand(bearbeitungen()); } }}>Alle löschen</button>
             </div>
           </section>

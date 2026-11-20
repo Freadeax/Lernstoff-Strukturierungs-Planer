@@ -269,7 +269,7 @@ const dateiname = (t: string) => (t.trim() || 'mindmap').replace(/[^\p{L}\p{N}]+
 /** Frühere Fassungen dieser Mindmap (nur auf diesem Gerät) mit Wiederherstellen. */
 function FruehereFassungen({ m, onWiederherstellen }: { m: Mindmap; onWiederherstellen: (f: Fassung) => void }) {
   const [offen, setOffen] = useState(false);
-  const liste = useMemo(() => (offen ? fassungenVon(m.id) : []), [offen, m.id, m.rev]);
+  const liste = useMemo(() => (offen ? fassungenVon(m.id) : []), [offen, m.id, m.rev]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: Auslöser für Neuberechnung (neue Runde, Seitenwechsel)
   return (
     <details className="mm__fassungen" onToggle={(e) => setOffen((e.target as HTMLDetailsElement).open)}>
       <summary>Frühere Fassungen{m.rev && m.rev > 1 ? ` (aktuell Fassung ${m.rev})` : ''}</summary>
@@ -542,7 +542,7 @@ export default function Mindmaps() {
   return (
     <section className="page mm">
       <div className="page__head">
-        <h2>Mindmaps</h2>
+        <h1>Mindmaps</h1>
         <p className="muted">Wissen als Mindmap ordnen, dann abrufen: Lücken füllen oder alles aus dem Gedächtnis aufschreiben. Mit einem Thema verknüpft, zählt das Abrufen im Lernplan.</p>
       </div>
       {id && !m ? (

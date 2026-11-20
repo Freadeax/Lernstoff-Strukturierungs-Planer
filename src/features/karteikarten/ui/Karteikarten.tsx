@@ -40,25 +40,25 @@ function Start({ ctx, thema, titel, krankheit, onStart }: { ctx: KartenCtx; them
   const [quellen, setQuellen] = useState<KartenQuelle[]>([]);
   const vorhanden = useMemo(() => (Object.keys(QUELLE_LABEL) as KartenQuelle[]).filter((q) => daten.alle.some((k) => k.quelle === q)), [daten]);
   const opts = { heute, config: daten.config, neueHeuteSchon: neueHeute(daten.staende.values(), heute), themen, ref: profil?.id, quellen };
-  const plan = useMemo(() => stelleSitzungZusammen(daten.alle, daten.staende, opts), [daten, heute, thema, profil, quellen]);
+  const plan = useMemo(() => stelleSitzungZusammen(daten.alle, daten.staende, opts), [daten, heute, thema, profil, quellen]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: übrige Werte leiten sich aus den genannten ab
   const schnell = useMemo(() => {
     const o = { ...opts, config: { ...daten.config, sitzungsGroesse: 10 } };
     const s = stelleSitzungZusammen(daten.alle, daten.staende, o);
     return s.karten.length ? s : stelleSitzungZusammen(daten.alle, daten.staende, { ...o, vorziehen: true });
-  }, [daten, heute, thema, profil, quellen]);
+  }, [daten, heute, thema, profil, quellen]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: übrige Werte leiten sich aus den genannten ab
   const imPool = (k: Karte) => (!quellen.length || quellen.includes(k.quelle));
-  const problem = useMemo(() => problemSitzung(daten.alle.filter(imPool), daten.staende, heute, daten.config.sitzungsGroesse), [daten, heute, quellen]);
+  const problem = useMemo(() => problemSitzung(daten.alle.filter(imPool), daten.staende, heute, daten.config.sitzungsGroesse), [daten, heute, quellen]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: übrige Werte leiten sich aus den genannten ab
   const problemGesamt = useMemo(() => [...daten.staende.values()].filter((s) => istProblem(s, heute)).length, [daten, heute]);
   const umschalten = (q: KartenQuelle) => setQuellen((alt) => (alt.includes(q) ? alt.filter((x) => x !== q) : [...alt, q]));
-  const nurFaellig = useMemo(() => stelleSitzungZusammen(daten.alle, daten.staende, { ...opts, nur: 'faellig' }), [daten, heute, thema, profil, quellen]);
-  const nurNeu = useMemo(() => stelleSitzungZusammen(daten.alle, daten.staende, { ...opts, nur: 'neu' }), [daten, heute, thema, profil, quellen]);
+  const nurFaellig = useMemo(() => stelleSitzungZusammen(daten.alle, daten.staende, { ...opts, nur: 'faellig' }), [daten, heute, thema, profil, quellen]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: übrige Werte leiten sich aus den genannten ab
+  const nurNeu = useMemo(() => stelleSitzungZusammen(daten.alle, daten.staende, { ...opts, nur: 'neu' }), [daten, heute, thema, profil, quellen]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: übrige Werte leiten sich aus den genannten ab
   // Themen mit Karten für den themenbezogenen Einstieg (oberste Ebene, nach Anzahl)
   const themenMitKarten = useMemo(() => {
     const zahl = new Map<ID, number>();
     for (const k of daten.alle) for (const t of k.topicIds) { const top = oberthema(t); zahl.set(top, (zahl.get(top) ?? 0) + 1); }
     return [...zahl].filter(([id]) => alleThemen.has(id)).sort((a, b) => b[1] - a[1]);
   }, [daten]);
-  const vorziehen = useMemo(() => (plan.karten.length ? null : stelleSitzungZusammen(daten.alle, daten.staende, { ...opts, vorziehen: true })), [plan]);
+  const vorziehen = useMemo(() => (plan.karten.length ? null : stelleSitzungZusammen(daten.alle, daten.staende, { ...opts, vorziehen: true })), [plan]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: übrige Werte leiten sich aus den genannten ab
   const themaName = profil?.name ?? (titel?.slice(0, 80) || (themaIds.length === 1 ? alleThemen.get(themaIds[0]!)?.name : themaIds.length > 1 ? `${themaIds.length} Themen` : thema));
   const gezielt = !!thema || !!profil;
   const gelernt = [...daten.staende.values()].filter((s) => s.reps > 0).length;
@@ -178,14 +178,14 @@ export default function Karteikarten() {
   }, [neuLaden]);
   // Menü oder Zurück-Taste während einer Sitzung: Sitzung verlassen. Antworten sind schon gespeichert,
   // das Ergebnis meldet die Sitzung beim Verlassen selbst an den Lernplan.
-  useEffect(() => { setSitzung(null); void neuLaden(); }, [ansicht, thema, titel, krankheit]);
+  useEffect(() => { setSitzung(null); void neuLaden(); }, [ansicht, thema, titel, krankheit]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: läuft bewusst nur, wenn sich die genannten Werte ändern (Ereignis)
 
   const wechsel = (a: Ansicht) => navigate(`/lernen/karten${a === 'lernen' ? (thema ? `?thema=${encodeURIComponent(thema)}` : '') : `?ansicht=${a}`}`);
 
   return (
     <section className="page karten">
       <div className="page__head">
-        <h2>Karteikarten</h2>
+        <h1>Karteikarten</h1>
         <p className="muted">Fachbegriffe, Katalogwissen, Medikamenten- und Krankheitsbild-Steckbriefe und deine eigenen Zusammenfassungen mit Wiederholung im richtigen Abstand. Funktioniert offline, alles bleibt auf diesem Gerät.</p>
       </div>
       <SeitenHilfe path="/lernen/karten" />

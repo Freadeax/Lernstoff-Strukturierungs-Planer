@@ -58,8 +58,8 @@
 .praxis-ce__kopf { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2) var(--space-3); }
 .praxis-ce__kopf h2 { margin: 0; }
 .praxis-ce__gruppe { margin-top: var(--space-5); }
-.praxis-ce__gruppenkopf { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-2); }
-.praxis-ce__gruppenkopf h3 { margin: 0; font-size: var(--text-lg); }
+.praxis-ce__gruppenkopf { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: var(--space-1) var(--space-3); margin-bottom: var(--space-2); }
+.praxis-ce__gruppenkopf h3 { margin: 0; font-size: var(--text-lg); min-width: 0; }
 .praxis-ce__code { display: inline-block; min-width: 3.5em; font-variant-numeric: tabular-nums; color: var(--color-text-muted); font-weight: 600; }
 .praxis-ce__leer, .praxis-ce__geplant { margin: var(--space-1) 0 0; font-size: var(--text-sm); }
 .praxis-fall__text h4 { margin: 0; font-size: var(--text-lg); font-weight: 600; }

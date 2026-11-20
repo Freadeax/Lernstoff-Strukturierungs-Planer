@@ -143,7 +143,7 @@
 
 /* Seiten */
 .page__head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--space-2); }
-.page__head h2 { margin: 0; }
+.page__head h1, .page__head h2 { margin: 0; }
 .page__head p { margin: 0; flex-basis: 100%; }
 .button-link {
   display: inline-flex; align-items: center; min-height: var(--control-h-sm); padding: 0 var(--space-3);
