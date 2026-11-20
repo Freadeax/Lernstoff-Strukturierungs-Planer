@@ -1,7 +1,7 @@
 // Handschrift und schwierige Scans über die Bilderkennung von Claude.
 // Datenschutz: Das Bild verlässt das Gerät. Nur mit ausdrücklicher Zustimmung pro Dokument aufrufen
 // (Praxisnotizen können Patientendaten enthalten). Schlüsselverwaltung entscheidet der Architektur-Thread.
-import Anthropic from '@anthropic-ai/sdk';
+import { frageClaude, textAus } from '../../../../core/ki/claude';
 import type { Block } from '../types';
 import { ILLEGIBLE, type OcrEngine, type OcrPage } from './engine';
 
@@ -16,26 +16,21 @@ Regeln:
 Gib ausschließlich die Transkription aus.`;
 
 export function createClaudeVisionEngine(opts: { apiKey?: string; model?: string } = {}): OcrEngine {
-  const client = new Anthropic({ apiKey: opts.apiKey, dangerouslyAllowBrowser: true });
   return {
     name: 'claude',
     async recognize(image: Uint8Array, mediaType: string): Promise<OcrPage> {
-      const response = await client.beta.messages.create({
-        model: opts.model ?? 'claude-opus-5-5',
-        max_tokens: 16000,
-        betas: ['server-side-fallback-2026-07-01'],
-        fallbacks: 'default',
-        output_config: { effort: 'low' },
+      const response = await frageClaude({
+        apiKey: opts.apiKey ?? '', modul: 'ocr', model: opts.model, maxTokens: 16000, effort: 'low',
         messages: [{
           role: 'user',
           content: [
-            { type: 'image', source: { type: 'base64', media_type: mediaType as 'image/png', data: toBase64(image) } },
+            { type: 'image', source: { type: 'base64', media_type: mediaType, data: toBase64(image) } },
             { type: 'text', text: PROMPT },
           ],
         }],
-      } as Anthropic.Beta.MessageCreateParamsNonStreaming);
-      if (response.stop_reason === 'refusal') throw new Error('Transkription abgelehnt');
-      const text = response.content.flatMap((b) => (b.type === 'text' ? [b.text] : [])).join('\n');
+        abgelehnt: 'Transkription abgelehnt',
+      });
+      const text = textAus(response, '\n');
       return parseTranscript(text);
     },
   };
