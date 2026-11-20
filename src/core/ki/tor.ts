@@ -5,7 +5,7 @@
 /** Adresse des Workers. Leer = KI-Tor aus (dann nur eigener Schlüssel oder Offline-Katalog). */
 export const KI_TOR_ADRESSE = 'https://lernstoff-ki-tor.team-room.workers.dev';
 /** Wird erst true, wenn das Tor veröffentlicht ist (siehe ki-tor/README.md). */
-export const KI_TOR_AKTIV = false;
+export const KI_TOR_AKTIV = true;
 
 export type TorAufgabe = 'rolle' | 'zuordnen' | 'rueckmeldung';
 export interface TorNachricht { rolle: 'nutzer' | 'ki'; text: string }

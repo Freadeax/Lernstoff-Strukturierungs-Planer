@@ -133,7 +133,7 @@ export default {
 
     const aufgabe = AUFGABEN[a.aufgabe];
     const messages = [
-      { role: 'system', content: aufgabe.system(a.kontext) },
+      { role: 'system', content: aufgabe.system(a.kontext) + (aufgabe.schema ? `\nAntworte ausschließlich mit einem einzigen JSON-Objekt (ohne Text davor oder danach, ohne Codeblock) nach diesem Schema: ${JSON.stringify(aufgabe.schema)}` : '') },
       ...(aufgabe.verlaufAlsText
         ? [{ role: 'user', content: a.verlauf.map((n) => `${n.rolle === 'nutzer' ? 'ICH' : 'GEGENÜBER'}: ${n.text}`).join('\n') }]
         : a.verlauf.map((n) => ({ role: n.rolle === 'nutzer' ? 'user' : 'assistant', content: n.text }))),
@@ -141,7 +141,9 @@ export default {
     // Manche Modelle verlangen nach der Systemanweisung zuerst eine Nutzer-Nachricht.
     if (messages.length === 1 || messages[1]!.role !== 'user') messages.splice(1, 0, { role: 'user', content: aufgabe.start ?? 'Beginne.' });
     try {
-      const antwort = await env.AI.run(env.MODELL || STANDARD.modell, { messages, max_tokens: aufgabe.maxTokens, temperature: aufgabe.temperatur, ...(aufgabe.schema ? { response_format: { type: 'json_schema', json_schema: aufgabe.schema } } : {}) });
+      // Kein response_format: der JSON-Modus von Workers AI lieferte bei diesem Modell nur „{“ (Live-Test 20.11.2026).
+      // Das Schema steht stattdessen in der Anweisung, die App liest das JSON robust aus dem Text.
+      const antwort = await env.AI.run(env.MODELL || STANDARD.modell, { messages, max_tokens: aufgabe.maxTokens, temperature: aufgabe.temperatur });
       const text = textAus(antwort).trim();
       if (!text) return json({ fehler: 'Leere Antwort vom Modell.' }, 502, cors);
       return json({ text, restGeraet: k.restGeraet, restGesamt: k.restGesamt, modell: env.MODELL || STANDARD.modell }, 200, cors);
