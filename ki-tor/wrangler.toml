@@ -1,0 +1,26 @@
+# KI-Tor des Lernstoff-Planers (Cloudflare Worker). Veröffentlichen: siehe ki-tor/README.md.
+name = "lernstoff-ki-tor"
+main = "src/worker.ts"
+compatibility_date = "2026-11-01"
+workers_dev = true
+
+[ai]
+binding = "AI"
+
+[[durable_objects.bindings]]
+name = "KONTINGENT"
+class_name = "Kontingent"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Kontingent"]
+
+[vars]
+ERLAUBTE_HERKUNFT = "https://lernstoff-planer.pages.dev,https://freadeax.github.io,http://localhost:5173,http://localhost:4173"
+MODELL = "@cf/mistralai/mistral-small-3.1-24b-instruct"
+LIMIT_GERAET = "20"
+LIMIT_GESAMT = "300"
+# Geheim (nicht hier eintragen): npx wrangler secret put TURNSTILE_SECRET  /  ZUGANGSCODE
+
+[observability]
+enabled = false
