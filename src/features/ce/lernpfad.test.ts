@@ -37,7 +37,7 @@ describe('Lernpfad je Thema', () => {
       erarbeitet: true,
       karten: { gesamt: 5, gesehen: 5 },
       steckbriefe: [{ id: 'kb1', name: 'Pneumonie', gelesen: false }],
-      faelle: { anzahl: 1, geuebt: false, ziel: '/lernen/fall?thema=t1' },
+      faelle: { anzahl: 1, geuebt: false, ziel: '/lernen/praxis?art=kurz&thema=t1' },
       testZiel: '/x',
     });
     expect(themaPfad(f).naechster?.art).toBe('steckbrief');

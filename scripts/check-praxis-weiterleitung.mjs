@@ -74,8 +74,22 @@ try {
       await link.waitFor();
       assert.equal(await link.getAttribute('href'), '#/lernen/praxis?neu=kh-pneumonie-sepsis', `${ziel}: Weitergabe-Link`);
     }
+
+    // Kurzfälle (Audit U-2): der frühere Fallsimulator ist eine Fallart im Praxissimulator; alte Adressen leiten mit allen Angaben weiter.
+    await p.goto(base + '#/lernen/fall?thema=thema.pro.thrombose', { waitUntil: 'networkidle' });
+    await p.getByRole('heading', { name: 'Praxissimulator', exact: true }).waitFor();
+    await p.getByText('Probefälle ohne KI').waitFor();
+    assert.ok(p.url().endsWith('#/lernen/praxis?art=kurz&thema=thema.pro.thrombose'), `#/lernen/fall → Kurzfälle (ist ${p.url()})`);
+    assert.equal(await p.getByRole('group', { name: 'Fallart' }).getByRole('button', { name: 'Kurzfälle' }).getAttribute('aria-pressed'), 'true', 'Fallart Kurzfälle gewählt');
+    await axe('kurzfaelle');
+    await p.getByRole('button', { name: /^Probefall starten:/ }).first().click();
+    await p.getByRole('button', { name: 'Abbrechen' }).waitFor();
+    await p.getByRole('group', { name: 'Fallart' }).getByRole('button', { name: 'Praxisfälle' }).click();
+    await p.getByRole('button', { name: 'Weiter im Kurzfall' }).click();
+    await p.getByRole('button', { name: 'Abbrechen' }).waitFor();
+    assert.ok(p.url().endsWith('#/lernen/praxis?art=kurz'), 'offener Kurzfall wird fortgesetzt');
     await ctx.close();
   }
 } finally { await browser.close(); }
 assert.deepEqual(fehler, [], 'Praxis-Weiterleitung');
-console.log('Praxissimulator nach P10: Fallauswahl nur Kernfälle, alte Links (?fall/?neu/?gefuehrt) beim Nachfolger, Krankheitsbild/Thema, altes Archiv und alte Weitergabe-Links bei 390 und 1180 px geprüft; axe WCAG 2.2 AA ohne Befund.');
+console.log('Praxissimulator nach P10: Fallauswahl nur Kernfälle, alte Links (?fall/?neu/?gefuehrt) beim Nachfolger, Krankheitsbild/Thema, altes Archiv, alte Weitergabe-Links und Kurzfälle (früher #/lernen/fall) bei 390 und 1180 px geprüft; axe WCAG 2.2 AA ohne Befund.');

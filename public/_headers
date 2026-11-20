@@ -11,7 +11,7 @@
 # Die Kamera nutzt die App nicht (Fotos kommen über die Dateiauswahl, QR-Codes werden nur angezeigt), deshalb camera=().
 # Braucht eine neue Funktion eine Berechtigung, hier begründen und in scripts/check-csp.mjs mitprüfen.
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; style-src 'self'; img-src 'self' data: blob:; font-src 'self'; media-src 'self' blob:; connect-src 'self' blob: data: https://api.anthropic.com https://api.github.com https://uploads.github.com; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; style-src 'self'; img-src 'self' data: blob:; font-src 'self'; media-src 'self' blob:; connect-src 'self' blob: data: https://api.anthropic.com https://lernstoff-ki-tor.team-room.workers.dev https://api.github.com https://uploads.github.com; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
   Referrer-Policy: no-referrer

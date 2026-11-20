@@ -68,7 +68,9 @@ try {
     await page.waitForTimeout(200);
     const text = await page.locator('main').first().innerText().catch(() => '');
     if (!text.trim()) fehler.push(`offline ${route}: leere Seite`);
-    if (/Dieser Bereich hat gerade einen Fehler|Neue Version verfügbar/.test(text)) fehler.push(`offline ${route}: Fehlerseite`);
+    // Nur die Überschrift der Fehlerseite zählt: die Testphase erklärt den Text „Neue Version verfügbar“ in ihrem Fließtext.
+    const titel = await page.locator('main h1').allInnerTexts().catch(() => []);
+    if (titel.some((t) => /Dieser Bereich hat gerade einen Fehler|Neue Version verfügbar/.test(t))) fehler.push(`offline ${route}: Fehlerseite`);
     for (const e of laufzeit) fehler.push(`offline ${route}: ${e}`);
   }
   // kalter Start ohne Netz

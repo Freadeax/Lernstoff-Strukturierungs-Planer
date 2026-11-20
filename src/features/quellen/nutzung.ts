@@ -3,6 +3,7 @@
 // Originalquellen der Assessment-Instrumente. Neue Inhalte mit Freigabe hier ergänzen; der Test
 // quellen.test.ts verlangt dann für jede Quellenangabe einen Eintrag im Quellenregister.
 
+import { kurzfallPfad } from '../praxis/pfad';
 import type { Freigabe, Quelle } from '../../ui/sim/freigabe';
 import { HANDLUNGSVIDEOS } from '../../ui/sim/handlungsvideos';
 import { TRAINER_REGISTER } from '../qm/register';
@@ -49,7 +50,7 @@ export function alleNutzungen(): Nutzung[] {
   for (const [id, f] of Object.entries(PROFIL_FREIGABE)) out.push(...aus('Reanimation', `Reanimation ${id}`, '/lernen/fertigkeiten?uebung=rea', f));
   for (const [id, f] of Object.entries(NOTFALL_FREIGABE)) out.push(...aus('ABCDE-Notfall', `ABCDE ${id}`, '/lernen/fertigkeiten?uebung=abcde', f));
   for (const f of DIAGNOSTIK_FAELLE) out.push(...aus('Diagnostik', `Diagnostik ${f.titel}`, '/lernen/diagnostik', diagnostikFreigabe(f)));
-  for (const s of [...SZENARIEN, ...PROBEFAELLE.map((p) => p.szenario)]) out.push(...aus('Fallsimulator', `Fall ${s.titel}`, '/lernen/fall', freigabeFuerFall(s)));
+  for (const s of [...SZENARIEN, ...PROBEFAELLE.map((p) => p.szenario)]) out.push(...aus('Praxissimulator · Kurzfälle', `Fall ${s.titel}`, kurzfallPfad(), freigabeFuerFall(s)));
   for (const v of Object.values(HANDLUNGSVIDEOS)) out.push(...aus('Handlungsvideos', `Video ${v.titel}`, '/lernen/praxis', v.freigabe));
   // Praxissimulator neu (Kern): Fälle und Handlungskatalog. Stand = erste Jahreszahl der Quellenangabe (Audit P20).
   for (const f of FAELLE_V2) for (const q of f.quellen) out.push({ inhalt: `Praxisfall (neu) ${f.titel.replace(/[„“]/g, '')}`, bereich: 'Praxissimulator (neu)', pfad: `/lernen/praxis?neu=${f.id}`, quelle: kernQuelle(q.titel), risiko: f.spur === 'B' });

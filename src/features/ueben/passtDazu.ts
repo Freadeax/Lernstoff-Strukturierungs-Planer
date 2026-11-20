@@ -5,7 +5,7 @@
 
 import type { CatalogModule } from '../../modules/catalog-types';
 import { modules } from '../../modules/registry';
-import { flatNav, LERNSEITEN, NAV } from '../../ui/shell/nav';
+import { flatNav, LERNSEITEN, NAV, UEBUNGS_BUENDEL, UNTERSEITEN } from '../../ui/shell/nav';
 import { leafTopics } from '../lernplan/store';
 import { uebungenFuer, type TrainerId } from '../lernplan/trainer';
 import { UEBUNG_INFO } from './katalog';
@@ -96,8 +96,7 @@ export const WEITER: Record<string, string[]> = {
 
 /** Übungsseiten (Menü-IDs unter „Üben“), auf denen die Leiste erscheint. */
 export function uebungsSeiten(): Map<string, string> {
-  const ueben = NAV.find((i) => i.id === 'ueben')?.children ?? [];
-  return new Map(flatNav(ueben).filter((i) => i.id !== 'ueben-alle').map((i) => [i.path!, i.id]));
+  return new Map(flatNav(UEBUNGS_BUENDEL).map((i) => [i.path!, i.id]));
 }
 
 type Uebersicht = { blaetter: ReturnType<typeof leafTopics>; je: Map<string, ReturnType<typeof uebungenFuer>>; breite: Map<string, number> };
@@ -120,7 +119,7 @@ function uebersicht(modul: CatalogModule): Uebersicht {
 
 export function passtDazu(id: string, modul: CatalogModule = modules[0] as CatalogModule): PasstDazu {
   const seiten = new Map([...uebungsSeiten()].map(([p, i]) => [i, p]));
-  const label = new Map(flatNav(NAV).map((n) => [n.id, n.label]));
+  const label = new Map([...flatNav(NAV), ...UNTERSEITEN].map((n) => [n.id, n.label]));
   const namen = new Map(modul.topics.map((t) => [t.id, t.name]));
 
   const { blaetter, je, breite } = uebersicht(modul);
