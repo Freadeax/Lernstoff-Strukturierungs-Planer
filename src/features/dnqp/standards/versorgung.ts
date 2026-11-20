@@ -308,7 +308,7 @@ export const DEMENZ: Expertenstandard = {
     'Zentrales Werkzeug ist die Verstehenshypothese: eine begründete Annahme über Erleben, Sinngebung und Verhalten des Menschen.',
     'Viele Empfehlungen beruhen auf Fachexpertise, weil die Studienlage begrenzt ist.',
     'In der Fassung 2018/2019 nicht Gegenstand: herausforderndes Verhalten, Palliativversorgung und frontotemporale Demenz.',
-    'Die 1. Aktualisierung 2026 passt Kriterien und Kommentierungen an den aktuellen Wissensstand an. Was sich im Einzelnen geändert hat, ist hier noch nicht eingearbeitet.',
+    'Die 1. Aktualisierung 2026 (vorgestellt am 25.09.2026) behält die Zielsetzung und die fünf Ebenen. Nach Fachberichten betont sie Beziehungsgestaltung als Grundhaltung bei jeder pflegerischen Handlung, die Verstehenshypothese, soziale Teilhabe, Vielfalt (z. B. Migrationsgeschichte, Behinderung) und das Einbeziehen der Menschen mit Demenz selbst in Information und Entscheidungen. Der Wortlaut der neuen Kriterien ist hier noch nicht eingearbeitet.',
   ],
   kriterien: [
     ebene(1, 'Haltung und Einschätzung',

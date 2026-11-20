@@ -133,7 +133,8 @@ export const GESETZE: QuellenEintrag[] = [
   },
   {
     id: 'gesetz.psychkhg-bw', titel: 'Gesetz über Hilfen und Schutzmaßnahmen bei psychischen Krankheiten Baden-Württemberg (PsychKHG BW)', herausgeber: 'Landesgesetzgeber Baden-Württemberg', art: 'gesetz', muster: /PsychKHG BW/,
-    aktuell: { stand: 'Fassung laut landesrecht-bw.de', fundstelle: 'https://www.landesrecht-bw.de/' }, beobachten: 'https://www.landesrecht-bw.de/', intervallMonate: 12,
+    aktuell: { stand: 'zuletzt geändert 2026 (elektronische Form, Drs. 17/10254)', fundstelle: 'https://www.landtag-bw.de/resource/blob/618362/79c854ea1acf4aa14aef2c9ad97d4cf1/17_10254_D.pdf' }, geprueftAm: AUDIT_GEPRUEFT, beobachten: 'https://www.landesrecht-bw.de/', intervallMonate: 12,
+    hinweis: 'Am 20.11.2026: Landtagsbeschluss 04.02.2026 lässt in § 6 und § 7 die elektronische Form neben der Schriftform zu; Kerninhalte (Unterbringung, Zwangsmaßnahmen) unverändert.',
   },
 ];
 
@@ -216,7 +217,7 @@ export const LEITLINIEN: QuellenEintrag[] = [
   {
     id: 'espghan.gastroenteritis', titel: 'ESPGHAN/ESPID: Akute Gastroenteritis bei Kindern', herausgeber: 'ESPGHAN und ESPID', art: 'leitlinie', muster: /^ESPGHAN/,
     aktuell: { stand: '2014', fundstelle: 'https://pubmed.ncbi.nlm.nih.gov/?term=ESPGHAN+ESPID+acute+gastroenteritis+children+2014' }, beobachten: 'https://www.espghan.org/', intervallMonate: 12,
-    hinweis: 'Für Deutschland gibt es die AWMF-S2k-Leitlinie Akute infektiöse Gastroenteritis bei Säuglingen, Kindern und Jugendlichen (068-003, Stand 05/2024). Sie wäre die passendere Quelle.',
+    hinweis: 'Für Deutschland gibt es die AWMF-S2k-Leitlinie Akute infektiöse Gastroenteritis bei Säuglingen, Kindern und Jugendlichen (068-003, Stand 05/2024). Sie wäre die passendere Quelle. Am 20.11.2026 kein ESPGHAN-Update gefunden.',
   },
   {
     id: 'jbds.hypo', titel: 'JBDS: Hospital management of hypoglycaemia in adults with diabetes', herausgeber: 'Joint British Diabetes Societies', art: 'leitlinie', muster: /^JBDS(: (The )?[Hh]ospital management of hypoglycaemia)/,
@@ -236,8 +237,10 @@ export const LEITLINIEN: QuellenEintrag[] = [
     hinweis: '2026 kamen ein Qualitätsstandard und Ausbildungsstandards dazu, keine neue Leitlinie.',
   },
   {
-    id: 'esge.blutung', titel: 'ESGE: Nonvariceal upper GI hemorrhage', herausgeber: 'European Society of Gastrointestinal Endoscopy', art: 'leitlinie', muster: /^ESGE Guideline/,
-    aktuell: { stand: '2021', fundstelle: 'https://pubmed.ncbi.nlm.nih.gov/?term=ESGE+nonvariceal+upper+gastrointestinal+hemorrhage+2021' }, beobachten: 'https://www.esge.com/', intervallMonate: 12,
+    id: 'esge.blutung', titel: 'ESGE: Peptic ulcer bleeding (früher Nonvariceal upper GI hemorrhage)', herausgeber: 'European Society of Gastrointestinal Endoscopy', art: 'leitlinie', muster: /^ESGE Guideline/,
+    aktuell: { stand: 'Update 2026', erschienen: '2026-05-13', fundstelle: 'https://www.esge.com/assets/downloads/pdfs/guidelines/2026_a-2863-8314.pdf' }, geprueftAm: AUDIT_GEPRUEFT, beobachten: 'https://www.esge.com/', intervallMonate: 12,
+    kern: 'Update 2026 (Endoscopy 2026;58:899–924) gilt für Ulkusblutungen: Glasgow-Blatchford-Score, Transfusion ab Hb < 7 g/dl, bei Herz-Kreislauf-Erkrankung ab ≤ 8 g/dl, Endoskopie innerhalb 24 h, Erythromycin i. v. vorher, danach 72 h hochdosiert PPI, Kostaufbau innerhalb 24 h, ASS in der Regel nicht absetzen.',
+    hinweis: 'Abgleich 20.11.2026: Diagnostik-Fall GI-Blutung (KHK, Hb 8,2 fallend) passt; Zitat auf 2026 gehoben.',
   },
   {
     id: 'krinko', titel: 'KRINKO-Empfehlungen (RKI), u. a. Händehygiene', herausgeber: 'Kommission für Krankenhaushygiene und Infektionsprävention am RKI', art: 'empfehlung', muster: /^KRINKO(?!: Prävention)/,
@@ -359,10 +362,12 @@ export const PRAXIS_LEITLINIEN: QuellenEintrag[] = [
   {
     id: 'aap.fieberkrampf', titel: 'American Academy of Pediatrics: Febrile Seizures', herausgeber: 'American Academy of Pediatrics', art: 'leitlinie', muster: /^American Academy of Pediatrics: Febrile Seizures/,
     aktuell: { stand: '2008 und 2011', fundstelle: 'https://publications.aap.org/pediatrics' }, beobachten: 'https://publications.aap.org/pediatrics', intervallMonate: 24,
+    hinweis: 'Am 20.11.2026 gesucht: kein Update und keine Reaffirmation gefunden, aber auch nicht sicher ausgeschlossen.',
   },
   {
     id: 'gnp.fieberkrampf', titel: 'Gesellschaft für Neuropädiatrie: Elterninformation Fieberkrampf', herausgeber: 'Gesellschaft für Neuropädiatrie', art: 'empfehlung', muster: /^Gesellschaft für Neuropädiatrie/,
     aktuell: { stand: 'Elterninformation ohne Jahresangabe', fundstelle: 'https://gesellschaft-fuer-neuropaediatrie.org/' }, beobachten: 'https://gesellschaft-fuer-neuropaediatrie.org/', intervallMonate: 24,
+    hinweis: 'Am 20.11.2026: Seite der Gesellschaft ließ keinen automatischen Abruf zu; bitte von Hand nachsehen.',
   },
   {
     id: 'priscus', titel: 'PRISCUS 2.0 – potenziell inadäquate Medikation für ältere Menschen', herausgeber: 'Universität Witten/Herdecke', art: 'empfehlung', muster: /^PRISCUS/,
@@ -385,7 +390,8 @@ export const PRAXIS_LEITLINIEN: QuellenEintrag[] = [
   },
   {
     id: 'charta.pflege', titel: 'Charta der Rechte hilfe- und pflegebedürftiger Menschen', herausgeber: 'BMFSFJ und BMG', art: 'empfehlung', muster: /^Charta der Rechte hilfe- und pflegebedürftiger/,
-    aktuell: { stand: '2005 (Neuauflagen ohne inhaltliche Änderung)', fundstelle: 'https://www.pflege-charta.de/' }, beobachten: 'https://www.pflege-charta.de/', intervallMonate: 24,
+    aktuell: { stand: '2005 (Neuauflagen ohne inhaltliche Änderung)', fundstelle: 'https://www.bmbfsfj.bund.de/bmbfsfj/service/publikationen/charta-der-rechte-hilfe-und-pflegebeduerftiger-menschen-77446' }, geprueftAm: AUDIT_GEPRUEFT, beobachten: 'https://www.pflege-charta.de/', intervallMonate: 24,
+    hinweis: 'Am 20.11.2026: weiterhin Text von 2005, Broschüre jetzt beim BMBFSFJ.',
   },
   {
     id: 'lehrplan.bw', titel: 'Landeslehrplan Baden-Württemberg, Berufsfachschule für Pflege (3BFP)', herausgeber: 'Ministerium für Kultus, Jugend und Sport Baden-Württemberg', art: 'gesetz', muster: /^Landeslehrplan BW/,
@@ -393,7 +399,8 @@ export const PRAXIS_LEITLINIEN: QuellenEintrag[] = [
   },
   {
     id: 'krinko.vap', titel: 'KRINKO: Prävention der nosokomialen beatmungsassoziierten Pneumonie', herausgeber: 'Kommission für Krankenhaushygiene und Infektionsprävention am RKI', art: 'empfehlung', muster: /^KRINKO: Prävention der nosokomialen beatmungsassoziierten/,
-    aktuell: { stand: '2013', fundstelle: 'https://www.rki.de/' }, beobachten: 'https://www.rki.de/', intervallMonate: 12,
+    aktuell: { stand: '2013', fundstelle: 'https://www.rki.de/' }, geprueftAm: AUDIT_GEPRUEFT, beobachten: 'https://www.rki.de/', intervallMonate: 12,
+    hinweis: 'Am 20.11.2026: keine Neufassung gefunden; die Empfehlung von 2013 steht weiter bei den aktuellen KRINKO-Empfehlungen.',
   },
   {
     id: 'esc.acs', titel: 'ESC-Leitlinie akutes Koronarsyndrom (mit DGK-Pocket-Leitlinie)', herausgeber: 'European Society of Cardiology, DGK', art: 'leitlinie', muster: /ESC Guidelines for the management of acute coronary syndromes|DGK Pocket-Leitlinie Akutes Koronarsyndrom/,
@@ -516,7 +523,9 @@ export const PRAXIS_LEITLINIEN: QuellenEintrag[] = [
   },
   {
     id: 'mts', titel: 'Manchester-Triage-System (Ersteinschätzung in der Notaufnahme)', herausgeber: 'Manchester Triage Group', art: 'instrument', muster: /^Manchester-Triage-System/,
-    aktuell: { stand: '3. Auflage 2014', fundstelle: 'https://www.triagenet.net/' }, beobachten: 'https://www.triagenet.net/', intervallMonate: 24,
+    aktuell: { stand: '6. Auflage 2025', erschienen: '2025-01-01', fundstelle: 'https://www.hogrefe.com/de/shop/ersteinschaetzung-in-der-notaufnahme-99903.html' }, geprueftAm: AUDIT_GEPRUEFT, beobachten: 'https://www.triagenet.net/', intervallMonate: 24,
+    kern: 'Hogrefe 2025 (Krey, Mackway-Jones, Marsden, Windle): neues Kapitel Rechtslage, psychiatrische Indikatoren und Schmerzmeter überarbeitet. Fünf Farben/Zeitziele unverändert.',
+    hinweis: 'Abgleich 20.11.2026: Der Brustschmerz-Fall nutzt nur Indikator Brustschmerz und Farbe Rot; Zitat auf 6. Auflage gehoben. Erscheinungstag nicht belegt (Jahr 2025).',
   },  // Praxisfälle P17a/P17b (CE02, CE04, CE07). Am 19.11.2026 (P20) per Websuche beim Herausgeber bzw. im AWMF-Register nachgesehen.
   {
     id: 'nvl.herzinsuffizienz', titel: 'Nationale VersorgungsLeitlinie Chronische Herzinsuffizienz', herausgeber: 'BÄK, KBV, AWMF', art: 'leitlinie', muster: /VersorgungsLeitlinie Chronische Herzinsuffizienz/,

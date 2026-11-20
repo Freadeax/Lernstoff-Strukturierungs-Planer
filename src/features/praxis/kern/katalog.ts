@@ -55,7 +55,7 @@ const Q = {
   gcs: { id: 'gcs', titel: 'Teasdale G, Jennett B: Glasgow Coma Scale (1974)' },
   pflbg: { id: 'pflbg', titel: 'Pflegeberufegesetz (PflBG) § 4 vorbehaltene Tätigkeiten' },
   bgb1831: { id: 'bgb-1831', titel: 'BGB § 1831 Freiheitsentziehende Unterbringung und Maßnahmen' },
-  mts: { id: 'mts', titel: 'Manchester-Triage-System, 3. Auflage 2014' },
+  mts: { id: 'mts', titel: 'Manchester-Triage-System, 6. Auflage 2025' },
   rass: { id: 'rass', titel: 'Richmond Agitation-Sedation Scale (RASS), Sessler et al. 2002' },
   camicu: { id: 'cam-icu', titel: 'CAM-ICU (Ely et al. 2001)' },
   bps: { id: 'bps', titel: 'Behavioral Pain Scale (BPS), Payen et al. 2001' },
