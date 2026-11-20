@@ -53,7 +53,7 @@ export const PAED_FIEBERKRAMPF: FallV2 = {
     ],
   },
   quellen: [
-    { id: 'nice-fieber', titel: 'NICE NG143: Fever in under 5s – assessment and initial management (2019, aktualisiert 2021)' },
+    { id: 'nice-fieber', titel: 'NICE NG143: Fever in under 5s – assessment and initial management (aktualisiert 2024, erstmals 2019)' },
     { id: 'aap-fieberkrampf', titel: 'American Academy of Pediatrics: Febrile Seizures – Clinical Practice Guideline (2008) und Neurodiagnostic Evaluation (2011)' },
     { id: 'erc-kinder', titel: 'ERC Guidelines 2025: Paediatric Life Support (lebensrettende Maßnahmen bei Kindern)' },
     { id: 'gnp-fieberkrampf', titel: 'Gesellschaft für Neuropädiatrie: Elterninformation Fieberkrampf', fundstelle: 'ohne Jahresangabe, Abruf beim Herausgeber' },

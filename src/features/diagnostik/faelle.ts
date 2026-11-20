@@ -424,7 +424,7 @@ export const FAELLE: DiagnostikFall[] = [
       { id: 'r1', text: 'R: Bitte sofort kommen; Sauerstoff angelegt, Anordnung für Inhalation und Kortison?', relevant: true },
     ],
     anordnungen: [
-      { id: 'o2', label: 'Sauerstoff nach Anordnung', text: 'Fiktiv: Sauerstoff über Maske, Ziel-SpO₂ 94–98 %.', flag: 'o2', dauer: 2 },
+      { id: 'o2', label: 'Sauerstoff nach Anordnung', text: 'Fiktiv: Sauerstoff über Maske, weil SpO₂ unter 92 %; Ziel nicht über 95 % (GINA 2026).', flag: 'o2', dauer: 2 },
       { id: 'salbutamol', label: 'Salbutamol über Spacer nach Anordnung', text: 'Fiktiv: Salbutamol-Dosieraerosol über Spacer mit Maske, Hubzahl und Wiederholung laut ärztlicher Anordnung.', flag: 'salbutamol', dauer: 10 },
       { id: 'steroid', label: 'Kortison (Prednisolon) nach Anordnung', text: 'Fiktiv: Prednisolon nach Körpergewicht laut ärztlicher Anordnung.', flag: 'steroid', dauer: 5 },
     ],

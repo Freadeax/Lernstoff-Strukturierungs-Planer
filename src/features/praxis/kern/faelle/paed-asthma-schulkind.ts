@@ -10,7 +10,7 @@ const aus = (id: string, mehr: Partial<MassnahmeDefinition>): MassnahmeDefinitio
 const VATER_RUFT: Bedingung = { alle: [{ ab: 900 }, { getan: 'salbu-inhalation' }] };
 const INHALIERT: Bedingung = { getan: 'salbu-inhalation' };
 
-const KOMMT = '„Danke, das ist ein mittelschwerer Asthmaanfall. Salbutamol dürfen Sie nach dem Bedarfsplan alle 20 Minuten wiederholen, bis zu dreimal. Sauerstoff, wenn die Sättigung unter 94 Prozent liegt. Prednisolon 40 mg als Tablette jetzt. Und geben Sie ihm ein Diazepam-Zäpfchen 5 mg, damit er ruhiger wird. Ich bin in zehn Minuten da. Messen Sie nach der Inhalation Sättigung und Peak-Flow und schreiben Sie mir.“';
+const KOMMT = '„Danke, das ist ein mittelschwerer Asthmaanfall. Salbutamol dürfen Sie nach dem Bedarfsplan alle 20 Minuten wiederholen, bis zu dreimal. Sauerstoff, wenn die Sättigung unter 92 Prozent fällt, dann nicht über 95 Prozent. Prednisolon 40 mg als Tablette jetzt. Und geben Sie ihm ein Diazepam-Zäpfchen 5 mg, damit er ruhiger wird. Ich bin in zehn Minuten da. Messen Sie nach der Inhalation Sättigung und Peak-Flow und schreiben Sie mir.“';
 const R_KOMMT = { id: 'r-kommt', antwort: KOMMT, anordnungen: ['an-o2', 'an-prednisolon', 'an-diazepam'], kommtNachSek: 600, setzt: ['arzt-kommt'], auftraege: ['af-kontrolle'] };
 
 export const PAED_ASTHMA_SCHULKIND: FallV2 = {
@@ -40,7 +40,7 @@ export const PAED_ASTHMA_SCHULKIND: FallV2 = {
   freigabe: {
     status: 'entwurf',
     pruefpunkte: [
-      'Schweregrad-Zeichen (spricht nur Halbsätze, Einziehungen, SpO₂ 90–94 %) und Vorgehen gegen NVL Asthma 5. Auflage und GINA 2024 (6–11 Jahre) prüfen',
+      'Schweregrad-Zeichen (spricht nur Halbsätze, Einziehungen, SpO₂ 90–94 %) und Vorgehen gegen NVL Asthma 5. Auflage und GINA 2026 (6–11 Jahre) prüfen',
       'Salbutamol 4 Hübe à 100 µg mit Spacer, Wiederholung alle 20 Minuten in der ersten Stunde: Bedarfsplan und Höchstmenge fachlich prüfen',
       'Prednisolon 40 mg bei 24 kg (1–2 mg/kg, höchstens 40 mg) prüfen',
       'Remonstrationspunkt: kein Diazepam/keine Sedierung im akuten Asthmaanfall (Atemdepression) gegen Leitlinie bestätigen',
@@ -51,7 +51,7 @@ export const PAED_ASTHMA_SCHULKIND: FallV2 = {
   },
   quellen: [
     { id: 'nvl-asthma', titel: 'Nationale VersorgungsLeitlinie Asthma, 5. Auflage (2024), Kapitel Asthmaanfall bei Kindern und Jugendlichen', url: 'https://www.leitlinien.de/themen/asthma' },
-    { id: 'gina-2024', titel: 'GINA (Global Initiative for Asthma): Global Strategy for Asthma Management and Prevention, 2024 (Kinder 6–11 Jahre)' },
+    { id: 'gina-2026', titel: 'GINA (Global Initiative for Asthma): Global Strategy for Asthma Management and Prevention, 2026 (Kinder 6–11 Jahre)' },
     { id: 'gpp-schulung', titel: 'Arbeitsgemeinschaft Asthmaschulung im Kindes- und Jugendalter: Qualitätsmanagement Asthmaschulung' },
     { id: 'fi-salbutamol', titel: 'Fachinformation Salbutamol Dosieraerosol 100 µg (Kinder)' },
     { id: 'bgb-1687', titel: 'BGB § 1687 Gemeinsame elterliche Sorge bei Getrenntleben (Auskunft an sorgeberechtigte Eltern)' },
@@ -111,7 +111,7 @@ export const PAED_ASTHMA_SCHULKIND: FallV2 = {
         { groesse: 'gasaustausch', delta: 0.12, beginnSek: 60, spitzeSek: 600, dauerSek: 'dauerhaft' },
       ],
     }),
-    aus('o2-geben', { name: 'Sauerstoff über Maske geben (nach Anordnung, Ziel SpO₂ 94–98 %)', wirkung: [{ groesse: 'sauerstoff', delta: 4, beginnSek: 0, spitzeSek: 30, dauerSek: 'dauerhaft' }] }),
+    aus('o2-geben', { name: 'Sauerstoff über Maske geben (nach Anordnung, ab SpO₂ unter 92 %, nicht über 95 %)', wirkung: [{ groesse: 'sauerstoff', delta: 4, beginnSek: 0, spitzeSek: 30, dauerSek: 'dauerhaft' }] }),
     aus('bedarfsmedikation-oral', {
       id: 'prednisolon-geben', name: 'Prednisolon 40 mg als Tablette geben (nach Anordnung)',
       treiber: [{ art: 'wirkstoff', id: 'prednisolon', dosisMg: 40, weg: 'oral' }],
@@ -245,7 +245,7 @@ export const PAED_ASTHMA_SCHULKIND: FallV2 = {
 
   anordnungen: [
     { id: 'an-salbu-bedarf', massnahme: 'salbu-inhalation', text: 'Salbutamol 4 Hübe mit Spacer bei Atemnot, in der ersten Stunde bis zu dreimal alle 20 Minuten.' },
-    { id: 'an-o2', massnahme: 'o2-geben', text: 'Sauerstoff über Maske, wenn SpO₂ unter 94 %, Ziel 94–98 %.' },
+    { id: 'an-o2', massnahme: 'o2-geben', text: 'Sauerstoff über Maske, wenn SpO₂ unter 92 %, Obergrenze 95 %.' },
     { id: 'an-prednisolon', massnahme: 'prednisolon-geben', text: 'Prednisolon 40 mg oral, einmalig jetzt.' },
     { id: 'an-diazepam', massnahme: 'diazepam-supp', text: 'Diazepam-Zäpfchen 5 mg zur Beruhigung.',
       fehlerhaft: {
@@ -312,7 +312,7 @@ export const PAED_ASTHMA_SCHULKIND: FallV2 = {
       { id: 'p-einschaetzen', text: 'Atmung eingeschätzt (Einziehungen, Atemfrequenz, Sprechen)', gewicht: 2, kompetenzbereiche: ['I'],
         erfuellt: { eine: [{ getan: 'atmung-beobachten' }, { getan: 'ersteindruck-abcde' }] }, warum: 'Sprechen, Einziehungen und Atemfrequenz zeigen, wie schwer der Anfall ist.' },
       { id: 'p-spo2', text: 'Sättigung gemessen', gewicht: 2, kompetenzbereiche: ['I'], erfuellt: { getan: 'pulsoxy-anlegen' },
-        warum: 'Eine Sättigung unter 94 % zeigt einen mindestens mittelschweren Anfall und braucht Sauerstoff.' },
+        warum: 'Die Sättigung zeigt die Schwere des Anfalls. Unter 92 % ist der Anfall schwer und braucht Sauerstoff (GINA 2026).' },
       { id: 'p-salbu', text: 'Salbutamol nach Bedarfsplan mit Spacer gegeben', gewicht: 3, kompetenzbereiche: ['I', 'III'], erfuellt: { getan: 'salbu-inhalation', bis: 600 },
         warum: 'Kurz wirksame Beta-2-Sympathomimetika sind das erste Mittel im Anfall. Der Bedarfsplan erlaubt die Gabe ohne neuen Anruf; wer wartet, riskiert Erschöpfung.' },
       { id: 'p-lagerung', text: 'Atemerleichternd gelagert (Oberkörper hoch, Kutschersitz)', gewicht: 1, kompetenzbereiche: ['I'], erfuellt: { getan: 'oberkoerper-hoch' },
@@ -367,8 +367,8 @@ export const PAED_ASTHMA_SCHULKIND: FallV2 = {
   },
 
   leitfaden: [
-    { titel: 'Schwere eines Asthmaanfalls beim Kind', text: 'Achte auf Sprechen (ganze Sätze, Satzteile, einzelne Worte), Einziehungen, Atemfrequenz, Sättigung und Peak-Flow im Vergleich zum Bestwert. SpO₂ unter 92 %, Erschöpfung, Zyanose oder ein „stiller Thorax“ bedeuten Lebensgefahr.', quellen: ['nvl-asthma', 'gina-2024'] },
-    { titel: 'Erste Maßnahmen', text: 'Aufrecht sitzen lassen, Arme aufstützen, Lippenbremse, beruhigen. Kurz wirksames Beta-2-Sympathomimetikum mit Spacer nach Bedarfs- oder Notfallplan, in der ersten Stunde wiederholbar. Sauerstoff nach Anordnung bei SpO₂ unter 94 %. Ärztlich: systemisches Kortison.', quellen: ['nvl-asthma', 'fi-salbutamol'] },
+    { titel: 'Schwere eines Asthmaanfalls beim Kind', text: 'Achte auf Sprechen (ganze Sätze, Satzteile, einzelne Worte), Einziehungen, Atemfrequenz, Sättigung und Peak-Flow im Vergleich zum Bestwert. SpO₂ unter 92 %, Erschöpfung, Zyanose oder ein „stiller Thorax“ bedeuten Lebensgefahr.', quellen: ['nvl-asthma', 'gina-2026'] },
+    { titel: 'Erste Maßnahmen', text: 'Aufrecht sitzen lassen, Arme aufstützen, Lippenbremse, beruhigen. Kurz wirksames Beta-2-Sympathomimetikum mit Spacer nach Bedarfs- oder Notfallplan, in der ersten Stunde wiederholbar. Nach der ersten Gabe die Wirkung prüfen, bevor wiederholt wird. Sauerstoff nach Anordnung erst bei SpO₂ unter 92 %, dabei nicht über 95 %. Ärztlich: systemisches Kortison.', quellen: ['nvl-asthma', 'gina-2026', 'fi-salbutamol'] },
     { titel: 'Keine Beruhigungsmittel', text: 'Unruhe ist im Asthmaanfall ein Zeichen der Atemnot. Sedativa dämpfen den Atemantrieb und sind kontraindiziert. Eine solche Anordnung hinterfragst du.', quellen: ['nvl-asthma'] },
     { titel: 'Schulung', text: 'Spacer immer benutzen, nach jedem Hub mehrmals ruhig atmen, Kortison täglich und danach Mund ausspülen, Asthmatagebuch und Notfallplan. Eltern und Kind gemeinsam schulen.', quellen: ['gpp-schulung'] },
     { titel: 'Auskunft an Eltern', text: 'Sorgeberechtigte Eltern haben Anspruch auf Auskunft, auch wenn sie getrennt leben. Prüfe in der Akte, wer sorgeberechtigt ist, und frage im Zweifel den anwesenden Elternteil.', quellen: ['bgb-1687'] },

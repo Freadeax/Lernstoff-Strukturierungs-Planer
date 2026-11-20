@@ -10,7 +10,9 @@ export type Zielgruppe = 'erwachsene' | 'kinder' | 'neugeborene';
 export type Risiko = 'medikament' | 'notfall' | 'kinder' | 'geraet';
 
 export interface Quelle { titel: string; stand: string }
-export interface Pruefung { rolle: string; datum: string; name?: string; bemerkung?: string }
+/** fachperson: Lehrkraft, Praxisanleitung oder Pflegefachperson. lehrmaterial: Abgleich mit Unterrichtsmaterial, keine Fachfreigabe. */
+export type PruefArt = 'fachperson' | 'lehrmaterial';
+export interface Pruefung { rolle: string; datum: string; name?: string; bemerkung?: string; art?: PruefArt }
 export interface Aenderung { datum: string; text: string }
 
 export interface Freigabe {
@@ -51,6 +53,7 @@ export function automatischeWertung(f: Freigabe | undefined): boolean {
 export function kennzeichnung(f: Freigabe | undefined): string {
   if (!f) return 'Fachlich ungeprüft';
   if (istGeprueft(f)) return `Fachlich geprüft am ${datum(f.pruefung!.datum)} (${f.pruefung!.rolle})`;
+  if (f.pruefung?.art === 'lehrmaterial') return `Abgeglichen mit Unterrichtsmaterial am ${datum(f.pruefung.datum)} · Lernmodell, keine Handlungsanweisung`;
   return `${STATUS_TEXT[f.status]} · Lernmodell, keine Handlungsanweisung`;
 }
 

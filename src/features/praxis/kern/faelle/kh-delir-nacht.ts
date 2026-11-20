@@ -39,7 +39,7 @@ export const KH_DELIR_NACHT: FallV2 = {
   freigabe: {
     status: 'entwurf',
     pruefpunkte: [
-      'Delir-Erkennung mit dem 4AT und Ursachensuche gegen die S3-Leitlinie Delir (AWMF 038-015, in Überarbeitung) und den NICE-Standard CG103 prüfen',
+      'Delir-Erkennung mit dem 4AT und Ursachensuche gegen die S3-Leitlinie Delir im höheren Lebensalter (AWMF 109-001, 2025) und den NICE-Standard CG103 prüfen',
       'Remonstrationspunkt: Lorazepam bei hochbetagtem Menschen mit Delir (PRISCUS 2.0, Delir-Leitlinien: Benzodiazepine nur bei Alkoholentzug)',
       'Einmalkatheter bei Harnverhalt nach Anordnung, Befugnis 2. Drittel mit Anleitung',
       'Bettgitter als freiheitsentziehende Maßnahme (§ 1831 BGB): Bevollmächtigter allein reicht nicht, Genehmigung des Betreuungsgerichts nötig, außer Einwilligung des einwilligungsfähigen Patienten',
@@ -47,7 +47,8 @@ export const KH_DELIR_NACHT: FallV2 = {
     ],
   },
   quellen: [
-    { id: 's3-delir', titel: 'S3-Leitlinie Analgesie, Sedierung und Delirmanagement (AWMF 001-012), 2020, und S3-Leitlinie Delir im höheren Lebensalter (AWMF 038-015, in Erstellung)' },
+    { id: 's3-delir', titel: 'S3-Leitlinie Analgesie, Sedierung und Delirmanagement (AWMF 001-012), 2020' },
+    { id: 's3-delir-alter', titel: 'S3-Leitlinie Delir im höheren Lebensalter (AWMF 109-001), Version 1.0, 2025' },
     { id: 'nice-delir', titel: 'NICE CG103: Delirium – prevention, diagnosis and management in hospital and long-term care (Update 2023)' },
     { id: '4at', titel: '4AT – Rapid clinical test for delirium (www.the4at.com), deutsche Fassung' },
     { id: 'priscus', titel: 'PRISCUS 2.0 Liste potenziell inadäquater Medikation für ältere Menschen (2023)' },
@@ -336,9 +337,9 @@ export const KH_DELIR_NACHT: FallV2 = {
 
   leitfaden: [
     { titel: 'Delir erkennen', text: 'Akuter Beginn, wechselnde Aufmerksamkeit und Orientierung. Mit dem 4AT einschätzen und den Verlauf dokumentieren. Ein Delir ist ein Notfall, keine „Altersverwirrtheit“.', quellen: ['4at', 'nice-delir'] },
-    { titel: 'Auslöser suchen', text: 'An Schmerz, Harnverhalt, Verstopfung, Flüssigkeitsmangel, Infekt, Sauerstoffmangel, Blutzucker und neue Medikamente denken. Viele Auslöser kann die Pflege selbst finden.', quellen: ['nice-delir', 's3-delir'] },
+    { titel: 'Auslöser suchen', text: 'An Schmerz, Harnverhalt, Verstopfung, Flüssigkeitsmangel, Infekt, Sauerstoffmangel, Blutzucker und neue Medikamente denken. Viele Auslöser kann die Pflege selbst finden.', quellen: ['nice-delir', 's3-delir-alter', 's3-delir'] },
     { titel: 'Nicht-medikamentöse Maßnahmen', text: 'Brille und Hörgerät, Licht, Uhr, ruhige Ansprache, eine Bezugsperson, vertraute Dinge, Schlaf schützen, früh mobilisieren.', quellen: ['nice-delir'] },
-    { titel: 'Medikamente prüfen', text: 'Benzodiazepine verschlimmern ein Delir und erhöhen die Sturzgefahr; Ausnahme ist der Alkoholentzug. Eine solche Anordnung hinterfragst du.', quellen: ['priscus', 's3-delir'] },
+    { titel: 'Medikamente prüfen', text: 'Benzodiazepine verschlimmern ein Delir und erhöhen die Sturzgefahr; Ausnahme ist der Alkoholentzug. Eine solche Anordnung hinterfragst du.', quellen: ['priscus', 's3-delir-alter', 's3-delir'] },
     { titel: 'Sturz verhindern ohne Freiheitsentzug', text: 'Niedrigbett, Sturzmatte, Klingel, Begleitung. Bettgitter sind freiheitsentziehend und brauchen die Einwilligung der Person oder eine gerichtliche Genehmigung.', quellen: ['dnqp-sturz', 'bgb-1831'] },
   ],
 
