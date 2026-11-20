@@ -1,7 +1,7 @@
 // Fallbeispiel-Simulator: Claude spielt Patient, Angehörige und Station. Jeder Zug kommt als JSON
 // nach festem Schema (Structured Outputs); NEWS2 und Katalogbezüge rechnet die App selbst nach.
 
-import Anthropic from '@anthropic-ai/sdk';
+import { frageClaude, KI_MODELL, KiFehler, textAus } from '../../core/ki/claude';
 import type { CatalogModule } from '../../modules/catalog-types';
 import { SETTING_LABEL, type Stufe, type Szenario } from './faelle';
 import { abhoerBefund } from './abhoeren';
@@ -9,7 +9,8 @@ import type { Treffer } from '../lernplan/trainer';
 import { istObjekt, storage } from '../../ui/lib/store';
 import { news2Punkte, type Avpu, type News2Risiko } from '../praxis/news2';
 
-export const MODEL = 'claude-opus-5-5';
+export const MODEL = KI_MODELL;
+type Msg = { role: 'user' | 'assistant'; content: string };
 
 // ---------- Pflegeprozess (6 Schritte nach Fiechter/Meier) ----------
 
@@ -183,8 +184,8 @@ export const ABSCHLUSS_TEXT = (themenIds: string[]) =>
 - "themen": 1 bis 5 IDs aus dieser Liste, die ich wiederholen sollte: ${themenIds.join(', ')}.`;
 
 /** Gesprächsverlauf für die API: Start, dann abwechselnd Zug (als JSON) und Eingabe. */
-export function nachrichten(fall: Fall, neueEingabe?: string): Anthropic.MessageParam[] {
-  const msgs: Anthropic.MessageParam[] = [{ role: 'user', content: START_TEXT }];
+export function nachrichten(fall: Fall, neueEingabe?: string): Msg[] {
+  const msgs: Msg[] = [{ role: 'user', content: START_TEXT }];
   for (const r of fall.runden) {
     if (r.eingabe !== undefined) msgs.push({ role: 'user', content: r.eingabe });
     msgs.push({ role: 'assistant', content: JSON.stringify(r.zug) });
@@ -322,35 +323,27 @@ export function neuerFall(szenario: Szenario, stufe: Stufe): Fall {
 
 // ---------- API ----------
 
-async function frage<T>(apiKey: string, system: string, messages: Anthropic.MessageParam[], schema: object, effort: 'low' | 'medium' | 'high', lese: (t: string) => T): Promise<T> {
-  const client = new Anthropic({ apiKey, dangerouslyAllowBrowser: true });
+async function frage<T>(apiKey: string, system: string, messages: Msg[], schema: object, effort: 'low' | 'medium' | 'high', lese: (t: string) => T): Promise<T> {
   // Eine unlesbare Antwort kostet die lernende Person sonst einen Zug: einmal still wiederholen.
   for (let versuch = 1; ; versuch++) {
     try {
-      return await frageEinmal(client, system, messages, schema, effort, lese);
+      return await frageEinmal(apiKey, system, messages, schema, effort, lese);
     } catch (e) {
       if (!(e instanceof AntwortUnlesbar) || versuch >= 2) throw e;
     }
   }
 }
 
-export class AntwortUnlesbar extends Error {
-  constructor() { super('Die Antwort von Claude war unvollständig. Bitte noch einmal versuchen.'); }
+export class AntwortUnlesbar extends KiFehler {
+  constructor() { super('Die Antwort von Claude war unvollständig. Bitte noch einmal versuchen.', 'unlesbar'); }
 }
 
-async function frageEinmal<T>(client: Anthropic, system: string, messages: Anthropic.MessageParam[], schema: object, effort: 'low' | 'medium' | 'high', lese: (t: string) => T): Promise<T> {
-  const response = await client.beta.messages.create({
-    model: MODEL,
-    max_tokens: 16000,
-    betas: ['server-side-fallback-2026-07-01'],
-    fallbacks: 'default',
-    output_config: { effort, format: { type: 'json_schema', schema } },
-    system,
-    messages,
-  } as unknown as Anthropic.Beta.MessageCreateParamsNonStreaming);
-  if (response.stop_reason === 'refusal') throw new Error('Die KI hat diesen Schritt abgelehnt. Formuliere die Handlung bitte anders.');
-  if (response.stop_reason === 'max_tokens') throw new Error('Die Antwort wurde abgeschnitten. Bitte noch einmal versuchen.');
-  const text = response.content.filter((b) => b.type === 'text').map((b) => (b as { text: string }).text).join('');
+async function frageEinmal<T>(apiKey: string, system: string, messages: Msg[], schema: object, effort: 'low' | 'medium' | 'high', lese: (t: string) => T): Promise<T> {
+  const response = await frageClaude({
+    apiKey, modul: 'fall', maxTokens: 16000, effort, schema, system, messages,
+    abgelehnt: 'Die KI hat diesen Schritt abgelehnt. Formuliere die Handlung bitte anders.',
+  });
+  const text = textAus(response);
   try { return lese(text); } catch { throw new AntwortUnlesbar(); }
 }
 
