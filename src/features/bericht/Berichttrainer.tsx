@@ -1,6 +1,7 @@
 import { storage } from '../../ui/lib/store';
 import { AltPraxisHinweis } from '../praxis/AltPraxisHinweis';
-import { findeNeu, berichtFallNeu } from '../praxis/arbeitsplatz/weitergabe';
+import { berichtFallNeu, useNeu } from '../praxis/arbeitsplatz/weitergabe';
+import type { SimZustand } from '../praxis/kern/kern';
 import { DatenHinweis } from '../../ui/DatenHinweis';
 import { PersonenWarnung, personenbezug } from '../../ui/PersonenWarnung';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -138,10 +139,18 @@ function KiErgebnis({ r }: { r: KiRueckmeldung }) {
 
 export default function Berichttrainer() {
   const route = useRoute();
-  const wunsch = route.params.get('fall') ?? '';
-  // Fall aus dem Praxissimulator (Link aus dem Debriefing): wird vorne in die Auswahl gestellt
+  // Fall aus dem Praxissimulator (Link aus dem Debriefing): wird vorne in die Auswahl gestellt.
+  // Nur dieser eine Fall wird geladen (Audit L-3); bis dahin kurz „lädt“.
   const praxisId = route.params.get('aus') === 'praxis' ? route.params.get('sitzung') : null;
-  const praxisFall = useMemo(() => { const n = findeNeu(praxisId); return n ? berichtFallNeu(n) : null; }, [praxisId]);
+  const neu = useNeu(praxisId);
+  if (neu === undefined) return <p className="muted" role="status">Fall aus dem Praxissimulator wird geladen …</p>;
+  return <BerichttrainerInhalt key={praxisId ?? ''} neu={neu} praxisId={praxisId} />;
+}
+
+function BerichttrainerInhalt({ neu, praxisId }: { neu: SimZustand | null; praxisId: string | null }) {
+  const route = useRoute();
+  const wunsch = route.params.get('fall') ?? '';
+  const praxisFall = useMemo(() => (neu ? berichtFallNeu(neu) : null), [neu]);
   const LISTE = useMemo(() => (praxisFall ? [praxisFall, ...BERICHT_FAELLE] : BERICHT_FAELLE), [praxisFall]);
   const [fallId, setFallId] = useState(() => (praxisFall?.id ?? (LISTE.some((f) => f.id === wunsch) ? wunsch : LISTE[0]!.id)));
   const [text, setText] = useState(() => ladeEntwurf(fallId));

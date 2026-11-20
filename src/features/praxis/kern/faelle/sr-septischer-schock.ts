@@ -44,7 +44,7 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
   freigabe: {
     status: 'entwurf',
     pruefpunkte: [
-      'Ablauf gegen Surviving Sepsis Campaign 2021 und S3-Leitlinie Sepsis prüfen (Reihenfolge Blutkulturen/Antibiotikum, Volumenmenge, MAP-Ziel)',
+      'Ablauf gegen Surviving Sepsis Campaign 2026 und S3-Leitlinie Sepsis prüfen (Reihenfolge Blutkulturen/Antibiotikum, Volumenmenge, MAP-Ziel)',
       'Befugnisse (Blutkulturen delegiert, Infusion, Noradrenalin-Perfusor: 3. Drittel nur mit Anleitung, Pflegefachperson nach Anordnung) gegen BW-Lehrplan 3BFP belegen (P3)',
       'Remonstration Penicillinallergie: Ersatz Meropenem und Beobachtung auf Kreuzreaktion fachlich prüfen',
       'Laufratenrechnung Noradrenalin (5 mg/50 ml, 0,1 µg/kg/min, 75 kg → 4,5 ml/h) und Titrationsschritte prüfen',
@@ -54,7 +54,7 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
   quellen: [
     { id: 'ssc-2026', titel: 'Surviving Sepsis Campaign: International Guidelines for Management of Sepsis and Septic Shock 2026', fundstelle: 'SCCM/ESICM, veröffentlicht 23.03.2026' },
     { id: 'sepsis-3', titel: 'Sepsis-3: Third International Consensus Definitions for Sepsis and Septic Shock (2016)', fundstelle: 'Singer M. et al., JAMA 2016;315(8):801–810' },
-    { id: 's3-sepsis', titel: 'S3-Leitlinie Sepsis – Prävention, Diagnose, Therapie und Nachsorge (AWMF 079-001), Fassung 2018', fundstelle: 'Update 2025 erschienen (AWMF 07/2025); Abgleich offen, siehe Quellenregister' },
+    { id: 's3-sepsis', titel: 'S3-Leitlinie Sepsis – Prävention, Diagnose, Therapie und Nachsorge (AWMF 079-001), Update 2025', fundstelle: 'Früherkennung, Laktat, Rekapillarisierungszeit, Nachsorge (AWMF 07/2025)' },
   ],
 
   person: {
@@ -374,7 +374,7 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
       { id: 'p-blutkulturen', text: 'Blutkulturen vor dem Antibiotikum abgenommen', gewicht: 2, kompetenzbereiche: ['I', 'V'], klinisch: ['medikamente'],
         erfuellt: { getan: 'blutkulturen-abnehmen' }, warum: 'Blutkulturen vor der ersten Antibiotikagabe erhöhen die Chance, den Erreger zu finden.' },
       { id: 'p-antibiotikum', text: 'Antibiotikum innerhalb der ersten Stunde gegeben', gewicht: 3, kompetenzbereiche: ['I', 'III'], klinisch: ['medikamente', 'zeit'],
-        erfuellt: { eine: [{ getan: 'meropenem-iv', bis: 3600 }, { getan: 'meropenem-richten', bis: 3600 }] }, warum: 'Bei septischem Schock soll das Antibiotikum möglichst innerhalb einer Stunde laufen (SSC 2021).' },
+        erfuellt: { eine: [{ getan: 'meropenem-iv', bis: 3600 }, { getan: 'meropenem-richten', bis: 3600 }] }, warum: 'Bei septischem Schock soll das Antibiotikum möglichst innerhalb einer Stunde laufen (SSC 2026).' },
       { id: 'p-volumen', text: 'Volumen nach Anordnung rasch gegeben', gewicht: 3, kompetenzbereiche: ['I', 'III'], klinisch: ['abcde'],
         erfuellt: { getan: 'infusion-anhaengen', bis: 900 }, warum: 'Bei Sepsis mit Hypotonie oder Laktat ≥ 4 mmol/l ist rasche Volumengabe die erste Kreislaufmaßnahme.' },
       { id: 'p-laktat', text: 'Laktat bestimmt und gemeldet', gewicht: 2, kompetenzbereiche: ['I', 'II'], klinisch: ['abcde'],
@@ -386,7 +386,7 @@ export const SR_SEPTISCHER_SCHOCK: FallV2 = {
       { id: 'p-gedaempft', text: 'Gedämpfte arterielle Kurve erkannt und behoben', gewicht: 2, kompetenzbereiche: ['I'], klinisch: ['geraete'],
         erfuellt: { getan: 'art-system-pruefen' }, warum: 'Eine gedämpfte Kurve unterschätzt die Systole. Wer danach titriert, gibt zu viel Noradrenalin.' },
       { id: 'p-map-ziel', text: 'Ziel-MAP ≥ 65 mmHg bei Verlegung erreicht', gewicht: 2, kompetenzbereiche: ['I'], klinisch: ['abcde'],
-        erfuellt: { wert: 'map', vergleich: '>=', grenze: 65 }, warum: 'MAP ≥ 65 mmHg ist das Startziel bei septischem Schock (SSC 2021).' },
+        erfuellt: { wert: 'map', vergleich: '>=', grenze: 65 }, warum: 'MAP ≥ 65 mmHg ist das Startziel bei septischem Schock (SSC 2026).' },
       { id: 'p-urin', text: 'Urin-Stundenmenge gemessen und Bilanz geführt', gewicht: 1, kompetenzbereiche: ['I'], klinisch: ['abcde'],
         erfuellt: { getan: 'bilanz-fuehren' }, warum: 'Die Urinmenge zeigt, ob die Nieren wieder durchblutet werden (Ziel ≥ 0,5 ml/kg/h).' },
       { id: 'p-uebergabe', text: 'Strukturierte Übergabe an die Intensivstation (mit Allergie und laufender Therapie)', gewicht: 2, kompetenzbereiche: ['II', 'III'], klinisch: ['team'],

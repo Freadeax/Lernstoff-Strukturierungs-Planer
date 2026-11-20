@@ -51,7 +51,7 @@ export const KH_LUNGENEMBOLIE: FallV2 = {
   quellen: [
     { id: 'esc-le-2019', titel: 'ESC Guidelines for the diagnosis and management of acute pulmonary embolism 2019 (gültige Fassung)', fundstelle: 'Diagnostik, Risikostratifizierung' },
     { id: 's2k-vte', titel: 'S2k-Leitlinie Diagnostik und Therapie der Venenthrombose und Lungenembolie (AWMF 065-002), 2023' },
-    { id: 's3-vte-prophylaxe', titel: 'S3-Leitlinie Prophylaxe der venösen Thromboembolie (AWMF 003-001), Aktualisierung in Arbeit, Fassung 2015', fundstelle: 'Endoprothetik' },
+    { id: 's3-vte-prophylaxe', titel: 'S3-Leitlinie Prophylaxe der venösen Thromboembolie (AWMF 003-001), Version 4.0, 2026', fundstelle: 'Endoprothetik; Basismaßnahmen (Frühmobilisation, Bewegungsübungen, Flüssigkeit) für alle, medikamentöse und physikalische Prophylaxe kombinierbar' },
     { id: 'aps-uebergabe', titel: 'Aktionsbündnis Patientensicherheit: Handlungsempfehlung sicherer innerklinischer Transport' },
   ],
 

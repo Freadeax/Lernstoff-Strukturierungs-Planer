@@ -39,7 +39,7 @@ export const PAED_BRONCHIOLITIS_SAEUGLING: FallV2 = {
   freigabe: {
     status: 'entwurf',
     pruefpunkte: [
-      'Vorgehen gegen AWMF-Leitlinie Bronchiolitis (S2k, GPP/DGPI, aktuelle Fassung) und NICE NG9 (Fassung 2021, erstmals 2015) prüfen: supportiv, keine Bronchodilatatoren routinemäßig',
+      'Vorgehen gegen AWMF-Leitlinie Bronchiolitis (S2k, GPP/DGPI, aktuelle Fassung) und NICE NG9 (aktualisiert 2022, erstmals 2015) prüfen: supportiv, keine Bronchodilatatoren routinemäßig',
       'O₂-Grenze: NICE NG9 SpO₂ unter 92 % (ab 6 Wochen); Stationsstandard abgleichen',
       'Remonstrationspunkt: Xylometazolin 0,1 % (Erwachsenenstärke) beim Säugling kontraindiziert; NaCl 0,9 % als Ersatz plausibel?',
       'Trinkmenge: unter 50–75 % der üblichen Menge als Aufnahme-/Eskalationskriterium (NICE) prüfen',
@@ -49,10 +49,10 @@ export const PAED_BRONCHIOLITIS_SAEUGLING: FallV2 = {
     ],
   },
   quellen: [
-    { id: 'nice-ng9', titel: 'NICE NG9: Bronchiolitis in children – diagnosis and management (Fassung 2021, erstmals 2015)' },
+    { id: 'nice-ng9', titel: 'NICE NG9: Bronchiolitis in children – diagnosis and management (zuletzt aktualisiert 2022, erstmals 2015)' },
     { id: 'krinko-rsv', titel: 'RKI-Ratgeber RSV-Infektionen; KRINKO: Infektionsprävention im Rahmen der Pflege und Behandlung von Patienten mit übertragbaren Krankheiten (2015)' },
     { id: 'fi-xylometazolin', titel: 'Fachinformation Xylometazolin-Nasentropfen 0,1 % (Erwachsene, Schulkinder) und 0,025 % (Säuglinge)' },
-    { id: 'stiko-rsv', titel: 'STIKO-Empfehlung zur RSV-Prophylaxe mit Nirsevimab für Neugeborene und Säuglinge (2024)' },
+    { id: 'stiko-rsv', titel: 'STIKO-Empfehlung zur RSV-Prophylaxe mit Clesrovimab oder Nirsevimab für Neugeborene und Säuglinge (Epid Bull 37/2026, Erstempfehlung 2024)' },
   ],
 
   person: {
@@ -351,10 +351,10 @@ export const PAED_BRONCHIOLITIS_SAEUGLING: FallV2 = {
 
   leitfaden: [
     { titel: 'Bronchiolitis erkennen', text: 'Meist RSV, Säuglinge bis zwölf Monate, Gipfel um Tag drei bis fünf. Zeichen: Schnupfen, Husten, schnelle Atmung, Einziehungen, Nasenflügeln, Knistern und Giemen, Trinkschwäche. Junge Säuglinge können Atempausen haben.', quellen: ['nice-ng9'] },
-    { titel: 'Pflege ist die Therapie', text: 'Nase vor dem Trinken absaugen (Kochsalztropfen), kleine häufige Mahlzeiten, Kopfteil leicht hoch, Sauerstoff nach Anordnung bei SpO₂ unter 92 %, Trinkprotokoll und Windeln. Bronchodilatatoren, Kortison und Antibiotika helfen bei Bronchiolitis nicht routinemäßig.', quellen: ['nice-ng9'] },
+    { titel: 'Pflege ist die Therapie', text: 'Nase vor dem Trinken absaugen (Kochsalztropfen), kleine häufige Mahlzeiten, Kopfteil leicht hoch, Sauerstoff nach Anordnung bei SpO₂ unter 92 %, Trinkprotokoll und Windeln. Bei dunkler Haut kann das Pulsoxymeter die Sättigung zu hoch anzeigen: Atemarbeit, Trinken und Wachheit immer mit beurteilen. Bronchodilatatoren, Kortison und Antibiotika helfen bei Bronchiolitis nicht routinemäßig.', quellen: ['nice-ng9'] },
     { titel: 'Wann eskalieren?', text: 'Trinkmenge unter 50–75 %, trockene Windeln, Atempausen, SpO₂ dauerhaft unter 92 %, Erschöpfung oder schnell steigende Atemfrequenz: Ärztin sofort informieren.', quellen: ['nice-ng9'] },
     { titel: 'Arzneimittel beim Säugling', text: 'Abschwellende Nasentropfen in Erwachsenenstärke sind für Säuglinge gefährlich (Bradykardie, Apnoe). Stärke und Dosis immer zum Alter und Gewicht prüfen und im Zweifel nachfragen.', quellen: ['fi-xylometazolin'] },
-    { titel: 'Infektionsschutz', text: 'Isolierung oder Kohortierung, Schutzkittel und Handschuhe bei Kontakt, Händedesinfektion vor und nach jedem Kontakt, Flächen desinfizieren. Seit 2024 empfiehlt die STIKO eine RSV-Prophylaxe für alle Säuglinge in ihrer ersten Saison.', quellen: ['krinko-rsv', 'stiko-rsv'] },
+    { titel: 'Infektionsschutz', text: 'Isolierung oder Kohortierung, Schutzkittel und Handschuhe bei Kontakt, Händedesinfektion vor und nach jedem Kontakt, Flächen desinfizieren. Seit 2024 empfiehlt die STIKO eine RSV-Prophylaxe für alle Säuglinge in ihrer ersten Saison, seit September 2026 mit Nirsevimab oder Clesrovimab (jeweils eine einzige Gabe als Spritze).', quellen: ['krinko-rsv', 'stiko-rsv'] },
   ],
 
   pruefwege: {

@@ -7,7 +7,7 @@ import { sende, start, type SimZustand } from '../kern/kern';
 import type { FallV2, Rolle, SimEventEingabe } from '../kern/typen';
 import { simAuswertungNeu } from './auswertung-karte';
 import { tutorKontext } from './tutor';
-import { berichtFallNeu, erledigtNeu, findeNeu, planVorlageNeu, uebergabeFallNeu, weiterLinkNeu } from './weitergabe';
+import { berichtFallNeu, erledigtNeu, findeNeu, ladeNeu, neuFallId, planVorlageNeu, uebergabeFallNeu, weiterLinkNeu } from './weitergabe';
 
 const rolleFuer = (fall: FallV2): Rolle => (fall.geeignet.rollen.includes(2) ? 2 : fall.geeignet.rollen[0]);
 function spiele(fall: FallV2, eingaben: readonly SimEventEingabe[]): SimZustand {
@@ -71,8 +71,17 @@ describe('Neuer Arbeitsplatz: Auswertung, Tutor, Weitergabe', () => {
   });
 
   it('findeNeu: nur mit Präfix und gespeichertem, abgeschlossenem Fall', () => {
-    expect(findeNeu(null)).toBeNull();
-    expect(findeNeu('abc')).toBeNull();
-    expect(findeNeu('neu:gibt-es-nicht')).toBeNull();
+    expect(findeNeu(null, FAELLE_V2)).toBeNull();
+    expect(findeNeu('abc', FAELLE_V2)).toBeNull();
+    expect(findeNeu('neu:gibt-es-nicht', FAELLE_V2)).toBeNull();
+    expect(findeNeu(`neu:${KRANZ.id}`, FAELLE_V2)).toBeNull(); // nichts gespeichert
+    expect(neuFallId(`neu:${KRANZ.id}`)).toBe(KRANZ.id);
+    expect(neuFallId(KRANZ.id)).toBeNull();
+  });
+
+  it('ladeNeu lädt nur den einen Fall und verhält sich wie findeNeu', async () => {
+    expect(await ladeNeu(null)).toBeNull();
+    expect(await ladeNeu('neu:gibt-es-nicht')).toBeNull();
+    expect(await ladeNeu(`neu:${KRANZ.id}`)).toBeNull();
   });
 });

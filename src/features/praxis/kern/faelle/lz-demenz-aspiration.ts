@@ -53,7 +53,7 @@ export const LZ_DEMENZ_ASPIRATION: FallV2 = {
     { id: 'dnqp-ernaehrung', titel: 'DNQP: Expertenstandard Ernährungsmanagement zur Sicherung und Förderung der oralen Ernährung in der Pflege, 1. Aktualisierung 2017' },
     { id: 'dnqp-demenz', titel: 'DNQP: Expertenstandard Beziehungsgestaltung in der Pflege von Menschen mit Demenz, 2018' },
     { id: 'besd', titel: 'BESD – Beurteilung von Schmerzen bei Demenz (deutsche Fassung der PAINAD), Basler M. et al. 2006' },
-    { id: 's3-demenz', titel: 'S3-Leitlinie Demenzen (DGN/DGPPN, AWMF 038-013), 2023' },
+    { id: 's3-demenz', titel: 'S3-Leitlinie Demenzen (DGN/DGPPN, AWMF 038-013), Version 6.0, 2026' },
     { id: 's3-pneumonie-ambulant', titel: 'S3-Leitlinie Behandlung von erwachsenen Patienten mit ambulant erworbener Pneumonie (AWMF 020-020), 2021' },
     { id: 'bgb-1827', titel: 'BGB § 1827 Patientenverfügung, § 1828 Gespräch zur Feststellung des Patientenwillens (seit 1.1.2023)' },
   ],

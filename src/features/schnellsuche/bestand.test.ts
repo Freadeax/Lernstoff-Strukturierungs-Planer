@@ -4,6 +4,7 @@ import type { CatalogModule } from '../../modules/catalog-types';
 import { baueBestand } from './aufbau';
 import { ausDnqp, type DnqpStandard } from './quellen';
 import { suche } from './suchkern';
+import { QUELLEN } from '../quellen/register';
 
 const MODUL = modules[0] as CatalogModule;
 
@@ -63,7 +64,13 @@ describe('Suchbestand', () => {
     expect(q?.details?.some((d) => d.label === 'Neueste Fassung')).toBe(true);
     const pflbg = index.doks.find((d) => d.id === 'quelle:gesetz.pflbg');
     expect(pflbg?.standardIds).toEqual(['rw.recht']);
-    expect(pflbg?.hinweis).toBe('Abgleich offen');
+    // PflBG ist seit 20.11.2026 abgeglichen: kein Hinweis mehr. Ein offener Abgleich zeigt „Abgleich offen“.
+    expect(pflbg?.hinweis).toBeUndefined();
+    const offen = QUELLEN.filter((e) => e.offen && !e.fest);
+    for (const e of offen) {
+      const dok = index.doks.find((d) => d.id === `quelle:${e.id}`);
+      if (dok) expect(dok.hinweis, e.id).toMatch(/Abgleich offen|neue Fassung/);
+    }
     expect(index.doks.find((d) => d.id === 'quelle:krinko')?.standardIds).toEqual(['rw.hygiene']);
     // Stand aus den Quellenangaben der Inhalte, wie auf der Seite „Quellen und Aktualität“
     const erc = index.doks.find((d) => d.id === 'quelle:erc');

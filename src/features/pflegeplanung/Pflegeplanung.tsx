@@ -8,7 +8,7 @@ import { pflegeModule } from '../../modules/pflege';
 import { navigate, useRoute } from '../../ui/shell/router';
 import { LernplanHinweis, useLernplanUebernahme } from '../lernplan/ui/LernplanHinweis';
 import { AltPraxisHinweis } from '../praxis/AltPraxisHinweis';
-import { findeNeu, planVorlageNeu } from '../praxis/arbeitsplatz/weitergabe';
+import { ladeNeu, planVorlageNeu } from '../praxis/arbeitsplatz/weitergabe';
 import { eigenerFall, FAELLE, SETTING_LABEL, type PlanFall, type ProblemArt } from './faelle';
 import {
   ERREICHT_LABEL, hatInhalt, leererPlan, neueMassnahme, neuesProblem, neuesZiel, ohneProblem, ohneZiel, problemName,
@@ -437,7 +437,12 @@ export default function Pflegeplanung() {
   const [praxisStatus, setPraxisStatus] = useState<'' | 'uebernommen' | 'fehlt'>('');
   useEffect(() => {
     if (!praxisId) return;
-    const n = findeNeu(praxisId);
+    let an = true;
+    // Nur den einen Fall laden (Audit L-3).
+    void ladeNeu(praxisId).then((n) => { if (an) uebernimm(n); });
+    return () => { an = false; };
+  }, [praxisId]);
+  function uebernimm(n: Awaited<ReturnType<typeof ladeNeu>>) {
     if (!n) { setPraxisStatus('fehlt'); return; }
     const v = planVorlageNeu(n);
     const e = ladeEntwurf(EIGEN);
@@ -447,7 +452,7 @@ export default function Pflegeplanung() {
     setPlan(gleich ? e!.plan : leererPlan());
     setSchritt(gleich ? e!.schritt : 'info');
     setPraxisStatus('uebernommen');
-  }, [praxisId]);
+  }
 
   const istEigen = fallId === EIGEN;
   const fall = istEigen ? eigenerFall(eigen.text, eigen.verlauf) : FAELLE.find((f) => f.id === fallId)!;

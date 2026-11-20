@@ -99,16 +99,30 @@ export function uebungsSeiten(): Map<string, string> {
   return new Map(flatNav(UEBUNGS_BUENDEL).map((i) => [i.path!, i.id]));
 }
 
-export function passtDazu(id: string, modul: CatalogModule = modules[0] as CatalogModule): PasstDazu {
-  const seiten = new Map([...uebungsSeiten()].map(([p, i]) => [i, p]));
-  const label = new Map([...flatNav(NAV), ...UNTERSEITEN].map((n) => [n.id, n.label]));
-  const namen = new Map(modul.topics.map((t) => [t.id, t.name]));
+type Uebersicht = { blaetter: ReturnType<typeof leafTopics>; je: Map<string, ReturnType<typeof uebungenFuer>>; breite: Map<string, number> };
+const UEBERSICHT = new WeakMap<CatalogModule, { glossar: number; themen: number; u: Uebersicht }>();
 
+/** Übungen je Blatt-Thema und Breite je Übung. Teuer (alle Themen × Glossar), deshalb je Fachmodul nur einmal;
+ *  neu, wenn das Glossar nachgeladen wurde (es wird an Ort und Stelle gefüllt, siehe modules/registry.ts). */
+function uebersicht(modul: CatalogModule): Uebersicht {
+  const da = UEBERSICHT.get(modul);
+  if (da && da.glossar === modul.glossary.length && da.themen === modul.topics.length) return da.u;
   // Wie breit jede Übung ist: Eine Übung, die fast alles abdeckt (Duell, Fallsimulator), sagt über Verwandtschaft wenig.
   const blaetter = leafTopics(modul.topics);
   const je = new Map(blaetter.map((t) => [t.id, uebungenFuer(t.id, modul)]));
   const breite = new Map<string, number>();
   for (const u of je.values()) for (const t of new Set(u.map((x) => seiteVon(x.trainer)))) breite.set(t, (breite.get(t) ?? 0) + 1);
+  const u = { blaetter, je, breite };
+  UEBERSICHT.set(modul, { glossar: modul.glossary.length, themen: modul.topics.length, u });
+  return u;
+}
+
+export function passtDazu(id: string, modul: CatalogModule = modules[0] as CatalogModule): PasstDazu {
+  const seiten = new Map([...uebungsSeiten()].map(([p, i]) => [i, p]));
+  const label = new Map([...flatNav(NAV), ...UNTERSEITEN].map((n) => [n.id, n.label]));
+  const namen = new Map(modul.topics.map((t) => [t.id, t.name]));
+
+  const { blaetter, je, breite } = uebersicht(modul);
 
   // Themen dieser Übung und je Thema die übrigen Übungen (mit Sprungziel aufs Thema)
   const eigene: Array<{ id: string; andere: number }> = [];

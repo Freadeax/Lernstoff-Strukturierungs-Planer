@@ -35,6 +35,7 @@ function aktionen(): Hit[] {
     { id: 'aktion:sicherung', type: 'Aktion', label: 'Sicherung erstellen', keywords: ['Backup', 'übertragen', 'exportieren'], hint: 'Datensicherung', to: '/system/sicherung' },
     { id: 'aktion:rueckmeldung', type: 'Aktion', label: 'Rückmeldung geben', keywords: ['Feedback', 'Fehler melden', 'Testphase', 'Problem'], hint: 'Testphase', to: '/system/test?ansicht=rueckmeldung' },
     { id: 'aktion:quellen', type: 'Aktion', label: 'Quellen und Aktualität', keywords: ['Quellen', 'Stand', 'Aktualität', 'Leitlinie', 'Expertenstandard', 'DNQP', 'AWMF', 'KRINKO', 'Gesetz', 'neue Fassung', 'veraltet', 'Fundstelle'], hint: 'Stand aller Quellen', to: '/system/quellen' },
+    { id: 'aktion:freigabe', type: 'Aktion', label: 'Fachliche Freigabe', keywords: ['Prüfbogen', 'Freigabe', 'fachlich geprüft', 'Praxisanleitung', 'Lehrkraft', 'Freigabe-Code'], hint: 'Inhalte prüfen lassen', to: '/system/freigabe' },
     { id: 'aktion:qualitaet', type: 'Aktion', label: 'Inhaltsqualität prüfen', keywords: ['Qualitätsmanagement', 'QM', 'Frage melden', 'Abdeckung', 'Lücken', 'Überarbeitung', 'veraltet'], hint: 'Überarbeitungsliste', to: '/system/qualitaet?ansicht=liste' },
     { id: 'aktion:fokus', type: 'Aktion', label: 'Fokus-Modus', keywords: ['ablenkungsfrei', 'Zen', 'Konzentration', 'Pomodoro', 'Timer', 'Lernzeit', 'Vollbild'], hint: 'Menüs ausblenden, Timer', run: schalteFokus },
     { id: 'aktion:kuerzel', type: 'Aktion', label: 'Tastenkürzel anzeigen', keywords: ['Hilfe', 'Shortcuts'], hint: 'Übersicht', run: () => kuerzelHilfe.set({ offen: true }) },
@@ -68,7 +69,10 @@ export function Omnibar() {
   // Begriffe des Glossars kommen nach dem Start nach; danach den Index einmal neu bauen.
   const [glossarDa, setGlossarDa] = useState(false);
   useEffect(() => { let an = true; fachmodulBereit().then(() => { if (an) setGlossarDa(true); }, () => undefined); return () => { an = false; }; }, []);
-  const index = useMemo(() => buildIndex(moduleId, roles, quellen), [moduleId, roles, quellen, glossarDa]); // eslint-disable-line react-hooks/exhaustive-deps -- bewusst: Auslöser für Neuberechnung (neue Runde, Seitenwechsel)
+  // Suchindex erst beim ersten Suchwort bauen, nicht bei jedem Start (kostete auf älteren iPhones rund 0,3 s).
+  const index = useMemo(() => { let t: Trie<Hit> | undefined; return () => (t ??= buildIndex(moduleId, roles, quellen)); },
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- bewusst: glossarDa löst den Neubau aus
+    [moduleId, roles, quellen, glossarDa]);
   const debounced = useDebounced(query, 250);
   const merk = useStore(merkliste, (m) => m);
   // Leeres Feld: Favoriten und zuletzt genutzte Seiten statt einer leeren Liste.
@@ -80,7 +84,7 @@ export function Omnibar() {
   // Bei Eingabe führt der letzte Eintrag in den Schnellsucher (Tippfehler, Synonyme, Kriterien der Standards)
   const hits = useMemo(() => {
     if (!debounced) return start;
-    const h = index.search(debounced, 12);
+    const h = index().search(debounced, 12);
     const q = debounced.trim();
     return q.length >= 2 ? [...h, { id: 'schnellsuche', type: 'Seite' as const, label: `„${q}“ in Standards suchen`, hint: 'Standard-Schnellsucher', to: `/lernen/schnellsuche?q=${encodeURIComponent(q)}` }] : h;
   }, [index, debounced, start]);

@@ -12,6 +12,7 @@
     "preview": "vite preview --host",
     "test": "vitest run",
     "assets:status": "ASSET_STATUS_SCHREIBEN=1 vitest run src/features/assetstatus",
+    "faelle:katalog": "FAELLE_KATALOG_SCHREIBEN=1 vitest run src/features/praxis/kern/faelle/katalog.test.ts",
     "assets:freigaben": "node scripts/freigaben-uebernehmen.mjs",
     "material:pruefen": "node scripts/lieferung-pruefen.mjs",
     "test:ui": "node scripts/check-ui.mjs",

@@ -53,11 +53,11 @@ export const KH_NACHBLUTUNG: FallV2 = {
     ],
   },
   quellen: [
-    { id: 's3-vte', titel: 'S3-Leitlinie Prophylaxe der venösen Thromboembolie (VTE) (AWMF 003-001), 2. Aktualisierung 2015', fundstelle: 'Aktualisierung angekündigt, Fassung prüfen' },
+    { id: 's3-vte', titel: 'S3-Leitlinie Prophylaxe der venösen Thromboembolie (VTE) (AWMF 003-001), Version 4.0, 2026', fundstelle: 'Medikamentöse Prophylaxe nach Gelenkersatz, Blutungsrisiko' },
     { id: 'fi-enoxaparin', titel: 'Fachinformation Enoxaparin (Clexane)', fundstelle: 'Abschnitte 4.2, 4.4 (Blutungsrisiko)' },
-    { id: 'ats-schock', titel: 'S3-Leitlinie Polytrauma/Schwerverletzten-Behandlung (AWMF 187-023), 2022', fundstelle: 'Schockzeichen, Schockindex als Hilfsgröße' },
+    { id: 'ats-schock', titel: 'S3-Leitlinie Polytrauma/Schwerverletzten-Behandlung (AWMF 187-023), Version 5.0, 2025', fundstelle: 'Schockzeichen, Schockindex als Hilfsgröße' },
     { id: 'news2', titel: 'Royal College of Physicians: National Early Warning Score (NEWS) 2, 2017' },
-    { id: 'aps-mündlich', titel: 'Aktionsbündnis Patientensicherheit: Handlungsempfehlung mündliche Anordnungen (Closed Loop), 2023' },
+    { id: 'aps-mündlich', titel: 'AHRQ TeamSTEPPS 3.0: Check-back (Closed Loop) bei mündlichen Anordnungen, 2023' },
   ],
 
   person: {

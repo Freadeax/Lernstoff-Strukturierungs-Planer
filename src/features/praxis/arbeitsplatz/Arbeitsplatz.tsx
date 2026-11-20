@@ -28,6 +28,7 @@ import { merkeErledigt } from '../erledigt';
 import { StreifenKurve } from './StreifenKurve';
 import { journal } from './journal';
 import { Journal, VerlaufBlatt } from './Verlauf';
+import { praxisStandText } from '../kern/freigabe';
 import './arbeitsplatz.css';
 
 type Tempo = 0 | 1 | 2 | 4;
@@ -96,7 +97,7 @@ function Briefing({ fall, rolle, setRolle, onStart, fortsetzen, onZurueck }: {
       <button type="button" className="primary" onClick={onStart}>{fortsetzen ? 'Neu beginnen' : 'Fall beginnen'}</button>
       {fortsetzen && <button type="button" onClick={fortsetzen}>Fortsetzen</button>}
     </div>
-    <p className="ap-hinweis" role="note">Lernmodell: Werte und Verlauf sind vereinfacht. Fall fachlich {fall.freigabe.status === 'geprueft' ? 'geprüft' : 'noch nicht geprüft'}. Speicherung nur auf diesem Gerät.</p>
+    <p className="ap-hinweis" role="note">Lernmodell: Werte und Verlauf sind vereinfacht. Fall {praxisStandText(fall)}. Speicherung nur auf diesem Gerät.</p>
   </div>;
 }
 

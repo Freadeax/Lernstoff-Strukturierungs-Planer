@@ -41,7 +41,7 @@ export const KH_PNEUMONIE_SEPSIS: FallV2 = {
   freigabe: {
     status: 'entwurf',
     pruefpunkte: [
-      'Ablauf (Erkennen, NEWS2, Melden, O₂ nach Zielbereich, Volumen, Blutkulturen vor Antibiotikum) gegen S3-Leitlinie Sepsis und SSC 2021 prüfen',
+      'Ablauf (Erkennen, NEWS2, Melden, O₂ nach Zielbereich, Volumen, Blutkulturen vor Antibiotikum) gegen S3-Leitlinie Sepsis und SSC 2026 prüfen',
       'NEWS2-Schwellen (5–6 dringlich, ≥ 7 Notfall) und Reaktion der Station prüfen',
       'O₂-Zielbereich 92–96 % (ohne COPD) gegen BTS-Leitlinie bzw. S3-Leitlinie Sauerstofftherapie prüfen',
       'Befugnis Infusion anhängen (1. Drittel gesperrt, 2./3. Drittel mit Anleitung) und i. v.-Antibiotikum (gesperrt) bestätigen',
@@ -50,7 +50,7 @@ export const KH_PNEUMONIE_SEPSIS: FallV2 = {
   },
   quellen: [
     { id: 's3-cap', titel: 'S3-Leitlinie Behandlung von erwachsenen Patienten mit ambulant erworbener Pneumonie (AWMF 020-020), 2021' },
-    { id: 's3-sepsis', titel: 'S3-Leitlinie Sepsis – Prävention, Diagnose, Therapie und Nachsorge (AWMF 079-001), Fassung 2018', fundstelle: 'Update 2025 erschienen (AWMF 07/2025); Abgleich offen, siehe Quellenregister' },
+    { id: 's3-sepsis', titel: 'S3-Leitlinie Sepsis – Prävention, Diagnose, Therapie und Nachsorge (AWMF 079-001), Update 2025', fundstelle: 'Früherkennung, Laktat, Rekapillarisierungszeit, Nachsorge (AWMF 07/2025)' },
     { id: 'ssc-2026', titel: 'Surviving Sepsis Campaign: International Guidelines for Management of Sepsis and Septic Shock 2026', fundstelle: 'SCCM/ESICM, veröffentlicht 23.03.2026' },
     { id: 'news2', titel: 'Royal College of Physicians: National Early Warning Score (NEWS2), 2017' },
     { id: 's3-o2', titel: 'S3-Leitlinie Sauerstoff in der Akuttherapie beim Erwachsenen (AWMF 020-021), 2021' },
@@ -404,6 +404,7 @@ export const KH_PNEUMONIE_SEPSIS: FallV2 = {
     { titel: 'Früh erkennen', text: 'Atemfrequenz ab 22/min, neue Verwirrtheit und ein systolischer Blutdruck bis 100 mmHg (qSOFA) sind Warnzeichen. NEWS2 fasst alle Vitalzeichen zusammen; ab 7 Punkten (oder 3 Punkten in einem einzigen Wert) ist eine sofortige ärztliche Einschätzung nötig.', quellen: ['news2', 's3-sepsis'] },
     { titel: 'Melden mit SBAR', text: 'Die Ärztin reagiert auf das, was sie hört. „Hat Fieber“ führt zu Paracetamol. „Neu verwirrt, atmet schnell, Blutdruck deutlich niedriger als heute früh, NEWS2 rot“ führt dazu, dass sie sofort kommt.', quellen: ['ssc-2021'] },
     { titel: 'Sauerstoff mit Ziel', text: 'Sauerstoff ist ein Medikament und braucht eine Anordnung mit Zielbereich. Ohne COPD gilt meist 92–96 %. Zu viel Sauerstoff schadet ebenfalls.', quellen: ['s3-o2'] },
+    { titel: 'Nach der Sepsis', text: 'Viele Betroffene haben noch Monate später Schwäche, Konzentrationsprobleme, Ängste oder Schlafstörungen (Post-Intensive-Care-Syndrom). Die S3-Leitlinie 2025 verlangt, im Entlassbericht darauf hinzuweisen und Betroffene und Angehörige über Selbsthilfegruppen zu informieren.', quellen: ['s3-sepsis'] },
     { titel: 'Deine Grenzen', text: 'Infusion ohne Zusatz anhängen: im 1. Drittel nicht, im 2. und 3. Drittel mit Anleitung. Ein i. v.-Antibiotikum gibt eine Pflegefachperson oder die Ärztin. Blutkulturen werden vor der nächsten Antibiotikagabe abgenommen.', quellen: ['s3-sepsis'] },
   ],
 

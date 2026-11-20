@@ -38,7 +38,7 @@ export const PSY_UNRUHE_DEESKALATION: FallV2 = {
   freigabe: {
     status: 'entwurf',
     pruefpunkte: [
-      'Deeskalation gegen S3-Leitlinie „Verhinderung von Zwang: Prävention und Therapie aggressiven Verhaltens bei Erwachsenen“ (DGPPN 2018, AWMF 038-022) prüfen',
+      'Deeskalation gegen S3-Leitlinie „Verhinderung von Zwang: Prävention und Therapie aggressiven Verhaltens bei Erwachsenen“ (DGPPN, AWMF 038-022, Aktualisierung 2026) prüfen',
       'Remonstrationspunkt: Fixierung nur nach persönlicher ärztlicher Untersuchung und Anordnung, 1:1-Betreuung, ab 30 Minuten richterliche Genehmigung (BVerfG 2 BvR 309/15, 24.07.2018; PsychKHG BW)',
       'Deeskalation erst im 3. Drittel ausdrücklich im Lehrplan (CE 11); im 2. Drittel mit Anleitung',
       'Bedarfsmedikation Lorazepam als freiwilliges Angebot; ärztliche Verantwortung',
@@ -47,8 +47,8 @@ export const PSY_UNRUHE_DEESKALATION: FallV2 = {
     ],
   },
   quellen: [
-    { id: 's3-zwang', titel: 'S3-Leitlinie Verhinderung von Zwang: Prävention und Therapie aggressiven Verhaltens bei Erwachsenen (DGPPN, AWMF 038-022), 2018, Überarbeitung angekündigt' },
-    { id: 's3-schizo', titel: 'S3-Leitlinie Schizophrenie (DGPPN, AWMF 038-009), 2019' },
+    { id: 's3-zwang', titel: 'S3-Leitlinie Verhinderung von Zwang: Prävention und Therapie aggressiven Verhaltens bei Erwachsenen (DGPPN, AWMF 038-022), Aktualisierung 2026', fundstelle: 'Deeskalation, Risikoeinschätzung (z. B. Brøset-Checkliste), Zwang nur als letztes Mittel, Nachbesprechung nach kritischen Ereignissen' },
+    { id: 's3-schizo', titel: 'S3-Leitlinie Schizophrenie (DGPPN, AWMF 038-009), Aktualisierung 2026' },
     { id: 'bverfg-fix', titel: 'BVerfG, Urteil vom 24.07.2018 – 2 BvR 309/15 und 2 BvR 502/16 (Fixierung)' },
     { id: 'psychkhg-bw', titel: 'Gesetz über Hilfen und Schutzmaßnahmen bei psychischen Krankheiten Baden-Württemberg (PsychKHG BW), § 25' },
     { id: 'stgb-203', titel: 'StGB § 203 Verletzung von Privatgeheimnissen (Schweigepflicht)' },
@@ -311,6 +311,7 @@ export const PSY_UNRUHE_DEESKALATION: FallV2 = {
     { titel: 'Deeskalierend sprechen', text: 'Ruhig, langsam, kurze Sätze. Gefühle benennen, nicht diskutieren über Wahninhalte. Wahlmöglichkeiten anbieten, Zeit lassen.', quellen: ['s3-zwang', 's3-schizo'] },
     { titel: 'Milieu', text: 'Reize verringern, Mitpatienten schützen, auf den Krisenplan zurückgreifen.', quellen: ['s3-zwang'] },
     { titel: 'Zwang nur als letztes Mittel', text: 'Fixierung nur bei gegenwärtiger erheblicher Gefahr, nach persönlicher ärztlicher Untersuchung und Anordnung, mit 1:1-Betreuung; ab 30 Minuten richterliche Genehmigung. Eine Anordnung „auf Vorrat“ ist unzulässig.', quellen: ['bverfg-fix', 'psychkhg-bw'] },
+    { titel: 'Nachbesprechung', text: 'Nach einem kritischen Ereignis bespricht das Team den Ablauf strukturiert nach, und auch mit dem Betroffenen, sobald er dazu bereit ist. Die Leitlinie 2026 empfiehlt das ausdrücklich, ebenso regelmäßige Deeskalationstrainings und eine strukturierte Risikoeinschätzung.', quellen: ['s3-zwang'] },
     { titel: 'Schweigepflicht', text: 'Ohne Entbindung keine Auskunft an Angehörige, auch nicht, ob jemand auf Station ist. Nachrichten ausrichten ist erlaubt.', quellen: ['stgb-203'] },
   ],
 

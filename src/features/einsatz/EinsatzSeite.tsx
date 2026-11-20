@@ -190,9 +190,10 @@ function BereitCheck({ ctx, einsatz }: { ctx: SeitenCtx; einsatz: Einsatz }) {
   const [faelle, setFaelle] = useState<PraxisFall[] | null>(null);
   useEffect(() => {
     let an = true;
-    import('../praxis/kern/faelle').then((m) => {
+    // Nur die Kopfdaten der Fälle, nicht die Fälle selbst (Audit L-3).
+    import('../praxis/kern/faelle/katalog').then((m) => {
       if (!an) return;
-      setFaelle(m.FAELLE_V2.map((f) => ({ id: f.id, titel: f.titel.replace(/[„“]/g, ''), setting: f.setting, abschnitt: f.lehrplan?.abschnitt ?? [] })));
+      setFaelle(m.FALL_KOEPFE.map((f) => ({ id: f.id, titel: f.titel.replace(/[„“]/g, ''), setting: f.setting, abschnitt: f.lehrplan?.abschnitt ?? [] })));
     }, () => { if (an) setFaelle([]); });
     return () => { an = false; };
   }, []);
