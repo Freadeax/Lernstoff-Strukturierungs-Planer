@@ -48,7 +48,7 @@ export const ETAPPEN: Etappe[] = [
     schritte: [
       { id: 'probe', text: 'Probedurchlauf mit der Praxisanleitung: mindestens zwei Menschen, davon einer mit erhöhtem Pflegebedarf, im Zeitrahmen der Prüfung' },
       { id: 'bericht', text: 'Pflegebericht zur Probe schreiben und auf wertende Sprache prüfen', link: { label: 'Pflegebericht-Trainer', path: '/lernen/bericht' } },
-      { id: 'rechnen', text: 'Pflegerisches Rechnen auffrischen (Infusion, Dosierung)', link: { label: 'Rechentrainer', path: '/lernen/rechnen' } },
+      { id: 'rechnen', text: 'Pflegerisches Rechnen auffrischen (Infusion, Dosierung)', link: { label: 'Rechentrainer', path: '/lernen/fertigkeiten?uebung=rechnen' } },
     ],
   },
   {

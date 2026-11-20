@@ -52,6 +52,8 @@ export const NAV: NavItem[] = [
       {
         id: 'praxis-gruppe', label: 'Praxis', icon: 'user', zu: true, children: [
           { id: 'praxis', label: 'Praxissimulator', path: '/lernen/praxis', icon: 'clipboard' },
+          // Fertigkeiten-Trainer: Reanimation, ABCDE, Handgriffe, Rechnen, Hören, Labor-Werkbank, Suchbilder (früher verteilt).
+          { id: 'fertigkeiten', label: 'Fertigkeiten-Trainer', path: '/lernen/fertigkeiten', icon: 'stetho' },
           { id: 'fall', label: 'Fallsimulator', path: '/lernen/fall', icon: 'user' },
           { id: 'diagnostik', label: 'Labor und Bildgebung', path: '/lernen/diagnostik', icon: 'flask' },
           { id: 'assessment', label: 'Assessments', path: '/lernen/assessment', icon: 'gauge' },
@@ -68,12 +70,6 @@ export const NAV: NavItem[] = [
           { id: 'fallakte', label: 'Fallakte', path: '/lernen/fallakte', icon: 'folder' },
           { id: 'examen', label: 'Examen', path: '/lernen/examen', icon: 'examen' },
           { id: 'fehler', label: 'Fehlerheft', path: '/lernen/fehler', icon: 'alert' },
-          // Rechentrainer hier: Pflegerechnen ist klassischer Prüfungsstoff und hat einen eigenen Prüfungsmodus (Platz in Fachwissen für den Grundlagen-Trainer).
-          { id: 'rechnen', label: 'Rechentrainer', path: '/lernen/rechnen', icon: 'calc' },
-          // Praxis und Fachwissen sind mit je zehn Einträgen voll; Blutdruck nach Gehör ist auch Prüfungsstoff (praktische Prüfung).
-          { id: 'hoeren', label: 'Hör-Trainer', path: '/lernen/hoeren', icon: 'stetho' },
-          // Ablauf-Werkbank: Handgriffe für die praktische Prüfung (Praxis-Gruppe ist voll).
-          { id: 'ablauf', label: 'Ablauf-Werkbank', path: '/lernen/ablauf', icon: 'clipboard' },
           // Gesprächssimulator: Gesprächsführung ist Teil der praktischen und mündlichen Prüfung.
           { id: 'gespraech', label: 'Gesprächssimulator', path: '/lernen/gespraech', icon: 'chat' },
           { id: 'klasse', label: 'Klassenmodus', path: '/lernen/klasse', icon: 'klasse' },

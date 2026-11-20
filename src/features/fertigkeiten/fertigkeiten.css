@@ -1,0 +1,6 @@
+/* Fertigkeiten-Trainer: Übersicht und Leiste über jeder Übung */
+.fertig__liste { display: grid; gap: var(--space-2); grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr)); padding: 0; margin: 0; list-style: none; }
+.fertig__karte { display: flex; gap: var(--space-2); align-items: flex-start; height: 100%; color: inherit; text-decoration: none; }
+.fertig__karte:hover, .fertig__karte:focus-visible { border-color: var(--color-primary); }
+.fertig__icon { flex: none; display: grid; place-items: center; width: 2.5rem; height: 2.5rem; border-radius: var(--radius-md); background: var(--color-primary-soft); color: var(--color-primary); }
+.fertig__text { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }

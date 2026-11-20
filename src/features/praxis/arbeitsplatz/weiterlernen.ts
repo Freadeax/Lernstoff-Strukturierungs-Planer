@@ -44,7 +44,7 @@ export const WEITERLERNEN_V2: Record<string, WeiterlernenEintrag> = {
   'sr-septischer-schock': {
     themen: ['thema.kl.infektion', 'thema.pro.zystitis', 'thema.beo.vitalzeichen', 'thema.beo.bewusstsein'],
     krankheiten: ['kh.sepsis', 'kh.hwi'],
-    extra: [{ label: 'Rechentrainer: Perfusor und Laufrate', path: '/lernen/rechnen?typen=perfusor,laufrate', warum: 'Laufraten von Katecholaminen sicher berechnen.' }],
+    extra: [{ label: 'Rechentrainer: Perfusor und Laufrate', path: '/lernen/fertigkeiten?uebung=rechnen&typen=perfusor,laufrate', warum: 'Laufraten von Katecholaminen sicher berechnen.' }],
   },
   'kh-pneumonie-sepsis': {
     themen: ['thema.pro.pneumonie', 'thema.kl.infektion', 'thema.beo.vitalzeichen', 'thema.pro.delir'],
@@ -122,7 +122,7 @@ export const WEITERLERNEN_V2: Record<string, WeiterlernenEintrag> = {
   'lz-unterzucker-mittag': {
     themen: ['thema.kl.diabetes', 'thema.ph.medikamente', 'thema.ph.ernaehrung'],
     krankheiten: ['kh.diabetes-typ2'],
-    extra: [{ label: 'Rechentrainer: Insulin', path: '/lernen/rechnen', warum: 'Einheiten und Insulindosen sicher rechnen.' }],
+    extra: [{ label: 'Rechentrainer: Insulin', path: '/lernen/fertigkeiten?uebung=rechnen', warum: 'Einheiten und Insulindosen sicher rechnen.' }],
   },
   'amb-hausbesuch-still': {
     themen: ['thema.fa.ambulant', 'thema.pro.dehydratation', 'thema.pro.sturz', 'thema.ph.medikamente'],
@@ -139,7 +139,7 @@ export const WEITERLERNEN_V2: Record<string, WeiterlernenEintrag> = {
   'kh-reanimation-bls': {
     themen: ['thema.beo.notfall', 'thema.beo.bewusstsein', 'thema.kl.herz.khk'],
     krankheiten: ['kh.herzinfarkt'],
-    extra: [{ label: 'Reanimation üben', path: '/lernen/wissen?fach=notfall&modus=rea', warum: 'Herzdruckmassage, AED und Rhythmus im Wissenstrainer (Notfall) wiederholen.' }],
+    extra: [{ label: 'Reanimation üben', path: '/lernen/fertigkeiten?uebung=rea', warum: 'Herzdruckmassage, AED und Rhythmus im Wissenstrainer (Notfall) wiederholen.' }],
   },
   'na-acs-brustschmerz': {
     themen: ['thema.kl.herz.khk', 'thema.beo.notfall', 'thema.ph.medikamente'],
@@ -153,7 +153,7 @@ export const WEITERLERNEN_V2: Record<string, WeiterlernenEintrag> = {
   'its-beatmung-alarm': {
     themen: ['thema.kl.atmung', 'thema.beo.notfall', 'thema.ph.medikamente'],
     krankheiten: ['kh.pneumonie'],
-    extra: [{ label: 'Rechentrainer: Perfusor und Laufrate', path: '/lernen/rechnen?typen=perfusor,laufrate', warum: 'Laufraten in Dosis umrechnen (Propofol, Sufentanil, Noradrenalin).' }],
+    extra: [{ label: 'Rechentrainer: Perfusor und Laufrate', path: '/lernen/fertigkeiten?uebung=rechnen&typen=perfusor,laufrate', warum: 'Laufraten in Dosis umrechnen (Propofol, Sufentanil, Noradrenalin).' }],
   },
   'amb-herzschwaeche': {
     themen: ['thema.kl.herz.insuffizienz', 'thema.kom.beratung', 'thema.fa.ambulant'],

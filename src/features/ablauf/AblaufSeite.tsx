@@ -109,8 +109,8 @@ function DurchfuehrenErgebnis({ a, stand, buchung, neu }: { a: Ablauf; stand: St
       {buchung && <p className="muted" role="status">{buchung}</p>}
       <div className="faecher__aktionen">
         <button type="button" className="primary" onClick={neu}>Noch einmal</button>
-        <button type="button" onClick={() => navigate(`/lernen/ablauf?ablauf=${a.id}&modus=fehler`)}>Fehler finden</button>
-        <button type="button" className="ghost" onClick={() => navigate('/lernen/ablauf')}>Andere Abläufe</button>
+        <button type="button" onClick={() => navigate(`/lernen/fertigkeiten?uebung=ablauf&ablauf=${a.id}&modus=fehler`)}>Fehler finden</button>
+        <button type="button" className="ghost" onClick={() => navigate('/lernen/fertigkeiten?uebung=ablauf')}>Andere Abläufe</button>
       </div>
       <Quellen a={a} />
     </div>
@@ -182,8 +182,8 @@ function FehlerFinden({ a, seed, neu }: { a: Ablauf; seed: number; neu: () => vo
             {buchung && <p className="muted">{buchung}</p>}
             <div className="faecher__aktionen">
               <button type="button" className="primary" onClick={neu}>Neue Runde</button>
-              <button type="button" onClick={() => navigate(`/lernen/ablauf?ablauf=${a.id}&modus=durchfuehren`)}>Selbst durchführen</button>
-              <button type="button" className="ghost" onClick={() => navigate('/lernen/ablauf')}>Andere Abläufe</button>
+              <button type="button" onClick={() => navigate(`/lernen/fertigkeiten?uebung=ablauf&ablauf=${a.id}&modus=durchfuehren`)}>Selbst durchführen</button>
+              <button type="button" className="ghost" onClick={() => navigate('/lernen/fertigkeiten?uebung=ablauf')}>Andere Abläufe</button>
             </div>
             <Quellen a={a} />
           </div>
@@ -221,8 +221,8 @@ export default function AblaufSeite() {
               <h2>{x.titel}</h2>
               <p className="muted">{x.kurz}. {x.schritte.length} Schritte, {x.fallen.length} typische Fehler.</p>
               <div className="faecher__aktionen">
-                <button type="button" className="primary" onClick={() => navigate(`/lernen/ablauf?ablauf=${x.id}&modus=durchfuehren`)}>Durchführen</button>
-                <button type="button" onClick={() => navigate(`/lernen/ablauf?ablauf=${x.id}&modus=fehler`)}>Fehler finden</button>
+                <button type="button" className="primary" onClick={() => navigate(`/lernen/fertigkeiten?uebung=ablauf&ablauf=${x.id}&modus=durchfuehren`)}>Durchführen</button>
+                <button type="button" onClick={() => navigate(`/lernen/fertigkeiten?uebung=ablauf&ablauf=${x.id}&modus=fehler`)}>Fehler finden</button>
               </div>
             </li>
           ))}
@@ -230,8 +230,8 @@ export default function AblaufSeite() {
       ) : (
         <>
           <div className="pills" role="group" aria-label="Modus">
-            <button type="button" className="pill" aria-pressed={modus === 'durchfuehren'} onClick={() => navigate(`/lernen/ablauf?ablauf=${a.id}&modus=durchfuehren`)}>Durchführen</button>
-            <button type="button" className="pill" aria-pressed={modus === 'fehler'} onClick={() => navigate(`/lernen/ablauf?ablauf=${a.id}&modus=fehler`)}>Fehler finden</button>
+            <button type="button" className="pill" aria-pressed={modus === 'durchfuehren'} onClick={() => navigate(`/lernen/fertigkeiten?uebung=ablauf&ablauf=${a.id}&modus=durchfuehren`)}>Durchführen</button>
+            <button type="button" className="pill" aria-pressed={modus === 'fehler'} onClick={() => navigate(`/lernen/fertigkeiten?uebung=ablauf&ablauf=${a.id}&modus=fehler`)}>Fehler finden</button>
           </div>
           {modus === 'durchfuehren'
             ? <Durchfuehren key={`${a.id}-${seed}`} a={a} seed={seed} neu={neu} />

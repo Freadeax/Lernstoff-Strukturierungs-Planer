@@ -36,7 +36,7 @@ const QUIZ_QUELLEN = new Set<FehlerQuelle>(['hygiene', 'anatomie', 'expertenstan
 /** Wo man eine Aufgabe außerhalb des Fehlerhefts weiter üben kann. */
 function trainerLink(f: Fehler): { label: string; path: string } | null {
   const w = f.wiederholung;
-  if (w.art === 'rechnen') return { label: 'Im Rechentrainer üben', path: `/lernen/rechnen?typen=${w.typ}` };
+  if (w.art === 'rechnen') return { label: 'Im Rechentrainer üben', path: `/lernen/fertigkeiten?uebung=rechnen&typen=${w.typ}` };
   // krankheitsbilder:detektiv.* (Detektiv-Runde) bzw. kh:<fallId>:<aufgabeId> (Fallaufgabe)
   if (f.quelle === 'krankheitsbilder' && f.id.startsWith('krankheitsbilder:detektiv.')) return { label: 'Im Krankheitsbild-Detektiv üben', path: '/lernen/krankheitsbilder?ansicht=detektiv' };
   // diagnostik:<fallId>:<frageId>
@@ -335,7 +335,7 @@ export default function FehlerheftSeite() {
           {fazit && <p className="note ok" role="status">{fazit}</p>}
           {liste.length === 0 ? (
             <p className="muted">
-              Noch keine Fehler gesammelt. Übe im <a href="#/lernen/rechnen">Rechentrainer</a>, im <a href="#/lernen/duell">Fachbegriff-Duell</a>,
+              Noch keine Fehler gesammelt. Übe im <a href="#/lernen/fertigkeiten?uebung=rechnen">Rechentrainer</a>, im <a href="#/lernen/duell">Fachbegriff-Duell</a>,
               in der <a href="#/lernen/simulation">Prüfungssimulation</a>, mit den <a href="#/lernen/krankheitsbilder">Krankheitsbild-Fällen</a>, den <a href="#/lernen/assessment?modus=faelle">Assessment-Fällen</a>, im <a href="#/lernen/wissen">Wissenstrainer</a>: was danebengeht, steht danach hier.
             </p>
           ) : (

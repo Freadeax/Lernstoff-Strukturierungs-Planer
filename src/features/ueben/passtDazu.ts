@@ -9,10 +9,9 @@ import { flatNav, LERNSEITEN, NAV } from '../../ui/shell/nav';
 import { leafTopics } from '../lernplan/store';
 import { uebungenFuer, type TrainerId } from '../lernplan/trainer';
 import { UEBUNG_INFO } from './katalog';
-import { FACH_NAME, istFach, wissenPfad } from '../wissen/pfad';
-
-/** Menüseite eines Trainers: Die Fachgebiete des Wissenstrainers liegen alle auf einer Seite. */
-const seiteVon = (t: TrainerId): string => (istFach(t) ? 'wissen' : t);
+import { wissenPfad } from '../wissen/pfad';
+import { fertigPfad } from '../fertigkeiten/pfad';
+import { menueSeiteVon as seiteVon, teilVon } from './menue';
 
 export interface Ziel { label: string; path: string; grund: string }
 export interface PasstDazu { verwandt: Ziel[]; themen: Array<{ id: string; name: string }>; weiter: Ziel[] }
@@ -36,9 +35,9 @@ export const SCHRITT: Record<string, Ziel> = {
   assessment: { label: 'Assessments', path: '/lernen/assessment', grund: 'Risiken mit Skalen einschätzen.' },
   dnqp: { label: 'Expertenstandards (DNQP)', path: '/lernen/dnqp', grund: 'Die Standards Ebene für Ebene nachlesen.' },
   schnellsuche: { label: 'Standard-Schnellsucher', path: '/lernen/schnellsuche', grund: 'Kriterien eines Standards schnell finden.' },
-  hoeren: { label: 'Hör-Trainer', path: '/lernen/hoeren', grund: 'Alarme, Herz und Lunge nach Gehör erkennen.' },
+  hoeren: { label: 'Hör-Trainer', path: '/lernen/fertigkeiten?uebung=hoeren', grund: 'Alarme, Herz und Lunge nach Gehör erkennen.' },
   gespraech: { label: 'Gesprächssimulator', path: '/lernen/gespraech', grund: 'Schwierige Gespräche üben, mit Rückmeldung zu jeder Antwort.' },
-  ablauf: { label: 'Ablauf-Werkbank', path: '/lernen/ablauf', grund: 'Handgriffe in der richtigen Reihenfolge, mit typischen Fehlern.' },
+  ablauf: { label: 'Ablauf-Werkbank', path: '/lernen/fertigkeiten?uebung=ablauf', grund: 'Handgriffe in der richtigen Reihenfolge, mit typischen Fehlern.' },
   hygiene: { label: 'Wissenstrainer: Hygiene', path: '/lernen/wissen?fach=hygiene', grund: 'Händehygiene, Schutzausrüstung und Asepsis sicher können.' },
   anatomie: { label: 'Wissenstrainer: Anatomie', path: '/lernen/wissen?fach=anatomie', grund: 'Organe, Lage und Funktion abfragen.' },
   normwerte: { label: 'Wissenstrainer: Normwerte', path: '/lernen/wissen?fach=normwerte', grund: 'Vitalwerte und Labor sicher einordnen.' },
@@ -49,6 +48,7 @@ export const SCHRITT: Record<string, Ziel> = {
   fallakte: { label: 'Fallakte', path: '/lernen/fallakte', grund: 'Einen Fall von der SIS bis zur Übergabe durcharbeiten.' },
   recht: { label: 'Wissenstrainer: Recht', path: '/lernen/wissen?fach=recht', grund: 'Haftung, Schweigepflicht und Betreuung anwenden.' },
   wissen: { label: 'Wissenstrainer', path: wissenPfad(), grund: 'Alle Fachgebiete, eigene Runde aus mehreren Themen, Schwachstellen.' },
+  fertigkeiten: { label: 'Fertigkeiten-Trainer', path: fertigPfad(), grund: 'Reanimation, Handgriffe, Rechnen und Hören praktisch üben.' },
   duell: { label: 'Fachbegriff-Duell', path: '/lernen/duell', grund: 'Fachbegriffe schnell und sicher abrufen.' },
   krankheitsbilder: { label: 'Krankheitsbilder', path: '/lernen/krankheitsbilder', grund: 'Steckbriefe mit Belegen und Fallaufgaben.' },
   ueben: { label: 'Alle Übungen', path: '/lernen/ueben', grund: 'Passende Übung nach CE, Fach oder Dauer finden.' },
@@ -67,8 +67,7 @@ export const WEITER: Record<string, string[]> = {
   fehler: ['karten', 'simulation'],
   simulation: ['fehler', 'examen'],
   examen: ['simulation', 'ce'],
-  hoeren: ['notfall', 'praxis'],
-  ablauf: ['praxis', 'hygiene'],
+  fertigkeiten: ['praxis', 'wissen'],
   gespraech: ['uebergabe', 'praxis'],
   klasse: ['pflegeplanung', 'praxis'],
   praxis: ['fehler', 'pflegeplanung'],
@@ -94,7 +93,7 @@ export const WEITER: Record<string, string[]> = {
   dokumente: ['zusammenfassen', 'skript', 'karten'],
   physiologie: ['anatomie', 'normwerte', 'krankheitsbilder'],
   mindmap: ['karten', 'wissen'],
-  einsatz: ['plan', 'ablauf', 'karten'],
+  einsatz: ['plan', 'fertigkeiten', 'karten'],
   zusammenfassen: ['karten', 'skript', 'dokumente'],
 };
 
@@ -127,7 +126,7 @@ export function passtDazu(id: string, modul: CatalogModule = modules[0] as Catal
       const k = seiteVon(x.trainer);
       const g = geteilt.get(k);
       if (g) { if (g.fach !== x.trainer) g.fach = undefined; g.anzahl++; }
-      else geteilt.set(k, { anzahl: 1, path: x.path, thema: t.name, ...(istFach(x.trainer) ? { fach: x.trainer } : {}) });
+      else geteilt.set(k, { anzahl: 1, path: x.path, thema: t.name, ...(teilVon(x.trainer) ? { fach: x.trainer } : {}) });
     }
   }
   // Gemeinsame Themen im Verhältnis zur Breite: 2 von 3 Themen passt besser als 30 von 80.
@@ -137,9 +136,9 @@ export function passtDazu(id: string, modul: CatalogModule = modules[0] as Catal
     .sort((a, b) => wert(b[0], b[1].anzahl) - wert(a[0], a[1].anzahl) || a[0].localeCompare(b[0]))
     .slice(0, 3)
     .map(([t, g]): Ziel => ({
-      label: g.fach && istFach(g.fach) ? `${label.get(t) ?? t}: ${FACH_NAME[g.fach]}` : label.get(t) ?? t,
-      // Bei nur einem gemeinsamen Thema direkt dorthin, im Wissenstrainer ins Fachgebiet, sonst auf die Startseite der Übung
-      path: g.anzahl === 1 ? g.path : g.fach && istFach(g.fach) ? wissenPfad(g.fach) : seiten.get(t)!,
+      label: g.fach && teilVon(g.fach) ? `${label.get(t) ?? t}: ${teilVon(g.fach)!.name}` : label.get(t) ?? t,
+      // Bei nur einem gemeinsamen Thema direkt dorthin, auf Sammelseiten in den Teil (Fachgebiet, Fertigkeit), sonst auf die Startseite der Übung
+      path: g.anzahl === 1 ? g.path : g.fach && teilVon(g.fach) ? teilVon(g.fach)!.path : seiten.get(t)!,
       grund: g.anzahl === 1 ? `Auch zu „${g.thema}“.` : `${g.anzahl} gemeinsame Themen, z. B. „${g.thema}“.`,
     }));
 

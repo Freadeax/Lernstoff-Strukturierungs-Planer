@@ -44,7 +44,7 @@ const MELDUNG: Record<Bewertung, string> = {
   leer: 'Bitte eine Zahl eingeben.',
 };
 
-/** Startwerte aus der Adresse, z. B. #/lernen/rechnen?modus=pruefung&typen=dosis,mgkg (Sprung aus dem Lernplan). */
+/** Startwerte aus der Adresse, z. B. #/lernen/fertigkeiten?uebung=rechnen&modus=pruefung&typen=dosis,mgkg (Sprung aus dem Lernplan). */
 function ausAdresse(params: URLSearchParams): { typen: AufgabenTyp[]; modus: Modus } {
   const typen = (params.get('typen') ?? '').split(',').filter((t): t is AufgabenTyp => (ALLE as string[]).includes(t));
   return { typen: typen.length ? typen : ALLE, modus: params.get('modus') === 'pruefung' ? 'pruefung' : 'training' };

@@ -30,7 +30,7 @@ export default function Werkbank() {
       <div className="wb-reiter" role="tablist" aria-label="Station wählen">
         {STATIONEN.map((s) => (
           <button key={s.id} type="button" role="tab" aria-selected={station === s.id} className={station === s.id ? 'is-aktiv' : ''}
-            onClick={() => navigate(`/lernen/wissen?fach=labor&modus=werkbank&station=${s.id}`)}>
+            onClick={() => navigate(`/lernen/fertigkeiten?uebung=werkbank&station=${s.id}`)}>
             <strong>{s.label}</strong><span className="muted wb-klein">{s.kurz}</span>
           </button>
         ))}
