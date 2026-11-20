@@ -4,6 +4,8 @@
 
 Stand: 26.10.2026. Dieses Dokument ist das zentrale Register für den neuen Praxissimulator und die Anforderungen des ergänzenden Master-Prompts. Es ersetzt keine medizinische Freigabe. Der bestehende Claude-Text-Fallsimulator und die schriftliche Prüfungssimulation bleiben eigenständige, unveränderte Module.
 
+> **Nachtrag 20.11.2026 (Audit U-2):** Der Text-Fallsimulator ist jetzt die Fallart **Kurzfälle** im Praxissimulator (`#/lernen/praxis?art=kurz`, Code weiter in `src/features/fall/`, Speicher `lernstoff.fall.*` unverändert). `#/lernen/fall` leitet mit allen Angaben dorthin weiter. Im Menü gibt es nur noch einen Eintrag „Praxissimulator“ unter „Praxis“.
+
 ## Bestandsaufnahme und abgeschlossenes Arbeitspaket
 
 Die Anwendung besteht bereits aus React, TypeScript, Vite, Dexie/IndexedDB, lokaler Datensicherung, Vitest, Playwright und einer über `main` veröffentlichten GitHub-Pages-PWA. Es gibt Lernplan, Rechentrainer, Pflegeplanung, Assessment-, Berichts-, SIS- und Übergabetrainer. Diese Angebote werden nicht durch einen zweiten Anwendungsrahmen ersetzt. Der vorhandene Text-Fallsimulator erzeugt seine Welt über Claude; die Prüfungssimulation kombiniert vorhandene Lernquellen. Beides ist keine autonome Patienten-Engine.

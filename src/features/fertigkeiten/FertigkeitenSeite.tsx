@@ -1,13 +1,14 @@
 // Fertigkeiten-Trainer: alles, was man mit Händen, Ohren und Taschenrechner übt, an einem Ort
 // (bis November 2026 verteilt auf Notfall-Trainer, Ablauf-Werkbank, Hör-Trainer, Rechentrainer,
 // Labor-Trainer und Hygiene-Trainer). Die Übungen selbst bleiben, wie sie sind.
-import { lazy, Suspense, type ReactNode } from 'react';
+import { lazy, Suspense, useState, type ReactNode } from 'react';
 import './fertigkeiten.css';
 import '../notfall/notfall.css';
 import { useRoute } from '../../ui/shell/router';
 import { Icon, type IconName } from '../../ui/icons';
 import { PageHeading } from '../../ui/PageHeading';
 import { FERTIG_PFAD, fertigPfad, istUebung, UEBUNG_IDS, UEBUNG_NAME, type UebungId } from './pfad';
+import { HANDLUNGSVIDEOS, type HandlungsVideoId } from '../../ui/sim/handlungsvideos';
 
 const Reanimation = lazy(() => import('../notfall/Reanimation').then((m) => ({ default: m.Reanimation })));
 const ABCDE = lazy(() => import('../notfall/ABCDE').then((m) => ({ default: m.ABCDE })));
@@ -15,6 +16,7 @@ const AblaufSeite = lazy(() => import('../ablauf/AblaufSeite'));
 const Rechentrainer = lazy(() => import('../rechnen/Rechentrainer'));
 const HoerTrainer = lazy(() => import('../hoeren/HoerTrainer'));
 const Werkbank = lazy(() => import('../labortrainer/werkbank/Werkbank'));
+const HandlungsVideo = lazy(() => import('../../ui/sim/HandlungsVideo').then((m) => ({ default: m.HandlungsVideo })));
 const Suchbilder = lazy(() => import('../hygiene/Suchbild').then((m) => ({ default: m.Suchbilder })));
 
 interface Info { icon: IconName; text: string; minuten: number; zaehlt: string }
@@ -60,6 +62,23 @@ function Uebung({ id }: { id: UebungId }) {
   }
 }
 
+/** Lernclips: Handgriffe in vier Phasen ansehen (Video oder Schritt für Schritt), ohne Wertung. */
+function Lernclips() {
+  const [offen, setOffen] = useState<HandlungsVideoId | null>(null);
+  return (
+    <section className="card fertig__clips" aria-labelledby="fertig-clips-titel">
+      <h2 id="fertig-clips-titel">Lernclips</h2>
+      <p className="muted">Handgriffe in vier Phasen ansehen, als Video oder Schritt für Schritt mit Bild. Nur zum Ansehen, ohne Wertung.</p>
+      <ul className="fertig__clipliste" role="list">
+        {(Object.keys(HANDLUNGSVIDEOS) as HandlungsVideoId[]).map((id) => (
+          <li key={id}><button type="button" onClick={() => setOffen(id)}><Icon name="sparkle" size={16} /> {HANDLUNGSVIDEOS[id].titel}</button></li>
+        ))}
+      </ul>
+      {offen && <Suspense fallback={null}><HandlungsVideo id={offen} onClose={() => setOffen(null)} /></Suspense>}
+    </section>
+  );
+}
+
 function Uebersicht() {
   return (
     <section className="page fertig">
@@ -83,6 +102,7 @@ function Uebersicht() {
           );
         })}
       </ul>
+      <Lernclips />
       <p className="muted">Wissensfragen zu Notfall, Labor und Hygiene stehen im <a href="#/lernen/wissen">Wissenstrainer</a>.</p>
     </section>
   );

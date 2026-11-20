@@ -2,6 +2,7 @@
 // werden als Datei an Claude gegeben, der sie mit `npm run assets:freigaben -- <datei>` in
 // src/ui/sim/bildfreigaben.ts übernimmt. Erst dort gelten sie für alle Geräte und den Asset-Bericht.
 
+import { kurzfallPfad } from '../praxis/pfad';
 import type { BildFreigabe } from './freigaben';
 
 export const PRUEF_FORMAT = 'lernstoff-bildpruefung/1';
@@ -66,7 +67,7 @@ export function verwendungZiel(w: string): string | undefined {
   if (sim === 'praxis' && id !== 'lernclips') return `#/lernen/praxis?neu=${id}`;
   if (sim === 'praxis') return '#/lernen/praxis';
   if (sim === 'diagnostik') return `#/lernen/diagnostik?fall=${id}`;
-  if (sim === 'fall') return '#/lernen/fall';
+  if (sim === 'fall') return `#${kurzfallPfad()}`;
   if (sim === 'hygiene') return '#/lernen/wissen?fach=hygiene';
   if (sim === 'notfall') return '#/lernen/wissen?fach=notfall';
   return undefined;

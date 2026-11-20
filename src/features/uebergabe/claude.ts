@@ -1,6 +1,6 @@
 // Ausführliche Rückmeldung zur Übergabe durch Claude. Nur mit API-Schlüssel und auf Knopfdruck.
 // Datenschutz: Es verlassen nur der (erfundene) Übungsfall und der eingegebene Text das Gerät.
-import Anthropic from '@anthropic-ai/sdk';
+import { frageClaude, noteAus, textAus } from '../../core/ki/claude';
 import { allgemeinePunkte, ANLASS_LABEL, TEIL_LABEL, type Fall, type Teil } from './faelle';
 
 export interface KiTeil { teil: Teil; bewertung: 'vollstaendig' | 'teilweise' | 'fehlt'; kommentar: string }
@@ -64,22 +64,16 @@ ${erwartet}
 }
 
 export async function bewerteMitClaude(opts: { apiKey: string; fall: Fall; uebergabe: string; model?: string }): Promise<KiRueckmeldung> {
-  const client = new Anthropic({ apiKey: opts.apiKey, dangerouslyAllowBrowser: true });
-  const response = await client.beta.messages.create({
-    model: opts.model ?? 'claude-opus-5-5',
-    max_tokens: 8000,
-    betas: ['server-side-fallback-2026-07-01'],
-    fallbacks: 'default',
-    output_config: { effort: 'low', format: { type: 'json_schema', schema: SCHEMA } },
+  const response = await frageClaude({
+    apiKey: opts.apiKey, modul: 'uebergabe', model: opts.model,
+    maxTokens: 8000, effort: 'low', schema: SCHEMA,
     system: systemPrompt(),
     messages: [{
       role: 'user',
       content: `${fallText(opts.fall)}\n<uebergabe>\n${opts.uebergabe}\n</uebergabe>\nGib deine Rückmeldung als JSON.`,
     }],
-  } as unknown as Anthropic.Beta.MessageCreateParamsNonStreaming);
-  if (response.stop_reason === 'refusal') throw new Error('Die KI hat die Anfrage abgelehnt.');
-  if (response.stop_reason === 'max_tokens') throw new Error('Die Antwort wurde abgeschnitten. Bitte noch einmal versuchen.');
-  const text = response.content.flatMap((b) => (b.type === 'text' ? [b.text] : [])).join('');
+  });
+  const text = textAus(response);
   return leseRueckmeldung(text);
 }
 
@@ -90,7 +84,7 @@ export function leseRueckmeldung(text: string): KiRueckmeldung {
   if (start < 0 || ende < start) throw new Error('Die Antwort der KI war nicht lesbar.');
   const roh = JSON.parse(text.slice(start, ende + 1)) as Partial<KiRueckmeldung>;
   const liste = (x: unknown) => (Array.isArray(x) ? x.filter((s): s is string => typeof s === 'string') : []);
-  const note = Math.min(6, Math.max(1, Math.round(Number(roh.note) || 6)));
+  const note = noteAus(roh.note);
   const teile = (['S', 'B', 'A', 'R'] as Teil[]).map((t) => {
     const k = Array.isArray(roh.teile) ? roh.teile.find((x) => x?.teil === t) : undefined;
     const bewertung = k && ['vollstaendig', 'teilweise', 'fehlt'].includes(k.bewertung) ? k.bewertung : 'fehlt';

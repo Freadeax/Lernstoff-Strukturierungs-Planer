@@ -2,12 +2,16 @@
 // Der alte Simulator (engine.ts, scenarios.json, Leitfälle) ist mit P10 entfernt. Alte Links (?fall=, ?gefuehrt=<alt>,
 // ?neu=<alt>) zeigen über altfaelle.ts auf den Nachfolgefall; das alte Archiv bleibt als Liste lesbar.
 //
+// Zwei Fallarten (Audit U-2): Praxisfälle (Stufe 1 geführt, Stufe 2 frei) und Kurzfälle (?art=kurz), der frühere
+// Fallsimulator mit Probefällen ohne KI und frei gespielten Fällen mit Claude. Der Kurzfall-Teil wird erst bei Bedarf geladen.
+//
 // Routen: ?neu=<fall> Arbeitsplatz · ?gefuehrt=<fall> Stufe 1 · ?fall=<fall|alt> wie ?neu= · ?thema=<topic> · ?kb=<kh.id> · ?ce=<ce.id>
-import { useEffect } from 'react';
+//         ?art=kurz[&thema=…|&kb=…] Kurzfälle
+import { lazy, Suspense, useEffect } from 'react';
 import { getModule, modules } from '../../modules/registry';
 import type { CatalogModule } from '../../modules/catalog-types';
 import { PageHeading } from '../../ui/PageHeading';
-import { useStore } from '../../ui/lib/store';
+import { istObjekt, storage, useStore } from '../../ui/lib/store';
 import { navigate, useRoute } from '../../ui/shell/router';
 import { session as shellSession } from '../../ui/shell/session';
 import { ceListe } from '../ce/modell';
@@ -20,9 +24,35 @@ import { FAELLE_V2 } from './kern/faelle';
 import type { FallV2 } from './kern/typen';
 import { Stufe1 } from './stufe1/Stufe1';
 import { kernZuThema } from './themen';
+import { FALLART_NAME, fallArtVon, kurzfallPfad, PRAXIS_PFAD, type FallArt } from './pfad';
 import './praxis.css';
 
+const Kurzfaelle = lazy(() => import('../fall/Fallsimulator'));
+
 const KERN_IDS = FAELLE_V2.map((f) => f.id);
+
+const BESCHREIBUNG: Record<FallArt, string> = {
+  praxis: 'Beobachten. Entscheiden. Handeln. Ein eigener Übungsraum mit regelbasiertem Patientenverlauf – ohne KI und ohne API-Schlüssel.',
+  kurz: 'Ein Patient, eine Situation, 10 bis 15 Minuten. Probefälle laufen offline; weitere Fälle spielt Claude frei aus (braucht deinen API-Schlüssel und Netz).',
+};
+
+/** Seitenkopf mit Umschalter zwischen den beiden Fallarten. */
+function PraxisKopf({ art }: { art: FallArt }) {
+  return <>
+    <PageHeading eyebrow="Generalistische Pflegeausbildung" title="Praxissimulator" description={BESCHREIBUNG[art]} />
+    <div className="pills praxis-fallart" role="group" aria-label="Fallart">
+      {(['praxis', 'kurz'] as FallArt[]).map((a) => <button key={a} type="button" className="pill" aria-pressed={art === a}
+        onClick={() => navigate(a === 'kurz' ? kurzfallPfad() : PRAXIS_PFAD)}>{FALLART_NAME[a]}</button>)}
+    </div>
+  </>;
+}
+
+/** Ein begonnener, noch nicht ausgewerteter Kurzfall (Speicher des früheren Fallsimulators). */
+function offenerKurzfall(): string | undefined {
+  const f = storage.read<Record<string, unknown> | null>('lernstoff.fall.aktuell', null, 'local', (v) => istObjekt(v) && istObjekt(v.szenario) && !v.abschluss);
+  const titel = f && istObjekt(f.szenario) ? f.szenario.titel : undefined;
+  return f ? (typeof titel === 'string' ? titel.replace(/^Probefall: /, '') : 'Kurzfall') : undefined;
+}
 const finde = (id: string | undefined) => (id ? FAELLE_V2.find((f) => f.id === id) : undefined);
 const alterText = (f: FallV2) => (f.person.alter.jahre !== undefined ? `${f.person.alter.jahre} Jahre` : `${f.person.alter.monate ?? 0} Monate`);
 
@@ -54,6 +84,7 @@ export default function Praxissimulator() {
   const { params } = useRoute();
   const moduleId = useStore(shellSession, (x) => x.moduleId);
   const modul = (getModule(moduleId) ?? modules[0]) as CatalogModule | undefined;
+  const art = fallArtVon(params);
 
   // Alte Links: ?fall=<alt|neu> und alte IDs in ?neu=/?gefuehrt= auf die kanonische Adresse umschreiben.
   const fallParam = params.get('fall') ?? '';
@@ -63,10 +94,14 @@ export default function Praxissimulator() {
     : ALT_ZU_NEU[neuRoh] ? `neu=${ALT_ZU_NEU[neuRoh]}`
       : ALT_ZU_NEU[gefuehrtRoh] ? `gefuehrt=${ALT_ZU_NEU[gefuehrtRoh]}` : '';
   useEffect(() => {
-    if (!umleitung) return;
+    if (!umleitung || art === 'kurz') return;
     const ziel = umleitung.endsWith('=') ? '#/lernen/praxis' : `#/lernen/praxis?${umleitung}`;
     try { location.replace(ziel); } catch { navigate(ziel.slice(1)); }
-  }, [umleitung]);
+  }, [umleitung, art]);
+  if (art === 'kurz') return <section className="page praxis praxis--kurz">
+    <PraxisKopf art="kurz" />
+    <Suspense fallback={<p className="muted" role="status">Kurzfälle werden geladen …</p>}><Kurzfaelle eingebettet /></Suspense>
+  </section>;
   if (umleitung && !umleitung.endsWith('=')) return <p className="muted" role="status">Fall wird geöffnet …</p>;
 
   const neuFall = finde(neuRoh);
@@ -89,9 +124,11 @@ export default function Praxissimulator() {
   const sprung = kb ? zumKb : thema ? zumThema : null;
   const alleZeigen = <button type="button" className="link" onClick={() => navigate('/lernen/praxis')}>Alle Fälle zeigen</button>;
   const unbekannt = (neuRoh && !neuFall) || (gefuehrtRoh && !gefuehrtFall) || (fallParam && umleitung.endsWith('='));
+  const kurzOffen = offenerKurzfall();
 
   return <section className="page praxis">
-    <PageHeading eyebrow="Generalistische Pflegeausbildung" title="Praxissimulator" description="Beobachten. Entscheiden. Handeln. Ein eigener Übungsraum mit regelbasiertem Patientenverlauf – ohne KI und ohne API-Schlüssel." />
+    <PraxisKopf art="praxis" />
+    {kurzOffen && <p className="note" role="status">Dein Kurzfall „{kurzOffen}“ ist noch offen. <button type="button" className="link" onClick={() => navigate(kurzfallPfad())}>Weiter im Kurzfall</button></p>}
     {unbekannt && <p className="note warn" role="alert">Diesen Fall gibt es nicht (mehr). {ALTFALL_TITEL[fallParam || neuRoh || gefuehrtRoh] ? 'Er wurde ersetzt; wähle unten den passenden neuen Fall.' : 'Wähle unten einen Fall.'}</p>}
     <div className="praxis-stufen">
       <div><span className="praxis-stufen__marke">Stufe 1</span><h2>Geführt</h2><p>Schritt für Schritt durch den Fall. Je Schritt wenige Möglichkeiten und sofort eine Rückmeldung mit Begründung. Empfohlen im 1. Ausbildungsdrittel.</p></div>
