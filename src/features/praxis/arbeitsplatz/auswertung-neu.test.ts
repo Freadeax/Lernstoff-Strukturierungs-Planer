@@ -57,7 +57,7 @@ describe('Neuer Arbeitsplatz: Auswertung, Tutor, Weitergabe', () => {
       expect(planVorlageNeu(muster).text).toContain(fall.person.name);
       // ohne Messung: Übergabe erwartet „nicht gemessen“
       if (fall.setting === 'ambulant') expect(uebergabeFallNeu(leer).kernpunkte.some((k) => k.id === 'ungemessen')).toBe(true);
-      expect(weiterLinkNeu('bericht', fall)).toBe(`#/lernen/bericht?aus=praxis&sitzung=neu%3A${fall.id}`);
+      expect(weiterLinkNeu('bericht', fall)).toBe(`#/lernen/dokumentation?teil=bericht&aus=praxis&sitzung=neu%3A${fall.id}`);
     });
   }
 

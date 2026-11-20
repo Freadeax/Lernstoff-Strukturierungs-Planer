@@ -3,6 +3,7 @@ import { Shell } from './ui/shell/Shell';
 import { ersetze, navigate, useRoute } from './ui/shell/router';
 import { weiterleitungFuer } from './features/wissen/pfad';
 import { fertigWeiterleitung } from './features/fertigkeiten/pfad';
+import { dokuWeiterleitung } from './features/dokumentation/pfad';
 import { REDIRECTS, gruppenPfad, passtDazuId } from './ui/shell/nav';
 import { PageBoundary } from './ui/shell/PageBoundary';
 import { WidgetGrid } from './ui/widget/Dashboard';
@@ -23,15 +24,9 @@ const Fallsimulator = lazy(() => import('./features/fall/Fallsimulator'));
 const Praxissimulator = lazy(() => import('./features/praxis/Praxissimulator'));
 const Diagnostik = lazy(() => import('./features/diagnostik/DiagnostikSeite'));
 const Duell = lazy(() => import('./features/duell/DuellSeite'));
-const SisTrainer = lazy(() => import('./features/sis/SisTrainer'));
-const Berichttrainer = lazy(() => import('./features/bericht/Berichttrainer'));
 const Mindmaps = lazy(() => import('./features/mindmap/Mindmaps'));
-const AssessmentTrainer = lazy(() => import('./features/assessment/AssessmentTrainer'));
 const Krankheitsbilder = lazy(() => import('./features/krankheitsbilder/Krankheitsbilder'));
-const Uebergabetrainer = lazy(() => import('./features/uebergabe/Uebergabetrainer'));
 const Simulation = lazy(() => import('./features/simulation/SimulationSeite'));
-const Fallakte = lazy(() => import('./features/fallakte/FallaktePage'));
-const Pflegeplanung = lazy(() => import('./features/pflegeplanung/Pflegeplanung'));
 const Lernplan = lazy(() => import('./features/lernplan/ui/Lernplan'));
 const Landkarte = lazy(() => import('./features/landkarte/Landkarte'));
 const Klassenmodus = lazy(() => import('./features/klasse/Klassenmodus'));
@@ -44,6 +39,7 @@ const Fortschritt = lazy(() => import('./features/fortschritt/FortschrittSeite')
 const EinsatzSeite = lazy(() => import('./features/einsatz/EinsatzSeite'));
 const Examen = lazy(() => import('./features/examen/ExamenSeite'));
 const DnqpSeite = lazy(() => import('./features/dnqp/DnqpSeite'));
+const DokumentationSeite = lazy(() => import('./features/dokumentation/DokumentationSeite'));
 const FertigkeitenSeite = lazy(() => import('./features/fertigkeiten/FertigkeitenSeite'));
 const WissenSeite = lazy(() => import('./features/wissen/WissenSeite'));
 const GespraechSeite = lazy(() => import('./features/gespraech/GespraechSeite'));
@@ -74,7 +70,7 @@ function Page({ title, intro, hilfe, children }: { title: string; intro?: string
 function View() {
   const { path, params } = useRoute();
   // Alte Einzeltrainer (#/lernen/hygiene, #/lernen/rechnen …) führen in Wissens- bzw. Fertigkeiten-Trainer, mit allen Angaben der Adresse.
-  const wissenNeu = fertigWeiterleitung(path, params) ?? weiterleitungFuer(path, params);
+  const wissenNeu = fertigWeiterleitung(path, params) ?? weiterleitungFuer(path, params) ?? dokuWeiterleitung(path, params);
   useEffect(() => {
     if (REDIRECTS[path]) navigate(REDIRECTS[path]!);
     else if (wissenNeu) ersetze(wissenNeu);
@@ -105,18 +101,13 @@ function View() {
     case '/lernen/duell': return <Duell />;
     case '/lernen/simulation': return <Simulation />;
     case '/lernen/examen': return <Examen />;
-    case '/lernen/fallakte': return <Fallakte />;
-    case '/lernen/pflegeplanung': return <Pflegeplanung />;
-    case '/lernen/sis': return <SisTrainer />;
-    case '/lernen/bericht': return <Berichttrainer />;
     case '/lernen/mindmap': return <Mindmaps />;
     case '/lernen/krankheitsbilder': return <Krankheitsbilder />;
-    case '/lernen/assessment': return <AssessmentTrainer />;
-    case '/lernen/uebergabe': return <Uebergabetrainer />;
     case '/lernen/dnqp': return <DnqpSeite />;
     case '/lernen/diagnostik': return <Diagnostik />;
     case '/lernen/wissen': return <WissenSeite />;
     case '/lernen/fertigkeiten': return <FertigkeitenSeite />;
+    case '/lernen/dokumentation': return <DokumentationSeite />;
     case '/lernen/gespraech': return <GespraechSeite />;
     case '/lernen/faecher': return <Faecher />;
     case '/material/dokumente': return <Dokumente />;

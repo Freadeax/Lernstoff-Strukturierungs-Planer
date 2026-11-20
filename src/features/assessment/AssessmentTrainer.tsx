@@ -391,7 +391,7 @@ export default function AssessmentTrainer() {
   function gehe(p: { gruppe?: Gruppe; modus?: Modus; fall?: string }) {
     const q = new URLSearchParams({ gruppe: p.gruppe ?? gruppe, modus: p.modus ?? modus });
     if (p.fall) q.set('fall', p.fall);
-    navigate(`/lernen/assessment?${q}`);
+    navigate(`/lernen/dokumentation?teil=assessment&${q}`);
   }
 
   function fertig(v: Vignette, e: VignettenErgebnis) {

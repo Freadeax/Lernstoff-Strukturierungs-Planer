@@ -1,4 +1,4 @@
-// Fallakte (#/lernen/fallakte): eine erfundene Person durch mehrere Trainer, vom Erstgespräch bis zur
+// Fallakte (#/lernen/dokumentation?teil=fallakte): eine erfundene Person durch mehrere Trainer, vom Erstgespräch bis zur
 // Übergabe. Geprüft wird in den Trainern selbst (offline, per Code); hier stehen Geschichte, Stand und Rückblick.
 import { PageHeading } from '../../ui/PageHeading';
 import { navigate, useRoute } from '../../ui/shell/router';
@@ -25,7 +25,7 @@ function Uebersicht() {
               <p>{a.kurz}</p>
               <p className="muted">{a.schritte.length} Schritte · {st.bearbeitet ? `${st.bearbeitet} bearbeitet, ${st.gut} gut gelöst` : 'noch nicht begonnen'}</p>
               <div className="row">
-                <button type="button" onClick={() => navigate(`/lernen/fallakte?akte=${encodeURIComponent(a.id)}`)}>{st.bearbeitet ? 'Weiterarbeiten' : 'Fallakte öffnen'}</button>
+                <button type="button" onClick={() => navigate(`/lernen/dokumentation?teil=fallakte&akte=${encodeURIComponent(a.id)}`)}>{st.bearbeitet ? 'Weiterarbeiten' : 'Fallakte öffnen'}</button>
               </div>
             </article>
           );
@@ -41,7 +41,7 @@ function Akte({ akte }: { akte: Fallakte }) {
   return (
     <section className="page fallakte">
       <PageHeading eyebrow="Fallakte" title={akte.titel} description={`${akte.person} · ${akte.setting}`}
-        action={<button type="button" className="ghost small" onClick={() => navigate('/lernen/fallakte')}>Alle Fallakten</button>} />
+        action={<button type="button" className="ghost small" onClick={() => navigate('/lernen/dokumentation?teil=fallakte')}>Alle Fallakten</button>} />
 
       <div className="card fallakte__einstieg">
         {akte.einstieg.map((t) => <p key={t}>{t}</p>)}

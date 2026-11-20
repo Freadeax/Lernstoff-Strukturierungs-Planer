@@ -43,7 +43,7 @@ function trainerLink(f: Fehler): { label: string; path: string } | null {
   if (f.quelle === 'diagnostik') return { label: 'Diagnostik-Fall öffnen', path: `/lernen/diagnostik?fall=${encodeURIComponent(f.id.split(':')[1] ?? '')}` };
   if (f.quelle === 'krankheitsbilder') return { label: 'Fall noch einmal bearbeiten', path: `/lernen/krankheitsbilder?fall=${encodeURIComponent(f.id.split(':')[1] ?? '')}` };
   // as:<vignettenId>:<itemId>
-  if (f.quelle === 'assessment') return { label: 'Fall noch einmal einschätzen', path: `/lernen/assessment?modus=faelle&fall=${encodeURIComponent(f.id.split(':')[1] ?? '')}` };
+  if (f.quelle === 'assessment') return { label: 'Fall noch einmal einschätzen', path: `/lernen/dokumentation?teil=assessment&modus=faelle&fall=${encodeURIComponent(f.id.split(':')[1] ?? '')}` };
   // praxis:<fallId>:<ereignisId>; alte Fall-IDs zeigen seit P10 auf den Nachfolger im neuen Arbeitsplatz.
   if (f.quelle === 'praxis') {
     const id = f.id.split(':')[1] ?? '';
@@ -336,7 +336,7 @@ export default function FehlerheftSeite() {
           {liste.length === 0 ? (
             <p className="muted">
               Noch keine Fehler gesammelt. Übe im <a href="#/lernen/fertigkeiten?uebung=rechnen">Rechentrainer</a>, im <a href="#/lernen/duell">Fachbegriff-Duell</a>,
-              in der <a href="#/lernen/simulation">Prüfungssimulation</a>, mit den <a href="#/lernen/krankheitsbilder">Krankheitsbild-Fällen</a>, den <a href="#/lernen/assessment?modus=faelle">Assessment-Fällen</a>, im <a href="#/lernen/wissen">Wissenstrainer</a>: was danebengeht, steht danach hier.
+              in der <a href="#/lernen/simulation">Prüfungssimulation</a>, mit den <a href="#/lernen/krankheitsbilder">Krankheitsbild-Fällen</a>, den <a href="#/lernen/dokumentation?teil=assessment&modus=faelle">Assessment-Fällen</a>, im <a href="#/lernen/wissen">Wissenstrainer</a>: was danebengeht, steht danach hier.
             </p>
           ) : (
             <>

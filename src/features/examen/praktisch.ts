@@ -24,9 +24,9 @@ export const ETAPPEN: Etappe[] = [
   {
     id: 'planung', tageVorher: 42, titel: 'Pflegeprozess sicher planen',
     schritte: [
-      { id: 'pflegeplan', text: 'Zwei vollständige Pflegeplanungen zu Menschen aus dem Einsatzbereich schreiben', link: { label: 'Pflegeplanung üben', path: '/lernen/pflegeplanung' } },
-      { id: 'sis', text: 'Strukturierte Informationssammlung (SIS) einmal komplett durchspielen', link: { label: 'SIS-Trainer', path: '/lernen/sis' } },
-      { id: 'assessments', text: 'Häufige Einschätzungsinstrumente des Bereichs wiederholen', link: { label: 'Assessments', path: '/lernen/assessment' } },
+      { id: 'pflegeplan', text: 'Zwei vollständige Pflegeplanungen zu Menschen aus dem Einsatzbereich schreiben', link: { label: 'Pflegeplanung üben', path: '/lernen/dokumentation?teil=pflegeplanung' } },
+      { id: 'sis', text: 'Strukturierte Informationssammlung (SIS) einmal komplett durchspielen', link: { label: 'SIS-Trainer', path: '/lernen/dokumentation?teil=sis' } },
+      { id: 'assessments', text: 'Häufige Einschätzungsinstrumente des Bereichs wiederholen', link: { label: 'Assessments', path: '/lernen/dokumentation?teil=assessment' } },
     ],
   },
   {
@@ -40,14 +40,14 @@ export const ETAPPEN: Etappe[] = [
     id: 'fallvorstellung', tageVorher: 28, titel: 'Fallvorstellung trainieren',
     schritte: [
       { id: 'fv-zeit', text: 'Fallvorstellung laut üben und auf höchstens 20 Minuten bringen', link: { label: 'Fallvorstellung mit Zeitnahme', path: '/lernen/examen?ansicht=muendlich&modus=fallvorstellung' } },
-      { id: 'uebergabe', text: 'Strukturierte Übergabe (z. B. SBAR) üben', link: { label: 'Übergabe-Trainer', path: '/lernen/uebergabe' } },
+      { id: 'uebergabe', text: 'Strukturierte Übergabe (z. B. SBAR) üben', link: { label: 'Übergabe-Trainer', path: '/lernen/dokumentation?teil=uebergabe' } },
     ],
   },
   {
     id: 'durchfuehrung', tageVorher: 14, titel: 'Probedurchlauf',
     schritte: [
       { id: 'probe', text: 'Probedurchlauf mit der Praxisanleitung: mindestens zwei Menschen, davon einer mit erhöhtem Pflegebedarf, im Zeitrahmen der Prüfung' },
-      { id: 'bericht', text: 'Pflegebericht zur Probe schreiben und auf wertende Sprache prüfen', link: { label: 'Pflegebericht-Trainer', path: '/lernen/bericht' } },
+      { id: 'bericht', text: 'Pflegebericht zur Probe schreiben und auf wertende Sprache prüfen', link: { label: 'Pflegebericht-Trainer', path: '/lernen/dokumentation?teil=bericht' } },
       { id: 'rechnen', text: 'Pflegerisches Rechnen auffrischen (Infusion, Dosierung)', link: { label: 'Rechentrainer', path: '/lernen/fertigkeiten?uebung=rechnen' } },
     ],
   },

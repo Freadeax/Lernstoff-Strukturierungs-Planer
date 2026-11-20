@@ -261,7 +261,7 @@ export function ausInstrumenten(instrumente: Instrument[], themen: Map<string, s
       id: `instrument:${i.id}`, art: 'instrument' as const, titel: i.name, standardIds: std, pfad: 'Assessment-Instrument',
       text: `${i.zweck} ${i.richtung} ${i.hinweise.join(' ')} ${g ?? ''}`.trim(),
       stichworte: [i.kurz, ...i.items.map((x) => x.label)],
-      link: gruppe ? `/lernen/assessment?gruppe=${gruppe}&modus=rechner` : '/lernen/assessment',
+      link: gruppe ? `/lernen/dokumentation?teil=assessment&gruppe=${gruppe}&modus=rechner` : '/lernen/dokumentation?teil=assessment',
       details: [
         { label: 'Zweck', text: i.zweck },
         { label: 'Auswertung', text: i.richtung },

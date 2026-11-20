@@ -54,20 +54,15 @@ export const NAV: NavItem[] = [
           { id: 'praxis', label: 'Praxissimulator', path: '/lernen/praxis', icon: 'clipboard' },
           // Fertigkeiten-Trainer: Reanimation, ABCDE, Handgriffe, Rechnen, Hören, Labor-Werkbank, Suchbilder (früher verteilt).
           { id: 'fertigkeiten', label: 'Fertigkeiten-Trainer', path: '/lernen/fertigkeiten', icon: 'stetho' },
+          // Dokumentations-Trainer: SIS, Assessments, Pflegeplanung, Bericht, Übergabe und Fallakte (früher sechs Einträge).
+          { id: 'dokumentation', label: 'Dokumentations-Trainer', path: '/lernen/dokumentation', icon: 'form' },
           { id: 'fall', label: 'Fallsimulator', path: '/lernen/fall', icon: 'user' },
           { id: 'diagnostik', label: 'Labor und Bildgebung', path: '/lernen/diagnostik', icon: 'flask' },
-          { id: 'assessment', label: 'Assessments', path: '/lernen/assessment', icon: 'gauge' },
-          { id: 'pflegeplanung', label: 'Pflegeplanung', path: '/lernen/pflegeplanung', icon: 'clipboard' },
-          { id: 'sis', label: 'SIS-Trainer', path: '/lernen/sis', icon: 'form' },
-          { id: 'bericht', label: 'Pflegebericht-Trainer', path: '/lernen/bericht', icon: 'pen' },
-          { id: 'uebergabe', label: 'Übergabe-Trainer', path: '/lernen/uebergabe', icon: 'chat' },
         ],
       },
       {
         id: 'pruefung-gruppe', label: 'Prüfung', icon: 'timer', zu: true, children: [
           { id: 'simulation', label: 'Prüfungssimulation', path: '/lernen/simulation', icon: 'timer' },
-          // Fallakte: ein Fall durch alle Dokumentationstrainer, wie in der praktischen Prüfung
-          { id: 'fallakte', label: 'Fallakte', path: '/lernen/fallakte', icon: 'folder' },
           { id: 'examen', label: 'Examen', path: '/lernen/examen', icon: 'examen' },
           { id: 'fehler', label: 'Fehlerheft', path: '/lernen/fehler', icon: 'alert' },
           // Gesprächssimulator: Gesprächsführung ist Teil der praktischen und mündlichen Prüfung.

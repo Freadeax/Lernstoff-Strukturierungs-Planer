@@ -106,8 +106,8 @@ describe('Passende Übung zu einem Thema', () => {
   });
 
   it('kennt den Pflegeplanung-Trainer für Pflegeprozess- und Fallthemen', () => {
-    expect(uebungenFuer('thema.pp.ziele').map((u) => u.path)).toContain('/lernen/pflegeplanung');
-    expect(uebungenFuer('thema.pro.aspiration').map((u) => u.path)).toContain('/lernen/pflegeplanung?fall=schlaganfall');
+    expect(uebungenFuer('thema.pp.ziele').map((u) => u.path)).toContain('/lernen/dokumentation?teil=pflegeplanung');
+    expect(uebungenFuer('thema.pro.aspiration').map((u) => u.path)).toContain('/lernen/dokumentation?teil=pflegeplanung&fall=schlaganfall');
   });
 
   it('nennt Praxisfälle (offline) ganz hinten, weil sie nicht im Lernplan zählen', () => {

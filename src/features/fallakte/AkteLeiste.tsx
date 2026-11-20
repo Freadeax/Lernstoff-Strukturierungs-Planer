@@ -17,7 +17,7 @@ export function AkteLeiste({ art, fallId }: { art: SchrittArt; fallId: string })
   const akte = AKTEN.find((a) => a.id === akteId);
   if (!akte) return null;
   const i = akte.schritte.findIndex((s) => s.art === art && s.fallId === fallId);
-  const zurAkte = `/lernen/fallakte?akte=${encodeURIComponent(akte.id)}`;
+  const zurAkte = `/lernen/dokumentation?teil=fallakte&akte=${encodeURIComponent(akte.id)}`;
   if (i < 0) {
     return (
       <nav className="card akteleiste akteleiste--fremd" aria-label="Fallakte">

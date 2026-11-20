@@ -119,9 +119,9 @@ export function uebungenFuer(topicId: string, modul: CatalogModule = pflegeModul
   const begriffe = modul.glossary.filter((g) => g.topicIds?.includes(topicId)).length;
   const fach = modul.topics.find((t) => t.id === topicId)?.subjectId;
   if (begriffe >= DUELL_MIN_BEGRIFFE && fach) out.push({ trainer: 'duell', label: 'Fachbegriff-Duell', path: `/lernen/duell?fach=${encodeURIComponent(fach)}` });
-  if (topicId === UEBERGABE_THEMA) out.push({ trainer: 'uebergabe', label: 'Übergabe-Trainer', path: '/lernen/uebergabe' });
-  if (topicId === SIS_THEMA) out.push({ trainer: 'sis', label: 'SIS-Trainer', path: '/lernen/sis' });
-  if (topicId === BERICHT_THEMA) out.push({ trainer: 'bericht', label: 'Pflegebericht-Trainer', path: '/lernen/bericht' });
+  if (topicId === UEBERGABE_THEMA) out.push({ trainer: 'uebergabe', label: 'Übergabe-Trainer', path: '/lernen/dokumentation?teil=uebergabe' });
+  if (topicId === SIS_THEMA) out.push({ trainer: 'sis', label: 'SIS-Trainer', path: '/lernen/dokumentation?teil=sis' });
+  if (topicId === BERICHT_THEMA) out.push({ trainer: 'bericht', label: 'Pflegebericht-Trainer', path: '/lernen/dokumentation?teil=bericht' });
   if (topicId === HYGIENE_THEMA) out.push({ trainer: 'hygiene', label: 'Wissenstrainer Hygiene', path: '/lernen/wissen?fach=hygiene' });
   const anatomie = Object.entries(ANATOMIE_THEMA).find(([, thema]) => thema === topicId);
   if (anatomie) out.push({ trainer: 'anatomie', label: 'Wissenstrainer Anatomie', path: `/lernen/wissen?fach=anatomie&bereich=${anatomie[0]}` });
@@ -142,15 +142,15 @@ export function uebungenFuer(topicId: string, modul: CatalogModule = pflegeModul
   if (dx.length) out.push({ trainer: 'diagnostik', label: dx.length > 1 ? `Diagnostik-Fälle (${dx.length})` : 'Diagnostik-Fall (Labor und Bildgebung)', path: dx.length > 1 ? '/lernen/diagnostik' : `/lernen/diagnostik?fall=${dx[0]}` });
   if (normBereich[topicId]) out.push({ trainer: 'normwerte', label: 'Wissenstrainer Normwerte', path: `/lernen/wissen?fach=normwerte&bereich=${normBereich[topicId]}` });
   for (const g of GRUPPEN.filter((x) => x.instrumente.some((i) => INSTRUMENTE[i].topicIds.includes(topicId)))) {
-    out.push({ trainer: 'assessment', label: `Assessment üben (${g.label})`, path: `/lernen/assessment?gruppe=${g.id}&modus=faelle` });
+    out.push({ trainer: 'assessment', label: `Assessment üben (${g.label})`, path: `/lernen/dokumentation?teil=assessment&gruppe=${g.id}&modus=faelle` });
   }
   if (faelleZuThema(topicId, KRANKHEITSFAELLE, modul).length) {
     out.push({ trainer: 'krankheitsbilder', label: 'Fallaufgaben Krankheitsbilder', path: `/lernen/krankheitsbilder?ansicht=faelle&thema=${encodeURIComponent(topicId)}` });
   }
-  if (PFLEGEPROZESS_THEMEN.includes(topicId)) out.push({ trainer: 'pflegeplanung', label: 'Pflegeplanung schreiben', path: '/lernen/pflegeplanung' });
+  if (PFLEGEPROZESS_THEMEN.includes(topicId)) out.push({ trainer: 'pflegeplanung', label: 'Pflegeplanung schreiben', path: '/lernen/dokumentation?teil=pflegeplanung' });
   else {
     const planfall = PLANFAELLE.find((f) => f.topicIds.includes(topicId));
-    if (planfall) out.push({ trainer: 'pflegeplanung', label: 'Pflegeplanung zum Fall', path: `/lernen/pflegeplanung?fall=${planfall.id}` });
+    if (planfall) out.push({ trainer: 'pflegeplanung', label: 'Pflegeplanung zum Fall', path: `/lernen/dokumentation?teil=pflegeplanung&fall=${planfall.id}` });
   }
   if (SZENARIEN.some((s) => s.topicIds.includes(topicId)) || fallThemen(modul).some((t) => t.id === topicId)) {
     out.push({ trainer: 'fall', label: 'Fall im Simulator', path: `/lernen/fall?thema=${encodeURIComponent(topicId)}` });
