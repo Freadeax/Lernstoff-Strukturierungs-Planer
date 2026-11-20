@@ -1,8 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import { Icon } from '../icons';
 import { useStore } from '../lib/store';
-import { isActive, useRoute } from './router';
-import { flatNav, NAV, TABS, visibleNav, type NavItem } from './nav';
+import { useRoute } from './router';
+import { flatNav, istAktiv, NAV, sichtbareSeiten, TABS, visibleNav, type NavItem, type Role } from './nav';
 import { session } from './session';
 import { merkliste } from './merkliste';
 
@@ -15,7 +15,7 @@ function NavTree({ items, level, path, collapsed }: { items: NavItem[]; level: n
 }
 
 function NavEntry({ item, level, path, collapsed }: { item: NavItem; level: number; path: string; collapsed: boolean }) {
-  const containsActive = flatNav(item.children ?? []).some((c) => isActive(c.path!, path));
+  const containsActive = flatNav(item.children ?? []).some((c) => istAktiv(c, path));
   const [open, setOpen] = useState(!item.zu || containsActive);
   useEffect(() => { if (containsActive) setOpen(true); }, [containsActive]);
   const close = () => session.set({ drawerOpen: false });
@@ -36,7 +36,7 @@ function NavEntry({ item, level, path, collapsed }: { item: NavItem; level: numb
       </li>
     );
   }
-  const active = item.path ? (item.path === '/' ? path === '/' : isActive(item.path, path)) : false;
+  const active = istAktiv(item, path);
   return (
     <li>
       <a className={`nav__item${active ? ' nav__item--active' : ''}`} href={`#${item.path}`} aria-current={active ? 'page' : undefined}
@@ -80,9 +80,9 @@ function useMarkierung(nav: React.RefObject<HTMLElement | null>, deps: unknown[]
 }
 
 /** Favoriten oben im Menü. Bewusst ohne Aktiv-Markierung: die wandert weiter über den eigentlichen Menüpunkt. */
-function Favoriten({ items, collapsed }: { items: NavItem[]; collapsed: boolean }) {
+function Favoriten({ roles, collapsed }: { roles: Role[]; collapsed: boolean }) {
   const pfade = useStore(merkliste, (m) => m.favoriten);
-  const alle = flatNav(items);
+  const alle = sichtbareSeiten(roles);
   const favoriten = pfade.map((p) => alle.find((i) => i.path === p)).filter((i): i is NavItem => !!i);
   if (!favoriten.length) return null;
   return (
@@ -144,7 +144,7 @@ export function Sidebar() {
         </div>
         <nav ref={nav} className="sidebar__nav" aria-label="Bereiche">
           <NavTree items={items.slice(0, 1)} level={1} path={path} collapsed={collapsed && !drawer} />
-          <Favoriten items={items} collapsed={collapsed && !drawer} />
+          <Favoriten roles={roles} collapsed={collapsed && !drawer} />
           <NavTree items={items.slice(1)} level={1} path={path} collapsed={collapsed && !drawer} />
         </nav>
         <a className="sidebar__import" href="#/material/import" aria-label="Material hinzufügen" onClick={() => session.set({ drawerOpen: false })}><Icon name="plus" size={18} /><span className="nav__label">Material hinzufügen</span></a>

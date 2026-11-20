@@ -4,3 +4,8 @@
 .fertig__karte:hover, .fertig__karte:focus-visible { border-color: var(--color-primary); }
 .fertig__icon { flex: none; display: grid; place-items: center; width: 2.5rem; height: 2.5rem; border-radius: var(--radius-md); background: var(--color-primary-soft); color: var(--color-primary); }
 .fertig__text { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
+
+.fertig__clips { display: grid; gap: var(--space-2); margin-top: var(--space-4); }
+.fertig__clips h2 { margin: 0; font-size: 1.125rem; }
+.fertig__clipliste { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+.fertig__clipliste button { display: inline-flex; align-items: center; gap: 6px; }

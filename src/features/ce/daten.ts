@@ -1,6 +1,7 @@
 // Gerätedaten der CE-Seite (Skripte, Karteikarten, Lesestand, Haken) und daraus die Fakten je Thema
 // für den Lernpfad. Liest nur; geschrieben wird in den jeweiligen Modulen.
 
+import { kurzfallPfad } from '../praxis/pfad';
 import { useCallback, useEffect, useState } from 'react';
 import { db } from '../../core/db';
 import type { ID } from '../../core/types';
@@ -125,7 +126,7 @@ export function sammleFakten(themen: CeThema[], q: FaktenQuelle): ThemaFakten[] 
         anzahl: szen.length + kf.length + praxis.length,
         geuebt: geuebt.has(id),
         // Offline-Fälle zuerst: Der Praxissimulator braucht keinen API-Schlüssel.
-        ziel: praxis.length ? `/lernen/praxis?thema=${enc(id)}` : szen.length ? `/lernen/fall?thema=${enc(id)}` : kf.length ? `/lernen/krankheitsbilder?ansicht=faelle&thema=${enc(id)}` : undefined,
+        ziel: praxis.length ? `/lernen/praxis?thema=${enc(id)}` : szen.length ? kurzfallPfad({ thema: id }) : kf.length ? `/lernen/krankheitsbilder?ansicht=faelle&thema=${enc(id)}` : undefined,
       },
       uebungen: { trainer, ergebnis: trainerErgebnis.get(id)?.prozent },
       status: p?.status ?? 'offen',

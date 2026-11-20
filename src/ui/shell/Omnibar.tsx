@@ -5,7 +5,7 @@ import { useDebounced } from '../lib/hooks';
 import { useStore } from '../lib/store';
 import { fachmodulBereit, getModule } from '../../modules/registry';
 import { db } from '../../core/db';
-import { flatNav, gruppenPfad, NAV, visibleNav } from './nav';
+import { gruppenPfad, sichtbareSeiten, type Role } from './nav';
 import { imFeld } from './Tastenkuerzel';
 import { navigate } from './router';
 import { session, setWorkspace, type Theme } from './session';
@@ -41,12 +41,12 @@ function aktionen(): Hit[] {
   ];
 }
 
-function buildIndex(moduleId: string, roles: Parameters<typeof visibleNav>[1], quellen: Quelle[]): Trie<Hit> {
+function buildIndex(moduleId: string, roles: Role[], quellen: Quelle[]): Trie<Hit> {
   const mod = getModule(moduleId);
   const subjectName = new Map(mod?.subjects.map((s) => [s.id, s.code ?? s.name]) ?? []);
   return new Trie<Hit>([
     ...aktionen(),
-    ...flatNav(visibleNav(NAV, roles)).map((n): Hit => ({ id: `nav:${n.id}`, type: 'Seite', label: n.label, hint: gruppenPfad(n.path!) || undefined, to: n.path })),
+    ...sichtbareSeiten(roles).map((n): Hit => ({ id: `nav:${n.id}`, type: 'Seite', label: n.label, hint: gruppenPfad(n.path!) || undefined, to: n.path })),
     ...quellen.map((q): Hit => ({ id: `quelle:${q.id}`, type: 'Quelle', label: q.title, hint: 'Dein Material', to: `/material/dokumente?dokument=${encodeURIComponent(q.id)}` })),
     ...(mod?.subjects ?? []).map((s): Hit => ({ id: `fach:${s.id}`, type: 'Fach', label: s.name, hint: 'Themen dieses Fachs', keywords: s.code ? [s.code] : [], to: `/lernen/themen?fach=${encodeURIComponent(s.id)}` })),
     ...(mod?.topics ?? []).map((t): Hit => ({ id: `thema:${t.id}`, type: 'Thema', label: t.name, hint: subjectName.get(t.subjectId), to: `/lernen/thema?id=${encodeURIComponent(t.id)}` })),
@@ -73,7 +73,7 @@ export function Omnibar() {
   const merk = useStore(merkliste, (m) => m);
   // Leeres Feld: Favoriten und zuletzt genutzte Seiten statt einer leeren Liste.
   const start = useMemo(() => {
-    const seiten = flatNav(visibleNav(NAV, roles));
+    const seiten = sichtbareSeiten(roles);
     const hit = (p: string, hint: string): Hit[] => { const n = seiten.find((i) => i.path === p); return n ? [{ id: `start:${hint}:${p}`, type: 'Seite', label: n.label, hint, to: p }] : []; };
     return [...merk.favoriten.flatMap((p) => hit(p, 'Favorit')), ...merk.zuletzt.filter((p) => !merk.favoriten.includes(p)).flatMap((p) => hit(p, 'Zuletzt'))].slice(0, 8);
   }, [merk, roles]);

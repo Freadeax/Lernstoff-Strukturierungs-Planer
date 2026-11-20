@@ -7,6 +7,7 @@
 // - Je Trainer, Thema und Tag zählt nur der erste Versuch. Wer dieselbe Übergabe so lange
 //   nachbessert, bis sie 100 % hat, beweist damit nicht, dass er sie morgen noch kann.
 
+import { kurzfallPfad } from '../praxis/pfad';
 import { db } from '../../core/db';
 import type { Topic } from '../../core/types';
 import type { CatalogModule } from '../../modules/catalog-types';
@@ -153,7 +154,7 @@ export function uebungenFuer(topicId: string, modul: CatalogModule = pflegeModul
     if (planfall) out.push({ trainer: 'pflegeplanung', label: 'Pflegeplanung zum Fall', path: `/lernen/dokumentation?teil=pflegeplanung&fall=${planfall.id}` });
   }
   if (SZENARIEN.some((s) => s.topicIds.includes(topicId)) || fallThemen(modul).some((t) => t.id === topicId)) {
-    out.push({ trainer: 'fall', label: 'Fall im Simulator', path: `/lernen/fall?thema=${encodeURIComponent(topicId)}` });
+    out.push({ trainer: 'fall', label: 'Kurzfall im Praxissimulator', path: kurzfallPfad({ thema: topicId }) });
   }
   // Mindmap aus dem Gedächtnis geht zu jedem Thema, steht als allgemeinste Übung zuletzt
   if (modul.topics.some((t) => t.id === topicId)) out.push({ trainer: 'mindmap', label: 'Mindmap aus dem Gedächtnis', path: `/lernen/mindmap?thema=${encodeURIComponent(topicId)}` });
