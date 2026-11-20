@@ -28,7 +28,7 @@ describe('Suchbestand', () => {
   it('verweist nur auf bekannte Standards und Seiten', () => {
     const bekannt = new Set(standards.map((s) => s.id));
     for (const d of index.doks) for (const s of d.standardIds) expect(bekannt.has(s), `${d.id} → ${s}`).toBe(true);
-    for (const d of index.doks) if (d.link) expect(d.link).toMatch(/^\/lernen\/(thema|expertenstandards|assessment|dnqp|hygiene|notfall|arzneimittel|recht|grundlagen|ablauf)(\?|$)|^\/system\/quellen\?quelle=/);
+    for (const d of index.doks) if (d.link) expect(d.link).toMatch(/^\/lernen\/(thema|wissen|assessment|dnqp|ablauf)(\?|$)|^\/system\/quellen\?quelle=/);
   });
   it('findet typische Suchen der Ausbildung', () => {
     const erst = (q: string) => suche(index, q).treffer[0]?.dok;

@@ -23,7 +23,7 @@ describe('Bildprüfung: Export und Eingabeprüfung', () => {
   it('springt in den Fall', () => {
     expect(verwendungZiel('praxis:paed-asthma-schulkind (Variante)')).toBe('#/lernen/praxis?neu=paed-asthma-schulkind');
     expect(verwendungZiel('diagnostik:asthma-kind')).toBe('#/lernen/diagnostik?fall=asthma-kind');
-    expect(verwendungZiel('hygiene:isolierung')).toBe('#/lernen/hygiene');
+    expect(verwendungZiel('hygiene:isolierung')).toBe('#/lernen/wissen?fach=hygiene');
     expect(verwendungZiel('bereich:heute')).toBeUndefined();
   });
 });

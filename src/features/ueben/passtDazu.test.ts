@@ -5,7 +5,7 @@ import { uebungsId } from '../../ui/shell/nav';
 describe('Passt dazu', () => {
   it('erscheint auf jeder Übungsseite, nicht auf der Übersicht', () => {
     expect(uebungsId('/lernen/ueben')).toBeUndefined();
-    expect(uebungsId('/lernen/normwerte')).toBe('normwerte');
+    expect(uebungsId('/lernen/wissen')).toBe('wissen');
     expect(uebungsId('/lernen/karten')).toBeUndefined();
   });
   it('führt von jeder Übung irgendwohin weiter, nie auf sich selbst', () => {
@@ -19,7 +19,7 @@ describe('Passt dazu', () => {
     }
   });
   it('leitet verwandte Übungen und Themen aus gemeinsamen Themen ab', () => {
-    const p = passtDazu('normwerte');
+    const p = passtDazu('wissen');
     expect(p.themen.length).toBeGreaterThan(0);
     expect(p.verwandt.length).toBeGreaterThan(0);
     expect(p.weiter.map((w) => w.path)).toContain('/lernen/fehler');
@@ -56,12 +56,12 @@ describe('Zurück zum Thema', () => {
 });
 
 import { SCHRITT, WEITER } from './passtDazu';
-import { flatNav as alleSeiten, NAV as MENUE } from '../../ui/shell/nav';
+import { flatNav as alleSeiten, NAV as MENUE, UNTERSEITEN } from '../../ui/shell/nav';
 
 describe('Feste Ziele bleiben gültig', () => {
   it('jeder nächste Schritt ist definiert und führt auf eine bestehende Seite', () => {
-    const pfade = new Set(alleSeiten(MENUE).map((n) => n.path));
+    const pfade = new Set([...alleSeiten(MENUE), ...UNTERSEITEN].map((n) => n.path));
     for (const [seite, ziele] of Object.entries(WEITER)) for (const z of ziele) expect(SCHRITT[z], `${seite} → ${z}`).toBeDefined();
-    for (const [k, z] of Object.entries(SCHRITT)) expect(pfade.has(z.path), k).toBe(true);
+    for (const [k, z] of Object.entries(SCHRITT)) expect(pfade.has(z.path.split('?')[0]!), k).toBe(true);
   });
 });

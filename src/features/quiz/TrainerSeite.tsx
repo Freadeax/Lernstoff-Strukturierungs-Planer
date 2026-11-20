@@ -21,7 +21,10 @@ interface Props {
   intro: string;
   /** Erscheint direkt unter dem Seitenkopf, zum Beispiel eine Auswahl der Übungsart. */
   unterKopf?: import('react').ReactNode;
+  /** Erscheint über dem Seitenkopf, zum Beispiel die Fachgebietsauswahl im Wissenstrainer. */
+  oben?: import('react').ReactNode;
   hinweis?: string;
+  /** Adresse der Seite, darf schon Angaben enthalten (z. B. /lernen/wissen?fach=hygiene). */
   pfad: string;
   quelle: FehlerQuelle & TrainerId;
   bereiche: TrainerBereich[];
@@ -40,7 +43,7 @@ type Stand = Record<string, { datum: string; prozent: number }>;
 const MIX = 'mix';
 const SCHWACH = 'schwach';
 
-export function TrainerSeite({ titel, intro, hinweis, pfad, quelle, bereiche, aufgaben, figuren, proRunde = 8, minProThema = 3, grundlage, weiter, unterKopf }: Props) {
+export function TrainerSeite({ titel, intro, hinweis, pfad, quelle, bereiche, aufgaben, figuren, proRunde = 8, minProThema = 3, grundlage, weiter, unterKopf, oben }: Props) {
   const { params } = useRoute();
   const key = `lernstoff.${quelle}.stand`;
   const [stand, setStand] = useState<Stand>(() => storage.read<Stand>(key, {}));
@@ -79,7 +82,7 @@ export function TrainerSeite({ titel, intro, hinweis, pfad, quelle, bereiche, au
     const q = new URLSearchParams({ bereich: b });
     if (st) q.set('stufe', String(st));
     if (start) q.set('runde', '1');
-    navigate(`${pfad}?${q}`);
+    navigate(`${pfad}${pfad.includes('?') ? '&' : '?'}${q}`);
   }
   function fertig(e: RundenErgebnis) {
     const next = { ...stand, [bereich]: { datum: new Date().toISOString().slice(0, 10), prozent: e.prozent } };
@@ -100,6 +103,7 @@ export function TrainerSeite({ titel, intro, hinweis, pfad, quelle, bereiche, au
 
   return (
     <section className="page qz-seite">
+      {oben}
       <div className="page__head">
         <h2>{titel}</h2>
         <p className="muted">{intro}</p>

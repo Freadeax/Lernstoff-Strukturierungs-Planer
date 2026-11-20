@@ -31,6 +31,7 @@ export const NAV: NavItem[] = [
       { id: 'schnellsuche', label: 'Standard-Schnellsucher', path: '/lernen/schnellsuche', icon: 'search' },
       { id: 'landkarte', label: 'Themen-Landkarte', path: '/lernen/landkarte', icon: 'map' },
       { id: 'physiologie', label: 'Physiologie-Modelle', path: '/lernen/physiologie', icon: 'pulse' },
+      { id: 'mindmap', label: 'Mindmaps', path: '/lernen/mindmap', icon: 'mindmap' },
       { id: 'board', label: 'Mein Themenboard', path: '/lernen/board', icon: 'board' },
       { id: 'einsatz', label: 'Praxiseinsatz', path: '/lernen/einsatz', icon: 'user' },
       { id: 'fortschritt', label: 'Fortschritt', path: '/lernen/fortschritt', icon: 'gauge' },
@@ -43,16 +44,9 @@ export const NAV: NavItem[] = [
       { id: 'ueben-alle', label: 'Alle Übungen', path: '/lernen/ueben', icon: 'clipboard' },
       {
         id: 'fachwissen', label: 'Fachwissen', icon: 'book', zu: true, children: [
+          // Wissenstrainer: alle Fragen-Fachgebiete (früher neun Einzeltrainer) mit Themenauswahl, Duell als Spielmodus darin.
+          { id: 'wissen', label: 'Wissenstrainer', path: '/lernen/wissen', icon: 'book' },
           { id: 'krankheitsbilder', label: 'Krankheitsbilder', path: '/lernen/krankheitsbilder', icon: 'pulse' },
-          { id: 'anatomie', label: 'Anatomie-Trainer', path: '/lernen/anatomie', icon: 'heart' },
-          { id: 'arzneimittel', label: 'Arzneimittel-Trainer', path: '/lernen/arzneimittel', icon: 'pill' },
-          { id: 'normwerte', label: 'Normwerte-Trainer', path: '/lernen/normwerte', icon: 'thermo' },
-          { id: 'hygiene', label: 'Hygiene-Trainer', path: '/lernen/hygiene', icon: 'shield' },
-          { id: 'expertenstandards', label: 'Expertenstandards', path: '/lernen/expertenstandards', icon: 'star' },
-          { id: 'recht', label: 'Recht-Trainer', path: '/lernen/recht', icon: 'scale' },
-          { id: 'grundlagen', label: 'Grundlagen-Trainer', path: '/lernen/grundlagen', icon: 'book' },
-          { id: 'duell', label: 'Fachbegriff-Duell', path: '/lernen/duell', icon: 'duell' },
-          { id: 'mindmap', label: 'Mindmaps', path: '/lernen/mindmap', icon: 'mindmap' },
         ],
       },
       {
@@ -60,8 +54,6 @@ export const NAV: NavItem[] = [
           { id: 'praxis', label: 'Praxissimulator', path: '/lernen/praxis', icon: 'clipboard' },
           { id: 'fall', label: 'Fallsimulator', path: '/lernen/fall', icon: 'user' },
           { id: 'diagnostik', label: 'Labor und Bildgebung', path: '/lernen/diagnostik', icon: 'flask' },
-          { id: 'labor', label: 'Labor-Trainer', path: '/lernen/labor', icon: 'pulse' },
-          { id: 'notfall', label: 'Notfall-Trainer', path: '/lernen/notfall', icon: 'siren' },
           { id: 'assessment', label: 'Assessments', path: '/lernen/assessment', icon: 'gauge' },
           { id: 'pflegeplanung', label: 'Pflegeplanung', path: '/lernen/pflegeplanung', icon: 'clipboard' },
           { id: 'sis', label: 'SIS-Trainer', path: '/lernen/sis', icon: 'form' },
@@ -123,6 +115,8 @@ export const NAV: NavItem[] = [
 export const UNTERSEITEN: NavItem[] = [
   { id: 'thema', label: 'Thema', path: '/lernen/thema', icon: 'book' },
   { id: 'design', label: 'Designsystem', path: '/system/design', icon: 'palette' },
+  // Spielmodus des Wissenstrainers, erreichbar von dort
+  { id: 'duell', label: 'Fachbegriff-Duell', path: '/lernen/duell', icon: 'duell' },
 ];
 
 /** Untere Leiste auf dem Handy: vier feste Ziele plus „Mehr“ (öffnet das ganze Menü). */

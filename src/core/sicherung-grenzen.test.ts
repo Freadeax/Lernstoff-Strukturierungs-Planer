@@ -56,7 +56,7 @@ describe('Sicherung: Grenzen und Prüfung vor dem Einspielen', () => {
     const db = neueDb();
     const { sicherung, uebersicht } = lesePruefe(basis({}, { local: { 'lernstoff.mindmaps': '[{"id":"m1"}]', 'lernstoff.hygiene.stand': '{kaputt', 'lernstoff.apiKey': 'sk-ant-x' } }), db);
     expect(Object.keys(sicherung.local!)).toEqual(['lernstoff.mindmaps']);
-    expect(uebersicht.lokalUngueltig).toEqual(['Ergebnisse im Hygiene-Trainer']);
+    expect(uebersicht.lokalUngueltig).toEqual(['Ergebnisse im Wissenstrainer (Hygiene)']);
     const viele = Object.fromEntries(Array.from({ length: SICHERUNG_GRENZEN.lokalEintraege + 1 }, (_, i) => [`lernstoff.x${i}`, '1']));
     expect(() => lesePruefe(basis({}, { local: viele }), db)).toThrow(SicherungZuGross);
   });

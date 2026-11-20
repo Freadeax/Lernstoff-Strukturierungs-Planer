@@ -145,7 +145,7 @@ export const SEITEN: SeitenInfo[] = [
     wozu: 'Alle nationalen Expertenstandards der Pflege mit Zielsetzung und Kriterien nach Struktur, Prozess und Ergebnis.',
     wann: 'Wenn ein Standard im Unterricht, in der Praxis oder in einer Prüfungsfrage vorkommt.',
     soGehts: ['Standard wählen und Ebene für Ebene lesen.', 'Zum schnellen Nachschlagen eines Kriteriums ist der Standard-Schnellsucher kürzer.'],
-    weiter: { label: 'Expertenstandards üben', path: '/lernen/expertenstandards' },
+    weiter: { label: 'Expertenstandards üben', path: '/lernen/wissen?fach=expertenstandards' },
   },
   {
     path: '/lernen/schnellsuche', name: 'Standard-Schnellsucher',
@@ -160,6 +160,13 @@ export const SEITEN: SeitenInfo[] = [
     wann: 'Wenn du einen Zusammenhang verstehen willst, statt ihn auswendig zu lernen.',
     soGehts: ['Modell wählen, einen Wert verändern und beobachten, was sich mitbewegt.'],
     weiter: { label: 'Krankheitsbilder üben', path: '/lernen/krankheitsbilder' },
+  },
+  {
+    path: '/lernen/mindmap', name: 'Mindmaps',
+    wozu: 'Zusammenhänge eines Themas selbst ordnen: Begriffe anlegen, verbinden, später mit verdeckten Ästen abfragen.',
+    wann: 'Wenn du ein Thema für dich strukturieren oder vor einer Klausur den Überblick wiederholen willst.',
+    soGehts: ['Thema wählen oder frei anfangen.', 'Äste ergänzen und verbinden.', 'Im Prüfen-Modus Äste verdecken und aus dem Kopf ergänzen.'],
+    weiter: { label: 'Im Wissenstrainer abfragen', path: '/lernen/wissen' },
   },
 ];
 
@@ -196,7 +203,7 @@ export const BUENDEL: Array<{ titel: string; text: string; pfade: string[] }> = 
   { titel: 'Jeden Tag', text: 'Mehr brauchst du im Alltag nicht.', pfade: ['/', '/lernen/plan', '/lernen/karten', '/lernen/fehler'] },
   { titel: 'Im Praxiseinsatz', text: 'Vor und während eines Einsatzes auf Station.', pfade: ['/lernen/einsatz'] },
   { titel: 'Stoff überblicken und auswählen', text: 'Derselbe Stoff, unterschiedlich sortiert. Nimm die Sicht, die dir gerade hilft.', pfade: ['/lernen/ce', '/lernen/board', '/lernen/landkarte', '/lernen/themen'] },
-  { titel: 'Nachschlagen und verstehen', text: 'Wenn du etwas lesen, nachsehen oder ausprobieren willst.', pfade: ['/lernen/skript', '/lernen/dnqp', '/lernen/schnellsuche', '/lernen/physiologie'] },
+  { titel: 'Nachschlagen und verstehen', text: 'Wenn du etwas lesen, nachsehen oder ausprobieren willst.', pfade: ['/lernen/skript', '/lernen/dnqp', '/lernen/schnellsuche', '/lernen/physiologie', '/lernen/mindmap'] },
   { titel: 'Stand ansehen', text: 'Für den Rückblick, nicht für jeden Tag.', pfade: ['/lernen/fortschritt', '/lernen/faecher'] },
   { titel: 'Auf Prüfungen vorbereiten', text: 'Für Klausuren und das Examen.', pfade: ['/lernen/simulation', '/lernen/examen'] },
 ];

@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect } from 'react';
 import { Shell } from './ui/shell/Shell';
-import { navigate, useRoute } from './ui/shell/router';
+import { ersetze, navigate, useRoute } from './ui/shell/router';
+import { weiterleitungFuer } from './features/wissen/pfad';
 import { REDIRECTS, gruppenPfad, passtDazuId } from './ui/shell/nav';
 import { PageBoundary } from './ui/shell/PageBoundary';
 import { WidgetGrid } from './ui/widget/Dashboard';
@@ -20,7 +21,6 @@ const Rechentrainer = lazy(() => import('./features/rechnen/Rechentrainer'));
 const Fehlerheft = lazy(() => import('./features/fehlerheft/FehlerheftSeite'));
 const Fallsimulator = lazy(() => import('./features/fall/Fallsimulator'));
 const Praxissimulator = lazy(() => import('./features/praxis/Praxissimulator'));
-const LaborTrainer = lazy(() => import('./features/labortrainer/LaborTrainer'));
 const Diagnostik = lazy(() => import('./features/diagnostik/DiagnostikSeite'));
 const Duell = lazy(() => import('./features/duell/DuellSeite'));
 const SisTrainer = lazy(() => import('./features/sis/SisTrainer'));
@@ -43,18 +43,11 @@ const CeSeite = lazy(() => import('./features/ce/CeSeite'));
 const Fortschritt = lazy(() => import('./features/fortschritt/FortschrittSeite'));
 const EinsatzSeite = lazy(() => import('./features/einsatz/EinsatzSeite'));
 const Examen = lazy(() => import('./features/examen/ExamenSeite'));
-const HygieneTrainer = lazy(() => import('./features/hygiene/HygieneTrainer'));
-const AnatomieTrainer = lazy(() => import('./features/anatomie/AnatomieTrainer'));
-const ExpertenstandardsTrainer = lazy(() => import('./features/expertenstandards/ExpertenstandardsTrainer'));
 const DnqpSeite = lazy(() => import('./features/dnqp/DnqpSeite'));
-const NormwerteTrainer = lazy(() => import('./features/normwerte/NormwerteTrainer'));
-const NotfallTrainer = lazy(() => import('./features/notfall/NotfallTrainer'));
 const HoerTrainer = lazy(() => import('./features/hoeren/HoerTrainer'));
 const AblaufSeite = lazy(() => import('./features/ablauf/AblaufSeite'));
+const WissenSeite = lazy(() => import('./features/wissen/WissenSeite'));
 const GespraechSeite = lazy(() => import('./features/gespraech/GespraechSeite'));
-const ArzneimittelTrainer = lazy(() => import('./features/arzneimittel/ArzneimittelTrainer'));
-const RechtTrainer = lazy(() => import('./features/recht/RechtTrainer'));
-const GrundlagenTrainer = lazy(() => import('./features/grundlagen/GrundlagenTrainer'));
 const Schnellsuche = lazy(() => import('./features/schnellsuche/Schnellsuche'));
 const UebenSeite = lazy(() => import('./features/ueben/UebenSeite'));
 const PasstDazu = lazy(() => import('./features/ueben/PasstDazuLeiste'));
@@ -80,8 +73,14 @@ function Page({ title, intro, hilfe, children }: { title: string; intro?: string
 }
 
 function View() {
-  const { path } = useRoute();
-  useEffect(() => { if (REDIRECTS[path]) navigate(REDIRECTS[path]!); }, [path]);
+  const { path, params } = useRoute();
+  // Alte Einzeltrainer (#/lernen/hygiene …) führen in den Wissenstrainer, mit allen Angaben der Adresse.
+  const wissenNeu = weiterleitungFuer(path, params);
+  useEffect(() => {
+    if (REDIRECTS[path]) navigate(REDIRECTS[path]!);
+    else if (wissenNeu) ersetze(wissenNeu);
+  }, [path, wissenNeu]);
+  if (wissenNeu) return null;
   if (path === '/lernen/klasse' || path.startsWith('/lernen/klasse/')) return <Klassenmodus />;
   if (path === '/lehren' || path.startsWith('/lehren/')) return <Lehrermodus />;
   switch (path) {
@@ -116,20 +115,12 @@ function View() {
     case '/lernen/krankheitsbilder': return <Krankheitsbilder />;
     case '/lernen/assessment': return <AssessmentTrainer />;
     case '/lernen/uebergabe': return <Uebergabetrainer />;
-    case '/lernen/hygiene': return <HygieneTrainer />;
-    case '/lernen/anatomie': return <AnatomieTrainer />;
-    case '/lernen/expertenstandards': return <ExpertenstandardsTrainer />;
     case '/lernen/dnqp': return <DnqpSeite />;
-    case '/lernen/normwerte': return <NormwerteTrainer />;
     case '/lernen/diagnostik': return <Diagnostik />;
-    case '/lernen/labor': return <LaborTrainer />;
-    case '/lernen/notfall': return <NotfallTrainer />;
     case '/lernen/hoeren': return <HoerTrainer />;
     case '/lernen/ablauf': return <AblaufSeite />;
+    case '/lernen/wissen': return <WissenSeite />;
     case '/lernen/gespraech': return <GespraechSeite />;
-    case '/lernen/arzneimittel': return <ArzneimittelTrainer />;
-    case '/lernen/recht': return <RechtTrainer />;
-    case '/lernen/grundlagen': return <GrundlagenTrainer />;
     case '/lernen/faecher': return <Faecher />;
     case '/material/dokumente': return <Dokumente />;
     case '/material/import': return <Page title="Dein Material. Bereit zum Lernen." intro="In vier Schritten von der Datei zur nachvollziehbaren Lernquelle."><WidgetGrid widgets={[WIDGETS.wizard]} allowHide={false} /></Page>;

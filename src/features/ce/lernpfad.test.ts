@@ -48,10 +48,10 @@ describe('Lernpfad je Thema', () => {
   });
 
   it('Üben im Trainer: offen ohne Ergebnis, wiederholen unter der Grenze, erledigt darüber, vor dem Selbsttest', () => {
-    const trainer = [{ label: 'Hygiene-Trainer', path: '/lernen/hygiene' }];
+    const trainer = [{ label: 'Wissenstrainer Hygiene', path: '/lernen/wissen?fach=hygiene' }];
     const f = basis({ erarbeitet: true, testZiel: '/x', uebungen: { trainer } });
     const p = themaPfad(f);
-    expect(p.naechster).toMatchObject({ art: 'ueben', zustand: 'offen', ziel: '/lernen/hygiene' });
+    expect(p.naechster).toMatchObject({ art: 'ueben', zustand: 'offen', ziel: '/lernen/wissen?fach=hygiene' });
     expect(themaPfad({ ...f, uebungen: { trainer, ergebnis: UEBEN_GUT_AB - 1 } }).schritte[4]!.zustand).toBe('teilweise');
     const gut = themaPfad({ ...f, uebungen: { trainer, ergebnis: 90 } });
     expect(gut.schritte[4]).toMatchObject({ zustand: 'erledigt' });

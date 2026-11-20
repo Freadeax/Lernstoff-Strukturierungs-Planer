@@ -31,32 +31,32 @@ function eintrag(quelle: FehlerQuelle, name: string, pfad: string, grundlage: Gr
 const q = (titel: string, stand: string): Quelle => ({ titel, stand });
 
 export const TRAINER_REGISTER: TrainerEintrag[] = [
-  eintrag('hygiene', 'Hygiene', '/lernen/hygiene', hygieneGrundlage, {
+  eintrag('hygiene', 'Hygiene', '/lernen/wissen?fach=hygiene', hygieneGrundlage, {
     geltung: 'Krankenhaus und stationäre Langzeitpflege, ab 1. Ausbildungsjahr', prueferrolle: `${PA} und Hygienefachkraft`,
     lernziele: ['Indikationen der Händedesinfektion sicher anwenden', 'PSA nach Übertragungsweg wählen'],
     quellen: [q('KRINKO-Empfehlungen (RKI), u. a. Händehygiene', '2026'), q('Infektionsschutzgesetz (IfSG)', '2026'), q('WHO: 5 Moments for Hand Hygiene', '2009')],
     aenderungen: [...ANGELEGT('Ins Inhaltsregister aufgenommen, fachliche Prüfung ausstehend'), { datum: '2026-11-16', text: 'Gegen die KRINKO-Änderung 2026 (Warmwasser an Handwaschplätzen nicht mehr Pflicht) durchgesehen: keine Aussage betroffen' }],
     risiken: [], pruefpunkte: ['Abgleich mit dem Hygieneplan der Schule', 'Erregerspezifische Maßnahmen (MRSA, MRGN, Noro, C. diff.)'],
   }),
-  eintrag('anatomie', 'Anatomie', '/lernen/anatomie', anatomieGrundlage, {
+  eintrag('anatomie', 'Anatomie', '/lernen/wissen?fach=anatomie', anatomieGrundlage, {
     geltung: 'Grundlagen für alle Ausbildungsjahre', prueferrolle: 'Lehrkraft für Anatomie und Physiologie',
     lernziele: ['Strukturen an Schemazeichnungen benennen', 'Funktionen und Wege (Blutkreislauf, Harnbildung) in Reihenfolge bringen'],
     quellen: [q('Lehrbücher Anatomie und Physiologie für Pflegeberufe', 'Lehrbuchstand')],
     risiken: [], pruefpunkte: ['Schemazeichnungen: Lage der Marken', 'Fachbegriffe in deutscher und lateinischer Form'],
   }),
-  eintrag('expertenstandards', 'Expertenstandards', '/lernen/expertenstandards', standardGrundlage, {
+  eintrag('expertenstandards', 'Expertenstandards', '/lernen/wissen?fach=expertenstandards', standardGrundlage, {
     geltung: 'Alle Versorgungsbereiche, ab 1. Ausbildungsjahr', prueferrolle: PA,
     lernziele: ['Aufbau der Expertenstandards (Struktur, Prozess, Ergebnis) erklären', 'Kernaussagen einzelner Standards anwenden'],
     quellen: [q('DNQP-Expertenstandards, jeweils aktuelle Fassung laut DNQP-Lernmodul', '2026')],
     risiken: [], pruefpunkte: ['Fassung je Standard gegen dnqp.de', 'Neu erscheinende Aktualisierungen (DNQP-Lernmodul)'],
   }),
-  eintrag('normwerte', 'Normwerte', '/lernen/normwerte', normwertGrundlage, {
+  eintrag('normwerte', 'Normwerte', '/lernen/wissen?fach=normwerte', normwertGrundlage, {
     geltung: 'Erwachsene; Kinderwerte nur, wo ausdrücklich genannt', prueferrolle: `${PA}; Laborwerte zusätzlich ärztliche Durchsicht`,
     lernziele: ['Vitalzeichen und wichtige Laborwerte einordnen', 'Abweichungen erkennen und melden'],
     quellen: [q('Lehrbuch-Referenzbereiche, gerundet', 'Lehrbuchstand'), q('NEWS2 (Royal College of Physicians)', '2017')],
     risiken: ['medikament'], pruefpunkte: ['Referenzbereiche gegen den Befund des Ausbildungslabors', 'Einheiten (mg/dl vs. mmol/l)'],
   }),
-  eintrag('notfall', 'Notfall', '/lernen/notfall', notfallGrundlage, {
+  eintrag('notfall', 'Notfall', '/lernen/wissen?fach=notfall', notfallGrundlage, {
     geltung: 'Erwachsene, innerklinisch und Langzeitpflege; Kinderfragen getrennt markiert', prueferrolle: 'Reanimationstrainer:in (z. B. ERC-Instruktor:in) und Pflegefachperson mit Praxisanleitung',
     lernziele: ['Kreislaufstillstand erkennen und Basismaßnahmen in richtiger Reihenfolge', 'Akute Notfälle nach ABCDE einschätzen und melden'],
     quellen: [q('ERC Guidelines: Basic Life Support', '2025'), q('ERC Guidelines: Paediatric Life Support', '2025'), q('Resuscitation Council UK: The ABCDE approach', '2021')],
@@ -67,25 +67,25 @@ export const TRAINER_REGISTER: TrainerEintrag[] = [
       { datum: '2026-11-16', text: 'Quellenstand auf ERC 2025 gehoben; Kernangaben abgeglichen, keine inhaltliche Änderung nötig' },
     ],
   }),
-  eintrag('arzneimittel', 'Arzneimittel', '/lernen/arzneimittel', arzneimittelGrundlage, {
+  eintrag('arzneimittel', 'Arzneimittel', '/lernen/wissen?fach=arzneimittel', arzneimittelGrundlage, {
     geltung: 'Erwachsene, ab 1. Ausbildungsjahr; keine Dosisentscheidungen', prueferrolle: `${PA} und ärztliche oder pharmazeutische Durchsicht`,
     lernziele: ['6-R-Regel und Applikationswege sicher anwenden', 'Typische Neben- und Wechselwirkungen beobachten'],
     quellen: [q('Lehrbuch Arzneimittellehre für Pflegeberufe', 'Lehrbuchstand'), q('Fachinformationen der Wirkstoffgruppen', 'je Präparat')],
     risiken: ['medikament'], pruefpunkte: ['Wirkstoffbeispiele und Handelsnamen', 'Beobachtungsschwerpunkte je Gruppe'],
   }),
-  eintrag('recht', 'Recht', '/lernen/recht', rechtGrundlage, {
+  eintrag('recht', 'Recht', '/lernen/wissen?fach=recht', rechtGrundlage, {
     geltung: 'Deutschland, Bundesrecht, ab 1. Ausbildungsjahr', prueferrolle: 'Lehrkraft für Recht in der Pflegeausbildung',
     lernziele: ['Schweigepflicht, Haftung und Delegation an Fällen anwenden', 'Betreuungsrecht nach der Reform 2023 einordnen'],
     quellen: [q('StGB, BGB, PflBG, SGB V, SGB XI, ArbZG, MuSchG', '2026'), q('Betreuungsrechtsreform', '2023')],
     risiken: [], pruefpunkte: ['Paragrafenangaben gegen gesetze-im-internet.de', 'Neue Gesetzesänderungen seit dem Inhaltsstand'],
   }),
-  eintrag('labor', 'Labor', '/lernen/labor', laborGrundlage, {
+  eintrag('labor', 'Labor', '/lernen/wissen?fach=labor', laborGrundlage, {
     geltung: 'Erwachsene; Kinderbereich getrennt', prueferrolle: `${PA}; Befunddeutung zusätzlich ärztliche Durchsicht`,
     lernziele: ['Blutentnahme fehlerfrei vorbereiten (Präanalytik)', 'Blutgasanalyse und Befunde einordnen'],
     quellen: [q('CLSI GP41: Collection of Diagnostic Venous Blood Specimens', '2017'), q('Lehrbuch-Referenzbereiche', 'Lehrbuchstand')],
     risiken: ['kinder'], pruefpunkte: ['Röhrchensystem und Reihenfolge des Ausbildungshauses', 'Kinder-Referenzbereiche'],
   }),
-  eintrag('grundlagen', 'Grundlagen', '/lernen/grundlagen', grundlagenGrundlage, {
+  eintrag('grundlagen', 'Grundlagen', '/lernen/wissen?fach=grundlagen', grundlagenGrundlage, {
     geltung: 'Alle Ausbildungsjahre', prueferrolle: 'Lehrkraft der Pflegeschule',
     lernziele: ['Fachsprache und Abkürzungen sicher lesen', 'Berufsrechtliche Grundlagen (PflBG) kennen'],
     quellen: [q('Lehrbücher medizinische Terminologie und Berufskunde', 'Lehrbuchstand'), q('PflBG und PflAPrV', '2026')],

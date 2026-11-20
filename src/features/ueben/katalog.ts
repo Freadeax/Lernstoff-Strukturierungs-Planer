@@ -7,6 +7,7 @@ import { modules } from '../../modules/registry';
 import { leafTopics } from '../lernplan/store';
 import { uebungenFuer } from '../lernplan/trainer';
 import { ceListe, ceThemen } from '../ce/modell';
+import { istFach } from '../wissen/pfad';
 
 export type Offline = 'ja' | 'teils' | 'nein';
 export type Stufe = 'einstieg' | 'fortgeschritten' | 'beide';
@@ -34,7 +35,7 @@ const SCHREIBEN: UebungsInfo = {
 
 export const UEBUNG_INFO: Record<string, UebungsInfo> = {
   krankheitsbilder: { ...RUNDE, minuten: 10, lernstand: 'Fallaufgaben und Detektiv-Runden: Ergebnis je Thema, erster Versuch des Tages.', fehlerheft: 'Falsch beantwortete Fallaufgaben mit Begründung.' },
-  anatomie: RUNDE, arzneimittel: RUNDE, normwerte: RUNDE, hygiene: RUNDE, expertenstandards: RUNDE, recht: RUNDE, notfall: RUNDE, labor: RUNDE, grundlagen: RUNDE,
+  wissen: { ...RUNDE, minuten: 10 },
   rechnen: { ...RUNDE, minuten: 10, lernstand: 'Nur die Prüfungsrunde zählt, je Rechenthema.', fehlerheft: 'Falsche Rechnungen mit Rechenweg.' },
   duell: { ...RUNDE, minuten: 3, stufe: 'einstieg', lernstand: 'Treffer je Thema nach der Runde.', fehlerheft: 'Verwechselte Fachbegriffe.' },
   mindmap: { minuten: 15, offline: 'ja', stufe: 'beide', lernstand: 'Im Prüfen-Modus: Ergebnis je Thema.' },
@@ -73,7 +74,8 @@ export function zuordnung(modul: CatalogModule = modules[0] as CatalogModule): Z
   const add = (m: Map<string, Set<string>>, k: string, v: string) => { const s = m.get(k) ?? new Set(); s.add(v); m.set(k, s); };
   const trainerJeThema = new Map<string, string[]>();
   for (const t of leafTopics(modul.topics)) {
-    const tr = [...new Set(uebungenFuer(t.id, modul).map((u) => u.trainer))];
+    // Die Fachgebiete des Wissenstrainers zählen zusätzlich für dessen Menüeintrag „wissen“.
+    const tr = [...new Set(uebungenFuer(t.id, modul).flatMap((u): string[] => (istFach(u.trainer) ? [u.trainer, 'wissen'] : [u.trainer])))];
     trainerJeThema.set(t.id, tr);
     for (const x of tr) if (t.subjectId) add(fach, x, t.subjectId);
   }

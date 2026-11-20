@@ -23,8 +23,8 @@ export type FehlerQuelle = 'rechnen' | 'duell' | 'simulation' | 'krankheitsbilde
 
 export const QUELLE_LABEL: Record<FehlerQuelle, string> = {
   rechnen: 'Rechentrainer', duell: 'Fachbegriff-Duell', simulation: 'Prüfungssimulation', krankheitsbilder: 'Krankheitsbilder', assessment: 'Assessments',
-  hygiene: 'Hygiene-Trainer', anatomie: 'Anatomie-Trainer', expertenstandards: 'Expertenstandards', normwerte: 'Normwerte',
-  notfall: 'Notfall-Trainer', arzneimittel: 'Arzneimittel-Trainer', praxis: 'Praxissimulator', recht: 'Recht-Trainer', labor: 'Labor-Trainer', diagnostik: 'Diagnostik-Fälle', grundlagen: 'Grundlagen-Trainer',
+  hygiene: 'Wissenstrainer Hygiene', anatomie: 'Wissenstrainer Anatomie', expertenstandards: 'Wissenstrainer Expertenstandards', normwerte: 'Wissenstrainer Normwerte',
+  notfall: 'Wissenstrainer Notfall', arzneimittel: 'Wissenstrainer Arzneimittel', praxis: 'Praxissimulator', recht: 'Wissenstrainer Recht', labor: 'Wissenstrainer Labor', diagnostik: 'Diagnostik-Fälle', grundlagen: 'Wissenstrainer Grundlagen',
 };
 
 /** Wie ein Eintrag wiederholt wird. */

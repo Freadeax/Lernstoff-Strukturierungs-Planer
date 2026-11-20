@@ -9,6 +9,10 @@ import { flatNav, LERNSEITEN, NAV } from '../../ui/shell/nav';
 import { leafTopics } from '../lernplan/store';
 import { uebungenFuer, type TrainerId } from '../lernplan/trainer';
 import { UEBUNG_INFO } from './katalog';
+import { FACH_NAME, istFach, wissenPfad } from '../wissen/pfad';
+
+/** Menüseite eines Trainers: Die Fachgebiete des Wissenstrainers liegen alle auf einer Seite. */
+const seiteVon = (t: TrainerId): string => (istFach(t) ? 'wissen' : t);
 
 export interface Ziel { label: string; path: string; grund: string }
 export interface PasstDazu { verwandt: Ziel[]; themen: Array<{ id: string; name: string }>; weiter: Ziel[] }
@@ -23,7 +27,7 @@ export const SCHRITT: Record<string, Ziel> = {
   examen: { label: 'Examen', path: '/lernen/examen', grund: 'Termine, Checkliste und Schwächen im Blick.' },
   ce: { label: 'Curriculare Einheiten', path: '/lernen/ce', grund: 'Geführt durch eine CE lernen.' },
   praxis: { label: 'Praxissimulator', path: '/lernen/praxis', grund: 'Das Wissen in einer Schicht anwenden.' },
-  notfall: { label: 'Notfall-Trainer', path: '/lernen/notfall', grund: 'Erkennen und in der richtigen Reihenfolge handeln.' },
+  notfall: { label: 'Wissenstrainer: Notfall', path: '/lernen/wissen?fach=notfall', grund: 'Erkennen und in der richtigen Reihenfolge handeln.' },
   pflegeplanung: { label: 'Pflegeplanung', path: '/lernen/pflegeplanung', grund: 'Aus einem Fall eine Planung schreiben.' },
   fortschritt: { label: 'Fortschritt', path: '/lernen/fortschritt', grund: 'Sehen, was sich schon getan hat.' },
   sis: { label: 'SIS-Trainer', path: '/lernen/sis', grund: 'Informationen strukturiert sammeln.' },
@@ -35,15 +39,16 @@ export const SCHRITT: Record<string, Ziel> = {
   hoeren: { label: 'Hör-Trainer', path: '/lernen/hoeren', grund: 'Alarme, Herz und Lunge nach Gehör erkennen.' },
   gespraech: { label: 'Gesprächssimulator', path: '/lernen/gespraech', grund: 'Schwierige Gespräche üben, mit Rückmeldung zu jeder Antwort.' },
   ablauf: { label: 'Ablauf-Werkbank', path: '/lernen/ablauf', grund: 'Handgriffe in der richtigen Reihenfolge, mit typischen Fehlern.' },
-  hygiene: { label: 'Hygiene-Trainer', path: '/lernen/hygiene', grund: 'Händehygiene, Schutzausrüstung und Asepsis sicher können.' },
-  anatomie: { label: 'Anatomie-Trainer', path: '/lernen/anatomie', grund: 'Organe, Lage und Funktion abfragen.' },
-  normwerte: { label: 'Normwerte-Trainer', path: '/lernen/normwerte', grund: 'Vitalwerte und Labor sicher einordnen.' },
+  hygiene: { label: 'Wissenstrainer: Hygiene', path: '/lernen/wissen?fach=hygiene', grund: 'Händehygiene, Schutzausrüstung und Asepsis sicher können.' },
+  anatomie: { label: 'Wissenstrainer: Anatomie', path: '/lernen/wissen?fach=anatomie', grund: 'Organe, Lage und Funktion abfragen.' },
+  normwerte: { label: 'Wissenstrainer: Normwerte', path: '/lernen/wissen?fach=normwerte', grund: 'Vitalwerte und Labor sicher einordnen.' },
   physiologie: { label: 'Physiologie-Modelle', path: '/lernen/physiologie', grund: 'An Reglern drehen und sehen, was im Körper passiert.' },
   einsatz: { label: 'Praxiseinsatz', path: '/lernen/einsatz', grund: 'Den nächsten Einsatz vorbereiten und im Praxistagebuch festhalten.' },
-  expertenstandards: { label: 'Expertenstandards-Trainer', path: '/lernen/expertenstandards', grund: 'Die Kernaussagen der Standards abfragen.' },
+  expertenstandards: { label: 'Wissenstrainer: Expertenstandards', path: '/lernen/wissen?fach=expertenstandards', grund: 'Die Kernaussagen der Standards abfragen.' },
   diagnostik: { label: 'Labor und Bildgebung', path: '/lernen/diagnostik', grund: 'Befunde an Fällen lesen.' },
   fallakte: { label: 'Fallakte', path: '/lernen/fallakte', grund: 'Einen Fall von der SIS bis zur Übergabe durcharbeiten.' },
-  recht: { label: 'Recht-Trainer', path: '/lernen/recht', grund: 'Haftung, Schweigepflicht und Betreuung anwenden.' },
+  recht: { label: 'Wissenstrainer: Recht', path: '/lernen/wissen?fach=recht', grund: 'Haftung, Schweigepflicht und Betreuung anwenden.' },
+  wissen: { label: 'Wissenstrainer', path: wissenPfad(), grund: 'Alle Fachgebiete, eigene Runde aus mehreren Themen, Schwachstellen.' },
   duell: { label: 'Fachbegriff-Duell', path: '/lernen/duell', grund: 'Fachbegriffe schnell und sicher abrufen.' },
   krankheitsbilder: { label: 'Krankheitsbilder', path: '/lernen/krankheitsbilder', grund: 'Steckbriefe mit Belegen und Fallaufgaben.' },
   ueben: { label: 'Alle Übungen', path: '/lernen/ueben', grund: 'Passende Übung nach CE, Fach oder Dauer finden.' },
@@ -74,12 +79,8 @@ export const WEITER: Record<string, string[]> = {
   pflegeplanung: ['sis', 'bericht'],
   bericht: ['uebergabe', 'pflegeplanung'],
   uebergabe: ['bericht', 'notfall'],
-  expertenstandards: ['dnqp', 'schnellsuche'],
-  notfall: ['hoeren', 'praxis'],
-  labor: ['diagnostik'],
-  normwerte: ['diagnostik'],
+  wissen: ['fehler', 'duell', 'karten'],
   fallakte: ['pflegeplanung', 'uebergabe'],
-  grundlagen: ['recht', 'duell'],
   // Lern- und Materialseiten ohne eigene Aufgaben: vom Lesen zum Üben und zurück
   karten: ['fehler', 'ueben', 'fortschritt'],
   skript: ['karten', 'krankheitsbilder', 'ueben'],
@@ -92,6 +93,7 @@ export const WEITER: Record<string, string[]> = {
   fortschritt: ['fehler', 'plan', 'examen'],
   dokumente: ['zusammenfassen', 'skript', 'karten'],
   physiologie: ['anatomie', 'normwerte', 'krankheitsbilder'],
+  mindmap: ['karten', 'wissen'],
   einsatz: ['plan', 'ablauf', 'karten'],
   zusammenfassen: ['karten', 'skript', 'dokumente'],
 };
@@ -110,33 +112,34 @@ export function passtDazu(id: string, modul: CatalogModule = modules[0] as Catal
   // Wie breit jede Übung ist: Eine Übung, die fast alles abdeckt (Duell, Fallsimulator), sagt über Verwandtschaft wenig.
   const blaetter = leafTopics(modul.topics);
   const je = new Map(blaetter.map((t) => [t.id, uebungenFuer(t.id, modul)]));
-  const breite = new Map<TrainerId, number>();
-  for (const u of je.values()) for (const t of new Set(u.map((x) => x.trainer))) breite.set(t, (breite.get(t) ?? 0) + 1);
+  const breite = new Map<string, number>();
+  for (const u of je.values()) for (const t of new Set(u.map((x) => seiteVon(x.trainer)))) breite.set(t, (breite.get(t) ?? 0) + 1);
 
   // Themen dieser Übung und je Thema die übrigen Übungen (mit Sprungziel aufs Thema)
   const eigene: Array<{ id: string; andere: number }> = [];
-  const geteilt = new Map<TrainerId, { anzahl: number; path: string; thema: string }>();
+  const geteilt = new Map<string, { anzahl: number; path: string; thema: string; fach?: string }>();
   for (const t of blaetter) {
     const u = je.get(t.id)!;
-    if (!u.some((x) => x.trainer === id)) continue;
-    const andere = u.filter((x) => x.trainer !== id && !UEBERALL.has(x.trainer));
-    eigene.push({ id: t.id, andere: new Set(andere.map((x) => x.trainer)).size });
+    if (!u.some((x) => seiteVon(x.trainer) === id)) continue;
+    const andere = u.filter((x) => seiteVon(x.trainer) !== id && !UEBERALL.has(x.trainer));
+    eigene.push({ id: t.id, andere: new Set(andere.map((x) => seiteVon(x.trainer))).size });
     for (const x of andere) {
-      const g = geteilt.get(x.trainer);
-      if (g) g.anzahl++;
-      else geteilt.set(x.trainer, { anzahl: 1, path: x.path, thema: t.name });
+      const k = seiteVon(x.trainer);
+      const g = geteilt.get(k);
+      if (g) { if (g.fach !== x.trainer) g.fach = undefined; g.anzahl++; }
+      else geteilt.set(k, { anzahl: 1, path: x.path, thema: t.name, ...(istFach(x.trainer) ? { fach: x.trainer } : {}) });
     }
   }
   // Gemeinsame Themen im Verhältnis zur Breite: 2 von 3 Themen passt besser als 30 von 80.
-  const wert = (t: TrainerId, n: number) => n / Math.sqrt(breite.get(t) ?? 1);
+  const wert = (t: string, n: number) => n / Math.sqrt(breite.get(t) ?? 1);
   const verwandt = [...geteilt]
     .filter(([t]) => seiten.has(t))
     .sort((a, b) => wert(b[0], b[1].anzahl) - wert(a[0], a[1].anzahl) || a[0].localeCompare(b[0]))
     .slice(0, 3)
     .map(([t, g]): Ziel => ({
-      label: label.get(t) ?? t,
-      // Bei nur einem gemeinsamen Thema direkt dorthin, sonst auf die Startseite der Übung
-      path: g.anzahl === 1 ? g.path : seiten.get(t)!,
+      label: g.fach && istFach(g.fach) ? `${label.get(t) ?? t}: ${FACH_NAME[g.fach]}` : label.get(t) ?? t,
+      // Bei nur einem gemeinsamen Thema direkt dorthin, im Wissenstrainer ins Fachgebiet, sonst auf die Startseite der Übung
+      path: g.anzahl === 1 ? g.path : g.fach && istFach(g.fach) ? wissenPfad(g.fach) : seiten.get(t)!,
       grund: g.anzahl === 1 ? `Auch zu „${g.thema}“.` : `${g.anzahl} gemeinsame Themen, z. B. „${g.thema}“.`,
     }));
 

@@ -63,6 +63,13 @@ export function goBack() {
   else navigate('/');
 }
 
+/** Wie navigate, ersetzt aber den aktuellen Verlaufseintrag (Weiterleitungen: „Zurück“ springt nicht wieder auf die alte Adresse). */
+export function ersetze(to: string) {
+  const target = to.startsWith('#') ? to : `#${to.startsWith('/') ? to : '/' + to}`;
+  if (location.hash === target) return;
+  location.replace(target);
+}
+
 export function navigate(to: string) {
   const target = to.startsWith('#') ? to : `#${to.startsWith('/') ? to : '/' + to}`;
   if (location.hash === target) return;
