@@ -208,7 +208,7 @@ describe('Datenbank-Version 7', () => {
     await db.skripte.put(parseSkript('a.md', BEISPIEL, { herkunft: 'datei' }));
     expect(await db.skripte.count()).toBe(1);
     expect(await db.pipelineRuns.count()).toBe(1);
-    expect(db.verno).toBe(7);
+    expect(db.verno).toBeGreaterThanOrEqual(7);
   });
 });
 

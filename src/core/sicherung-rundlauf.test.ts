@@ -2,6 +2,7 @@ import 'fake-indexeddb/auto';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { LernstoffDB } from './db';
 import { BEISPIEL } from './db-beispiele';
+import { GERAETESTAND_TABELLE } from './geraetestand';
 import { erstelleSicherung, lesePruefe, spieleEin } from './sicherung';
 
 // Rundlauf über ALLE Tabellen: Was eine neue Tabelle speichert, muss eine Sicherung überstehen,
@@ -23,7 +24,8 @@ beforeEach(() => ls.clear());
 let n = 0;
 async function gefuellt() {
   const db = new LernstoffDB(`rundlauf-${++n}`);
-  for (const t of db.tables) await t.add({ ...BEISPIEL[t.name] });
+  // Der Gerätestand (v8) gehört zum laufenden Gerät und läuft über `local`, siehe sicherung-geraetestand.test.ts.
+  for (const t of db.tables) if (t.name !== GERAETESTAND_TABELLE) await t.add({ ...BEISPIEL[t.name] });
   // Bytes und Datum müssen die JSON-Kodierung überstehen
   await db.paragraphs.put({ hash: 'bytes', text: 'x', roh: new Uint8Array([1, 2, 255]), am: new Date('2026-10-01T10:00:00Z') } as never);
   return db;
@@ -32,6 +34,7 @@ const ohneId = (rows: Record<string, unknown>[]) => rows.map(({ id: _id, ...r })
 async function inhalt(db: LernstoffDB, auto: boolean) {
   const out: Record<string, unknown[]> = {};
   for (const t of db.tables) {
+    if (t.name === GERAETESTAND_TABELLE) continue;
     const rows = (await t.toArray()) as Record<string, unknown>[];
     out[t.name] = auto && t.schema.primKey.auto ? ohneId(rows) : rows;
   }

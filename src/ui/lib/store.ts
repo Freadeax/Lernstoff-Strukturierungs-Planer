@@ -1,4 +1,5 @@
-import { useSyncExternalStore } from 'react';
+import { useEffect, useRef, useSyncExternalStore } from 'react';
+import { geraet } from '../../core/geraetestand';
 
 /**
  * Minimaler Zustandsspeicher mit Selektoren. Eine Komponente rendert nur neu, wenn sich
@@ -46,7 +47,8 @@ export function gleicheForm(wert: unknown, ersatz: unknown): boolean {
 export const istObjekt = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
 
 type Bereich = 'local' | 'session';
-const bereich = (area: Bereich) => (area === 'local' ? localStorage : sessionStorage);
+// „local“ geht über den Gerätestand: große Lernstände liegen dort in IndexedDB, der Rest im localStorage (Audit C-3).
+const bereich = (area: Bereich): Pick<Storage, 'getItem' | 'setItem' | 'removeItem'> => (area === 'local' ? geraet : sessionStorage);
 
 /**
  * localStorage mit Schutz für privaten Modus, vollen Speicher und kaputte oder veraltete Einträge.
@@ -79,3 +81,14 @@ export const storage = {
     try { bereich(area).removeItem(key); } catch { /* ohne Speicher weiter */ }
   },
 };
+
+/**
+ * Ruft `neu` auf, wenn ein anderes Fenster einen der Lernstände geändert hat (Audit C-4), z. B. um den
+ * angezeigten Stand neu zu lesen. Ohne Schlüssel: bei jeder Änderung.
+ */
+export function useFremdeAenderung(keys: readonly string[] | null, neu: (key: string) => void) {
+  const ref = useRef(neu);
+  ref.current = neu;
+  const kennung = keys ? keys.join('|') : '*';
+  useEffect(() => geraet.beiFremderAenderung((k) => { if (kennung === '*' || kennung.split('|').includes(k)) ref.current(k); }), [kennung]);
+}

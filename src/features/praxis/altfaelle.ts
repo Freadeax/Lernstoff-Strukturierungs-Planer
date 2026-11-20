@@ -3,6 +3,7 @@
 // Hier stehen nur noch die Titel der alten Fälle, damit alte Links, Fehlerheft-Einträge, Klassen-Abgaben und das
 // lokale Archiv lesbar bleiben und auf den neuen Fall zeigen. Rein, ohne Kern-Import.
 
+import { geraet } from '../../core/geraetestand';
 import { FALLPLAN } from './fallplan';
 
 /** Titel der 21 alten Fälle (Stand scenarios.json vor der Ablösung). */
@@ -51,7 +52,7 @@ export const ALT_ARCHIV_KEY = 'lernstoff.praxis.archiv';
 /** Altes Archiv schreibgeschützt lesen. Bleibt in der Datensicherung; neue Einträge entstehen nicht mehr. */
 export function altesArchiv(): AltArchivEintrag[] {
   try {
-    const roh = JSON.parse(localStorage.getItem(ALT_ARCHIV_KEY) ?? '[]') as unknown;
+    const roh = JSON.parse(geraet.getItem(ALT_ARCHIV_KEY) ?? '[]') as unknown;
     if (!Array.isArray(roh)) return [];
     return roh.flatMap((x) => {
       const s = x as { id?: unknown; time?: unknown; phase?: unknown; scenario?: { id?: unknown; title?: unknown } };
@@ -70,7 +71,7 @@ export function altSitzung(id: string | null | undefined): { titel: string; neu?
   if (!id || id.startsWith('neu:')) return null;
   const treffer = altesArchiv().find((x) => x.id === id) ?? (() => {
     try {
-      const s = JSON.parse(localStorage.getItem(ALT_AKTUELL_KEY) ?? 'null') as { id?: unknown; scenario?: { id?: unknown; title?: unknown } } | null;
+      const s = JSON.parse(geraet.getItem(ALT_AKTUELL_KEY) ?? 'null') as { id?: unknown; scenario?: { id?: unknown; title?: unknown } } | null;
       if (s?.id !== id || typeof s.scenario?.id !== 'string') return undefined;
       return { fall: s.scenario.id, titel: typeof s.scenario.title === 'string' ? s.scenario.title : ALTFALL_TITEL[s.scenario.id] ?? s.scenario.id };
     } catch { return undefined; }

@@ -22,5 +22,6 @@ export const BEISPIEL: Record<string, Record<string, unknown>> = {
   kartenConfig: { id: 'config', neuProTag: 20 },
   pipelineRuns: { id: 'r1', startedAt: '2026-10-06T10:00:00Z', ergebnisSummaryId: 'z1' },
   skripte: { id: 'sk1', gruppe: 'CE01', topicIds: ['t1'], titel: 'Recht' },
+  geraetestand: { key: 'lernstoff.mindmaps', wert: '[]', geaendert: 1 },
 };
 

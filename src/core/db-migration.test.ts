@@ -19,6 +19,7 @@ const VERSIONEN: Record<number, Record<string, string>> = {
   5: { karten: 'id, quelle, ref, *topicIds', kartenStand: 'cardId, due', kartenLogs: '++id, cardId, date', kartenConfig: 'id' },
   6: { pipelineRuns: 'id, startedAt, ergebnisSummaryId' },
   7: { skripte: 'id, gruppe, *topicIds' },
+  8: { geraetestand: 'key' },
 };
 const LETZTE = Math.max(...Object.keys(VERSIONEN).map(Number));
 

@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useFremdeAenderung } from '../../ui/lib/store';
 import '../klasse/klasse.css';
 import './lehrer.css';
 import { navigate, useRoute } from '../../ui/shell/router';
@@ -29,6 +30,8 @@ const SCHRITTE = [
 
 function Start() {
   const [stand, setStand] = useState(0);
+  // Änderungen aus einem anderen Fenster sofort zeigen (Audit C-4).
+  useFremdeAenderung(null, () => setStand((x) => x + 1));
   const daten = useMemo(() => {
     void stand;
     const jetzt = new Date();

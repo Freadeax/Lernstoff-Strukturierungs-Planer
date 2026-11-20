@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useFremdeAenderung } from '../../ui/lib/store';
 import { navigate } from '../../ui/shell/router';
 import { alleAbgaben, eigeneFaelle, loescheAbgaben } from '../klasse/speicher';
 import { datumText } from '../klasse/teilen';
@@ -32,6 +33,8 @@ function Zuordnen({ x, fertig }: { x: Fremd; fertig: () => void }) {
 
 export default function Abgaben() {
   const [stand, setStand] = useState(0);
+  // Änderungen aus einem anderen Fenster sofort zeigen (Audit C-4).
+  useFremdeAenderung(null, () => setStand((x) => x + 1));
   const neu = () => setStand((n) => n + 1);
 
   const d = useMemo(() => {

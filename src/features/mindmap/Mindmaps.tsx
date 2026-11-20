@@ -6,11 +6,12 @@ import { Icon } from '../../ui/icons';
 import { notify } from '../../ui/shell/notifications';
 import { navigate, useRoute } from '../../ui/shell/router';
 import { relativeTime } from '../../ui/lib/time';
+import { useFremdeAenderung } from '../../ui/lib/store';
 import { usePanZoom } from '../landkarte/usePanZoom';
 import { LernplanHinweis, useLernplanUebernahme } from '../lernplan/ui/LernplanHinweis';
 import {
   alleKnoten, alsSvg, alsText, anzahl, ausruecken, ausText, ausVorlage, einruecken, entfernen, erinnern, geschwisterAnhaengen,
-  kantenPfad, fassungenVon, kindAnhaengen, ladeAlle, layout, MIN_FUER_LERNPLAN, neueMindmap, passt, speichereAlle, umbenennen, verschieben,
+  kantenPfad, fassungenVon, fuehreMindmapsZusammen, kindAnhaengen, ladeAlle, layout, MIN_FUER_LERNPLAN, neueMindmap, passt, speichereAlle, umbenennen, verschieben,
   VORLAGEN, vorschlaege, waehleLuecken, zeilen, knoten as neuerKnoten,
   type Erinnerung, type Fassung, type Knoten, type Luecke, type Mindmap, type MindmapLayout, type VorlageId,
 } from './modell';
@@ -502,6 +503,15 @@ export default function Mindmaps() {
   const thema = params.get('thema') ?? '';
   const [maps, setMaps] = useState<Mindmap[]>(ladeAlle);
   const warnung = useRef(false);
+  // Welche Mindmaps zuletzt gespeichert waren: so lässt sich „im anderen Fenster gelöscht“ von „hier neu“ unterscheiden.
+  const bekannt = useRef(new Set(maps.map((x) => x.id)));
+  const speichereUndMerke = (liste: Mindmap[]) => { const ok = speichereAlle(liste); if (ok) bekannt.current = new Set(liste.map((x) => x.id)); return ok; };
+  // In einem anderen Fenster geändert: zusammenführen statt beim nächsten Speichern still zu überschreiben (Audit C-4).
+  useFremdeAenderung(['lernstoff.mindmaps'], () => {
+    const dort = ladeAlle();
+    setMaps((alle) => fuehreMindmapsZusammen(alle, dort, bekannt.current));
+    bekannt.current = new Set(dort.map((x) => x.id));
+  });
 
   // Sprung aus dem Lernplan: vorhandene Mindmap zum Thema öffnen, sonst Anlegen mit dem Thema
   useEffect(() => {
@@ -513,7 +523,7 @@ export default function Mindmaps() {
   // Speichern leicht verzögert, damit Tippen flüssig bleibt
   useEffect(() => {
     const t = setTimeout(() => {
-      if (!speichereAlle(maps) && !warnung.current) {
+      if (!speichereUndMerke(maps) && !warnung.current) {
         warnung.current = true;
         notify('warning', 'Mindmaps nicht gespeichert', 'Der Speicher dieses Browsers ist voll oder gesperrt (privates Surfen?).');
       }
@@ -530,7 +540,7 @@ export default function Mindmaps() {
 
   function anlegen(neu: Mindmap) {
     setMaps((alle) => [...alle, neu]);
-    speichereAlle([...maps, neu]);
+    speichereUndMerke([...maps, neu]);
     void logActivity({ kind: 'uebung', severity: 'info', title: `Mindmap „${neu.wurzel.text}“ angelegt`, ref: neu.topicId });
     navigate(`/lernen/mindmap?id=${neu.id}`);
   }

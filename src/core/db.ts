@@ -8,6 +8,9 @@ import type { PlannerConfig, StoredReviewLog, StoredStudyLog } from '../features
 import type { Karte, KartenConfig, KartenLog, KartenStand } from '../features/karteikarten/typen';
 import type { Skript } from '../features/skript/typen';
 
+/** Ein Lernstand, der früher im localStorage lag (Rohtext wie dort, siehe core/geraetestand.ts). */
+export interface GeraeteEintrag { key: string; wert: string; geaendert: number; }
+
 /** Absatztext zu einem Absatz-Hash, für die Anzeige entfallener Absätze beim Versionsvergleich. */
 export interface ParagraphText { hash: string; text: string; }
 
@@ -32,6 +35,7 @@ export class LernstoffDB extends Dexie {
   kartenLogs!: EntityTable<KartenLog, 'id'>;
   kartenConfig!: EntityTable<KartenConfig, 'id'>;
   skripte!: EntityTable<Skript, 'id'>;
+  geraetestand!: EntityTable<GeraeteEintrag, 'key'>;
 
   constructor(name = 'lernstoff-planer') {
     super(name);
@@ -87,6 +91,11 @@ export class LernstoffDB extends Dexie {
     // (privates Material-Repo oder Datei), nie aus dem App-Bundle.
     this.version(7).stores({
       skripte: 'id, gruppe, *topicIds',
+    });
+    // v8: große Lernstände aus localStorage (Mindmaps, Lehrermodus, Klassenfälle, Entwürfe, Archive, Tagebuch; Audit C-3).
+    // Der Umzug selbst passiert beim Start in core/geraetestand.ts, nicht im Upgrade (localStorage gehört nicht zur Transaktion).
+    this.version(8).stores({
+      geraetestand: 'key',
     });
   }
 }

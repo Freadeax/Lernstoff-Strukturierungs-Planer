@@ -1,6 +1,7 @@
 // Mindmaps: Datenmodell, Baumoperationen, Layout, Vorlagen und Abgleich. Alles rein und testbar,
 // das Speichern (localStorage) steht unten.
 
+import { geraet } from '../../core/geraetestand';
 import type { CatalogModule } from '../../modules/catalog-types';
 import { normalize } from '../../ui/lib/trie';
 
@@ -424,7 +425,7 @@ export function migriere(v: unknown): Mindmap | null {
 
 export function ladeAlle(): Mindmap[] {
   try {
-    const roh = JSON.parse(localStorage.getItem(KEY) ?? '[]') as unknown;
+    const roh = JSON.parse(geraet.getItem(KEY) ?? '[]') as unknown;
     if (!Array.isArray(roh)) return [];
     return roh.map(migriere).filter((m): m is Mindmap => !!m);
   } catch { return []; }
@@ -434,7 +435,7 @@ export interface Fassung { rev: number; at: string; wurzel: Knoten; topicId?: st
 type Fassungen = Record<string, Fassung[]>;
 
 function ladeFassungen(): Fassungen {
-  try { const v = JSON.parse(localStorage.getItem(VERLAUF_KEY) ?? '{}') as unknown; return v && typeof v === 'object' && !Array.isArray(v) ? v as Fassungen : {}; }
+  try { const v = JSON.parse(geraet.getItem(VERLAUF_KEY) ?? '{}') as unknown; return v && typeof v === 'object' && !Array.isArray(v) ? v as Fassungen : {}; }
   catch { return {}; }
 }
 
@@ -475,10 +476,26 @@ export function speichereAlle(maps: Mindmap[]): boolean {
       return { ...basis, rev: basis.rev + 1 };
     });
     for (const id of Object.keys(fassungen)) if (!maps.some((m) => m.id === id)) { delete fassungen[id]; verlaufGeaendert = true; }
-    localStorage.setItem(KEY, JSON.stringify(neu));
-    if (verlaufGeaendert) { try { localStorage.setItem(VERLAUF_KEY, JSON.stringify(fassungen)); } catch { /* Verlauf ist ein Zusatz */ } }
+    geraet.setItem(KEY, JSON.stringify(neu));
+    if (verlaufGeaendert) { try { geraet.setItem(VERLAUF_KEY, JSON.stringify(fassungen)); } catch { /* Verlauf ist ein Zusatz */ } }
     return true;
   } catch { return false; }
+}
+
+/**
+ * Stand aus einem anderen Fenster übernehmen (Audit C-4), ohne eigene Änderungen zu verlieren:
+ * je Mindmap gewinnt die zuletzt geänderte; was dort neu ist, kommt dazu; was dort gelöscht wurde
+ * (war schon gespeichert, fehlt jetzt), fällt weg; hier neu angelegte, noch nicht gespeicherte bleiben.
+ */
+export function fuehreMindmapsZusammen(lokal: Mindmap[], gespeichert: Mindmap[], bekannt: ReadonlySet<string>): Mindmap[] {
+  const dort = new Map(gespeichert.map((m) => [m.id, m]));
+  const out: Mindmap[] = [];
+  for (const m of lokal) {
+    const d = dort.get(m.id);
+    if (d) { out.push(d.geaendert > m.geaendert || (d.geaendert === m.geaendert && (d.rev ?? 1) > (m.rev ?? 1)) ? d : m); dort.delete(m.id); }
+    else if (!bekannt.has(m.id)) out.push(m);
+  }
+  return [...out, ...dort.values()];
 }
 
 export function neueMindmap(wurzel: Knoten, topicId?: string): Mindmap {
