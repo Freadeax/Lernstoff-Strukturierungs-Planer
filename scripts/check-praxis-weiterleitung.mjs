@@ -61,7 +61,9 @@ try {
 
     // Altes Archiv: lesbar, Nachfolger erreichbar; alte Weitergabe-Links zeigen auf den Nachfolger
     await p.evaluate((a) => localStorage.setItem('lernstoff.praxis.archiv', JSON.stringify(a)), ARCHIV);
+    // Neu laden wie ein Gerät mit altem Stand: Beim Start zieht das Archiv in die Datenbank (core/geraetestand.ts).
     await p.goto(base + '#/lernen/praxis', { waitUntil: 'networkidle' });
+    await p.reload({ waitUntil: 'networkidle' });
     await p.getByText(/Abgeschlossene Übungen im bisherigen Simulator/).click();
     assert.match(await p.locator('.praxis-archiv').innerText(), /Gestern war sie noch klar/);
     await axe('archiv');
