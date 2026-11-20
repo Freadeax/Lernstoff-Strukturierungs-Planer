@@ -172,7 +172,7 @@ function SoLaeuftEs() {
         <li><strong>Bogen ausfüllen:</strong> am Gerät oder ausgedruckt. Jeder Prüfpunkt bekommt „Passt“, „Ändern“ oder „Unklar“, bei Bedarf mit einer Notiz.</li>
         <li><strong>Code weitergeben:</strong> „Freigabe-Code kopieren“ und im Projekt-Chat einfügen. Claude übernimmt die Prüfung in den Code und arbeitet Änderungswünsche ein.</li>
         <li><strong>Gültig nur für diese Fassung:</strong> Ändert sich der Inhalt später, zeigt die App „Seit der Prüfung geändert“ und der Inhalt muss neu geprüft werden.</li>
-        <li><strong>Wer prüft:</strong> „Fachlich geprüft“ setzt nur eine Fachperson (Lehrkraft, Praxisanleitung, Pflegefachperson, bei Medikamenten auch ärztlich). Ein Abgleich mit Unterrichtsmaterial durch Lernende wird als eigene Stufe angezeigt.</li>
+        <li><strong>Wer prüft:</strong> „Fachlich geprüft“ setzt die Inhaltsverantwortung oder eine Fachperson (Lehrkraft, Praxisanleitung, Pflegefachperson, bei Medikamenten auch ärztlich) mit dem Urteil „freigegeben“.</li>
       </ol>
       <p className="muted">Fragen der Wissenstrainer prüft man einzeln im <a href="#/system/qualitaet">Prüfstand der Inhaltsqualität</a>; der Bogen hier gilt für den Trainer als Ganzes.</p>
     </section>
@@ -217,7 +217,7 @@ export default function FreigabeSeite() {
               <Zahl label="Noch nicht geprüft" wert={z.offen} t={z.offen ? 'warn' : 'gut'} />
               <Zahl label="Seit Prüfung geändert" wert={z.geaendert} t={z.geaendert ? 'kritisch' : 'gut'} />
               <Zahl label="Änderungswunsch offen" wert={z.nachbessern} t={z.nachbessern ? 'kritisch' : 'gut'} />
-              <Zahl label="Mit Unterrichtsmaterial abgeglichen" wert={z.abgeglichen} />
+              {z.abgeglichen > 0 && <Zahl label="Mit Unterrichtsmaterial abgeglichen" wert={z.abgeglichen} />}
               <Zahl label="Fachlich geprüft" wert={z.geprueft} t="gut" />
             </dl>
             <p className="muted">{inhalte.length} Inhalte mit Freigabe. Auf diesem Gerät erfasste Bögen: {boegen.length}. Sie gelten erst überall, wenn der Freigabe-Code in die App übernommen ist.</p>

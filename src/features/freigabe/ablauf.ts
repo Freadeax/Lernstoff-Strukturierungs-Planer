@@ -33,11 +33,12 @@ export interface Pruefbogen {
 }
 
 export const ROLLEN: Array<{ rolle: string; art: PruefArt }> = [
+  // Philipp, 20.11.2026: Die eigene Prüfung des Inhaltsverantwortlichen zählt als volle Fachfreigabe.
+  { rolle: 'Inhaltsverantwortung (fachliche Prüfung gegen das eigene Unterrichtsmaterial)', art: 'fachperson' },
   { rolle: 'Lehrkraft Pflegeschule', art: 'fachperson' },
   { rolle: 'Praxisanleitung', art: 'fachperson' },
   { rolle: 'Pflegefachperson', art: 'fachperson' },
   { rolle: 'Ärztin/Arzt (Medikamente, Notfall)', art: 'fachperson' },
-  { rolle: 'Auszubildende/r: Abgleich mit Unterrichtsmaterial', art: 'lehrmaterial' },
 ];
 
 const URTEILE: Urteil[] = ['freigegeben', 'mit-aenderungen', 'nicht-freigegeben'];
