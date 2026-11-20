@@ -268,7 +268,7 @@ export function assetBericht(): string {
   for (const l of zustandsLuecken()) zeilen.push(`| \`${l.raum}\` | ${l.fehlt.join(', ')} |`);
   const pl = portraetLuecken();
   if (pl.length) {
-    zeilen.push('', '**Porträts:** ' + pl.map((l) => `${l.person} ohne ${l.fehlt.join(' und ')}`).join('; ') + ' (Fallsimulator zeigt dann „stabil“).');
+    zeilen.push('', '**Porträts:** ' + pl.map((l) => `${l.person} ohne ${l.fehlt.join(' und ')}`).join('; ') + ' (Kurzfälle zeigen dann „stabil“).');
   }
   zeilen.push('', '## Alle Dateien', '');
   for (const a of arten) {

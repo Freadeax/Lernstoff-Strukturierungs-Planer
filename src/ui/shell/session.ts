@@ -23,21 +23,27 @@ export interface SessionState {
   bewegung: Bewegung;
   sidebarCollapsed: boolean;
   drawerOpen: boolean;
+  /** Entwicklerseiten (Bildprüfung, Inhaltsqualität, Designsystem) im Menü und in der Suche zeigen. */
+  entwickler: boolean;
 }
+
+/** Rollen aus dem Schalter „Entwicklerseiten“: „admin“ blendet die Entwicklerseiten ein. */
+export const rollenFuer = (entwickler: boolean): Role[] => (entwickler ? ['lernende', 'admin'] : ['lernende']);
 
 const KEY = 'lernstoff.shell';
 const saved = storage.read<Partial<SessionState>>(KEY, {});
 
 export const session = createStore<SessionState>({
-  roles: ['lernende'],
+  roles: rollenFuer(saved.entwickler === true),
   moduleId: saved.moduleId && modules.some((m) => m.id === saved.moduleId) ? saved.moduleId : modules[0]?.id ?? '',
   theme: saved.theme === 'hell' || saved.theme === 'dunkel' ? saved.theme : 'system',
   schrift: saved.schrift === 'gross' || saved.schrift === 'sehrgross' ? saved.schrift : 'normal',
   bewegung: saved.bewegung === 'reduziert' ? 'reduziert' : 'system',
   sidebarCollapsed: saved.sidebarCollapsed === true,
   drawerOpen: false,
+  entwickler: saved.entwickler === true,
 }, (s) => {
-  storage.write(KEY, { moduleId: s.moduleId, theme: s.theme, schrift: s.schrift, bewegung: s.bewegung, sidebarCollapsed: s.sidebarCollapsed });
+  storage.write(KEY, { moduleId: s.moduleId, theme: s.theme, schrift: s.schrift, bewegung: s.bewegung, sidebarCollapsed: s.sidebarCollapsed, entwickler: s.entwickler });
   applyTheme(s.theme);
   applySchrift(s.schrift);
   applyBewegung(s.bewegung);
@@ -84,6 +90,13 @@ channel?.addEventListener('message', (e: MessageEvent<Partial<SessionState>>) =>
   session.set(e.data);
   fromChannel = false;
 });
+
+/** Entwicklerseiten ein- oder ausblenden (Einstellungen), auch in anderen offenen Fenstern. */
+export function setzeEntwickler(an: boolean) {
+  const patch = { entwickler: an, roles: rollenFuer(an) };
+  session.set(patch);
+  channel?.postMessage(patch);
+}
 
 /** Arbeitsbereich wechseln und andere Tabs informieren. */
 export function setWorkspace(patch: Partial<Pick<SessionState, 'moduleId' | 'theme' | 'schrift' | 'bewegung'>>) {
