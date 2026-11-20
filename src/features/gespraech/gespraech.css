@@ -20,3 +20,4 @@
 .gespraech__techniken dl { margin: var(--space-2) 0 0; display: flex; flex-direction: column; gap: var(--space-2); }
 .gespraech__techniken dt { font-weight: var(--weight-bold, 700); }
 .gespraech__techniken dd { margin: 0; }
+.gespraech__verstanden { font-size: var(--text-sm, .875rem); margin: 0; text-align: right; }

@@ -50,7 +50,8 @@ export function ergebnis(l: Lauf): GespraechErgebnis {
   return { punkte, max, prozent: max ? Math.round((punkte / max) * 100) : 0, vertrauen: l.vertrauen, schritte };
 }
 
-export function auswertung(d: Dialog, e: GespraechErgebnis): SimAuswertung {
+/** `eigene`: was die Person je Zug selbst geschrieben hat (Modus „eigene Worte“), leer = Auswahl. */
+export function auswertung(d: Dialog, e: GespraechErgebnis, eigene: string[] = []): SimAuswertung {
   const fehler = e.schritte.filter((s) => s.antwort.urteil === 'fehler').length;
   const stufe = e.vertrauen >= 70 && fehler === 0 ? 'stabil' : e.vertrauen < 40 ? 'kritisch' : 'unsicher';
   const text = stufe === 'stabil' ? `${d.gegenueber.split(',')[0]} fühlt sich ernst genommen, das Gespräch endet mit einer klaren Absprache.`
@@ -63,7 +64,7 @@ export function auswertung(d: Dialog, e: GespraechErgebnis): SimAuswertung {
       const gut = s.knoten.antworten.find((a) => a.urteil === 'gut');
       return {
         id: `z${i}`, titel: `„${s.knoten.sagt.length > 70 ? `${s.knoten.sagt.slice(0, 70)} …` : s.knoten.sagt}“`, urteil: s.antwort.urteil,
-        deine: `${s.antwort.text} (${TECHNIK[s.antwort.technik].name})`,
+        deine: eigene[i] ? `„${eigene[i]}“, verstanden als: ${s.antwort.text} (${TECHNIK[s.antwort.technik].name})` : `${s.antwort.text} (${TECHNIK[s.antwort.technik].name})`,
         ...(s.antwort.urteil !== 'gut' && gut ? { besser: `${gut.text} (${TECHNIK[gut.technik].name})` } : {}),
         warum: s.antwort.warum,
       };
