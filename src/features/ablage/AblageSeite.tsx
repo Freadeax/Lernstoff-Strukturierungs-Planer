@@ -12,6 +12,7 @@ import {
 import './ablage.css';
 import { Field, useFormFeedback } from '../../ui/form/Field';
 import { PageHeading } from '../../ui/PageHeading';
+import { darfZugangMerken, MERKEN_GESPERRT_TEXT } from '../../core/hosting';
 
 type Status = 'wartet' | 'laeuft' | 'fertig' | 'uebersprungen' | 'fehler' | 'abgebrochen';
 interface Auftrag { id: number; datei: File; status: Status; fortschritt?: Fortschritt; fehler?: string; ordner?: string }
@@ -206,8 +207,8 @@ export default function Ablage() {
               {(props) => <input {...props} disabled={!!verbinden} type="password" autoComplete="off" autoCapitalize="none" spellCheck={false} placeholder="github_pat_…"
                 value={ziel.token} onBlur={() => feedback.touch('token')} onChange={(e) => setZiel({ ...ziel, token: e.target.value })} />}
             </Field>
-            <label className="check"><input type="checkbox" checked={merken} disabled={!!verbinden} onChange={(e) => setMerken(e.target.checked)} />
-              <span><strong>Token auf diesem Gerät merken</strong><br />Ohne Haken gilt er nur bis zum Schließen der App. Gemerkt liegt er unverschlüsselt im Browser-Speicher. Verwende einen Token mit Ablaufdatum, der nur dieses eine Repository darf.</span></label>
+            <label className="check"><input type="checkbox" checked={merken && darfZugangMerken()} disabled={!!verbinden || !darfZugangMerken()} onChange={(e) => setMerken(e.target.checked)} />
+              <span><strong>Token auf diesem Gerät merken</strong><br />{darfZugangMerken() ? 'Ohne Haken gilt er nur bis zum Schließen der App. Gemerkt liegt er unverschlüsselt im Browser-Speicher. Verwende einen Token mit Ablaufdatum, der nur dieses eine Repository darf.' : MERKEN_GESPERRT_TEXT}</span></label>
             <div className="row">
               <button type="submit" className="primary" disabled={!!verbinden}>Repository verbinden</button>
               {verbinden && <span className="muted" role="status">{verbinden}</span>}

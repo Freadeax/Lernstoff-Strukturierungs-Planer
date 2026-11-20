@@ -22,3 +22,14 @@ export function adressText(host = typeof location !== 'undefined' ? location.hos
   const art = adressArt(host);
   return `${host || 'unbekannt'} · ${art === 'offiziell' ? 'Cloudflare Pages, Hauptadresse' : art === 'alt' ? 'GitHub Pages, zweite Adresse' : 'Test- oder Entwicklungsadresse'}`;
 }
+
+/**
+ * Dürfen Zugangsdaten (Claude-Schlüssel, GitHub-Token) dauerhaft gemerkt werden? Nicht auf GitHub Pages
+ * (Audit D-1): Alle Projektseiten unter freadeax.github.io teilen sich denselben Browser-Speicher, und dort
+ * gelten die Sicherheitsheader aus public/_headers nicht. Dann nur für die Sitzung.
+ */
+export function darfZugangMerken(host = typeof location !== 'undefined' ? location.hostname : ''): boolean {
+  return adressArt(host) !== 'alt';
+}
+
+export const MERKEN_GESPERRT_TEXT = 'Auf dieser Adresse (GitHub Pages) nicht möglich: Sie teilt den Browser-Speicher mit allen anderen Seiten unter freadeax.github.io und hat keine Sicherheitsheader. Dauerhaft merken geht auf lernstoff-planer.pages.dev.';

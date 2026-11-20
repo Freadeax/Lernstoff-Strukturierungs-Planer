@@ -7,6 +7,7 @@
 // Warum nicht Release-Assets (bis 2 GB)? uploads.github.com erlaubt keine Browser-Anfragen
 // von fremden Seiten (CORS), api.github.com schon.
 
+import { darfZugangMerken } from '../../core/hosting';
 export const FORMAT = 'lernstoff-ablage/1';
 export const TEIL_GROESSE = 15 * 1024 * 1024;
 const API = 'https://api.github.com';
@@ -70,7 +71,19 @@ export class AblageFehler extends Error {
 const KEY = 'lernstoff.ablage';           // owner/repo (und Token nur, wenn „merken“ gewählt)
 const SITZUNG = 'lernstoff.ablage.token'; // Token nur für diese Sitzung (sessionStorage)
 
+/** Auf GitHub Pages einen dauerhaft gemerkten Token in die Sitzung verschieben (Audit D-1). */
+function ziehTokenUm() {
+  if (darfZugangMerken()) return;
+  try {
+    const z = JSON.parse(localStorage.getItem(KEY) ?? '{}') as Partial<AblageZiel> | null;
+    if (!z || typeof z !== 'object' || !z.token) return;
+    sessionStorage.setItem(SITZUNG, z.token);
+    delete z.token; localStorage.setItem(KEY, JSON.stringify(z));
+  } catch { /* kaputt oder gesperrt */ }
+}
+
 export function ladeZiel(): AblageZiel {
+  ziehTokenUm();
   let z: AblageZiel = { owner: '', repo: '', token: '' };
   try { z = { ...z, ...JSON.parse(localStorage.getItem(KEY) ?? '{}') }; } catch { /* kaputt oder gesperrt */ }
   if (!z.token) { try { z.token = sessionStorage.getItem(SITZUNG) ?? ''; } catch { /* gesperrt */ } }
@@ -94,11 +107,13 @@ export function tokenOrt(): 'keiner' | 'sitzung' | 'dauerhaft' {
 
 /** Liegt der Token dauerhaft auf dem Gerät? */
 export function tokenDauerhaft(): boolean {
+  ziehTokenUm();
   try { return !!JSON.parse(localStorage.getItem(KEY) ?? '{}').token; } catch { return false; }
 }
 
 /** Standard: Token nur für diese Sitzung. `merken` legt ihn dauerhaft in diesem Browser ab. */
-export function speichereZiel(z: AblageZiel | null, merken = false) {
+export function speichereZiel(z: AblageZiel | null, merkenGewuenscht = false) {
+  const merken = merkenGewuenscht && darfZugangMerken();
   try { sessionStorage.removeItem(SITZUNG); } catch { /* gesperrt */ }
   try {
     if (!z) { localStorage.removeItem(KEY); return; }

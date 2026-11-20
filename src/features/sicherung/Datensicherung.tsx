@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { notify } from '../../ui/shell/notifications';
 import { relativeTime } from '../../ui/lib/time';
 import {
-  bitteUmDauerhaftenSpeicher, kannTeilen, ladeRueckfall, lesePruefe, leseMerker, leseSicherungsDatei, lokalLabel, setzeMerker, sichereUndGibWeiter, spieleEin, teileSicherungsDatei,
+  bitteUmDauerhaftenSpeicher, hatLehrerdaten, kannTeilen, ladeRueckfall, lesePruefe, leseMerker, leseSicherungsDatei, lokalLabel, setzeMerker, sichereUndGibWeiter, spieleEin, teileSicherungsDatei,
   stelleRueckfallWiederHer, vergleiche, type Ergebnis, type Modus, type Sicherung, type Uebersicht, type Vergleich,
 } from '../../core/sicherung';
 import { entschluessele, istVerschluesselt, passwortProblem } from '../../core/sicherung-krypto';
@@ -16,6 +16,8 @@ function Erstellen({ onFertig }: { onFertig: () => void }) {
   const [busy, setBusy] = useState(false);
   // Verschlüsselt ist der Standard (Audit SEC-05): Sicherungen gehen oft über Mail, Cloud oder Messenger.
   const [mitPasswort, setMitPasswort] = useState(true);
+  const [lehrer] = useState(hatLehrerdaten);
+  const [lehrerMit, setLehrerMit] = useState(false);
   const [pw, setPw] = useState('');
   const [pw2, setPw2] = useState('');
   // Safari: Datei ist fertig, das Teilen-Menü braucht aber einen frischen Tipp (siehe SicherungsErgebnis).
@@ -28,7 +30,7 @@ function Erstellen({ onFertig }: { onFertig: () => void }) {
     setBusy(true);
     try {
       const fachmodul = await import('../../modules/pflege').then(({ pflegeModule: m }) => `${m.id}@${m.version}`).catch(() => undefined);
-      const r = await sichereUndGibWeiter(art, mitPasswort ? pw : undefined, { fachmodul });
+      const r = await sichereUndGibWeiter(art, mitPasswort ? pw : undefined, { fachmodul, ohneLehrerdaten: lehrer && !mitPasswort && !lehrerMit });
       if (typeof r === 'object') { setBereit(r.nochmalTeilen); return; }
       fertig(r);
     } catch (e) {
@@ -82,6 +84,13 @@ function Erstellen({ onFertig }: { onFertig: () => void }) {
         <button type="button" className={teilen ? '' : 'primary'} disabled={busy || !pwBereit} onClick={() => los('datei')}>{busy ? 'Wird erstellt …' : 'Als Datei speichern'}</button>
       </div>
       {!mitPasswort && <p className="note warn">Ohne Passwort ist die Datei lesbar für jeden, der sie bekommt, auch für Dienste, über die du sie verschickst (Lernstand, eigene Notizen, importierte Texte). Nur für die direkte Übertragung zwischen deinen eigenen Geräten, z. B. per AirDrop.</p>}
+      {!mitPasswort && lehrer && (
+        <div className="note warn">
+          <p><strong>Lehrerdaten mit Namen von Lernenden:</strong> Ohne Passwort bleiben Klassen, Bewertungen und Klassen-Radar standardmäßig draußen, weil es Daten anderer Personen sind. Mit Passwort sind sie dabei.</p>
+          <label className="check"><input type="checkbox" checked={lehrerMit} disabled={busy} onChange={(e) => setLehrerMit(e.target.checked)} />
+            <span>Trotzdem unverschlüsselt mitsichern (nur für die Übertragung auf ein eigenes Gerät)</span></label>
+        </div>
+      )}
       {teilen && <p className="muted">„Teilen“ öffnet das Teilen-Menü: AirDrop an dein iPad, „In Dateien sichern“ (iCloud Drive) oder per Mail an dich selbst.</p>}
     </div>
   );

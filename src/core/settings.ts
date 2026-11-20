@@ -1,18 +1,31 @@
 // Gerätebezogene Zugangsdaten (Claude-API-Schlüssel). Nie in der exportierten Datensicherung.
 // Standard: nur für die laufende Sitzung (sessionStorage, weg nach Schließen des Tabs bzw. der App).
 // Nur wer „auf diesem Gerät merken“ wählt, bekommt den Schlüssel dauerhaft in localStorage.
+import { darfZugangMerken } from './hosting';
+
 const KEY = 'lernstoff.apiKey';
 
 function lies(s: () => Storage): string {
   try { return s().getItem(KEY) ?? ''; } catch { return ''; }
 }
 
+/** Auf GitHub Pages einen früher dauerhaft gemerkten Schlüssel in die Sitzung verschieben (Audit D-1). */
+function ziehUmInSitzung() {
+  if (darfZugangMerken()) return;
+  const alt = lies(() => localStorage);
+  if (!alt) return;
+  try { sessionStorage.setItem(KEY, alt); } catch { /* gesperrt */ }
+  try { localStorage.removeItem(KEY); } catch { /* gesperrt */ }
+}
+
 export function getApiKey(): string {
+  ziehUmInSitzung();
   return lies(() => sessionStorage) || lies(() => localStorage);
 }
 
 /** Liegt der Schlüssel dauerhaft auf dem Gerät (statt nur in dieser Sitzung)? */
 export function apiKeyDauerhaft(): boolean {
+  ziehUmInSitzung();
   return !!lies(() => localStorage);
 }
 
@@ -21,11 +34,12 @@ export function setApiKey(value: string, dauerhaft = false) {
   try { localStorage.removeItem(KEY); } catch { /* privater Modus */ }
   try { sessionStorage.removeItem(KEY); } catch { /* privater Modus */ }
   if (!v) return;
-  try { (dauerhaft ? localStorage : sessionStorage).setItem(KEY, v); } catch { /* Speicher gesperrt */ }
+  try { (dauerhaft && darfZugangMerken() ? localStorage : sessionStorage).setItem(KEY, v); } catch { /* Speicher gesperrt */ }
 }
 
 /** Wo liegt der Schlüssel gerade? Für die Anzeige in den Einstellungen. */
 export function apiKeyOrt(): 'keiner' | 'sitzung' | 'dauerhaft' {
+  ziehUmInSitzung();
   if (lies(() => localStorage)) return 'dauerhaft';
   return lies(() => sessionStorage) ? 'sitzung' : 'keiner';
 }

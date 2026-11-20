@@ -202,3 +202,20 @@ describe('Sicherungs-Merker (Audit R-1)', () => {
     localStorage.removeItem('lernstoff.sicherung');
   });
 });
+
+describe('Lehrerdaten in der Sicherung (Audit D-2)', () => {
+  it('lässt Lehrerdaten auf Wunsch weg und erkennt, ob es welche gibt', async () => {
+    const { erstelleSicherung, hatLehrerdaten } = await import('./sicherung');
+    const d = new LernstoffDB(`lehrer-${Math.random()}`);
+    localStorage.setItem('lernstoff.lehrer.klassen', '[{"id":"k","name":"A","lernende":["Mia"],"faelle":[]}]');
+    localStorage.setItem('lernstoff.mindmaps', '[]');
+    expect(hatLehrerdaten()).toBe(true);
+    expect(Object.keys((await erstelleSicherung(d)).local ?? {})).toContain('lernstoff.lehrer.klassen');
+    const ohne = await erstelleSicherung(d, { ohneLehrerdaten: true });
+    expect(Object.keys(ohne.local ?? {})).not.toContain('lernstoff.lehrer.klassen');
+    expect(Object.keys(ohne.local ?? {})).toContain('lernstoff.mindmaps');
+    localStorage.removeItem('lernstoff.lehrer.klassen'); localStorage.removeItem('lernstoff.mindmaps');
+    expect(hatLehrerdaten()).toBe(false);
+    d.close();
+  });
+});

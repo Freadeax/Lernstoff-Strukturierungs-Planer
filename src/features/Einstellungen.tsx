@@ -5,7 +5,7 @@ import { loescheLokaleEintraege, loescheRueckfall } from '../core/sicherung';
 import { navigate } from '../ui/shell/router';
 import { BUILD_ID } from '../core/build';
 import { pruefeAufNeueVersion, type Pruefergebnis } from '../ui/shell/aktualisierung';
-import { adressText, NEUE_ADRESSE } from '../core/hosting';
+import { adressText, darfZugangMerken, MERKEN_GESPERRT_TEXT, NEUE_ADRESSE } from '../core/hosting';
 import { apiKeyDauerhaft, apiKeyOrt, getApiKey, setApiKey } from '../core/settings';
 import { tokenOrt, vergissToken } from './ablage/ablage';
 import { Field, useFormFeedback } from '../ui/form/Field';
@@ -153,12 +153,12 @@ export function Einstellungen() {
           {(props) => <div className="password-control"><input {...props} type={visible ? 'text' : 'password'} autoComplete="off" autoCapitalize="none" spellCheck={false} placeholder="sk-ant-…" value={key} onBlur={() => feedback.touch('apiKey')} onChange={(e) => { setKey(e.target.value); setSaved(false); setSaveError(''); }} />
             <button type="button" aria-pressed={visible} onClick={() => setVisible(!visible)}>{visible ? 'Verbergen' : 'Anzeigen'}</button></div>}
         </Field>
-        <label className="check"><input type="checkbox" checked={merken} onChange={(e) => { setMerken(e.target.checked); setSaved(false); }} />
-          <span><strong>Auf diesem Gerät merken</strong><br />Ohne Haken musst du den Schlüssel nach dem Schließen der App neu eintragen. Gemerkt liegt er unverschlüsselt im Browser-Speicher dieser Website. Lege in der Anthropic Console am besten einen eigenen Schlüssel mit Ausgabenlimit nur für diese App an.</span></label>
+        <label className="check"><input type="checkbox" checked={merken && darfZugangMerken()} disabled={!darfZugangMerken()} onChange={(e) => { setMerken(e.target.checked); setSaved(false); }} />
+          <span><strong>Auf diesem Gerät merken</strong><br />{darfZugangMerken() ? 'Ohne Haken musst du den Schlüssel nach dem Schließen der App neu eintragen. Gemerkt liegt er unverschlüsselt im Browser-Speicher dieser Website. Lege in der Anthropic Console am besten einen eigenen Schlüssel mit Ausgabenlimit nur für diese App an.' : MERKEN_GESPERRT_TEXT}</span></label>
         <a className="text-link" href="https://console.anthropic.com/settings/keys" target="_blank" rel="noreferrer">Anthropic Console öffnen <Icon name="chevronRight" size={16} /></a>
       </fieldset>
       <div className="form-actions"><p>Bei KI-Funktionen werden die benötigten Inhalte direkt aus dem Browser an Anthropic gesendet. Jede Funktion zeigt vorher, was sie sendet. Dabei können API-Kosten entstehen.</p><button className="primary" type="submit"><Icon name="check" size={16} /> Einstellung speichern</button></div>
-      <p className="form-feedback" role="status">{saved ? key.trim() ? (merken ? 'Schlüssel auf diesem Gerät gespeichert.' : 'Schlüssel für diese Sitzung gespeichert.') : 'Schlüssel von diesem Gerät entfernt.' : ''}</p>
+      <p className="form-feedback" role="status">{saved ? key.trim() ? (merken && darfZugangMerken() ? 'Schlüssel auf diesem Gerät gespeichert.' : 'Schlüssel für diese Sitzung gespeichert.') : 'Schlüssel von diesem Gerät entfernt.' : ''}</p>
       {saveError && <p className="field-error" role="alert">{saveError}</p>}
     </form>
     <Zugaenge onVergessen={() => { setKey(''); setMerken(false); setSaved(false); }} />
