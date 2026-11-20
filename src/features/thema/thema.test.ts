@@ -56,7 +56,7 @@ describe('Navigation', () => {
     expect(TABS.map((t) => t.label)).toEqual(['Heute', 'Lernplan', 'Material', 'Üben']);
     const pfade = new Set(flatNav(NAV).map((i) => i.path));
     for (const t of TABS) expect(pfade.has(t.path)).toBe(true);
-    expect(TABS.find((t) => t.id === 'ueben')!.bereich('/lernen/notfall')).toBe(true);
+    expect(TABS.find((t) => t.id === 'ueben')!.bereich('/lernen/wissen')).toBe(true);
     expect(TABS.find((t) => t.id === 'material')!.bereich('/material/import')).toBe(true);
   });
   it('„Üben“ in drei Bündel, jedes mit höchstens zehn Einträgen', () => {

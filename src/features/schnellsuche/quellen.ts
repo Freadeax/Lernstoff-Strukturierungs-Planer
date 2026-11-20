@@ -204,7 +204,7 @@ function loesung(a: Aufgabe): string[] {
 }
 
 export interface TrainerQuelle {
-  /** Seite des Trainers, z. B. '/lernen/hygiene'. */
+  /** Seite des Trainers, z. B. '/lernen/wissen?fach=hygiene'. */
   pfad: string;
   name: string;
   /** Standards je Aufgabe; leer = keinem Standard zugeordnet. */
@@ -238,7 +238,7 @@ export function ausTrainer(aufgaben: Array<{ bereich: string; aufgabe: Aufgabe }
  * Kurzwissen der Trainer-Bereiche. `fest`: alle Einträge gehören zu diesem Regelwerk; sonst wird
  * „Sturz: …“ über den Satzanfang dem passenden Standard zugeordnet.
  */
-export function ausKurzwissen(bereiche: Array<{ id: string; label: string; wissen: string[] }>, standards: StandardInfo[], quelle: { pfad: string; name: string; fest?: string } = { pfad: '/lernen/expertenstandards', name: 'Trainer' }): SuchDok[] {
+export function ausKurzwissen(bereiche: Array<{ id: string; label: string; wissen: string[] }>, standards: StandardInfo[], quelle: { pfad: string; name: string; fest?: string } = { pfad: '/lernen/wissen?fach=expertenstandards', name: 'Trainer' }): SuchDok[] {
   return bereiche.flatMap((b) => b.wissen.map((text, i) => {
     const kopf = /^([^:]{3,40}):/.exec(text)?.[1]?.toLowerCase();
     const wurzel = kopf?.split(' ')[0]?.slice(0, 6);

@@ -15,7 +15,7 @@ export const WEITERLERNEN_V2: Record<string, WeiterlernenEintrag> = {
   'kh-harnverhalt-postop': {
     themen: ['thema.ph.ausscheidung', 'thema.ph.periop', 'thema.ph.hygiene', 'thema.pro.delir'],
     krankheiten: ['kh.hwi', 'kh.delir'],
-    extra: [{ label: 'Hygiene-Trainer', path: '/lernen/hygiene', warum: 'Aseptisches Arbeiten beim Katheterisieren üben.' }],
+    extra: [{ label: 'Wissenstrainer Hygiene', path: '/lernen/wissen?fach=hygiene', warum: 'Aseptisches Arbeiten beim Katheterisieren üben.' }],
   },
   'lz-dekubitus-immobil': {
     themen: ['thema.pro.dekubitus', 'thema.ph.mobilisation', 'thema.beo.haut', 'thema.pro.dehydratation'],
@@ -34,7 +34,7 @@ export const WEITERLERNEN_V2: Record<string, WeiterlernenEintrag> = {
   'kh-erster-tag': {
     themen: ['thema.ph.hygiene', 'thema.beo.vitalzeichen', 'thema.re.schweigepflicht', 'thema.pro.sturz'],
     krankheiten: ['kh.hwi'],
-    extra: [{ label: 'Hygiene-Trainer', path: '/lernen/hygiene', warum: 'Händedesinfektion und die fünf Momente üben.' }],
+    extra: [{ label: 'Wissenstrainer Hygiene', path: '/lernen/wissen?fach=hygiene', warum: 'Händedesinfektion und die fünf Momente üben.' }],
   },
   'amb-sturz-exsikkose': {
     themen: ['thema.fa.ambulant', 'thema.pro.dehydratation', 'thema.pro.sturz', 'thema.pro.delir'],
@@ -87,7 +87,7 @@ export const WEITERLERNEN_V2: Record<string, WeiterlernenEintrag> = {
   'paed-asthma-schulkind': {
     themen: ['thema.kl.atmung', 'thema.kl.paediatrie', 'thema.kom.beratung'],
     krankheiten: ['kh.asthma'],
-    extra: [{ label: 'Arzneimittel-Trainer', path: '/lernen/arzneimittel', warum: 'Salbutamol und Prednisolon: Wirkung, Nebenwirkung, Beobachtung.' }],
+    extra: [{ label: 'Wissenstrainer Arzneimittel', path: '/lernen/wissen?fach=arzneimittel', warum: 'Salbutamol und Prednisolon: Wirkung, Nebenwirkung, Beobachtung.' }],
   },
   'paed-bronchiolitis-saeugling': {
     themen: ['thema.kl.atmung', 'thema.fa.paediatrie', 'thema.ph.hygiene', 'thema.pro.dehydratation'],
@@ -139,12 +139,12 @@ export const WEITERLERNEN_V2: Record<string, WeiterlernenEintrag> = {
   'kh-reanimation-bls': {
     themen: ['thema.beo.notfall', 'thema.beo.bewusstsein', 'thema.kl.herz.khk'],
     krankheiten: ['kh.herzinfarkt'],
-    extra: [{ label: 'Reanimation üben', path: '/lernen/notfall?modus=rea', warum: 'Herzdruckmassage, AED und Rhythmus im Notfall-Trainer wiederholen.' }],
+    extra: [{ label: 'Reanimation üben', path: '/lernen/wissen?fach=notfall&modus=rea', warum: 'Herzdruckmassage, AED und Rhythmus im Wissenstrainer (Notfall) wiederholen.' }],
   },
   'na-acs-brustschmerz': {
     themen: ['thema.kl.herz.khk', 'thema.beo.notfall', 'thema.ph.medikamente'],
     krankheiten: ['kh.herzinfarkt'],
-    extra: [{ label: 'Arzneimittel-Trainer', path: '/lernen/arzneimittel', warum: 'Nitrat, ASS, Heparin und Morphin: Wirkung, Gegenanzeigen, Beobachtung.' }],
+    extra: [{ label: 'Wissenstrainer Arzneimittel', path: '/lernen/wissen?fach=arzneimittel', warum: 'Nitrat, ASS, Heparin und Morphin: Wirkung, Gegenanzeigen, Beobachtung.' }],
   },
   'lz-schlaganfall-akut': {
     themen: ['thema.kl.neuro.schlaganfall', 'thema.beo.notfall', 'thema.fa.langzeit'],

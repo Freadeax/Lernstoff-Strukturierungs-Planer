@@ -294,7 +294,7 @@ function Detail({ s, kriterium }: { s: Expertenstandard; kriterium?: string }) {
             {s.ceIds.map((c) => <li key={c}><button type="button" className="link" onClick={() => navigate(`/lernen/ce?ce=${enc(c)}`)}>{ces.get(c) ?? c}</button></li>)}
           </ul>
           <p className="muted dnqp__klein">CE-Zuordnung nach Rahmenlehrplan-Inhalt, mit deinem Schulcurriculum abgleichen.</p>
-          <button type="button" className="small" onClick={() => navigate('/lernen/expertenstandards')}>Im Trainer üben</button>
+          <button type="button" className="small" onClick={() => navigate('/lernen/wissen?fach=expertenstandards')}>Im Trainer üben</button>
         </section>
       </aside>
     </div>

@@ -336,7 +336,7 @@ export default function FehlerheftSeite() {
           {liste.length === 0 ? (
             <p className="muted">
               Noch keine Fehler gesammelt. Übe im <a href="#/lernen/rechnen">Rechentrainer</a>, im <a href="#/lernen/duell">Fachbegriff-Duell</a>,
-              in der <a href="#/lernen/simulation">Prüfungssimulation</a>, mit den <a href="#/lernen/krankheitsbilder">Krankheitsbild-Fällen</a>, den <a href="#/lernen/assessment?modus=faelle">Assessment-Fällen</a>, im <a href="#/lernen/hygiene">Hygiene-</a> oder <a href="#/lernen/anatomie">Anatomie-Trainer</a>: was danebengeht, steht danach hier.
+              in der <a href="#/lernen/simulation">Prüfungssimulation</a>, mit den <a href="#/lernen/krankheitsbilder">Krankheitsbild-Fällen</a>, den <a href="#/lernen/assessment?modus=faelle">Assessment-Fällen</a>, im <a href="#/lernen/wissen">Wissenstrainer</a>: was danebengeht, steht danach hier.
             </p>
           ) : (
             <>

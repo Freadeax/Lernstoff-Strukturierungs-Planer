@@ -15,8 +15,17 @@ export function useLernplanUebernahme(trainer: TrainerId) {
     setFehler('');
     inLernplan(trainer, ergebnisse, undefined, undefined, versuchId).then(setUebernahme).catch((e) => { setUebernahme(null); setFehler(e instanceof Error ? e.message : String(e)); });
   }, [trainer]);
+  /** Gemischte Runde (Wissenstrainer): je Trainer getrennt buchen, damit „erster Versuch des Tages“ je Trainer gilt. */
+  const uebernimmJe = useCallback((gruppen: Array<{ trainer: TrainerId; ergebnisse: ThemenErgebnis[] }>, versuchId?: string) => {
+    setFehler('');
+    (async () => {
+      const alle: Uebernahme[] = [];
+      for (const g of gruppen) alle.push(...await inLernplan(g.trainer, g.ergebnisse, undefined, undefined, versuchId ? `${versuchId}:${g.trainer}` : undefined));
+      return alle;
+    })().then(setUebernahme).catch((e) => { setUebernahme(null); setFehler(e instanceof Error ? e.message : String(e)); });
+  }, []);
   const zuruecksetzen = useCallback(() => { setUebernahme(null); setFehler(''); }, []);
-  return { uebernahme, fehler, uebernimm, zuruecksetzen };
+  return { uebernahme, fehler, uebernimm, uebernimmJe, zuruecksetzen };
 }
 
 /** Kurzer Hinweis unter einer Auswertung: welche Themen als Abfrage im Lernplan gelandet sind. */

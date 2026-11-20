@@ -9,7 +9,7 @@ import type { CatalogModule } from '../../modules/catalog-types';
 const modul = modules[0] as CatalogModule;
 const themen = new Set(modul.topics.map((t) => t.id));
 
-describe('Grundlagen-Trainer', () => {
+describe('Wissenstrainer Grundlagen', () => {
   it('Aufgaben ohne Baufehler, nur bekannte Themen', () => {
     expect(pruefeAufgaben(ALLE_AUFGABEN, themen)).toEqual([]);
   });
@@ -26,7 +26,7 @@ describe('Grundlagen-Trainer', () => {
 
   it('der Lernplan führt jedes Thema in seinen Bereich', () => {
     for (const [thema, bereich] of Object.entries(BEREICH_ZU_THEMA)) {
-      expect(uebungenFuer(thema).map((u) => u.path), thema).toContain(`/lernen/grundlagen?bereich=${bereich}`);
+      expect(uebungenFuer(thema).map((u) => u.path), thema).toContain(`/lernen/wissen?fach=grundlagen&bereich=${bereich}`);
     }
   });
 

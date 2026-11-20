@@ -53,7 +53,7 @@ export function baueBestand(modul: CatalogModule, dnqp: DnqpStandard[] = DNQP_ST
       (id) => GRUPPEN.find((g) => g.instrumente.includes(id as never))?.id,
       (id) => STECKBRIEFE[id as keyof typeof STECKBRIEFE]?.grenzen),
     ...ausGlossar(modul),
-    ...ausTrainer(flach(AUFGABEN), { pfad: '/lernen/expertenstandards', name: 'Trainer', standardsVon: esStandardsVon(themen) }),
+    ...ausTrainer(flach(AUFGABEN), { pfad: '/lernen/wissen?fach=expertenstandards', name: 'Trainer', standardsVon: esStandardsVon(themen) }),
     ...ausNormen(modul),
     ...WEITERE.flatMap((w) => {
       const rw = REGELWERKE.find((r) => r.id === w.id)!;

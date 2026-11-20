@@ -3,7 +3,7 @@ import { bereichVon, flatNav, gruppenPfad, NAV, seitenName, uebenGruppen } from 
 
 describe('Navigation', () => {
   it('nennt den Platz einer Seite im Menü', () => {
-    expect(gruppenPfad('/lernen/hygiene')).toBe('Üben · Fachwissen');
+    expect(gruppenPfad('/lernen/wissen')).toBe('Üben · Fachwissen');
     expect(gruppenPfad('/lernen/plan')).toBe('Lernen');
     expect(gruppenPfad('/system/design')).toBe('System');
   });

@@ -172,22 +172,22 @@ describe('Inhalte', () => {
     expect(pruefeAufgaben(NORMWERTE, themen)).toEqual([]);
     expect(STANDARDS.every((a) => a.topicIds.includes(ES_THEMA))).toBe(true);
     for (const t of Object.values(NORM_THEMEN)) expect(themen.has(t), t).toBe(true);
-    expect(uebungenFuer(ES_THEMA).map((u) => u.path)).toContain('/lernen/expertenstandards');
-    expect(uebungenFuer(NORM_THEMEN.vital).map((u) => u.path)).toContain('/lernen/normwerte?bereich=vital');
+    expect(uebungenFuer(ES_THEMA).map((u) => u.path)).toContain('/lernen/wissen?fach=expertenstandards');
+    expect(uebungenFuer(NORM_THEMEN.vital).map((u) => u.path)).toContain('/lernen/wissen?fach=normwerte&bereich=vital');
   });
 
   it('Notfall- und Arzneimittel-Aufgaben sind vollständig und gehören zu Katalogthemen', () => {
     expect(pruefeAufgaben(NOTFALL, themen)).toEqual([]);
     expect(pruefeAufgaben(ARZNEI, themen)).toEqual([]);
     expect(NOTFALL.every((a) => a.topicIds.includes(NOTFALL_THEMA))).toBe(true);
-    expect(uebungenFuer(NOTFALL_THEMA).map((u) => u.path)).toContain('/lernen/notfall');
-    expect(uebungenFuer(AM_THEMA).map((u) => u.path)).toContain('/lernen/arzneimittel');
+    expect(uebungenFuer(NOTFALL_THEMA).map((u) => u.path)).toContain('/lernen/wissen?fach=notfall');
+    expect(uebungenFuer(AM_THEMA).map((u) => u.path)).toContain('/lernen/wissen?fach=arzneimittel');
   });
 
   it('Recht-Aufgaben sind vollständig, jedes Rechtsthema hat genug Aufgaben für den Lernplan', () => {
     expect(pruefeAufgaben(RECHT, themen)).toEqual([]);
     for (const [thema, bereich] of Object.entries(BEREICH_ZU_THEMA)) {
-      expect(uebungenFuer(thema).map((u) => u.path), thema).toContain(`/lernen/recht?bereich=${bereich}`);
+      expect(uebungenFuer(thema).map((u) => u.path), thema).toContain(`/lernen/wissen?fach=recht&bereich=${bereich}`);
       // Mindestens 3 Aufgaben zum Thema, damit eine Runde im Lernplan zählen kann
       expect(RECHT.filter((a) => a.topicIds.includes(thema)).length, thema).toBeGreaterThanOrEqual(3);
       // Der Sprung landet in einem Bereich, der das Thema wirklich abfragt
@@ -196,8 +196,8 @@ describe('Inhalte', () => {
   });
 
   it('Lernplan verweist von den Themen auf die neuen Trainer', () => {
-    expect(uebungenFuer(HYGIENE_THEMA).map((u) => u.path)).toContain('/lernen/hygiene');
-    expect(uebungenFuer(THEMA.herz).map((u) => u.path)).toContain('/lernen/anatomie?bereich=herz');
+    expect(uebungenFuer(HYGIENE_THEMA).map((u) => u.path)).toContain('/lernen/wissen?fach=hygiene');
+    expect(uebungenFuer(THEMA.herz).map((u) => u.path)).toContain('/lernen/wissen?fach=anatomie&bereich=herz');
   });
 });
 

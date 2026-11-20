@@ -5,6 +5,7 @@
 export interface Neuigkeit { datum: string; titel: string; text: string; pfad: string }
 
 export const NEUIGKEITEN: Neuigkeit[] = [
+  { datum: '2026-11-20', titel: 'Ein Wissenstrainer statt neun', text: 'Anatomie, Arzneimittel, Normwerte, Labor, Hygiene, Notfall, Expertenstandards, Recht und Grundlagen liegen jetzt in einem Trainer. Neu: eigene Runde aus mehreren Fachgebieten zusammenstellen und alle Schwachstellen auf einmal üben. Dein Stand, das Fehlerheft und alte Links bleiben erhalten.', pfad: '/lernen/wissen' },
   { datum: '2026-11-16', titel: 'Zwei neue Testaufträge', text: 'Gesprächssimulator und Praxiseinsatz gehören jetzt zum Rundgang. Auch Physiologie-Modelle und Praxiseinsatz zeigen unten „Passt dazu“.', pfad: '/system/test' },
   { datum: '2026-11-16', titel: 'Physiologie-Modelle', text: 'An Reglern drehen und die Folge sehen: Herz und Kreislauf mit Betablocker, ACE-Hemmer und Diuretikum, Haut und Dekubitus (Druck mal Zeit), Lunge und Lagerung, Blutzucker mit Mahlzeit, Insulin und Bewegung. Mit kleinen Aufträgen zum Ausprobieren.', pfad: '/lernen/physiologie' },
   { datum: '2026-11-16', titel: '5-Minuten-Einheit und Themen-Netz', text: 'Auf jeder Themenseite: „5-Minuten-Einheit“ mit kurz erklärten Fachbegriffen, drei Fragen aus dem passenden Trainer und einer Karte zum Mitnehmen. Darunter das Themen-Netz: Welche Themen über ein Krankheitsbild oder als Voraussetzung zusammenhängen.', pfad: '/lernen/themen' },
@@ -23,9 +24,9 @@ export const NEUIGKEITEN: Neuigkeit[] = [
   { datum: '2026-11-13', titel: 'Üben mit Wiederholungsplan', text: 'Fehler kommen in wachsenden Abständen wieder (morgen, 3, 7, 14 Tage …), nach jeder Antwort zeigt die App die passende Stelle im Skript. Neu: „Wie sicher?“ vor dem Prüfen, falsche Aufgaben gleich noch einmal, begonnene Runden fortsetzen, Nachprüfung schwacher Themen.', pfad: '/lernen/fehler' },
   { datum: '2026-11-13', titel: 'Wege zwischen den Seiten', text: '„Passt dazu“ jetzt auch unter Karteikarten, Skript, Expertenstandards, CE, Fortschritt und Dokumenten. Aus einer Übung führt ein Knopf zurück zum Thema, von dem du kamst.', pfad: '/lernen/karten' },
   { datum: '2026-11-13', titel: 'Krankheitsbilder: sechs neue Steckbriefe', text: 'Mit Fallaufgaben zum direkten Anwenden.', pfad: '/lernen/krankheitsbilder' },
-  { datum: '2026-11-13', titel: 'Kinder und Säuglinge', text: 'Eigener Bereich im Notfall- und im Labor-Trainer, dazu neue Probefälle und Praxisfälle mit Säuglingen und Jugendlichen.', pfad: '/lernen/notfall' },
+  { datum: '2026-11-13', titel: 'Kinder und Säuglinge', text: 'Eigener Bereich im Notfall- und im Labor-Trainer, dazu neue Probefälle und Praxisfälle mit Säuglingen und Jugendlichen.', pfad: '/lernen/wissen?fach=notfall' },
   { datum: '2026-11-13', titel: 'Fallakte', text: 'Ein Fall durchgehend von der SIS bis zur Übergabe, jetzt auch ambulant (Herr Albers mit COPD).', pfad: '/lernen/fallakte' },
-  { datum: '2026-11-13', titel: 'Grundlagen-Trainer', text: 'Fachsprache, Kommunikation, Pflegemodelle, Qualität und Versorgung.', pfad: '/lernen/grundlagen' },
+  { datum: '2026-11-13', titel: 'Wissenstrainer Grundlagen', text: 'Fachsprache, Kommunikation, Pflegemodelle, Qualität und Versorgung.', pfad: '/lernen/wissen?fach=grundlagen' },
   { datum: '2026-11-13', titel: 'Pflegeplanung mit Musterlösung', text: 'Deine Planung neben einer geprüften Musterlösung vergleichen.', pfad: '/lernen/pflegeplanung' },
   { datum: '2026-11-13', titel: 'Rechentrainer und Fachbegriff-Duell ausgebaut', text: 'Mehr Aufgaben und Begriffe.', pfad: '/lernen/rechnen' },
   { datum: '2026-11-13', titel: 'Examen: Fahrplan über alle CE', text: 'Für Neue mit einem einfachen Start in den Lernplan.', pfad: '/lernen/examen' },

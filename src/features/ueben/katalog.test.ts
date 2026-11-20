@@ -10,6 +10,7 @@ describe('Alle Übungen: Steckbriefe und Filter', () => {
   });
   it('CE und Fach werden aus den Themen abgeleitet', () => {
     expect(z.ce.get('hygiene')?.size ?? 0).toBeGreaterThan(0);
+    expect(z.ce.get('wissen')?.size ?? 0).toBeGreaterThan(0);
     expect(z.fach.get('rechnen')?.size ?? 0).toBeGreaterThan(0);
   });
   it('filtert nach Dauer, KI und Stufe', () => {
@@ -17,7 +18,7 @@ describe('Alle Übungen: Steckbriefe und Filter', () => {
     expect(passt('simulation', { dauer: 'kurz' }, z)).toBe(false);
     expect(passt('fall', { nurOffline: true }, z)).toBe(false);
     expect(passt('duell', { stufe: 'fortgeschritten' }, z)).toBe(false);
-    expect(passt('anatomie', { stufe: 'einstieg' }, z)).toBe(true);
+    expect(passt('wissen', { stufe: 'einstieg' }, z)).toBe(true);
     expect(passt('examen', { ce: [...z.ce.get('hygiene')!][0] }, z)).toBe(false);
   });
 });

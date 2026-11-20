@@ -49,6 +49,14 @@ interface Props {
   nachuebung?: boolean;
   /** „Falsche gleich noch einmal“ am Rundenende. */
   onNachuebung?: (aufgaben: Aufgabe[]) => void;
+  /**
+   * Gemischte Runden (Wissenstrainer über mehrere Fachgebiete): Fehlerheft-Quelle und Lernplan-Trainer je Aufgabe.
+   * Ohne diese Angaben gelten `quelle` und `trainer` für alle Aufgaben.
+   */
+  quelleVon?: (a: Aufgabe) => FehlerQuelle;
+  trainerVon?: (a: Aufgabe) => TrainerId;
+  /** Speicherplatz für Zwischenstand und Rundenkennung, wenn er nicht `quelle` heißen soll. */
+  kennung?: string;
 }
 
 /** Eigene Einschätzung vor dem Prüfen (freiwillig). */
@@ -345,7 +353,8 @@ const ART_HINWEIS: Record<Aufgabe['art'], string> = {
   fall: 'Der Fall entwickelt sich. Jeden Schritt festlegen, dann geht es weiter.',
 };
 
-export function Runde({ aufgaben: neueAufgaben, quelle, trainer, figuren = {}, minProThema = 3, grundlage, weiter: weiterLinks, onFertig, onNeu, onEnde, bereich, stufe = 0, fortsetzen, nachuebung = false, onNachuebung }: Props) {
+export function Runde({ aufgaben: neueAufgaben, quelle, trainer, figuren = {}, minProThema = 3, grundlage, weiter: weiterLinks, onFertig, onNeu, onEnde, bereich, stufe = 0, fortsetzen, nachuebung = false, onNachuebung, quelleVon, trainerVon, kennung = quelle }: Props) {
+  const qv = (x: Aufgabe): FehlerQuelle => quelleVon?.(x) ?? quelle;
   // Beim Fortsetzen gelten die gespeicherten Aufgaben (mit ihrer gemischten Reihenfolge)
   const [aufgaben] = useState<Aufgabe[]>(() => fortsetzen?.aufgaben ?? neueAufgaben);
   const start = fortsetzen?.ergebnisse.length ?? 0;
@@ -361,7 +370,7 @@ export function Runde({ aufgaben: neueAufgaben, quelle, trainer, figuren = {}, m
   const lernplan = useLernplanUebernahme(trainer);
   const { path } = useRoute();
   // Schutz gegen doppeltes Absenden: jede Aufgabe wird einmal bewertet, die Runde einmal abgeschlossen
-  const rundeId = useRef(fortsetzen?.rundeId ?? `${quelle}:runde:${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`);
+  const rundeId = useRef(fortsetzen?.rundeId ?? `${kennung}:runde:${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`);
   const bewertetBei = useRef(start - 1);
   const abgeschlossen = useRef(false);
   const a = aufgaben[i];
@@ -376,15 +385,15 @@ export function Runde({ aufgaben: neueAufgaben, quelle, trainer, figuren = {}, m
     setGeprueft(b);
     const alle = [...ergebnisse, { a, b, sicherheit }];
     setErgebnisse(alle);
-    notiereVersuch(quelle, a, antwort, b);
+    notiereVersuch(qv(a), a, antwort, b);
     const neu = b.richtig ? serie + 1 : 0;
     const beste = Math.max(besteSerie, neu);
     setSerie(neu); setBesteSerie(beste);
-    const fehler = [...alsFehler(a, antwort, quelle), ...(sicherheit === 'geraten' ? alsUnsicher(a, antwort, quelle) : [])];
+    const fehler = [...alsFehler(a, antwort, qv(a)), ...(sicherheit === 'geraten' ? alsUnsicher(a, antwort, qv(a)) : [])];
     if (fehler.length) notiereFehler(fehler.map((f) => ({ ...f, ...(sicherheit ? { sicherheit } : {}), versuchId: `${rundeId.current}:${i}` })));
     // Zwischenstand nach jeder geprüften Aufgabe, damit Neuladen oder App-Wechsel nichts kosten
     if (bereich !== undefined) {
-      speichereZwischenstand(quelle, alle.length < aufgaben.length ? {
+      speichereZwischenstand(kennung, alle.length < aufgaben.length ? {
         rundeId: rundeId.current, bereich, stufe, aufgaben, nachuebung,
         ergebnisse: alle.map((e): RundenErgebnisEintrag => ({ id: e.a.id, b: e.b, ...(e.sicherheit ? { sicherheit: e.sicherheit } : {}) })),
         serie: neu, besteSerie: beste, gespeichert: Date.now(),
@@ -406,8 +415,14 @@ export function Runde({ aufgaben: neueAufgaben, quelle, trainer, figuren = {}, m
     onFertig?.({ punkte: ergebnisse.reduce((s, e) => s + e.b.punkte, 0), max: ergebnisse.reduce((s, e) => s + e.b.max, 0), prozent, richtig: ergebnisse.filter((e) => e.b.richtig).length, anzahl: ergebnisse.length });
     // Als fachlich falsch oder mehrdeutig gemeldete Aufgaben zählen bis zur Klärung nicht (qm/meldungen.ts)
     const gesperrt = gesperrteAufgaben();
-    const zaehlen = ergebnisse.filter((e) => !gesperrt.has(`${quelle}:${e.a.id}`));
-    lernplan.uebernimm(proThema(zaehlen.map((e) => alsTreffer(e.a, e.b)), minProThema), rundeId.current);
+    const zaehlen = ergebnisse.filter((e) => !gesperrt.has(`${qv(e.a)}:${e.a.id}`));
+    if (trainerVon) {
+      const je = new Map<TrainerId, typeof zaehlen>();
+      for (const e of zaehlen) je.set(trainerVon(e.a), [...(je.get(trainerVon(e.a)) ?? []), e]);
+      lernplan.uebernimmJe([...je].map(([t, liste]) => ({ trainer: t, ergebnisse: proThema(liste.map((e) => alsTreffer(e.a, e.b)), minProThema) })).filter((g) => g.ergebnisse.length), rundeId.current);
+    } else {
+      lernplan.uebernimm(proThema(zaehlen.map((e) => alsTreffer(e.a, e.b)), minProThema), rundeId.current);
+    }
   }
 
   if (fertig) {
@@ -526,7 +541,7 @@ export function Runde({ aufgaben: neueAufgaben, quelle, trainer, figuren = {}, m
             </p>
           )}
           <MehrVerstehen a={a} />
-          <FrageMelden key={`m-${a.id}`} quelle={quelle} aufgabeId={a.id} fp={fingerabdruck(a)} titel={a.titel} frage={a.frage} seite={path}
+          <FrageMelden key={`m-${a.id}`} quelle={qv(a)} aufgabeId={a.id} fp={fingerabdruck(a)} titel={a.titel} frage={a.frage} seite={path}
             antwort={geprueft.richtig ? 'richtig gelöst' : `${geprueft.punkte} von ${geprueft.max}`} />
           <div className="row">
             <button type="button" className="primary" onClick={weiter}>{i + 1 < aufgaben.length ? 'Weiter' : 'Auswertung'}</button>

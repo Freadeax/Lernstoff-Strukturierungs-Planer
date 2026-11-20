@@ -18,7 +18,7 @@ const futureDate = new Date(Date.now() + 21 * 86400000).toISOString().slice(0, 1
   const base=(process.env.UI_BASE_URL || 'http://127.0.0.1:5173/').replace(/\/?$/, '/');
   const go=async route=>{await page.goto(base+'#'+route,{waitUntil:'networkidle'});await page.waitForTimeout(200);};
   const audits=[];
-  for(const route of ['/','/einstellungen','/material/import','/material/zusammenfassen','/material/dokumente','/material/ablage','/lernen/plan?ansicht=pruefungen&neu=1','/lernen/plan?ansicht=zeit','/lernen/hygiene','/lernen/anatomie?bereich=herz&runde=1']){
+  for(const route of ['/','/einstellungen','/material/import','/material/zusammenfassen','/material/dokumente','/material/ablage','/lernen/plan?ansicht=pruefungen&neu=1','/lernen/plan?ansicht=zeit','/lernen/wissen?fach=hygiene','/lernen/wissen?fach=anatomie&bereich=herz&runde=1']){
     await go(route);
     const axe=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
     audits.push({route,violations:axe.violations.map(v=>({id:v.id,impact:v.impact,nodes:v.nodes.map(n=>({html:n.html,summary:n.failureSummary}))}))});
@@ -110,7 +110,7 @@ const futureDate = new Date(Date.now() + 21 * 86400000).toISOString().slice(0, 1
   const profil=page.getByRole('button',{name:'Profil und Darstellung'});await profil.focus();await page.keyboard.press('Enter');await page.waitForTimeout(100);
   await page.keyboard.press('Escape');assert.equal(await profil.evaluate(e=>e===document.activeElement),true,'Profilmenü: Fokus zurück');
   // iPad hoch (820 px, Seitenleiste sichtbar): in der Kopfleiste überlappt nichts.
-  await page.setViewportSize({width:820,height:1180});await go('/lernen/expertenstandards');
+  await page.setViewportSize({width:820,height:1180});await go('/lernen/wissen?fach=expertenstandards');
   assert.equal(await page.evaluate(()=>{const k=[...document.querySelectorAll('.shell__header > *, .shell__actions > *')].filter(e=>e.getClientRects().length&&!e.classList.contains('shell__actions')).map(e=>e.getBoundingClientRect());let n=0;for(let i=0;i<k.length;i++)for(let j=i+1;j<k.length;j++)if(k[i].left<k[j].right-1&&k[j].left<k[i].right-1)n++;return n+Math.max(0,document.documentElement.scrollWidth-innerWidth);}),0,'iPad: Kopfleiste ohne Überlappung');
   await page.setViewportSize({width:1440,height:1050});
   // Favoriten und Befehle: Stern merkt die Seite im Menü, die Suche führt Befehle aus.
@@ -127,7 +127,7 @@ const futureDate = new Date(Date.now() + 21 * 86400000).toISOString().slice(0, 1
   await context.close();
   const mobile=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:'de-DE',timezoneId:'Europe/Berlin',colorScheme:'light'});
   const mp=await mobile.newPage();mp.on('pageerror',e=>pageErrors.push(e.message));
-  for(const route of ['/','/einstellungen','/material/import','/material/zusammenfassen','/lernen/plan?ansicht=pruefungen&neu=1','/lernen/hygiene?bereich=psa&runde=1','/lernen/anatomie?bereich=atmung&runde=1','/lernen/grundlagen?bereich=abkuerzungen&runde=1']){
+  for(const route of ['/','/einstellungen','/material/import','/material/zusammenfassen','/lernen/plan?ansicht=pruefungen&neu=1','/lernen/wissen?fach=hygiene&bereich=psa&runde=1','/lernen/wissen?fach=anatomie&bereich=atmung&runde=1','/lernen/wissen?fach=grundlagen&bereich=abkuerzungen&runde=1']){
     await mp.goto(base+'#'+route,{waitUntil:'networkidle'});await mp.waitForTimeout(200);
     assert(!(await mp.evaluate(()=>document.documentElement.scrollWidth>innerWidth)),'Mobile overflow: '+route);
     const axe=await new AxeBuilder({page:mp}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();audits.push({route:'mobile:'+route,violations:axe.violations.map(v=>({id:v.id,impact:v.impact,nodes:v.nodes.map(n=>({html:n.html,summary:n.failureSummary}))}))});
@@ -135,7 +135,7 @@ const futureDate = new Date(Date.now() + 21 * 86400000).toISOString().slice(0, 1
     if(route==='/material/import')await mp.screenshot({path:'import-mobile.png',fullPage:true});
   }
   // 200 % Schrift am iPhone: Kopfleiste und untere Leiste bleiben im Bild, auch bei langem Seitennamen.
-  await mp.goto(base+'#/lernen/expertenstandards',{waitUntil:'networkidle'});await mp.evaluate(()=>document.documentElement.style.setProperty('font-size','200%','important'));await mp.waitForTimeout(300);
+  await mp.goto(base+'#/lernen/wissen?fach=expertenstandards',{waitUntil:'networkidle'});await mp.evaluate(()=>document.documentElement.style.setProperty('font-size','200%','important'));await mp.waitForTimeout(300);
   assert.deepEqual(await mp.evaluate(()=>{const h=document.querySelector('.shell__header');const t=[...document.querySelectorAll('.shell__tabbar .tab')];return [h.scrollWidth-h.clientWidth,document.documentElement.scrollWidth-innerWidth,[...h.querySelectorAll('button')].filter(b=>b.offsetWidth&&b.getBoundingClientRect().right>innerWidth).length,t.filter(e=>e.scrollWidth>e.clientWidth+1).length];}),[0,0,0,0],'200 % Schrift: Kopfleiste und Tabs ohne Überlauf');
   await mp.evaluate(()=>document.documentElement.style.removeProperty('font-size'));
   assert.equal(await mp.locator('.shell__sidebar').evaluate(e=>getComputedStyle(e).visibility), 'hidden');

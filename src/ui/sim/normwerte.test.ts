@@ -18,7 +18,7 @@ describe('Gemeinsamer Normwert-Vertrag', () => {
     expect(normwert('trop', { gruppe: 'schulkind' }).bereich).toBeUndefined();
     expect(normwert('puls', { gruppe: 'saeugling' }).bereich).toBeUndefined();
   });
-  it('Normwerte-Trainer nennt dieselben Bereiche', () => {
+  it('Wissenstrainer Normwerte nennt dieselben Bereiche', () => {
     expect(richtigeAntwort('vital.puls')).toContain('60 bis 100');
     expect(richtigeAntwort('vital.atmung')).toContain('12 bis 20');
     expect(richtigeAntwort('vital.spo2')).toContain('95 bis 100');

@@ -122,25 +122,25 @@ export function uebungenFuer(topicId: string, modul: CatalogModule = pflegeModul
   if (topicId === UEBERGABE_THEMA) out.push({ trainer: 'uebergabe', label: 'Übergabe-Trainer', path: '/lernen/uebergabe' });
   if (topicId === SIS_THEMA) out.push({ trainer: 'sis', label: 'SIS-Trainer', path: '/lernen/sis' });
   if (topicId === BERICHT_THEMA) out.push({ trainer: 'bericht', label: 'Pflegebericht-Trainer', path: '/lernen/bericht' });
-  if (topicId === HYGIENE_THEMA) out.push({ trainer: 'hygiene', label: 'Hygiene-Trainer', path: '/lernen/hygiene' });
+  if (topicId === HYGIENE_THEMA) out.push({ trainer: 'hygiene', label: 'Wissenstrainer Hygiene', path: '/lernen/wissen?fach=hygiene' });
   const anatomie = Object.entries(ANATOMIE_THEMA).find(([, thema]) => thema === topicId);
-  if (anatomie) out.push({ trainer: 'anatomie', label: 'Anatomie-Trainer', path: `/lernen/anatomie?bereich=${anatomie[0]}` });
-  if (topicId === ES_THEMA) out.push({ trainer: 'expertenstandards', label: 'Expertenstandards-Trainer', path: '/lernen/expertenstandards' });
+  if (anatomie) out.push({ trainer: 'anatomie', label: 'Wissenstrainer Anatomie', path: `/lernen/wissen?fach=anatomie&bereich=${anatomie[0]}` });
+  if (topicId === ES_THEMA) out.push({ trainer: 'expertenstandards', label: 'Wissenstrainer Expertenstandards', path: '/lernen/wissen?fach=expertenstandards' });
   const normBereich: Record<string, string> = { [NORMWERT_THEMEN.vital]: 'vital', [NORMWERT_THEMEN.diabetes]: 'labor', [NORMWERT_THEMEN.blut]: 'labor', [NORMWERT_THEMEN.niere]: 'labor', [NORMWERT_THEMEN.ausscheidung]: 'ausscheidung' };
-  if (topicId === NOTFALL_THEMA) out.push({ trainer: 'notfall', label: 'Notfall-Trainer', path: '/lernen/notfall' });
-  if (topicId === AM_THEMA) out.push({ trainer: 'arzneimittel', label: 'Arzneimittel-Trainer', path: '/lernen/arzneimittel' });
-  if (GRUNDLAGEN_BEREICH[topicId]) out.push({ trainer: 'grundlagen', label: 'Grundlagen-Trainer', path: `/lernen/grundlagen?bereich=${GRUNDLAGEN_BEREICH[topicId]}` });
-  if (RECHT_BEREICH[topicId]) out.push({ trainer: 'recht', label: 'Recht-Trainer', path: `/lernen/recht?bereich=${RECHT_BEREICH[topicId]}` });
+  if (topicId === NOTFALL_THEMA) out.push({ trainer: 'notfall', label: 'Wissenstrainer Notfall', path: '/lernen/wissen?fach=notfall' });
+  if (topicId === AM_THEMA) out.push({ trainer: 'arzneimittel', label: 'Wissenstrainer Arzneimittel', path: '/lernen/wissen?fach=arzneimittel' });
+  if (GRUNDLAGEN_BEREICH[topicId]) out.push({ trainer: 'grundlagen', label: 'Wissenstrainer Grundlagen', path: `/lernen/wissen?fach=grundlagen&bereich=${GRUNDLAGEN_BEREICH[topicId]}` });
+  if (RECHT_BEREICH[topicId]) out.push({ trainer: 'recht', label: 'Wissenstrainer Recht', path: `/lernen/wissen?fach=recht&bereich=${RECHT_BEREICH[topicId]}` });
   const laborBereich: Record<string, string> = { [LABOR_THEMEN.entnahme]: 'praeanalytik', [LABOR_THEMEN.atmung]: 'bga', [LABOR_THEMEN.blut]: 'befund', [LABOR_THEMEN.niere]: 'befund', [LABOR_THEMEN.diabetes]: 'befund', [LABOR_THEMEN.herz]: 'befund', [LABOR_THEMEN.kinder]: 'kinder' };
-  if (topicId === LABOR_THEMEN.entnahme) out.push({ trainer: 'labor', label: 'Labor-Werkbank: Blutentnahme', path: '/lernen/labor?modus=werkbank&station=entnahme' });
-  if (topicId === UEBERGABE_THEMA) out.push({ trainer: 'labor', label: 'Labor-Werkbank: kritischen Wert melden', path: '/lernen/labor?modus=werkbank&station=meldung' });
+  if (topicId === LABOR_THEMEN.entnahme) out.push({ trainer: 'labor', label: 'Labor-Werkbank: Blutentnahme', path: '/lernen/wissen?fach=labor&modus=werkbank&station=entnahme' });
+  if (topicId === UEBERGABE_THEMA) out.push({ trainer: 'labor', label: 'Labor-Werkbank: kritischen Wert melden', path: '/lernen/wissen?fach=labor&modus=werkbank&station=meldung' });
   for (const a of ABLAEUFE.filter((x) => x.topicIds.includes(topicId))) out.push({ trainer: 'ablauf', label: `Ablauf-Werkbank: ${a.titel}`, path: `/lernen/ablauf?ablauf=${a.id}&modus=durchfuehren` });
   const dialoge = DIALOGE.filter((x) => x.topicIds.includes(topicId));
   if (dialoge.length) out.push({ trainer: 'gespraech', label: dialoge.length > 1 ? `Gesprächssimulator (${dialoge.length} Gespräche)` : `Gesprächssimulator: ${dialoge[0]!.titel}`, path: dialoge.length > 1 ? '/lernen/gespraech' : `/lernen/gespraech?dialog=${dialoge[0]!.id}&modus=fest` });
-  if (laborBereich[topicId]) out.push({ trainer: 'labor', label: 'Labor-Trainer', path: `/lernen/labor?bereich=${laborBereich[topicId]}` });
+  if (laborBereich[topicId]) out.push({ trainer: 'labor', label: 'Wissenstrainer Labor', path: `/lernen/wissen?fach=labor&bereich=${laborBereich[topicId]}` });
   const dx = diagnostikFaelleZuThema(topicId);
   if (dx.length) out.push({ trainer: 'diagnostik', label: dx.length > 1 ? `Diagnostik-Fälle (${dx.length})` : 'Diagnostik-Fall (Labor und Bildgebung)', path: dx.length > 1 ? '/lernen/diagnostik' : `/lernen/diagnostik?fall=${dx[0]}` });
-  if (normBereich[topicId]) out.push({ trainer: 'normwerte', label: 'Normwerte-Trainer', path: `/lernen/normwerte?bereich=${normBereich[topicId]}` });
+  if (normBereich[topicId]) out.push({ trainer: 'normwerte', label: 'Wissenstrainer Normwerte', path: `/lernen/wissen?fach=normwerte&bereich=${normBereich[topicId]}` });
   for (const g of GRUPPEN.filter((x) => x.instrumente.some((i) => INSTRUMENTE[i].topicIds.includes(topicId)))) {
     out.push({ trainer: 'assessment', label: `Assessment üben (${g.label})`, path: `/lernen/assessment?gruppe=${g.id}&modus=faelle` });
   }

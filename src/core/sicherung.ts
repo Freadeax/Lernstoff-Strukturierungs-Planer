@@ -184,11 +184,11 @@ const LOKAL_LABEL: Record<string, string> = {
   'lernstoff.praxis.archiv': 'abgeschlossene Praxisfälle (alter Simulator)',
   'lernstoff.praxis.erledigt': 'abgeschlossene Praxisfälle',
   'lernstoff.lernpfad': 'abgehakte Schritte im CE-Lernpfad',
-  'lernstoff.hygiene.stand': 'Ergebnisse im Hygiene-Trainer', 'lernstoff.anatomie.stand': 'Ergebnisse im Anatomie-Trainer',
-  'lernstoff.expertenstandards.stand': 'Ergebnisse im Expertenstandards-Trainer', 'lernstoff.normwerte.stand': 'Ergebnisse im Normwerte-Trainer', 'lernstoff.labor.stand': 'Ergebnisse im Labor-Trainer',
+  'lernstoff.hygiene.stand': 'Ergebnisse im Wissenstrainer (Hygiene)', 'lernstoff.anatomie.stand': 'Ergebnisse im Wissenstrainer (Anatomie)',
+  'lernstoff.expertenstandards.stand': 'Ergebnisse im Wissenstrainer (Expertenstandards)', 'lernstoff.normwerte.stand': 'Ergebnisse im Wissenstrainer (Normwerte)', 'lernstoff.labor.stand': 'Ergebnisse im Wissenstrainer (Labor)',
   'lernstoff.diagnostik.laeufe': 'Fälle in Labor und Bildgebung', 'lernstoff.diagnostik.lernmodus': 'Lernmodus Befund lesen',
-  'lernstoff.notfall.stand': 'Ergebnisse im Notfall-Trainer', 'lernstoff.arzneimittel.stand': 'Ergebnisse im Arzneimittel-Trainer',
-  'lernstoff.recht.stand': 'Ergebnisse im Recht-Trainer', 'lernstoff.hoeren.stand': 'Ergebnisse im Hör-Trainer',
+  'lernstoff.notfall.stand': 'Ergebnisse im Wissenstrainer (Notfall)', 'lernstoff.arzneimittel.stand': 'Ergebnisse im Wissenstrainer (Arzneimittel)',
+  'lernstoff.recht.stand': 'Ergebnisse im Wissenstrainer (Recht)', 'lernstoff.hoeren.stand': 'Ergebnisse im Hör-Trainer',
 };
 /** Laufende Durchläufe: ein Objekt je Gerät, beim Zusammenführen nie gemischt. */
 const LAUFEND_LABEL: Record<string, string> = {

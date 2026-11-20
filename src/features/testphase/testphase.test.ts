@@ -109,7 +109,7 @@ describe('Bearbeitungsstand und Sammel-Datei', () => {
 describe('Was ist neu', () => {
   it('verweist nur auf vorhandene Seiten, neuestes zuerst', () => {
     const pfade = new Set([...flatNav(NAV), ...UNTERSEITEN].map((n) => n.path));
-    for (const n of NEUIGKEITEN) expect(pfade.has(n.pfad), n.titel).toBe(true);
+    for (const n of NEUIGKEITEN) expect(pfade.has(n.pfad.split('?')[0]!), n.titel).toBe(true);
     const daten = NEUIGKEITEN.map((n) => n.datum);
     expect([...daten].sort().reverse()).toEqual(daten);
   });

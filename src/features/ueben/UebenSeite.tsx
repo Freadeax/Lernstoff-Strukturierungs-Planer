@@ -14,21 +14,12 @@ const KURZ: Record<string, string> = { fachwissen: 'fachwissen', 'praxis-gruppe'
 
 /** Kurzbeschreibung je Übung (Menü-ID), damit man ohne Ausprobieren weiß, was einen erwartet. */
 const TEXT: Record<string, string> = {
+  wissen: 'Neun Fachgebiete von Anatomie bis Recht. Eigene Runde aus mehreren Themen, Schwachstellen, Duell.',
   krankheitsbilder: 'Steckbriefe mit Belegen, dazu Fallaufgaben.',
-  anatomie: 'Organe, Lage und Funktion abfragen.',
-  arzneimittel: 'Wirkstoffe, Wirkung, Nebenwirkungen, Beobachtung.',
-  normwerte: 'Vitalwerte und Labor sicher einordnen.',
-  hygiene: 'Händehygiene, Schutzausrüstung, Erreger.',
-  expertenstandards: 'Die DNQP-Standards und ihre Kernaussagen.',
-  recht: 'Haftung, Schweigepflicht, Betreuung, Delegation.',
   rechnen: 'Dosierung, Infusion, Bilanz. Mit Rechenweg.',
-  duell: 'Fachbegriffe gegen die Uhr.',
-  mindmap: 'Zusammenhänge selbst ordnen.',
   praxis: 'Eine Schicht übernehmen. Ohne KI, offline.',
   fall: 'Pflegefall im Dialog mit der KI.',
-  notfall: 'Erkennen, handeln, Reihenfolge einhalten.',
   diagnostik: 'Blutentnahme, Befunde, Röntgen und CT lesen.',
-  labor: 'Laborwerte, Präanalytik und Blutgas einordnen.',
   hoeren: 'Herz, Lunge, Darm, Alarme und Blutdruck nach Gehör.',
   gespraech: 'Angehörige, Ablehnung, Demenz, Angst: Gesprächsführung offline oder frei mit KI.',
   ablauf: 's.c.-Injektion, Medikamente, Verbandwechsel, Katheter: Schritt für Schritt, mit Fehlermodus.',

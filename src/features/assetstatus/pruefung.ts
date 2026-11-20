@@ -67,7 +67,7 @@ export function verwendungZiel(w: string): string | undefined {
   if (sim === 'praxis') return '#/lernen/praxis';
   if (sim === 'diagnostik') return `#/lernen/diagnostik?fall=${id}`;
   if (sim === 'fall') return '#/lernen/fall';
-  if (sim === 'hygiene') return '#/lernen/hygiene';
-  if (sim === 'notfall') return '#/lernen/notfall';
+  if (sim === 'hygiene') return '#/lernen/wissen?fach=hygiene';
+  if (sim === 'notfall') return '#/lernen/wissen?fach=notfall';
   return undefined;
 }
