@@ -28,7 +28,7 @@ describe('Suchbestand', () => {
   it('verweist nur auf bekannte Standards und Seiten', () => {
     const bekannt = new Set(standards.map((s) => s.id));
     for (const d of index.doks) for (const s of d.standardIds) expect(bekannt.has(s), `${d.id} → ${s}`).toBe(true);
-    for (const d of index.doks) if (d.link) expect(d.link).toMatch(/^\/lernen\/(thema|wissen|assessment|dnqp|ablauf)(\?|$)|^\/system\/quellen\?quelle=/);
+    for (const d of index.doks) if (d.link) expect(d.link).toMatch(/^\/lernen\/(thema|wissen|fertigkeiten|assessment|dnqp)(\?|$)|^\/system\/quellen\?quelle=/);
   });
   it('findet typische Suchen der Ausbildung', () => {
     const erst = (q: string) => suche(index, q).treffer[0]?.dok;
@@ -49,11 +49,11 @@ describe('Suchbestand', () => {
 
   it('findet Handlungsabläufe und ihre typischen Fallen', () => {
     const e = suche(index, 'Verbandwechsel', { art: 'ablauf' });
-    expect(e.treffer[0]?.dok).toMatchObject({ id: 'ablauf:verbandwechsel', link: '/lernen/ablauf?ablauf=verbandwechsel' });
+    expect(e.treffer[0]?.dok).toMatchObject({ id: 'ablauf:verbandwechsel', link: '/lernen/fertigkeiten?uebung=ablauf&ablauf=verbandwechsel' });
     expect(e.treffer[0]?.dok.standardIds).toContain('rw.hygiene');
     const falle = suche(index, 'Recapping').treffer.find((t) => t.dok.id.startsWith('ablauf:sc-injektion:'));
     expect(falle?.dok.art).toBe('irrtum');
-    expect(falle?.dok.link).toBe('/lernen/ablauf?ablauf=sc-injektion&modus=fehler');
+    expect(falle?.dok.link).toBe('/lernen/fertigkeiten?uebung=ablauf&ablauf=sc-injektion&modus=fehler');
     // auch über die falsche Handlung selbst auffindbar
     expect(suche(index, 'Nachttisch', { art: 'irrtum' }).treffer.some((t) => t.dok.id.startsWith('ablauf:verbandwechsel:'))).toBe(true);
   });

@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect } from 'react';
 import { Shell } from './ui/shell/Shell';
 import { ersetze, navigate, useRoute } from './ui/shell/router';
 import { weiterleitungFuer } from './features/wissen/pfad';
+import { fertigWeiterleitung } from './features/fertigkeiten/pfad';
 import { REDIRECTS, gruppenPfad, passtDazuId } from './ui/shell/nav';
 import { PageBoundary } from './ui/shell/PageBoundary';
 import { WidgetGrid } from './ui/widget/Dashboard';
@@ -17,7 +18,6 @@ const Einstellungen = lazy(() => import('./features/Einstellungen').then((m) => 
 const Designsystem = lazy(() => import('./features/Designsystem'));
 const Bildpruefung = lazy(() => import('./features/assetstatus/Bildpruefung'));
 const Ablage = lazy(() => import('./features/ablage/AblageSeite'));
-const Rechentrainer = lazy(() => import('./features/rechnen/Rechentrainer'));
 const Fehlerheft = lazy(() => import('./features/fehlerheft/FehlerheftSeite'));
 const Fallsimulator = lazy(() => import('./features/fall/Fallsimulator'));
 const Praxissimulator = lazy(() => import('./features/praxis/Praxissimulator'));
@@ -44,8 +44,7 @@ const Fortschritt = lazy(() => import('./features/fortschritt/FortschrittSeite')
 const EinsatzSeite = lazy(() => import('./features/einsatz/EinsatzSeite'));
 const Examen = lazy(() => import('./features/examen/ExamenSeite'));
 const DnqpSeite = lazy(() => import('./features/dnqp/DnqpSeite'));
-const HoerTrainer = lazy(() => import('./features/hoeren/HoerTrainer'));
-const AblaufSeite = lazy(() => import('./features/ablauf/AblaufSeite'));
+const FertigkeitenSeite = lazy(() => import('./features/fertigkeiten/FertigkeitenSeite'));
 const WissenSeite = lazy(() => import('./features/wissen/WissenSeite'));
 const GespraechSeite = lazy(() => import('./features/gespraech/GespraechSeite'));
 const Schnellsuche = lazy(() => import('./features/schnellsuche/Schnellsuche'));
@@ -74,8 +73,8 @@ function Page({ title, intro, hilfe, children }: { title: string; intro?: string
 
 function View() {
   const { path, params } = useRoute();
-  // Alte Einzeltrainer (#/lernen/hygiene …) führen in den Wissenstrainer, mit allen Angaben der Adresse.
-  const wissenNeu = weiterleitungFuer(path, params);
+  // Alte Einzeltrainer (#/lernen/hygiene, #/lernen/rechnen …) führen in Wissens- bzw. Fertigkeiten-Trainer, mit allen Angaben der Adresse.
+  const wissenNeu = fertigWeiterleitung(path, params) ?? weiterleitungFuer(path, params);
   useEffect(() => {
     if (REDIRECTS[path]) navigate(REDIRECTS[path]!);
     else if (wissenNeu) ersetze(wissenNeu);
@@ -100,7 +99,6 @@ function View() {
     case '/lernen/skript': return <Skript />;
     case '/lernen/karten': return <Karteikarten />;
     case '/lernen/schnellsuche': return <Schnellsuche />;
-    case '/lernen/rechnen': return <Rechentrainer />;
     case '/lernen/fehler': return <Fehlerheft />;
     case '/lernen/fall': return <Fallsimulator />;
     case '/lernen/praxis': return <Praxissimulator />;
@@ -117,9 +115,8 @@ function View() {
     case '/lernen/uebergabe': return <Uebergabetrainer />;
     case '/lernen/dnqp': return <DnqpSeite />;
     case '/lernen/diagnostik': return <Diagnostik />;
-    case '/lernen/hoeren': return <HoerTrainer />;
-    case '/lernen/ablauf': return <AblaufSeite />;
     case '/lernen/wissen': return <WissenSeite />;
+    case '/lernen/fertigkeiten': return <FertigkeitenSeite />;
     case '/lernen/gespraech': return <GespraechSeite />;
     case '/lernen/faecher': return <Faecher />;
     case '/material/dokumente': return <Dokumente />;

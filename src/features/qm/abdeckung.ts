@@ -78,7 +78,7 @@ export function abdeckung(modul: CatalogModule, pools: readonly Pool[]): ThemaAb
     for (const a of alle) stufen[stufeVon(a)]++;
     const trainer = pools.filter((p) => m.has(p.quelle)).map((p) => ({
       quelle: p.quelle, name: p.name, n: m.get(p.quelle)!.length,
-      pfad: ueb.find((u) => u.trainer === p.quelle && !u.path.includes('modus=werkbank'))?.path ?? p.pfad,
+      pfad: ueb.find((u) => u.trainer === p.quelle && !u.path.includes('uebung=werkbank'))?.path ?? p.pfad,
     }));
     const weitere = ueb.filter((u) => !ALLGEMEIN.has(u.trainer) && !poolIds.has(u.trainer));
     return {

@@ -346,14 +346,14 @@ export default function HoerTrainer() {
 
   return (
     <section className="page hoe">
-      <PageHeading eyebrow="Üben · Prüfung" title="Hör-Trainer"
+      <PageHeading eyebrow="Üben · Fertigkeiten" title="Hör-Trainer"
         description="Herztöne, Atem- und Darmgeräusche, Monitoralarme und Blutdruck nach Gehör. Alles offline." />
       {!audioMoeglich() && <p className="note warn">Dieser Browser kann keine Töne erzeugen. Die Beschreibungen unter jedem Klang und „Ohne Ton: Beschreibung lesen“ im Quiz gehen trotzdem.</p>}
       <Steuerung />
       <p className="note hoe__grenzen">Alle Klänge sind <strong>synthetisch</strong>: am Gerät erzeugte, vereinfachte Nachbildungen, keine Originalaufnahmen von Patientinnen und Patienten. Grenzen stehen unten auf der Seite.</p>
       <div className="hoe__reiter" role="tablist" aria-label="Teil wählen">
         {REITER.map(([r, label]) => (
-          <button key={r} type="button" role="tab" className="pill" aria-selected={reiter === r} onClick={() => navigate(`/lernen/hoeren?teil=${r}`)}>{label}</button>
+          <button key={r} type="button" role="tab" className="pill" aria-selected={reiter === r} onClick={() => navigate(`/lernen/fertigkeiten?uebung=hoeren&teil=${r}`)}>{label}</button>
         ))}
       </div>
       <p className="muted hoe__stand">

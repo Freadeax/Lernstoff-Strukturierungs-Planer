@@ -115,7 +115,7 @@ export const BERICHT_THEMA = 'thema.pp.evaluation';
 export function uebungenFuer(topicId: string, modul: CatalogModule = pflegeModule): Uebung[] {
   const out: Uebung[] = [];
   const typen = TYPEN.filter((t) => t.thema === topicId).map((t) => t.typ);
-  if (typen.length) out.push({ trainer: 'rechnen', label: 'Prüfungsrunde im Rechentrainer', path: `/lernen/rechnen?modus=pruefung&typen=${typen.join(',')}` });
+  if (typen.length) out.push({ trainer: 'rechnen', label: 'Prüfungsrunde im Rechentrainer', path: `/lernen/fertigkeiten?uebung=rechnen&modus=pruefung&typen=${typen.join(',')}` });
   const begriffe = modul.glossary.filter((g) => g.topicIds?.includes(topicId)).length;
   const fach = modul.topics.find((t) => t.id === topicId)?.subjectId;
   if (begriffe >= DUELL_MIN_BEGRIFFE && fach) out.push({ trainer: 'duell', label: 'Fachbegriff-Duell', path: `/lernen/duell?fach=${encodeURIComponent(fach)}` });
@@ -132,9 +132,9 @@ export function uebungenFuer(topicId: string, modul: CatalogModule = pflegeModul
   if (GRUNDLAGEN_BEREICH[topicId]) out.push({ trainer: 'grundlagen', label: 'Wissenstrainer Grundlagen', path: `/lernen/wissen?fach=grundlagen&bereich=${GRUNDLAGEN_BEREICH[topicId]}` });
   if (RECHT_BEREICH[topicId]) out.push({ trainer: 'recht', label: 'Wissenstrainer Recht', path: `/lernen/wissen?fach=recht&bereich=${RECHT_BEREICH[topicId]}` });
   const laborBereich: Record<string, string> = { [LABOR_THEMEN.entnahme]: 'praeanalytik', [LABOR_THEMEN.atmung]: 'bga', [LABOR_THEMEN.blut]: 'befund', [LABOR_THEMEN.niere]: 'befund', [LABOR_THEMEN.diabetes]: 'befund', [LABOR_THEMEN.herz]: 'befund', [LABOR_THEMEN.kinder]: 'kinder' };
-  if (topicId === LABOR_THEMEN.entnahme) out.push({ trainer: 'labor', label: 'Labor-Werkbank: Blutentnahme', path: '/lernen/wissen?fach=labor&modus=werkbank&station=entnahme' });
-  if (topicId === UEBERGABE_THEMA) out.push({ trainer: 'labor', label: 'Labor-Werkbank: kritischen Wert melden', path: '/lernen/wissen?fach=labor&modus=werkbank&station=meldung' });
-  for (const a of ABLAEUFE.filter((x) => x.topicIds.includes(topicId))) out.push({ trainer: 'ablauf', label: `Ablauf-Werkbank: ${a.titel}`, path: `/lernen/ablauf?ablauf=${a.id}&modus=durchfuehren` });
+  if (topicId === LABOR_THEMEN.entnahme) out.push({ trainer: 'labor', label: 'Labor-Werkbank: Blutentnahme', path: '/lernen/fertigkeiten?uebung=werkbank&station=entnahme' });
+  if (topicId === UEBERGABE_THEMA) out.push({ trainer: 'labor', label: 'Labor-Werkbank: kritischen Wert melden', path: '/lernen/fertigkeiten?uebung=werkbank&station=meldung' });
+  for (const a of ABLAEUFE.filter((x) => x.topicIds.includes(topicId))) out.push({ trainer: 'ablauf', label: `Ablauf-Werkbank: ${a.titel}`, path: `/lernen/fertigkeiten?uebung=ablauf&ablauf=${a.id}&modus=durchfuehren` });
   const dialoge = DIALOGE.filter((x) => x.topicIds.includes(topicId));
   if (dialoge.length) out.push({ trainer: 'gespraech', label: dialoge.length > 1 ? `Gesprächssimulator (${dialoge.length} Gespräche)` : `Gesprächssimulator: ${dialoge[0]!.titel}`, path: dialoge.length > 1 ? '/lernen/gespraech' : `/lernen/gespraech?dialog=${dialoge[0]!.id}&modus=fest` });
   if (laborBereich[topicId]) out.push({ trainer: 'labor', label: 'Wissenstrainer Labor', path: `/lernen/wissen?fach=labor&bereich=${laborBereich[topicId]}` });

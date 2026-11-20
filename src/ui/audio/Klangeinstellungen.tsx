@@ -30,7 +30,7 @@ export function Klangeinstellungen() {
   return (
     <section className="card form-card audio-einst" aria-labelledby="audio-title">
       <h2 id="audio-title">Töne und Vorlesen</h2>
-      <p className="form-section__description">Alle Klänge entstehen direkt im Gerät, ohne Dateien und ohne Internet. Körpergeräusche im <a href="#/lernen/hoeren">Hör-Trainer</a> sind vereinfachte Nachbildungen.</p>
+      <p className="form-section__description">Alle Klänge entstehen direkt im Gerät, ohne Dateien und ohne Internet. Körpergeräusche im <a href="#/lernen/fertigkeiten?uebung=hoeren">Hör-Trainer</a> sind vereinfachte Nachbildungen.</p>
       {!audioMoeglich() && <p className="note">Dieser Browser kann keine Töne erzeugen. Vorlesen funktioniert eventuell trotzdem.</p>}
       <fieldset>
         <legend className="visually-hidden">Töne</legend>

@@ -7,7 +7,7 @@ import { modules } from '../../modules/registry';
 import { leafTopics } from '../lernplan/store';
 import { uebungenFuer } from '../lernplan/trainer';
 import { ceListe, ceThemen } from '../ce/modell';
-import { istFach } from '../wissen/pfad';
+import { menueSeiteVon } from './menue';
 
 export type Offline = 'ja' | 'teils' | 'nein';
 export type Stufe = 'einstieg' | 'fortgeschritten' | 'beide';
@@ -48,9 +48,8 @@ export const UEBUNG_INFO: Record<string, UebungsInfo> = {
   simulation: { minuten: 45, offline: 'teils', stufe: 'fortgeschritten', lernstand: 'Nach „Übergeben“: Ergebnis je Thema. Im Lernmodus nur als Übung.', fehlerheft: 'Falsch beantwortete Auswahl- und Rechenfragen.' },
   examen: { minuten: 5, offline: 'ja', stufe: 'beide' },
   fehler: { minuten: 5, offline: 'ja', stufe: 'beide', fehlerheft: 'Neuer Versuch: richtig gilt als wiederholt, falsch bleibt offen.' },
-  hoeren: { minuten: 5, offline: 'ja', stufe: 'einstieg' },
   gespraech: { minuten: 6, offline: 'teils', stufe: 'beide', lernstand: 'Feste Dialoge: Ergebnis je Gespräch und Thema, erster Versuch des Tages. Das freie Gespräch mit KI zählt nicht.' },
-  ablauf: { minuten: 5, offline: 'ja', stufe: 'beide', lernstand: 'Ergebnis je Ablauf und Thema, der erste Versuch des Tages zählt.' },
+  fertigkeiten: { minuten: 6, offline: 'ja', stufe: 'beide', lernstand: 'Abläufe und Prüfungsrunden im Rechnen zählen je Thema, erster Versuch des Tages.', fehlerheft: 'Falsche Rechnungen mit Rechenweg.' },
   klasse: { minuten: 20, offline: 'teils', stufe: 'beide' },
 };
 
@@ -74,8 +73,8 @@ export function zuordnung(modul: CatalogModule = modules[0] as CatalogModule): Z
   const add = (m: Map<string, Set<string>>, k: string, v: string) => { const s = m.get(k) ?? new Set(); s.add(v); m.set(k, s); };
   const trainerJeThema = new Map<string, string[]>();
   for (const t of leafTopics(modul.topics)) {
-    // Die Fachgebiete des Wissenstrainers zählen zusätzlich für dessen Menüeintrag „wissen“.
-    const tr = [...new Set(uebungenFuer(t.id, modul).flatMap((u): string[] => (istFach(u.trainer) ? [u.trainer, 'wissen'] : [u.trainer])))];
+    // Trainer auf Sammelseiten (Wissens-, Fertigkeiten-Trainer) zählen zusätzlich für deren Menüeintrag.
+    const tr = [...new Set(uebungenFuer(t.id, modul).flatMap((u): string[] => [u.trainer, menueSeiteVon(u.trainer)]))];
     trainerJeThema.set(t.id, tr);
     for (const x of tr) if (t.subjectId) add(fach, x, t.subjectId);
   }

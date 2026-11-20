@@ -21,7 +21,7 @@ function regelwerkeVon(a: Ablauf): string[] {
   ];
 }
 
-export const ablaufLink = (id: string, modus?: 'fehler') => `/lernen/ablauf?ablauf=${encodeURIComponent(id)}${modus ? `&modus=${modus}` : ''}`;
+export const ablaufLink = (id: string, modus?: 'fehler') => `/lernen/fertigkeiten?uebung=ablauf&ablauf=${encodeURIComponent(id)}${modus ? `&modus=${modus}` : ''}`;
 
 export function ausAblaeufen(ablaeufe: readonly Ablauf[]): SuchDok[] {
   return ablaeufe.flatMap((a) => {

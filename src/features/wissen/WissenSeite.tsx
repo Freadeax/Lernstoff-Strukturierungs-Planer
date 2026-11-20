@@ -1,7 +1,7 @@
 // Wissenstrainer: ein Trainer für alle Fragen-Fachgebiete (bis November 2026 neun Einzeltrainer).
 // Übersicht → Fachgebiet (Bereiche, Stufen, gemischte Runde wie bisher) oder eine eigene Runde
 // quer über mehrere Fachgebiete und „Alle Schwachstellen“.
-import { lazy, Suspense, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import '../quiz/quiz.css';
 import './wissen.css';
 import { navigate, useRoute } from '../../ui/shell/router';
@@ -14,14 +14,9 @@ import { Runde, type RundenErgebnis } from '../quiz/Runde';
 import { runde as zieheRunde, schwachstellen, stufeVon, STUFE_LABEL, type Aufgabe, type Stufe } from '../quiz/quiz';
 import { ladeZwischenstand, speichereZwischenstand, type Zwischenstand } from '../quiz/zwischenstand';
 import { istOffen, ladeFehler } from '../fehlerheft/fehlerheft';
-import { Suchbilder } from '../hygiene/Suchbild';
-import { ABCDE } from '../notfall/ABCDE';
-import { Reanimation } from '../notfall/Reanimation';
-import '../notfall/notfall.css';
+import { fertigPfad } from '../fertigkeiten/pfad';
 import { ALLE_FIGUREN, aufgabenAus, FACH, FACH_VON_AUFGABE, FAECHER, gemischteGrundlage, gemischtWeiter, type Fach } from './faecher';
 import { istFach, WISSEN_PFAD, wissenPfad } from './pfad';
-
-const Werkbank = lazy(() => import('../labortrainer/werkbank/Werkbank'));
 
 /** Speicherplatz für Zwischenstände gemischter Runden. */
 const KENNUNG = 'wissen';
@@ -40,67 +35,27 @@ function FachLeiste({ aktiv }: { aktiv?: string }) {
   );
 }
 
-const NOTFALL_MODI = [
-  { id: 'fragen', label: 'Wissensfragen' },
-  { id: 'rea', label: 'Reanimation üben' },
-  { id: 'abcde', label: 'ABCDE-Notfall' },
-] as const;
-
-function NotfallModi({ aktiv }: { aktiv: string }) {
-  return <nav className="notfall-modi" aria-label="Übungsart">
-    {NOTFALL_MODI.map((m) => <button key={m.id} type="button" aria-pressed={aktiv === m.id} onClick={() => navigate(wissenPfad('notfall', { modus: m.id === 'fragen' ? undefined : m.id }))}>{m.label}</button>)}
-  </nav>;
-}
+/** Hinweis auf die praktischen Übungen zum Fachgebiet (seit Stufe 2 im Fertigkeiten-Trainer). */
+const PRAKTISCH: Partial<Record<Fach['id'], { text: string; links: Array<{ label: string; path: string }> }>> = {
+  notfall: { text: 'Reanimation und ABCDE-Notfälle praktisch üben:', links: [{ label: 'Reanimation', path: fertigPfad('rea') }, { label: 'ABCDE-Notfall', path: fertigPfad('abcde') }] },
+  labor: { text: 'Selbst Blut abnehmen, Verläufe lesen, kritische Werte melden:', links: [{ label: 'Labor-Werkbank', path: fertigPfad('werkbank') }] },
+  hygiene: { text: 'Hygiene im Raumfoto erkennen:', links: [{ label: 'Hygiene-Suchbilder', path: fertigPfad('suchbilder') }] },
+};
 
 function FachSeite({ fach }: { fach: Fach }) {
-  const { params } = useRoute();
-  const modus = params.get('modus') ?? '';
-  const laeuft = params.get('runde') === '1';
-
-  if (fach.id === 'notfall' && (modus === 'rea' || modus === 'abcde')) return (
-    <section className="page notfall">
-      <FachLeiste aktiv={fach.id} />
-      <div className="page__head">
-        <h2>Notfall</h2>
-        <p className="muted">{modus === 'rea'
-          ? 'Reanimation üben, getrennt für Erwachsene, Kinder und Neugeborene: erkennen, im richtigen Verhältnis drücken und beatmen, Rhythmus oder Herzfrequenz einordnen.'
-          : 'Akute Notfälle nach dem ABCDE-Schema: einschätzen, Hilfe holen, handeln und die Wirkung erneut prüfen.'}</p>
-      </div>
-      <NotfallModi aktiv={modus} />
-      {modus === 'rea' ? <Reanimation /> : <ABCDE />}
-    </section>
-  );
-
-  if (fach.id === 'labor' && modus === 'werkbank') return (
-    <section className="page qz-seite">
-      <FachLeiste aktiv={fach.id} />
-      <div className="page__head">
-        <h2>Labor-Werkbank</h2>
-        <p><button type="button" className="link" onClick={() => navigate(wissenPfad('labor'))}>← Zurück zu den Aufgabenrunden</button></p>
-        <p className="muted">Blut selbst abnehmen und sehen, welche Werte ein Fehler verfälscht. Verläufe im Kumulativbefund lesen. Einen kritischen Wert annehmen und per SBAR melden. Alle Fälle sind fiktiv und fachlich vereinfacht.</p>
-      </div>
-      <Suspense fallback={<p className="muted">Werkbank wird geladen …</p>}><Werkbank /></Suspense>
-    </section>
-  );
-
+  const praktisch = PRAKTISCH[fach.id];
   return (
-    <>
-      <TrainerSeite key={fach.id}
-        oben={<FachLeiste aktiv={fach.id} />}
-        unterKopf={fach.id === 'notfall' ? <NotfallModi aktiv="fragen" /> : undefined}
-        titel={fach.label} intro={`${fach.intro} Funktioniert offline.`} hinweis={fach.hinweis}
-        pfad={wissenPfad(fach.id)} quelle={fach.id} bereiche={fach.bereiche} aufgaben={fach.aufgaben}
-        figuren={fach.figuren} proRunde={fach.proRunde} grundlage={fach.grundlage} weiter={fach.weiter}
-      />
-      {fach.id === 'hygiene' && !laeuft && <Suchbilder />}
-      {fach.id === 'labor' && !laeuft && (
-        <aside className="card wissen-teaser" aria-labelledby="wb-teaser">
-          <h3 id="wb-teaser">Labor-Werkbank</h3>
-          <p className="muted">Selbst Blut abnehmen (Röhrchen füllen, Stauzeit, Infusionsarm), Verläufe im Kumulativbefund lesen und einen kritischen Wert per SBAR melden. Du siehst danach, welche Werte dein Vorgehen verfälscht hat.</p>
-          <div><button type="button" className="primary" onClick={() => navigate(wissenPfad('labor', { modus: 'werkbank' }))}>Werkbank öffnen</button></div>
-        </aside>
+    <TrainerSeite key={fach.id}
+      oben={<FachLeiste aktiv={fach.id} />}
+      unterKopf={praktisch && (
+        <p className="note wissen-praktisch">{praktisch.text}{' '}
+          {praktisch.links.map((l, i) => <span key={l.path}>{i > 0 && ' · '}<a href={`#${l.path}`}>{l.label}</a></span>)}
+          {' '}im Fertigkeiten-Trainer.</p>
       )}
-    </>
+      titel={fach.label} intro={`${fach.intro} Funktioniert offline.`} hinweis={fach.hinweis}
+      pfad={wissenPfad(fach.id)} quelle={fach.id} bereiche={fach.bereiche} aufgaben={fach.aufgaben}
+      figuren={fach.figuren} proRunde={fach.proRunde} grundlage={fach.grundlage} weiter={fach.weiter}
+    />
   );
 }
 

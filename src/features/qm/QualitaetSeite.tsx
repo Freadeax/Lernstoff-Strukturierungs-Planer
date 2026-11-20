@@ -29,8 +29,8 @@ const datum = (iso?: string) => (iso ? iso.slice(0, 10).split('-').reverse().joi
 const POOLS: Pool[] = TRAINER_POOLS.map((p) => ({ ...p, pfad: TRAINER_REGISTER.find((r) => r.quelle === p.quelle)?.pfad ?? '/lernen/ueben' }));
 const NAME = new Map(POOLS.map((p) => [p.quelle, p.name]));
 const WEITERE_FREIGABEN: Array<{ name: string; pfad: string; freigabe: Freigabe }> = [
-  ...Object.entries(PROFIL_FREIGABE).map(([id, f]) => ({ name: `Reanimation ${id}`, pfad: '/lernen/wissen?fach=notfall&modus=rea', freigabe: f })),
-  ...Object.entries(NOTFALL_FREIGABE).map(([id, f]) => ({ name: `ABCDE ${id}`, pfad: '/lernen/wissen?fach=notfall&modus=abcde', freigabe: f })),
+  ...Object.entries(PROFIL_FREIGABE).map(([id, f]) => ({ name: `Reanimation ${id}`, pfad: '/lernen/fertigkeiten?uebung=rea', freigabe: f })),
+  ...Object.entries(NOTFALL_FREIGABE).map(([id, f]) => ({ name: `ABCDE ${id}`, pfad: '/lernen/fertigkeiten?uebung=abcde', freigabe: f })),
 ];
 
 type Ansicht = 'ueberblick' | 'liste' | 'abdeckung' | 'pruefstand' | 'regeln';
