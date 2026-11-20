@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import './gespraech.css';
 import { getApiKey } from '../../core/settings';
+import { torVerfuegbar } from '../../core/ki/tor';
 import { DatenHinweis } from '../../ui/DatenHinweis';
 import { PageHeading } from '../../ui/PageHeading';
 import { personenbezug } from '../../ui/lib/personenbezug';
@@ -28,6 +29,8 @@ function Fest({ d, neu, eigen = false }: { d: Dialog; neu: () => void; eigen?: b
   const [deutung, setDeutung] = useState<(Deutung & { text: string }) | null>(null);
   const [alle, setAlle] = useState(false);
   const [eigeneTexte, setEigeneTexte] = useState<string[]>([]);
+  const [kiLaeuft, setKiLaeuft] = useState(false);
+  const [kiFehler, setKiFehler] = useState('');
   const diktat = useDiktat((x) => setEingabe((t) => (t ? `${t} ${x}` : x).slice(0, MAX_ZEICHEN)));
   const kopf = useRef<HTMLHeadingElement>(null);
   const ende = fertig(lauf);
@@ -63,7 +66,18 @@ function Fest({ d, neu, eigen = false }: { d: Dialog; neu: () => void; eigen?: b
     setLauf(antworte(lauf, i));
     setEigeneTexte((t) => [...t, eigenerText ?? '']);
     setLetzte({ text: a.text, warum: a.warum, urteil: a.urteil, technik: TECHNIK[a.technik].name, ...(eigenerText ? { verstanden: true } : {}) });
-    setDeutung(null); setAlle(false); setEingabe('');
+    setDeutung(null); setAlle(false); setEingabe(''); setKiFehler('');
+  };
+  const kiFragen = async () => {
+    if (!deutung || !k) return;
+    setKiLaeuft(true); setKiFehler('');
+    try {
+      const { zuordnenTor } = await import('./tor');
+      const z = await zuordnenTor(d, k, deutung.text);
+      if (z.index >= 0) waehle(z.index, deutung.text);
+      else setKiFehler(`Auch die KI findet keine passende Antwort${z.begruendung ? `: ${z.begruendung}` : '.'} Formuliere neu oder wähle selbst.`);
+    } catch (e) { setKiFehler(e instanceof Error ? e.message : String(e)); }
+    finally { setKiLaeuft(false); }
   };
   const pruefe = (ev: React.FormEvent) => {
     ev.preventDefault();
@@ -126,7 +140,9 @@ function Fest({ d, neu, eigen = false }: { d: Dialog; neu: () => void; eigen?: b
                   <li key={i}><button type="button" className="gespraech__option" onClick={() => waehle(i, deutung.text)}>{k.antworten[i]!.text}</button></li>
                 ))}
               </ul>
+              {kiFehler && <p className="note warn" role="alert">{kiFehler}</p>}
               <div className="faecher__aktionen">
+                {torVerfuegbar() && <button type="button" onClick={() => void kiFragen()} disabled={kiLaeuft}>{kiLaeuft ? 'KI überlegt …' : 'Die KI fragen, was passt'}</button>}
                 <button type="button" onClick={() => { setEingabe(deutung.text); setDeutung(null); }}>Neu formulieren</button>
                 {deutung.sicherheit === 'unsicher' && <button type="button" className="ghost" onClick={() => setAlle(true)}>Alle Antworten zeigen</button>}
               </div>
@@ -150,6 +166,8 @@ function Fest({ d, neu, eigen = false }: { d: Dialog; neu: () => void; eigen?: b
 
 function Frei({ d, neu }: { d: Dialog; neu: () => void }) {
   const apiKey = getApiKey();
+  const tor = !apiKey && torVerfuegbar();
+  const [rest, setRest] = useState<number | null>(null);
   const [verlauf, setVerlauf] = useState<Nachricht[]>([]);
   const [text, setText] = useState('');
   const [laedt, setLaedt] = useState(false);
@@ -162,8 +180,15 @@ function Frei({ d, neu }: { d: Dialog; neu: () => void }) {
   const frag = async (v: Nachricht[]) => {
     setLaedt(true); setFehler('');
     try {
-      const { gegenueberSagt } = await import('./claude');
-      setVerlauf([...v, { von: 'gegenueber', text: await gegenueberSagt({ apiKey, dialog: d, verlauf: v }) }]);
+      if (tor) {
+        const { gegenueberSagtTor } = await import('./tor');
+        const r = await gegenueberSagtTor(d, v);
+        setRest(r.rest);
+        setVerlauf([...v, { von: 'gegenueber', text: r.text }]);
+      } else {
+        const { gegenueberSagt } = await import('./claude');
+        setVerlauf([...v, { von: 'gegenueber', text: await gegenueberSagt({ apiKey, dialog: d, verlauf: v }) }]);
+      }
     } catch (e) { setFehler(e instanceof Error ? e.message : String(e)); }
     finally { setLaedt(false); }
   };
@@ -178,17 +203,20 @@ function Frei({ d, neu }: { d: Dialog; neu: () => void }) {
   };
   const beenden = async () => {
     setLaedt(true); setFehler('');
-    try { const { rueckmeldung } = await import('./claude'); setBewertung(await rueckmeldung({ apiKey, dialog: d, verlauf })); }
+    try {
+      if (tor) { const { rueckmeldungTor } = await import('./tor'); setBewertung(await rueckmeldungTor(d, verlauf)); }
+      else { const { rueckmeldung } = await import('./claude'); setBewertung(await rueckmeldung({ apiKey, dialog: d, verlauf })); }
+    }
     catch (e) { setFehler(e instanceof Error ? e.message : String(e)); }
     finally { setLaedt(false); }
   };
 
-  if (!apiKey) {
+  if (!apiKey && !tor) {
     return (
       <div className="stack-2">
         <Lage d={d} />
-        <p className="note">Für das freie Gespräch spielt Claude die Rolle. Dafür brauchst du einen API-Schlüssel. <button type="button" className="link" onClick={() => navigate('/einstellungen')}>Zu den Einstellungen</button></p>
-        <button type="button" className="primary" onClick={() => navigate(pfad(d.id, 'fest'))}>Ohne KI üben (feste Antworten)</button>
+        <p className="note">Für das freie Gespräch spielt Claude die Rolle. Dafür brauchst du einen API-Schlüssel. Ohne Schlüssel kannst du offline in eigenen Worten üben. <button type="button" className="link" onClick={() => navigate('/einstellungen')}>Zu den Einstellungen</button></p>
+        <button type="button" className="primary" onClick={() => navigate(pfad(d.id, 'eigen'))}>Ohne KI in eigenen Worten üben</button>
       </div>
     );
   }
@@ -206,7 +234,8 @@ function Frei({ d, neu }: { d: Dialog; neu: () => void }) {
   return (
     <div className="stack-3">
       <Lage d={d} />
-      <DatenHinweis art="ki" detail="Gesendet werden nur die erfundene Ausgangslage und das, was du hier schreibst." />
+      <DatenHinweis art="ki" detail={tor ? 'Läuft über die eingebaute KI (ein offenes Modell bei Cloudflare), ohne Schlüssel und ohne Speicherung. Gesendet werden nur die erfundene Ausgangslage und das, was du hier schreibst.' : 'Gesendet werden nur die erfundene Ausgangslage und das, was du hier schreibst.'} />
+      {tor && rest !== null && <p className="muted small" role="status">Eingebaute KI: heute noch {rest} {rest === 1 ? 'Antwort' : 'Antworten'} auf diesem Gerät.</p>}
       {!verlauf.length && !laedt && <button type="button" className="primary gespraech__start" onClick={() => void frag([])}>Gespräch beginnen</button>}
       <ol className="gespraech__verlauf" aria-live="polite" aria-label="Gespräch">
         {verlauf.map((n, i) => (
@@ -220,7 +249,7 @@ function Frei({ d, neu }: { d: Dialog; neu: () => void }) {
           <label className="field">Deine Antwort
             <textarea rows={3} maxLength={MAX_ZEICHEN} value={text} onChange={(e) => setText(e.target.value)} disabled={laedt} />
           </label>
-          {warn && <p className="note warn" role="status">Bitte keine echten Namen oder Daten: Das Gespräch geht an Claude.</p>}
+          {warn && <p className="note warn" role="status">Bitte keine echten Namen oder Daten: Das Gespräch geht an {tor ? 'die eingebaute KI' : 'Claude'}.</p>}
           {diktat.aktiv && <div className="note" role="status">Hört zu … {diktat.zwischen && <em>{diktat.zwischen}</em>}</div>}
           {diktat.fehler && <div className="note warn" role="alert">{diktat.fehler}</div>}
           <DiktatFrage diktat={diktat} />
