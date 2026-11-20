@@ -10,9 +10,10 @@ Sie werden in drei Stufen zusammengeführt:
 2. **Fertigkeiten-Trainer** (`#/lernen/fertigkeiten?uebung=…`, `src/features/fertigkeiten`): Reanimation,
    ABCDE, Ablauf-Werkbank, Rechentrainer, Hör-Trainer, Labor-Werkbank, Hygiene-Suchbilder. Die Übungen
    bleiben in ihren Ordnern und behalten ihre Angaben in der Adresse (`teil`, `ablauf`, `station`, `typen` …).
-3. **Dokumentations-Trainer** (geplant): SIS, Assessments, Pflegeplanung, Pflegebericht, Übergabe, Fallakte.
+3. **Dokumentations-Trainer** (`#/lernen/dokumentation?teil=…`, `src/features/dokumentation`): SIS, Assessments,
+   Pflegeplanung, Pflegebericht, Übergabe und die Fallakte, in der Reihenfolge des Pflegeprozesses.
 
-Eigenständig bleiben Praxissimulator, Fallsimulator, Labor und Bildgebung, Krankheitsbilder,
+Unter „Üben“ stehen danach 12 statt 29 Einträge. Eigenständig bleiben Praxissimulator, Fallsimulator, Labor und Bildgebung, Krankheitsbilder,
 Gesprächssimulator, Karteikarten, Fehlerheft, Prüfungssimulation, Examen und Klassenmodus.
 
 ## Was beim Zusammenführen gleich bleibt
@@ -21,7 +22,8 @@ Gesprächssimulator, Karteikarten, Fehlerheft, Prüfungssimulation, Examen und K
   Speicherplatz `lernstoff.<fach>.stand` und Zwischenstand. Dadurch bleiben Lernstand, Fehlerheft,
   Datensicherung und begonnene Runden ohne Umzug gültig.
 - Alte Adressen (`#/lernen/hygiene?bereich=psa&runde=1`, `#/lernen/rechnen?modus=pruefung` …) leiten mit allen
-  Angaben weiter (`weiterleitungFuer` in `wissen/pfad.ts`, `fertigWeiterleitung` in `fertigkeiten/pfad.ts`, in `App.tsx`).
+  Angaben weiter (`weiterleitungFuer` in `wissen/pfad.ts`, `fertigWeiterleitung` in `fertigkeiten/pfad.ts`,
+  `dokuWeiterleitung` in `dokumentation/pfad.ts`, in `App.tsx`).
 - Welche Menüseite zu einem Lernplan-Trainer gehört, sagt `menueSeiteVon` (`ueben/menue.ts`); „Passt dazu“ und
   „Alle Übungen“ nutzen das.
 - Gemischte Runden buchen Fehler und Lernplan je Aufgabe beim eigenen Fachgebiet

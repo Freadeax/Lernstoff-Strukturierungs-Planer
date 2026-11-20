@@ -1,4 +1,4 @@
-// Schlussschritt einer Fallakte (#/lernen/fallakte?fall=<id>&akte=<id>): späterer Verlauf, Ziele aus der
+// Schlussschritt einer Fallakte (#/lernen/dokumentation?teil=fallakte&fall=<id>&akte=<id>): späterer Verlauf, Ziele aus der
 // Musterplanung einschätzen und je Ziel die passende Anpassung wählen. Offline geprüft (evaluation.ts).
 import { useState } from 'react';
 import { PageHeading } from '../../ui/PageHeading';
@@ -46,7 +46,7 @@ export function EvaluationSchritt({ akte, schritt }: { akte: Fallakte; schritt: 
     <section className="page fallakte">
       <AkteLeiste art="evaluation" fallId={ev.id} />
       <PageHeading eyebrow="Fallakte · Evaluation" title={schritt.titel} description={`${akte.person} · ${schritt.wann}`}
-        action={<button type="button" className="ghost small" onClick={() => navigate(`/lernen/fallakte?akte=${encodeURIComponent(akte.id)}`)}>Zur Fallakte</button>} />
+        action={<button type="button" className="ghost small" onClick={() => navigate(`/lernen/dokumentation?teil=fallakte&akte=${encodeURIComponent(akte.id)}`)}>Zur Fallakte</button>} />
 
       <div className="card fallakte__einstieg">
         <h2>Verlauf</h2>
@@ -104,7 +104,7 @@ export function EvaluationSchritt({ akte, schritt }: { akte: Fallakte; schritt: 
             <h2>Ergebnis: {ergebnis.prozent} %</h2>
             <p>{ergebnis.punkte} von {ergebnis.max} Punkten. {ev.fazit}</p>
             <div className="row">
-              <button type="button" onClick={() => navigate(`/lernen/fallakte?akte=${encodeURIComponent(akte.id)}`)}>Abschluss und Rückblick</button>
+              <button type="button" onClick={() => navigate(`/lernen/dokumentation?teil=fallakte&akte=${encodeURIComponent(akte.id)}`)}>Abschluss und Rückblick</button>
               <button type="button" className="ghost" onClick={neu}>Neu beginnen</button>
             </div>
           </>

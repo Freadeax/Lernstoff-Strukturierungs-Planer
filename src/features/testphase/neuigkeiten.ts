@@ -5,6 +5,7 @@
 export interface Neuigkeit { datum: string; titel: string; text: string; pfad: string }
 
 export const NEUIGKEITEN: Neuigkeit[] = [
+  { datum: '2026-11-20', titel: 'Dokumentations-Trainer', text: 'SIS, Assessments, Pflegeplanung, Pflegebericht, Übergabe und die Fallakte unter einem Dach (Üben → Praxis), in der Reihenfolge des Pflegeprozesses. Alles funktioniert wie vorher, alte Links leiten weiter.', pfad: '/lernen/dokumentation' },
   { datum: '2026-11-20', titel: 'Fertigkeiten-Trainer', text: 'Reanimation, ABCDE-Notfall, Ablauf-Werkbank, Rechentrainer, Hör-Trainer, Labor-Werkbank und Hygiene-Suchbilder unter einem Dach (Üben → Praxis). Alles funktioniert wie vorher, alte Links leiten weiter.', pfad: '/lernen/fertigkeiten' },
   { datum: '2026-11-20', titel: 'Ein Wissenstrainer statt neun', text: 'Anatomie, Arzneimittel, Normwerte, Labor, Hygiene, Notfall, Expertenstandards, Recht und Grundlagen liegen jetzt in einem Trainer. Neu: eigene Runde aus mehreren Fachgebieten zusammenstellen und alle Schwachstellen auf einmal üben. Dein Stand, das Fehlerheft und alte Links bleiben erhalten.', pfad: '/lernen/wissen' },
   { datum: '2026-11-16', titel: 'Zwei neue Testaufträge', text: 'Gesprächssimulator und Praxiseinsatz gehören jetzt zum Rundgang. Auch Physiologie-Modelle und Praxiseinsatz zeigen unten „Passt dazu“.', pfad: '/system/test' },
@@ -26,9 +27,9 @@ export const NEUIGKEITEN: Neuigkeit[] = [
   { datum: '2026-11-13', titel: 'Wege zwischen den Seiten', text: '„Passt dazu“ jetzt auch unter Karteikarten, Skript, Expertenstandards, CE, Fortschritt und Dokumenten. Aus einer Übung führt ein Knopf zurück zum Thema, von dem du kamst.', pfad: '/lernen/karten' },
   { datum: '2026-11-13', titel: 'Krankheitsbilder: sechs neue Steckbriefe', text: 'Mit Fallaufgaben zum direkten Anwenden.', pfad: '/lernen/krankheitsbilder' },
   { datum: '2026-11-13', titel: 'Kinder und Säuglinge', text: 'Eigener Bereich im Notfall- und im Labor-Trainer, dazu neue Probefälle und Praxisfälle mit Säuglingen und Jugendlichen.', pfad: '/lernen/wissen?fach=notfall' },
-  { datum: '2026-11-13', titel: 'Fallakte', text: 'Ein Fall durchgehend von der SIS bis zur Übergabe, jetzt auch ambulant (Herr Albers mit COPD).', pfad: '/lernen/fallakte' },
+  { datum: '2026-11-13', titel: 'Fallakte', text: 'Ein Fall durchgehend von der SIS bis zur Übergabe, jetzt auch ambulant (Herr Albers mit COPD).', pfad: '/lernen/dokumentation?teil=fallakte' },
   { datum: '2026-11-13', titel: 'Wissenstrainer Grundlagen', text: 'Fachsprache, Kommunikation, Pflegemodelle, Qualität und Versorgung.', pfad: '/lernen/wissen?fach=grundlagen' },
-  { datum: '2026-11-13', titel: 'Pflegeplanung mit Musterlösung', text: 'Deine Planung neben einer geprüften Musterlösung vergleichen.', pfad: '/lernen/pflegeplanung' },
+  { datum: '2026-11-13', titel: 'Pflegeplanung mit Musterlösung', text: 'Deine Planung neben einer geprüften Musterlösung vergleichen.', pfad: '/lernen/dokumentation?teil=pflegeplanung' },
   { datum: '2026-11-13', titel: 'Rechentrainer und Fachbegriff-Duell ausgebaut', text: 'Mehr Aufgaben und Begriffe.', pfad: '/lernen/fertigkeiten?uebung=rechnen' },
   { datum: '2026-11-13', titel: 'Examen: Fahrplan über alle CE', text: 'Für Neue mit einem einfachen Start in den Lernplan.', pfad: '/lernen/examen' },
   { datum: '2026-11-13', titel: 'Skript ohne KI', text: 'Eigene Dokumente als Skript lesen und selbst geschriebene Skripte weitergeben.', pfad: '/lernen/skript' },

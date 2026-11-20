@@ -128,13 +128,13 @@ describe('bewerteVignette', () => {
 describe('Lernplan-Kopplung', () => {
   it('verlinkt passende Themen auf die Fallvignetten', async () => {
     const { uebungenFuer } = await import('../lernplan/trainer');
-    expect(uebungenFuer('thema.pro.dekubitus').map((u) => u.path)).toContain('/lernen/assessment?gruppe=braden&modus=faelle');
+    expect(uebungenFuer('thema.pro.dekubitus').map((u) => u.path)).toContain('/lernen/dokumentation?teil=assessment&gruppe=braden&modus=faelle');
     expect(uebungenFuer('thema.beo.bewusstsein').find((u) => u.trainer === 'assessment')?.path).toContain('gruppe=schmerz');
     expect(uebungenFuer('thema.pro.dehydratation').find((u) => u.trainer === 'assessment')?.path).toContain('gruppe=mna');
     expect(uebungenFuer('thema.kl.diabetes').some((u) => u.trainer === 'assessment')).toBe(false);
     // Mehrere passende Instrumente: jedes bekommt einen eigenen Link
     expect(uebungenFuer('thema.beo.bewusstsein').filter((u) => u.trainer === 'assessment').map((u) => u.path)).toEqual([
-      '/lernen/assessment?gruppe=schmerz&modus=faelle', '/lernen/assessment?gruppe=gcs&modus=faelle',
+      '/lernen/dokumentation?teil=assessment&gruppe=schmerz&modus=faelle', '/lernen/dokumentation?teil=assessment&gruppe=gcs&modus=faelle',
     ]);
     expect(uebungenFuer('thema.pro.dekubitus').filter((u) => u.trainer === 'assessment')).toHaveLength(2);
   });

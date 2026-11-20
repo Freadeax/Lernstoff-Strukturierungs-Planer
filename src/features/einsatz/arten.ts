@@ -56,7 +56,7 @@ export const EINSATZ_ARTEN: EinsatzArtInfo[] = [
     themen: ['thema.kl.demenz', 'thema.kl.geriatrie', 'thema.pro.dekubitus', 'thema.pro.sturz', 'thema.pro.dehydratation', 'thema.pro.kontraktur', 'thema.pro.deprivation', 'thema.ph.koerperpflege', 'thema.ph.ernaehrung', 'thema.ph.ausscheidung', 'thema.pp.sis', 'thema.re.fem', 'thema.re.pflegegrade', 'thema.kom.kultur', 'thema.fa.langzeit'],
     praxisSettings: ['langzeit'],
     notfall: [{ ...NOTFALL, path: '/lernen/fertigkeiten?uebung=rea' }],
-    handgriffe: [{ trainer: 'ablauf', label: 'Ablauf-Werkbank: Medikamente richten', path: '/lernen/fertigkeiten?uebung=ablauf&ablauf=medikamente&modus=durchfuehren' }, { trainer: 'assessment', label: 'Assessments', path: '/lernen/assessment' }, { trainer: 'expertenstandards', label: 'Wissenstrainer Expertenstandards', path: '/lernen/wissen?fach=expertenstandards' }, { trainer: 'sis', label: 'SIS-Trainer', path: '/lernen/sis' }],
+    handgriffe: [{ trainer: 'ablauf', label: 'Ablauf-Werkbank: Medikamente richten', path: '/lernen/fertigkeiten?uebung=ablauf&ablauf=medikamente&modus=durchfuehren' }, { trainer: 'assessment', label: 'Assessments', path: '/lernen/dokumentation?teil=assessment' }, { trainer: 'expertenstandards', label: 'Wissenstrainer Expertenstandards', path: '/lernen/wissen?fach=expertenstandards' }, { trainer: 'sis', label: 'SIS-Trainer', path: '/lernen/dokumentation?teil=sis' }],
     alltag: [
       'Der Tag folgt dem Rhythmus der Bewohnerinnen und Bewohner: Grundpflege, Mahlzeiten, Beschäftigung, Ruhezeiten. Du lernst Menschen über Wochen kennen.',
       'Wichtig sind Biografie, Demenz, Sturz- und Dekubitusrisiko, Trinkmengen und die Dokumentation nach SIS.',
@@ -67,7 +67,7 @@ export const EINSATZ_ARTEN: EinsatzArtInfo[] = [
     themen: ['thema.re.sgb5', 'thema.re.sgb11', 'thema.re.pflegegrade', 'thema.re.versorgung', 'thema.pp.sis', 'thema.kom.beratung', 'thema.kl.diabetes', 'thema.kl.herz.insuffizienz', 'thema.ph.medikamente', 'thema.ph.wunde', 'thema.pro.sturz', 'thema.fa.ambulant'],
     praxisSettings: ['ambulant'],
     notfall: [{ ...NOTFALL, path: '/lernen/fertigkeiten?uebung=rea' }],
-    handgriffe: [{ trainer: 'ablauf', label: 'Ablauf-Werkbank: s.c.-Injektion', path: '/lernen/fertigkeiten?uebung=ablauf&ablauf=sc-injektion&modus=durchfuehren' }, { trainer: 'sis', label: 'SIS-Trainer', path: '/lernen/sis' }, { trainer: 'arzneimittel', label: 'Wissenstrainer Arzneimittel', path: '/lernen/wissen?fach=arzneimittel' }, HYGIENE],
+    handgriffe: [{ trainer: 'ablauf', label: 'Ablauf-Werkbank: s.c.-Injektion', path: '/lernen/fertigkeiten?uebung=ablauf&ablauf=sc-injektion&modus=durchfuehren' }, { trainer: 'sis', label: 'SIS-Trainer', path: '/lernen/dokumentation?teil=sis' }, { trainer: 'arzneimittel', label: 'Wissenstrainer Arzneimittel', path: '/lernen/wissen?fach=arzneimittel' }, HYGIENE],
     alltag: [
       'Du fährst eine Tour mit festen Einsätzen: Medikamente, Insulin, Kompressionsstrümpfe, Wundversorgung, Körperpflege. Zeit je Besuch ist knapp geplant.',
       'Du bist Gast in der Wohnung. Angehörige, Hausärztin und Leistungen nach SGB V und XI spielen ständig mit.',

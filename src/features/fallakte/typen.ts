@@ -69,9 +69,9 @@ export const ART_LABEL: Record<SchrittArt, string> = {
 };
 
 export const ART_PFAD: Record<SchrittArt, string> = {
-  sis: '/lernen/sis', assessment: '/lernen/assessment', pflegeplanung: '/lernen/pflegeplanung', bericht: '/lernen/bericht', uebergabe: '/lernen/uebergabe',
-  evaluation: '/lernen/fallakte',
+  sis: '/lernen/dokumentation?teil=sis', assessment: '/lernen/dokumentation?teil=assessment', pflegeplanung: '/lernen/dokumentation?teil=pflegeplanung', bericht: '/lernen/dokumentation?teil=bericht', uebergabe: '/lernen/dokumentation?teil=uebergabe',
+  evaluation: '/lernen/dokumentation?teil=fallakte',
 };
 
 /** Adresse eines Schritts im Trainer, mit Rückweg zur Fallakte. */
-export const schrittPfad = (akteId: string, s: AktenSchritt) => `${ART_PFAD[s.art]}?fall=${encodeURIComponent(s.fallId)}&akte=${encodeURIComponent(akteId)}`;
+export const schrittPfad = (akteId: string, s: AktenSchritt) => `${ART_PFAD[s.art]}${ART_PFAD[s.art].includes('?') ? '&' : '?'}fall=${encodeURIComponent(s.fallId)}&akte=${encodeURIComponent(akteId)}`;

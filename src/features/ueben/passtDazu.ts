@@ -11,6 +11,7 @@ import { uebungenFuer, type TrainerId } from '../lernplan/trainer';
 import { UEBUNG_INFO } from './katalog';
 import { wissenPfad } from '../wissen/pfad';
 import { fertigPfad } from '../fertigkeiten/pfad';
+import { dokuPfad } from '../dokumentation/pfad';
 import { menueSeiteVon as seiteVon, teilVon } from './menue';
 
 export interface Ziel { label: string; path: string; grund: string }
@@ -27,12 +28,12 @@ export const SCHRITT: Record<string, Ziel> = {
   ce: { label: 'Curriculare Einheiten', path: '/lernen/ce', grund: 'Geführt durch eine CE lernen.' },
   praxis: { label: 'Praxissimulator', path: '/lernen/praxis', grund: 'Das Wissen in einer Schicht anwenden.' },
   notfall: { label: 'Wissenstrainer: Notfall', path: '/lernen/wissen?fach=notfall', grund: 'Erkennen und in der richtigen Reihenfolge handeln.' },
-  pflegeplanung: { label: 'Pflegeplanung', path: '/lernen/pflegeplanung', grund: 'Aus einem Fall eine Planung schreiben.' },
+  pflegeplanung: { label: 'Pflegeplanung', path: '/lernen/dokumentation?teil=pflegeplanung', grund: 'Aus einem Fall eine Planung schreiben.' },
   fortschritt: { label: 'Fortschritt', path: '/lernen/fortschritt', grund: 'Sehen, was sich schon getan hat.' },
-  sis: { label: 'SIS-Trainer', path: '/lernen/sis', grund: 'Informationen strukturiert sammeln.' },
-  bericht: { label: 'Pflegebericht-Trainer', path: '/lernen/bericht', grund: 'Den Verlauf sachlich dokumentieren.' },
-  uebergabe: { label: 'Übergabe-Trainer', path: '/lernen/uebergabe', grund: 'Mit SBAR an die nächste Schicht übergeben.' },
-  assessment: { label: 'Assessments', path: '/lernen/assessment', grund: 'Risiken mit Skalen einschätzen.' },
+  sis: { label: 'SIS-Trainer', path: '/lernen/dokumentation?teil=sis', grund: 'Informationen strukturiert sammeln.' },
+  bericht: { label: 'Pflegebericht-Trainer', path: '/lernen/dokumentation?teil=bericht', grund: 'Den Verlauf sachlich dokumentieren.' },
+  uebergabe: { label: 'Übergabe-Trainer', path: '/lernen/dokumentation?teil=uebergabe', grund: 'Mit SBAR an die nächste Schicht übergeben.' },
+  assessment: { label: 'Assessments', path: '/lernen/dokumentation?teil=assessment', grund: 'Risiken mit Skalen einschätzen.' },
   dnqp: { label: 'Expertenstandards (DNQP)', path: '/lernen/dnqp', grund: 'Die Standards Ebene für Ebene nachlesen.' },
   schnellsuche: { label: 'Standard-Schnellsucher', path: '/lernen/schnellsuche', grund: 'Kriterien eines Standards schnell finden.' },
   hoeren: { label: 'Hör-Trainer', path: '/lernen/fertigkeiten?uebung=hoeren', grund: 'Alarme, Herz und Lunge nach Gehör erkennen.' },
@@ -45,10 +46,11 @@ export const SCHRITT: Record<string, Ziel> = {
   einsatz: { label: 'Praxiseinsatz', path: '/lernen/einsatz', grund: 'Den nächsten Einsatz vorbereiten und im Praxistagebuch festhalten.' },
   expertenstandards: { label: 'Wissenstrainer: Expertenstandards', path: '/lernen/wissen?fach=expertenstandards', grund: 'Die Kernaussagen der Standards abfragen.' },
   diagnostik: { label: 'Labor und Bildgebung', path: '/lernen/diagnostik', grund: 'Befunde an Fällen lesen.' },
-  fallakte: { label: 'Fallakte', path: '/lernen/fallakte', grund: 'Einen Fall von der SIS bis zur Übergabe durcharbeiten.' },
+  fallakte: { label: 'Fallakte', path: '/lernen/dokumentation?teil=fallakte', grund: 'Einen Fall von der SIS bis zur Übergabe durcharbeiten.' },
   recht: { label: 'Wissenstrainer: Recht', path: '/lernen/wissen?fach=recht', grund: 'Haftung, Schweigepflicht und Betreuung anwenden.' },
   wissen: { label: 'Wissenstrainer', path: wissenPfad(), grund: 'Alle Fachgebiete, eigene Runde aus mehreren Themen, Schwachstellen.' },
   fertigkeiten: { label: 'Fertigkeiten-Trainer', path: fertigPfad(), grund: 'Reanimation, Handgriffe, Rechnen und Hören praktisch üben.' },
+  dokumentation: { label: 'Dokumentations-Trainer', path: dokuPfad(), grund: 'Den Pflegeprozess von der SIS bis zur Übergabe dokumentieren.' },
   duell: { label: 'Fachbegriff-Duell', path: '/lernen/duell', grund: 'Fachbegriffe schnell und sicher abrufen.' },
   krankheitsbilder: { label: 'Krankheitsbilder', path: '/lernen/krankheitsbilder', grund: 'Steckbriefe mit Belegen und Fallaufgaben.' },
   ueben: { label: 'Alle Übungen', path: '/lernen/ueben', grund: 'Passende Übung nach CE, Fach oder Dauer finden.' },
@@ -72,14 +74,9 @@ export const WEITER: Record<string, string[]> = {
   klasse: ['pflegeplanung', 'praxis'],
   praxis: ['fehler', 'pflegeplanung'],
   fall: ['pflegeplanung', 'praxis'],
-  // Der Pflegeprozess als Kette: einschätzen, planen, durchführen, berichten, übergeben
-  assessment: ['pflegeplanung', 'sis'],
-  sis: ['pflegeplanung', 'bericht'],
-  pflegeplanung: ['sis', 'bericht'],
-  bericht: ['uebergabe', 'pflegeplanung'],
-  uebergabe: ['bericht', 'notfall'],
+  // Pflegeprozess: Die Schritte stehen im Dokumentations-Trainer nebeneinander, die Fallakte führt durch alle.
+  dokumentation: ['praxis', 'fehler', 'simulation'],
   wissen: ['fehler', 'duell', 'karten'],
-  fallakte: ['pflegeplanung', 'uebergabe'],
   // Lern- und Materialseiten ohne eigene Aufgaben: vom Lesen zum Üben und zurück
   karten: ['fehler', 'ueben', 'fortschritt'],
   skript: ['karten', 'krankheitsbilder', 'ueben'],

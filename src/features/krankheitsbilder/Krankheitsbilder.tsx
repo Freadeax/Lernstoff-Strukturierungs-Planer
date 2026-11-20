@@ -199,7 +199,7 @@ function Verknuepfungen({ p }: { p: DiseaseProfile }) {
               return (
                 <li key={a.id}>
                   {gruppe
-                    ? <button type="button" className="link" onClick={() => navigate(`/lernen/assessment?gruppe=${gruppe}&modus=faelle`)}>{a.name}</button>
+                    ? <button type="button" className="link" onClick={() => navigate(`/lernen/dokumentation?teil=assessment&gruppe=${gruppe}&modus=faelle`)}>{a.name}</button>
                     : <span>{a.name}</span>}
                   {a.details && <span className="muted"> {a.details}</span>}
                 </li>

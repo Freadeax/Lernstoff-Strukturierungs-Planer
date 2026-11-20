@@ -16,7 +16,7 @@ import { lies } from './speicher';
 
 export const NEU_PRAEFIX = 'neu:';
 export const weiterLinkNeu = (ziel: 'uebergabe' | 'bericht' | 'pflegeplanung', fall: Pick<FallV2, 'id'>) =>
-  `#/lernen/${ziel}?aus=praxis&sitzung=${encodeURIComponent(NEU_PRAEFIX + fall.id)}`;
+  `#/lernen/dokumentation?teil=${ziel}&aus=praxis&sitzung=${encodeURIComponent(NEU_PRAEFIX + fall.id)}`;
 
 /** Abgeschlossenen Fall des neuen Arbeitsplatzes wiederherstellen (null, wenn nicht gespeichert oder nicht abgeschlossen). */
 export function findeNeu(id: string | null | undefined, faelle: readonly FallV2[] = FAELLE_V2): SimZustand | null {

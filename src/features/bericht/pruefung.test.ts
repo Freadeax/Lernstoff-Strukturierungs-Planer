@@ -67,7 +67,7 @@ describe('leseRueckmeldung', async () => {
 describe('Lernplan-Verknüpfung', async () => {
   const { uebungenFuer } = await import('../lernplan/trainer');
   it('Pflegebericht-Thema führt zum Trainer', () => {
-    expect(uebungenFuer('thema.pp.evaluation').map((u) => u.path)).toContain('/lernen/bericht');
+    expect(uebungenFuer('thema.pp.evaluation').map((u) => u.path)).toContain('/lernen/dokumentation?teil=bericht');
   });
 });
 

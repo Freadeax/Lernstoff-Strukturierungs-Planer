@@ -54,7 +54,7 @@ export function alleNutzungen(): Nutzung[] {
   // Praxissimulator neu (Kern): Fälle und Handlungskatalog. Stand = erste Jahreszahl der Quellenangabe (Audit P20).
   for (const f of FAELLE_V2) for (const q of f.quellen) out.push({ inhalt: `Praxisfall (neu) ${f.titel.replace(/[„“]/g, '')}`, bereich: 'Praxissimulator (neu)', pfad: `/lernen/praxis?neu=${f.id}`, quelle: kernQuelle(q.titel), risiko: f.spur === 'B' });
   for (const m of KATALOG_LISTE) for (const q of m.quellen ?? []) out.push({ inhalt: `Maßnahme ${m.name}`, bereich: 'Praxissimulator (neu)', pfad: '/lernen/praxis', quelle: kernQuelle(q.titel), risiko: !!m.anordnungspflichtig });
-  for (const [id, s] of Object.entries(STECKBRIEFE)) out.push({ inhalt: `Assessment ${id}`, bereich: 'Assessment-Trainer', pfad: '/lernen/assessment', quelle: s.original, risiko: false });
+  for (const [id, s] of Object.entries(STECKBRIEFE)) out.push({ inhalt: `Assessment ${id}`, bereich: 'Assessment-Trainer', pfad: '/lernen/dokumentation?teil=assessment', quelle: s.original, risiko: false });
   cache = out;
   return out;
 }

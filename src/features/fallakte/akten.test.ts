@@ -1,3 +1,4 @@
+import { DOKU_IDS } from '../dokumentation/pfad';
 import { describe, expect, it } from 'vitest';
 import { AKTEN } from './akten';
 import { aktenStand, ASSESSMENT_KEY, BESTE_KEYS, schrittProzent, type Leser } from './stand';
@@ -79,7 +80,7 @@ describe('Fallakten', () => {
     });
 
     it(`${a.id}: Adressen führen in den Trainer und zurück zur Akte`, () => {
-      for (const s of a.schritte) expect(schrittPfad(a.id, s)).toBe(`${ART_PFAD[s.art]}?fall=${s.fallId}&akte=${a.id}`);
+      for (const s of a.schritte) expect(schrittPfad(a.id, s)).toBe(`${ART_PFAD[s.art]}&fall=${s.fallId}&akte=${a.id}`);
     });
   }
 
@@ -169,9 +170,10 @@ describe('Stand', () => {
 });
 
 describe('Einbindung', () => {
-  it('Fallakte steht im Menü', () => {
+  it('Fallakte ist über den Dokumentations-Trainer im Menü erreichbar', () => {
     const praxis = JSON.stringify(NAV);
-    expect(praxis).toContain('/lernen/fallakte');
+    expect(praxis).toContain('/lernen/dokumentation');
+    expect(DOKU_IDS).toContain('fallakte');
   });
 });
 
