@@ -11,18 +11,24 @@ import { bucheErgebnis, buchungsText } from '../lernplan/ergebnis';
 import { useDiktat } from '../uebergabe/diktat';
 import { DiktatFrage } from '../uebergabe/DiktatFrage';
 import { DIALOG, DIALOGE, STIMMUNG_LABEL, TECHNIK, type Dialog } from './dialoge';
+import { deute, type Deutung } from './eigene-worte';
 import { antworte, auswertung, ergebnis, fertig, knotenVon, MAX_ZEICHEN, MAX_ZUEGE, reihenfolge, starte, type Lauf, type Nachricht } from './gespraech';
 
-type Modus = 'fest' | 'frei';
+type Modus = 'fest' | 'eigen' | 'frei';
 const pfad = (d: string, m: Modus) => `/lernen/gespraech?dialog=${d}&modus=${m}`;
 
 // ---------------------------------------------------------------- Feste Dialoge
 
-function Fest({ d, neu }: { d: Dialog; neu: () => void }) {
+function Fest({ d, neu, eigen = false }: { d: Dialog; neu: () => void; eigen?: boolean }) {
   const [seed] = useState(() => Math.floor(Math.random() * 2 ** 31));
   const [lauf, setLauf] = useState<Lauf>(() => starte(d));
-  const [letzte, setLetzte] = useState<{ text: string; warum: string; urteil: string; technik: string } | null>(null);
+  const [letzte, setLetzte] = useState<{ text: string; warum: string; urteil: string; technik: string; verstanden?: boolean } | null>(null);
   const [buchung, setBuchung] = useState('');
+  const [eingabe, setEingabe] = useState('');
+  const [deutung, setDeutung] = useState<(Deutung & { text: string }) | null>(null);
+  const [alle, setAlle] = useState(false);
+  const [eigeneTexte, setEigeneTexte] = useState<string[]>([]);
+  const diktat = useDiktat((x) => setEingabe((t) => (t ? `${t} ${x}` : x).slice(0, MAX_ZEICHEN)));
   const kopf = useRef<HTMLHeadingElement>(null);
   const ende = fertig(lauf);
 
@@ -38,10 +44,11 @@ function Fest({ d, neu }: { d: Dialog; neu: () => void }) {
   if (ende && !letzte) {
     return (
       <div className="stack-3">
-        <AuswertungsKarte a={auswertung(d, ergebnis(lauf))} />
+        <AuswertungsKarte a={auswertung(d, ergebnis(lauf), eigeneTexte)} />
         {buchung && <p className="muted" role="status">{buchung}</p>}
         <div className="faecher__aktionen">
           <button type="button" className="primary" onClick={neu}>Noch einmal</button>
+          {!eigen && <button type="button" onClick={() => navigate(pfad(d.id, 'eigen'))}>In eigenen Worten üben</button>}
           <button type="button" onClick={() => navigate(pfad(d.id, 'frei'))}>Frei mit KI üben</button>
           <button type="button" className="ghost" onClick={() => navigate('/lernen/gespraech')}>Andere Gespräche</button>
         </div>
@@ -51,6 +58,22 @@ function Fest({ d, neu }: { d: Dialog; neu: () => void }) {
   }
   const k = knotenVon(d, lauf.aktuell);
   const verlauf = ergebnis(lauf).schritte;
+  const waehle = (i: number, eigenerText?: string) => {
+    const a = k!.antworten[i]!;
+    setLauf(antworte(lauf, i));
+    setEigeneTexte((t) => [...t, eigenerText ?? '']);
+    setLetzte({ text: a.text, warum: a.warum, urteil: a.urteil, technik: TECHNIK[a.technik].name, ...(eigenerText ? { verstanden: true } : {}) });
+    setDeutung(null); setAlle(false); setEingabe('');
+  };
+  const pruefe = (ev: React.FormEvent) => {
+    ev.preventDefault();
+    const t = eingabe.trim();
+    if (!t || !k) return;
+    diktat.stop();
+    const e = deute(k, t);
+    if (e.sicherheit === 'sicher') waehle(e.rangfolge[0]!.index, t);
+    else setDeutung({ ...e, text: t });
+  };
   return (
     <div className="stack-3">
       <Lage d={d} />
@@ -63,12 +86,14 @@ function Fest({ d, neu }: { d: Dialog; neu: () => void }) {
         {verlauf.map((s, i) => (
           <li key={i} className="stack-1">
             <p className="gespraech__blase gespraech__blase--sie"><span className="gespraech__wer">{d.gegenueber.split(',')[0]}</span>{s.knoten.sagt}</p>
-            <p className="gespraech__blase gespraech__blase--ich"><span className="gespraech__wer">Du</span>{s.antwort.text}</p>
+            <p className="gespraech__blase gespraech__blase--ich"><span className="gespraech__wer">Du</span>{eigeneTexte[i] || s.antwort.text}</p>
+            {eigeneTexte[i] && <p className="muted gespraech__verstanden">Verstanden als: {s.antwort.text}</p>}
           </li>
         ))}
       </ol>
       {letzte && (
         <div className={`note ${letzte.urteil === 'gut' ? '' : 'warn'} gespraech__rueck`} role="status">
+          {letzte.verstanden && <p className="muted">Verstanden als: „{letzte.text}“</p>}
           <p><strong>{letzte.urteil === 'gut' ? '✓ Passt' : letzte.urteil === 'teilweise' ? '◐ Teilweise' : '✗ Ungünstig'} · {letzte.technik}.</strong> {letzte.warum}</p>
           <button type="button" className="primary small" onClick={() => { setLetzte(null); requestAnimationFrame(() => kopf.current?.focus()); }}>{ende ? 'Zur Auswertung' : 'Weiter'}</button>
         </div>
@@ -77,17 +102,44 @@ function Fest({ d, neu }: { d: Dialog; neu: () => void }) {
         <section className="card stack-2" aria-labelledby="gs-frage">
           <p className="gespraech__blase gespraech__blase--sie"><span className="gespraech__wer">{d.gegenueber.split(',')[0]}</span>{k.sagt}</p>
           <h2 id="gs-frage" ref={kopf} tabIndex={-1} className="gespraech__frage">Was sagst du?</h2>
-          <ul className="gespraech__optionen">
+          {eigen && !alle && !deutung && (
+            <form className="stack-2" onSubmit={pruefe}>
+              <label className="field">In deinen eigenen Worten
+                <textarea rows={3} maxLength={MAX_ZEICHEN} value={eingabe} onChange={(e) => setEingabe(e.target.value)} />
+              </label>
+              {diktat.aktiv && <div className="note" role="status">Hört zu … {diktat.zwischen && <em>{diktat.zwischen}</em>}</div>}
+              {diktat.fehler && <div className="note warn" role="alert">{diktat.fehler}</div>}
+              <DiktatFrage diktat={diktat} />
+              <div className="faecher__aktionen">
+                <button type="submit" className="primary" disabled={!eingabe.trim()}>Sagen</button>
+                {diktat.moeglich && <button type="button" className={diktat.aktiv ? 'danger' : undefined} onClick={() => (diktat.aktiv ? diktat.stop() : diktat.start())}>{diktat.aktiv ? 'Diktat beenden' : 'Sprechen'}</button>}
+                <button type="button" className="ghost" onClick={() => setAlle(true)}>Antworten zur Auswahl zeigen</button>
+              </div>
+              <p className="muted small">Läuft offline auf deinem Gerät: Deine Worte werden mit vorbereiteten Antworten verglichen.</p>
+            </form>
+          )}
+          {eigen && deutung && !alle && (
+            <div className="stack-2" role="status">
+              <p className="note">{deutung.sicherheit === 'unsicher' ? <>Ich bin nicht ganz sicher, wie du „{deutung.text}“ meinst. Meintest du …?</> : <>„{deutung.text}“ passt zu keiner vorbereiteten Antwort. Wähle die nächstliegende oder formuliere neu.</>}</p>
+              <ul className="gespraech__optionen">
+                {(deutung.sicherheit === 'unsicher' ? deutung.rangfolge.slice(0, 3).map((r) => r.index) : reihenfolge(k.antworten.length, seed, k.id)).map((i) => (
+                  <li key={i}><button type="button" className="gespraech__option" onClick={() => waehle(i, deutung.text)}>{k.antworten[i]!.text}</button></li>
+                ))}
+              </ul>
+              <div className="faecher__aktionen">
+                <button type="button" onClick={() => { setEingabe(deutung.text); setDeutung(null); }}>Neu formulieren</button>
+                {deutung.sicherheit === 'unsicher' && <button type="button" className="ghost" onClick={() => setAlle(true)}>Alle Antworten zeigen</button>}
+              </div>
+            </div>
+          )}
+          {(!eigen || alle) && <ul className="gespraech__optionen">
             {reihenfolge(k.antworten.length, seed, k.id).map((i) => {
               const a = k.antworten[i]!;
               return (
-                <li key={i}><button type="button" className="gespraech__option" onClick={() => {
-                  setLauf(antworte(lauf, i));
-                  setLetzte({ text: a.text, warum: a.warum, urteil: a.urteil, technik: TECHNIK[a.technik].name });
-                }}>{a.text}</button></li>
+                <li key={i}><button type="button" className="gespraech__option" onClick={() => waehle(i, deutung?.text)}>{a.text}</button></li>
               );
             })}
-          </ul>
+          </ul>}
         </section>
       )}
     </div>
@@ -219,13 +271,14 @@ function Techniken() {
 export default function GespraechSeite() {
   const { params } = useRoute();
   const d = DIALOG[params.get('dialog') ?? ''];
-  const modus: Modus = params.get('modus') === 'frei' ? 'frei' : 'fest';
+  const m = params.get('modus');
+  const modus: Modus = m === 'frei' ? 'frei' : m === 'eigen' ? 'eigen' : 'fest';
   const [runde, setRunde] = useState(0);
   const neu = () => { setRunde((r) => r + 1); window.scrollTo({ top: 0 }); };
   return (
     <section className="page gespraech">
       <PageHeading eyebrow="Praxis" title={d ? d.titel : 'Gesprächssimulator. Schwierige Gespräche üben.'}
-        description={d ? `${d.gegenueber}. ${d.kurz}.` : 'Angehörige, Ablehnung, Demenz, Angst: mit festen Antworten offline und Rückmeldung zu jeder Antwort, oder frei mit Claude in der Rolle des Gegenübers.'} />
+        description={d ? `${d.gegenueber}. ${d.kurz}.` : 'Angehörige, Ablehnung, Demenz, Angst: offline in eigenen Worten oder mit festen Antworten, mit Rückmeldung zu jeder Antwort, oder frei mit Claude in der Rolle des Gegenübers.'} />
       {!d ? (
         <>
           <ul className="gespraech__liste">
@@ -234,7 +287,8 @@ export default function GespraechSeite() {
                 <h2>{x.titel}</h2>
                 <p className="muted">{x.gegenueber}. {x.kurz}.</p>
                 <div className="faecher__aktionen">
-                  <button type="button" className="primary" onClick={() => navigate(pfad(x.id, 'fest'))}>Mit festen Antworten</button>
+                  <button type="button" className="primary" onClick={() => navigate(pfad(x.id, 'eigen'))}>In eigenen Worten</button>
+                  <button type="button" onClick={() => navigate(pfad(x.id, 'fest'))}>Mit festen Antworten</button>
                   <button type="button" onClick={() => navigate(pfad(x.id, 'frei'))}>Frei mit KI</button>
                 </div>
               </li>
@@ -245,10 +299,11 @@ export default function GespraechSeite() {
       ) : (
         <>
           <div className="pills" role="group" aria-label="Modus">
+            <button type="button" className="pill" aria-pressed={modus === 'eigen'} onClick={() => navigate(pfad(d.id, 'eigen'))}>Eigene Worte</button>
             <button type="button" className="pill" aria-pressed={modus === 'fest'} onClick={() => navigate(pfad(d.id, 'fest'))}>Feste Antworten</button>
             <button type="button" className="pill" aria-pressed={modus === 'frei'} onClick={() => navigate(pfad(d.id, 'frei'))}>Frei mit KI</button>
           </div>
-          {modus === 'fest' ? <Fest key={`${d.id}-${runde}`} d={d} neu={neu} /> : <Frei key={`${d.id}-${runde}`} d={d} neu={neu} />}
+          {modus === 'frei' ? <Frei key={`${d.id}-${runde}`} d={d} neu={neu} /> : <Fest key={`${d.id}-${modus}-${runde}`} d={d} neu={neu} eigen={modus === 'eigen'} />}
         </>
       )}
     </section>
