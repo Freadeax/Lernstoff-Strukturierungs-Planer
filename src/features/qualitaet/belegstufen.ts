@@ -6,6 +6,7 @@
 // Herausgeber, Fassung, Abschnitt, Geltungsbereich und Prüfdatum direkt an der Aussage.
 import type { Belegpruefung, Claim, Document, QuellenArt, Quellenangabe, SourceChunk, Summary } from '../../core/types';
 import type { PruefBefund } from './deterministisch';
+import { heuteTag } from '../../ui/lib/time';
 
 type Stufen = Omit<Belegpruefung, 'freigabe'>;
 
@@ -110,7 +111,7 @@ export const PRUEFDATUM_HOECHSTENS_MONATE = 24;
 export interface QuellenLuecke { feld: 'art' | 'herausgeber' | 'fassung' | 'abschnitt' | 'geltungsbereich' | 'geprueftAm' | 'veraltet'; text: string }
 
 /** Was an einer Belegstelle für eine sensible Aussage fehlt. `heute` als YYYY-MM-DD, für Tests einstellbar. */
-export function quellenLuecken(q: Quellenangabe | undefined, chunk: Pick<SourceChunk, 'chapter'> | undefined, heute = new Date().toISOString().slice(0, 10)): QuellenLuecke[] {
+export function quellenLuecken(q: Quellenangabe | undefined, chunk: Pick<SourceChunk, 'chapter'> | undefined, heute = heuteTag()): QuellenLuecke[] {
   const l: QuellenLuecke[] = [];
   if (!q) return [{ feld: 'art', text: 'Quellenart und Angaben zur Fassung fehlen' }];
   if (!q.herausgeber?.trim()) l.push({ feld: 'herausgeber', text: 'Herausgeber fehlt' });

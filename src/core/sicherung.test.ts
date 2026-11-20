@@ -191,3 +191,14 @@ describe('Erinnerung an die Sicherung', () => {
     expect(brauchtErinnerung({ zuletzt: '2026-10-01T12:00:00Z', erinnertAm: '2026-10-10T12:00:00Z' }, 10, jetzt)).toBe(true);
   });
 });
+
+describe('Sicherungs-Merker (Audit R-1)', () => {
+  it('ein beschädigter Merker (null, Zahl, Liste) ergibt einen leeren Merker statt eines Absturzes', async () => {
+    const { leseMerker } = await import('./sicherung');
+    for (const roh of ['null', '42', '[1,2]', '{"a":']) {
+      localStorage.setItem('lernstoff.sicherung', roh);
+      expect(leseMerker()).toEqual({});
+    }
+    localStorage.removeItem('lernstoff.sicherung');
+  });
+});

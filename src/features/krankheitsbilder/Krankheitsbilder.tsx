@@ -18,6 +18,7 @@ import {
   ABSCHNITTE, ASSESSMENT_GRUPPE, belegeFuer, ROLLE_LABEL, warnzeichen, type Rolle, belegQuote, bewerteFall, faelleZuThema, MIN_PRO_THEMA, mischung, passtZurSuche, vollstaendig,
   type Antworten, type FallErgebnis,
 } from './bewertung';
+import { heuteTag } from '../../ui/lib/time';
 
 const ERLEDIGT_KEY = 'lernstoff.krankheitsbilder.erledigt';
 
@@ -546,7 +547,7 @@ export default function Krankheitsbilder() {
 
   function fertig(f: Fallaufgabe, e: FallErgebnis) {
     const prozent = e.max ? Math.round((e.punkte / e.max) * 100) : 0;
-    const next = { ...erledigt, [f.id]: { datum: new Date().toISOString().slice(0, 10), prozent } };
+    const next = { ...erledigt, [f.id]: { datum: heuteTag(), prozent } };
     setErledigt(next); speichereErledigt(next);
     void logActivity({
       kind: 'uebung', severity: prozent >= 85 ? 'info' : 'warning',

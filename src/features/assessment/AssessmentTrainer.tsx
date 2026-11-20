@@ -15,6 +15,7 @@ import { bewerteVignette, type VignettenErgebnis } from './bewertung';
 import { notiereFehler } from '../fehlerheft/fehlerheft';
 import { ausAssessment } from '../fehlerheft/quellen';
 import { AkteLeiste } from '../fallakte/AkteLeiste';
+import { heuteTag } from '../../ui/lib/time';
 
 type Modus = 'rechner' | 'faelle';
 /** Ab so vielen bewerteten Punkten (Items + Einstufung + ggf. Instrument) zählt ein Fall im Lernplan. */
@@ -396,7 +397,7 @@ export default function AssessmentTrainer() {
 
   function fertig(v: Vignette, e: VignettenErgebnis) {
     const prozent = Math.round((e.punkte / e.max) * 100);
-    const next = { ...erledigt, [v.id]: { datum: new Date().toISOString().slice(0, 10), prozent } };
+    const next = { ...erledigt, [v.id]: { datum: heuteTag(), prozent } };
     setErledigt(next); speichereErledigt(next);
     void logActivity({
       kind: 'uebung', severity: prozent >= 85 ? 'info' : 'warning',

@@ -9,6 +9,7 @@ import type { Rating } from '../lernplan/types';
 import { lueckenKarten, modulKarten } from './erzeugen';
 import { bewerte, ergebnisseJeThema, stelleSitzungZusammen, type ThemenErgebnis } from './planung';
 import { STANDARD_CONFIG, type Karte, type KartenConfig, type KartenLog, type KartenStand } from './typen';
+import { addDays } from '../../ui/lib/time';
 
 export { heute };
 
@@ -32,7 +33,7 @@ export interface KartenDaten {
 
 /** Alles für die Karteikarten-Seite. Logs nur der letzten 60 Tage (Statistik). */
 export async function ladeKartenDaten(modul: CatalogModule, tag = heute()): Promise<KartenDaten> {
-  const seit = new Date(Date.now() - 60 * 864e5).toISOString().slice(0, 10);
+  const seit = addDays(tag, -60);
   const [config, gespeichert, staende, logs] = await Promise.all([
     ladeConfig(), db.karten.toArray(), db.kartenStand.toArray(), db.kartenLogs.where('date').between(seit, tag, true, true).toArray(),
   ]);

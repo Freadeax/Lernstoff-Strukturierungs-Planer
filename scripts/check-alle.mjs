@@ -69,7 +69,7 @@ if (!schnell && gebaut) {
   const vorschau = spawn(process.execPath, ['scripts/serve-dist.mjs', String(port)], { stdio: 'ignore' });
   try {
     await wartenAuf(base);
-    for (const s of ['check-ui', 'check-material', 'check-wissensstand', 'check-praxis-weiterleitung', 'check-arbeitsplatz', 'check-stufe1', 'check-lernalltag', 'check-struktur', 'check-geraete', 'check-barrierefreiheit', 'check-offline', 'check-csp', 'check-browser']) {
+    for (const s of ['check-ui', 'check-material', 'check-wissensstand', 'check-praxis-weiterleitung', 'check-arbeitsplatz', 'check-stufe1', 'check-lernalltag', 'check-struktur', 'check-geraete', 'check-barrierefreiheit', 'check-speicherschaden', 'check-offline', 'check-csp', 'check-browser']) {
       schritt(`Browser: ${s}`, 'node', [`scripts/${s}.mjs`], { UI_BASE_URL: base });
     }
   } finally {

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'r
 import { db } from '../../core/db';
 import type { Document, QuellenArt, Quellenangabe } from '../../core/types';
 import { PRUEFDATUM_HOECHSTENS_MONATE, QUELLENART_GELTUNG, QUELLENART_TEXT, quellenLuecken } from '../qualitaet/belegstufen';
+import { heuteTag } from '../../ui/lib/time';
 
 const ARTEN = Object.keys(QUELLENART_TEXT) as QuellenArt[];
 const BEISPIEL: Partial<Record<QuellenArt, { herausgeber: string; fassung: string; geltungsbereich: string }>> = {
@@ -59,7 +60,7 @@ export function QuellenangabeEditor({ document: d, offen }: { document: Document
         <p className="field-hint">Älter als {PRUEFDATUM_HOECHSTENS_MONATE} Monate gilt als veraltet. Den Abschnitt liest die App aus der Belegstelle (Kapitel und Seite).</p>
         <div className="form-actions">
           <button type="submit" className="small">Quellenangabe speichern</button>
-          <button type="button" className="link" onClick={() => setQ({ ...q, geprueftAm: new Date().toISOString().slice(0, 10) })}>heute geprüft</button>
+          <button type="button" className="link" onClick={() => setQ({ ...q, geprueftAm: heuteTag() })}>heute geprüft</button>
           {gespeichert && <span role="status" className="muted">Gespeichert.</span>}
         </div>
       </form>

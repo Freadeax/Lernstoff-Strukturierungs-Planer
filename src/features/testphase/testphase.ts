@@ -5,6 +5,7 @@
 
 import { packe, entpacke } from '../klasse/kodierung';
 import { GRENZEN } from '../dokumente/import/grenzen';
+import { istObjekt, storage } from '../../ui/lib/store';
 
 export type Art = 'fehler' | 'unklar' | 'idee' | 'lob';
 export const ART_LABEL: Record<Art, string> = { fehler: 'Fehler', unklar: 'Unklar', idee: 'Idee', lob: 'Lob' };
@@ -75,14 +76,12 @@ const K_GESENDET = 'lernstoff.testphase.gesendet';
 const K_GESAMMELT = 'lernstoff.testphase.gesammelt';
 const K_NAME = 'lernstoff.testphase.name';
 
-function lies<T>(key: string, leer: T): T {
-  try { const s = localStorage.getItem(key); return s ? (JSON.parse(s) as T) : leer; } catch { return leer; }
-}
-function schreib(key: string, wert: unknown) {
-  try { localStorage.setItem(key, JSON.stringify(wert)); } catch { /* privater Modus: nur für diese Sitzung */ }
-}
+// Gespeicherte Stände mit Formprüfung lesen: ein beschädigter oder fremder Eintrag (z. B. aus einer alten Sicherung)
+// darf die Seite nicht abstürzen lassen (Audit R-2).
+const istRueckmeldung = (v: unknown) => istObjekt(v) && typeof v.id === 'string';
+function schreib(key: string, wert: unknown) { storage.write(key, wert); }
 
-export const erledigte = (): string[] => lies<string[]>(K_ERLEDIGT, []).filter((id) => AUFTRAEGE.some((a) => a.id === id));
+export const erledigte = (): string[] => storage.list<string>(K_ERLEDIGT, (v) => typeof v === 'string').filter((id) => AUFTRAEGE.some((a) => a.id === id));
 export function setzeErledigt(id: string, an: boolean): string[] {
   const neu = new Set(erledigte());
   if (an) neu.add(id); else neu.delete(id);
@@ -91,11 +90,11 @@ export function setzeErledigt(id: string, an: boolean): string[] {
   return liste;
 }
 
-export const gemerkterName = (): string => lies<string>(K_NAME, '');
+export const gemerkterName = (): string => storage.read<string>(K_NAME, '');
 export const merkeName = (n: string) => schreib(K_NAME, n.trim().slice(0, 40));
 
 /** Eigene, bereits verschickte Rückmeldungen (zum Nachsehen). Höchstens 50. */
-export const gesendete = (): Rueckmeldung[] => lies<Rueckmeldung[]>(K_GESENDET, []);
+export const gesendete = (): Rueckmeldung[] => storage.list<Rueckmeldung>(K_GESENDET, istRueckmeldung);
 export function merkeGesendet(r: Rueckmeldung) {
   schreib(K_GESENDET, [r, ...gesendete().filter((x) => x.id !== r.id)].slice(0, 50));
 }
@@ -190,7 +189,7 @@ export async function leseRueckmeldungen(eingabe: string): Promise<{ neu: Rueckm
 
 // ---------- Sammlung (für die Person, die den Test betreut) ----------
 
-export const gesammelte = (): Rueckmeldung[] => lies<Rueckmeldung[]>(K_GESAMMELT, []);
+export const gesammelte = (): Rueckmeldung[] => storage.list<Rueckmeldung>(K_GESAMMELT, istRueckmeldung);
 
 /** Nimmt neue Rückmeldungen auf; gleiche ID wird nicht doppelt gezählt. */
 export function sammle(neu: Rueckmeldung[]): { neu: number; doppelt: number; liste: Rueckmeldung[] } {
@@ -220,9 +219,9 @@ export interface Bearbeitung { stand: Stand; notiz?: string }
 
 const K_STAND = 'lernstoff.testphase.stand';
 export const bearbeitungen = (): Record<string, Bearbeitung> => {
-  const roh = lies<Record<string, Bearbeitung>>(K_STAND, {});
+  const roh = storage.read<Record<string, Bearbeitung>>(K_STAND, {});
   const out: Record<string, Bearbeitung> = {};
-  for (const [id, b] of Object.entries(roh ?? {})) if (b && b.stand in STAND_LABEL) out[id] = { stand: b.stand, notiz: typeof b.notiz === 'string' ? b.notiz.slice(0, 500) : undefined };
+  for (const [id, b] of Object.entries(roh)) if (istObjekt(b) && typeof b.stand === 'string' && b.stand in STAND_LABEL) out[id] = { stand: b.stand, notiz: typeof b.notiz === 'string' ? b.notiz.slice(0, 500) : undefined };
   return out;
 };
 export function setzeBearbeitung(id: string, b: Bearbeitung): Record<string, Bearbeitung> {

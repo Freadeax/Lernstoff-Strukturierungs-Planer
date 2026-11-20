@@ -25,6 +25,7 @@
     "test:lernalltag": "node scripts/check-lernalltag.mjs",
     "test:struktur": "node scripts/check-struktur.mjs",
     "test:barrierefreiheit": "node scripts/check-barrierefreiheit.mjs",
+    "test:speicherschaden": "node scripts/check-speicherschaden.mjs",
     "check": "node scripts/check-alle.mjs",
     "check:schnell": "node scripts/check-alle.mjs --schnell",
     "check:bundle": "node scripts/check-bundle.mjs",

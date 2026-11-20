@@ -13,6 +13,7 @@ import { ladeZwischenstand, speichereZwischenstand, type Zwischenstand } from '.
 import { INHALTSSTAND, type Grundlage } from './grundlage';
 import { TRAINER_REGISTER } from '../qm/register';
 import { StandZeile } from '../quellen/StandZeile';
+import { heuteTag } from '../../ui/lib/time';
 
 export interface TrainerBereich { id: string; label: string; kurz: string; wissen: string[] }
 
@@ -85,7 +86,7 @@ export function TrainerSeite({ titel, intro, hinweis, pfad, quelle, bereiche, au
     navigate(`${pfad}${pfad.includes('?') ? '&' : '?'}${q}`);
   }
   function fertig(e: RundenErgebnis) {
-    const next = { ...stand, [bereich]: { datum: new Date().toISOString().slice(0, 10), prozent: e.prozent } };
+    const next = { ...stand, [bereich]: { datum: heuteTag(), prozent: e.prozent } };
     setStand(next); storage.write(key, next);
     void logActivity({
       kind: 'uebung', severity: e.prozent >= 80 ? 'info' : 'warning',

@@ -5,6 +5,7 @@ import Dexie, { type Table } from 'dexie';
 import { db, type LernstoffDB } from './db';
 import { ENTPACKT_MAX, verschluessele } from './sicherung-krypto';
 import { BUILD_ID } from './build';
+import { heuteTag } from '../ui/lib/time';
 
 export const SICHERUNG_FORMAT = 1;
 
@@ -155,7 +156,7 @@ export async function erstelleSicherung(database: LernstoffDB = db, meta: { fach
   };
 }
 
-export const dateiName = (d = new Date(), verschluesselt = false) => `lernstoff-sicherung-${d.toISOString().slice(0, 10)}${verschluesselt ? '-verschluesselt' : ''}.json`;
+export const dateiName = (d = new Date(), verschluesselt = false) => `lernstoff-sicherung-${heuteTag(d)}${verschluesselt ? '-verschluesselt' : ''}.json`;
 
 // ---------------------------------------------------------------- Prüfen
 
@@ -558,7 +559,8 @@ export interface SicherungsMerker { zuletzt?: string; hinweisGesehen?: boolean; 
 const MERKER = 'lernstoff.sicherung';
 
 export function leseMerker(): SicherungsMerker {
-  try { return JSON.parse(localStorage.getItem(MERKER) ?? '{}') as SicherungsMerker; } catch { return {}; }
+  // Form prüfen: ein beschädigter Eintrag (null, Zahl, Liste) darf die Startseite nicht abstürzen lassen (Audit R-1).
+  try { const v: unknown = JSON.parse(localStorage.getItem(MERKER) ?? '{}'); return istObjekt(v) ? v as SicherungsMerker : {}; } catch { return {}; }
 }
 export function setzeMerker(m: Partial<SicherungsMerker>) {
   try { localStorage.setItem(MERKER, JSON.stringify({ ...leseMerker(), ...m })); } catch { /* privater Modus */ }

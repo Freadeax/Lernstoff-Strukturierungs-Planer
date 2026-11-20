@@ -10,6 +10,7 @@
 import type { Antwort, Aufgabe, Bewertung } from '../quiz/quiz';
 import { storage, istObjekt } from '../../ui/lib/store';
 import { fingerabdruck } from './fingerabdruck';
+import { heuteTag } from '../../ui/lib/time';
 
 export interface AufgabenWerte {
   fp: string;
@@ -44,7 +45,7 @@ export function zaehle(st: Statistik, schluessel: string, a: Aufgabe, antwort: A
 }
 
 export function notiereVersuch(quelle: string, a: Aufgabe, antwort: Antwort, b: Bewertung): void {
-  storage.write(K, zaehle(ladeStatistik(), `${quelle}:${a.id}`, a, antwort, b, new Date().toISOString().slice(0, 10)));
+  storage.write(K, zaehle(ladeStatistik(), `${quelle}:${a.id}`, a, antwort, b, heuteTag()));
 }
 
 export const MIN_VERSUCHE = 5;

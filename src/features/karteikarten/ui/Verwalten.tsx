@@ -3,7 +3,7 @@ import { db } from '../../../core/db';
 import type { ID, SourceChunk, Summary } from '../../../core/types';
 import { notify } from '../../../ui/shell/notifications';
 import { navigate } from '../../../ui/shell/router';
-import { formatDay } from '../../../ui/lib/time';
+import { formatDay, heuteTag, addDays } from '../../../ui/lib/time';
 import { kartenHinweise, luecken, lueckenOhneMarken, modulKarten, vorschlaege, type KartenHinweis } from '../erzeugen';
 import { abruf, istGefestigt, prognose, trefferquote } from '../planung';
 import { loescheKarte, setzeAus, speichereConfig, speichereKarte, uebernehme } from '../store';
@@ -331,7 +331,7 @@ export function Statistik({ ctx }: { ctx: KartenCtx }) {
   const gelernt = staende.filter((s) => s.reps > 0 && !s.ausgesetzt);
   const gefestigt = gelernt.filter(istGefestigt);
   const ausgesetzt = staende.filter((s) => s.ausgesetzt);
-  const seit30 = new Date(Date.now() - 30 * 864e5).toISOString().slice(0, 10);
+  const seit30 = addDays(heuteTag(), -30);
   const quote = trefferquote(daten.logs.filter((l) => l.date >= seit30));
   const woche = prognose(gelernt, heute, 7);
   const maxWoche = Math.max(1, ...woche.map((x) => x.anzahl));

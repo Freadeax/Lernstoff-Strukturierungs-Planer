@@ -43,8 +43,24 @@ export function meldeSpeicherVoll(jetzt = Date.now()): boolean {
   return true;
 }
 
+/**
+ * Schreibfehler im Gerätespeicher (localStorage/sessionStorage) melden. Viele Bereiche fangen den Fehler ab und machen
+ * ohne Speicher weiter (Mindmaps, Lehrermodus, Entwürfe, Trainerstände); ohne diese Hülle ginge Eingegebenes still
+ * verloren (Audit R-3). Der Fehler wird weitergereicht, das Verhalten der Aufrufer bleibt gleich.
+ */
+export function beobachteGeraetespeicher(proto: Pick<Storage, 'setItem'> | undefined = typeof Storage !== 'undefined' ? Storage.prototype : undefined): () => void {
+  if (!proto) return () => undefined;
+  const original = proto.setItem;
+  proto.setItem = function setItem(this: Storage, key: string, value: string) {
+    try { return original.call(this, key, value); }
+    catch (e) { if (istSpeicherVoll(e)) meldeSpeicherVoll(); throw e; }
+  };
+  return () => { proto.setItem = original; };
+}
+
 /** Einmal beim Start aufrufen. Gibt eine Aufräumfunktion zurück. */
 export function beobachteSpeicher(): () => void {
+  const geraet = beobachteGeraetespeicher();
   const pruefe = (e: unknown) => { if (istSpeicherVoll(e)) meldeSpeicherVoll(); };
   const abgelehnt = (ev: PromiseRejectionEvent) => pruefe(ev.reason);
   const fehler = (ev: ErrorEvent) => pruefe(ev.error ?? ev.message);
@@ -59,5 +75,5 @@ export function beobachteSpeicher(): () => void {
       void navigator.storage?.persisted?.().then((ja) => { if (!ja) void navigator.storage?.persist?.(); }).catch(() => undefined);
     }
   } catch { /* ältere Browser */ }
-  return () => { window.removeEventListener('unhandledrejection', abgelehnt); window.removeEventListener('error', fehler); };
+  return () => { geraet(); window.removeEventListener('unhandledrejection', abgelehnt); window.removeEventListener('error', fehler); };
 }
