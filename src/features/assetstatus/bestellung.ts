@@ -123,7 +123,7 @@ export function bestellung(): Position[] {
       const ref = `personen/${p.datei}_stabil.webp`;
       aus.push({
         id: `${p.datei}_${z}`, prioritaet: 'P2', art: 'portraet', titel: `Porträt ${p.name}, ${z}`, referenz: ref,
-        grund: 'Der Fallsimulator zeigt bei Verschlechterung sonst das stabile Porträt.', faelle: p.faelle,
+        grund: 'Die Kurzfälle im Praxissimulator zeigen bei Verschlechterung sonst das stabile Porträt.', faelle: p.faelle,
         prompt: `Referenzbild public/${ref} anhängen. Dieselbe Person (${p.beschreibung}), gleicher Ausschnitt, gleicher Hintergrund, quadratisch, mindestens 512 × 512 px. Zustand ${ZUSTAND_PROMPT[z]}. Keine Schrift, keine reale Person.`,
       });
     }

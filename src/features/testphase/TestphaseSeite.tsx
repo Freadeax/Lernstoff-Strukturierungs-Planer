@@ -54,7 +54,7 @@ function Willkommen() {
         <ul>
           <li>Nur was du selbst als Rückmeldung verschickst, kommt bei der Testleitung an.</li>
           <li>Löschst du die Browserdaten oder die App, ist der Lernstand weg. Mit der <a href="#/system/sicherung">Datensicherung</a> nimmst du ihn mit auf ein anderes Gerät.</li>
-          <li>Die KI-Funktionen (z. B. Fallsimulator, Zusammenfassen) brauchen einen eigenen API-Schlüssel und sind für den Test nicht nötig.</li>
+          <li>Die KI-Funktionen (z. B. Kurzfälle mit Claude im Praxissimulator, Zusammenfassen) brauchen einen eigenen API-Schlüssel und sind für den Test nicht nötig.</li>
           <li>Trage keine echten Patientendaten ein, auch nicht in Freitextfeldern.</li>
         </ul>
       </section>

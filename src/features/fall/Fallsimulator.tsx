@@ -112,7 +112,7 @@ function Start({ onStart, apiKey }: { onStart: (s: Szenario, stufe: Stufe) => vo
             <li><strong>Gesamt</strong>: sicher, überwiegend sicher, teilweise sicher oder unsicher. Eine gefährliche Entscheidung verhindert „sicher“.</li>
           </ul>
         </details>
-        <p className="muted">Für eine ganze Schicht mit Uhr, Geräten, Aufträgen und mehreren Patienten gibt es den <a href="#/lernen/praxis">Praxissimulator</a>.</p>
+        <p className="muted">Für einen ganzen Dienst mit Uhr, Geräten, Akte und Aufträgen gibt es die <a href="#/lernen/praxis">Praxisfälle</a>.</p>
       </section>
       <section className="card fall__probe" aria-labelledby="fall-probe-titel">
         <div>
@@ -496,7 +496,13 @@ const warte = (ms: number) => new Promise((ok) => setTimeout(ok, ms));
 
 // ---------- Seite ----------
 
-export default function Fallsimulator() {
+/** Eigene Seite (alleinstehend) oder Teil des Praxissimulators, der schon eine Seite mit Kopf ist. */
+function Rahmen({ eingebettet, children }: { eingebettet: boolean; children: React.ReactNode }) {
+  return eingebettet ? <div className="fall">{children}</div> : <section className="page fall">{children}</section>;
+}
+
+/** Kurzfälle im Praxissimulator (früher eigene Seite „Fallsimulator“). `eingebettet`: Seitenkopf kommt vom Praxissimulator. */
+export default function Fallsimulator({ eingebettet = false }: { eingebettet?: boolean }) {
   const [apiKey] = useState(getApiKey);
   const [fall, setFall] = useState<Fall | null>(ladeAktuell);
   const [eingabe, setEingabe] = useState('');
@@ -598,12 +604,13 @@ export default function Fallsimulator() {
   const entscheidungen = fall?.runden.filter((r) => r.eingabe).length ?? 0;
 
   return (
-    <section className="page fall">
-      <div className="page__head">
-        <h2>Fallbeispiel-Simulator</h2>
-        <p className="muted">Claude spielt Patientin, Angehörige und Station. Du entscheidest, was du tust, und der Verlauf hängt davon ab. Am Ende gibt es eine Auswertung entlang des Pflegeprozesses. Alle Fälle sind erfunden.</p>
-        <DatenHinweis art="ki" detail="Gesendet werden der erfundene Fall und deine Eingaben." />
-      </div>
+    <Rahmen eingebettet={eingebettet}>
+      {eingebettet ? <DatenHinweis art="ki" detail="Nur bei Fällen mit Claude: gesendet werden der erfundene Fall und deine Eingaben. Probefälle bleiben auf dem Gerät." />
+        : <div className="page__head">
+          <h2>Kurzfälle</h2>
+          <p className="muted">Claude spielt Patientin, Angehörige und Station. Du entscheidest, was du tust, und der Verlauf hängt davon ab. Am Ende gibt es eine Auswertung entlang des Pflegeprozesses. Alle Fälle sind erfunden.</p>
+          <DatenHinweis art="ki" detail="Gesendet werden der erfundene Fall und deine Eingaben." />
+        </div>}
 
       {!fall && <Titelbild motiv="simulation" sofort className="fall__titelbild" />}
       {!fall && <Start apiKey={apiKey} onStart={(s, st) => void starte(s, st)} />}
@@ -726,6 +733,6 @@ export default function Fallsimulator() {
           <Kurve fall={fall} news={freigabe?.zielgruppe === 'erwachsene'} />
         </div>
       )}
-    </section>
+    </Rahmen>
   );
 }

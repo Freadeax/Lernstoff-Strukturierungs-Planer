@@ -4,7 +4,9 @@ import { ersetze, navigate, useRoute } from './ui/shell/router';
 import { weiterleitungFuer } from './features/wissen/pfad';
 import { fertigWeiterleitung } from './features/fertigkeiten/pfad';
 import { dokuWeiterleitung } from './features/dokumentation/pfad';
-import { REDIRECTS, gruppenPfad, passtDazuId } from './ui/shell/nav';
+import { fallWeiterleitung } from './features/praxis/pfad';
+import { REDIRECTS, THEMEN_ANSICHTEN, gruppenPfad, passtDazuId } from './ui/shell/nav';
+import { ThemenAnsichten } from './ui/shell/ThemenAnsichten';
 import { PageBoundary } from './ui/shell/PageBoundary';
 import { WidgetGrid } from './ui/widget/Dashboard';
 import { WIDGETS } from './widgets/registry';
@@ -20,7 +22,6 @@ const Designsystem = lazy(() => import('./features/Designsystem'));
 const Bildpruefung = lazy(() => import('./features/assetstatus/Bildpruefung'));
 const Ablage = lazy(() => import('./features/ablage/AblageSeite'));
 const Fehlerheft = lazy(() => import('./features/fehlerheft/FehlerheftSeite'));
-const Fallsimulator = lazy(() => import('./features/fall/Fallsimulator'));
 const Praxissimulator = lazy(() => import('./features/praxis/Praxissimulator'));
 const Diagnostik = lazy(() => import('./features/diagnostik/DiagnostikSeite'));
 const Duell = lazy(() => import('./features/duell/DuellSeite'));
@@ -70,8 +71,9 @@ function Page({ title, intro, hilfe, children }: { title: string; intro?: string
 
 function View() {
   const { path, params } = useRoute();
-  // Alte Einzeltrainer (#/lernen/hygiene, #/lernen/rechnen …) führen in Wissens- bzw. Fertigkeiten-Trainer, mit allen Angaben der Adresse.
-  const wissenNeu = fertigWeiterleitung(path, params) ?? weiterleitungFuer(path, params) ?? dokuWeiterleitung(path, params);
+  // Alte Einzeltrainer (#/lernen/hygiene, #/lernen/rechnen …) führen in Wissens- bzw. Fertigkeiten-Trainer, mit allen Angaben der Adresse;
+  // der frühere Fallsimulator (#/lernen/fall) in die Kurzfälle des Praxissimulators.
+  const wissenNeu = fertigWeiterleitung(path, params) ?? weiterleitungFuer(path, params) ?? dokuWeiterleitung(path, params) ?? fallWeiterleitung(path, params);
   useEffect(() => {
     if (REDIRECTS[path]) navigate(REDIRECTS[path]!);
     else if (wissenNeu) ersetze(wissenNeu);
@@ -97,7 +99,6 @@ function View() {
     case '/lernen/karten': return <Karteikarten />;
     case '/lernen/schnellsuche': return <Schnellsuche />;
     case '/lernen/fehler': return <Fehlerheft />;
-    case '/lernen/fall': return <Fallsimulator />;
     case '/lernen/praxis': return <Praxissimulator />;
     case '/lernen/duell': return <Duell />;
     case '/lernen/simulation': return <Simulation />;
@@ -139,6 +140,8 @@ export function App() {
   // Unterseiten des Klassenmodus teilen sich einen Schlüssel, damit ihr Zustand erhalten bleibt.
   const seite = path.startsWith('/lernen/klasse') ? '/lernen/klasse' : path;
   const uebung = passtDazuId(path);
-  return <Shell><PageBoundary path={path}><div className="route" key={seite} style={{ '--kopf-marke': JSON.stringify(gruppenPfad(seite)) } as React.CSSProperties}><View />
+  const themenAnsicht = THEMEN_ANSICHTEN.some((a) => a.path === path);
+  return <Shell><PageBoundary path={path}><div className="route" key={seite} style={{ '--kopf-marke': JSON.stringify(gruppenPfad(seite)) } as React.CSSProperties}>
+    {themenAnsicht && <ThemenAnsichten path={path} />}<View />
     {uebung && <Suspense fallback={null}><PasstDazu id={uebung} path={path} /></Suspense>}</div></PageBoundary></Shell>;
 }
