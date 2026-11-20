@@ -75,7 +75,7 @@ begründet es im PR.
   (ist auch Teil von `npm run check`). Geprüft werden Service Worker, Vorab-Cache, alle Menüseiten ohne Netz und
   ein kalter Start ohne Netz.
 - So kommen neue Versionen an (vor allem auf dem iPhone, wo Safari den Service Worker selten prüft):
-  - Seitenaufrufe gehen zuerst ans Netz (`vite.config.ts`, Regel `request.mode === 'navigate'`, 4 s Zeitgrenze);
+  - Seitenaufrufe gehen zuerst ans Netz (`vite.config.ts`, Regel `request.mode === 'navigate'`, 2 s Zeitgrenze);
     nur ohne Netz kommt `index.html` aus dem Vorab-Cache. Ein Neuladen reicht also. `navigateFallback` und
     `directoryIndex` sind dafür abgeschaltet, sonst beantwortet der Vorab-Cache „/“ selbst.
   - Der Build legt `version.json` mit der Build-ID ab. `src/ui/shell/aktualisierung.ts` fragt sie beim Start, beim
@@ -83,6 +83,10 @@ begründet es im PR.
     anders: Hinweis „Jetzt neu laden“, Service Worker wird angestoßen, beim nächsten Seitenwechsel lädt die App neu.
   - Einstellungen → „Über diese App“ → „Nach neuer Version suchen“ prüft sofort.
   - `npm run test:offline` simuliert eine Veröffentlichung (ändert kurz `dist/version.json` und `dist/index.html`).
+- Vorab-Cache (Audit L-1): alles außer PDF-Leser, Claude-Anbindung, Texterkennung und Bildgebung wird beim ersten
+  Besuch geladen. Teile aus `NICHT_VORAB_PAKETE` in `vite.config.ts` kommen erst bei Gebrauch und landen dann im
+  Cache „nachgeladen“. Ein solcher Teil bleibt im Vorab-Cache, solange ihn ein anderer Teil fest importiert (der
+  Build warnt dann), sonst bräche die Seite offline. `npm run check:bundle` begrenzt auch die Größe des Vorab-Cache.
 - `package.json` → `overrides` hebt `glob` unter `workbox-build` auf eine Version ohne bekannte Lücken.
   Übrig bleibt `deepmerge` (niedrig, nur Build-Kette, kein Fix verfügbar).
 - Die Build-ID (Commit · Datum) steht unter Datensicherung und auf Fehlerseiten. Ein „+“ heißt: mit lokalen Änderungen gebaut.

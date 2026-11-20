@@ -25,3 +25,16 @@ if (summe > BUDGET_KB) {
   console.error('Budget überschritten: Große Teile per import() erst bei Bedarf laden (siehe docs/ENTWICKLUNG.md).');
   process.exit(1);
 }
+
+// Vorab-Cache (Audit L-1): Was der Service Worker beim ersten Besuch im Hintergrund lädt, gzip-komprimiert
+// (so geht es übers Netz). Seltene Teile stehen in NICHT_VORAB_PAKETE in vite.config.ts.
+const VORAB_BUDGET_KB = 2700; // Stand 2026-11-20: rund 2.610 KB gzip (vorher 2.680 KB; ohne PDF-Leser, Praxisfälle einzeln)
+const sw = fs.readFileSync(path.join(dist, 'sw.js'), 'utf8');
+const vorab = [...sw.matchAll(/url:"([^"]+)"/g)].map((m) => m[1]).filter((u) => fs.existsSync(path.join(dist, u)));
+if (vorab.length < 20) throw new Error('dist/sw.js: Vorab-Cache-Liste nicht gefunden.');
+const vorabKb = vorab.reduce((s, u) => s + zlib.gzipSync(fs.readFileSync(path.join(dist, u)), { level: 6 }).length, 0) / 1024;
+console.log(`Vorab-Cache (gzip): ${vorabKb.toFixed(0)} KB von ${VORAB_BUDGET_KB} KB Budget, ${vorab.length} Dateien.`);
+if (vorabKb > VORAB_BUDGET_KB) {
+  console.error('Vorab-Cache zu groß: Teile, die nur bei einer Handlung gebraucht werden, in NICHT_VORAB_PAKETE (vite.config.ts) aufnehmen.');
+  process.exit(1);
+}

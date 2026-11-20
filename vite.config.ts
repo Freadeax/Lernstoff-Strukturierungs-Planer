@@ -67,6 +67,40 @@ function versionsDatei(): Plugin {
   };
 }
 
+/**
+ * Teile, die nur bei einer bestimmten Handlung gebraucht werden, nicht in den Vorab-Cache legen (Audit L-1):
+ * der PDF-Leser (nur beim Einlesen einer PDF) und die Claude-Anbindung (braucht ohnehin Netz).
+ * Sie werden beim ersten Gebrauch geladen und landen über die Laufzeitregel „nachgeladen“ im Cache.
+ * Ausgenommen wird ein Teil nur, wenn ihn kein anderer Teil fest importiert: Sonst bräche die Seite offline,
+ * die ihn fest einbindet. Dann bleibt er im Vorab-Cache und der Build sagt es (siehe NICHT_VORAB_PAKETE).
+ */
+const NICHT_VORAB_PAKETE = ['/node_modules/pdfjs-dist/', '/node_modules/@anthropic-ai/sdk/'];
+const nichtVorab = new Set<string>();
+function vorabCacheAuswahl(): Plugin {
+  return {
+    name: 'vorab-cache-auswahl',
+    apply: 'build',
+    generateBundle(_opts, bundle) {
+      nichtVorab.clear();
+      const chunks = Object.values(bundle).filter((b) => b.type === 'chunk');
+      const kandidat = new Set(chunks.filter((c) => !c.isEntry
+        && Object.keys(c.modules).some((id) => NICHT_VORAB_PAKETE.some((p) => id.includes(p)))).map((c) => c.fileName));
+      // Bis nichts mehr wegfällt: Kandidaten, die ein Teil im Vorab-Cache fest importiert, bleiben drin.
+      for (let geaendert = true; geaendert;) {
+        geaendert = false;
+        for (const c of chunks) {
+          if (kandidat.has(c.fileName)) continue;
+          for (const i of c.imports) if (kandidat.delete(i)) {
+            geaendert = true;
+            this.warn(`${i} wird von ${c.fileName} fest importiert und bleibt im Vorab-Cache (für Offline-Seiten nötig).`);
+          }
+        }
+      }
+      for (const k of kandidat) nichtVorab.add(k);
+    },
+  };
+}
+
 export default defineConfig({
   base: './',
   test: {
@@ -81,6 +115,7 @@ export default defineConfig({
   plugins: [
     fachmodulTeilen(),
     versionsDatei(),
+    vorabCacheAuswahl(),
     react(),
     VitePWA({
       registerType: 'autoUpdate',
@@ -92,9 +127,12 @@ export default defineConfig({
         // Texterkennung (ca. 13 MB) nicht vorab laden, sondern beim ersten Gebrauch zwischenspeichern.
         globIgnores: ['tesseract/**', 'bildgebung/**'],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
+        // PDF-Leser und Claude-Anbindung erst bei Gebrauch (siehe vorabCacheAuswahl).
+        manifestTransforms: [async (eintraege) => ({ manifest: eintraege.filter((e) => !nichtVorab.has(e.url)), warnings: [] })],
         // Seitenaufrufe (Start, Neuladen) zuerst übers Netz: so bringt schon EIN Neuladen die neue Version,
         // auch wenn der neue Service Worker noch nicht fertig ist (Safari/iPhone prüft ihn nur selten).
-        // Ohne Netz oder nach 4 s ohne Antwort kommt index.html aus dem Vorab-Cache, passend zu dessen Dateien.
+        // Ohne Netz oder nach 2 s ohne Antwort kommt index.html aus dem Vorab-Cache, passend zu dessen Dateien
+        // (Audit L-2: bei schwachem Netz, z. B. Klinikkeller oder Bahn, nicht länger warten).
         // Ersetzt den Standard „index.html immer aus dem Cache“, der auf dem iPhone alte Stände festhielt.
         navigateFallback: null,
         // Sonst beantwortet der Vorab-Cache „/“ selbst mit index.html, bevor die Regel unten greift.
@@ -104,7 +142,7 @@ export default defineConfig({
           handler: 'NetworkFirst',
           options: {
             cacheName: 'seitenaufrufe',
-            networkTimeoutSeconds: 4,
+            networkTimeoutSeconds: 2,
             // Nichts speichern: eine zwischengespeicherte neuere Startseite könnte offline auf Dateien zeigen,
             // die noch nicht im Vorab-Cache liegen. Stattdessen die Startseite aus dem Vorab-Cache nehmen
             // (Workbox speichert sie dort als „index.html?__WB_REVISION__=…“, daher ignoreSearch).
@@ -116,6 +154,13 @@ export default defineConfig({
                 ?? null,
             }],
           },
+        }, {
+          // Programmteile außerhalb des Vorab-Cache (PDF-Leser, Claude-Anbindung, PDF-Worker): beim ersten Gebrauch
+          // laden, danach offline. Die Dateinamen tragen einen Inhalts-Hash, ein Treffer ist also immer aktuell.
+          // Vorab-Cache-Dateien beantwortet Workbox vorher selbst, diese Regel greift nur für den Rest.
+          urlPattern: ({ url, sameOrigin }) => sameOrigin && url.pathname.includes('/assets/'),
+          handler: 'CacheFirst',
+          options: { cacheName: 'nachgeladen', expiration: { maxEntries: 40, purgeOnQuotaError: true } },
         }, {
           // Handlungsvideos des Simulators erst beim Ansehen laden, danach offline verfügbar.
           urlPattern: ({ url }) => url.pathname.includes('/sim-videos/'),

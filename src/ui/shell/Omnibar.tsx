@@ -68,7 +68,10 @@ export function Omnibar() {
   // Begriffe des Glossars kommen nach dem Start nach; danach den Index einmal neu bauen.
   const [glossarDa, setGlossarDa] = useState(false);
   useEffect(() => { let an = true; fachmodulBereit().then(() => { if (an) setGlossarDa(true); }, () => undefined); return () => { an = false; }; }, []);
-  const index = useMemo(() => buildIndex(moduleId, roles, quellen), [moduleId, roles, quellen, glossarDa]);
+  // Suchindex erst beim ersten Suchwort bauen, nicht bei jedem Start (kostete auf älteren iPhones rund 0,3 s).
+  const index = useMemo(() => { let t: Trie<Hit> | undefined; return () => (t ??= buildIndex(moduleId, roles, quellen)); },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [moduleId, roles, quellen, glossarDa]);
   const debounced = useDebounced(query, 250);
   const merk = useStore(merkliste, (m) => m);
   // Leeres Feld: Favoriten und zuletzt genutzte Seiten statt einer leeren Liste.
@@ -80,7 +83,7 @@ export function Omnibar() {
   // Bei Eingabe führt der letzte Eintrag in den Schnellsucher (Tippfehler, Synonyme, Kriterien der Standards)
   const hits = useMemo(() => {
     if (!debounced) return start;
-    const h = index.search(debounced, 12);
+    const h = index().search(debounced, 12);
     const q = debounced.trim();
     return q.length >= 2 ? [...h, { id: 'schnellsuche', type: 'Seite' as const, label: `„${q}“ in Standards suchen`, hint: 'Standard-Schnellsucher', to: `/lernen/schnellsuche?q=${encodeURIComponent(q)}` }] : h;
   }, [index, debounced, start]);

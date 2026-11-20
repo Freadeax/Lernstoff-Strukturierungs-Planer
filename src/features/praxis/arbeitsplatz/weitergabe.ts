@@ -3,10 +3,11 @@
 // Erwartet wird nur, was im Spiel vorkam: Werte, die sichtbar waren, eigene Maßnahmen, erhaltene Anordnungen.
 // Links tragen nur „neu:<fall>“; der Stand liegt im Gerätespeicher des Arbeitsplatzes (nur Eingaben, Replay).
 
+import { useEffect, useState } from 'react';
 import type { BerichtFall, Kernpunkt as BerichtPunkt } from '../../bericht/faelle';
 import type { Fall as UebergabeFall, Kernpunkt as UebergabePunkt } from '../../uebergabe/faelle';
 import { massnahmenIn, protokoll } from '../kern/auswertung';
-import { FAELLE_V2 } from '../kern/faelle';
+import { ladeFall } from '../kern/faelle/laden';
 import { alarmFuer } from '../kern/physiologie/altersprofile';
 import { anzeige, massnahme, replay, type SimZustand } from '../kern/kern';
 import type { Anzeige, FallV2 } from '../kern/typen';
@@ -18,14 +19,36 @@ export const NEU_PRAEFIX = 'neu:';
 export const weiterLinkNeu = (ziel: 'uebergabe' | 'bericht' | 'pflegeplanung', fall: Pick<FallV2, 'id'>) =>
   `#/lernen/dokumentation?teil=${ziel}&aus=praxis&sitzung=${encodeURIComponent(NEU_PRAEFIX + fall.id)}`;
 
+/** Fall-ID aus „neu:<fall>“, sonst null. */
+export const neuFallId = (id: string | null | undefined): string | null => (id?.startsWith(NEU_PRAEFIX) ? id.slice(NEU_PRAEFIX.length) : null);
+
 /** Abgeschlossenen Fall des neuen Arbeitsplatzes wiederherstellen (null, wenn nicht gespeichert oder nicht abgeschlossen). */
-export function findeNeu(id: string | null | undefined, faelle: readonly FallV2[] = FAELLE_V2): SimZustand | null {
-  if (!id?.startsWith(NEU_PRAEFIX)) return null;
-  const fall = faelle.find((f) => f.id === id.slice(NEU_PRAEFIX.length));
+export function findeNeu(id: string | null | undefined, faelle: readonly FallV2[]): SimZustand | null {
+  const fallId = neuFallId(id);
+  const fall = fallId ? faelle.find((f) => f.id === fallId) : undefined;
   const g = fall ? lies(fall) : null;
   if (!fall || !g) return null;
   const z = replay(fall, g.rolle, g.stufe, g.seed, g.eingaben);
   return z.abschluss ? z : null;
+}
+
+/** Wie findeNeu, lädt aber nur den einen Fall (Audit L-3). */
+export async function ladeNeu(id: string | null | undefined): Promise<SimZustand | null> {
+  const fall = await ladeFall(neuFallId(id)).catch(() => undefined);
+  return fall ? findeNeu(id, [fall]) : null;
+}
+
+/** Für Seiten: undefined, solange der Fall lädt; danach der Zustand oder null. */
+export function useNeu(id: string | null | undefined): SimZustand | null | undefined {
+  const [stand, setStand] = useState<{ id: typeof id; z: SimZustand | null | undefined }>(() => ({ id, z: neuFallId(id) ? undefined : null }));
+  useEffect(() => {
+    if (!neuFallId(id)) { setStand({ id, z: null }); return; }
+    let an = true;
+    setStand({ id, z: undefined });
+    ladeNeu(id).then((z) => { if (an) setStand({ id, z }); });
+    return () => { an = false; };
+  }, [id]);
+  return stand.id === id ? stand.z : (neuFallId(id) ? undefined : null);
 }
 
 const SETTING: Record<FallV2['setting'], string> = {
