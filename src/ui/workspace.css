@@ -112,6 +112,7 @@ input[aria-invalid='true'], select[aria-invalid='true'], textarea[aria-invalid='
 .tool-link > svg { position: absolute; top: 30px; right: 18px; color: var(--color-text-muted); }
 .dashboard-insights { display: flex; flex-direction: column; gap: 16px; }
 .dashboard-insights .section-heading { margin-bottom: 0; }
+.dashboard-insights__leer { margin: 0; padding: var(--space-4); color: var(--color-text-muted); }
 
 /* Alle Module folgen derselben ruhigen Formensprache. */
 .card, .widget { border-radius: 12px; box-shadow: none; }

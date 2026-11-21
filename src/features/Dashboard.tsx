@@ -1,3 +1,6 @@
+import { useEffect, useState } from 'react';
+import { liveQuery } from 'dexie';
+import { db } from '../core/db';
 import { geraet } from '../core/geraetestand';
 import { WidgetGrid } from '../ui/widget/Dashboard';
 import { FilterBar } from '../widgets/filter/FilterBar';
@@ -52,6 +55,32 @@ function Schnellwege() {
   );
 }
 
+/** Gibt es schon irgendetwas, das der Überblick zeigen kann? `undefined`, solange die Datenbank antwortet. */
+function useHatLerndaten(): boolean | undefined {
+  const [da, setDa] = useState<boolean>();
+  useEffect(() => {
+    const sub = liveQuery(async () => (await Promise.all([db.activity.count(), db.documents.count(), db.summaries.count(), db.board.count()])).some((n) => n > 0))
+      .subscribe({ next: setDa, error: () => setDa(true) });
+    return () => sub.unsubscribe();
+  }, []);
+  return da;
+}
+
+/** Überblick mit Filter und Kennzahlen erst, wenn es etwas zu zeigen gibt. Vorher ein kurzer Satz statt drei leerer Karten (Audit U-1). */
+function Ueberblick() {
+  const da = useHatLerndaten();
+  if (da === undefined) return null;
+  return (
+    <section className="dashboard-insights" aria-labelledby="insights-title">
+      <div className="section-heading"><div><p className="eyebrow">Dein Überblick</p><h2 id="insights-title">Fortschritt wird sichtbar.</h2></div></div>
+      {da ? <>
+        <FilterBar />
+        <WidgetGrid widgets={[WIDGETS.kpi, WIDGETS.charts, WIDGETS.feed]} />
+      </> : <p className="card dashboard-insights__leer">Sobald du lernst oder Material hinzufügst, stehen hier Kennzahlen, Verlauf und deine letzten Schritte.</p>}
+    </section>
+  );
+}
+
 export function Dashboard() {
   const date = new Intl.DateTimeFormat('de-DE', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'Europe/Berlin' }).format(new Date());
   return (
@@ -71,11 +100,7 @@ export function Dashboard() {
           <span className="tool-link__icon"><Icon name={t.icon} size={22} /></span><span className="tool-link__tag">{t.tag}</span><h3>{t.title}</h3><p>{t.text}</p><Icon name="chevronRight" size={18} />
         </a>)}</div>
       </section>
-      <section className="dashboard-insights" aria-labelledby="insights-title">
-        <div className="section-heading"><div><p className="eyebrow">Dein Überblick</p><h2 id="insights-title">Fortschritt wird sichtbar.</h2></div></div>
-        <FilterBar />
-        <WidgetGrid widgets={[WIDGETS.kpi, WIDGETS.charts, WIDGETS.feed]} />
-      </section>
+      <Ueberblick />
       <SicherungsHinweis />
     </section>
   );
