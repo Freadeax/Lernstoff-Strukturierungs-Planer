@@ -37,6 +37,24 @@
     (document.body || document.documentElement).appendChild(box);
   }
 
+  // In einem fremden Rahmen (iframe) gar nicht starten: Schutz vor untergeschobenen Klicks auch dort,
+  // wo der Server kein X-Frame-Options/frame-ancestors senden kann (GitHub Pages, Audit D-1).
+  var fremderRahmen = false;
+  try { fremderRahmen = window.top !== window.self; } catch (e) { fremderRahmen = true; }
+  if (fremderRahmen) {
+    window.__browserZuAlt = true;
+    window.__fremderRahmen = true;
+    var zeigeRahmen = function () {
+      var p = document.createElement('p');
+      p.id = 'rahmen-hinweis';
+      p.textContent = 'Der Lernstoff-Planer läuft nur direkt im Browser, nicht eingebettet in einer anderen Seite.';
+      p.style.cssText = 'margin:2em;font:16px/1.5 system-ui,sans-serif';
+      (document.body || document.documentElement).appendChild(p);
+    };
+    if (document.body) zeigeRahmen(); else document.addEventListener('DOMContentLoaded', zeigeRahmen);
+    return;
+  }
+
   if (fehlt.length) {
     // Die App gar nicht erst starten lassen: sie würde nur halb laufen.
     window.__browserZuAlt = true;

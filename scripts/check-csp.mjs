@@ -55,8 +55,49 @@ try {
   try { await page.getByText(/per Texterkennung/).first().waitFor({ timeout: 120000 }); }
   catch { verstoesse.push(`${route}: Texterkennung lief nicht durch (Worker oder WASM blockiert?)`); }
   await ctx.close();
+
+  // Wie auf GitHub Pages: ohne Sicherheitsheader. Dann muss die CSP aus dem <meta> in index.html greifen (Audit D-1).
+  const gh = await browser.newContext({ locale: 'de-DE' });
+  await gh.route('**/*', async (r) => {
+    const antwort = await r.fetch();
+    const h = { ...antwort.headers() };
+    for (const k of ['content-security-policy', 'x-frame-options', 'referrer-policy', 'permissions-policy', 'cross-origin-opener-policy']) delete h[k];
+    await r.fulfill({ response: antwort, headers: h });
+  });
+  await gh.addInitScript(() => {
+    addEventListener('securitypolicyviolation', (e) => console.error(`CSP-Verstoß: ${e.violatedDirective} ${e.blockedURI}`));
+  });
+  const gp = await gh.newPage();
+  gp.setDefaultTimeout(15000);
+  route = 'ohne Header';
+  const metaVerstoesse = [];
+  gp.on('console', (m) => { if (/Content Security Policy|CSP-Verstoß/.test(m.text())) metaVerstoesse.push(`${route}: ${m.text()}`); });
+  gp.on('pageerror', (e) => verstoesse.push(`ohne Header ${route}: Laufzeitfehler ${e.message}`));
+  for (route of routes) {
+    await gp.goto(base + '#' + route, { waitUntil: 'networkidle' });
+    await gp.waitForTimeout(100);
+  }
+  for (const v of metaVerstoesse) verstoesse.push(`ohne Header ${v}`);
+  // Wirkt die CSP aus dem <meta> wirklich? Ein eingeschleustes Inline-Skript muss blockiert werden.
+  const meta = await gp.evaluate(() => document.querySelector('meta[http-equiv="Content-Security-Policy"]')?.getAttribute('content') ?? '');
+  if (!/script-src 'self'/.test(meta) || /frame-ancestors/.test(meta)) verstoesse.push(`ohne Header: <meta>-CSP fehlt oder falsch: ${meta || 'fehlt'}`);
+  const blockiert = await gp.evaluate(() => new Promise((ok) => {
+    addEventListener('securitypolicyviolation', () => ok(true), { once: true });
+    const s = document.createElement('script'); s.textContent = 'window.__eingeschleust = 1'; document.head.appendChild(s);
+    setTimeout(() => ok(!(window).__eingeschleust), 500);
+  }));
+  if (!blockiert) verstoesse.push('ohne Header: eingeschleustes Inline-Skript lief trotz <meta>-CSP');
+  // Eingebettet in eine fremde Seite: die App startet nicht, sondern zeigt einen Hinweis.
+  const rahmen = await gh.newPage();
+  await rahmen.setContent(`<iframe src="${base}" width="400" height="300"></iframe>`);
+  const f = rahmen.frames().find((x) => x !== rahmen.mainFrame());
+  try {
+    await f.waitForSelector('#rahmen-hinweis', { timeout: 10000 });
+    if (await f.locator('#root *').count()) verstoesse.push('eingebettet: App startet trotz fremdem Rahmen');
+  } catch { verstoesse.push('eingebettet: kein Hinweis „nicht eingebettet“'); }
+  await gh.close();
 } finally {
   await browser.close();
 }
 if (verstoesse.length) { console.error([...new Set(verstoesse)].join('\n')); process.exit(1); }
-console.log(`CSP ok: ${routes.length} Seiten und ein PDF-Scan-Import ohne Verstoß.`);
+console.log(`CSP ok: ${routes.length} Seiten und ein PDF-Scan-Import ohne Verstoß; ohne Header (wie GitHub Pages) greift die CSP aus index.html, Einbetten in fremde Seiten wird abgewiesen.`);

@@ -49,6 +49,33 @@ function fachmodulTeilen(): Plugin {
   };
 }
 
+/**
+ * Sicherheitsregeln auch dort, wo keine Header gesetzt werden können (GitHub Pages ignoriert public/_headers, Audit D-1):
+ * dieselbe Content Security Policy wie in _headers als <meta> in index.html. Ohne frame-ancestors (im <meta> wirkungslos,
+ * dafür prüft browser-pruefung.js, ob die Seite in einem fremden Rahmen läuft) und ohne upgrade-insecure-requests
+ * (die echten Adressen sind https; lokal würde Safari sonst 127.0.0.1 auf https umschreiben). Nur im Build,
+ * damit der Entwicklungsserver mit Hot Reload weiter läuft. Auf Cloudflare gelten Header und <meta> zusammen.
+ */
+export function cspAusHeaders(headers: string): string {
+  const zeile = headers.split('\n').find((z) => /^\s+Content-Security-Policy:/.test(z));
+  if (!zeile) throw new Error('public/_headers: keine Content-Security-Policy gefunden');
+  return zeile.slice(zeile.indexOf(':') + 1).split(';').map((t) => t.trim())
+    .filter((t) => t && !/^(frame-ancestors|upgrade-insecure-requests|report-uri|sandbox)\b/.test(t)).join('; ');
+}
+function sicherheitImHtml(): Plugin {
+  return {
+    name: 'sicherheit-im-html',
+    apply: 'build',
+    transformIndexHtml() {
+      const csp = cspAusHeaders(fs.readFileSync('public/_headers', 'utf8'));
+      return [
+        { tag: 'meta', attrs: { 'http-equiv': 'Content-Security-Policy', content: csp }, injectTo: 'head-prepend' },
+        { tag: 'meta', attrs: { name: 'referrer', content: 'no-referrer' }, injectTo: 'head-prepend' },
+      ];
+    },
+  };
+}
+
 /** Eine Build-ID für den ganzen Build: im Code (__BUILD_ID__) und in version.json müssen sie gleich sein. */
 const BUILD_ID = process.env.LERNSTOFF_BUILD_ID || buildId();
 
@@ -115,6 +142,7 @@ export default defineConfig({
   plugins: [
     fachmodulTeilen(),
     versionsDatei(),
+    sicherheitImHtml(),
     vorabCacheAuswahl(),
     react(),
     VitePWA({
