@@ -34,6 +34,8 @@ try {
     // Pilotfall gezielt über seinen Titel öffnen (Fallauswahl nach CE, P15: steht unter CE 02 und CE 09).
     await p.locator('.praxis-fall', { hasText: 'Ich bin nur kurz hingesessen' }).first().getByRole('button', { name: 'Neu üben' }).click();
     await p.getByRole('radio', { name: /2\. Drittel/ }).check();
+    // Erst messen, wenn Übergänge fertig sind; unter Last lief die Messung sonst mitten in die Einblend-Animation.
+    await p.evaluate(() => Promise.all(document.getAnimations().filter((a) => a.effect?.getTiming().iterations !== Infinity).map((a) => a.finished.catch(() => undefined))));
     for (const box of await p.locator('.ap-briefing__rolle label').all()) {
       const [r, l] = [await box.locator('input').boundingBox(), await box.boundingBox()];
       assert.ok(r && l && r.width <= 26 && r.x - l.x < 4, `${w}: Radio-Knopf steht links im Rahmen`);
