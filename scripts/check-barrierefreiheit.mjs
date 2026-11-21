@@ -85,6 +85,22 @@ try {
   await page.getByRole('button', { name: 'Fall starten' }).click();
   await page.waitForTimeout(500);
   await ablauf('Labor und Bildgebung, Fall');
+  await page.goto(base + '#/lernen/gespraech', { waitUntil: 'networkidle' });
+  await page.locator('main button.primary').first().click();
+  await page.waitForTimeout(600);
+  await ablauf('Gesprächssimulator, Gespräch');
+  await page.goto(base + '#/lernen/praxis?art=kurz', { waitUntil: 'networkidle' });
+  await page.locator('main button', { hasText: /^Starten$/ }).first().click();
+  await page.waitForTimeout(800);
+  await ablauf('Praxissimulator, Kurzfall');
+  await page.goto(base + '#/lernen/krankheitsbilder', { waitUntil: 'networkidle' });
+  await page.locator('main button', { hasText: /^Fallaufgaben/ }).first().click();
+  await page.waitForTimeout(400);
+  await ablauf('Krankheitsbilder, Fallaufgaben');
+  await page.goto(base + '#/lernen/examen', { waitUntil: 'networkidle' });
+  await page.locator('main button, main a', { hasText: /^Probeprüfung zu I$/ }).first().click();
+  await page.waitForTimeout(600);
+  await ablauf('Examen, Probeprüfung');
 
   // Dunkler Modus: axe auf allen Seiten (Kontraste kippen sonst unbemerkt).
   const dunkel = await browser.newContext({ viewport: { width: 390, height: 844 }, colorScheme: 'dark', locale: 'de-DE', timezoneId: 'Europe/Berlin' });
